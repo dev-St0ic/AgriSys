@@ -5,8 +5,13 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 
 // Redirect root to login
+// Route::get('/', function () {
+//     return redirect('/login');
+// });
+
+// Show landing page on root
 Route::get('/', function () {
-    return redirect('/login');
+    return view('landingPage.landing');
 });
 
 // Authentication Routes
