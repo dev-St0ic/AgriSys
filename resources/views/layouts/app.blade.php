@@ -17,133 +17,125 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         }
-
         .sidebar .nav-link {
             color: #ecf0f1;
             border-radius: 0.5rem;
             margin: 0.2rem 0;
             transition: all 0.3s ease;
         }
-
         .sidebar .nav-link:hover {
             background-color: rgba(52, 152, 219, 0.2);
             color: #3498db;
         }
-
         .sidebar .nav-link.active {
             background-color: #3498db;
             color: white;
         }
-
         .main-content {
             background-color: #f8f9fa;
             min-height: 100vh;
         }
-
         .card {
             border: none;
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         }
-
         .btn-primary {
             background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             border: none;
         }
-
         .btn-primary:hover {
             background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
         }
     </style>
 </head>
-
 <body>
     <div class="container-fluid">
-        <div class="row">
-            @auth
-                <!-- Sidebar -->
-                <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                    <div class="position-sticky pt-3">
-                        <div class="text-center mb-4">
-                            <h4 class="text-white">
-                                <i class="fas fa-seedling me-2"></i>AgriSys
+           <div class="row">
+              @auth
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                        <div class="text-center  mb-4">
+                           <h4 class="text-white">
+                              <i class="fas fa-seedling me-2"></i>AgriSys
                             </h4>
-                            <small class="text-muted">
-                                {{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Admin' }}
-                            </small>
-                        </div>
+                        <small class="text-muted">
+                            {{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Admin' }}  
+                          </small>
+                       </div>
 
-                        <ul class="nav flex-column">
+                     <ul class="nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
-                                    href="{{ route('admin.dashboard') }}">
-                                    <i class="fas fa-tachometer-alt me-2"></i>
-                                    Dashboard
-                                </a>
-                            </li>
-
-                            @if (auth()->user()->isSuperAdmin())
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}"
-                                        href="{{ route('admin.admins.index') }}">
-                                        <i class="fas fa-users-cog me-2"></i>
-                                        Manage Admins
-                                    </a>
+                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                               href="{{ route('admin.dashboard') }}">
+                                 <i class="fas fa-tachometer-alt me-2"></i>
+                                 Dashboard
+                              </a>
                                 </li>
-                            @endif
-                        </ul>
+
+                        @if(auth()->user()->isSuperAdmin())        
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}"
+                                    href="{{ route('admin.admins.index') }}">
+                                   <i class="fas fa-users-cog me-2"></i>
+                                         Manage Admins
+                                 </a>
+                            </li>
+                           @endif
+                     </ul>
 
                         <hr class="text-white">
 
-                        <div class="nav-item">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="nav-link btn btn-link text-start">
-                                    <i class="fas fa-sign-out-alt me-2"></i>
-                                    Logout
-                                </button>
-                            </form>
-                        </div>
+                    <div class="nav-item">
+                             <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                              <button type="submit" class="nav-link btn btn-link text-start">
+                                     <i class="fas fa-sign-out-alt me-2"></i>
+                                     Logout
+                                   </button>
+                         </form>
                     </div>
-                </nav>
+                </div>
+            </nav>
             @endauth
 
             <!-- Main content -->
-            <main class="@auth col-md-9 @else col-12 @endauth ms-sm-auto col-lg-10 px-md-4 main-content">
+            <main class="@auth col-md-9 @else col-12 @endauth ms-sm-auto col-lg-10 
+                px-md-4 main-content">
                 @auth
-                    <!-- Top navbar -->
-                    <div
-                        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">@yield('page-title', 'Dashboard')</h1>
+                <!-- Top navbar -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">@yield('page-title', 'Dashboard')</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user me-2"></i>{{ auth()->user()->name }}
-                                </button>
-                                <ul class="dropdown-menu">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                     <i class="fas fa-user me-2"></i>{{ auth()->user()->name }}
+                                 </button>
+                            <ul class="dropdown-menu">
                                     <li>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                         @csrf
+                                           <button type="submit" class="dropdown-item">
+                                                 <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                           </button>
+                                         </form>
+                                      </li>
+                            </ul>
                         </div>
-                    </div>
+                     </div>
+                </div>
                 @endauth
 
                 <!-- Flash messages -->
-                @if (session('success'))
+                @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type= "button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
 
-                @if (session('error'))
+                @if(session('error'))
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -156,9 +148,9 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
+    <!-- Boo
+tstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @yield('scripts')
 </body>
-
 </html>

@@ -112,6 +112,10 @@
                     </h6>
                 </div>
                 <div class="card-body">
+                    <a href="{{ route('landing.page') }}" target="_blank" class="btn btn-info mb-2 me-2">
+                        <i class="fas fa-home me-2"></i>Access Landing Page
+                    </a>
+                    
                     @if ($user->isSuperAdmin())
                         <a href="{{ route('admin.admins.index') }}" class="btn btn-primary mb-2 me-2">
                             <i class="fas fa-users-cog me-2"></i>Manage Admins
@@ -164,6 +168,61 @@
                             <span class="badge bg-{{ $user->isSuperAdmin() ? 'danger' : 'primary' }}">
                                 {{ $user->isSuperAdmin() ? 'Super Admin' : 'Admin' }}
                             </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Management Card -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-cogs me-2"></i>System Management
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Landing Page -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 border-left-info">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-home me-2"></i>Landing Page</h5>
+                                    <p class="card-text">Access the public landing page and registration forms.</p>
+                                    <a href="{{ route('landing.page') }}" target="_blank" class="btn btn-info">
+                                        <i class="fas fa-external-link-alt me-2"></i>View Landing Page
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Applications -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 border-left-success">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-file-alt me-2"></i>Applications</h5>
+                                    <p class="card-text">Manage incoming applications from citizens.</p>
+                                    <button class="btn btn-success" disabled>
+                                        <i class="fas fa-list me-2"></i>View Applications
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Settings -->
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 border-left-warning">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-cog me-2"></i>System Settings</h5>
+                                    <p class="card-text">Configure system settings and preferences.</p>
+                                    <button class="btn btn-warning" disabled>
+                                        <i class="fas fa-cogs me-2"></i>Settings
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
