@@ -115,7 +115,7 @@
                     <a href="{{ route('landing.page') }}" target="_blank" class="btn btn-info mb-2 me-2">
                         <i class="fas fa-home me-2"></i>Access Landing Page
                     </a>
-                    
+
                     @if ($user->isSuperAdmin())
                         <a href="{{ route('admin.admins.index') }}" class="btn btn-primary mb-2 me-2">
                             <i class="fas fa-users-cog me-2"></i>Manage Admins
