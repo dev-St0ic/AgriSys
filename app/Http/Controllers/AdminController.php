@@ -15,7 +15,9 @@ class AdminController extends Controller
     public function index()
     {
         // Only superadmin can manage admins
-        if (!Auth::user()->isSuperAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->isSuperAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -28,7 +30,9 @@ class AdminController extends Controller
      */
     public function create()
     {
-        if (!Auth::user()->isSuperAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->isSuperAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -40,7 +44,9 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::user()->isSuperAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->isSuperAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -67,7 +73,9 @@ class AdminController extends Controller
      */
     public function show(User $admin)
     {
-        if (!Auth::user()->isSuperAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->isSuperAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -79,7 +87,9 @@ class AdminController extends Controller
      */
     public function edit(User $admin)
     {
-        if (!Auth::user()->isSuperAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->isSuperAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -91,7 +101,9 @@ class AdminController extends Controller
      */
     public function update(Request $request, User $admin)
     {
-        if (!Auth::user()->isSuperAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->isSuperAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -121,7 +133,9 @@ class AdminController extends Controller
      */
     public function destroy(User $admin)
     {
-        if (!Auth::user()->isSuperAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->isSuperAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 

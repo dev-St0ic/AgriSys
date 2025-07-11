@@ -20,7 +20,9 @@ class AdminMiddleware
             return redirect('/login');
         }
 
-        if (!Auth::user()->hasAdminPrivileges()) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->hasAdminPrivileges()) {
             abort(403, 'Unauthorized access.');
         }
 
