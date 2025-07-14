@@ -88,6 +88,13 @@
                                         Seedling Requests
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}"
+                                        href="{{ route('admin.inventory.index') }}">
+                                        <i class="fas fa-warehouse me-2"></i>
+                                        Inventory Management
+                                    </a>
+                                </li>
                                 @if (auth()->user()->isSuperAdmin())
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}"

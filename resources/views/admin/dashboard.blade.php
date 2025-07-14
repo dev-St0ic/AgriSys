@@ -100,7 +100,70 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Inventory Items
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalInventoryItems }}</div>
+                            @if($lowStockItems > 0 || $outOfStockItems > 0)
+                                <div class="text-xs text-danger">
+                                    {{ $outOfStockItems }} out, {{ $lowStockItems }} low
+                                </div>
+                            @endif
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-warehouse fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Inventory Alerts -->
+    @if($lowStockItems > 0 || $outOfStockItems > 0)
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-warning border-left-warning shadow" role="alert">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="alert-heading mb-2">
+                                <i class="fas fa-warehouse me-2"></i>Inventory Alerts
+                            </h5>
+                            @if($outOfStockItems > 0)
+                                <p class="mb-1">
+                                    <strong class="text-danger">⚠ {{ $outOfStockItems }} item(s) are out of stock</strong>
+                                </p>
+                            @endif
+                            @if($lowStockItems > 0)
+                                <p class="mb-1">
+                                    <strong class="text-warning">⚠ {{ $lowStockItems }} item(s) have low stock</strong>
+                                </p>
+                            @endif
+                            <p class="mb-0">
+                                <small class="text-muted">
+                                    Review your inventory to ensure seedling requests can be fulfilled.
+                                </small>
+                            </p>
+                        </div>
+                        <div>
+                            <a href="{{ route('admin.inventory.index') }}" class="btn btn-warning">
+                                <i class="fas fa-eye me-2"></i>View Inventory
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="row">
         <!-- Quick Actions -->
@@ -114,6 +177,12 @@
                 <div class="card-body">
                     <a href="{{ route('landing.page') }}" target="_blank" class="btn btn-info mb-2 me-2">
                         <i class="fas fa-home me-2"></i>Access Landing Page
+                    </a>
+                    <a href="{{ route('admin.inventory.index') }}" class="btn btn-secondary mb-2 me-2">
+                        <i class="fas fa-warehouse me-2"></i>Manage Inventory
+                    </a>
+                    <a href="{{ route('admin.seedling.requests') }}" class="btn btn-primary mb-2 me-2">
+                        <i class="fas fa-seedling me-2"></i>Seedling Requests
                     </a>
 
                     @if ($user->isSuperAdmin())

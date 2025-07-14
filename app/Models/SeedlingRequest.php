@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Inventory;
 
 class SeedlingRequest extends Model
 {
@@ -136,5 +137,254 @@ class SeedlingRequest extends Model
         }
         
         return null;
+    }
+
+    /**
+     * Check inventory availability for this request
+     */
+    public function checkInventoryAvailability(): array
+    {
+        $availableItems = [];
+        $unavailableItems = [];
+        $canFulfill = true;
+        
+        // Check vegetables
+        if (!empty($this->vegetables)) {
+            foreach ($this->vegetables as $vegetable) {
+                $inventory = Inventory::where('item_name', $vegetable['name'])
+                    ->where('category', 'vegetables')
+                    ->where('is_active', true)
+                    ->first();
+                
+                if (!$inventory) {
+                    $unavailableItems[] = [
+                        'name' => $vegetable['name'],
+                        'needed' => $vegetable['quantity'],
+                        'available' => 0
+                    ];
+                    $canFulfill = false;
+                } elseif ($inventory->current_stock < $vegetable['quantity']) {
+                    $unavailableItems[] = [
+                        'name' => $vegetable['name'],
+                        'needed' => $vegetable['quantity'],
+                        'available' => $inventory->current_stock
+                    ];
+                    $canFulfill = false;
+                } else {
+                    $availableItems[] = [
+                        'name' => $vegetable['name'],
+                        'needed' => $vegetable['quantity'],
+                        'available' => $inventory->current_stock
+                    ];
+                }
+            }
+        }
+        
+        // Check fruits
+        if (!empty($this->fruits)) {
+            foreach ($this->fruits as $fruit) {
+                $inventory = Inventory::where('item_name', $fruit['name'])
+                    ->where('category', 'fruits')
+                    ->where('is_active', true)
+                    ->first();
+                
+                if (!$inventory) {
+                    $unavailableItems[] = [
+                        'name' => $fruit['name'],
+                        'needed' => $fruit['quantity'],
+                        'available' => 0
+                    ];
+                    $canFulfill = false;
+                } elseif ($inventory->current_stock < $fruit['quantity']) {
+                    $unavailableItems[] = [
+                        'name' => $fruit['name'],
+                        'needed' => $fruit['quantity'],
+                        'available' => $inventory->current_stock
+                    ];
+                    $canFulfill = false;
+                } else {
+                    $availableItems[] = [
+                        'name' => $fruit['name'],
+                        'needed' => $fruit['quantity'],
+                        'available' => $inventory->current_stock
+                    ];
+                }
+            }
+        }
+        
+        // Check fertilizers
+        if (!empty($this->fertilizers)) {
+            foreach ($this->fertilizers as $fertilizer) {
+                $inventory = Inventory::where('item_name', $fertilizer['name'])
+                    ->where('category', 'fertilizers')
+                    ->where('is_active', true)
+                    ->first();
+                
+                if (!$inventory) {
+                    $unavailableItems[] = [
+                        'name' => $fertilizer['name'],
+                        'needed' => $fertilizer['quantity'],
+                        'available' => 0
+                    ];
+                    $canFulfill = false;
+                } elseif ($inventory->current_stock < $fertilizer['quantity']) {
+                    $unavailableItems[] = [
+                        'name' => $fertilizer['name'],
+                        'needed' => $fertilizer['quantity'],
+                        'available' => $inventory->current_stock
+                    ];
+                    $canFulfill = false;
+                } else {
+                    $availableItems[] = [
+                        'name' => $fertilizer['name'],
+                        'needed' => $fertilizer['quantity'],
+                        'available' => $inventory->current_stock
+                    ];
+                }
+            }
+        }
+        
+        return [
+            'can_fulfill' => $canFulfill,
+            'available_items' => $availableItems,
+            'unavailable_items' => $unavailableItems
+        ];
+    }
+
+    /**
+     * Deduct inventory when request is approved
+     */
+    public function deductFromInventory(): bool
+    {
+        \DB::beginTransaction();
+        
+        try {
+            // Deduct vegetables
+            if (!empty($this->vegetables)) {
+                foreach ($this->vegetables as $vegetable) {
+                    $inventory = Inventory::where('item_name', $vegetable['name'])
+                        ->where('category', 'vegetables')
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($inventory && $inventory->current_stock >= $vegetable['quantity']) {
+                        $inventory->decrement('current_stock', $vegetable['quantity']);
+                        $inventory->update(['updated_by' => auth()->id()]);
+                    } else {
+                        throw new \Exception("Insufficient stock for {$vegetable['name']}");
+                    }
+                }
+            }
+            
+            // Deduct fruits
+            if (!empty($this->fruits)) {
+                foreach ($this->fruits as $fruit) {
+                    $inventory = Inventory::where('item_name', $fruit['name'])
+                        ->where('category', 'fruits')
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($inventory && $inventory->current_stock >= $fruit['quantity']) {
+                        $inventory->decrement('current_stock', $fruit['quantity']);
+                        $inventory->update(['updated_by' => auth()->id()]);
+                    } else {
+                        throw new \Exception("Insufficient stock for {$fruit['name']}");
+                    }
+                }
+            }
+            
+            // Deduct fertilizers
+            if (!empty($this->fertilizers)) {
+                foreach ($this->fertilizers as $fertilizer) {
+                    $inventory = Inventory::where('item_name', $fertilizer['name'])
+                        ->where('category', 'fertilizers')
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($inventory && $inventory->current_stock >= $fertilizer['quantity']) {
+                        $inventory->decrement('current_stock', $fertilizer['quantity']);
+                        $inventory->update(['updated_by' => auth()->id()]);
+                    } else {
+                        throw new \Exception("Insufficient stock for {$fertilizer['name']}");
+                    }
+                }
+            }
+            
+            \DB::commit();
+            return true;
+            
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error('Inventory deduction failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Restore inventory when request is rejected or cancelled
+     */
+    public function restoreToInventory(): bool
+    {
+        \DB::beginTransaction();
+        
+        try {
+            // Only restore if the request was previously approved
+            if ($this->status !== 'approved') {
+                return true; // Nothing to restore
+            }
+            
+            // Restore vegetables
+            if (!empty($this->vegetables)) {
+                foreach ($this->vegetables as $vegetable) {
+                    $inventory = Inventory::where('item_name', $vegetable['name'])
+                        ->where('category', 'vegetables')
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($inventory) {
+                        $inventory->increment('current_stock', $vegetable['quantity']);
+                        $inventory->update(['updated_by' => auth()->id()]);
+                    }
+                }
+            }
+            
+            // Restore fruits
+            if (!empty($this->fruits)) {
+                foreach ($this->fruits as $fruit) {
+                    $inventory = Inventory::where('item_name', $fruit['name'])
+                        ->where('category', 'fruits')
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($inventory) {
+                        $inventory->increment('current_stock', $fruit['quantity']);
+                        $inventory->update(['updated_by' => auth()->id()]);
+                    }
+                }
+            }
+            
+            // Restore fertilizers
+            if (!empty($this->fertilizers)) {
+                foreach ($this->fertilizers as $fertilizer) {
+                    $inventory = Inventory::where('item_name', $fertilizer['name'])
+                        ->where('category', 'fertilizers')
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($inventory) {
+                        $inventory->increment('current_stock', $fertilizer['quantity']);
+                        $inventory->update(['updated_by' => auth()->id()]);
+                    }
+                }
+            }
+            
+            \DB::commit();
+            return true;
+            
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error('Inventory restoration failed: ' . $e->getMessage());
+            return false;
+        }
     }
 }

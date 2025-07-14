@@ -77,6 +77,19 @@ class AuthController extends Controller
         $totalSuperAdmins = User::where('role', 'superadmin')->count();
         $totalUsers = User::where('role', 'user')->count();
 
-        return view('admin.dashboard', compact('user', 'totalAdmins', 'totalSuperAdmins', 'totalUsers'));
+        // Get inventory statistics
+        $lowStockItems = \App\Models\Inventory::lowStock()->count();
+        $outOfStockItems = \App\Models\Inventory::outOfStock()->count();
+        $totalInventoryItems = \App\Models\Inventory::active()->count();
+
+        return view('admin.dashboard', compact(
+            'user', 
+            'totalAdmins', 
+            'totalSuperAdmins', 
+            'totalUsers',
+            'lowStockItems',
+            'outOfStockItems',
+            'totalInventoryItems'
+        ));
     }
 }

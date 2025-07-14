@@ -29,11 +29,11 @@ class ApplicationController extends Controller
 
             // Parse selected seedlings
             $selectedSeedlings = json_decode($validated['selected_seedlings'], true);
-            
+
             if (!$selectedSeedlings) {
                 throw new \Exception('Invalid seedlings selection data');
             }
-            
+
             // Handle file upload
             $documentPath = null;
             if ($request->hasFile('supporting_documents')) {
@@ -72,8 +72,8 @@ class ApplicationController extends Controller
                 ]);
             }
 
-            return redirect()->route('landing.page')->with('success', 
-                'Your seedling request has been submitted successfully! Request Number: ' . $seedlingRequest->request_number . 
+            return redirect()->route('landing.page')->with('success',
+                'Your seedling request has been submitted successfully! Request Number: ' . $seedlingRequest->request_number .
                 '. You will receive an SMS notification once your request is processed.'
             );
 
@@ -81,15 +81,15 @@ class ApplicationController extends Controller
             Log::error('Seedling request error: ' . $e->getMessage(), [
                 'request_data' => $request->all()
             ]);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'There was an error submitting your request. Please try again.'
                 ], 500);
             }
-            
-            return redirect()->back()->with('error', 
+
+            return redirect()->back()->with('error',
                 'There was an error submitting your request. Please try again.'
             )->withInput();
         }
@@ -101,22 +101,22 @@ class ApplicationController extends Controller
     private function formatSeedlingTypes($selectedSeedlings): string
     {
         $types = [];
-        
+
         if (!empty($selectedSeedlings['vegetables'])) {
             $vegNames = collect($selectedSeedlings['vegetables'])->pluck('name')->toArray();
             $types[] = 'Vegetables: ' . implode(', ', $vegNames);
         }
-        
+
         if (!empty($selectedSeedlings['fruits'])) {
             $fruitNames = collect($selectedSeedlings['fruits'])->pluck('name')->toArray();
             $types[] = 'Fruits: ' . implode(', ', $fruitNames);
         }
-        
+
         if (!empty($selectedSeedlings['fertilizers'])) {
             $fertNames = collect($selectedSeedlings['fertilizers'])->pluck('name')->toArray();
             $types[] = 'Fertilizers: ' . implode(', ', $fertNames);
         }
-        
+
         return implode(' | ', $types);
     }
 
