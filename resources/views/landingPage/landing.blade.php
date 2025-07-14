@@ -147,6 +147,10 @@
     </footer>
 
     <script src="{{ asset('js/landing.js') }}"></script>
+    <script src="{{ asset('js/seedlings.js') }}"></script>
+    <script src="{{ asset('js/rsbsa.js') }}"></script>
+    <script src="{{ asset('js/fishr.js') }}"></script>
+    <script src="{{ asset('js/boatr.js') }}"></script>
 </body>
 
 </html>

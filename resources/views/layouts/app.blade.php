@@ -60,106 +60,150 @@
     <div class="container-fluid">
         <div class="row">
             @auth
-                <!-- Sidebar -->
-                <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                    <div class="position-sticky pt-3">
-                        <div class="text-center  mb-4">
-                            <h4 class="text-white">
-                                <i class="fas fa-seedling me-2"></i>AgriSys
-                            </h4>
-                            <small class="text-muted">
-                                {{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Admin' }}
-                            </small>
-                        </div>
+                @if(auth()->check() && (request()->routeIs('admin.*') || request()->routeIs('dashboard')))
+                    <!-- Sidebar - Only show if authenticated AND on admin routes -->
+                    <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                        <div class="position-sticky pt-3">
+                            <div class="text-center mb-4">
+                                <h4 class="text-white">
+                                    <i class="fas fa-seedling me-2"></i>AgriSys
+                                </h4>
+                                <small class="text-muted">
+                                    {{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Admin' }}
+                                </small>
+                            </div>
 
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
-                                    href="{{ route('admin.dashboard') }}">
-                                    <i class="fas fa-tachometer-alt me-2"></i>
-                                    Dashboard
-                                </a>
-                            </li>
-
-                            @if (auth()->user()->isSuperAdmin())
+                            <ul class="nav flex-column">
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}"
-                                        href="{{ route('admin.admins.index') }}">
-                                        <i class="fas fa-users-cog me-2"></i>
-                                        Manage Admins
+                                    <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                                        href="{{ route('admin.dashboard') }}">
+                                        <i class="fas fa-tachometer-alt me-2"></i>
+                                        Dashboard
                                     </a>
                                 </li>
-                            @endif
-                        </ul>
-
-                        <hr class="text-white">
-
-                        <div class="nav-item">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="nav-link btn btn-link text-start">
-                                    <i class="fas fa-sign-out-alt me-2"></i>
-                                    Logout
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </nav>
-            @endauth
-
-            <!-- Main content -->
-            <main
-                class="@auth col-md-9 @else col-12 @endauth ms-sm-auto col-lg-10
-                px-md-4 main-content">
-                @auth
-                    <!-- Top navbar -->
-                    <div
-                        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">@yield('page-title', 'Dashboard')</h1>
-                        <div class="btn-toolbar mb-2 mb-md-0">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user me-2"></i>{{ auth()->user()->name }}
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">
-                                                <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                            </button>
-                                        </form>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.seedling.requests') ? 'active' : '' }}"
+                                        href="{{ route('admin.seedling.requests') }}">
+                                        <i class="fas fa-seedling me-2"></i>
+                                        Seedling Requests
+                                    </a>
+                                </li>
+                                @if (auth()->user()->isSuperAdmin())
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}"
+                                            href="{{ route('admin.admins.index') }}">
+                                            <i class="fas fa-users-cog me-2"></i>
+                                            Manage Admins
+                                        </a>
                                     </li>
-                                </ul>
+                                @endif
+                            </ul>
+
+                            <hr class="text-white">
+
+                            <div class="nav-item">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="nav-link btn btn-link text-start">
+                                        <i class="fas fa-sign-out-alt me-2"></i>
+                                        Logout
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                    </div>
-                @endauth
+                    </nav>
 
-                <!-- Flash messages -->
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                        <button type= "button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
+                    <!-- Main content with sidebar -->
+                    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                        <!-- Top navbar -->
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">@yield('page-title', 'Dashboard')</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-user me-2"></i>{{ auth()->user()->name }}
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <form method="POST" action="{{ route('logout') }}">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Flash messages -->
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
+                        <!-- Page content -->
+                        @yield('content')
+                    </main>
+                @else
+                    <!-- Authenticated but not on admin routes - full width -->
+                    <main class="col-12 main-content">
+                        <!-- Flash messages -->
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
+                        <!-- Page content -->
+                        @yield('content')
+                    </main>
                 @endif
+            @else
+                <!-- Not authenticated - full width, no sidebar -->
+                <main class="col-12 main-content">
+                    <!-- Flash messages -->
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
 
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
 
-                <!-- Page content -->
-                @yield('content')
-            </main>
+                    <!-- Page content -->
+                    @yield('content')
+                </main>
+            @endauth
         </div>
     </div>
 
-    <!-- Boo
-tstrap JS -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @yield('scripts')
 </body>
