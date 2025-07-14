@@ -28,7 +28,7 @@
                     <label>First Name</label>
                     <input type="text" placeholder="Enter your first name" required>
 
-                    <label>Middle Name</label>
+                    <label>Middle Name (Optional)</label>
                     <input type="text" placeholder="Enter your middle name">
 
                     <label>Last Name</label>

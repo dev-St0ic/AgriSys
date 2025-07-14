@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\SeedlingRequestController;
 
 // Redirect root to login
 // Route::get('/', function () {
@@ -30,8 +31,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('admin')->group(function () {
     Route::get('/admin/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
 
+    // Seedling Requests view
+    Route::get('/admin/seedling-requests', [SeedlingRequestController::class, 'index'])->name('admin.seedling.requests');
+
     // Admin CRUD routes (only accessible by superadmin)
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('admins', AdminController::class);
     });
 });
+
+// Seedling Requests Management
+Route::get('/admin/seedling-requests', [SeedlingRequestController::class, 'index'])->name('admin.seedling.requests');
+Route::get('/admin/seedling-requests/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('admin.seedling.show');
+Route::patch('/admin/seedling-requests/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('admin.seedling.update-status');

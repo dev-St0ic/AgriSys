@@ -13,34 +13,36 @@ return new class extends Migration
     {
         Schema::create('seedling_requests', function (Blueprint $table) {
             $table->id();
-            
+
             // Applicant Information
+            $table->string('request_number')->unique();
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
-            $table->string('mobile_number');
+            $table->string('extension_name')->nullable();
+            $table->string('contact_number');
+            $table->string('address');
             $table->string('barangay');
-            $table->text('address');
-            
-            // Seedling Selections (JSON to store arrays)
-            $table->json('selected_vegetables')->nullable(); // Array of selected vegetables
-            $table->json('selected_fruits')->nullable(); // Array of selected fruits
-            $table->string('selected_fertilizer')->nullable(); // Single fertilizer selection
-            
-            // Application Status
-            $table->enum('status', ['pending', 'approved', 'rejected', 'distributed'])->default('pending');
-            $table->text('remarks')->nullable();
-            $table->timestamp('reviewed_at')->nullable();
+            $table->string('planting_location')->nullable();
+            $table->string('purpose')->nullable();
+            $table->string('seedling_type')->nullable();
+            $table->json('vegetables')->nullable();           
+            $table->json('fruits')->nullable();              
+            $table->json('fertilizers')->nullable();         
+            $table->integer('requested_quantity')->nullable();
+            $table->integer('total_quantity')->default(0);   
+            $table->date('preferred_delivery_date')->nullable();
+            $table->string('document_path')->nullable();
+            $table->string('status')->default('under_review');
             $table->unsignedBigInteger('reviewed_by')->nullable();
-            $table->timestamp('distributed_at')->nullable();
-            
+            $table->timestamp('reviewed_at')->nullable();
+            $table->string('remarks')->nullable();
+            $table->integer('approved_quantity')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('rejected_at')->nullable();
+
             $table->timestamps();
-            
-            // Foreign Key Constraint
-            $table->foreign('reviewed_by')->references('id')->on('users')->onDelete('set null');
-            
-            // Indexes
-            $table->index('status');
+
             $table->index('barangay');
         });
     }
