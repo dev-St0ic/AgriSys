@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\SeedlingRequestController;
+use App\Http\Controllers\InventoryController;
 
 // Redirect root to login
 // Route::get('/', function () {
@@ -33,6 +34,12 @@ Route::middleware('admin')->group(function () {
 
     // Seedling Requests view
     Route::get('/admin/seedling-requests', [SeedlingRequestController::class, 'index'])->name('admin.seedling.requests');
+
+    // Inventory Management Routes
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('inventory', InventoryController::class);
+        Route::post('inventory/{inventory}/adjust-stock', [InventoryController::class, 'adjustStock'])->name('inventory.adjust-stock');
+    });
 
     // Admin CRUD routes (only accessible by superadmin)
     Route::prefix('admin')->name('admin.')->group(function () {

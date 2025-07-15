@@ -42,6 +42,7 @@
                                 <th>Barangay</th>
                                 <th>Items Requested</th>
                                 <th>Total Qty</th>
+                                <th>Inventory Status</th>
                                 <th>Documents</th>
                                 <th>Status</th>
                                 <th>Date</th>
@@ -83,6 +84,34 @@
                                     <span class="badge bg-primary fs-6 px-3 py-2">
                                         {{ $request->total_quantity ?? $request->requested_quantity }} pcs
                                     </span>
+                                </td>
+                                <td>
+                                    @php
+                                        $inventoryStatus = $request->checkInventoryAvailability();
+                                        $canFulfill = $inventoryStatus['can_fulfill'] ?? false;
+                                        $unavailableItems = $inventoryStatus['unavailable_items'] ?? [];
+                                    @endphp
+                                    
+                                    @if($request->status === 'approved')
+                                        <span class="badge bg-secondary fs-6 px-2 py-1">
+                                            <i class="fas fa-check"></i> Deducted
+                                        </span>
+                                    @elseif($canFulfill)
+                                        <span class="badge bg-success fs-6 px-2 py-1">
+                                            <i class="fas fa-check"></i> Available
+                                        </span>
+                                    @else
+                                        <span class="badge bg-danger fs-6 px-2 py-1">
+                                            <i class="fas fa-exclamation-triangle"></i> Low Stock
+                                        </span>
+                                        @if(count($unavailableItems) > 0)
+                                            <br><small class="text-danger">
+                                                Short: {{ implode(', ', array_map(function($item) {
+                                                    return $item['name'] . ' (need ' . $item['needed'] . ', have ' . $item['available'] . ')';
+                                                }, $unavailableItems)) }}
+                                            </small>
+                                        @endif
+                                    @endif
                                 </td>
                                 <td>
                                     @if($request->hasDocuments())
@@ -154,6 +183,58 @@
                                             
                                             <hr>
                                             
+                                            <h6>Inventory Availability</h6>
+                                            @php
+                                                $inventoryStatus = $request->checkInventoryAvailability();
+                                                $canFulfill = $inventoryStatus['can_fulfill'] ?? false;
+                                                $unavailableItems = $inventoryStatus['unavailable_items'] ?? [];
+                                                $availableItems = $inventoryStatus['available_items'] ?? [];
+                                            @endphp
+                                            
+                                            @if($request->status === 'approved')
+                                                <div class="alert alert-success">
+                                                    <i class="fas fa-check-circle"></i> This request has been approved and inventory has been deducted.
+                                                </div>
+                                            @elseif($canFulfill)
+                                                <div class="alert alert-success">
+                                                    <i class="fas fa-check-circle"></i> All requested items are available in inventory.
+                                                </div>
+                                            @else
+                                                <div class="alert alert-warning">
+                                                    <i class="fas fa-exclamation-triangle"></i> Some items have insufficient stock for approval.
+                                                </div>
+                                            @endif
+                                            
+                                            @if(count($availableItems) > 0)
+                                                <div class="mb-3">
+                                                    <strong class="text-success">✓ Available Items:</strong>
+                                                    <ul class="list-unstyled mt-2">
+                                                        @foreach($availableItems as $item)
+                                                            <li class="text-success">
+                                                                <i class="fas fa-check"></i> {{ $item['name'] }} 
+                                                                ({{ $item['available'] }} available, {{ $item['needed'] }} needed)
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
+                                            
+                                            @if(count($unavailableItems) > 0)
+                                                <div class="mb-3">
+                                                    <strong class="text-danger">⚠ Insufficient Stock:</strong>
+                                                    <ul class="list-unstyled mt-2">
+                                                        @foreach($unavailableItems as $item)
+                                                            <li class="text-danger">
+                                                                <i class="fas fa-times"></i> {{ $item['name'] }} 
+                                                                ({{ $item['available'] }} available, {{ $item['needed'] }} needed)
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
+                                            @endif
+                                            
+                                            <hr>
+                                            
                                             <h6>Selected Items</h6>
                                             @if($request->vegetables && count($request->vegetables) > 0)
                                                 <p><strong>🌱 Vegetables:</strong> {{ $request->formatted_vegetables }}</p>
@@ -181,6 +262,25 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body">
+                                                @php
+                                                    $inventoryCheck = $request->checkInventoryAvailability();
+                                                    $canFulfill = $inventoryCheck['can_fulfill'] ?? false;
+                                                    $unavailableItems = $inventoryCheck['unavailable_items'] ?? [];
+                                                @endphp
+                                                
+                                                @if(!$canFulfill && count($unavailableItems) > 0 && $request->status !== 'approved')
+                                                    <div class="alert alert-warning">
+                                                        <i class="fas fa-exclamation-triangle"></i> 
+                                                        <strong>Inventory Warning:</strong> Some items have insufficient stock.
+                                                        <ul class="mt-2 mb-0">
+                                                            @foreach($unavailableItems as $item)
+                                                                <li>{{ $item['name'] }}: {{ $item['available'] }} available, {{ $item['needed'] }} needed</li>
+                                                            @endforeach
+                                                        </ul>
+                                                        <small class="text-muted">Cannot approve until inventory is restocked.</small>
+                                                    </div>
+                                                @endif
+                                                
                                                 <div class="mb-3">
                                                     <label for="status{{ $request->id }}" class="form-label">Status</label>
                                                     <select name="status" id="status{{ $request->id }}" class="form-select" required>

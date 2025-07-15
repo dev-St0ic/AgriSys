@@ -56,16 +56,57 @@ class SeedlingRequestController extends Controller
             'approved_quantity' => 'nullable|integer|min:1'
         ]);
 
+        $oldStatus = $seedlingRequest->status;
+        $newStatus = $request->status;
+
+        // Check inventory availability and deduct when approving
+        if ($newStatus === 'approved') {
+            $inventoryCheck = $seedlingRequest->checkInventoryAvailability();
+            
+            if (!$inventoryCheck['can_fulfill']) {
+                $unavailableItems = $inventoryCheck['unavailable_items'];
+                $errorMessage = 'Cannot approve request due to insufficient inventory: ';
+                $shortages = [];
+                foreach ($unavailableItems as $item) {
+                    $shortages[] = $item['name'] . ' (need ' . $item['needed'] . ', available ' . $item['available'] . ')';
+                }
+                $errorMessage .= implode(', ', $shortages);
+                
+                return redirect()->back()
+                    ->withErrors(['inventory' => $errorMessage])
+                    ->withInput();
+            }
+
+            // Deduct from inventory in real-time when approved
+            if (!$seedlingRequest->deductFromInventory()) {
+                return redirect()->back()
+                    ->withErrors(['inventory' => 'Failed to deduct items from inventory. Please try again.'])
+                    ->withInput();
+            }
+        }
+
+        // If changing from approved to rejected/under_review, restore inventory
+        if ($oldStatus === 'approved' && $newStatus !== 'approved') {
+            $seedlingRequest->restoreToInventory();
+        }
+
         $seedlingRequest->update([
-            'status' => $request->status,
+            'status' => $newStatus,
             'remarks' => $request->remarks,
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
-            'approved_quantity' => $request->status === 'approved' ? $request->approved_quantity : null,
-            'approved_at' => $request->status === 'approved' ? now() : null,
-            'rejected_at' => $request->status === 'rejected' ? now() : null,
+            'approved_quantity' => $newStatus === 'approved' ? $request->approved_quantity : null,
+            'approved_at' => $newStatus === 'approved' ? now() : null,
+            'rejected_at' => $newStatus === 'rejected' ? now() : null,
         ]);
 
-        return redirect()->back()->with('success', 'Request status updated successfully.');
+        $message = match($newStatus) {
+            'approved' => 'Request approved successfully and inventory has been updated in real-time.',
+            'rejected' => 'Request rejected successfully.',
+            'under_review' => 'Request moved back to under review.',
+            default => 'Request status updated successfully.'
+        };
+
+        return redirect()->back()->with('success', $message);
     }
 }
