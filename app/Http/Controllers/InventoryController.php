@@ -44,7 +44,7 @@ class InventoryController extends Controller
         }
 
         $inventories = $query->orderBy('item_name')->paginate(15);
-        
+
         // Get statistics
         $stats = [
             'total_items' => Inventory::active()->count(),
@@ -76,13 +76,22 @@ class InventoryController extends Controller
             'description' => 'nullable|string',
             'current_stock' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
-            'maximum_stock' => 'required|integer|min:1',
+            'maximum_stock' => 'required|integer|min:1|gt:minimum_stock',
             'unit' => 'required|string|max:50',
             'last_restocked' => 'nullable|date',
         ]);
 
         $inventory = Inventory::create([
-            ...$request->all(),
+            'item_name' => $request->item_name,
+            'category' => $request->category,
+            'variety' => $request->variety,
+            'description' => $request->description,
+            'current_stock' => $request->current_stock,
+            'minimum_stock' => $request->minimum_stock,
+            'maximum_stock' => $request->maximum_stock,
+            'unit' => $request->unit,
+            'last_restocked' => $request->last_restocked,
+            'is_active' => $request->has('is_active'),
             'created_by' => Auth::id(),
             'updated_by' => Auth::id(),
         ]);
@@ -120,14 +129,23 @@ class InventoryController extends Controller
             'description' => 'nullable|string',
             'current_stock' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
-            'maximum_stock' => 'required|integer|min:1',
+            'maximum_stock' => 'required|integer|min:1|gt:minimum_stock',
             'unit' => 'required|string|max:50',
             'last_restocked' => 'nullable|date',
             'is_active' => 'boolean',
         ]);
 
         $inventory->update([
-            ...$request->all(),
+            'item_name' => $request->item_name,
+            'category' => $request->category,
+            'variety' => $request->variety,
+            'description' => $request->description,
+            'current_stock' => $request->current_stock,
+            'minimum_stock' => $request->minimum_stock,
+            'maximum_stock' => $request->maximum_stock,
+            'unit' => $request->unit,
+            'last_restocked' => $request->last_restocked,
+            'is_active' => $request->has('is_active'),
             'updated_by' => Auth::id(),
         ]);
 
