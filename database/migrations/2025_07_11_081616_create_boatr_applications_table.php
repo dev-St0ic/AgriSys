@@ -13,20 +13,29 @@ return new class extends Migration
     {
         Schema::create('boatr_applications', function (Blueprint $table) {
             $table->id();
+            $table->string('application_number')->unique();
             
-            // Owner Information
+            // Applicant Information
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
-            $table->string('mobile_number');
-            $table->string('barangay');
+            $table->string('fishr_number'); // Required FishR registration number
             
-            // Boat Information
-            $table->string('boat_name');
-            $table->decimal('boat_length', 8, 2); // in meters
-            $table->decimal('boat_width', 8, 2); // in meters
-            $table->decimal('boat_depth', 8, 2); // in meters
-            $table->enum('hull_material', ['Wood', 'Fiberglass', 'Steel', 'Aluminum']);
+            // Vessel Information
+            $table->string('vessel_name');
+            $table->enum('boat_type', [
+                'Spoon',
+                'Plumb', 
+                'Banca',
+                'Rake Stem - Rake Stern',
+                'Rake Stem - Transom/Spoon/Plumb Stern',
+                'Skiff (Typical Design)'
+            ]);
+            
+            // Vessel Dimensions (in feet)
+            $table->decimal('boat_length', 8, 2);
+            $table->decimal('boat_width', 8, 2);
+            $table->decimal('boat_depth', 8, 2);
             
             // Engine Information
             $table->string('engine_type');
@@ -34,33 +43,37 @@ return new class extends Migration
             
             // Fishing Information
             $table->enum('primary_fishing_gear', [
-                'Hook and Line', 
+                'Hook and Line',
                 'Bottom Set Gill Net', 
-                'Fish Trap', 
+                'Fish Trap',
                 'Fish Coral'
             ]);
             
-            // Document Upload (handled by admin after inspection)
+            // Document and Inspection (handled by admin)
             $table->string('supporting_document_path')->nullable();
             $table->boolean('inspection_completed')->default(false);
             $table->timestamp('inspection_date')->nullable();
             
-            // Application Status
+            // Application Status and Review
             $table->enum('status', ['pending', 'approved', 'rejected', 'inspection_required'])->default('pending');
             $table->text('remarks')->nullable();
             $table->timestamp('reviewed_at')->nullable();
             $table->unsignedBigInteger('reviewed_by')->nullable();
             
             $table->timestamps();
+            $table->softDeletes();
             
-            // Foreign Key Constraint
+            // Foreign Key Constraints
             $table->foreign('reviewed_by')->references('id')->on('users')->onDelete('set null');
             
-            // Indexes
+            // Indexes for better performance
             $table->index('status');
-            $table->index('barangay');
-            $table->index('boat_name');
+            $table->index('boat_type');
+            $table->index('vessel_name');
+            $table->index('fishr_number');
             $table->index('inspection_completed');
+            $table->index('application_number');
+            $table->index(['first_name', 'last_name']); // For name searches
         });
     }
 

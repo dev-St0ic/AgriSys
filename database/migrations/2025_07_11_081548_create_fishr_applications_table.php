@@ -13,43 +13,37 @@ return new class extends Migration
     {
         Schema::create('fishr_applications', function (Blueprint $table) {
             $table->id();
-            
-            // Basic Information
+            $table->string('registration_number')->unique();
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
             $table->enum('sex', ['Male', 'Female', 'Preferred not to say']);
             $table->string('barangay');
-            $table->string('mobile_number');
+            $table->string('contact_number', 20);
+            $table->enum('main_livelihood', ['capture', 'aquaculture', 'vending', 'processing', 'others']);
+            $table->string('livelihood_description');
+            $table->string('other_livelihood')->nullable();
+            $table->string('document_path')->nullable();
+            $table->enum('status', ['under_review', 'approved', 'rejected'])->default('under_review');
             
-            // Livelihood Information
-            $table->enum('main_livelihood', [
-                'capture-fishing', 
-                'aquaculture', 
-                'fish-processing', 
-                'fish-marketing', 
-                'others'
-            ]);
-            $table->string('other_livelihood')->nullable(); // For when 'others' is selected
-            
-            // Document Upload
-            $table->string('supporting_documents_path')->nullable();
-            
-            // Application Status
-            $table->enum('status', ['pending', 'approved', 'rejected', 'under_review'])->default('pending');
+            // Admin management fields
             $table->text('remarks')->nullable();
-            $table->timestamp('reviewed_at')->nullable();
-            $table->unsignedBigInteger('reviewed_by')->nullable();
+            $table->timestamp('status_updated_at')->nullable();
+            $table->unsignedBigInteger('updated_by')->nullable();
             
             $table->timestamps();
+            $table->softDeletes();
             
-            // Foreign Key Constraint
-            $table->foreign('reviewed_by')->references('id')->on('users')->onDelete('set null');
+            // Indexes for better performance
+            $table->index(['status', 'created_at']);
+            $table->index(['barangay', 'main_livelihood']);
+            $table->index('registration_number');
+            $table->index('contact_number'); // Added for search functionality
+            $table->index(['first_name', 'last_name']); // Added for name searches
             
-            // Indexes
-            $table->index('status');
-            $table->index('barangay');
-            $table->index('main_livelihood');
+            // Foreign key for admin who updated the status
+            // Uncomment this line if you have a users table for admins
+            // $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
         });
     }
 

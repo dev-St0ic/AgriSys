@@ -608,6 +608,30 @@ body, html {
     margin: 4px 0;
     font-size: 14px;
 }
+
+/* seedling next button */
+.seedling-next-btn {
+    background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(64, 145, 108, 0.3);
+}
+
+.seedling-next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(64, 145, 108, 0.4);
+    background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+}
+
+.seedling-next-btn:active {
+    transform: translateY(0);
+}
 /* after submitting in seedlings form */
 .alert {
     padding: 15px;

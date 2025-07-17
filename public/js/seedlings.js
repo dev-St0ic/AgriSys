@@ -321,7 +321,11 @@ function restoreItemSelections(form, itemType, items) {
 
 //Handles seedlings request form submission
  
-// Update the form submission function
+// ==============================================
+// ENHANCED FORM SUBMISSION WITH COMPLETE RESET
+// ==============================================
+
+// Handles seedlings request form submission with complete reset
 function submitSeedlingsRequest(event) {
     event.preventDefault();
     
@@ -362,9 +366,11 @@ function submitSeedlingsRequest(event) {
         if (data.success) {
             // Show success message
             alert('✅ ' + data.message);
-            // Reset form and go back to home
-            form.reset();
-            window._seedlingsChoices = null;
+            
+            // COMPLETE RESET FOR NEXT USER
+            performCompleteReset();
+            
+            // Return to main services page
             closeFormSeedlings();
         } else {
             // Show error message
@@ -381,6 +387,190 @@ function submitSeedlingsRequest(event) {
         submitBtn.disabled = false;
     });
 }
+// ==============================================
+// COMPLETE RESET FUNCTION
+// ==============================================
+
+function performCompleteReset() {
+    // 1. Reset global seedlings choices
+    window._seedlingsChoices = null;
+    
+    // 2. Reset the main application form with enhanced field handling
+    const applicationForm = document.getElementById('seedlings-request-form');
+    if (applicationForm) {
+        applicationForm.reset();
+        
+        // Manually reset select fields (especially barangay)
+        applicationForm.querySelectorAll('select').forEach(select => {
+            select.selectedIndex = 0;
+            select.value = '';
+        });
+        
+        // Special handling for barangay field
+        const barangaySelect = applicationForm.querySelector('select[name="barangay"]');
+        if (barangaySelect) {
+            barangaySelect.selectedIndex = 0;
+            barangaySelect.value = '';
+            barangaySelect.dispatchEvent(new Event('change'));
+        }
+    }
+    
+    // 3. Reset the choice form (checkboxes and quantities)
+    resetChoiceForm();
+    
+    // 4. Clear summary display
+    clearSummaryDisplay();
+    
+    // 5. Reset supporting documents field
+    resetSupportingDocuments();
+    
+    // 6. Reset any file inputs
+    resetFileInputs();
+    
+    console.log('Complete seedlings form reset performed');
+}
+
+// ==============================================
+// INDIVIDUAL RESET FUNCTIONS
+// ==============================================
+
+function resetChoiceForm() {
+    const choiceForm = document.getElementById('seedlings-choice-form');
+    if (!choiceForm) return;
+    
+    // Reset all checkboxes
+    choiceForm.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    // Reset all quantity inputs and hide quantity fields
+    choiceForm.querySelectorAll('input[type="number"]').forEach(input => {
+        input.value = '';
+    });
+    
+    // Hide all quantity divs
+    choiceForm.querySelectorAll('[id$="-qty"]').forEach(qtyDiv => {
+        qtyDiv.style.display = 'none';
+    });
+    
+    // Reset the entire form to be safe
+    choiceForm.reset();
+}
+
+function clearSummaryDisplay() {
+    const summaryContainer = document.getElementById('seedlings-summary');
+    if (summaryContainer) {
+        summaryContainer.innerHTML = '';
+        summaryContainer.style.display = 'none';
+    }
+}
+
+function resetSupportingDocuments() {
+    const docsField = document.getElementById('supporting-docs-field');
+    const docsInput = document.getElementById('seedlings-docs');
+    const docsLabel = document.querySelector('label[for="seedlings-docs"]');
+    const docsSmall = docsInput ? docsInput.nextElementSibling : null;
+    
+    // Hide the supporting documents field
+    if (docsField) {
+        docsField.style.display = 'none';
+    }
+    
+    // Remove required attribute
+    if (docsInput) {
+        docsInput.removeAttribute('required');
+        docsInput.value = ''; // Clear any selected files
+    }
+    
+    // Reset label text
+    if (docsLabel) {
+        docsLabel.innerHTML = 'Supporting Documents';
+    }
+    
+    // Reset help text
+    if (docsSmall) {
+        docsSmall.innerHTML = 'Upload supporting documents if required.';
+    }
+}
+
+function resetFileInputs() {
+    // Reset all file inputs in the forms
+    document.querySelectorAll('#seedlings-form input[type="file"], #seedlings-choice input[type="file"]').forEach(fileInput => {
+        fileInput.value = '';
+        
+        // If there's a custom file display, reset it too
+        const fileDisplay = fileInput.parentElement.querySelector('.file-display');
+        if (fileDisplay) {
+            fileDisplay.innerHTML = '';
+        }
+    });
+}
+
+// ==============================================
+// ENHANCED CLOSE FUNCTION
+// ==============================================
+
+// Enhanced close function that also performs reset
+function closeFormSeedlings() {
+    // Perform complete reset when closing
+    performCompleteReset();
+    
+    // Hide all forms and show main sections
+    hideAllForms();
+    showAllMainSections();
+    
+    // Scroll to top and update URL
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    history.pushState(null, '', '/services');
+}
+// ==============================================
+// BROWSER REFRESH/NAVIGATION RESET
+// ==============================================
+
+// Reset data when page loads (in case of browser refresh)
+document.addEventListener('DOMContentLoaded', function() {
+    // Reset on page load to ensure clean state
+    window._seedlingsChoices = null;
+    
+    // Set up form submission handler
+    const form = document.getElementById('seedlings-request-form');
+    if (form) {
+        form.addEventListener('submit', submitSeedlingsRequest);
+    }
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function() {
+        // Reset data when navigating with browser buttons
+        performCompleteReset();
+    });
+});
+
+// ==============================================
+// ADDITIONAL RESET TRIGGER FUNCTIONS
+// ==============================================
+
+// Function to manually trigger reset (useful for testing or other scenarios)
+function manualReset() {
+    performCompleteReset();
+    console.log('Manual reset performed');
+}
+
+// Reset when starting a new application
+function openFormSeedlings(event) {
+    event.preventDefault();
+    
+    // Perform reset before opening form
+    performCompleteReset();
+    
+    hideAllMainSections();
+    hideAllForms();
+    
+    const choice = document.getElementById('seedlings-choice');
+    if (choice) choice.style.display = 'block';
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    history.pushState(null, '', '/services/seedlings');
+}
 
 // Make sure the form calls this function
 document.addEventListener('DOMContentLoaded', function() {
@@ -389,6 +579,8 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', submitSeedlingsRequest);
     }
 });
+
+
 
 // Gathers all form data 
 function gatherFormData(form) {

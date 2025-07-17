@@ -1,30 +1,131 @@
 {{-- resources/views/admin/seedling_requests/index.blade.php --}}
 @extends('layouts.app')
 
+@section('title', 'Seedling Requests - AgriSys Admin')
 @section('page-title', 'Seedling Requests')
 
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex gap-2">
-            <!-- Search Form -->
-            <form method="GET" action="{{ route('admin.seedling.requests') }}" class="d-flex gap-2">
-                <input type="text" name="search" class="form-control" placeholder="Search requests..." 
-                       value="{{ request('search') }}" style="width: 250px;">
-                <select name="status" class="form-select" style="width: 150px;">
-                    <option value="">All Status</option>
-                    <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>Under Review</option>
-                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
-                </select>
-                <button type="submit" class="btn btn-outline-primary">
-                    <i class="fas fa-search"></i> Search
-                </button>
-                @if(request('search') || request('status'))
-                    <a href="{{ route('admin.seedling.requests') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-times"></i> Clear
-                    </a>
-                @endif
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Requests
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalRequests }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-seedling fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Under Review
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $underReviewCount }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Approved
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $approvedCount }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Rejected
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $rejectedCount }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-filter me-2"></i>Filters & Search
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.seedling.requests') }}" id="filterForm">
+                <div class="row">
+                    <div class="col-md-2">
+                        <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Status</option>
+                            <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>Under Review</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="category" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Categories</option>
+                            <option value="vegetables" {{ request('category') == 'vegetables' ? 'selected' : '' }}>Vegetables</option>
+                            <option value="fruits" {{ request('category') == 'fruits' ? 'selected' : '' }}>Fruits</option>
+                            <option value="fertilizers" {{ request('category') == 'fertilizers' ? 'selected' : '' }}>Fertilizers</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="barangay" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Barangay</option>
+                            @foreach($barangays as $barangay)
+                                <option value="{{ $barangay }}" {{ request('barangay') == $barangay ? 'selected' : '' }}>{{ $barangay }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="search" class="form-control form-control-sm" 
+                               placeholder="Search name, number, contact..." value="{{ request('search') }}" 
+                               oninput="autoSearch()" id="searchInput">
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{{ route('admin.seedling.requests') }}" class="btn btn-secondary btn-sm w-100">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
@@ -43,9 +144,8 @@
                                 <th>Items Requested</th>
                                 <th>Total Qty</th>
                                 <th>Inventory Status</th>
-                                <th>Documents</th>
                                 <th>Status</th>
-                                <th>Date</th>
+                                <th>Date Applied</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -114,29 +214,11 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($request->hasDocuments())
-                                        @if(($request->total_quantity ?? $request->requested_quantity) >= 100)
-                                            <span class="badge bg-success mb-1">Required ✓</span><br>
-                                        @else
-                                            <span class="badge bg-info mb-1">Provided ✓</span><br>
-                                        @endif
-                                        <a href="{{ $request->document_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-file-alt"></i> View File
-                                        </a>
-                                    @else
-                                        @if(($request->total_quantity ?? $request->requested_quantity) >= 100)
-                                            <span class="badge bg-danger">Required ✗</span>
-                                        @else
-                                            <span class="badge bg-secondary">None</span>
-                                        @endif
-                                    @endif
-                                </td>
-                                <td>
                                     <span class="badge bg-{{ $request->status_color }} fs-6 px-3 py-2">
                                         {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                     </span>
                                 </td>
-                                <td>{{ $request->created_at->format('M d, Y') }}</td>
+                                <td>{{ $request->created_at->format('M d, Y g:i A') }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#viewModal{{ $request->id }}">
@@ -145,6 +227,14 @@
                                         <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#statusModal{{ $request->id }}">
                                             <i class="fas fa-edit"></i> Update
                                         </button>
+                                        
+                                        @if($request->hasDocuments())
+                                            <button type="button" class="btn btn-sm btn-outline-info" 
+                                                    onclick="viewDocument('{{ $request->document_path }}')" 
+                                                    title="View Document">
+                                                <i class="fas fa-file-alt"></i>
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -244,6 +334,30 @@
                                             @endif
                                             @if($request->fertilizers && count($request->fertilizers) > 0)
                                                 <p><strong>🌿 Fertilizers:</strong> {{ $request->formatted_fertilizers }}</p>
+                                            @endif
+
+                                            @if($request->hasDocuments())
+                                                <hr>
+                                                <h6>Supporting Documents</h6>
+                                                <p>
+                                                    @if(($request->total_quantity ?? $request->requested_quantity) >= 100)
+                                                        <span class="badge bg-success mb-2">Required Document Provided</span><br>
+                                                    @else
+                                                        <span class="badge bg-info mb-2">Optional Document Provided</span><br>
+                                                    @endif
+                                                    <a href="{{ $request->document_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-file-alt"></i> View Document
+                                                    </a>
+                                                </p>
+                                            @else
+                                                @if(($request->total_quantity ?? $request->requested_quantity) >= 100)
+                                                    <hr>
+                                                    <h6>Supporting Documents</h6>
+                                                    <div class="alert alert-warning">
+                                                        <i class="fas fa-exclamation-triangle"></i> 
+                                                        Required supporting document is missing for this request (>100 pcs).
+                                                    </div>
+                                                @endif
                                             @endif
                                         </div>
                                     </div>
@@ -349,5 +463,86 @@
             </div>
         </div>
     @endif
+
+    <!-- Document Viewer Modal -->
+    <div class="modal fade" id="documentModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-file-alt me-2"></i>Supporting Document
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="documentViewer">
+                    <!-- Document will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+    .border-left-danger {
+        border-left: 0.25rem solid #e74a3b !important;
+    }
+    .text-xs {
+        font-size: 0.7rem;
+    }
+    .text-gray-300 {
+        color: #dddfeb !important;
+    }
+    .text-gray-800 {
+        color: #5a5c69 !important;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .badge {
+        font-size: 0.75em;
+    }
+</style>
+
+<script>
+    let searchTimeout;
+
+    // Auto search functionality
+    function autoSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            document.getElementById('filterForm').submit();
+        }, 500); // Wait 500ms after user stops typing
+    }
+
+    // Submit filter form when dropdowns change
+    function submitFilterForm() {
+        document.getElementById('filterForm').submit();
+    }
+
+    // View document function
+    function viewDocument(path) {
+        const documentViewer = document.getElementById('documentViewer');
+        const fileExtension = path.split('.').pop().toLowerCase();
+        
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+            documentViewer.innerHTML = `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document">`;
+        } else if (fileExtension === 'pdf') {
+            documentViewer.innerHTML = `<embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">`;
+        } else {
+            documentViewer.innerHTML = `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
+        }
+        
+        const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+        modal.show();
+    }
+</script>
 @endsection

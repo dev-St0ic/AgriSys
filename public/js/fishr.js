@@ -1,10 +1,7 @@
 // ==============================================
-// FISH REGISTRATION MODULE - Extracted from landing.js
-// Fisheries Registration and Management System
-// ==============================================
-
-// ==============================================
-// MAIN NAVIGATION FUNCTIONS
+// COMPLETE FISH REGISTRATION JAVASCRIPT
+// All FishR functionality in one file
+// File: public/js/fishr.js
 // ==============================================
 
 /**
@@ -12,325 +9,537 @@
  */
 function openFormFishR(event) {
     event.preventDefault();
-    hideAllMainSections();
-    hideAllForms();
+    
+    console.log('Opening FishR form');
+    
+    // Hide all main sections and forms first
+    if (typeof hideAllMainSections === 'function') hideAllMainSections();
+    if (typeof hideAllForms === 'function') hideAllForms();
 
     const formElement = document.getElementById('fishr-form');
     if (formElement) {
         formElement.style.display = 'block';
-        activateApplicationTab('fishr-form');
+        if (typeof activateApplicationTab === 'function') {
+            activateApplicationTab('fishr-form');
+        }
+        
+        // Reset form and clear any previous messages
+        resetFishRForm();
+        
+        // Scroll to top smoothly
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Update URL without page reload
+        history.pushState(null, '', '/services/fishr');
+        
+        console.log('FishR form opened successfully');
     } else {
-        console.error('Fish Registration form not found');
+        console.error('Fish Registration form element not found');
+        alert('Form not available. Please refresh the page and try again.');
         return;
     }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    history.pushState(null, '', '/services/fishr');
 }
 
 /**
  * Closes Fish Registration form and returns to main services
  */
 function closeFormFishR() {
-    const formElement = document.getElementById('fishr-form');
-    if (formElement) formElement.style.display = 'none';
+    console.log('Closing FishR form');
     
-    showAllMainSections();
+    const formElement = document.getElementById('fishr-form');
+    if (formElement) {
+        formElement.style.display = 'none';
+        console.log('FishR form closed');
+    }
+    
+    // Show main sections again
+    if (typeof showAllMainSections === 'function') showAllMainSections();
+    
+    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Update URL to services page
     history.pushState(null, '', '/services');
 }
 
-// ==============================================
-// LIVELIHOOD MANAGEMENT
-// ==============================================
-
 /**
- * Handles livelihood selection and shows/hides related fields
- */
-function toggleOtherLivelihood(select) {
-    if (!select) {
-        console.error('Select element not provided');
-        return;
-    }
-
-    const otherField = document.getElementById('other-livelihood-field');
-    const selectedValue = select.value;
-
-    // Show/hide "Other" livelihood input field
-    if (otherField) {
-        otherField.style.display = selectedValue === 'others' ? 'block' : 'none';
-        
-        // Clear the input when hiding
-        if (selectedValue !== 'others') {
-            const otherInput = otherField.querySelector('input');
-            if (otherInput) otherInput.value = '';
-        }
-    }
-
-    // Handle supporting documents requirement based on livelihood type
-    handleSupportingDocsRequirement(selectedValue);
-    
-    // Log for debugging
-    console.log('Fish Registration - Livelihood changed to:', selectedValue);
-}
-
-/**
- * Manages supporting documents requirement based on livelihood type
- */
-function handleSupportingDocsRequirement(livelihoodType) {
-    const docsInput = document.getElementById('fishr-docs');
-    const docsLabel = document.querySelector('label[for="fishr-docs"]');
-    
-    if (docsInput) {
-        if (livelihoodType === 'capture') {
-            // Capture fishing doesn't require supporting documents
-            docsInput.removeAttribute('required');
-            if (docsLabel) {
-                docsLabel.innerHTML = 'Supporting Documents (Optional)';
-                docsLabel.style.color = '';
-            }
-        } else {
-            // Other livelihood types require supporting documents
-            docsInput.setAttribute('required', 'required');
-            if (docsLabel) {
-                docsLabel.innerHTML = 'Supporting Documents (Required) *';
-                docsLabel.style.color = '#dc3545';
-            }
-        }
-    }
-}
-
-// ==============================================
-// FORM VALIDATION
-// ==============================================
-
-/**
- * Validates Fish Registration form data
- */
-function validateFishRForm(formData) {
-    const requiredFields = [
-        'first_name',
-        'last_name',
-        'mobile',
-        'barangay',
-        'address',
-        'livelihood_type'
-    ];
-    
-    const missingFields = requiredFields.filter(field => !formData[field] || formData[field].trim() === '');
-    
-    if (missingFields.length > 0) {
-        alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
-        return false;
-    }
-    
-    // Validate mobile number
-    const mobilePattern = /^(09|\+639)\d{9}$/;
-    if (!mobilePattern.test(formData.mobile.replace(/\s+/g, ''))) {
-        alert('Please enter a valid mobile number (e.g., 09123456789)');
-        return false;
-    }
-    
-    // Validate livelihood-specific requirements
-    if (formData.livelihood_type === 'others' && (!formData.other_livelihood || formData.other_livelihood.trim() === '')) {
-        alert('Please specify your livelihood type');
-        return false;
-    }
-    
-    // Check supporting documents requirement
-    if (formData.livelihood_type !== 'capture' && (!formData.supporting_docs || formData.supporting_docs.length === 0)) {
-        alert('Supporting documents are required for this livelihood type');
-        return false;
-    }
-    
-    return true;
-}
-
-// ==============================================
-// FORM SUBMISSION
-// ==============================================
-
-/**
- * Handles Fish Registration form submission
- */
-function submitFishRForm(event) {
-    event.preventDefault();
-    
-    const form = document.getElementById('fishr-registration-form');
-    if (!form) {
-        console.error('Fish Registration form not found');
-        return false;
-    }
-    
-    // Gather form data
-    const formData = gatherFishRData(form);
-    
-    // Validate form
-    if (!validateFishRForm(formData)) {
-        return false;
-    }
-    
-    // Show submission summary
-    showFishRSummary(formData);
-    
-    // Here you would typically submit to server
-    console.log('Fish Registration submission data:', formData);
-    
-    // For demo purposes, prevent actual submission
-    return false;
-}
-
-// ==============================================
-// DATA COLLECTION
-// ==============================================
-
-/**
- * Gathers all data from Fish Registration form
- */
-function gatherFishRData(form) {
-    return {
-        // Personal Information
-        first_name: form.first_name?.value?.trim() || '',
-        middle_name: form.middle_name?.value?.trim() || '',
-        last_name: form.last_name?.value?.trim() || '',
-        suffix: form.suffix?.value?.trim() || '',
-        
-        // Contact Information
-        mobile: form.mobile?.value?.trim() || '',
-        email: form.email?.value?.trim() || '',
-        
-        // Address Information
-        barangay: form.barangay?.value?.trim() || '',
-        address: form.address?.value?.trim() || '',
-        
-        // Livelihood Information
-        livelihood_type: form.livelihood_type?.value || '',
-        other_livelihood: form.other_livelihood?.value?.trim() || '',
-        
-        // Fishing Information
-        fishing_area: form.fishing_area?.value?.trim() || '',
-        boat_type: form.boat_type?.value || '',
-        fishing_gear: Array.from(form.querySelectorAll('input[name="fishing_gear"]:checked')).map(cb => cb.value),
-        years_experience: form.years_experience?.value || '',
-        
-        // Organization Information
-        organization_member: form.organization_member?.value || '',
-        organization_name: form.organization_name?.value?.trim() || '',
-        
-        // Supporting Documents
-        supporting_docs: form.supporting_docs?.files || null,
-        
-        timestamp: new Date().toISOString()
-    };
-}
-
-// ==============================================
-// SUMMARY DISPLAY
-// ==============================================
-
-/**
- * Shows submission summary for Fish Registration
- */
-function showFishRSummary(formData) {
-    let summary = '=== FISH REGISTRATION APPLICATION ===\n\n';
-    
-    summary += 'Personal Information:\n';
-    summary += `Name: ${formData.first_name} ${formData.middle_name} ${formData.last_name} ${formData.suffix}`.trim() + '\n';
-    summary += `Mobile: ${formData.mobile}\n`;
-    if (formData.email) summary += `Email: ${formData.email}\n`;
-    
-    summary += '\nAddress Information:\n';
-    summary += `Barangay: ${formData.barangay}\n`;
-    summary += `Address: ${formData.address}\n`;
-    
-    summary += '\nLivelihood Information:\n';
-    if (formData.livelihood_type === 'others') {
-        summary += `Livelihood Type: ${formData.other_livelihood}\n`;
-    } else {
-        summary += `Livelihood Type: ${formData.livelihood_type}\n`;
-    }
-    
-    summary += '\nFishing Information:\n';
-    if (formData.fishing_area) summary += `Fishing Area: ${formData.fishing_area}\n`;
-    if (formData.boat_type) summary += `Boat Type: ${formData.boat_type}\n`;
-    if (formData.fishing_gear.length > 0) summary += `Fishing Gear: ${formData.fishing_gear.join(', ')}\n`;
-    if (formData.years_experience) summary += `Years of Experience: ${formData.years_experience}\n`;
-    
-    if (formData.organization_member === 'yes' && formData.organization_name) {
-        summary += `\nOrganization: ${formData.organization_name}\n`;
-    }
-    
-    if (formData.supporting_docs && formData.supporting_docs.length > 0) {
-        summary += `\nSupporting Documents: ${formData.supporting_docs.length} file(s) attached\n`;
-    }
-    
-    alert(summary);
-}
-
-// ==============================================
-// UTILITY FUNCTIONS
-// ==============================================
-
-/**
- * Resets Fish Registration form
+ * Resets Fish Registration form to initial state
  */
 function resetFishRForm() {
     const form = document.getElementById('fishr-registration-form');
     if (form) {
+        // Reset form data
         form.reset();
         
-        // Reset dynamic fields
+        // Hide other livelihood field
         const otherField = document.getElementById('other-livelihood-field');
-        if (otherField) otherField.style.display = 'none';
-        
-        // Reset documents requirement
-        const docsInput = document.getElementById('fishr-docs');
-        const docsLabel = document.querySelector('label[for="fishr-docs"]');
-        if (docsInput) docsInput.removeAttribute('required');
-        if (docsLabel) {
-            docsLabel.innerHTML = 'Supporting Documents (Optional)';
-            docsLabel.style.color = '';
+        if (otherField) {
+            otherField.style.display = 'none';
         }
         
-        console.log('Fish Registration form reset');
+        // Remove required attribute from other livelihood input
+        const otherInput = document.getElementById('other_livelihood');
+        if (otherInput) {
+            otherInput.removeAttribute('required');
+        }
+        
+        // Hide messages
+        const messagesContainer = document.getElementById('fishr-messages');
+        if (messagesContainer) {
+            messagesContainer.style.display = 'none';
+        }
+        
+        // Clear any validation error messages
+        const errorTexts = form.querySelectorAll('.error-text');
+        errorTexts.forEach(error => error.remove());
+        
+        // Reset submit button state
+        const submitBtn = document.getElementById('fishr-submit-btn');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            if (btnText) btnText.style.display = 'inline';
+            if (btnLoading) btnLoading.style.display = 'none';
+        }
+        
+        // Reset to first tab if showTab function exists
+        if (typeof showTab === 'function') {
+            const firstTabBtn = document.querySelector('#fishr-form .tab-btn');
+            if (firstTabBtn) {
+                showTab('fishr-form-tab', { target: firstTabBtn });
+            }
+        }
+        
+        console.log('FishR form reset to initial state');
     }
 }
 
 /**
- * Auto-fills form with sample data (for testing)
+ * Handles livelihood selection change
+ */
+function toggleOtherLivelihood(select) {
+    if (!select) {
+        console.error('Select element not provided to toggleOtherLivelihood');
+        return;
+    }
+
+    const otherField = document.getElementById('other-livelihood-field');
+    const otherInput = document.getElementById('other_livelihood');
+    const selectedValue = select.value;
+
+    if (otherField && otherInput) {
+        if (selectedValue === 'others') {
+            // Show other livelihood field and make it required
+            otherField.style.display = 'block';
+            otherInput.setAttribute('required', 'required');
+            otherInput.focus(); // Focus on the input for better UX
+        } else {
+            // Hide other livelihood field and remove requirement
+            otherField.style.display = 'none';
+            otherInput.removeAttribute('required');
+            otherInput.value = ''; // Clear the value
+        }
+    }
+
+    // Update supporting documents requirement based on livelihood
+    updateDocumentsRequirement(selectedValue);
+    
+    console.log('FishR livelihood changed to:', selectedValue);
+}
+
+/**
+ * Updates supporting documents requirement based on livelihood type
+ */
+function updateDocumentsRequirement(livelihoodType) {
+    const docsInput = document.getElementById('supporting_documents');
+    const docsLabel = document.querySelector('label[for="supporting_documents"]');
+    const docsHelp = document.querySelector('#supporting_documents + .form-text');
+    
+    if (docsInput && docsLabel) {
+        if (livelihoodType === 'capture') {
+            // Capture fishing - documents optional
+            docsInput.removeAttribute('required');
+            docsLabel.innerHTML = 'Supporting Documents (Optional)';
+            if (docsHelp) {
+                docsHelp.textContent = 'Optional for Capture Fishing. Max size: 10MB';
+            }
+        } else if (livelihoodType && livelihoodType !== '') {
+            // Other livelihood types - documents required
+            docsInput.setAttribute('required', 'required');
+            docsLabel.innerHTML = 'Supporting Documents *';
+            if (docsHelp) {
+                docsHelp.textContent = 'Required for this livelihood type. Max size: 10MB';
+            }
+        } else {
+            // No livelihood selected - neutral state
+            docsInput.removeAttribute('required');
+            docsLabel.innerHTML = 'Supporting Documents';
+            if (docsHelp) {
+                docsHelp.textContent = 'Required for all livelihood types except Capture Fishing. Max size: 10MB';
+            }
+        }
+    }
+}
+
+/**
+ * Initialize FishR form submission handling with AJAX (Seedlings Style)
+ */
+function initializeFishRFormSubmission() {
+    const form = document.getElementById('fishr-registration-form');
+    if (!form) {
+        console.log('FishR form not found for AJAX initialization');
+        return;
+    }
+
+    console.log('Initializing FishR AJAX form submission');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('FishR form submitted');
+        
+        const submitBtn = document.getElementById('fishr-submit-btn');
+        
+        // Show loading state (exactly like seedlings)
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Submitting...';
+        submitBtn.disabled = true;
+        
+        // Create FormData
+        const formData = new FormData(form);
+        
+        // Get CSRF token (exactly like seedlings)
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        console.log('Sending AJAX request to:', form.action);
+        
+        // Submit via AJAX (exactly like seedlings)
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            
+            if (data.success) {
+                // Show success message (exactly like seedlings)
+                alert('✅ ' + data.message);
+                
+                // Reset form and go back to home (exactly like seedlings)
+                form.reset();
+                
+                // Reset other livelihood field if it was showing
+                const livelihoodSelect = document.getElementById('main_livelihood');
+                if (livelihoodSelect) {
+                    toggleOtherLivelihood(livelihoodSelect);
+                }
+                
+                // Close form and return to landing (exactly like seedlings)
+                closeFormFishR();
+            } else {
+                // Show error message (exactly like seedlings)
+                alert('❌ ' + (data.message || 'There was an error submitting your request.'));
+                
+                // Show validation errors if available
+                if (data.errors) {
+                    showFishRValidationErrors(data.errors);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('FishR submission error:', error);
+            // Show error message (exactly like seedlings)
+            alert('❌ There was an error submitting your request. Please try again.');
+        })
+        .finally(() => {
+            // Reset button state (exactly like seedlings)
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+}
+
+/**
+ * Show FishR-specific messages
+ */
+function showFishRMessage(type, message) {
+    const messagesContainer = document.getElementById('fishr-messages');
+    const successDiv = document.getElementById('fishr-success-message');
+    const errorDiv = document.getElementById('fishr-error-message');
+    
+    if (!messagesContainer || !successDiv || !errorDiv) {
+        console.error('FishR message elements not found');
+        return;
+    }
+    
+    // Hide both message divs first
+    successDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    
+    // Show the appropriate message
+    if (type === 'success') {
+        successDiv.innerHTML = message;
+        successDiv.style.display = 'block';
+    } else {
+        errorDiv.innerHTML = message;
+        errorDiv.style.display = 'block';
+    }
+    
+    messagesContainer.style.display = 'block';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        messagesContainer.style.display = 'none';
+    }, 5000);
+}
+
+/**
+ * Show FishR validation errors
+ */
+function showFishRValidationErrors(errors) {
+    console.log('Showing validation errors:', errors);
+    
+    // Clear previous error messages
+    const errorSpans = document.querySelectorAll('#fishr-form .error-text');
+    errorSpans.forEach(span => span.remove());
+    
+    // Show new error messages
+    for (const field in errors) {
+        const input = document.querySelector(`#fishr-form [name="${field}"]`);
+        if (input) {
+            const errorSpan = document.createElement('span');
+            errorSpan.className = 'error-text';
+            errorSpan.textContent = errors[field][0];
+            errorSpan.style.color = '#dc3545';
+            errorSpan.style.fontSize = '12px';
+            errorSpan.style.marginTop = '5px';
+            errorSpan.style.display = 'block';
+            input.parentNode.appendChild(errorSpan);
+        }
+    }
+}
+
+/**
+ * Validates the form before submission
+ */
+function validateFishRForm() {
+    const form = document.getElementById('fishr-registration-form');
+    if (!form) return false;
+    
+    let isValid = true;
+    const errors = [];
+    
+    // Required field validation
+    const requiredFields = [
+        { name: 'first_name', label: 'First Name' },
+        { name: 'last_name', label: 'Last Name' },
+        { name: 'sex', label: 'Sex' },
+        { name: 'barangay', label: 'Barangay' },
+        { name: 'mobile_number', label: 'Mobile Number' },
+        { name: 'main_livelihood', label: 'Main Livelihood' }
+    ];
+    
+    requiredFields.forEach(field => {
+        const input = form.querySelector(`[name="${field.name}"]`);
+        if (!input || !input.value.trim()) {
+            errors.push(`${field.label} is required`);
+            isValid = false;
+        }
+    });
+    
+    // Conditional validation for "others" livelihood
+    const livelihoodSelect = form.querySelector('[name="main_livelihood"]');
+    const otherLivelihoodInput = form.querySelector('[name="other_livelihood"]');
+    
+    if (livelihoodSelect && livelihoodSelect.value === 'others') {
+        if (!otherLivelihoodInput || !otherLivelihoodInput.value.trim()) {
+            errors.push('Please specify your livelihood when selecting "Others"');
+            isValid = false;
+        }
+    }
+    
+    // Mobile number format validation
+    const mobileInput = form.querySelector('[name="mobile_number"]');
+    if (mobileInput && mobileInput.value) {
+        const mobilePattern = /^(09|\+639)\d{9}$/;
+        const cleanMobile = mobileInput.value.replace(/\s+/g, '');
+        if (!mobilePattern.test(cleanMobile)) {
+            errors.push('Please enter a valid mobile number (e.g., 09123456789)');
+            isValid = false;
+        }
+    }
+    
+    // Supporting documents validation for non-capture livelihoods
+    const docsInput = form.querySelector('[name="supporting_documents"]');
+    if (livelihoodSelect && livelihoodSelect.value && livelihoodSelect.value !== 'capture') {
+        if (!docsInput || !docsInput.files || docsInput.files.length === 0) {
+            errors.push('Supporting documents are required for this livelihood type');
+            isValid = false;
+        }
+    }
+    
+    // Show validation errors if any
+    if (!isValid) {
+        const errorMessage = 'Please correct the following errors:\n• ' + errors.join('\n• ');
+        alert(errorMessage);
+    }
+    
+    return isValid;
+}
+
+/**
+ * Auto-fill form with sample data for testing
  */
 function fillSampleFishRData() {
     const form = document.getElementById('fishr-registration-form');
-    if (form) {
-        if (form.first_name) form.first_name.value = 'Pedro';
-        if (form.middle_name) form.middle_name.value = 'Santos';
-        if (form.last_name) form.last_name.value = 'Mangingisda';
-        if (form.mobile) form.mobile.value = '09123456789';
-        if (form.barangay) form.barangay.value = 'Barangay Seaside';
-        if (form.address) form.address.value = 'Coastal Area, Sample City';
-        if (form.livelihood_type) form.livelihood_type.value = 'aquaculture';
-        if (form.fishing_area) form.fishing_area.value = 'Manila Bay';
-        if (form.years_experience) form.years_experience.value = '10';
-        
-        // Trigger livelihood change
-        if (form.livelihood_type) {
-            toggleOtherLivelihood(form.livelihood_type);
+    if (!form) return;
+    
+    // Sample data
+    const sampleData = {
+        first_name: 'Juan',
+        middle_name: 'Santos',
+        last_name: 'Mangingisda',
+        sex: 'Male',
+        barangay: 'Riverside',
+        mobile_number: '09123456789',
+        main_livelihood: 'aquaculture'
+    };
+    
+    // Fill form fields
+    Object.keys(sampleData).forEach(fieldName => {
+        const input = form.querySelector(`[name="${fieldName}"]`);
+        if (input) {
+            input.value = sampleData[fieldName];
+            
+            // Trigger change event for select elements
+            if (input.tagName === 'SELECT') {
+                input.dispatchEvent(new Event('change'));
+            }
         }
-        
-        console.log('Sample data filled for Fish Registration form');
+    });
+    
+    console.log('Sample data filled for FishR form');
+}
+
+/**
+ * Clear form data
+ */
+function clearFishRForm() {
+    if (confirm('Are you sure you want to clear all form data?')) {
+        resetFishRForm();
     }
 }
 
 /**
- * Gets fish registration statistics (placeholder for future implementation)
+ * Show form statistics (for admin/debug purposes)
  */
-function getFishRStats() {
+function showFishRStats() {
     // This would typically fetch from server
-    return {
-        totalRegistrations: 0,
-        pendingApplications: 0,
-        approvedToday: 0
+    const stats = {
+        totalSubmissions: 0,
+        todaySubmissions: 0,
+        pendingReview: 0,
+        approved: 0,
+        rejected: 0
     };
+    
+    console.log('FishR Registration Statistics:', stats);
+    return stats;
+}
+
+// ==============================================
+// UTILITY FUNCTIONS - Fallback if not in main landing.js
+// ==============================================
+
+/**
+ * Hide all main page sections
+ */
+function hideAllMainSections() {
+    const sections = [
+        'home',
+        '.announcement', 
+        'services',
+        'how-it-works',
+        '.help-section'
+    ];
+    
+    sections.forEach(selector => {
+        const element = selector.startsWith('.')
+            ? document.querySelector(selector)
+            : document.getElementById(selector);
+        if (element) element.style.display = 'none';
+    });
+}
+
+/**
+ * Show all main page sections
+ */
+function showAllMainSections() {
+    const sections = [
+        'home',
+        '.announcement',
+        'services',
+        'how-it-works',
+        '.help-section'
+    ];
+    
+    sections.forEach(selector => {
+        const element = selector.startsWith('.') 
+            ? document.querySelector(selector)
+            : document.getElementById(selector);
+        if (element) element.style.display = 'block';
+    });
+}
+
+/**
+ * Hide all application forms
+ */
+function hideAllForms() {
+    const formIds = [
+        'rsbsa-choice', 'new-rsbsa', 'old-rsbsa',
+        'seedlings-choice', 'seedlings-form',
+        'fishr-form', 'boatr-form'
+    ];
+    
+    formIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.style.display = 'none';
+    });
+    
+    // Also hide by class selector for application sections
+    const formSections = document.querySelectorAll('.application-section');
+    formSections.forEach(section => {
+        section.style.display = 'none';
+    });
+}
+
+/**
+ * Activate application tab
+ */
+function activateApplicationTab(formId) {
+    const formSection = document.getElementById(formId);
+    if (!formSection) return;
+
+    const firstTabBtn = formSection.querySelector('.tab-btn');
+    const firstTabContent = formSection.querySelector('.tab-content');
+
+    if (firstTabBtn && firstTabContent) {
+        // Reset all tabs in this form
+        formSection.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        formSection.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+
+        // Activate first tab
+        firstTabBtn.classList.add('active');
+        firstTabContent.style.display = 'block';
+    }
 }
 
 // ==============================================
@@ -338,27 +547,45 @@ function getFishRStats() {
 // ==============================================
 
 /**
- * Initialize Fish Registration module
+ * Initialize FishR form when page loads
  */
 function initializeFishRModule() {
-    console.log('Fish Registration module initialized');
+    console.log('Initializing FishR module...');
     
-    // Set up any initial event listeners or configurations
-    const livelihoodSelect = document.getElementById('livelihood_type');
+    // Initialize AJAX form submission
+    initializeFishRFormSubmission();
+    
+    // Set up initial form state
+    const livelihoodSelect = document.getElementById('main_livelihood');
     if (livelihoodSelect) {
-        // Ensure proper initialization of livelihood field
-        toggleOtherLivelihood(livelihoodSelect);
+        // Initialize other livelihood field visibility
+        if (livelihoodSelect.value) {
+            toggleOtherLivelihood(livelihoodSelect);
+        }
     }
+    
+    // Add keyboard shortcuts for development
+    document.addEventListener('keydown', function(e) {
+        // Ctrl + Shift + F = Fill sample data
+        if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+            e.preventDefault();
+            fillSampleFishRData();
+        }
+        
+        // Ctrl + Shift + C = Clear form
+        if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+            e.preventDefault();
+            clearFishRForm();
+        }
+    });
+    
+    console.log('FishR module initialized successfully');
 }
 
-// ==============================================
-// UTILITY FUNCTIONS (these should be imported from landing.js)
-// ==============================================
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Small delay to ensure all elements are ready
+    setTimeout(initializeFishRModule, 100);
+});
 
-// Note: These functions should remain in landing.js and be accessible globally
-// - hideAllMainSections()
-// - showAllMainSections() 
-// - hideAllForms()
-// - activateApplicationTab(formId)
-
-console.log('Fish Registration module loaded successfully');
+console.log('FishR JavaScript module loaded');

@@ -2,84 +2,229 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BoatrApplication extends Model
 {
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
         'application_number',
         'first_name',
         'middle_name',
         'last_name',
-        'extension_name',
-        'contact_number',
-        'address',
-        'barangay',
-        'years_of_experience',
-        'previous_recipient',
-        'previous_year',
-        'boat_intended_use',
-        'fishing_area',
+        'fishr_number',
+        'vessel_name',
+        'boat_type',
         'boat_length',
-        'boat_width',
+        'boat_width', 
         'boat_depth',
-        'boat_material',
-        'boat_color',
-        'engine_brand',
+        'engine_type',
         'engine_horsepower',
-        'estimated_cost',
-        'preferred_delivery_date',
-        'document_path',
+        'primary_fishing_gear',
+        'supporting_document_path',
+        'inspection_completed',
+        'inspection_date',
         'status',
-        'reviewed_by',
-        'reviewed_at',
         'remarks',
-        'approved_at',
-        'rejected_at'
+        'reviewed_at',
+        'reviewed_by'
     ];
 
     protected $casts = [
-        'preferred_delivery_date' => 'date',
+        'inspection_date' => 'datetime',
         'reviewed_at' => 'datetime',
-        'approved_at' => 'datetime',
-        'rejected_at' => 'datetime',
-        'years_of_experience' => 'integer',
-        'previous_year' => 'integer',
-        'previous_recipient' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'inspection_completed' => 'boolean',
         'boat_length' => 'decimal:2',
         'boat_width' => 'decimal:2',
         'boat_depth' => 'decimal:2',
-        'engine_horsepower' => 'decimal:1',
-        'estimated_cost' => 'decimal:2'
+        'engine_horsepower' => 'integer'
     ];
 
-    public function reviewer(): BelongsTo
+    /**
+     * Get the full name attribute
+     */
+    public function getFullNameAttribute()
     {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        $parts = array_filter([$this->first_name, $this->middle_name, $this->last_name]);
+        return implode(' ', $parts);
     }
 
-    public function getFullNameAttribute(): string
-    {
-        $fullName = trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name);
-        if ($this->extension_name) {
-            $fullName .= ' ' . $this->extension_name;
-        }
-        return $fullName;
-    }
-
-    public function getStatusColorAttribute(): string
+    /**
+     * Get the formatted status for display
+     */
+    public function getFormattedStatusAttribute()
     {
         return match($this->status) {
+            'pending' => 'Pending',
+            'inspection_required' => 'Inspection Required',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
+            default => ucfirst(str_replace('_', ' ', $this->status))
+        };
+    }
+
+    /**
+     * Get the status color for badges
+     */
+    public function getStatusColorAttribute()
+    {
+        return match($this->status) {
+            'pending' => 'info',
+            'inspection_required' => 'warning',
             'approved' => 'success',
             'rejected' => 'danger',
-            'under_review' => 'warning',
             default => 'secondary'
         };
     }
 
-    public function getBoatDimensionsAttribute(): string
+    /**
+     * Get boat dimensions formatted string
+     */
+    public function getBoatDimensionsAttribute()
     {
-        return "{$this->boat_length}L × {$this->boat_width}W × {$this->boat_depth}D";
+        return "{$this->boat_length}' × {$this->boat_width}' × {$this->boat_depth}'";
+    }
+
+    /**
+     * Relationship with admin who reviewed the application
+     */
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * Scope for filtering by status
+     */
+    public function scopeWithStatus($query, $status)
+    {
+        if ($status) {
+            return $query->where('status', $status);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for filtering by boat type
+     */
+    public function scopeWithBoatType($query, $boatType)
+    {
+        if ($boatType) {
+            return $query->where('boat_type', $boatType);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for searching
+     */
+    public function scopeSearch($query, $search)
+    {
+        if ($search) {
+            return $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('middle_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('application_number', 'like', "%{$search}%")
+                  ->orWhere('vessel_name', 'like', "%{$search}%")
+                  ->orWhere('fishr_number', 'like', "%{$search}%");
+            });
+        }
+        return $query;
+    }
+
+    /**
+     * Check if the application has a supporting document
+     */
+    public function hasDocument()
+    {
+        return !empty($this->supporting_document_path) && \Storage::disk('public')->exists($this->supporting_document_path);
+    }
+
+    /**
+     * Get the document URL if it exists
+     */
+    public function getDocumentUrlAttribute()
+    {
+        if ($this->hasDocument()) {
+            return asset('storage/' . $this->supporting_document_path);
+        }
+        return null;
+    }
+
+    /**
+     * Get the file extension of the document
+     */
+    public function getDocumentExtensionAttribute()
+    {
+        if ($this->supporting_document_path) {
+            return strtolower(pathinfo($this->supporting_document_path, PATHINFO_EXTENSION));
+        }
+        return null;
+    }
+
+    /**
+     * Check if document is an image
+     */
+    public function isDocumentImage()
+    {
+        return in_array($this->document_extension, ['jpg', 'jpeg', 'png', 'gif']);
+    }
+
+    /**
+     * Check if document is a PDF
+     */
+    public function isDocumentPdf()
+    {
+        return $this->document_extension === 'pdf';
+    }
+
+    /**
+     * Get available boat types
+     */
+    public static function getBoatTypes()
+    {
+        return [
+            'Spoon',
+            'Plumb',
+            'Banca',
+            'Rake Stem - Rake Stern',
+            'Rake Stem - Transom/Spoon/Plumb Stern',
+            'Skiff (Typical Design)'
+        ];
+    }
+
+    /**
+     * Get available fishing gear types
+     */
+    public static function getFishingGearTypes()
+    {
+        return [
+            'Hook and Line',
+            'Bottom Set Gill Net',
+            'Fish Trap',
+            'Fish Coral'
+        ];
+    }
+
+    /**
+     * Check if inspection is required for this application
+     */
+    public function requiresInspection()
+    {
+        return $this->status === 'inspection_required' || !$this->inspection_completed;
+    }
+
+    /**
+     * Check if application can be approved (inspection completed)
+     */
+    public function canBeApproved()
+    {
+        return $this->inspection_completed && $this->hasDocument();
     }
 }
