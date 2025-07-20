@@ -89,6 +89,20 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.fishr.requests') ? 'active' : '' }}"
+                                        href="{{ route('admin.fishr.requests') }}">
+                                        <i class="fas fa-fish me-2"></i>
+                                        FishR Registrations
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.boatr.requests') ? 'active' : '' }}"
+                                        href="{{ route('admin.boatr.requests') }}">
+                                        <i class="fas fa-ship me-2"></i>
+                                        BoatR Registrations
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}"
                                         href="{{ route('admin.inventory.index') }}">
                                         <i class="fas fa-warehouse me-2"></i>

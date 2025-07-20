@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             SuperAdminSeeder::class,
             BarangaySeeder::class,
             FormBasedInventorySeeder::class,
+            FishrRequestSeeder::class,
+            SeedlingRequestSeeder::class
         ]);
     }
 }

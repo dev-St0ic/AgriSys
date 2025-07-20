@@ -2,72 +2,174 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FishrApplication extends Model
 {
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
-        'application_number',
+        'registration_number',
         'first_name',
         'middle_name',
         'last_name',
-        'extension_name',
-        'contact_number',
-        'address',
+        'sex',
         'barangay',
-        'years_of_experience',
-        'previous_recipient',
-        'previous_year',
-        'aquaculture_area',
-        'water_source',
-        'fish_species',
-        'requested_fingerlings',
-        'purpose',
-        'preferred_delivery_date',
+        'contact_number',
+        'main_livelihood',
+        'livelihood_description',
+        'other_livelihood',
         'document_path',
         'status',
-        'reviewed_by',
-        'reviewed_at',
         'remarks',
-        'approved_fingerlings',
-        'approved_at',
-        'rejected_at'
+        'status_updated_at',
+        'updated_by'
     ];
 
     protected $casts = [
-        'preferred_delivery_date' => 'date',
-        'reviewed_at' => 'datetime',
-        'approved_at' => 'datetime',
-        'rejected_at' => 'datetime',
-        'years_of_experience' => 'integer',
-        'previous_year' => 'integer',
-        'previous_recipient' => 'boolean',
-        'requested_fingerlings' => 'integer',
-        'approved_fingerlings' => 'integer'
+        'status_updated_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    public function reviewer(): BelongsTo
+    /**
+     * Get the full name attribute
+     */
+    public function getFullNameAttribute()
     {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        $parts = array_filter([$this->first_name, $this->middle_name, $this->last_name]);
+        return implode(' ', $parts);
     }
 
-    public function getFullNameAttribute(): string
-    {
-        $fullName = trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name);
-        if ($this->extension_name) {
-            $fullName .= ' ' . $this->extension_name;
-        }
-        return $fullName;
-    }
-
-    public function getStatusColorAttribute(): string
+    /**
+     * Get the formatted status for display
+     */
+    public function getFormattedStatusAttribute()
     {
         return match($this->status) {
+            'under_review' => 'Under Review',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
+            default => ucfirst(str_replace('_', ' ', $this->status))
+        };
+    }
+
+    /**
+     * Get the status color for badges
+     */
+    public function getStatusColorAttribute()
+    {
+        return match($this->status) {
+            'under_review' => 'warning',
             'approved' => 'success',
             'rejected' => 'danger',
-            'under_review' => 'warning',
             default => 'secondary'
         };
+    }
+
+    /**
+     * Relationship with admin who updated the status
+     */
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Scope for filtering by status
+     */
+    public function scopeWithStatus($query, $status)
+    {
+        if ($status) {
+            return $query->where('status', $status);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for filtering by livelihood
+     */
+    public function scopeWithLivelihood($query, $livelihood)
+    {
+        if ($livelihood) {
+            return $query->where('main_livelihood', $livelihood);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for filtering by barangay
+     */
+    public function scopeWithBarangay($query, $barangay)
+    {
+        if ($barangay) {
+            return $query->where('barangay', $barangay);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for searching
+     */
+    public function scopeSearch($query, $search)
+    {
+        if ($search) {
+            return $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('middle_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('registration_number', 'like', "%{$search}%")
+                  ->orWhere('contact_number', 'like', "%{$search}%");
+            });
+        }
+        return $query;
+    }
+
+    /**
+     * Check if the application has a supporting document
+     */
+    public function hasDocument()
+    {
+        return !empty($this->document_path) && \Storage::disk('public')->exists($this->document_path);
+    }
+
+    /**
+     * Get the document URL if it exists
+     */
+    public function getDocumentUrlAttribute()
+    {
+        if ($this->hasDocument()) {
+            return asset('storage/' . $this->document_path);
+        }
+        return null;
+    }
+
+    /**
+     * Get the file extension of the document
+     */
+    public function getDocumentExtensionAttribute()
+    {
+        if ($this->document_path) {
+            return strtolower(pathinfo($this->document_path, PATHINFO_EXTENSION));
+        }
+        return null;
+    }
+
+    /**
+     * Check if document is an image
+     */
+    public function isDocumentImage()
+    {
+        return in_array($this->document_extension, ['jpg', 'jpeg', 'png', 'gif']);
+    }
+
+    /**
+     * Check if document is a PDF
+     */
+    public function isDocumentPdf()
+    {
+        return $this->document_extension === 'pdf';
     }
 }

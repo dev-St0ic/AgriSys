@@ -9,13 +9,13 @@ use Illuminate\Support\Str;
 class SeedlingRequestController extends Controller
 {
     /**
-     * Display all seedling requests with improved pagination
+     * Display all seedling requests with filtering and statistics
      */
     public function index(Request $request)
     {
         $query = SeedlingRequest::orderBy('created_at', 'desc');
         
-        // Add search functionality if needed
+        // Add search functionality
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -27,14 +27,53 @@ class SeedlingRequestController extends Controller
             });
         }
 
-        // Add status filter if needed
+        // Add status filter
         if ($request->has('status') && !empty($request->status)) {
             $query->where('status', $request->status);
         }
 
+        // Add category filter
+        if ($request->has('category') && !empty($request->category)) {
+            $category = $request->category;
+            $query->where(function($q) use ($category) {
+                switch($category) {
+                    case 'vegetables':
+                        $q->whereNotNull('vegetables')->where('vegetables', '!=', '[]');
+                        break;
+                    case 'fruits':
+                        $q->whereNotNull('fruits')->where('fruits', '!=', '[]');
+                        break;
+                    case 'fertilizers':
+                        $q->whereNotNull('fertilizers')->where('fertilizers', '!=', '[]');
+                        break;
+                }
+            });
+        }
+
+        // Add barangay filter
+        if ($request->has('barangay') && !empty($request->barangay)) {
+            $query->where('barangay', $request->barangay);
+        }
+
         $requests = $query->paginate(15)->withQueryString();
         
-        return view('admin.seedling_requests.index', compact('requests'));
+        // Get statistics
+        $totalRequests = SeedlingRequest::count();
+        $underReviewCount = SeedlingRequest::where('status', 'under_review')->count();
+        $approvedCount = SeedlingRequest::where('status', 'approved')->count();
+        $rejectedCount = SeedlingRequest::where('status', 'rejected')->count();
+
+        // Get unique barangays for filter dropdown
+        $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
+        
+        return view('admin.seedling_requests.index', compact(
+            'requests',
+            'totalRequests',
+            'underReviewCount', 
+            'approvedCount',
+            'rejectedCount',
+            'barangays'
+        ));
     }
 
     /**

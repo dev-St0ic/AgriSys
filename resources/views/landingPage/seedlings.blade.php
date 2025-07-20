@@ -180,7 +180,7 @@
             </div>
         </div>
         <div style="text-align:center; margin-top:30px;">
-            <button type="button" class="btn" onclick="proceedToSeedlingsForm()">Next</button>
+            <button type="button" class="seedling-next-btn" onclick="proceedToSeedlingsForm()">Next</button>
         </div>
     </form>
 </section>
