@@ -92,35 +92,47 @@
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
-                            <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>Under Review</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>Under
+                                Review</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved
+                            </option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <select name="livelihood" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Livelihood</option>
-                            <option value="capture" {{ request('livelihood') == 'capture' ? 'selected' : '' }}>Capture Fishing</option>
-                            <option value="aquaculture" {{ request('livelihood') == 'aquaculture' ? 'selected' : '' }}>Aquaculture</option>
-                            <option value="vending" {{ request('livelihood') == 'vending' ? 'selected' : '' }}>Fish Vending</option>
-                            <option value="processing" {{ request('livelihood') == 'processing' ? 'selected' : '' }}>Fish Processing</option>
-                            <option value="others" {{ request('livelihood') == 'others' ? 'selected' : '' }}>Others</option>
+                            <option value="capture" {{ request('livelihood') == 'capture' ? 'selected' : '' }}>Capture
+                                Fishing</option>
+                            <option value="aquaculture" {{ request('livelihood') == 'aquaculture' ? 'selected' : '' }}>
+                                Aquaculture</option>
+                            <option value="vending" {{ request('livelihood') == 'vending' ? 'selected' : '' }}>Fish Vending
+                            </option>
+                            <option value="processing" {{ request('livelihood') == 'processing' ? 'selected' : '' }}>Fish
+                                Processing</option>
+                            <option value="others" {{ request('livelihood') == 'others' ? 'selected' : '' }}>Others
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-2">
                         <select name="barangay" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Barangay</option>
-                            <option value="Bagong Silang" {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>Bagong Silang</option>
+                            <option value="Bagong Silang" {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>
+                                Bagong Silang</option>
                             <option value="Cuyab" {{ request('barangay') == 'Cuyab' ? 'selected' : '' }}>Cuyab</option>
-                            <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>Estrella</option>
-                            <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
-                            <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>Riverside</option>
+                            <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>Estrella
+                            </option>
+                            <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>Poblacion
+                            </option>
+                            <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>Riverside
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <input type="text" name="search" class="form-control form-control-sm" 
-                               placeholder="Search name, number, contact..." value="{{ request('search') }}" 
-                               oninput="autoSearch()" id="searchInput">
+                        <input type="text" name="search" class="form-control form-control-sm"
+                            placeholder="Search name, number, contact..." value="{{ request('search') }}"
+                            oninput="autoSearch()" id="searchInput">
                     </div>
                     <div class="col-md-2">
                         <a href="{{ route('admin.fishr.requests') }}" class="btn btn-secondary btn-sm w-100">
@@ -176,22 +188,21 @@
                                 <td>{{ $registration->created_at->format('M d, Y g:i A') }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-outline-primary" 
-                                                onclick="viewRegistration({{ $registration->id }})" 
-                                                title="View Details">
+                                        <button class="btn btn-sm btn-outline-primary"
+                                            onclick="viewRegistration({{ $registration->id }})" title="View Details">
                                             <i class="fas fa-eye"></i> View
                                         </button>
-                                        
-                                        <button class="btn btn-sm btn-outline-success" 
-                                                onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')" 
-                                                title="Update Status">
+
+                                        <button class="btn btn-sm btn-outline-success"
+                                            onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
+                                            title="Update Status">
                                             <i class="fas fa-edit"></i> Update
                                         </button>
-                                        
-                                        @if($registration->document_path)
-                                            <button class="btn btn-sm btn-outline-info" 
-                                                    onclick="viewDocument('{{ $registration->document_path }}')" 
-                                                    title="View Document">
+
+                                        @if ($registration->document_path)
+                                            <button class="btn btn-sm btn-outline-info"
+                                                onclick="viewDocument('{{ $registration->document_path }}')"
+                                                title="View Document">
                                                 <i class="fas fa-file-alt"></i>
                                             </button>
                                         @endif
@@ -211,9 +222,65 @@
             </div>
 
             <!-- Pagination -->
-            @if($registrations->hasPages())
-                <div class="d-flex justify-content-center">
-                    {{ $registrations->links() }}
+            @if ($registrations->hasPages())
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm">
+                            {{-- Previous Page Link --}}
+                            @if ($registrations->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">Back</span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $registrations->previousPageUrl() }}"
+                                        rel="prev">Back</a>
+                                </li>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @php
+                                $currentPage = $registrations->currentPage();
+                                $lastPage = $registrations->lastPage();
+                                $startPage = max(1, $currentPage - 2);
+                                $endPage = min($lastPage, $currentPage + 2);
+
+                                // Ensure we always show 5 pages when possible
+                                if ($endPage - $startPage < 4) {
+                                    if ($startPage == 1) {
+                                        $endPage = min($lastPage, $startPage + 4);
+                                    } else {
+                                        $startPage = max(1, $endPage - 4);
+                                    }
+                                }
+                            @endphp
+
+                            @for ($page = $startPage; $page <= $endPage; $page++)
+                                @if ($page == $currentPage)
+                                    <li class="page-item active">
+                                        <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            href="{{ $registrations->url($page) }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endfor
+
+                            {{-- Next Page Link --}}
+                            @if ($registrations->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $registrations->nextPageUrl() }}"
+                                        rel="next">Next</a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">Next</span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
                 </div>
             @endif
         </div>
@@ -239,13 +306,16 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <p class="mb-1"><strong>ID:</strong> <span id="updateRegId"></span></p>
-                                    <p class="mb-1"><strong>Registration #:</strong> <span id="updateRegNumber"></span></p>
+                                    <p class="mb-1"><strong>Registration #:</strong> <span id="updateRegNumber"></span>
+                                    </p>
                                     <p class="mb-1"><strong>Name:</strong> <span id="updateRegName"></span></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mb-1"><strong>Barangay:</strong> <span id="updateRegBarangay"></span></p>
-                                    <p class="mb-1"><strong>Livelihood:</strong> <span id="updateRegLivelihood"></span></p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span id="updateRegCurrentStatus"></span></p>
+                                    <p class="mb-1"><strong>Livelihood:</strong> <span id="updateRegLivelihood"></span>
+                                    </p>
+                                    <p class="mb-1"><strong>Current Status:</strong> <span
+                                            id="updateRegCurrentStatus"></span></p>
                                 </div>
                             </div>
                         </div>
@@ -265,15 +335,16 @@
                         </div>
                         <div class="mb-3">
                             <label for="remarks" class="form-label">Remarks (Optional):</label>
-                            <textarea class="form-control" id="remarks" rows="3" 
-                                      placeholder="Add any notes or comments about this status change..."></textarea>
+                            <textarea class="form-control" id="remarks" rows="3"
+                                placeholder="Add any notes or comments about this status change..."></textarea>
                             <div class="form-text">Maximum 1000 characters</div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateRegistrationStatus()">Update Status</button>
+                    <button type="button" class="btn btn-primary" onclick="updateRegistrationStatus()">Update
+                        Status</button>
                 </div>
             </div>
         </div>
@@ -320,133 +391,185 @@
         .border-left-primary {
             border-left: 0.25rem solid #4e73df !important;
         }
+
         .border-left-success {
             border-left: 0.25rem solid #1cc88a !important;
         }
+
         .border-left-warning {
             border-left: 0.25rem solid #f6c23e !important;
         }
+
         .border-left-danger {
             border-left: 0.25rem solid #e74a3b !important;
         }
+
         .text-xs {
             font-size: 0.7rem;
         }
+
         .text-gray-300 {
             color: #dddfeb !important;
         }
+
         .text-gray-800 {
             color: #5a5c69 !important;
         }
+
         .table-hover tbody tr:hover {
             background-color: #f8f9fa;
         }
+
         .badge {
             font-size: 0.75em;
+        }
+
+        /* Custom Pagination Styles */
+        .pagination {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 0;
+        }
+
+        .pagination .page-item .page-link {
+            color: #6c757d;
+            background-color: transparent;
+            border: none;
+            padding: 8px 12px;
+            margin: 0 2px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item .page-link:hover {
+            color: #495057;
+            background-color: #e9ecef;
+            text-decoration: none;
+        }
+
+        .pagination .page-item.active .page-link {
+            color: white;
+            background-color: #007bff;
+            border-color: #007bff;
+            font-weight: 600;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #adb5bd;
+            background-color: transparent;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-item:first-child .page-link,
+        .pagination .page-item:last-child .page-link {
+            font-weight: 600;
         }
     </style>
 @endsection
 
 @section('scripts')
-<script>
-    let searchTimeout;
+    <script>
+        let searchTimeout;
 
-    // Auto search functionality
-    function autoSearch() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
+        // Auto search functionality
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500); // Wait 500ms after user stops typing
+        }
+
+        // Submit filter form when dropdowns change
+        function submitFilterForm() {
             document.getElementById('filterForm').submit();
-        }, 500); // Wait 500ms after user stops typing
-    }
-
-    // Submit filter form when dropdowns change
-    function submitFilterForm() {
-        document.getElementById('filterForm').submit();
-    }
-
-    // Show update modal
-    function showUpdateModal(id, currentStatus) {
-        // First fetch the registration details
-        fetch(`/admin/fishr-registrations/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                // Populate the hidden field
-                document.getElementById('updateRegistrationId').value = id;
-                
-                // Populate registration info display
-                document.getElementById('updateRegId').textContent = data.id;
-                document.getElementById('updateRegNumber').textContent = data.registration_number;
-                document.getElementById('updateRegName').textContent = data.full_name;
-                document.getElementById('updateRegBarangay').textContent = data.barangay;
-                document.getElementById('updateRegLivelihood').textContent = data.livelihood_description;
-                
-                // Show current status with badge styling
-                const currentStatusElement = document.getElementById('updateRegCurrentStatus');
-                currentStatusElement.innerHTML = `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
-                
-                // Set form values
-                document.getElementById('newStatus').value = currentStatus;
-                document.getElementById('remarks').value = ''; // Clear remarks
-                
-                // Show the modal
-                const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-                modal.show();
-            })
-            .catch(error => {
-                console.error('Error loading registration details:', error);
-                alert('Error loading registration details');
-            });
-    }
-
-    // Update registration status
-    function updateRegistrationStatus() {
-        const id = document.getElementById('updateRegistrationId').value;
-        const newStatus = document.getElementById('newStatus').value;
-        const remarks = document.getElementById('remarks').value;
-        
-        if (!newStatus) {
-            alert('Please select a status');
-            return;
         }
 
-        if (confirm(`Are you sure you want to change the status to "${newStatus}"?`)) {
-            fetch(`/admin/fishr-registrations/${id}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    status: newStatus,
-                    remarks: remarks 
+        // Show update modal
+        function showUpdateModal(id, currentStatus) {
+            // First fetch the registration details
+            fetch(`/admin/fishr-registrations/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate the hidden field
+                    document.getElementById('updateRegistrationId').value = id;
+
+                    // Populate registration info display
+                    document.getElementById('updateRegId').textContent = data.id;
+                    document.getElementById('updateRegNumber').textContent = data.registration_number;
+                    document.getElementById('updateRegName').textContent = data.full_name;
+                    document.getElementById('updateRegBarangay').textContent = data.barangay;
+                    document.getElementById('updateRegLivelihood').textContent = data.livelihood_description;
+
+                    // Show current status with badge styling
+                    const currentStatusElement = document.getElementById('updateRegCurrentStatus');
+                    currentStatusElement.innerHTML =
+                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+
+                    // Set form values
+                    document.getElementById('newStatus').value = currentStatus;
+                    document.getElementById('remarks').value = ''; // Clear remarks
+
+                    // Show the modal
+                    const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+                    modal.show();
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    // Close modal
-                    bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
-                    location.reload();
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error updating registration status');
-            });
+                .catch(error => {
+                    console.error('Error loading registration details:', error);
+                    alert('Error loading registration details');
+                });
         }
-    }
 
-    // View registration details
-    function viewRegistration(id) {
-        fetch(`/admin/fishr-registrations/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                let remarksHtml = '';
-                if (data.remarks) {
-                    remarksHtml = `
+        // Update registration status
+        function updateRegistrationStatus() {
+            const id = document.getElementById('updateRegistrationId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const remarks = document.getElementById('remarks').value;
+
+            if (!newStatus) {
+                alert('Please select a status');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to change the status to "${newStatus}"?`)) {
+                fetch(`/admin/fishr-registrations/${id}/status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus,
+                            remarks: remarks
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            // Close modal
+                            bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error updating registration status');
+                    });
+            }
+        }
+
+        // View registration details
+        function viewRegistration(id) {
+            fetch(`/admin/fishr-registrations/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    let remarksHtml = '';
+                    if (data.remarks) {
+                        remarksHtml = `
                         <div class="col-12 mt-3">
                             <h6>Remarks</h6>
                             <div class="alert alert-info">
@@ -455,9 +578,9 @@
                             </div>
                         </div>
                     `;
-                }
+                    }
 
-                document.getElementById('registrationDetails').innerHTML = `
+                    document.getElementById('registrationDetails').innerHTML = `
                     <div class="row">
                         <div class="col-md-6">
                             <h6>Personal Information</h6>
@@ -478,31 +601,33 @@
                         ${remarksHtml}
                     </div>
                 `;
-                
-                const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
-                modal.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error loading registration details');
-            });
-    }
 
-    // View document
-    function viewDocument(path) {
-        const documentViewer = document.getElementById('documentViewer');
-        const fileExtension = path.split('.').pop().toLowerCase();
-        
-        if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-            documentViewer.innerHTML = `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document">`;
-        } else if (fileExtension === 'pdf') {
-            documentViewer.innerHTML = `<embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">`;
-        } else {
-            documentViewer.innerHTML = `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
+                    const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading registration details');
+                });
         }
-        
-        const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-        modal.show();
-    }
-</script>
+
+        // View document
+        function viewDocument(path) {
+            const documentViewer = document.getElementById('documentViewer');
+            const fileExtension = path.split('.').pop().toLowerCase();
+
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                documentViewer.innerHTML = `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document">`;
+            } else if (fileExtension === 'pdf') {
+                documentViewer.innerHTML =
+                    `<embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">`;
+            } else {
+                documentViewer.innerHTML =
+                    `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            modal.show();
+        }
+    </script>
 @endsection
