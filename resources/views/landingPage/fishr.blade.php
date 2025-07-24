@@ -1,5 +1,5 @@
 <!-- FishR Registration Form -->
-<section class="application-section" id="fishr-form" style="display: none;">
+<section class="application-section" id="fishr-form">
     <div class="form-header">
         <h2>FishR Registration</h2>
         <p>National Program for Municipal Fisherfolk Registration - Register as a municipal fisherfolk.</p>
@@ -11,7 +11,7 @@
         <button class="tab-btn" onclick="showTab('fishr-info-tab', event)">Information</button>
     </div>
 
-    <div class="tab-content" id="fishr-form-tab" style="display: block;">
+    <div class="tab-content" id="fishr-form-tab">
         <!-- Success/Error Messages -->
         <div id="fishr-messages" style="display: none;">
             <div id="fishr-success-message" class="alert alert-success" style="display: none;"></div>
@@ -152,7 +152,7 @@
         </form>
     </div>
 
-    <div class="tab-content" id="fishr-requirements-tab" style="display: none;">
+    <div class="tab-content" id="fishr-requirements-tab">
         <h3>Required Documents</h3>
         <ul>
             <li>Valid government-issued ID</li>
@@ -172,7 +172,7 @@
         </ul>
     </div>
 
-    <div class="tab-content" id="fishr-info-tab" style="display: none;">
+    <div class="tab-content" id="fishr-info-tab">
         <h3>Important Information</h3>
         <p><strong>Processing Time:</strong> Applications are reviewed within 3–5 business days.</p>
         <p><strong>Contact Information:</strong> For inquiries, contact the City Agriculture Office.</p>

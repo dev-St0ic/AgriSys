@@ -1,8 +1,98 @@
 // ==============================================
-// COMPLETE FISH REGISTRATION JAVASCRIPT
-// All FishR functionality in one file
+// COMPLETE UPDATED FISH REGISTRATION JAVASCRIPT
+// Enhanced with CSRF protection and error handling
 // File: public/js/fishr.js
 // ==============================================
+
+/**
+ * Global CSRF token management
+ */
+let csrfToken = null;
+
+/**
+ * Get fresh CSRF token
+ */
+async function refreshCSRFToken() {
+    try {
+        const response = await fetch('/csrf-token');
+        const data = await response.json();
+        csrfToken = data.csrf_token;
+        
+        // Update meta tag
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) {
+            metaTag.setAttribute('content', csrfToken);
+        }
+        
+        // Update all CSRF input fields
+        document.querySelectorAll('input[name="_token"]').forEach(input => {
+            input.value = csrfToken;
+        });
+        
+        console.log('CSRF token refreshed');
+        return csrfToken;
+    } catch (error) {
+        console.error('Failed to refresh CSRF token:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get current CSRF token
+ */
+function getCSRFToken() {
+    if (csrfToken) return csrfToken;
+    
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        csrfToken = metaTag.getAttribute('content');
+        return csrfToken;
+    }
+    
+    console.error('No CSRF token found');
+    return null;
+}
+
+/**
+ * Fetch with CSRF retry logic
+ */
+async function fetchWithCSRFRetry(url, options, retries = 1) {
+    try {
+        const response = await fetch(url, options);
+        
+        // If CSRF error, refresh token and retry
+        if (response.status === 419 && retries > 0) {
+            console.log('CSRF token mismatch, refreshing token and retrying...');
+            
+            // Refresh CSRF token
+            const newToken = await refreshCSRFToken();
+            
+            // Update headers with new token
+            if (options.headers) {
+                options.headers['X-CSRF-TOKEN'] = newToken;
+            }
+            
+            // If FormData, we need to update the _token field
+            if (options.body instanceof FormData) {
+                options.body.set('_token', newToken);
+            }
+            
+            // Retry the request
+            return await fetchWithCSRFRetry(url, options, retries - 1);
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return response;
+    } catch (error) {
+        if (retries > 0 && error.message.includes('419')) {
+            throw new Error('CSRF token mismatch after retry');
+        }
+        throw error;
+    }
+}
 
 /**
  * Opens the Fish Registration form
@@ -30,7 +120,9 @@ function openFormFishR(event) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
         // Update URL without page reload
-        history.pushState(null, '', '/services/fishr');
+        if (window.location.pathname !== '/services/fishr') {
+            history.pushState({page: 'fishr'}, '', '/services/fishr');
+        }
         
         console.log('FishR form opened successfully');
     } else {
@@ -58,8 +150,10 @@ function closeFormFishR() {
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // Update URL to services page
-    history.pushState(null, '', '/services');
+    // Update URL to home page
+    if (window.location.pathname !== '/') {
+        history.pushState({page: 'home'}, '', '/');
+    }
 }
 
 /**
@@ -183,7 +277,7 @@ function updateDocumentsRequirement(livelihoodType) {
 }
 
 /**
- * Initialize FishR form submission handling with AJAX (Seedlings Style)
+ * Initialize FishR form submission handling with enhanced CSRF protection
  */
 function initializeFishRFormSubmission() {
     const form = document.getElementById('fishr-registration-form');
@@ -194,46 +288,58 @@ function initializeFishRFormSubmission() {
 
     console.log('Initializing FishR AJAX form submission');
 
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
         console.log('FishR form submitted');
         
         const submitBtn = document.getElementById('fishr-submit-btn');
         
-        // Show loading state (exactly like seedlings)
+        // Show loading state - handle both button styles
         const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Submitting...';
+        const btnText = submitBtn.querySelector('.btn-text');
+        const btnLoading = submitBtn.querySelector('.btn-loading');
+        
+        if (btnText && btnLoading) {
+            // New button style with spans
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
+        } else {
+            // Simple button style
+            submitBtn.textContent = 'Submitting...';
+        }
         submitBtn.disabled = true;
         
-        // Create FormData
-        const formData = new FormData(form);
-        
-        // Get CSRF token (exactly like seedlings)
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        console.log('Sending AJAX request to:', form.action);
-        
-        // Submit via AJAX (exactly like seedlings)
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'X-Requested-With': 'XMLHttpRequest'
+        try {
+            // Ensure we have a fresh CSRF token
+            let token = getCSRFToken();
+            if (!token) {
+                console.log('No CSRF token found, refreshing...');
+                token = await refreshCSRFToken();
             }
-        })
-        .then(response => {
-            console.log('Response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
+            
+            // Create FormData
+            const formData = new FormData(form);
+            
+            console.log('Sending AJAX request to:', form.action);
+            
+            // Submit via AJAX with retry logic
+            const response = await fetchWithCSRFRetry(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const data = await response.json();
             console.log('Response data:', data);
             
             if (data.success) {
-                // Show success message (exactly like seedlings)
+                // Show success message
                 alert('✅ ' + data.message);
                 
-                // Reset form and go back to home (exactly like seedlings)
+                // Reset form and go back to home
                 form.reset();
                 
                 // Reset other livelihood field if it was showing
@@ -242,10 +348,10 @@ function initializeFishRFormSubmission() {
                     toggleOtherLivelihood(livelihoodSelect);
                 }
                 
-                // Close form and return to landing (exactly like seedlings)
+                // Close form and return to landing
                 closeFormFishR();
             } else {
-                // Show error message (exactly like seedlings)
+                // Show error message
                 alert('❌ ' + (data.message || 'There was an error submitting your request.'));
                 
                 // Show validation errors if available
@@ -253,17 +359,24 @@ function initializeFishRFormSubmission() {
                     showFishRValidationErrors(data.errors);
                 }
             }
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('FishR submission error:', error);
-            // Show error message (exactly like seedlings)
-            alert('❌ There was an error submitting your request. Please try again.');
-        })
-        .finally(() => {
-            // Reset button state (exactly like seedlings)
-            submitBtn.textContent = originalText;
+            
+            if (error.message.includes('CSRF') || error.message.includes('419')) {
+                alert('❌ Your session has expired. Please refresh the page and try again.');
+            } else {
+                alert('❌ There was an error submitting your request. Please try again.');
+            }
+        } finally {
+            // Reset button state - handle both styles
+            if (btnText && btnLoading) {
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+            } else {
+                submitBtn.textContent = originalText;
+            }
             submitBtn.disabled = false;
-        });
+        }
     });
 }
 
@@ -455,6 +568,21 @@ function showFishRStats() {
     return stats;
 }
 
+/**
+ * Handle browser back/forward buttons
+ */
+function handlePopState(event) {
+    console.log('Pop state event:', event.state);
+    
+    if (event.state && event.state.page === 'fishr') {
+        // User navigated back to FishR form
+        openFormFishR(new Event('popstate'));
+    } else {
+        // User navigated away from FishR form
+        closeFormFishR();
+    }
+}
+
 // ==============================================
 // UTILITY FUNCTIONS - Fallback if not in main landing.js
 // ==============================================
@@ -552,6 +680,9 @@ function activateApplicationTab(formId) {
 function initializeFishRModule() {
     console.log('Initializing FishR module...');
     
+    // Get initial CSRF token
+    getCSRFToken();
+    
     // Initialize AJAX form submission
     initializeFishRFormSubmission();
     
@@ -563,6 +694,9 @@ function initializeFishRModule() {
             toggleOtherLivelihood(livelihoodSelect);
         }
     }
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', handlePopState);
     
     // Add keyboard shortcuts for development
     document.addEventListener('keydown', function(e) {
@@ -588,4 +722,4 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initializeFishRModule, 100);
 });
 
-console.log('FishR JavaScript module loaded');
+console.log('Enhanced FishR JavaScript module loaded with CSRF protection');

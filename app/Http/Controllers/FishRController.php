@@ -6,6 +6,7 @@ use App\Models\FishrApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FishRController extends Controller
 {
@@ -105,17 +106,13 @@ class FishRController extends Controller
     {
         try {
             $registration = FishrApplication::findOrFail($id);
-
-            // If it's an AJAX request, return JSON
-            if (request()->ajax()) {
-                return response()->json([
-                    'success' => true,
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
                     'id' => $registration->id,
                     'registration_number' => $registration->registration_number,
                     'full_name' => $registration->full_name,
-                    'first_name' => $registration->first_name,
-                    'middle_name' => $registration->middle_name,
-                    'last_name' => $registration->last_name,
                     'sex' => $registration->sex,
                     'barangay' => $registration->barangay,
                     'contact_number' => $registration->contact_number,
@@ -126,33 +123,23 @@ class FishRController extends Controller
                     'status_color' => $registration->status_color,
                     'formatted_status' => $registration->formatted_status,
                     'remarks' => $registration->remarks,
-                    'document_path' => $registration->document_path,
                     'created_at' => $registration->created_at->format('M d, Y h:i A'),
                     'updated_at' => $registration->updated_at->format('M d, Y h:i A'),
                     'status_updated_at' => $registration->status_updated_at ? 
                         $registration->status_updated_at->format('M d, Y h:i A') : null,
-                    'updated_by_name' => $registration->updatedBy?->name ?? null,
-                ]);
-            }
-
-            // FIXED: Changed view path for show page
-            return view('admin.fishr_requests.show', compact('registration'));
-
+                    'updated_by_name' => optional($registration->updatedBy)->name
+                ]
+            ]);
         } catch (\Exception $e) {
-            Log::error('Error fetching FishR registration', [
+            Log::error('Error loading FishR registration', [
                 'id' => $id,
                 'error' => $e->getMessage()
             ]);
-
-            if (request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Registration not found'
-                ], 404);
-            }
-
-            return redirect()->route('admin.fishr.requests')
-                           ->with('error', 'Registration not found');
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading registration details: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -162,81 +149,46 @@ class FishRController extends Controller
     public function updateStatus(Request $request, $id)
     {
         try {
+            // Validate the request
             $validated = $request->validate([
                 'status' => 'required|in:under_review,approved,rejected',
                 'remarks' => 'nullable|string|max:1000',
-            ], [
-                'status.required' => 'Status is required',
-                'status.in' => 'Invalid status selected',
             ]);
 
+            // Find the registration
             $registration = FishrApplication::findOrFail($id);
-            $oldStatus = $registration->status;
-
+            
             // Update the registration
             $registration->update([
                 'status' => $validated['status'],
                 'remarks' => $validated['remarks'],
                 'status_updated_at' => now(),
-                'updated_by' => auth()->id()
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now()
             ]);
 
-            Log::info('FishR registration status updated', [
-                'registration_id' => $registration->id,
-                'registration_number' => $registration->registration_number,
-                'old_status' => $oldStatus,
-                'new_status' => $validated['status'],
-                'updated_by' => auth()->user()->name ?? 'System',
-                'remarks' => $validated['remarks']
+            // Return success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Registration status updated successfully',
+                'data' => [
+                    'status' => $registration->status,
+                    'formatted_status' => $registration->formatted_status,
+                    'status_color' => $registration->status_color,
+                    'updated_at' => $registration->updated_at->format('M d, Y h:i A')
+                ]
             ]);
-
-            $message = "Registration {$registration->registration_number} status updated to " . 
-                      ucfirst(str_replace('_', ' ', $validated['status']));
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $message,
-                    'data' => [
-                        'status' => $registration->status,
-                        'formatted_status' => $registration->formatted_status,
-                        'status_color' => $registration->status_color,
-                        'status_updated_at' => $registration->status_updated_at->format('M d, Y h:i A')
-                    ]
-                ]);
-            }
-
-            return redirect()->route('admin.fishr.show', $registration->id)
-                           ->with('success', $message);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please check your input',
-                    'errors' => $e->errors()
-                ], 422);
-            }
-
-            return redirect()->back()->withErrors($e->validator)->withInput();
 
         } catch (\Exception $e) {
             Log::error('Error updating FishR registration status', [
-                'registration_id' => $id,
-                'request_data' => $request->all(),
+                'id' => $id,
                 'error' => $e->getMessage()
             ]);
 
-            $errorMessage = 'Error updating registration status: ' . $e->getMessage();
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $errorMessage
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', $errorMessage);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating status: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -395,6 +347,115 @@ class FishRController extends Controller
             ]);
 
             return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generate and assign FishR number
+     */
+    public function generateNumber($id)
+    {
+        try {
+            $registration = FishrApplication::findOrFail($id);
+
+            if ($registration->registration_number) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Registration already has a number'
+                ], 400);
+            }
+
+            if ($registration->status !== 'approved') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Can only generate numbers for approved registrations'
+                ], 400);
+            }
+
+            // Generate unique number
+            do {
+                $number = 'FISHR-' . strtoupper(Str::random(8));
+            } while (FishrApplication::where('registration_number', $number)->exists());
+
+            // Assign number
+            $registration->update([
+                'registration_number' => $number,
+                'number_assigned_at' => now(),
+                'assigned_by' => auth()->id()
+            ]);
+
+            Log::info('FishR number generated', [
+                'registration_id' => $id,
+                'number' => $number,
+                'user' => auth()->user()->name
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'number' => $number,
+                'message' => 'FishR number generated successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error generating FishR number', [
+                'registration_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error generating number: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Assign FishR number to a registration
+     */
+    public function assignFishRNumber(Request $request, $id)
+    {
+        try {
+            $registration = FishrApplication::findOrFail($id);
+            
+            if ($registration->fishr_number) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'FishR number already assigned'
+                ], 400);
+            }
+
+            if ($registration->status !== 'approved') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Can only assign FishR numbers to approved registrations'
+                ], 400);
+            }
+
+            // Generate unique FishR number
+            do {
+                $number = 'FISHR-' . strtoupper(Str::random(8));
+            } while (FishrApplication::where('fishr_number', $number)->exists());
+
+            $registration->update([
+                'fishr_number' => $number,
+                'fishr_number_assigned_at' => now(),
+                'fishr_number_assigned_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'FishR number assigned successfully',
+                'data' => [
+                    'fishr_number' => $number,
+                    'assigned_at' => $registration->fishr_number_assigned_at
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error assigning FishR number: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

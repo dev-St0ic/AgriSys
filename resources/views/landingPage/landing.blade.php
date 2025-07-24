@@ -34,7 +34,7 @@
         </div>
         <div class="buttons">
             <button type="button" class="btn" onclick="goHome(event)">Home</button>
-            <button type="button" class="btn" onclick="openFormRSBSA(event)">RSBSA</button>
+            <button type="button" class="btn" onclick="openRSBSAForm(event)">RSBSA</button>
             <button type="button" class="btn" onclick="openFormSeedlings(event)">Seedlings</button>
             <button type="button" class="btn" onclick="openFormFishR(event)">FishR</button>
             <button type="button" class="btn" onclick="openFormBoatR(event)">BoatR</button>
@@ -61,7 +61,7 @@
             <div class="card">
                 <h3>RSBSA Registration</h3>
                 <p>Register your details for the Registry System for Basic Sectors in Agriculture (RSBSA).</p>
-                <button class="btn-choice" onclick="openFormRSBSA(event)">Apply Now</button>
+                <button class="btn-choice" onclick="openRSBSAForm(event)">Apply Now</button>
             </div>
             <div class="card">
                 <h3>Seedlings Request</h3>

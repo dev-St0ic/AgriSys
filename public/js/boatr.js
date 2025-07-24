@@ -1,7 +1,39 @@
 // ==============================================
-// BOAT REGISTRATION MODULE - Extracted from landing.js
-// Boat Registration and Management System
+// COMPLETE WORKING BOAT REGISTRATION MODULE
+// Single File Upload Version - WITH STYLES AND FUNCTIONS
 // ==============================================
+
+console.log('Loading BoatR module...');
+
+// ==============================================
+// CSRF TOKEN MANAGEMENT
+// ==============================================
+
+/**
+ * Get CSRF token from meta tag
+ */
+function getCSRFToken() {
+    const token = document.querySelector('meta[name="csrf-token"]');
+    if (token) {
+        return token.getAttribute('content');
+    }
+    
+    console.error('CSRF token not found in meta tag!');
+    return null;
+}
+
+/**
+ * Ensure CSRF token is present
+ */
+function ensureCSRFToken() {
+    const token = getCSRFToken();
+    if (!token) {
+        console.error('CSRF token is missing! Please refresh the page.');
+        alert('Security token is missing. Please refresh the page and try again.');
+        return false;
+    }
+    return token;
+}
 
 // ==============================================
 // MAIN NAVIGATION FUNCTIONS
@@ -11,21 +43,34 @@
  * Opens the Boat Registration form
  */
 function openFormBoatR(event) {
-    event.preventDefault();
-    hideAllMainSections();
-    hideAllForms();
+    if (event) event.preventDefault();
+    
+    // Hide other sections (implement these functions as needed)
+    if (typeof hideAllMainSections === 'function') hideAllMainSections();
+    if (typeof hideAllForms === 'function') hideAllForms();
 
     const formElement = document.getElementById('boatr-form');
     if (formElement) {
         formElement.style.display = 'block';
-        activateApplicationTab('boatr-form');
+        
+        // Activate tab if function exists
+        if (typeof activateApplicationTab === 'function') {
+            activateApplicationTab('boatr-form');
+        }
+        
+        // Initialize form after showing
+        initializeBoatRForm();
     } else {
         console.error('Boat Registration form not found');
         return;
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    history.pushState(null, '', '/services/boatr');
+    
+    // Update URL without page reload
+    if (window.history && window.history.pushState) {
+        history.pushState(null, '', '/services/boatr');
+    }
 }
 
 /**
@@ -35,9 +80,15 @@ function closeFormBoatR() {
     const formElement = document.getElementById('boatr-form');
     if (formElement) formElement.style.display = 'none';
     
-    showAllMainSections();
+    // Show main sections if function exists
+    if (typeof showAllMainSections === 'function') showAllMainSections();
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    history.pushState(null, '', '/services');
+    
+    // Update URL
+    if (window.history && window.history.pushState) {
+        history.pushState(null, '', '/services');
+    }
 }
 
 // ==============================================
@@ -45,7 +96,7 @@ function closeFormBoatR() {
 // ==============================================
 
 /**
- * Handles boat type selection changes and updates form accordingly
+ * Handles boat type selection changes
  */
 function handleBoatTypeChange(select) {
     if (!select) {
@@ -56,40 +107,8 @@ function handleBoatTypeChange(select) {
     const boatType = select.value;
     console.log("Selected Boat Type:", boatType);
     
-    // Update form fields based on boat type
-    updateFormFieldsByBoatType(boatType);
-    
     // Update required documents based on boat type
     updateRequiredDocuments(boatType);
-    
-    // Show/hide additional fields
-    toggleBoatTypeSpecificFields(boatType);
-}
-
-/**
- * Updates form fields visibility and requirements based on boat type
- */
-function updateFormFieldsByBoatType(boatType) {
-    const engineFields = document.getElementById('engine-fields');
-    const commercialFields = document.getElementById('commercial-fields');
-    
-    switch (boatType) {
-        case 'motorized':
-            if (engineFields) engineFields.style.display = 'block';
-            if (commercialFields) commercialFields.style.display = 'none';
-            break;
-        case 'non-motorized':
-            if (engineFields) engineFields.style.display = 'none';
-            if (commercialFields) commercialFields.style.display = 'none';
-            break;
-        case 'commercial':
-            if (engineFields) engineFields.style.display = 'block';
-            if (commercialFields) commercialFields.style.display = 'block';
-            break;
-        default:
-            if (engineFields) engineFields.style.display = 'none';
-            if (commercialFields) commercialFields.style.display = 'none';
-    }
 }
 
 /**
@@ -99,26 +118,26 @@ function updateRequiredDocuments(boatType) {
     const docsList = document.getElementById('required-docs-list');
     if (!docsList) return;
     
-    let docsHTML = '<h4>Required Documents:</h4><ul>';
+    let docsHTML = '<h4>Required Documents for ' + boatType + ':</h4><ul>';
     
     // Base documents for all boat types
-    docsHTML += '<li>Boat Owner\'s Valid ID</li>';
+    docsHTML += '<li>Valid Government-issued ID</li>';
     docsHTML += '<li>Proof of Boat Ownership (Receipt/Invoice)</li>';
+    docsHTML += '<li>FishR Registration Certificate</li>';
+    docsHTML += '<li>Engine Specifications and Receipt</li>';
+    docsHTML += '<li>Boat Photos (Front, Side, Back views)</li>';
     
+    // Add specific requirements based on boat type
     switch (boatType) {
-        case 'motorized':
-            docsHTML += '<li>Engine Specifications</li>';
-            docsHTML += '<li>Engine Purchase Receipt</li>';
+        case 'Banca':
+            docsHTML += '<li>Outrigger Safety Certificate</li>';
             break;
-        case 'commercial':
-            docsHTML += '<li>Engine Specifications</li>';
-            docsHTML += '<li>Engine Purchase Receipt</li>';
-            docsHTML += '<li>Commercial Fishing License</li>';
-            docsHTML += '<li>Business Permit</li>';
-            docsHTML += '<li>Environmental Compliance Certificate</li>';
+        case 'Rake Stem - Rake Stern':
+        case 'Rake Stem - Transom/Spoon/Plumb Stern':
+            docsHTML += '<li>Hull Construction Details</li>';
             break;
-        case 'non-motorized':
-            docsHTML += '<li>Barangay Certification</li>';
+        case 'Skiff (Typical Design)':
+            docsHTML += '<li>Traditional Design Verification</li>';
             break;
     }
     
@@ -126,88 +145,47 @@ function updateRequiredDocuments(boatType) {
     docsList.innerHTML = docsHTML;
 }
 
+// ==============================================
+// FILE HANDLING FUNCTIONS
+// ==============================================
+
+
 /**
- * Shows/hides boat type specific fields
+ * Remove single file function
  */
-function toggleBoatTypeSpecificFields(boatType) {
-    // Engine-related fields
-    const engineHp = document.getElementById('engine-hp-field');
-    const engineBrand = document.getElementById('engine-brand-field');
+function removeSingleFile() {
+    const input = document.getElementById('boatr_supporting_documents');
+    const preview = document.getElementById('single-file-preview');
     
-    // Commercial-specific fields
-    const grossTonnage = document.getElementById('gross-tonnage-field');
-    const fishingLicense = document.getElementById('fishing-license-field');
-    
-    const showEngineFields = boatType === 'motorized' || boatType === 'commercial';
-    const showCommercialFields = boatType === 'commercial';
-    
-    if (engineHp) engineHp.style.display = showEngineFields ? 'block' : 'none';
-    if (engineBrand) engineBrand.style.display = showEngineFields ? 'block' : 'none';
-    if (grossTonnage) grossTonnage.style.display = showCommercialFields ? 'block' : 'none';
-    if (fishingLicense) fishingLicense.style.display = showCommercialFields ? 'block' : 'none';
+    input.value = '';
+    preview.style.display = 'none';
 }
 
 // ==============================================
-// DOCUMENT UPLOAD MANAGEMENT
+// TAB FUNCTIONS
 // ==============================================
 
 /**
- * Manages document upload restrictions (admin-only after inspection)
+ * Show tab function
  */
-function manageDocumentUpload() {
-    const uploadInput = document.querySelector('#boatr-form-tab input[type="file"]');
-    const uploadContainer = document.getElementById('upload-container');
+function showTab(tabId, event) {
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => {
+        content.style.display = 'none';
+    });
     
-    if (uploadInput) {
-        uploadInput.disabled = true;
-        uploadInput.title = "Upload disabled - for admin use only after on-site inspection";
-        
-        // Add visual indicator
-        if (uploadContainer) {
-            uploadContainer.style.opacity = '0.6';
-            uploadContainer.style.pointerEvents = 'none';
-        }
+    // Remove active class from all tabs
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab and mark button as active
+    if (event) {
+        document.getElementById(tabId).style.display = 'block';
+        event.target.classList.add('active');
     }
-    
-    // Add info message
-    addUploadInfoMessage();
-}
-
-/**
- * Adds informational message about upload process
- */
-function addUploadInfoMessage() {
-    const uploadSection = document.getElementById('upload-section');
-    if (uploadSection && !document.getElementById('upload-info-message')) {
-        const infoDiv = document.createElement('div');
-        infoDiv.id = 'upload-info-message';
-        infoDiv.className = 'alert alert-info';
-        infoDiv.innerHTML = `
-            <strong>Note:</strong> Document upload will be enabled by admin staff after on-site boat inspection. 
-            Please proceed with your application and schedule an inspection appointment.
-        `;
-        uploadSection.appendChild(infoDiv);
-    }
-}
-
-/**
- * Enables document upload (admin function)
- */
-function enableDocumentUpload() {
-    const uploadInput = document.querySelector('#boatr-form-tab input[type="file"]');
-    const uploadContainer = document.getElementById('upload-container');
-    
-    if (uploadInput) {
-        uploadInput.disabled = false;
-        uploadInput.title = "Upload supporting documents";
-        
-        if (uploadContainer) {
-            uploadContainer.style.opacity = '1';
-            uploadContainer.style.pointerEvents = 'auto';
-        }
-    }
-    
-    console.log('Document upload enabled by admin');
 }
 
 // ==============================================
@@ -215,62 +193,163 @@ function enableDocumentUpload() {
 // ==============================================
 
 /**
- * Validates Boat Registration form data
+ * Initialize FishR number validation with dynamic feedback
  */
-function validateBoatRForm(formData) {
-    const requiredFields = [
-        'first_name',
-        'last_name',
-        'mobile',
-        'barangay',
-        'address',
-        'boat_type',
-        'boat_name',
-        'boat_length',
-        'boat_width'
-    ];
+function initializeFishRValidation() {
+    const fishRInput = document.querySelector('#boatr_fishr_number');
+    if (!fishRInput) return;
+
+    // Remove any existing event listeners
+    fishRInput.removeEventListener('input', handleFishRInput);
+    fishRInput.removeEventListener('blur', validateFishRNumber);
+    fishRInput.removeEventListener('focus', handleFishRFocus);
     
-    const missingFields = requiredFields.filter(field => !formData[field] || formData[field].toString().trim() === '');
+    // Add dynamic validation events
+    fishRInput.addEventListener('input', handleFishRInput);
+    fishRInput.addEventListener('blur', validateFishRNumber);
+    fishRInput.addEventListener('focus', handleFishRFocus);
     
-    if (missingFields.length > 0) {
-        alert(`Please fill in the following required fields: ${missingFields.join(', ')}`);
-        return false;
+    console.log('FishR validation initialized');
+}
+
+/**
+ * Handle FishR input changes (real-time feedback)
+ */
+function handleFishRInput(event) {
+    const fishRInput = event.target;
+    const number = fishRInput.value.trim();
+    
+    // Clear previous validation state
+    clearValidationMessage(fishRInput);
+    
+    if (!number) {
+        fishRInput.style.borderColor = '';
+        fishRInput.style.backgroundColor = '';
+        return;
     }
     
-    // Validate mobile number
-    const mobilePattern = /^(09|\+639)\d{9}$/;
-    if (!mobilePattern.test(formData.mobile.replace(/\s+/g, ''))) {
-        alert('Please enter a valid mobile number (e.g., 09123456789)');
-        return false;
-    }
+    // Check format in real-time
+    const formatValid = /^FISHR-[A-Z0-9]{8}$/i.test(number);
     
-    // Validate boat dimensions
-    if (isNaN(formData.boat_length) || formData.boat_length <= 0) {
-        alert('Please enter a valid boat length');
-        return false;
+    if (number.length < 6) {
+        // Too short - neutral state
+        fishRInput.style.borderColor = '#6c757d';
+        fishRInput.style.backgroundColor = '';
+        showValidationMessage(fishRInput, 'Enter your FishR registration number', 'info');
+    } else if (!formatValid && number.length >= 6) {
+        // Invalid format
+        fishRInput.style.borderColor = '#dc3545';
+        fishRInput.style.backgroundColor = '#fff8f8';
+        showValidationMessage(fishRInput, 'Format should be FISHR-XXXXXXXX', 'error');
+    } else if (formatValid) {
+        // Valid format - show pending validation
+        fishRInput.style.borderColor = '#ffc107';
+        fishRInput.style.backgroundColor = '#fffbf0';
+        showValidationMessage(fishRInput, '🔄 Checking FishR registration...', 'warning');
+        
+        // Debounced validation
+        clearTimeout(fishRInput.validationTimeout);
+        fishRInput.validationTimeout = setTimeout(() => {
+            validateFishRNumberSilent(fishRInput);
+        }, 800);
     }
-    
-    if (isNaN(formData.boat_width) || formData.boat_width <= 0) {
-        alert('Please enter a valid boat width');
-        return false;
+}
+
+/**
+ * Handle FishR input focus
+ */
+function handleFishRFocus(event) {
+    const fishRInput = event.target;
+    if (!fishRInput.value.trim()) {
+        showValidationMessage(fishRInput, 'Enter your approved FishR registration number (FISHR-XXXXXXXX)', 'info');
     }
+}
+
+/**
+ * Validate FishR number on blur
+ */
+async function validateFishRNumber(event) {
+    const fishRInput = event.target;
+    const number = fishRInput.value.trim();
     
-    // Validate boat type specific fields
-    if (formData.boat_type === 'motorized' || formData.boat_type === 'commercial') {
-        if (!formData.engine_hp || isNaN(formData.engine_hp) || formData.engine_hp <= 0) {
-            alert('Please enter valid engine horsepower');
-            return false;
+    if (!number) {
+        clearValidationMessage(fishRInput);
+        fishRInput.style.borderColor = '';
+        fishRInput.style.backgroundColor = '';
+        return;
+    }
+
+    await validateFishRNumberSilent(fishRInput);
+}
+
+/**
+ * Silent FishR validation
+ */
+async function validateFishRNumberSilent(fishRInput) {
+    const number = fishRInput.value.trim();
+    
+    if (!number) return;
+
+    try {
+        // Show loading state
+        fishRInput.style.borderColor = '#ffc107';
+        fishRInput.style.backgroundColor = '#fffbf0';
+        showValidationMessage(fishRInput, '🔄 Validating FishR registration...', 'warning');
+        
+        const response = await fetch(`/api/validate-fishr/${encodeURIComponent(number)}`);
+        const data = await response.json();
+
+        if (data.valid) {
+            // Valid FishR number
+            fishRInput.style.borderColor = '#28a745';
+            fishRInput.style.backgroundColor = '#f8fff8';
+            showValidationMessage(fishRInput, '✅ Valid FishR registration number', 'success');
+            fishRInput.dataset.validated = 'true';
+        } else {
+            // Invalid FishR number
+            fishRInput.style.borderColor = '#dc3545';
+            fishRInput.style.backgroundColor = '#fff8f8';
+            showValidationMessage(fishRInput, '❌ Invalid or non-approved FishR number. Please ensure you have an approved FishR registration.', 'error');
+            fishRInput.dataset.validated = 'false';
         }
+    } catch (error) {
+        console.error('Error validating FishR number:', error);
+        fishRInput.style.borderColor = '#ffc107';
+        fishRInput.style.backgroundColor = '#fffbf0';
+        showValidationMessage(fishRInput, '⚠️ Unable to verify FishR number. Please check your connection.', 'warning');
+        fishRInput.dataset.validated = 'error';
     }
+}
+
+/**
+ * Show validation message
+ */
+function showValidationMessage(input, message, type) {
+    clearValidationMessage(input);
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `validation-message ${type}`;
+    messageDiv.innerHTML = message;
     
-    if (formData.boat_type === 'commercial') {
-        if (!formData.fishing_license || formData.fishing_license.trim() === '') {
-            alert('Fishing license number is required for commercial boats');
-            return false;
-        }
+    input.parentNode.insertBefore(messageDiv, input.nextSibling);
+    
+    if (type === 'success' || type === 'info') {
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
+        }, 5000);
     }
-    
-    return true;
+}
+
+/**
+ * Clear validation message
+ */
+function clearValidationMessage(input) {
+    const existingMessage = input.parentNode.querySelector('.validation-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
 }
 
 // ==============================================
@@ -278,140 +357,204 @@ function validateBoatRForm(formData) {
 // ==============================================
 
 /**
- * Handles Boat Registration form submission
+ * Handles Boat Registration form submission - COMPLETE WORKING VERSION
  */
 function submitBoatRForm(event) {
     event.preventDefault();
     
+    console.log('=== BoatR Form Submission Started ===');
+    
     const form = document.getElementById('boatr-registration-form');
     if (!form) {
         console.error('Boat Registration form not found');
+        alert('Form not found. Please refresh the page and try again.');
         return false;
     }
-    
-    // Gather form data
-    const formData = gatherBoatRData(form);
-    
-    // Validate form
-    if (!validateBoatRForm(formData)) {
+
+    // Get CSRF token
+    const csrfToken = getCSRFToken();
+    if (!csrfToken) {
+        alert('Security token is missing. Please refresh the page and try again.');
+        location.reload();
         return false;
     }
+
+    // Validate form before submission
+    if (!validateBoatRForm(form)) {
+        return false;
+    }
+
+    // Create FormData object to handle file uploads
+    const formData = new FormData(form);
     
-    // Show submission summary
-    showBoatRSummary(formData);
-    
-    // Here you would typically submit to server
-    console.log('Boat Registration submission data:', formData);
-    
-    // For demo purposes, prevent actual submission
+    // Ensure CSRF token is included
+    formData.set('_token', csrfToken);
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    console.log('Sending request to /submit-boatr...');
+
+    fetch('/submit-boatr', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': csrfToken,
+        },
+        body: formData
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', [...response.headers.entries()]);
+        
+        if (!response.ok) {
+            if (response.status === 419) {
+                alert('Security token expired. The page will refresh automatically.');
+                setTimeout(() => location.reload(), 2000);
+                throw new Error('CSRF token expired (419)');
+            } else if (response.status === 422) {
+                return response.json().then(data => {
+                    throw new Error('Validation Error: ' + JSON.stringify(data.errors || data.message));
+                });
+            } else if (response.status === 500) {
+                return response.text().then(text => {
+                    console.error('Server error response:', text);
+                    throw new Error('Server error (500). Please try again later.');
+                });
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success response:', data);
+        
+        if (data.success) {
+            let message = data.message;
+            if (data.data?.has_document) {
+                message += ' Document uploaded successfully.';
+            }
+            alert('✅ ' + message);
+            resetBoatRForm();
+            closeFormBoatR();
+        } else {
+            console.error('Submission error:', data);
+            
+            if (data.errors) {
+                let errorMessage = 'Please correct the following errors:\n';
+                Object.keys(data.errors).forEach(field => {
+                    errorMessage += `• ${data.errors[field].join(', ')}\n`;
+                });
+                alert('❌ ' + errorMessage);
+            } else {
+                alert('❌ ' + (data.message || 'Error submitting form. Please try again.'));
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        
+        if (error.message.includes('419') || error.message.includes('CSRF')) {
+            alert('❌ Security token expired. The page will refresh automatically.');
+            setTimeout(() => location.reload(), 2000);
+        } else if (error.message.includes('Failed to fetch')) {
+            alert('❌ Network connection error. Please check your internet connection and try again.');
+        } else if (error.message.includes('Validation Error')) {
+            alert('❌ ' + error.message);
+        } else {
+            alert('❌ An error occurred while submitting your application. Please try again.');
+        }
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+        console.log('=== BoatR Form Submission Completed ===');
+    });
+
     return false;
 }
 
-// ==============================================
-// DATA COLLECTION
-// ==============================================
-
 /**
- * Gathers all data from Boat Registration form
+ * Validates Boat Registration form data
  */
-function gatherBoatRData(form) {
-    return {
-        // Personal Information
-        first_name: form.first_name?.value?.trim() || '',
-        middle_name: form.middle_name?.value?.trim() || '',
-        last_name: form.last_name?.value?.trim() || '',
-        suffix: form.suffix?.value?.trim() || '',
-        
-        // Contact Information
-        mobile: form.mobile?.value?.trim() || '',
-        email: form.email?.value?.trim() || '',
-        
-        // Address Information
-        barangay: form.barangay?.value?.trim() || '',
-        address: form.address?.value?.trim() || '',
-        
-        // Boat Information
-        boat_type: form.boat_type?.value || '',
-        boat_name: form.boat_name?.value?.trim() || '',
-        boat_length: parseFloat(form.boat_length?.value) || 0,
-        boat_width: parseFloat(form.boat_width?.value) || 0,
-        boat_material: form.boat_material?.value || '',
-        boat_color: form.boat_color?.value?.trim() || '',
-        year_built: form.year_built?.value || '',
-        
-        // Engine Information (if applicable)
-        engine_hp: parseFloat(form.engine_hp?.value) || 0,
-        engine_brand: form.engine_brand?.value?.trim() || '',
-        engine_model: form.engine_model?.value?.trim() || '',
-        engine_serial: form.engine_serial?.value?.trim() || '',
-        
-        // Commercial Information (if applicable)
-        gross_tonnage: parseFloat(form.gross_tonnage?.value) || 0,
-        fishing_license: form.fishing_license?.value?.trim() || '',
-        
-        // Usage Information
-        primary_use: form.primary_use?.value || '',
-        fishing_area: form.fishing_area?.value?.trim() || '',
-        
-        // Supporting Documents
-        supporting_docs: form.supporting_docs?.files || null,
-        
-        timestamp: new Date().toISOString()
-    };
-}
-
-// ==============================================
-// SUMMARY DISPLAY
-// ==============================================
-
-/**
- * Shows submission summary for Boat Registration
- */
-function showBoatRSummary(formData) {
-    let summary = '=== BOAT REGISTRATION APPLICATION ===\n\n';
+function validateBoatRForm(form) {
+    const formData = new FormData(form);
+    const requiredFields = [
+        'first_name',
+        'last_name',
+        'fishr_number',
+        'vessel_name',
+        'boat_type',
+        'boat_length',
+        'boat_width',
+        'boat_depth',
+        'engine_type',
+        'engine_horsepower',
+        'primary_fishing_gear'
+    ];
     
-    summary += 'Personal Information:\n';
-    summary += `Name: ${formData.first_name} ${formData.middle_name} ${formData.last_name} ${formData.suffix}`.trim() + '\n';
-    summary += `Mobile: ${formData.mobile}\n`;
-    if (formData.email) summary += `Email: ${formData.email}\n`;
+    // Check for missing required fields
+    const missingFields = requiredFields.filter(field => {
+        const value = formData.get(field);
+        return !value || value.toString().trim() === '';
+    });
     
-    summary += '\nAddress Information:\n';
-    summary += `Barangay: ${formData.barangay}\n`;
-    summary += `Address: ${formData.address}\n`;
-    
-    summary += '\nBoat Information:\n';
-    summary += `Boat Type: ${formData.boat_type}\n`;
-    summary += `Boat Name: ${formData.boat_name}\n`;
-    summary += `Dimensions: ${formData.boat_length}m x ${formData.boat_width}m\n`;
-    if (formData.boat_material) summary += `Material: ${formData.boat_material}\n`;
-    if (formData.boat_color) summary += `Color: ${formData.boat_color}\n`;
-    if (formData.year_built) summary += `Year Built: ${formData.year_built}\n`;
-    
-    if (formData.boat_type === 'motorized' || formData.boat_type === 'commercial') {
-        summary += '\nEngine Information:\n';
-        summary += `Engine: ${formData.engine_hp} HP\n`;
-        if (formData.engine_brand) summary += `Brand: ${formData.engine_brand}\n`;
-        if (formData.engine_model) summary += `Model: ${formData.engine_model}\n`;
-        if (formData.engine_serial) summary += `Serial: ${formData.engine_serial}\n`;
+    if (missingFields.length > 0) {
+        const fieldNames = missingFields.map(field => {
+            return field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        });
+        alert(`Please fill in the following required fields: ${fieldNames.join(', ')}`);
+        return false;
     }
     
-    if (formData.boat_type === 'commercial') {
-        summary += '\nCommercial Information:\n';
-        if (formData.gross_tonnage) summary += `Gross Tonnage: ${formData.gross_tonnage}\n`;
-        summary += `Fishing License: ${formData.fishing_license}\n`;
+    // Validate FishR number format
+    const fishRNumber = formData.get('fishr_number');
+    if (!fishRNumber.match(/^FISHR-[A-Z0-9]{8}$/i)) {
+        alert('Please enter a valid FishR registration number (format: FISHR-XXXXXXXX)');
+        const fishRInput = form.querySelector('#boatr_fishr_number');
+        if (fishRInput) fishRInput.focus();
+        return false;
     }
     
-    summary += '\nUsage Information:\n';
-    if (formData.primary_use) summary += `Primary Use: ${formData.primary_use}\n`;
-    if (formData.fishing_area) summary += `Fishing Area: ${formData.fishing_area}\n`;
-    
-    if (formData.supporting_docs && formData.supporting_docs.length > 0) {
-        summary += `\nSupporting Documents: ${formData.supporting_docs.length} file(s) attached\n`;
+    // Check if FishR was validated (optional)
+    const fishRInput = form.querySelector('#boatr_fishr_number');
+    if (fishRInput && fishRInput.dataset.validated === 'false') {
+        alert('The FishR registration number you entered is not valid or not approved. Please enter a valid approved FishR number.');
+        fishRInput.focus();
+        return false;
     }
     
-    summary += '\nNote: On-site inspection will be scheduled after application review.\n';
+    // Validate boat dimensions
+    const length = parseFloat(formData.get('boat_length'));
+    const width = parseFloat(formData.get('boat_width'));
+    const depth = parseFloat(formData.get('boat_depth'));
     
-    alert(summary);
+    if (isNaN(length) || length <= 0 || length > 200) {
+        alert('Please enter a valid boat length (1-200 feet)');
+        return false;
+    }
+    
+    if (isNaN(width) || width <= 0 || width > 50) {
+        alert('Please enter a valid boat width (1-50 feet)');
+        return false;
+    }
+    
+    if (isNaN(depth) || depth <= 0 || depth > 30) {
+        alert('Please enter a valid boat depth (1-30 feet)');
+        return false;
+    }
+    
+    // Validate engine horsepower
+    const hp = parseInt(formData.get('engine_horsepower'));
+    if (isNaN(hp) || hp <= 0 || hp > 500) {
+        alert('Please enter valid engine horsepower (1-500 HP)');
+        return false;
+    }
+    
+    return true;
 }
 
 // ==============================================
@@ -419,64 +562,410 @@ function showBoatRSummary(formData) {
 // ==============================================
 
 /**
- * Resets Boat Registration form
+ * Initialize Boat Registration form
+ */
+function initializeBoatRForm() {
+    console.log('Initializing BoatR form...');
+    
+    // Initialize FishR validation
+    initializeFishRValidation();
+    
+    // Initialize boat type field
+    const boatTypeSelect = document.getElementById('boatr_boat_type');
+    if (boatTypeSelect && boatTypeSelect.value) {
+        handleBoatTypeChange(boatTypeSelect);
+    }
+    
+    // Ensure CSRF token is available
+    ensureCSRFToken();
+    
+    console.log('BoatR form initialized successfully');
+}
+
+/**
+ * Reset Boat Registration form
  */
 function resetBoatRForm() {
     const form = document.getElementById('boatr-registration-form');
     if (form) {
         form.reset();
         
-        // Reset dynamic fields
-        const engineFields = document.getElementById('engine-fields');
-        const commercialFields = document.getElementById('commercial-fields');
-        if (engineFields) engineFields.style.display = 'none';
-        if (commercialFields) commercialFields.style.display = 'none';
+        // Clear validation messages
+        const validationMessages = form.querySelectorAll('.validation-message');
+        validationMessages.forEach(msg => msg.remove());
         
-        // Reset document upload state
-        manageDocumentUpload();
+        // Reset input styles
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.style.borderColor = '';
+            input.style.backgroundColor = '';
+            delete input.dataset.validated;
+            
+            if (input.validationTimeout) {
+                clearTimeout(input.validationTimeout);
+                delete input.validationTimeout;
+            }
+        });
+        
+        // Hide file preview
+        const preview = document.getElementById('single-file-preview');
+        if (preview) preview.style.display = 'none';
         
         console.log('Boat Registration form reset');
     }
 }
 
 /**
- * Auto-fills form with sample data (for testing)
+ * Fill sample data for testing
  */
 function fillSampleBoatRData() {
     const form = document.getElementById('boatr-registration-form');
-    if (form) {
-        if (form.first_name) form.first_name.value = 'Captain';
-        if (form.middle_name) form.middle_name.value = 'Sea';
-        if (form.last_name) form.last_name.value = 'Navigator';
-        if (form.mobile) form.mobile.value = '09123456789';
-        if (form.barangay) form.barangay.value = 'Barangay Port';
-        if (form.address) form.address.value = 'Harbor Area, Sample City';
-        if (form.boat_type) form.boat_type.value = 'motorized';
-        if (form.boat_name) form.boat_name.value = 'Sea Explorer';
-        if (form.boat_length) form.boat_length.value = '8.5';
-        if (form.boat_width) form.boat_width.value = '2.5';
-        if (form.engine_hp) form.engine_hp.value = '40';
-        if (form.engine_brand) form.engine_brand.value = 'Yamaha';
-        
-        // Trigger boat type change
-        if (form.boat_type) {
-            handleBoatTypeChange(form.boat_type);
+    if (!form) return;
+    
+    const sampleData = {
+        first_name: 'Juan',
+        middle_name: 'dela',
+        last_name: 'Cruz',
+        fishr_number: 'FISHR-SAMPLE01',
+        vessel_name: 'MV Lucky Star',
+        boat_type: 'Banca',
+        boat_length: '15.5',
+        boat_width: '3.2',
+        boat_depth: '2.1',
+        engine_type: 'Yamaha Outboard Motor',
+        engine_horsepower: '40',
+        primary_fishing_gear: 'Hook and Line'
+    };
+    
+    Object.keys(sampleData).forEach(key => {
+        const input = form.querySelector(`[name="${key}"]`);
+        if (input) {
+            input.value = sampleData[key];
         }
-        
-        console.log('Sample data filled for Boat Registration form');
+    });
+    
+    // Trigger boat type change
+    const boatTypeSelect = form.querySelector('[name="boat_type"]');
+    if (boatTypeSelect) {
+        handleBoatTypeChange(boatTypeSelect);
     }
+    
+    console.log('Sample data filled');
 }
 
+// ==============================================
+// CSS STYLES INJECTION
+// ==============================================
+
 /**
- * Gets boat registration statistics (placeholder for future implementation)
+ * Inject CSS styles for BoatR form
  */
-function getBoatRStats() {
-    // This would typically fetch from server
-    return {
-        totalRegistrations: 0,
-        pendingInspections: 0,
-        approvedToday: 0
-    };
+function injectBoatRStyles() {
+    // Check if styles already injected
+    if (document.querySelector('#boatr-styles')) {
+        return;
+    }
+
+    const style = document.createElement('style');
+    style.id = 'boatr-styles';
+    style.textContent = `
+        /* BoatR Form Styles */
+        .application-section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .form-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #2c5530;
+            border-bottom: 3px solid #2c5530;
+        }
+
+        .tab-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2c5530;
+            box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .file-preview {
+            margin-top: 10px;
+            padding: 15px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .file-preview-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .remove-file-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .remove-file-btn:hover {
+            background: #c82333;
+        }
+
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert i {
+            margin-right: 8px;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .cancel-btn,
+        .submit-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: #5a6268;
+        }
+
+        .submit-btn {
+            background: #2c5530;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background: #1e3a21;
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Validation message styles */
+        .validation-message {
+            display: block;
+            margin-top: 5px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border-left: 3px solid;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .validation-message.success {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .validation-message.error {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .validation-message.warning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .validation-message.info {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced input focus states */
+        #boatr_fishr_number:focus {
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        .validation-message i {
+            margin-right: 5px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .form-buttons {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .application-section {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
+
+        /* Additional styling for better UX */
+        .form-group input[type="file"] {
+            padding: 8px;
+            border: 2px dashed #ddd;
+            background: #f9f9f9;
+        }
+
+        .form-group input[type="file"]:hover {
+            border-color: #2c5530;
+            background: #f0f8f0;
+        }
+
+        .required-docs-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .required-docs-list h4 {
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .required-docs-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .required-docs-list li {
+            margin-bottom: 5px;
+            color: #555;
+        }
+    `;
+    
+    document.head.appendChild(style);
+    console.log('BoatR styles injected');
 }
 
 // ==============================================
@@ -484,40 +973,54 @@ function getBoatRStats() {
 // ==============================================
 
 /**
- * Initialize Boat Registration module
+ * Initialize when DOM is ready
  */
-function initializeBoatRModule() {
-    console.log('Boat Registration module initialized');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('BoatR module DOM ready');
     
-    // Set up document upload restrictions
-    manageDocumentUpload();
+    // Inject styles
+    injectBoatRStyles();
     
-    // Initialize boat type field if it exists
-    const boatTypeSelect = document.getElementById('boat_type');
-    if (boatTypeSelect) {
-        handleBoatTypeChange(boatTypeSelect);
+    // Ensure CSRF token is present
+    ensureCSRFToken();
+    
+    // Initialize if form is visible
+    const boatRForm = document.getElementById('boatr-form');
+    if (boatRForm && boatRForm.style.display !== 'none') {
+        initializeBoatRForm();
     }
-}
+});
 
 /**
- * Initialize boat registration features (called from landing.js)
+ * Legacy initialization function
  */
 function initializeBoatRegistration() {
-    const uploadInput = document.querySelector('#boatr-form-tab input[type="file"]');
-    if (uploadInput) {
-        uploadInput.disabled = true;
-        uploadInput.title = "Upload disabled - for admin use only after on-site inspection";
-    }
+    injectBoatRStyles();
+    initializeBoatRForm();
 }
 
 // ==============================================
-// UTILITY FUNCTIONS (these should be imported from landing.js)
+// GLOBAL FUNCTIONS FOR COMPATIBILITY
 // ==============================================
 
-// Note: These functions should remain in landing.js and be accessible globally
-// - hideAllMainSections()
-// - showAllMainSections() 
-// - hideAllForms()
-// - activateApplicationTab(formId)
+// Make functions available globally
+window.openFormBoatR = openFormBoatR;
+window.closeFormBoatR = closeFormBoatR;
+window.submitBoatRForm = submitBoatRForm;
+window.handleBoatTypeChange = handleBoatTypeChange;
+window.initializeBoatRegistration = initializeBoatRegistration;
+window.fillSampleBoatRData = fillSampleBoatRData;
+window.previewSingleFile = previewSingleFile;
+window.removeSingleFile = removeSingleFile;
+window.showTab = showTab;
 
-console.log('Boat Registration module loaded successfully');
+// Auto-initialize when script loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        injectBoatRStyles();
+    });
+} else {
+    injectBoatRStyles();
+}
+
+console.log('BoatR module loaded successfully ✅');
