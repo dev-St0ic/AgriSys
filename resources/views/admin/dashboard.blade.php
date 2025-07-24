@@ -110,7 +110,7 @@
                                 Inventory Items
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalInventoryItems }}</div>
-                            @if($lowStockItems > 0 || $outOfStockItems > 0)
+                            @if ($lowStockItems > 0 || $outOfStockItems > 0)
                                 <div class="text-xs text-danger">
                                     {{ $outOfStockItems }} out, {{ $lowStockItems }} low
                                 </div>
@@ -126,7 +126,7 @@
     </div>
 
     <!-- Inventory Alerts -->
-    @if($lowStockItems > 0 || $outOfStockItems > 0)
+    @if ($lowStockItems > 0 || $outOfStockItems > 0)
         <div class="row mb-4">
             <div class="col-12">
                 <div class="alert alert-warning border-left-warning shadow" role="alert">
@@ -138,12 +138,12 @@
                             <h5 class="alert-heading mb-2">
                                 <i class="fas fa-warehouse me-2"></i>Inventory Alerts
                             </h5>
-                            @if($outOfStockItems > 0)
+                            @if ($outOfStockItems > 0)
                                 <p class="mb-1">
                                     <strong class="text-danger">⚠ {{ $outOfStockItems }} item(s) are out of stock</strong>
                                 </p>
                             @endif
-                            @if($lowStockItems > 0)
+                            @if ($lowStockItems > 0)
                                 <p class="mb-1">
                                     <strong class="text-warning">⚠ {{ $lowStockItems }} item(s) have low stock</strong>
                                 </p>

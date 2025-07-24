@@ -358,8 +358,8 @@ public function submitRsbsa(Request $request)
             }
         }
 
-        // Generate unique application number - FIXED: Use correct method name
-        $applicationNumber = $this->generateUniqueApplicationNumber();
+        // Generate unique application number for RSBSA
+        $applicationNumber = $this->generateUniqueRsbsaApplicationNumber();
         Log::info('Generated RSBSA application number: ' . $applicationNumber);
 
         // Prepare data for database insertion (streamlined)
@@ -646,6 +646,18 @@ public function submitRsbsa(Request $request)
         do {
             $applicationNumber = 'BOATR-' . strtoupper(Str::random(8));
         } while (BoatrApplication::where('application_number', $applicationNumber)->exists());
+
+        return $applicationNumber;
+    }
+
+    /**
+     * Generate unique application number for RSBSA applications
+     */
+    private function generateUniqueRsbsaApplicationNumber(): string
+    {
+        do {
+            $applicationNumber = 'RSBSA-' . strtoupper(Str::random(8));
+        } while (RsbsaApplication::where('application_number', $applicationNumber)->exists());
 
         return $applicationNumber;
     }
