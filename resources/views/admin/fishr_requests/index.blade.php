@@ -1,3 +1,4 @@
+{{-- resources/views/admin/fishr_requests/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'FishR Registrations - AgriSys Admin')
@@ -79,68 +80,162 @@
         </div>
     </div>
 
-    <!-- Filters -->
+    <!-- Enhanced Filters Section (Updated to match inventory style) -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-filter me-2"></i>Filters & Search
             </h6>
         </div>
-        <div class="card-body">
-            <form method="GET" action="{{ route('admin.fishr.requests') }}" id="filterForm">
-                <div class="row">
-                    <div class="col-md-2">
-                        <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
-                            <option value="">All Status</option>
-                            <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>Under
-                                Review</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved
-                            </option>
-                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected
-                            </option>
-                        </select>
+        <div class="card-body p-4">
+            <!-- Enhanced Search and Filter Form (matches inventory style) -->
+            <div class="filter-section mb-0">
+                <form method="GET" action="{{ route('admin.fishr.requests') }}" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" name="search" class="form-control border-start-0"
+                                    placeholder="🔍 Search name, number, contact..." 
+                                    value="{{ request('search') }}"
+                                    oninput="autoSearch()" id="searchInput">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-select" onchange="submitFilterForm()">
+                                <option value="">📊 All Status</option>
+                                <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
+                                    ⏳ Under Review
+                                </option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
+                                    ✅ Approved
+                                </option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
+                                    ❌ Rejected
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="livelihood" class="form-select" onchange="submitFilterForm()">
+                                <option value="">🎣 All Livelihood</option>
+                                <option value="capture" {{ request('livelihood') == 'capture' ? 'selected' : '' }}>
+                                    🎣 Capture Fishing
+                                </option>
+                                <option value="aquaculture" {{ request('livelihood') == 'aquaculture' ? 'selected' : '' }}>
+                                    🐟 Aquaculture
+                                </option>
+                                <option value="vending" {{ request('livelihood') == 'vending' ? 'selected' : '' }}>
+                                    🛒 Fish Vending
+                                </option>
+                                <option value="processing" {{ request('livelihood') == 'processing' ? 'selected' : '' }}>
+                                    🏭 Fish Processing
+                                </option>
+                                <option value="others" {{ request('livelihood') == 'others' ? 'selected' : '' }}>
+                                    📋 Others
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="barangay" class="form-select" onchange="submitFilterForm()">
+                                <option value="">🏘️ All Barangay</option>
+                                <option value="Bagong Silang" {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>
+                                    Bagong Silang
+                                </option>
+                                <option value="Calendola" {{ request('barangay') == 'Calendola' ? 'selected' : '' }}>
+                                    Calendola
+                                </option>
+                                <option value="Chrysanthemum" {{ request('barangay') == 'Chrysanthemum' ? 'selected' : '' }}>
+                                    Chrysanthemum
+                                </option>
+                                <option value="Cuyab" {{ request('barangay') == 'Cuyab' ? 'selected' : '' }}>
+                                    Cuyab
+                                </option>
+                                <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>
+                                    Estrella
+                                </option>
+                                <option value="Fatima" {{ request('barangay') == 'Fatima' ? 'selected' : '' }}>
+                                    Fatima
+                                </option>
+                                <option value="G.S.I.S." {{ request('barangay') == 'G.S.I.S.' ? 'selected' : '' }}>
+                                    G.S.I.S.
+                                </option>
+                                <option value="Landayan" {{ request('barangay') == 'Landayan' ? 'selected' : '' }}>
+                                    Landayan
+                                </option>
+                                <option value="Langgam" {{ request('barangay') == 'Langgam' ? 'selected' : '' }}>
+                                    Langgam
+                                </option>
+                                <option value="Laram" {{ request('barangay') == 'Laram' ? 'selected' : '' }}>
+                                    Laram
+                                </option>
+                                <option value="Magsaysay" {{ request('barangay') == 'Magsaysay' ? 'selected' : '' }}>
+                                    Magsaysay
+                                </option>
+                                <option value="Maharlika" {{ request('barangay') == 'Maharlika' ? 'selected' : '' }}>
+                                    Maharlika
+                                </option>
+                                <option value="Narra" {{ request('barangay') == 'Narra' ? 'selected' : '' }}>
+                                    Narra
+                                </option>
+                                <option value="Nueva" {{ request('barangay') == 'Nueva' ? 'selected' : '' }}>
+                                    Nueva
+                                </option>
+                                <option value="Pacita 1" {{ request('barangay') == 'Pacita 1' ? 'selected' : '' }}>
+                                    Pacita 1
+                                </option>
+                                <option value="Pacita 2" {{ request('barangay') == 'Pacita 2' ? 'selected' : '' }}>
+                                    Pacita 2
+                                </option>
+                                <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>
+                                    Poblacion
+                                </option>
+                                <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>
+                                    Riverside
+                                </option>
+                                <option value="Rosario" {{ request('barangay') == 'Rosario' ? 'selected' : '' }}>
+                                    Rosario
+                                </option>
+                                <option value="Sampaguita Village" {{ request('barangay') == 'Sampaguita Village' ? 'selected' : '' }}>
+                                    Sampaguita Village
+                                </option>
+                                <option value="San Antonio" {{ request('barangay') == 'San Antonio' ? 'selected' : '' }}>
+                                    San Antonio
+                                </option>
+                                <option value="San Lorenzo Ruiz" {{ request('barangay') == 'San Lorenzo Ruiz' ? 'selected' : '' }}>
+                                    San Lorenzo Ruiz
+                                </option>
+                                <option value="San Roque" {{ request('barangay') == 'San Roque' ? 'selected' : '' }}>
+                                    San Roque
+                                </option>
+                                <option value="San Vicente" {{ request('barangay') == 'San Vicente' ? 'selected' : '' }}>
+                                    San Vicente
+                                </option>
+                                <option value="Santo Niño" {{ request('barangay') == 'Santo Niño' ? 'selected' : '' }}>
+                                    Santo Niño
+                                </option>
+                                <option value="United Bayanihan" {{ request('barangay') == 'United Bayanihan' ? 'selected' : '' }}>
+                                    United Bayanihan
+                                </option>
+                                <option value="United Better Living" {{ request('barangay') == 'United Better Living' ? 'selected' : '' }}>
+                                    United Better Living
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="btn-group w-100" role="group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter me-1"></i>Filter
+                                </button>
+                                <a href="{{ route('admin.fishr.requests') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-refresh me-1"></i>Reset
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <select name="livelihood" class="form-select form-select-sm" onchange="submitFilterForm()">
-                            <option value="">All Livelihood</option>
-                            <option value="capture" {{ request('livelihood') == 'capture' ? 'selected' : '' }}>Capture
-                                Fishing</option>
-                            <option value="aquaculture" {{ request('livelihood') == 'aquaculture' ? 'selected' : '' }}>
-                                Aquaculture</option>
-                            <option value="vending" {{ request('livelihood') == 'vending' ? 'selected' : '' }}>Fish Vending
-                            </option>
-                            <option value="processing" {{ request('livelihood') == 'processing' ? 'selected' : '' }}>Fish
-                                Processing</option>
-                            <option value="others" {{ request('livelihood') == 'others' ? 'selected' : '' }}>Others
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="barangay" class="form-select form-select-sm" onchange="submitFilterForm()">
-                            <option value="">All Barangay</option>
-                            <option value="Bagong Silang" {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>
-                                Bagong Silang</option>
-                            <option value="Cuyab" {{ request('barangay') == 'Cuyab' ? 'selected' : '' }}>Cuyab</option>
-                            <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>Estrella
-                            </option>
-                            <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>Poblacion
-                            </option>
-                            <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>Riverside
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <input type="text" name="search" class="form-control form-control-sm"
-                            placeholder="Search name, number, contact..." value="{{ request('search') }}"
-                            oninput="autoSearch()" id="searchInput">
-                    </div>
-                    <div class="col-md-2">
-                        <a href="{{ route('admin.fishr.requests') }}" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-times"></i> Clear
-                        </a>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -388,6 +483,62 @@
     </div>
 
     <style>
+        /* Enhanced Filter Section Styling (matches inventory) */
+        .filter-section .form-control,
+        .filter-section .form-select {
+            border-radius: 8px;
+            border: 1px solid #e3e6f0;
+            transition: all 0.3s ease;
+        }
+
+        .filter-section .form-control:focus,
+        .filter-section .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .filter-section .input-group-text {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .filter-section .form-control {
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Enhanced visual feedback for changed fields */
+        .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd;
+            transition: all 0.3s ease;
+        }
+
+        .no-changes {
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        /* Change indicator */
+        .change-indicator {
+            position: relative;
+        }
+
+        .change-indicator::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .change-indicator.changed::after {
+            opacity: 1;
+        }
+
+        /* Existing styles maintained */
         .border-left-primary {
             border-left: 0.25rem solid #4e73df !important;
         }
@@ -470,120 +621,240 @@
 @endsection
 
 @section('scripts')
-    <script>
-        let searchTimeout;
-
-        // Auto search functionality
-        function autoSearch() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                document.getElementById('filterForm').submit();
-            }, 500); // Wait 500ms after user stops typing
+<script>
+    // Add this at the top of your scripts section
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
+    });
 
-        // Submit filter form when dropdowns change
-        function submitFilterForm() {
+    let searchTimeout;
+
+    // Auto search functionality (matches inventory)
+    function autoSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
             document.getElementById('filterForm').submit();
+        }, 500); // Wait 500ms after user stops typing
+    }
+
+    // Submit filter form when dropdowns change (matches inventory)
+    function submitFilterForm() {
+        document.getElementById('filterForm').submit();
+    }
+
+    // Helper function to get status display text
+    function getStatusText(status) {
+        switch(status) {
+            case 'under_review': return 'Under Review';
+            case 'approved': return 'Approved';
+            case 'rejected': return 'Rejected';
+            default: return status;
+        }
+    }
+
+    // Enhanced show update modal function to store original values
+    function showUpdateModal(id, currentStatus) {
+        // Show loading state in modal
+        document.getElementById('updateRegId').innerHTML = `
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>`;
+
+        // First fetch the registration details
+        fetch(`/admin/fishr-registrations/${id}`)
+            .then(response => response.json())
+            .then(response => {
+                if (!response.success) {
+                    throw new Error('Failed to load registration details');
+                }
+
+                const data = response.data;
+                
+                // Populate the hidden field
+                document.getElementById('updateRegistrationId').value = id;
+
+                // Populate registration info display
+                document.getElementById('updateRegId').textContent = data.registration_number;
+                document.getElementById('updateRegNumber').textContent = data.registration_number;
+                document.getElementById('updateRegName').textContent = data.full_name;
+                document.getElementById('updateRegBarangay').textContent = data.barangay;
+                document.getElementById('updateRegLivelihood').textContent = data.livelihood_description;
+
+                // Show current status with badge styling
+                const currentStatusElement = document.getElementById('updateRegCurrentStatus');
+                currentStatusElement.innerHTML = `
+                    <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+
+                // Set form values and store original values for comparison
+                const statusSelect = document.getElementById('newStatus');
+                const remarksTextarea = document.getElementById('remarks');
+                
+                statusSelect.value = data.status;
+                statusSelect.dataset.originalStatus = data.status; // Store original status
+                
+                remarksTextarea.value = data.remarks || '';
+                remarksTextarea.dataset.originalRemarks = data.remarks || ''; // Store original remarks
+
+                // Remove any previous change indicators
+                statusSelect.classList.remove('form-changed');
+                remarksTextarea.classList.remove('form-changed');
+                statusSelect.parentElement.classList.remove('change-indicator', 'changed');
+                remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
+
+                // Add change indicator classes
+                statusSelect.parentElement.classList.add('change-indicator');
+                remarksTextarea.parentElement.classList.add('change-indicator');
+
+                // Reset update button state
+                const updateButton = document.querySelector('#updateModal .btn-primary');
+                updateButton.classList.remove('no-changes');
+
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading registration details: ' + error.message);
+            });
+    }
+
+    // Enhanced update registration status function with change detection
+    function updateRegistrationStatus() {
+        const id = document.getElementById('updateRegistrationId').value;
+        const newStatus = document.getElementById('newStatus').value;
+        const remarks = document.getElementById('remarks').value;
+
+        if (!newStatus) {
+            alert('Please select a status');
+            return;
         }
 
-        // Show update modal
-        function showUpdateModal(id, currentStatus) {
-            // First fetch the registration details
-            fetch(`/admin/fishr-registrations/${id}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Populate the hidden field
-                    document.getElementById('updateRegistrationId').value = id;
+        // Get the original values to compare changes
+        const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
+        const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
 
-                    // Populate registration info display
-                    document.getElementById('updateRegId').textContent = data.id;
-                    document.getElementById('updateRegNumber').textContent = data.registration_number;
-                    document.getElementById('updateRegName').textContent = data.full_name;
-                    document.getElementById('updateRegBarangay').textContent = data.barangay;
-                    document.getElementById('updateRegLivelihood').textContent = data.livelihood_description;
-
-                    // Show current status with badge styling
-                    const currentStatusElement = document.getElementById('updateRegCurrentStatus');
-                    currentStatusElement.innerHTML =
-                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
-
-                    // Set form values
-                    document.getElementById('newStatus').value = currentStatus;
-                    document.getElementById('remarks').value = ''; // Clear remarks
-
-                    // Show the modal
-                    const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-                    modal.show();
-                })
-                .catch(error => {
-                    console.error('Error loading registration details:', error);
-                    alert('Error loading registration details');
-                });
+        // Check if nothing has changed
+        if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
+            alert('No changes detected. Please modify the status or remarks before updating.');
+            return;
         }
 
-        // Update registration status
-        function updateRegistrationStatus() {
-            const id = document.getElementById('updateRegistrationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
-
-            if (!newStatus) {
-                alert('Please select a status');
-                return;
+        // Show confirmation dialog with changes summary
+        let changesSummary = [];
+        if (newStatus !== originalStatus) {
+            const originalStatusText = getStatusText(originalStatus);
+            const newStatusText = getStatusText(newStatus);
+            changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+        }
+        if (remarks.trim() !== originalRemarks.trim()) {
+            if (originalRemarks.trim() === '') {
+                changesSummary.push('Remarks: Added new remarks');
+            } else if (remarks.trim() === '') {
+                changesSummary.push('Remarks: Removed existing remarks');
+            } else {
+                changesSummary.push('Remarks: Modified');
             }
-
-            if (confirm(`Are you sure you want to change the status to "${newStatus}"?`)) {
-                fetch(`/admin/fishr-registrations/${id}/status`, {
-                        method: 'PATCH',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            status: newStatus,
-                            remarks: remarks
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            // Close modal
-                            bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
-                            location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error updating registration status');
-                    });
-            }
         }
 
-        // View registration details
-        function viewRegistration(id) {
-            fetch(`/admin/fishr-registrations/${id}`)
-                .then(response => response.json())
-                .then(data => {
-                    let remarksHtml = '';
-                    if (data.remarks) {
-                        remarksHtml = `
-                        <div class="col-12 mt-3">
-                            <h6>Remarks</h6>
-                            <div class="alert alert-info">
-                                <p class="mb-1"><strong>Note:</strong> ${data.remarks}</p>
-                                ${data.status_updated_at ? `<small class="text-muted">Updated on ${data.status_updated_at}${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}</small>` : ''}
-                            </div>
+        const confirmMessage = `Are you sure you want to update this registration with the following changes?\n\n${changesSummary.join('\n')}`;
+        
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+
+        // Show loading state
+        const updateButton = document.querySelector('#updateModal .btn-primary');
+        const originalText = updateButton.innerHTML;
+        updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+        updateButton.disabled = true;
+
+        fetch(`/admin/fishr-registrations/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                status: newStatus,
+                remarks: remarks
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(response => {
+            if (response.success) {
+                // Show success message and reload page
+                const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                modal.hide();
+                alert(response.message);
+                window.location.reload();
+            } else {
+                throw new Error(response.message || 'Error updating status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating registration status: ' + error.message);
+        })
+        .finally(() => {
+            // Reset button state
+            updateButton.innerHTML = originalText;
+            updateButton.disabled = false;
+        });
+    }
+
+    // View registration details
+    function viewRegistration(id) {
+        // Show loading state
+        document.getElementById('registrationDetails').innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>`;
+
+        // Show modal while loading
+        const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+        modal.show();
+
+        // Fetch registration details
+        fetch(`/admin/fishr-registrations/${id}`)
+            .then(response => response.json())  // First parse the JSON
+            .then(response => {
+                console.log('Response:', response); // Debug log
+
+                if (!response.success) {
+                    throw new Error('Failed to load registration details');
+                }
+
+                const data = response.data;
+
+                // Format the details HTML
+                const remarksHtml = data.remarks ? `
+                    <div class="col-12 mt-3">
+                        <h6 class="border-bottom pb-2">Remarks</h6>
+                        <div class="alert alert-info">
+                            <p class="mb-1">${data.remarks}</p>
+                            <small class="text-muted">
+                                ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
+                                ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
+                            </small>
                         </div>
-                    `;
-                    }
+                    </div>` : '';
 
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="row">
+                // Update modal content
+                document.getElementById('registrationDetails').innerHTML = `
+                    <div class="row g-3">
                         <div class="col-md-6">
-                            <h6>Personal Information</h6>
+                            <h6 class="border-bottom pb-2">Personal Information</h6>
                             <p><strong>Registration #:</strong> ${data.registration_number}</p>
                             <p><strong>Name:</strong> ${data.full_name}</p>
                             <p><strong>Sex:</strong> ${data.sex}</p>
@@ -591,43 +862,89 @@
                             <p><strong>Barangay:</strong> ${data.barangay}</p>
                         </div>
                         <div class="col-md-6">
-                            <h6>Livelihood Information</h6>
+                            <h6 class="border-bottom pb-2">Status Information</h6>
+                            <p><strong>Current Status:</strong> 
+                                <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
+                            </p>
                             <p><strong>Main Livelihood:</strong> ${data.livelihood_description}</p>
                             ${data.other_livelihood ? `<p><strong>Other Livelihood:</strong> ${data.other_livelihood}</p>` : ''}
-                            <p><strong>Status:</strong> <span class="badge bg-${data.status_color}">${data.formatted_status}</span></p>
                             <p><strong>Date Applied:</strong> ${data.created_at}</p>
                             <p><strong>Last Updated:</strong> ${data.updated_at}</p>
                         </div>
                         ${remarksHtml}
-                    </div>
-                `;
+                    </div>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('registrationDetails').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        ${error.message || 'Error loading registration details. Please try again.'}
+                    </div>`;
+            });
+    }
 
-                    const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
-                    modal.show();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error loading registration details');
-                });
+    // View document
+    function viewDocument(path) {
+        const documentViewer = document.getElementById('documentViewer');
+        const fileExtension = path.split('.').pop().toLowerCase();
+
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+            documentViewer.innerHTML = `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document">`;
+        } else if (fileExtension === 'pdf') {
+            documentViewer.innerHTML =
+                `<embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">`;
+        } else {
+            documentViewer.innerHTML =
+                `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
         }
 
-        // View document
-        function viewDocument(path) {
-            const documentViewer = document.getElementById('documentViewer');
-            const fileExtension = path.split('.').pop().toLowerCase();
+        const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+        modal.show();
+    }
 
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                documentViewer.innerHTML = `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document">`;
-            } else if (fileExtension === 'pdf') {
-                documentViewer.innerHTML =
-                    `<embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">`;
-            } else {
-                documentViewer.innerHTML =
-                    `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
-            }
-
-            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-            modal.show();
+    // Function to check for changes and provide visual feedback
+    function checkForChanges() {
+        const statusSelect = document.getElementById('newStatus');
+        const remarksTextarea = document.getElementById('remarks');
+        
+        if (!statusSelect.dataset.originalStatus) return; // Don't check if original values aren't set yet
+        
+        const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+        const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+        
+        // Visual feedback for status field
+        statusSelect.classList.toggle('form-changed', statusChanged);
+        statusSelect.parentElement.classList.toggle('changed', statusChanged);
+        
+        // Visual feedback for remarks field
+        remarksTextarea.classList.toggle('form-changed', remarksChanged);
+        remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+        
+        // Update button state
+        const updateButton = document.querySelector('#updateModal .btn-primary');
+        updateButton.classList.toggle('no-changes', !statusChanged && !remarksChanged);
+        
+        // Update button text based on changes
+        if (!statusChanged && !remarksChanged) {
+            updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>No Changes';
+        } else {
+            updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
         }
-    </script>
+    }
+
+    // Add event listeners when document is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusSelect = document.getElementById('newStatus');
+        const remarksTextarea = document.getElementById('remarks');
+        
+        if (statusSelect) {
+            statusSelect.addEventListener('change', checkForChanges);
+        }
+        
+        if (remarksTextarea) {
+            remarksTextarea.addEventListener('input', checkForChanges);
+        }
+    });
+</script>
 @endsection

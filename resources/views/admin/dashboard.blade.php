@@ -184,6 +184,15 @@
                     <a href="{{ route('admin.seedling.requests') }}" class="btn btn-primary mb-2 me-2">
                         <i class="fas fa-seedling me-2"></i>Seedling Requests
                     </a>
+                    <a href="{{ route('admin.rsbsa.applications') }}" class="btn btn-success mb-2 me-2">
+                        <i class="fas fa-seedling me-2"></i>RSBSA Applications
+                    </a>
+                    <a href="{{ route('admin.fishr.requests') }}" class="btn btn-info mb-2 me-2">
+                        <i class="fas fa-fish me-2"></i>FishR Registrations
+                    </a>
+                    <a href="{{ route('admin.boatr.requests') }}" class="btn btn-warning mb-2 me-2">
+                        <i class="fas fa-ship me-2"></i>BoatR Applications
+                    </a>
 
                     @if ($user->isSuperAdmin())
                         <a href="{{ route('admin.admins.index') }}" class="btn btn-primary mb-2 me-2">

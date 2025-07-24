@@ -82,6 +82,13 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.rsbsa.*') ? 'active' : '' }}"
+                                        href="{{ route('admin.rsbsa.applications') }}">
+                                        <i class="fas fa-file-alt me-2"></i>
+                                        RSBSA Applications
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.seedling.requests') ? 'active' : '' }}"
                                         href="{{ route('admin.seedling.requests') }}">
                                         <i class="fas fa-seedling me-2"></i>

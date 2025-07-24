@@ -26,218 +26,272 @@ class BoatrApplicationFactory extends Factory
      */
     public function definition(): array
     {
-        $boatTypes = BoatrApplication::getBoatTypes();
-        $fishingGears = BoatrApplication::getFishingGearTypes();
-        $status = $this->faker->randomElement(['pending', 'approved', 'rejected', 'inspection_required']);
+        $firstName = $this->faker->firstName();
+        $middleName = $this->faker->optional(0.7)->firstName();
+        $lastName = $this->faker->lastName();
         
-        // Generate creation time
-        $createdAt = $this->faker->dateTimeBetween('-1 year', 'now');
+        // Generate unique application number
+        $applicationNumber = 'BOATR-' . strtoupper(Str::random(8));
         
-        // Generate review data based on status
-        $reviewedAt = null;
-        $reviewedBy = null;
-        $remarks = null;
-        $inspectionCompleted = false;
-        $inspectionDate = null;
-        $documentPath = null;
+        // Generate fake FishR number
+        $fishrNumber = 'FISHR-' . strtoupper(Str::random(8));
         
-        if ($status !== 'pending') {
-            $reviewedAt = $this->faker->dateTimeBetween($createdAt, 'now');
-            $reviewedBy = User::inRandomOrder()->first()?->id ?? 1;
-            
-            // Generate remarks for some entries
-            if ($this->faker->boolean(70)) {
-                $remarks = $this->getRandomRemarks($status);
-            }
-        }
+        // Boat types from your model
+        $boatTypes = [
+            'Spoon',
+            'Plumb',
+            'Banca',
+            'Rake Stem - Rake Stern',
+            'Rake Stem - Transom/Spoon/Plumb Stern',
+            'Skiff (Typical Design)'
+        ];
         
-        // If approved, ensure inspection is completed and document exists
-        if ($status === 'approved') {
-            $inspectionCompleted = true;
-            $inspectionDate = $this->faker->dateTimeBetween($createdAt, $reviewedAt ?? 'now');
-            $documentPath = $this->faker->randomElement([
-                'boatr_documents/boat_inspection_report.pdf',
-                'boatr_documents/vessel_certificate.jpg',
-                'boatr_documents/boat_photos.png'
-            ]);
-        }
+        // Fishing gear types from your model
+        $fishingGears = [
+            'Hook and Line',
+            'Bottom Set Gill Net',
+            'Fish Trap',
+            'Fish Coral'
+        ];
         
-        // Some inspection_required status should have completed inspections
-        if ($status === 'inspection_required' && $this->faker->boolean(30)) {
-            $inspectionCompleted = true;
-            $inspectionDate = $this->faker->dateTimeBetween($createdAt, 'now');
-            $documentPath = $this->faker->randomElement([
-                'boatr_documents/inspection_pending.pdf',
-                'boatr_documents/boat_inspection.jpg'
-            ]);
-        }
-        
+        // Engine types
+        $engineTypes = [
+            'Yamaha Outboard Motor',
+            'Honda Marine Engine',
+            'Suzuki Outboard',
+            'Mercury Outboard',
+            'Tohatsu Outboard',
+            'Johnson Outboard'
+        ];
+
         return [
-            'application_number' => 'BOATR-' . strtoupper(Str::random(8)),
-            'first_name' => $this->faker->firstName,
-            'middle_name' => $this->faker->optional(0.7)->firstName,
-            'last_name' => $this->faker->lastName,
-            'fishr_number' => 'FISHR-' . strtoupper(Str::random(8)), // Mock FishR number
-            'vessel_name' => $this->generateVesselName(),
+            'application_number' => $applicationNumber,
+            'first_name' => $firstName,
+            'middle_name' => $middleName,
+            'last_name' => $lastName,
+            'fishr_number' => $fishrNumber,
+            'vessel_name' => 'MV ' . $this->faker->words(2, true),
             'boat_type' => $this->faker->randomElement($boatTypes),
-            'boat_length' => $this->faker->randomFloat(2, 10, 40), // 10-40 feet
-            'boat_width' => $this->faker->randomFloat(2, 3, 12),   // 3-12 feet
-            'boat_depth' => $this->faker->randomFloat(2, 2, 8),    // 2-8 feet
-            'engine_type' => $this->generateEngineType(),
-            'engine_horsepower' => $this->faker->numberBetween(5, 150),
+            'boat_length' => $this->faker->randomFloat(2, 8.0, 25.0), // 8-25 feet
+            'boat_width' => $this->faker->randomFloat(2, 2.0, 8.0),   // 2-8 feet
+            'boat_depth' => $this->faker->randomFloat(2, 1.0, 4.0),   // 1-4 feet
+            'engine_type' => $this->faker->randomElement($engineTypes),
+            'engine_horsepower' => $this->faker->numberBetween(15, 150),
             'primary_fishing_gear' => $this->faker->randomElement($fishingGears),
-            'supporting_document_path' => $documentPath,
-            'inspection_completed' => $inspectionCompleted,
-            'inspection_date' => $inspectionDate,
-            'status' => $status,
-            'remarks' => $remarks,
-            'reviewed_at' => $reviewedAt,
-            'reviewed_by' => $reviewedBy,
-            'created_at' => $createdAt,
-            'updated_at' => $reviewedAt ?? $createdAt,
+            
+            // Single document fields (may be null)
+            'user_document_path' => $this->faker->optional(0.6)->passthrough('boatr_documents/user_uploads/sample_' . Str::random(8) . '.pdf'),
+            'user_document_name' => $this->faker->optional(0.6)->passthrough('sample_document.pdf'),
+            'user_document_type' => $this->faker->optional(0.6)->passthrough('pdf'),
+            'user_document_size' => $this->faker->optional(0.6)->numberBetween(100000, 2000000), // 100KB - 2MB
+            'user_document_uploaded_at' => $this->faker->optional(0.6)->dateTimeBetween('-30 days', 'now'),
+            
+            // Inspection documents (JSON - may be null)
+            'inspection_documents' => null, // Will be set by state methods if needed
+            'inspection_completed' => false,
+            'inspection_date' => null,
+            'inspection_notes' => null,
+            'inspected_by' => null,
+            'documents_verified' => false,
+            'documents_verified_at' => null,
+            'document_verification_notes' => null,
+            
+            // Status and workflow
+            'status' => 'pending',
+            'remarks' => null,
+            'reviewed_at' => null,
+            'reviewed_by' => null,
+            'status_history' => null,
+            'inspection_scheduled_at' => null,
+            'approved_at' => null,
+            'rejected_at' => null,
         ];
     }
 
     /**
-     * Generate a realistic vessel name
-     */
-    private function generateVesselName(): string
-    {
-        $prefixes = ['MV', 'FB', 'F/B', 'M/V'];
-        $names = [
-            'Maria Clara', 'San Miguel', 'Blessed Virgin', 'Santa Maria',
-            'San Jose', 'Lucky Star', 'Blue Ocean', 'Golden Hope',
-            'Sea Eagle', 'Ocean Pearl', 'Flying Fish', 'Deep Blue',
-            'Morning Star', 'Silver Wave', 'Big Catch', 'Sea Hunter',
-            'Ocean King', 'Wave Runner', 'Blue Marlin', 'Sea Breeze'
-        ];
-        
-        $prefix = $this->faker->randomElement($prefixes);
-        $name = $this->faker->randomElement($names);
-        
-        // Sometimes add a number
-        if ($this->faker->boolean(40)) {
-            $name .= ' ' . $this->faker->numberBetween(1, 99);
-        }
-        
-        return $prefix . ' ' . $name;
-    }
-
-    /**
-     * Generate realistic engine type
-     */
-    private function generateEngineType(): string
-    {
-        $brands = ['Yamaha', 'Honda', 'Suzuki', 'Mercury', 'Evinrude', 'Tohatsu', 'Johnson'];
-        $types = ['Outboard', 'Inboard', 'Outboard Motor', 'Marine Engine'];
-        
-        $brand = $this->faker->randomElement($brands);
-        $type = $this->faker->randomElement($types);
-        
-        return $brand . ' ' . $type;
-    }
-
-    /**
-     * Get random remarks based on status
-     */
-    private function getRandomRemarks($status): string
-    {
-        $remarksOptions = [
-            'approved' => [
-                'Vessel inspection completed successfully. All requirements met.',
-                'Boat meets safety and technical specifications.',
-                'Approved after on-site inspection and document verification.',
-                'Vessel construction and engine installation verified.',
-                'Registration approved. Document uploaded after inspection.',
-                'All safety equipment and requirements satisfied.',
-            ],
-            'rejected' => [
-                'Vessel does not meet minimum safety requirements.',
-                'Invalid FishR registration number provided.',
-                'Boat dimensions do not match actual measurements.',
-                'Engine specifications need verification.',
-                'Failed safety inspection - missing required equipment.',
-                'Vessel construction materials not suitable for municipal waters.',
-                'Incomplete inspection documentation.',
-            ],
-            'inspection_required' => [
-                'Scheduled for on-site vessel inspection.',
-                'Awaiting physical inspection of the boat.',
-                'Pending verification of vessel specifications.',
-                'Requires engine and safety equipment inspection.',
-            ],
-            'pending' => [
-                'Application received and under initial review.',
-                'Pending document verification.',
-                'Awaiting schedule for inspection.',
-            ]
-        ];
-
-        $options = $remarksOptions[$status] ?? ['Status updated.'];
-        return $this->faker->randomElement($options);
-    }
-
-    /**
-     * State for approved applications
-     */
-    public function approved(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'approved',
-            'inspection_completed' => true,
-            'inspection_date' => $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now'),
-            'supporting_document_path' => 'boatr_documents/approved_vessel.pdf',
-            'remarks' => $this->getRandomRemarks('approved'),
-            'reviewed_at' => $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now'),
-            'reviewed_by' => User::inRandomOrder()->first()?->id ?? 1,
-        ]);
-    }
-
-    /**
-     * State for rejected applications
-     */
-    public function rejected(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'status' => 'rejected',
-            'inspection_completed' => $this->faker->boolean(50), // Some may have been inspected before rejection
-            'inspection_date' => $this->faker->boolean(50) ? 
-                $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now') : null,
-            'remarks' => $this->getRandomRemarks('rejected'),
-            'reviewed_at' => $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now'),
-            'reviewed_by' => User::inRandomOrder()->first()?->id ?? 1,
-        ]);
-    }
-
-    /**
-     * State for pending applications
+     * Indicate that the application is pending.
      */
     public function pending(): static
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'pending',
             'inspection_completed' => false,
-            'inspection_date' => null,
-            'supporting_document_path' => null,
-            'remarks' => null,
-            'reviewed_at' => null,
-            'reviewed_by' => null,
+            'documents_verified' => false,
         ]);
     }
 
     /**
-     * State for inspection required applications
+     * Indicate that the application is under review.
+     */
+    public function underReview(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'under_review',
+            'reviewed_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
+            'reviewed_by' => User::where('role', 'admin')->inRandomOrder()->first()?->id,
+            'inspection_completed' => false,
+        ]);
+    }
+
+    /**
+     * Indicate that the application requires inspection.
      */
     public function inspectionRequired(): static
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'inspection_required',
+            'reviewed_at' => $this->faker->dateTimeBetween('-5 days', 'now'),
+            'reviewed_by' => User::where('role', 'admin')->inRandomOrder()->first()?->id,
             'inspection_completed' => false,
-            'inspection_date' => null,
-            'supporting_document_path' => null,
-            'remarks' => $this->getRandomRemarks('inspection_required'),
-            'reviewed_at' => $this->faker->dateTimeBetween($attributes['created_at'] ?? '-1 month', 'now'),
-            'reviewed_by' => User::inRandomOrder()->first()?->id ?? 1,
+        ]);
+    }
+
+    /**
+     * Indicate that the application has inspection scheduled.
+     */
+    public function inspectionScheduled(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'inspection_scheduled',
+            'reviewed_at' => $this->faker->dateTimeBetween('-3 days', 'now'),
+            'reviewed_by' => User::where('role', 'admin')->inRandomOrder()->first()?->id,
+            'inspection_scheduled_at' => $this->faker->dateTimeBetween('now', '+7 days'),
+            'inspection_completed' => false,
+        ]);
+    }
+
+    /**
+     * Indicate that the application is awaiting documents.
+     */
+    public function documentsPending(): static
+    {
+        $adminUser = User::where('role', 'admin')->inRandomOrder()->first();
+        
+        return $this->state(fn (array $attributes) => [
+            'status' => 'documents_pending',
+            'reviewed_at' => $this->faker->dateTimeBetween('-2 days', 'now'),
+            'reviewed_by' => $adminUser?->id,
+            'inspection_completed' => true,
+            'inspection_date' => $this->faker->dateTimeBetween('-2 days', 'now'),
+            'inspection_notes' => $this->faker->sentence(),
+            'inspected_by' => $adminUser?->id,
+            'inspection_documents' => [
+                [
+                    'path' => 'boatr_documents/inspection/inspection_' . Str::random(8) . '.pdf',
+                    'original_name' => 'inspection_report.pdf',
+                    'type' => 'pdf',
+                    'uploaded_at' => now()->toISOString(),
+                    'uploaded_by' => $adminUser?->id,
+                    'notes' => 'Inspection completed successfully',
+                    'size' => $this->faker->numberBetween(500000, 2000000)
+                ]
+            ],
+        ]);
+    }
+
+    /**
+     * Indicate that the application is approved.
+     */
+    public function approved(): static
+    {
+        $adminUser = User::where('role', 'admin')->inRandomOrder()->first();
+        $inspectionDate = $this->faker->dateTimeBetween('-10 days', '-2 days');
+        $approvedDate = $this->faker->dateTimeBetween($inspectionDate, 'now');
+        
+        return $this->state(fn (array $attributes) => [
+            'status' => 'approved',
+            'reviewed_at' => $approvedDate,
+            'reviewed_by' => $adminUser?->id,
+            'approved_at' => $approvedDate,
+            'inspection_completed' => true,
+            'inspection_date' => $inspectionDate,
+            'inspection_notes' => 'Inspection passed. Boat meets all requirements.',
+            'inspected_by' => $adminUser?->id,
+            'documents_verified' => true,
+            'documents_verified_at' => $approvedDate,
+            'inspection_documents' => [
+                [
+                    'path' => 'boatr_documents/inspection/inspection_' . Str::random(8) . '.pdf',
+                    'original_name' => 'inspection_report.pdf',
+                    'type' => 'pdf',
+                    'uploaded_at' => $inspectionDate->format('c'),
+                    'uploaded_by' => $adminUser?->id,
+                    'notes' => 'Final inspection report - approved',
+                    'size' => $this->faker->numberBetween(500000, 2000000)
+                ],
+                [
+                    'path' => 'boatr_documents/inspection/boat_photos_' . Str::random(8) . '.jpg',
+                    'original_name' => 'boat_photos.jpg',
+                    'type' => 'jpg',
+                    'uploaded_at' => $inspectionDate->format('c'),
+                    'uploaded_by' => $adminUser?->id,
+                    'notes' => 'Boat inspection photos',
+                    'size' => $this->faker->numberBetween(1000000, 3000000)
+                ]
+            ],
+            'remarks' => 'Application approved after successful inspection.',
+        ]);
+    }
+
+    /**
+     * Indicate that the application is rejected.
+     */
+    public function rejected(): static
+    {
+        $adminUser = User::where('role', 'admin')->inRandomOrder()->first();
+        $rejectedDate = $this->faker->dateTimeBetween('-5 days', 'now');
+        
+        $rejectionReasons = [
+            'Boat does not meet safety requirements.',
+            'Invalid or expired FishR registration.',
+            'Boat dimensions exceed municipal fishing limits.',
+            'Required documents not provided.',
+            'Boat condition does not meet standards.'
+        ];
+        
+        return $this->state(fn (array $attributes) => [
+            'status' => 'rejected',
+            'reviewed_at' => $rejectedDate,
+            'reviewed_by' => $adminUser?->id,
+            'rejected_at' => $rejectedDate,
+            'remarks' => $this->faker->randomElement($rejectionReasons),
+            'inspection_completed' => $this->faker->boolean(70), // 70% have completed inspection
+        ]);
+    }
+
+    /**
+     * Indicate that the application has user document uploaded.
+     */
+    public function withUserDocument(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'user_document_path' => 'boatr_documents/user_uploads/document_' . Str::random(8) . '.pdf',
+            'user_document_name' => 'user_document.pdf',
+            'user_document_type' => 'pdf',
+            'user_document_size' => $this->faker->numberBetween(100000, 2000000),
+            'user_document_uploaded_at' => $this->faker->dateTimeBetween('-30 days', 'now'),
+        ]);
+    }
+
+    /**
+     * Indicate that the application has inspection documents.
+     */
+    public function withInspectionDocuments(): static
+    {
+        $adminUser = User::where('role', 'admin')->inRandomOrder()->first();
+        
+        return $this->state(fn (array $attributes) => [
+            'inspection_documents' => [
+                [
+                    'path' => 'boatr_documents/inspection/inspection_' . Str::random(8) . '.pdf',
+                    'original_name' => 'inspection_report.pdf',
+                    'type' => 'pdf',
+                    'uploaded_at' => now()->toISOString(),
+                    'uploaded_by' => $adminUser?->id,
+                    'notes' => 'Boat inspection report',
+                    'size' => $this->faker->numberBetween(500000, 2000000)
+                ]
+            ],
         ]);
     }
 }
