@@ -116,6 +116,13 @@
                                         Inventory Management
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.analytics.analytics') ? 'active' : '' }}"
+                                        href="{{ route('admin.analytics.seedlings') }}">
+                                        <i class="fas fa-chart-bar me-2"></i>
+                                        Seedling Analytics
+                                    </a>
+                                </li>
                                 @if (auth()->user()->isSuperAdmin())
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}"
