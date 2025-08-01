@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\SeedlingRequestController;
+use App\Http\Controllers\SeedlingAnalyticsController;
 use App\Http\Controllers\FishRController;
 use App\Http\Controllers\BoatRController;
 use App\Http\Controllers\RsbsaController;
@@ -131,12 +132,18 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     Route::prefix('admin/seedling-requests')->name('admin.seedling.')->group(function () {
         Route::get('/', [SeedlingRequestController::class, 'index'])->name('requests');
-        Route::get('/{id}', [SeedlingRequestController::class, 'show'])->name('show');
-        Route::patch('/{id}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
-        Route::delete('/{id}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
+        Route::get('/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
+        Route::patch('/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
         Route::get('/export', [SeedlingRequestController::class, 'export'])->name('export');
     });
-    
+       // ==============================================
+    // SEEDLING ANALYTICS - NEW SECTION
+    // ==============================================
+    Route::prefix('admin/analytics')->name('admin.analytics.')->group(function () {
+        Route::get('/seedlings', [SeedlingAnalyticsController::class, 'index'])->name('seedlings');
+        Route::get('/seedlings/export', [SeedlingAnalyticsController::class, 'export'])->name('seedlings.export');
+    });
     // ==============================================
     // INVENTORY MANAGEMENT
     // ==============================================
