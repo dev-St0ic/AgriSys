@@ -38,6 +38,7 @@
             <button type="button" class="btn" onclick="openFormSeedlings(event)">Seedlings</button>
             <button type="button" class="btn" onclick="openFormFishR(event)">FishR</button>
             <button type="button" class="btn" onclick="openFormBoatR(event)">BoatR</button>
+            <button type="button" class="btn" onclick="openFormTraining(event)">Training</button>
         </div>
     </header>
 
@@ -78,6 +79,11 @@
                 <p>Apply for registration and assistance for your fishing boats.</p>
                 <button class="btn-choice" onclick="openFormBoatR(event)">Apply Now</button>
             </div>
+            <div class="card">
+                <h3>Training Request</h3>
+                <p>Apply for agricultural training programs to enhance your farming skills and knowledge.</p>
+                <button class="btn-choice" onclick="openFormTraining(event)">Apply Now</button>
+            </div>
         </div>
     </section>
 
@@ -86,6 +92,7 @@
     @include('landingPage.seedlings')
     @include('landingPage.fishr')
     @include('landingPage.boatr')
+    @include('landingPage.training')
 
     <section class="how-it-works" id="how-it-works">
         <h2>HOW IT WORKS</h2>
@@ -130,6 +137,7 @@
                     <li><a href="#seedlings">Seedlings Request</a></li>
                     <li><a href="#fishr">FishR Registration</a></li>
                     <li><a href="#boatr">BoatR Registration</a></li>
+                    <li><a href="#training">Training Request</a></li>
                 </ul>
             </div>
             <div class="footer-column">
@@ -151,6 +159,7 @@
     <script src="{{ asset('js/rsbsa.js') }}"></script>
     <script src="{{ asset('js/fishr.js') }}"></script>
     <script src="{{ asset('js/boatr.js') }}"></script>
+    <script src="{{ asset('js/training.js') }}"></script>
 </body>
 
 </html>
