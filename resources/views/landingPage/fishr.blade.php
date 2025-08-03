@@ -108,6 +108,15 @@
             </div>
 
             <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email address" 
+                       value="{{ old('email') }}" required>
+                @error('email')
+                    <span class="error-text">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="form-group">
                 <label for="main_livelihood">Main Livelihood *</label>
                 <select id="main_livelihood" name="main_livelihood" required onchange="toggleOtherLivelihood(this)">
                     <option value="">Select livelihood</option>

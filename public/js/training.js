@@ -1,0 +1,265 @@
+// ==============================================
+// TRAINING REQUEST JAVASCRIPT
+// Handles training application form functionality
+// ==============================================
+
+// ==============================================
+// FORM MANAGEMENT FUNCTIONS
+// ==============================================
+
+function openFormTraining(event) {
+    event.preventDefault();
+    if (typeof hideAllMainSections === 'function') hideAllMainSections();
+    if (typeof hideAllForms === 'function') hideAllForms();
+    
+    const trainingForm = document.getElementById('training-form');
+    if (trainingForm) {
+        trainingForm.style.display = 'block';
+        
+        // Activate the application tab
+        if (typeof activateApplicationTab === 'function') {
+            activateApplicationTab('training-form');
+        }
+        
+        // Update URL
+        history.pushState(null, '', '/services/training');
+        
+        // Scroll to the form
+        setTimeout(() => {
+            trainingForm.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    } else {
+        console.error('Training form section not found');
+    }
+}
+
+// ==============================================
+// FORM SUBMISSION AND VALIDATION
+// ==============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const trainingForm = document.getElementById('training-request-form');
+    
+    if (trainingForm) {
+        trainingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Basic validation
+            if (!validateTrainingForm()) {
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = trainingForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+            
+            // Simulate form submission (frontend only)
+            setTimeout(() => {
+                showTrainingMessage('Application submitted successfully! You will be contacted regarding training schedule.', 'success');
+                trainingForm.reset();
+                
+                // Reset button state
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 1500); // Simulate network delay
+        });
+    }
+});
+
+// ==============================================
+// VALIDATION FUNCTIONS
+// ==============================================
+
+function validateTrainingForm() {
+    const form = document.getElementById('training-request-form');
+    let isValid = true;
+    
+    // Clear previous error messages
+    clearTrainingErrors();
+    
+    // Validate required fields
+    const requiredFields = [
+        { id: 'training_first_name', name: 'First Name' },
+        { id: 'training_last_name', name: 'Last Name' },
+        { id: 'training_mobile_number', name: 'Mobile Number' },
+        { id: 'training_email', name: 'Email Address' },
+        { id: 'training_type', name: 'Training Program' }
+    ];
+    
+    requiredFields.forEach(field => {
+        const element = document.getElementById(field.id);
+        if (!element.value.trim()) {
+            showFieldError(field.id, `${field.name} is required`);
+            isValid = false;
+        }
+    });
+    
+    // Validate mobile number format
+    const mobileNumber = document.getElementById('training_mobile_number').value.trim();
+    if (mobileNumber && !validateMobileNumber(mobileNumber)) {
+        showFieldError('training_mobile_number', 'Please enter a valid 11-digit mobile number');
+        isValid = false;
+    }
+    
+    // Validate email format
+    const email = document.getElementById('training_email').value.trim();
+    if (email && !validateEmail(email)) {
+        showFieldError('training_email', 'Please enter a valid email address');
+        isValid = false;
+    }
+    
+    // Validate file uploads
+    const fileInput = document.getElementById('training_documents');
+    if (fileInput.files.length > 0) {
+        if (!validateFiles(fileInput.files)) {
+            isValid = false;
+        }
+    }
+    
+    return isValid;
+}
+
+function validateMobileNumber(mobile) {
+    // Philippine mobile number format: 11 digits starting with 09
+    const mobileRegex = /^09\d{9}$/;
+    return mobileRegex.test(mobile);
+}
+
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function validateFiles(files) {
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+    
+    for (let file of files) {
+        if (file.size > maxSize) {
+            showTrainingMessage(`File "${file.name}" is too large. Maximum size is 5MB.`, 'error');
+            return false;
+        }
+        
+        if (!allowedTypes.includes(file.type)) {
+            showTrainingMessage(`File "${file.name}" is not a supported format. Please upload PDF, JPG, or PNG files only.`, 'error');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+// ==============================================
+// ERROR HANDLING AND MESSAGING
+// ==============================================
+
+function showTrainingMessage(message, type) {
+    const messagesContainer = document.getElementById('training-messages');
+    const successMessage = document.getElementById('training-success-message');
+    const errorMessage = document.getElementById('training-error-message');
+    
+    // Hide all messages first
+    messagesContainer.style.display = 'none';
+    successMessage.style.display = 'none';
+    errorMessage.style.display = 'none';
+    
+    // Show appropriate message
+    if (type === 'success') {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+    } else {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+    }
+    
+    messagesContainer.style.display = 'block';
+    
+    // Scroll to message
+    messagesContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Auto-hide success messages after 5 seconds
+    if (type === 'success') {
+        setTimeout(() => {
+            messagesContainer.style.display = 'none';
+        }, 5000);
+    }
+}
+
+function showFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const formGroup = field.closest('.form-group');
+    
+    // Remove existing error
+    const existingError = formGroup.querySelector('.error-text');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Add new error
+    const errorSpan = document.createElement('span');
+    errorSpan.className = 'error-text';
+    errorSpan.textContent = message;
+    formGroup.appendChild(errorSpan);
+    
+    // Add error styling to field
+    field.classList.add('error');
+}
+
+function clearTrainingErrors() {
+    // Clear all error messages
+    const errorTexts = document.querySelectorAll('#training-form .error-text');
+    errorTexts.forEach(error => error.remove());
+    
+    // Clear error styling
+    const errorFields = document.querySelectorAll('#training-form .error');
+    errorFields.forEach(field => field.classList.remove('error'));
+    
+    // Hide message containers
+    const messagesContainer = document.getElementById('training-messages');
+    if (messagesContainer) {
+        messagesContainer.style.display = 'none';
+    }
+}
+
+// ==============================================
+// UTILITY FUNCTIONS
+// ==============================================
+
+// Format mobile number as user types
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileInput = document.getElementById('training_mobile_number');
+    
+    if (mobileInput) {
+        mobileInput.addEventListener('input', function(e) {
+            // Remove non-numeric characters
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Limit to 11 digits
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
+            
+            e.target.value = value;
+        });
+    }
+});
+
+// File input change handler
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('training_documents');
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                // Clear previous errors
+                clearTrainingErrors();
+                
+                // Validate files
+                validateFiles(files);
+            }
+        });
+    }
+});

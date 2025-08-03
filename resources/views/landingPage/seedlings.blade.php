@@ -219,6 +219,10 @@
             <input type="tel" id="mobile" name="mobile" required>
             <small>Please provide a valid mobile number for SMS notifications.</small>
 
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required>
+            <small>Please provide a valid email address for notifications.</small>
+
             <label for="barangay">Barangay</label>
             <select id="barangay" name="barangay" required>
                 <option value="" disabled>Select Barangay</option>

@@ -256,6 +256,7 @@
                             <th>Sex</th>
                             <th>Barangay</th>
                             <th>Contact</th>
+                            <th>Email</th>
                             <th>Livelihood</th>
                             <th>Status</th>
                             <th>Date Applied</th>
@@ -272,6 +273,7 @@
                                 <td>{{ $registration->sex }}</td>
                                 <td>{{ $registration->barangay }}</td>
                                 <td>{{ $registration->contact_number }}</td>
+                                <td>{{ $registration->email ?? 'N/A' }}</td>
                                 <td>
                                     <span class="badge bg-info">{{ $registration->livelihood_description }}</span>
                                 </td>
@@ -859,6 +861,7 @@
                             <p><strong>Name:</strong> ${data.full_name}</p>
                             <p><strong>Sex:</strong> ${data.sex}</p>
                             <p><strong>Contact:</strong> ${data.contact_number}</p>
+                            <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
                             <p><strong>Barangay:</strong> ${data.barangay}</p>
                         </div>
                         <div class="col-md-6">

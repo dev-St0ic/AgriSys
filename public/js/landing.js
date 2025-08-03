@@ -45,7 +45,7 @@ function hideAllForms() {
     const formIds = [
         'rsbsa-choice', 'new-rsbsa', 'old-rsbsa',
         'seedlings-choice', 'seedlings-form',
-        'fishr-form', 'boatr-form'
+        'fishr-form', 'boatr-form', 'training-form'
     ];
     
     formIds.forEach(id => {
@@ -234,6 +234,14 @@ function handlePopState() {
                 form.style.display = 'block';
                 activateApplicationTab('boatr-form');
             }
+        },
+        '/services/training': () => {
+            hideAllMainSections();
+            const form = document.getElementById('training-form');
+            if (form) {
+                form.style.display = 'block';
+                activateApplicationTab('training-form');
+            }
         }
     };
 
@@ -273,6 +281,13 @@ function handlePageLoad() {
         if (form) {
             form.style.display = 'block';
             activateApplicationTab('boatr-form');
+        }
+    } else if (path === '/services/training') {
+        hideAllMainSections();
+        const form = document.getElementById('training-form');
+        if (form) {
+            form.style.display = 'block';
+            activateApplicationTab('training-form');
         }
     }
 }

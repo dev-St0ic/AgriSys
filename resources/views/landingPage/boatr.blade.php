@@ -31,6 +31,18 @@
             </div>
 
             <div class="form-group">
+                <label for="boatr_mobile">Mobile Number *</label>
+                <input type="tel" id="boatr_mobile" name="mobile" placeholder="Enter your mobile number (e.g., 09123456789)" required>
+                <small class="form-help">Please provide a valid mobile number for SMS notifications.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="boatr_email">Email Address *</label>
+                <input type="email" id="boatr_email" name="email" placeholder="Enter your email address" required>
+                <small class="form-help">Please provide a valid email address for notifications.</small>
+            </div>
+
+            <div class="form-group">
                 <label for="boatr_fishr_number">FishR Number *</label>
                 <input type="text" id="boatr_fishr_number" name="fishr_number" placeholder="Enter FishR Number (e.g., FISHR-ABC12345)" required>
                 <small class="form-help">Enter your approved FishR registration number</small>
