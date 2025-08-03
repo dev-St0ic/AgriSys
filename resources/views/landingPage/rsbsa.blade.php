@@ -68,6 +68,9 @@
             <label>Mobile Number</label>
             <input type="tel" name="mobile" placeholder="Enter your mobile number (e.g., 09123456789)" required>
 
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="Enter your email address" required>
+
             <label>Main Livelihood</label>
             <select name="main_livelihood" required>
                 <option value="">Select livelihood</option>

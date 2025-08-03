@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationApproved;
 
 class RsbsaController extends Controller
 {
@@ -191,10 +193,21 @@ class RsbsaController extends Controller
 
             $application->update($updateData);
 
+            // Send email notification if approved and email is available
+            if ($validated['status'] === 'approved' && $application->email) {
+                try {
+                    Mail::to($application->email)->send(new ApplicationApproved($application, 'rsbsa'));
+                } catch (\Exception $e) {
+                    // Log the error but don't fail the status update
+                    Log::error('Failed to send approval email for RSBSA application ' . $application->id . ': ' . $e->getMessage());
+                }
+            }
+
             // Return success response
             return response()->json([
                 'success' => true,
-                'message' => 'Application status updated successfully',
+                'message' => 'Application status updated successfully' . 
+                           ($validated['status'] === 'approved' && $application->email ? '. Email notification sent to applicant.' : ''),
                 'data' => [
                     'status' => $application->status,
                     'formatted_status' => $application->formatted_status,

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\SeedlingRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationApproved;
 
 class SeedlingRequestController extends Controller
 {
@@ -139,8 +141,19 @@ class SeedlingRequestController extends Controller
             'rejected_at' => $newStatus === 'rejected' ? now() : null,
         ]);
 
+        // Send email notification if approved and email is available
+        if ($newStatus === 'approved' && $seedlingRequest->email) {
+            try {
+                Mail::to($seedlingRequest->email)->send(new ApplicationApproved($seedlingRequest, 'seedling'));
+            } catch (\Exception $e) {
+                // Log the error but don't fail the status update
+                \Log::error('Failed to send approval email for seedling request ' . $seedlingRequest->id . ': ' . $e->getMessage());
+            }
+        }
+
         $message = match($newStatus) {
-            'approved' => 'Request approved successfully and inventory has been updated in real-time.',
+            'approved' => 'Request approved successfully and inventory has been updated in real-time. ' . 
+                         ($seedlingRequest->email ? 'Email notification sent to applicant.' : ''),
             'rejected' => 'Request rejected successfully.',
             'under_review' => 'Request moved back to under review.',
             default => 'Request status updated successfully.'

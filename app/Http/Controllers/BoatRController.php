@@ -6,6 +6,8 @@ use App\Models\BoatrApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationApproved;
 
 class BoatRController extends Controller
 {
@@ -129,17 +131,29 @@ class BoatRController extends Controller
                 auth()->id()
             );
 
+            // Send email notification if approved and email is available
+            if ($validated['status'] === 'approved' && $registration->email) {
+                try {
+                    Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
+                } catch (\Exception $e) {
+                    // Log the error but don't fail the status update
+                    Log::error('Failed to send approval email for BoatR registration ' . $registration->id . ': ' . $e->getMessage());
+                }
+            }
+
             Log::info('BoatR registration status updated', [
                 'registration_id' => $registration->id,
                 'application_number' => $registration->application_number,
                 'old_status' => $oldStatus,
                 'new_status' => $validated['status'],
                 'updated_by' => auth()->user()->name ?? 'System',
-                'remarks' => $validated['remarks']
+                'remarks' => $validated['remarks'],
+                'email_sent' => ($validated['status'] === 'approved' && $registration->email) ? 'yes' : 'no'
             ]);
 
             $message = "Application {$registration->application_number} status updated to " . 
-                      $registration->formatted_status;
+                      $registration->formatted_status .
+                      ($validated['status'] === 'approved' && $registration->email ? '. Email notification sent to applicant.' : '');
 
             // ENHANCED: Return updated statistics for auto-refresh
             $statistics = [

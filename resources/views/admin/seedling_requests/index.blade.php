@@ -148,6 +148,7 @@
                                     <th>Request #</th>
                                     <th>Name</th>
                                     <th>Contact</th>
+                                    <th>Email</th>
                                     <th>Barangay</th>
                                     <th>Items Requested</th>
                                     <th>Total Qty</th>
@@ -165,6 +166,7 @@
                                         </td>
                                         <td>{{ $request->full_name }}</td>
                                         <td>{{ $request->contact_number }}</td>
+                                        <td>{{ $request->email ?? 'N/A' }}</td>
                                         <td>{{ $request->barangay }}</td>
                                         <td>
                                             @if ($request->vegetables && count($request->vegetables) > 0)
@@ -271,6 +273,7 @@
                                                             <h6>Personal Information</h6>
                                                             <p><strong>Name:</strong> {{ $request->full_name }}</p>
                                                             <p><strong>Contact:</strong> {{ $request->contact_number }}</p>
+                                                            <p><strong>Email:</strong> {{ $request->email ?? 'N/A' }}</p>
                                                             <p><strong>Barangay:</strong> {{ $request->barangay }}</p>
                                                             <p><strong>Address:</strong> {{ $request->address }}</p>
                                                         </div>

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationApproved;
 
 class FishRController extends Controller
 {
@@ -167,10 +169,21 @@ class FishRController extends Controller
                 'reviewed_at' => now()
             ]);
 
+            // Send email notification if approved and email is available
+            if ($validated['status'] === 'approved' && $registration->email) {
+                try {
+                    Mail::to($registration->email)->send(new ApplicationApproved($registration, 'fishr'));
+                } catch (\Exception $e) {
+                    // Log the error but don't fail the status update
+                    Log::error('Failed to send approval email for FishR registration ' . $registration->id . ': ' . $e->getMessage());
+                }
+            }
+
             // Return success response
             return response()->json([
                 'success' => true,
-                'message' => 'Registration status updated successfully',
+                'message' => 'Registration status updated successfully' . 
+                           ($validated['status'] === 'approved' && $registration->email ? '. Email notification sent to applicant.' : ''),
                 'data' => [
                     'status' => $registration->status,
                     'formatted_status' => $registration->formatted_status,

@@ -17,6 +17,8 @@ class BoatrApplication extends Model
         'first_name',
         'middle_name',
         'last_name',
+        'mobile',
+        'email',
         'fishr_number',
         'vessel_name',
         'boat_type',

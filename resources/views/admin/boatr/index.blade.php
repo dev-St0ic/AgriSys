@@ -203,6 +203,8 @@
                         <tr>
                             <th>Application #</th>
                             <th>Name</th>
+                            <th>Contact</th>
+                            <th>Email</th>
                             <th>FishR Number</th>
                             <th>Vessel Name</th>
                             <th>Boat Type</th>
@@ -222,6 +224,8 @@
                                     <strong class="text-primary">{{ $registration->application_number }}</strong>
                                 </td>
                                 <td>{{ $registration->full_name }}</td>
+                                <td>{{ $registration->mobile ?? 'N/A' }}</td>
+                                <td>{{ $registration->email ?? 'N/A' }}</td>
                                 <td>{{ $registration->fishr_number }}</td>
                                 <td>{{ $registration->vessel_name }}</td>
                                 <td>{{ $registration->boat_type }}</td>
@@ -1270,6 +1274,8 @@
                             <div class="card-body">
                                 <p><strong>Application #:</strong> <span class="badge bg-primary">${data.application_number}</span></p>
                                 <p><strong>Name:</strong> ${data.full_name}</p>
+                                <p><strong>Mobile:</strong> ${data.mobile || 'N/A'}</p>
+                                <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
                                 <p><strong>FishR Number:</strong> ${data.fishr_number}</p>
                             </div>
                         </div>
@@ -1693,6 +1699,8 @@ function viewRegistration(id) {
                         <div class="card-body">
                             <p><strong>Application #:</strong> <span class="badge bg-primary">${data.application_number}</span></p>
                             <p><strong>Name:</strong> ${data.full_name}</p>
+                            <p><strong>Mobile:</strong> ${data.mobile || 'N/A'}</p>
+                            <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
                             <p><strong>FishR Number:</strong> ${data.fishr_number}</p>
                         </div>
                     </div>
