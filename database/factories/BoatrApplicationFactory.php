@@ -69,6 +69,8 @@ class BoatrApplicationFactory extends Factory
             'first_name' => $firstName,
             'middle_name' => $middleName,
             'last_name' => $lastName,
+            'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
+            'mobile' => $this->faker->phoneNumber(), // Added missing mobile field
             'fishr_number' => $fishrNumber,
             'vessel_name' => 'MV ' . $this->faker->words(2, true),
             'boat_type' => $this->faker->randomElement($boatTypes),

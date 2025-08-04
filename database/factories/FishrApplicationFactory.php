@@ -52,18 +52,22 @@ class FishrApplicationFactory extends Factory
                 $remarks = $this->getRandomRemarks($status);
             }
         }
+
+        $firstName = $this->faker->firstName;
+        $lastName = $this->faker->lastName;
         
         return [
             'registration_number' => 'FISHR-' . strtoupper(Str::random(8)),
-            'first_name' => $this->faker->firstName,
+            'first_name' => $firstName,
             'middle_name' => $this->faker->optional(0.7)->firstName,
-            'last_name' => $this->faker->lastName,
+            'last_name' => $lastName,
             'sex' => $this->faker->randomElement(['Male', 'Female']),
             'barangay' => $this->faker->randomElement($barangays),
             'contact_number' => $this->faker->randomElement([
                 '09' . $this->faker->numerify('#########'),
                 '+639' . $this->faker->numerify('#########')
             ]),
+            'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'), // Add email field
             'main_livelihood' => $mainLivelihood,
             'livelihood_description' => $this->getLivelihoodDescription($mainLivelihood),
             'other_livelihood' => $mainLivelihood === 'others' ? $this->faker->jobTitle : null,
