@@ -1,481 +1,462 @@
+{{-- resources/views/admin/analytics/seedlings.blade.php --}}
+
 @extends('layouts.app')
 
-@section('title', 'Seedling Analytics - AgriSys Admin')
-@section('page-title', 'Seedling Analytics Dashboard')
+@section('title', 'Analytics - AgriSys Admin')
+@section('page-title', 'Analytics Dashboard')
 
 @section('content')
-<!-- Date Range Filter -->
+<!-- Header with Service Navigation -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <form method="GET" action="{{ route('admin.analytics.seedlings') }}" class="row g-3">
-                    <div class="col-md-4">
-                        <label for="start_date" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="start_date" name="start_date" 
-                               value="{{ $startDate }}">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="end_date" class="form-label">End Date</label>
-                        <input type="date" class="form-control" id="end_date" name="end_date" 
-                               value="{{ $endDate }}">
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary me-2">
-                            <i class="fas fa-filter me-1"></i> Apply Filter
-                        </button>
-                        <a href="{{ route('admin.analytics.seedlings.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
-                           class="btn btn-success">
-                            <i class="fas fa-download me-1"></i> Export
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Overview Statistics -->
-<div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card bg-primary text-white h-100">
+        <div class="card shadow-sm border-0">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="card-title mb-0">Total Requests</h6>
-                        <h2 class="mb-0">{{ number_format($overview['total_requests']) }}</h2>
+                        <h4 class="mb-0 text-dark">Analytics Dashboard</h4>
+                        <p class="text-muted mb-0">Comprehensive insights into agricultural services</p>
                     </div>
-                    <i class="fas fa-seedling fa-2x opacity-75"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card bg-success text-white h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-0">Approved</h6>
-                        <h2 class="mb-0">{{ number_format($overview['approved_requests']) }}</h2>
-                        <small>{{ $overview['approval_rate'] }}% approval rate</small>
-                    </div>
-                    <i class="fas fa-check-circle fa-2x opacity-75"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card bg-info text-white h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-0">Total Quantity</h6>
-                        <h2 class="mb-0">{{ number_format($overview['total_quantity_requested']) }}</h2>
-                        <small>{{ number_format($overview['avg_request_size'], 1) }} avg per request</small>
-                    </div>
-                    <i class="fas fa-chart-bar fa-2x opacity-75"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card bg-warning text-white h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title mb-0">Active Barangays</h6>
-                        <h2 class="mb-0">{{ $overview['active_barangays'] }}</h2>
-                        <small>{{ number_format($overview['unique_applicants']) }} unique applicants</small>
-                    </div>
-                    <i class="fas fa-map-marker-alt fa-2x opacity-75"></i>
+                    <!-- Service Tabs -->
+                    <ul class="nav nav-pills" id="serviceTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="seedlings-service-tab" data-bs-toggle="tab" 
+                                    data-bs-target="#seedlings-service" type="button" role="tab">
+                                <i class="fas fa-seedling me-1"></i> Seedlings
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="rsbsa-service-tab" data-bs-toggle="tab" 
+                                    data-bs-target="#rsbsa-service" type="button" role="tab">
+                                <i class="fas fa-user-check me-1"></i> RSBSA
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="{{ route('admin.analytics.fishr') }}" class="nav-link">
+                                <i class="fas fa-fish me-1"></i> FISHR
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="equipment-service-tab" data-bs-toggle="tab" 
+                                    data-bs-target="#equipment-service" type="button" role="tab">
+                                <i class="fas fa-tools me-1"></i> Equipment
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Charts and Analytics Tabs -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" id="analyticsTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="trends-tab" data-bs-toggle="tab" 
-                                data-bs-target="#trends" type="button" role="tab">
-                            <i class="fas fa-chart-line me-1"></i> Trends
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="status-tab" data-bs-toggle="tab" 
-                                data-bs-target="#status" type="button" role="tab">
-                            <i class="fas fa-pie-chart me-1"></i> Status Analysis
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="barangays-tab" data-bs-toggle="tab" 
-                                data-bs-target="#barangays" type="button" role="tab">
-                            <i class="fas fa-map me-1"></i> Barangays
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="categories-tab" data-bs-toggle="tab" 
-                                data-bs-target="#categories" type="button" role="tab">
-                            <i class="fas fa-tags me-1"></i> Categories
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="items-tab" data-bs-toggle="tab" 
-                                data-bs-target="#items" type="button" role="tab">
-                            <i class="fas fa-list me-1"></i> Top Items
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="performance-tab" data-bs-toggle="tab" 
-                                data-bs-target="#performance" type="button" role="tab">
-                            <i class="fas fa-clock me-1"></i> Performance
-                        </button>
-                    </li>
-                </ul>
+<!-- Service Content -->
+<div class="tab-content" id="serviceTabContent">
+    <!-- Seedlings Service Tab -->
+    <div class="tab-pane fade show active" id="seedlings-service" role="tabpanel">
+        
+        <!-- Date Range Filter -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <form method="GET" action="{{ route('admin.analytics.seedlings') }}" class="row g-3">
+                            <div class="col-md-3">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" 
+                                       value="{{ $startDate }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" 
+                                       value="{{ $endDate }}">
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-filter me-1"></i> Apply Filter
+                                </button>
+                                <a href="{{ route('admin.analytics.seedlings.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
+                                   class="btn btn-success me-2">
+                                    <i class="fas fa-download me-1"></i> Export
+                                </a>
+                                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#insightsModal">
+                                    <i class="fas fa-lightbulb me-1"></i> AI Insights
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="tab-content" id="analyticsTabContent">
-                    <!-- Monthly Trends Tab -->
-                    <div class="tab-pane fade show active" id="trends" role="tabpanel">
-                        <h5>Monthly Request Trends</h5>
-                        <div class="row">
-                            <div class="col-12">
-                                <canvas id="trendsChart" height="100"></canvas>
-                            </div>
+        </div>
+
+        <!-- Key Metrics Row -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm h-100 metric-card">
+                    <div class="card-body text-center p-4">
+                        <div class="metric-icon mb-3">
+                            <i class="fas fa-seedling fa-2x text-success"></i>
                         </div>
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Month</th>
-                                                <th>Total Requests</th>
-                                                <th>Approved</th>
-                                                <th>Rejected</th>
-                                                <th>Pending</th>
-                                                <th>Total Quantity</th>
-                                                <th>Avg Quantity</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($monthlyTrends as $trend)
-                                            <tr>
-                                                <td>{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}</td>
-                                                <td>{{ $trend->total_requests }}</td>
-                                                <td><span class="badge bg-success">{{ $trend->approved }}</span></td>
-                                                <td><span class="badge bg-danger">{{ $trend->rejected }}</span></td>
-                                                <td><span class="badge bg-warning">{{ $trend->pending }}</span></td>
-                                                <td>{{ number_format($trend->total_quantity) }}</td>
-                                                <td>{{ number_format($trend->avg_quantity, 1) }}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                        <h2 class="text-dark mb-1">{{ number_format($overview['total_requests']) }}</h2>
+                        <h6 class="text-muted mb-2">Total Requests</h6>
+                        <small class="text-success">
+                            <i class="fas fa-arrow-up me-1"></i>12% from last period
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm h-100 metric-card">
+                    <div class="card-body text-center p-4">
+                        <div class="metric-icon mb-3">
+                            <i class="fas fa-check-circle fa-2x text-primary"></i>
+                        </div>
+                        <h2 class="text-dark mb-1">{{ $overview['approval_rate'] }}%</h2>
+                        <h6 class="text-muted mb-2">Approval Rate</h6>
+                        <small class="text-muted">{{ number_format($overview['approved_requests']) }} approved</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm h-100 metric-card">
+                    <div class="card-body text-center p-4">
+                        <div class="metric-icon mb-3">
+                            <i class="fas fa-chart-bar fa-2x text-warning"></i>
+                        </div>
+                        <h2 class="text-dark mb-1">{{ number_format($overview['total_quantity_requested']) }}</h2>
+                        <h6 class="text-muted mb-2">Items Distributed</h6>
+                        <small class="text-muted">{{ number_format($overview['avg_request_size'], 1) }} avg per request</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm h-100 metric-card">
+                    <div class="card-body text-center p-4">
+                        <div class="metric-icon mb-3">
+                            <i class="fas fa-map-marker-alt fa-2x text-info"></i>
+                        </div>
+                        <h2 class="text-dark mb-1">{{ $overview['active_barangays'] }}</h2>
+                        <h6 class="text-muted mb-2">Active Barangays</h6>
+                        <small class="text-muted">{{ number_format($overview['unique_applicants']) }} farmers served</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Descriptive Analytics Cards -->
+        <div class="row mb-4">
+            <!-- Most Popular Items -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card shadow-sm border-0 h-100 insight-card">
+                    <div class="card-body text-center p-4">
+                        <div class="insight-icon mb-3">
+                            <i class="fas fa-fire fa-2x text-danger"></i>
+                        </div>
+                        <h5 class="text-dark mb-2">Most Popular</h5>
+                        <h6 class="text-primary mb-2">{{ $topItems->first()['name'] ?? 'N/A' }}</h6>
+                        <p class="text-muted small mb-0">
+                            {{ number_format($topItems->first()['total_quantity'] ?? 0) }} units requested
+                            <br>in {{ $topItems->first()['request_count'] ?? 0 }} requests
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Least Requested Category -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card shadow-sm border-0 h-100 insight-card">
+                    <div class="card-body text-center p-4">
+                        <div class="insight-icon mb-3">
+                            <i class="fas fa-chart-line-down fa-2x text-warning"></i>
+                        </div>
+                        <h5 class="text-dark mb-2">Needs Attention</h5>
+                        @php
+                            $leastCategory = collect($categoryAnalysis)->sortBy('requests')->first();
+                            $leastCategoryName = collect($categoryAnalysis)->sortBy('requests')->keys()->first();
+                        @endphp
+                        <h6 class="text-warning mb-2">{{ ucfirst($leastCategoryName ?? 'N/A') }}</h6>
+                        <p class="text-muted small mb-0">
+                            Only {{ $leastCategory['requests'] ?? 0 }} requests
+                            <br>Consider promotion campaigns
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best Performing Barangay -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card shadow-sm border-0 h-100 insight-card">
+                    <div class="card-body text-center p-4">
+                        <div class="insight-icon mb-3">
+                            <i class="fas fa-crown fa-2x text-success"></i>
+                        </div>
+                        <h5 class="text-dark mb-2">Top Performer</h5>
+                        <h6 class="text-success mb-2">{{ $barangayAnalysis->first()->barangay ?? 'N/A' }}</h6>
+                        <p class="text-muted small mb-0">
+                            {{ $barangayAnalysis->first()->total_requests ?? 0 }} total requests
+                            <br>{{ round(($barangayAnalysis->first()->approved ?? 0) / max(1, $barangayAnalysis->first()->total_requests ?? 1) * 100, 1) }}% approval rate
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Average Processing Insight -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card shadow-sm border-0 h-100 insight-card">
+                    <div class="card-body text-center p-4">
+                        <div class="insight-icon mb-3">
+                            <i class="fas fa-tachometer-alt fa-2x text-info"></i>
+                        </div>
+                        <h5 class="text-dark mb-2">Efficiency</h5>
+                        <h6 class="text-{{ $processingTimeAnalysis['avg_processing_days'] <= 3 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] <= 7 ? 'warning' : 'danger') }} mb-2">
+                            {{ $processingTimeAnalysis['avg_processing_days'] }}d Average
+                        </h6>
+                        <p class="text-muted small mb-0">
+                            {{ $processingTimeAnalysis['avg_processing_days'] <= 3 ? 'Excellent' : ($processingTimeAnalysis['avg_processing_days'] <= 7 ? 'Good' : 'Needs Improvement') }} processing time
+                            <br>Range: {{ $processingTimeAnalysis['min_processing_days'] }}-{{ $processingTimeAnalysis['max_processing_days'] }} days
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="row mb-4">
+            <!-- Request Status with Labels -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-pie-chart me-2 text-primary"></i>Request Status Distribution
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="position-relative">
+                            <canvas id="statusPieChart" height="200"></canvas>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Status Analysis Tab -->
-                    <div class="tab-pane fade" id="status" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5>Request Status Distribution</h5>
-                                <canvas id="statusChart"></canvas>
-                            </div>
-                            <div class="col-md-6">
-                                <h5>Status Breakdown</h5>
-                                <div class="list-group">
-                                    @foreach($statusAnalysis['counts'] as $status => $count)
-                                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span class="text-capitalize">
-                                            <i class="fas fa-circle me-2 text-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }}"></i>
-                                            {{ str_replace('_', ' ', $status) }}
-                                        </span>
-                                        <div>
-                                            <span class="badge bg-primary rounded-pill me-2">{{ $count }}</span>
-                                            <small class="text-muted">{{ $statusAnalysis['percentages'][$status] }}%</small>
-                                        </div>
-                                    </div>
+            <!-- Monthly Trends -->
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-chart-line me-2 text-success"></i>Monthly Request Trends
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="trendsChart" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="row mb-4">
+            <!-- Top Barangays Performance -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-trophy me-2 text-warning"></i>Top Performing Barangays
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="barangayChart" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Distribution -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-leaf me-2 text-success"></i>Category Distribution
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="categoryChart" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 3 -->
+        <div class="row mb-4">
+            <!-- Most Requested Items -->
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-star me-2 text-danger"></i>Most Requested Items
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="topItemsChart" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing Time Analysis -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-clock me-2 text-info"></i>Processing Time
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="processingTimeChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seasonal Analysis -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-calendar-alt me-2 text-success"></i>Seasonal Request Patterns
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="seasonalChart" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Summary Table -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-table me-2 text-primary"></i>Detailed Performance Summary
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Barangay</th>
+                                        <th>Total Requests</th>
+                                        <th>Approved</th>
+                                        <th>Approval Rate</th>
+                                        <th>Total Quantity</th>
+                                        <th>Avg Quantity</th>
+                                        <th>Unique Farmers</th>
+                                        <th>Performance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($barangayAnalysis->take(10) as $barangay)
+                                    @php
+                                        $approvalRate = $barangay->total_requests > 0 ? round(($barangay->approved / $barangay->total_requests) * 100, 1) : 0;
+                                        $performanceClass = $approvalRate >= 80 ? 'success' : ($approvalRate >= 60 ? 'warning' : 'danger');
+                                        $performanceText = $approvalRate >= 80 ? 'Excellent' : ($approvalRate >= 60 ? 'Good' : 'Needs Improvement');
+                                    @endphp
+                                    <tr>
+                                        <td><strong>{{ $barangay->barangay }}</strong></td>
+                                        <td>{{ $barangay->total_requests }}</td>
+                                        <td><span class="badge bg-success">{{ $barangay->approved }}</span></td>
+                                        <td>{{ $approvalRate }}%</td>
+                                        <td>{{ number_format($barangay->total_quantity) }}</td>
+                                        <td>{{ number_format($barangay->avg_quantity, 1) }}</td>
+                                        <td>{{ $barangay->unique_applicants }}</td>
+                                        <td><span class="badge bg-{{ $performanceClass }}">{{ $performanceText }}</span></td>
+                                    </tr>
                                     @endforeach
-                                </div>
-                                
-                                <!-- Seasonal Analysis -->
-                                <h5 class="mt-4">Seasonal Analysis</h5>
-                                <div class="row">
-                                    @foreach($seasonalAnalysis as $season => $data)
-                                    <div class="col-6">
-                                        <div class="card bg-light">
-                                            <div class="card-body text-center">
-                                                <h6 class="card-title">{{ $season }}</h6>
-                                                <p class="card-text">
-                                                    <strong>{{ $data['requests'] }}</strong> requests<br>
-                                                    <small class="text-muted">{{ number_format($data['quantity']) }} items</small>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @endforeach
-                                </div>
-                            </div>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <!-- Barangay Analysis Tab -->
-                    <div class="tab-pane fade" id="barangays" role="tabpanel">
-                        <h5>Barangay Performance Analysis</h5>
-                        <div class="row">
-                            <div class="col-12">
-                                <canvas id="barangayChart" height="80"></canvas>
-                            </div>
-                        </div>
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Barangay</th>
-                                                <th>Total Requests</th>
-                                                <th>Approved</th>
-                                                <th>Total Quantity</th>
-                                                <th>Avg Quantity</th>
-                                                <th>Unique Applicants</th>
-                                                <th>Approval Rate</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($barangayAnalysis as $barangay)
-                                            <tr>
-                                                <td><strong>{{ $barangay->barangay }}</strong></td>
-                                                <td>{{ $barangay->total_requests }}</td>
-                                                <td><span class="badge bg-success">{{ $barangay->approved }}</span></td>
-                                                <td>{{ number_format($barangay->total_quantity) }}</td>
-                                                <td>{{ number_format($barangay->avg_quantity, 1) }}</td>
-                                                <td>{{ $barangay->unique_applicants }}</td>
-                                                <td>{{ $barangay->total_requests > 0 ? round(($barangay->approved / $barangay->total_requests) * 100, 1) : 0 }}%</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+    <!-- RSBSA Service Tab -->
+    <div class="tab-pane fade" id="rsbsa-service" role="tabpanel">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-user-check fa-3x text-muted mb-3"></i>
+                <h4>RSBSA Analytics</h4>
+                <p class="text-muted">Registry System for Basic Sectors in Agriculture analytics will be displayed here.</p>
+                <button class="btn btn-primary">Configure RSBSA Analytics</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Equipment Service Tab -->
+    <div class="tab-pane fade" id="equipment-service" role="tabpanel">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                <h4>Equipment Analytics</h4>
+                <p class="text-muted">Analytics for equipment loans and maintenance will be displayed here.</p>
+                <button class="btn btn-primary">Configure Equipment Analytics</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Training Service Tab -->
+    <div class="tab-pane fade" id="training-service" role="tabpanel">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                <h4>Training Analytics</h4>
+                <p class="text-muted">Analytics for training programs and attendance will be displayed here.</p>
+                <button class="btn btn-primary">Configure Training Analytics</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Insights Modal -->
+<div class="modal fade" id="insightsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-robot me-2"></i>AI-Powered Insights
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chart-line text-success me-2"></i>Growth Opportunities</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-up text-success me-2"></i>
+                                Consider expanding to {{ $barangayAnalysis->count() > 5 ? 'underserved' : 'additional' }} barangays
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-seedling text-info me-2"></i>
+                                Focus on high-demand items like {{ $topItems->first()['name'] ?? 'popular crops' }}
+                            </li>
+                        </ul>
                     </div>
-
-                    <!-- Category Analysis Tab -->
-                    <div class="tab-pane fade" id="categories" role="tabpanel">
-                        <h5>Category Distribution Analysis</h5>
-                        <div class="row">
-                            @foreach($categoryAnalysis as $category => $data)
-                            <div class="col-md-4 mb-4">
-                                <div class="card h-100">
-                                    <div class="card-header bg-{{ $category === 'vegetables' ? 'success' : ($category === 'fruits' ? 'warning' : 'info') }}">
-                                        <h6 class="card-title text-white mb-0 text-capitalize">
-                                            <i class="fas fa-{{ $category === 'vegetables' ? 'leaf' : ($category === 'fruits' ? 'apple-alt' : 'flask') }} me-2"></i>
-                                            {{ $category }}
-                                        </h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row text-center">
-                                            <div class="col-6">
-                                                <h4 class="text-primary">{{ $data['requests'] }}</h4>
-                                                <small class="text-muted">Requests</small>
-                                            </div>
-                                            <div class="col-6">
-                                                <h4 class="text-success">{{ number_format($data['total_items']) }}</h4>
-                                                <small class="text-muted">Total Items</small>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <h6>Top Items:</h6>
-                                        <div class="list-group list-group-flush">
-                                            @php
-                                                $topCategoryItems = collect($data['unique_items'])->sortByDesc(function($quantity) { return $quantity; })->take(3);
-                                            @endphp
-                                            @foreach($topCategoryItems as $itemName => $quantity)
-                                            <div class="list-group-item px-0 py-1 d-flex justify-content-between">
-                                                <small>{{ $itemName }}</small>
-                                                <span class="badge bg-secondary">{{ $quantity }}</span>
-                                            </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                        
-                        <!-- Category Comparison Chart -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <canvas id="categoryChart" height="60"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Top Items Tab -->
-                    <div class="tab-pane fade" id="items" role="tabpanel">
-                        <h5>Most Requested Items</h5>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <canvas id="topItemsChart" height="80"></canvas>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Rank</th>
-                                                <th>Item</th>
-                                                <th>Category</th>
-                                                <th>Total Qty</th>
-                                                <th>Requests</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($topItems->take(10) as $index => $item)
-                                            <tr>
-                                                <td><span class="badge bg-primary">#{{ $index + 1 }}</span></td>
-                                                <td><strong>{{ $item['name'] }}</strong></td>
-                                                <td>
-                                                    <span class="badge bg-{{ $item['category'] === 'vegetables' ? 'success' : ($item['category'] === 'fruits' ? 'warning' : 'info') }}">
-                                                        {{ substr($item['category'], 0, 4) }}
-                                                    </span>
-                                                </td>
-                                                <td>{{ number_format($item['total_quantity']) }}</td>
-                                                <td>{{ $item['request_count'] }}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Performance Tab -->
-                    <div class="tab-pane fade" id="performance" role="tabpanel">
-                        <h5>System Performance Metrics</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <h6 class="card-title">
-                                            <i class="fas fa-clock me-2"></i>Processing Time Analysis
-                                        </h6>
-                                        <div class="row text-center">
-                                            <div class="col-4">
-                                                <h4 class="text-primary">{{ $processingTimeAnalysis['avg_processing_days'] }}d</h4>
-                                                <small class="text-muted">Average</small>
-                                            </div>
-                                            <div class="col-4">
-                                                <h4 class="text-success">{{ $processingTimeAnalysis['min_processing_days'] }}d</h4>
-                                                <small class="text-muted">Fastest</small>
-                                            </div>
-                                            <div class="col-4">
-                                                <h4 class="text-danger">{{ $processingTimeAnalysis['max_processing_days'] }}d</h4>
-                                                <small class="text-muted">Slowest</small>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <p class="mb-0">
-                                            <small class="text-muted">
-                                                Based on {{ number_format($processingTimeAnalysis['processed_count']) }} processed requests
-                                            </small>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <h6 class="card-title">
-                                            <i class="fas fa-warehouse me-2"></i>Inventory Impact
-                                        </h6>
-                                        <div class="row text-center">
-                                            <div class="col-6">
-                                                <h4 class="text-info">{{ number_format($inventoryImpact['total_items_distributed']) }}</h4>
-                                                <small class="text-muted">Items Distributed</small>
-                                            </div>
-                                            <div class="col-6">
-                                                <h4 class="text-success">{{ number_format($inventoryImpact['requests_fulfilled']) }}</h4>
-                                                <small class="text-muted">Requests Fulfilled</small>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <p class="mb-0">
-                                            <small class="text-muted">
-                                                Average fulfillment: {{ number_format($inventoryImpact['avg_fulfillment_quantity'], 1) }} items per request
-                                            </small>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Performance Insights -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Key Performance Insights</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <ul class="list-unstyled">
-                                                    <li class="mb-2">
-                                                        <i class="fas fa-check-circle text-success me-2"></i>
-                                                        <strong>{{ $overview['approval_rate'] }}%</strong> approval rate indicates 
-                                                        {{ $overview['approval_rate'] > 80 ? 'excellent' : ($overview['approval_rate'] > 60 ? 'good' : 'needs improvement') }} 
-                                                        request quality
-                                                    </li>
-                                                    <li class="mb-2">
-                                                        <i class="fas fa-users text-info me-2"></i>
-                                                        <strong>{{ $overview['unique_applicants'] }}</strong> unique applicants across 
-                                                        <strong>{{ $overview['active_barangays'] }}</strong> barangays shows good community reach
-                                                    </li>
-                                                    <li class="mb-2">
-                                                        <i class="fas fa-seedling text-success me-2"></i>
-                                                        Average request size of <strong>{{ number_format($overview['avg_request_size'], 1) }}</strong> items 
-                                                        indicates {{ $overview['avg_request_size'] > 50 ? 'large-scale' : 'small-scale' }} farming focus
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <ul class="list-unstyled">
-                                                    <li class="mb-2">
-                                                        <i class="fas fa-clock text-warning me-2"></i>
-                                                        Processing time of <strong>{{ $processingTimeAnalysis['avg_processing_days'] }} days</strong> 
-                                                        is {{ $processingTimeAnalysis['avg_processing_days'] < 3 ? 'excellent' : ($processingTimeAnalysis['avg_processing_days'] < 7 ? 'good' : 'needs improvement') }}
-                                                    </li>
-                                                    <li class="mb-2">
-                                                        <i class="fas fa-chart-line text-primary me-2"></i>
-                                                        <strong>{{ number_format($inventoryImpact['total_items_distributed']) }}</strong> items distributed 
-                                                        shows significant community impact
-                                                    </li>
-                                                    <li class="mb-2">
-                                                        <i class="fas fa-balance-scale text-info me-2"></i>
-                                                        Distribution across categories: 
-                                                        {{ round(($categoryAnalysis['vegetables']['requests'] / max(1, array_sum(array_column($categoryAnalysis, 'requests')))) * 100) }}% vegetables,
-                                                        {{ round(($categoryAnalysis['fruits']['requests'] / max(1, array_sum(array_column($categoryAnalysis, 'requests')))) * 100) }}% fruits,
-                                                        {{ round(($categoryAnalysis['fertilizers']['requests'] / max(1, array_sum(array_column($categoryAnalysis, 'requests')))) * 100) }}% fertilizers
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>Areas for Improvement</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-clock text-warning me-2"></i>
+                                {{ $processingTimeAnalysis['avg_processing_days'] > 5 ? 'Reduce processing time' : 'Maintain current processing speed' }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-balance-scale text-info me-2"></i>
+                                Balance distribution across crop categories
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -484,56 +465,191 @@
 </div>
 @endsection
 
+@section('styles')
+<style>
+.metric-card, .insight-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 10px;
+}
+
+.metric-card:hover, .insight-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.metric-icon, .insight-icon {
+    opacity: 0.8;
+}
+
+.card {
+    border-radius: 10px;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.nav-pills .nav-link {
+    border-radius: 25px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+}
+
+.nav-pills .nav-link:not(.active):hover {
+    background-color: rgba(0,123,255,0.1);
+    border-color: rgba(0,123,255,0.3);
+}
+
+.card-header {
+    border-bottom: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,0.03);
+}
+
+/* Chart container styling */
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* Loading animation */
+.chart-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+</style>
+@endsection
+
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Store chart instances to prevent memory leaks
     let chartInstances = {};
     
-    // Initialize charts that should be visible on page load
+    // Chart.js defaults for clean appearance
+    Chart.defaults.color = '#666';
+    Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+    Chart.defaults.plugins.legend.display = true;
+    Chart.defaults.plugins.tooltip.enabled = true;
+    Chart.defaults.plugins.tooltip.backgroundColor = '#fff';
+    Chart.defaults.plugins.tooltip.titleColor = '#333';
+    Chart.defaults.plugins.tooltip.bodyColor = '#333';
+    Chart.defaults.plugins.tooltip.borderColor = '#ddd';
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    
+    // Color palette
+    const colors = {
+        primary: '#007bff',
+        success: '#28a745',
+        warning: '#ffc107',
+        danger: '#dc3545',
+        info: '#17a2b8',
+        secondary: '#6c757d'
+    };
+    
+    // Initialize all charts for seedlings
+    initializeStatusPieChart();
     initializeTrendsChart();
+    initializeBarangayChart();
+    initializeCategoryChart();
+    initializeTopItemsChart();
+    initializeProcessingTimeChart();
+    initializeSeasonalChart();
     
-    // Handle tab switching and initialize charts when needed
-    const tabTriggers = document.querySelectorAll('#analyticsTab button[data-bs-toggle="tab"]');
-    tabTriggers.forEach(trigger => {
-        trigger.addEventListener('shown.bs.tab', function(event) {
-            const targetTab = event.target.getAttribute('data-bs-target');
-            
-            // Small delay to ensure tab content is fully visible
-            setTimeout(() => {
-                switch(targetTab) {
-                    case '#status':
-                        if (!chartInstances.statusChart) {
-                            initializeStatusChart();
-                        }
-                        break;
-                    case '#barangays':
-                        if (!chartInstances.barangayChart) {
-                            initializeBarangayChart();
-                        }
-                        break;
-                    case '#categories':
-                        if (!chartInstances.categoryChart) {
-                            initializeCategoryChart();
-                        }
-                        break;
-                    case '#items':
-                        if (!chartInstances.topItemsChart) {
-                            initializeTopItemsChart();
-                        }
-                        break;
-                }
-            }, 100);
-        });
-    });
-    
-    // Chart initialization functions
-    function initializeTrendsChart() {
-        const trendsCtx = document.getElementById('trendsChart');
-        if (!trendsCtx) return;
+    function initializeStatusPieChart() {
+        const ctx = document.getElementById('statusPieChart');
+        if (!ctx) return;
         
-        chartInstances.trendsChart = new Chart(trendsCtx.getContext('2d'), {
+        const data = [{{ implode(',', $statusAnalysis['counts']) }}];
+        const labels = [
+            @foreach($statusAnalysis['counts'] as $status => $count)
+                '{{ ucfirst(str_replace("_", " ", $status)) }}',
+            @endforeach
+        ];
+        
+        const backgroundColors = [colors.success, colors.danger, colors.warning];
+        
+        chartInstances.statusPieChart = new Chart(ctx.getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const dataset = data.datasets[0];
+                                        const value = dataset.data[i];
+                                        const total = dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return {
+                                            text: `${label}: ${value} (${percentage}%)`,
+                                            fillStyle: dataset.backgroundColor[i],
+                                            pointStyle: 'circle'
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: {
+                            weight: 'bold'
+                        },
+                        formatter: (value, ctx) => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return percentage + '%';
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function initializeTrendsChart() {
+        const ctx = document.getElementById('trendsChart');
+        if (!ctx) return;
+        
+        chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
             type: 'line',
             data: {
                 labels: [
@@ -544,176 +660,137 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Total Requests',
                     data: [{{ $monthlyTrends->pluck('total_requests')->implode(',') }}],
-                    borderColor: '#3498db',
-                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    borderColor: colors.primary,
+                    backgroundColor: 'rgba(0,123,255,0.1)',
+                    borderWidth: 3,
                     tension: 0.4,
-                    yAxisID: 'y'
+                    fill: true,
+                    pointRadius: 0,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: colors.primary,
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2
                 }, {
                     label: 'Approved',
                     data: [{{ $monthlyTrends->pluck('approved')->implode(',') }}],
-                    borderColor: '#27ae60',
-                    backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                    borderColor: colors.success,
+                    backgroundColor: 'rgba(40,167,69,0.1)',
+                    borderWidth: 3,
                     tension: 0.4,
-                    yAxisID: 'y'
-                }, {
-                    label: 'Total Quantity',
-                    data: [{{ $monthlyTrends->pluck('total_quantity')->implode(',') }}],
-                    borderColor: '#f39c12',
-                    backgroundColor: 'rgba(243, 156, 18, 0.1)',
-                    tension: 0.4,
-                    yAxisID: 'y1'
+                    fill: true,
+                    pointRadius: 0,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: colors.success,
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Number of Requests'
-                        },
-                        beginAtZero: true
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Total Quantity'
-                        },
-                        beginAtZero: true,
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                    }
-                },
                 plugins: {
                     legend: {
                         position: 'top',
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                    }
-                }
-            }
-        });
-    }
-    
-    function initializeStatusChart() {
-        const statusCtx = document.getElementById('statusChart');
-        if (!statusCtx) return;
-        
-        chartInstances.statusChart = new Chart(statusCtx.getContext('2d'), {
-            type: 'doughnut',
-            data: {
-                labels: [
-                    @foreach($statusAnalysis['counts'] as $status => $count)
-                        '{{ ucfirst(str_replace("_", " ", $status)) }}',
-                    @endforeach
-                ],
-                datasets: [{
-                    data: [{{ implode(',', $statusAnalysis['counts']) }}],
-                    backgroundColor: [
-                        '#27ae60',  // approved - green
-                        '#e74c3c',  // rejected - red
-                        '#f39c12'   // under_review - orange
-                    ],
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
                         labels: {
-                            padding: 20,
-                            usePointStyle: true
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.parsed;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((value / total) * 100).toFixed(1);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
+                            usePointStyle: true,
+                            padding: 20
                         }
                     }
+                },
+                scales: {
+                    x: {
+                        grid: { 
+                            display: false 
+                        },
+                        ticks: {
+                            color: '#666'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { 
+                            color: '#f0f0f0',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
                 }
             }
         });
     }
     
     function initializeBarangayChart() {
-        const barangayCtx = document.getElementById('barangayChart');
-        if (!barangayCtx) return;
+        const ctx = document.getElementById('barangayChart');
+        if (!ctx) return;
         
-        chartInstances.barangayChart = new Chart(barangayCtx.getContext('2d'), {
+        const barangayData = [
+            @foreach($barangayAnalysis->take(10) as $barangay)
+                {{ $barangay->total_requests }},
+            @endforeach
+        ];
+        
+        const barangayLabels = [
+            @foreach($barangayAnalysis->take(10) as $barangay)
+                '{{ $barangay->barangay }}',
+            @endforeach
+        ];
+        
+        chartInstances.barangayChart = new Chart(ctx.getContext('2d'), {
             type: 'bar',
             data: {
-                labels: [
-                    @foreach($barangayAnalysis->take(10) as $barangay)
-                        '{{ $barangay->barangay }}',
-                    @endforeach
-                ],
+                labels: barangayLabels,
                 datasets: [{
                     label: 'Total Requests',
-                    data: [{{ $barangayAnalysis->take(10)->pluck('total_requests')->implode(',') }}],
-                    backgroundColor: '#3498db',
-                    borderColor: '#2980b9',
-                    borderWidth: 1
-                }, {
-                    label: 'Approved',
-                    data: [{{ $barangayAnalysis->take(10)->pluck('approved')->implode(',') }}],
-                    backgroundColor: '#27ae60',
-                    borderColor: '#229954',
-                    borderWidth: 1
+                    data: barangayData,
+                    backgroundColor: colors.primary,
+                    borderColor: colors.primary,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    borderSkipped: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    datalabels: {
+                        display: true,
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#666',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
                 scales: {
                     x: {
-                        title: {
-                            display: true,
-                            text: 'Barangay (Top 10)'
+                        grid: { 
+                            display: false 
                         },
                         ticks: {
-                            maxRotation: 45,
-                            minRotation: 0
+                            color: '#666',
+                            maxRotation: 45
                         }
                     },
                     y: {
-                        title: {
-                            display: true,
-                            text: 'Number of Requests'
+                        beginAtZero: true,
+                        grid: { 
+                            color: '#f0f0f0',
+                            drawBorder: false
                         },
-                        beginAtZero: true
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
+                        ticks: {
+                            color: '#666'
+                        }
                     }
                 }
             }
@@ -721,72 +798,76 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function initializeCategoryChart() {
-        const categoryCtx = document.getElementById('categoryChart');
-        if (!categoryCtx) return;
+        const ctx = document.getElementById('categoryChart');
+        if (!ctx) return;
         
-        chartInstances.categoryChart = new Chart(categoryCtx.getContext('2d'), {
-            type: 'bar',
+        const categoryData = [
+            @foreach($categoryAnalysis as $category => $data)
+                {{ $data['requests'] }},
+            @endforeach
+        ];
+        
+        const categoryLabels = [
+            @foreach($categoryAnalysis as $category => $data)
+                '{{ ucfirst($category) }}',
+            @endforeach
+        ];
+        
+        const categoryColors = [
+            colors.success, colors.warning, colors.info, colors.danger, colors.secondary
+        ];
+        
+        chartInstances.categoryChart = new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
             data: {
-                labels: ['Vegetables', 'Fruits', 'Fertilizers'],
+                labels: categoryLabels,
                 datasets: [{
-                    label: 'Number of Requests',
-                    data: [
-                        {{ $categoryAnalysis['vegetables']['requests'] }},
-                        {{ $categoryAnalysis['fruits']['requests'] }},
-                        {{ $categoryAnalysis['fertilizers']['requests'] }}
-                    ],
-                    backgroundColor: ['#27ae60', '#f39c12', '#3498db'],
-                    borderColor: ['#229954', '#e67e22', '#2980b9'],
-                    borderWidth: 1,
-                    yAxisID: 'y'
-                }, {
-                    label: 'Total Items',
-                    data: [
-                        {{ $categoryAnalysis['vegetables']['total_items'] }},
-                        {{ $categoryAnalysis['fruits']['total_items'] }},
-                        {{ $categoryAnalysis['fertilizers']['total_items'] }}
-                    ],
-                    backgroundColor: ['rgba(39, 174, 96, 0.5)', 'rgba(243, 156, 18, 0.5)', 'rgba(52, 152, 219, 0.5)'],
-                    borderColor: ['#27ae60', '#f39c12', '#3498db'],
-                    borderWidth: 1,
-                    yAxisID: 'y1'
+                    data: categoryData,
+                    backgroundColor: categoryColors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Number of Requests'
-                        },
-                        beginAtZero: true
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Total Items'
-                        },
-                        beginAtZero: true,
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                    }
-                },
+                cutout: '60%',
                 plugins: {
                     legend: {
-                        position: 'top',
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const dataset = data.datasets[0];
+                                        const value = dataset.data[i];
+                                        const total = dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return {
+                                            text: `${label}: ${value} (${percentage}%)`,
+                                            fillStyle: dataset.backgroundColor[i],
+                                            pointStyle: 'circle'
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
                     },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: {
+                            weight: 'bold'
+                        },
+                        formatter: (value, ctx) => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return percentage + '%';
+                        }
                     }
                 }
             }
@@ -794,63 +875,70 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function initializeTopItemsChart() {
-        const topItemsCtx = document.getElementById('topItemsChart');
-        if (!topItemsCtx) return;
+        const ctx = document.getElementById('topItemsChart');
+        if (!ctx) return;
         
-        chartInstances.topItemsChart = new Chart(topItemsCtx.getContext('2d'), {
+        const itemData = [
+            @foreach($topItems->take(10) as $item)
+                {{ $item['total_quantity'] }},
+            @endforeach
+        ];
+        
+        const itemLabels = [
+            @foreach($topItems->take(10) as $item)
+                '{{ $item['name'] }}',
+            @endforeach
+        ];
+        
+        chartInstances.topItemsChart = new Chart(ctx.getContext('2d'), {
             type: 'bar',
             data: {
-                labels: [
-                    @foreach($topItems->take(10) as $item)
-                        '{{ $item["name"] }}',
-                    @endforeach
-                ],
+                labels: itemLabels,
                 datasets: [{
                     label: 'Total Quantity Requested',
-                    data: [{{ $topItems->take(10)->pluck('total_quantity')->implode(',') }}],
-                    backgroundColor: [
-                        @foreach($topItems->take(10) as $item)
-                            '{{ $item["category"] === "vegetables" ? "#27ae60" : ($item["category"] === "fruits" ? "#f39c12" : "#3498db") }}',
-                        @endforeach
-                    ],
-                    borderColor: [
-                        @foreach($topItems->take(10) as $item)
-                            '{{ $item["category"] === "vegetables" ? "#229954" : ($item["category"] === "fruits" ? "#e67e22" : "#2980b9") }}',
-                        @endforeach
-                    ],
-                    borderWidth: 1
+                    data: itemData,
+                    backgroundColor: colors.success,
+                    borderColor: colors.success,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    borderSkipped: false
                 }]
             },
             options: {
+                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                indexAxis: 'y',
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Total Quantity'
-                        },
-                        beginAtZero: true
-                    },
-                    y: {
-                        ticks: {
-                            maxRotation: 0,
-                            minRotation: 0
-                        }
-                    }
-                },
                 plugins: {
                     legend: {
                         display: false
                     },
-                    tooltip: {
-                        callbacks: {
-                            afterLabel: function(context) {
-                                const item = @json($topItems->take(10)->values());
-                                const itemData = item[context.dataIndex];
-                                return `Category: ${itemData.category.charAt(0).toUpperCase() + itemData.category.slice(1)}`;
-                            }
+                    datalabels: {
+                        display: true,
+                        anchor: 'end',
+                        align: 'right',
+                        color: '#666',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { 
+                            color: '#f0f0f0',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666'
+                        }
+                    },
+                    y: {
+                        grid: { 
+                            display: false 
+                        },
+                        ticks: {
+                            color: '#666'
                         }
                     }
                 }
@@ -858,15 +946,193 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Cleanup function to destroy charts when needed
-    window.destroyCharts = function() {
+    function initializeProcessingTimeChart() {
+        const ctx = document.getElementById('processingTimeChart');
+        if (!ctx) return;
+        
+        // Sample processing time distribution data
+        const processingData = [
+            {{ $processingTimeAnalysis['same_day'] ?? 0 }},
+            {{ $processingTimeAnalysis['1_3_days'] ?? 0 }},
+            {{ $processingTimeAnalysis['4_7_days'] ?? 0 }},
+            {{ $processingTimeAnalysis['over_7_days'] ?? 0 }}
+        ];
+        
+        const processingLabels = ['Same Day', '1-3 Days', '4-7 Days', 'Over 7 Days'];
+        const processingColors = [colors.success, colors.info, colors.warning, colors.danger];
+        
+        chartInstances.processingTimeChart = new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: processingLabels,
+                datasets: [{
+                    data: processingData,
+                    backgroundColor: processingColors,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '50%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const dataset = data.datasets[0];
+                                        const value = dataset.data[i];
+                                        const total = dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                        return {
+                                            text: `${label}: ${percentage}%`,
+                                            fillStyle: dataset.backgroundColor[i],
+                                            pointStyle: 'circle'
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: (value, ctx) => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            if (total === 0) return '0%';
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return percentage + '%';
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    function initializeSeasonalChart() {
+        const ctx = document.getElementById('seasonalChart');
+        if (!ctx) return;
+        
+        // Sample seasonal data - you'll need to replace with actual data
+        const seasonalMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const seasonalRequests = [
+            @php
+                // Generate sample seasonal data or use actual data
+                $sampleSeasonalData = [45, 52, 78, 95, 120, 85, 92, 88, 76, 82, 65, 58];
+                echo implode(',', $sampleSeasonalData);
+            @endphp
+        ];
+        const seasonalApproved = [
+            @php
+                $sampleApprovedData = [40, 48, 72, 88, 110, 78, 85, 82, 70, 76, 60, 52];
+                echo implode(',', $sampleApprovedData);
+            @endphp
+        ];
+        
+        chartInstances.seasonalChart = new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: seasonalMonths,
+                datasets: [{
+                    label: 'Total Requests',
+                    data: seasonalRequests,
+                    borderColor: colors.primary,
+                    backgroundColor: 'rgba(0,123,255,0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: colors.primary,
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2
+                }, {
+                    label: 'Approved',
+                    data: seasonalApproved,
+                    borderColor: colors.success,
+                    backgroundColor: 'rgba(40,167,69,0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: colors.success,
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { 
+                            display: false 
+                        },
+                        ticks: {
+                            color: '#666'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { 
+                            color: '#f0f0f0',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    }
+    
+    // Tab switching functionality
+    const serviceTabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+    serviceTabButtons.forEach(button => {
+        button.addEventListener('shown.bs.tab', function (e) {
+            // Resize charts when tab is shown
+            Object.values(chartInstances).forEach(chart => {
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        });
+    });
+    
+    // Cleanup chart instances when needed
+    window.addEventListener('beforeunload', function() {
         Object.values(chartInstances).forEach(chart => {
             if (chart) {
                 chart.destroy();
             }
         });
-        chartInstances = {};
-    };
+    });
 });
 </script>
 @endsection

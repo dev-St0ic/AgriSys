@@ -1,0 +1,1 @@
+{{-- resources/views/admin/analytics/boatr.blade.php --}}

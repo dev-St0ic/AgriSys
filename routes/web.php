@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\SeedlingRequestController;
 use App\Http\Controllers\SeedlingAnalyticsController;
+use App\Http\Controllers\FishrAnalyticsController;
 use App\Http\Controllers\FishRController;
 use App\Http\Controllers\BoatRController;
 use App\Http\Controllers\RsbsaController;
@@ -137,12 +138,21 @@ Route::middleware('admin')->group(function () {
         Route::delete('/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
         Route::get('/export', [SeedlingRequestController::class, 'export'])->name('export');
     });
-       // ==============================================
-    // SEEDLING ANALYTICS - NEW SECTION
+    // ==============================================
+    // ANALYTICS ROUTES - SECTION
     // ==============================================
     Route::prefix('admin/analytics')->name('admin.analytics.')->group(function () {
+        // SEEDLING ANALYTICS - EXISTING
         Route::get('/seedlings', [SeedlingAnalyticsController::class, 'index'])->name('seedlings');
         Route::get('/seedlings/export', [SeedlingAnalyticsController::class, 'export'])->name('seedlings.export');
+
+         // RSBSA ANALYTICS - NEW SECTION
+    Route::get('/rsbsa', [RsbsaAnalyticsController::class, 'index'])->name('rsbsa');
+    Route::get('/rsbsa/export', [RsbsaAnalyticsController::class, 'export'])->name('rsbsa.export');
+        
+        // FISHR ANALYTICS - NEW SECTION
+        Route::get('/fishr', [FishrAnalyticsController::class, 'index'])->name('fishr');
+        Route::get('/fishr/export', [FishrAnalyticsController::class, 'export'])->name('fishr.export');
     });
     // ==============================================
     // INVENTORY MANAGEMENT

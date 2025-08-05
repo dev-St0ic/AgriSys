@@ -120,7 +120,7 @@
                                     <a class="nav-link {{ request()->routeIs('admin.analytics.analytics') ? 'active' : '' }}"
                                         href="{{ route('admin.analytics.seedlings') }}">
                                         <i class="fas fa-chart-bar me-2"></i>
-                                        Seedling Analytics
+                                         Analytics
                                     </a>
                                 </li>
                                 @if (auth()->user()->isSuperAdmin())
