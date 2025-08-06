@@ -16,30 +16,30 @@
                         <h4 class="mb-0 text-dark">Analytics Dashboard</h4>
                         <p class="text-muted mb-0">Comprehensive insights into agricultural services</p>
                     </div>
-                    <!-- Service Tabs -->
+                    <!-- Service Tabs - Unified Structure -->
                     <ul class="nav nav-pills" id="serviceTab" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="seedlings-service-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#seedlings-service" type="button" role="tab">
+                            <a href="{{ route('admin.analytics.seedlings') }}" 
+                            class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
                                 <i class="fas fa-seedling me-1"></i> Seedlings
-                            </button>
+                            </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="rsbsa-service-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#rsbsa-service" type="button" role="tab">
+                            <a href="{{ route('admin.analytics.rsbsa') }}" 
+                            class="nav-link {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
                                 <i class="fas fa-user-check me-1"></i> RSBSA
-                            </button>
+                            </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a href="{{ route('admin.analytics.fishr') }}" class="nav-link">
+                            <a href="{{ route('admin.analytics.fishr') }}" 
+                            class="nav-link {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
                                 <i class="fas fa-fish me-1"></i> FISHR
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="equipment-service-tab" data-bs-toggle="tab" 
-                                    data-bs-target="#equipment-service" type="button" role="tab">
+                            <a href="#" class="nav-link disabled">
                                 <i class="fas fa-tools me-1"></i> Equipment
-                            </button>
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -379,18 +379,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- RSBSA Service Tab -->
-    <div class="tab-pane fade" id="rsbsa-service" role="tabpanel">
-        <div class="card shadow-sm border-0">
-            <div class="card-body text-center py-5">
-                <i class="fas fa-user-check fa-3x text-muted mb-3"></i>
-                <h4>RSBSA Analytics</h4>
-                <p class="text-muted">Registry System for Basic Sectors in Agriculture analytics will be displayed here.</p>
-                <button class="btn btn-primary">Configure RSBSA Analytics</button>
             </div>
         </div>
     </div>

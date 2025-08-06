@@ -7,6 +7,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\SeedlingRequestController;
 use App\Http\Controllers\SeedlingAnalyticsController;
 use App\Http\Controllers\FishrAnalyticsController;
+use App\Http\Controllers\RsbsaAnalyticsController;
 use App\Http\Controllers\FishRController;
 use App\Http\Controllers\BoatRController;
 use App\Http\Controllers\RsbsaController;
