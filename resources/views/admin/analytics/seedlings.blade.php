@@ -3,7 +3,7 @@
 @extends('layouts.app')
 
 @section('title', 'Analytics - AgriSys Admin')
-@section('page-title', 'Analytics Dashboard')
+@section('page-title', 'Seedling Analytics Dashboard')
 
 @section('content')
 <!-- Header with Service Navigation -->
@@ -13,7 +13,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h4 class="mb-0 text-dark">Analytics Dashboard</h4>
+                        <h4 class="mb-0 text-dark">Seedling Analytics</h4>
                         <p class="text-muted mb-0">Comprehensive insights into agricultural services</p>
                     </div>
                     <!-- Service Tabs - Unified Structure -->
@@ -37,8 +37,9 @@
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a href="#" class="nav-link disabled">
-                                <i class="fas fa-tools me-1"></i> Equipment
+                            <a href="{{ route('admin.analytics.boatr') }}" 
+                            class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                                <i class="fas fa-ship me-1"></i> BOATR
                             </a>
                         </li>
                     </ul>

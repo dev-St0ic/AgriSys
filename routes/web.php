@@ -5,13 +5,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\SeedlingRequestController;
-use App\Http\Controllers\SeedlingAnalyticsController;
-use App\Http\Controllers\FishrAnalyticsController;
-use App\Http\Controllers\RsbsaAnalyticsController;
 use App\Http\Controllers\FishRController;
 use App\Http\Controllers\BoatRController;
 use App\Http\Controllers\RsbsaController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\SeedlingAnalyticsController;
+use App\Http\Controllers\FishrAnalyticsController;
+use App\Http\Controllers\BoatrAnalyticsController;
+use App\Http\Controllers\RsbsaAnalyticsController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -151,10 +152,15 @@ Route::middleware('admin')->group(function () {
     Route::get('/rsbsa', [RsbsaAnalyticsController::class, 'index'])->name('rsbsa');
     Route::get('/rsbsa/export', [RsbsaAnalyticsController::class, 'export'])->name('rsbsa.export');
         
-        // FISHR ANALYTICS - NEW SECTION
-        Route::get('/fishr', [FishrAnalyticsController::class, 'index'])->name('fishr');
-        Route::get('/fishr/export', [FishrAnalyticsController::class, 'export'])->name('fishr.export');
+    // FISHR ANALYTICS - NEW SECTION
+    Route::get('/fishr', [FishrAnalyticsController::class, 'index'])->name('fishr');
+    Route::get('/fishr/export', [FishrAnalyticsController::class, 'export'])->name('fishr.export');
+
+    // BOATR ANALYTICS - NEW SECTION
+    Route::get('/boatr', [BoatrAnalyticsController::class, 'index'])->name('boatr');
+    Route::get('/boatr/export', [BoatrAnalyticsController::class, 'export'])->name('boatr.export');
     });
+    
     // ==============================================
     // INVENTORY MANAGEMENT
     // ==============================================

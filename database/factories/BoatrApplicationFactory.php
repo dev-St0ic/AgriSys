@@ -107,6 +107,7 @@ class BoatrApplicationFactory extends Factory
             'inspection_scheduled_at' => null,
             'approved_at' => null,
             'rejected_at' => null,
+            'created_at' => $this->faker->dateTimeBetween('-1 year', 'now')
         ];
     }
 

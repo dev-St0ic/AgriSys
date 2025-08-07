@@ -18,6 +18,7 @@
                     </div>
                     <!-- Service Tabs - Unified Structure -->
                     <ul class="nav nav-pills" id="serviceTab" role="tablist">
+                        <ul class="nav nav-pills" id="serviceTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <a href="{{ route('admin.analytics.seedlings') }}" 
                             class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
@@ -37,8 +38,9 @@
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a href="#" class="nav-link disabled">
-                                <i class="fas fa-tools me-1"></i> Equipment
+                            <a href="{{ route('admin.analytics.boatr') }}" 
+                            class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                                <i class="fas fa-ship me-1"></i> BOATR
                             </a>
                         </li>
                     </ul>

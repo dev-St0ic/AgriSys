@@ -37,8 +37,9 @@
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a href="#" class="nav-link disabled">
-                                <i class="fas fa-tools me-1"></i> Equipment
+                            <a href="{{ route('admin.analytics.boatr') }}" 
+                            class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                                <i class="fas fa-ship me-1"></i> BOATR
                             </a>
                         </li>
                     </ul>
@@ -583,28 +584,6 @@
         </div>
     </div>
 
-    <!-- Placeholder tabs for other services -->
-    <div class="tab-pane fade" id="fertilizers-service" role="tabpanel">
-        <div class="card shadow-sm">
-            <div class="card-body text-center py-5">
-                <i class="fas fa-flask fa-3x text-muted mb-3"></i>
-                <h4>Fertilizers Analytics</h4>
-                <p class="text-muted">Analytics for fertilizer distribution will be displayed here.</p>
-                <button class="btn btn-primary">Configure Fertilizer Analytics</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="tab-pane fade" id="equipment-service" role="tabpanel">
-        <div class="card shadow-sm">
-            <div class="card-body text-center py-5">
-                <i class="fas fa-tools fa-3x text-muted mb-3"></i>
-                <h4>Equipment Analytics</h4>
-                <p class="text-muted">Analytics for equipment loans and maintenance will be displayed here.</p>
-                <button class="btn btn-primary">Configure Equipment Analytics</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- FISHR AI Insights Modal -->
