@@ -267,7 +267,7 @@ class BoatrApplication extends Model
         if (!$bytes || $bytes === 0) return 'Unknown size';
         
         $sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        $i = Math::floor(log($bytes) / log(1024));
+        $i = floor(log($bytes) / log(1024));
         return round($bytes / pow(1024, $i) * 100) / 100 . ' ' . $sizes[$i];
     }
 
