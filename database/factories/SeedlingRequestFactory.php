@@ -60,13 +60,20 @@ class SeedlingRequestFactory extends Factory
                         collect($selectedFruits)->sum('quantity') + 
                         collect($selectedFertilizers)->sum('quantity');
 
+        $firstName = $this->faker->firstName;
+        $lastName = $this->faker->lastName;
+
+        $firstName = $this->faker->firstName;
+        $lastName = $this->faker->lastName;
+
         return [
             'request_number' => 'SEED-' . strtoupper(Str::random(8)),
-            'first_name' => $this->faker->firstName,
+            'first_name' => $firstName,
             'middle_name' => $this->faker->optional(0.7)->firstName,
-            'last_name' => $this->faker->lastName,
+            'last_name' => $lastName,
             'extension_name' => $this->faker->optional(0.2)->suffix,
             'contact_number' => $this->faker->phoneNumber,
+            'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'), // Add email field
             'address' => $this->faker->streetAddress,
             'barangay' => $this->faker->randomElement($barangays),
             'planting_location' => $this->faker->optional(0.8)->address,

@@ -69,11 +69,15 @@ class RsbsaApplicationFactory extends Factory
             }
         }
         
+        $firstName = $this->faker->firstName;
+        $lastName = $this->faker->lastName;
+
         return [
             'application_number' => 'RSBSA-' . strtoupper(Str::random(8)),
-            'first_name' => $this->faker->firstName,
+            'first_name' => $firstName,
             'middle_name' => $this->faker->optional(0.7)->firstName,
-            'last_name' => $this->faker->lastName,
+            'last_name' => $lastName,
+            'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'sex' => $this->faker->randomElement(['Male', 'Female']),
             'mobile_number' => $this->faker->randomElement([
                 '09' . $this->faker->numerify('#########'),
