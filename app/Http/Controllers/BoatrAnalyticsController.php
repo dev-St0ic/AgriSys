@@ -251,29 +251,45 @@ class BoatrAnalyticsController extends Controller
     }
     
     /**
-     * Get fishing gear analysis
+     * Get fishing gear analysis - simplified version
      */
-    private function getFishingGearAnalysis($baseQuery)
+    public function getFishingGearAnalysis($baseQuery)
     {
         try {
+            Log::info('BOATR Fishing Gear Analysis - Starting analysis');
+            
+            // Get the main fishing gear statistics
             $fishingGearStats = (clone $baseQuery)->select(
                     'primary_fishing_gear',
                     DB::raw('COUNT(*) as total_applications'),
                     DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
                     DB::raw('SUM(CASE WHEN status = "rejected" THEN 1 ELSE 0 END) as rejected'),
-                    DB::raw('COUNT(DISTINCT boat_type) as boat_types_used'),
-                    DB::raw('AVG(CASE WHEN status_updated_at IS NOT NULL AND created_at IS NOT NULL 
-                             THEN DATEDIFF(status_updated_at, created_at) END) as avg_processing_days')
+                    DB::raw('SUM(CASE WHEN status IN ("pending", "under_review", "inspection_scheduled", "inspection_required", "documents_pending") THEN 1 ELSE 0 END) as pending')
                 )
                 ->whereNotNull('primary_fishing_gear')
                 ->where('primary_fishing_gear', '!=', '')
                 ->groupBy('primary_fishing_gear')
                 ->orderBy('total_applications', 'desc')
                 ->get();
-                
+            
+            Log::info('BOATR Fishing Gear Analysis - Found ' . $fishingGearStats->count() . ' gear types');
+            
+            // Add percentage calculations for each gear type
+            $totalApplications = $fishingGearStats->sum('total_applications');
+            $fishingGearStats = $fishingGearStats->map(function($gear) use ($totalApplications) {
+                $gear->percentage = $totalApplications > 0 ? round(($gear->total_applications / $totalApplications) * 100, 1) : 0;
+                $gear->approval_rate = $gear->total_applications > 0 ? round(($gear->approved / $gear->total_applications) * 100, 1) : 0;
+                return $gear;
+            });
+            
             return $fishingGearStats;
+            
         } catch (\Exception $e) {
-            Log::error('BOATR Fishing Gear Analysis Error: ' . $e->getMessage());
+            Log::error('BOATR Fishing Gear Analysis Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Return empty collection on error
             return collect([]);
         }
     }
