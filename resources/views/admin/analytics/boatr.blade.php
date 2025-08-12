@@ -257,7 +257,7 @@
                 </div>
             </div>
 
-            <!-- Fishing Gear Analysis -->
+            <!-- Enhanced Fishing Gear Analysis -->
             <div class="col-lg-6 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-gradient-warning text-white">
@@ -266,22 +266,68 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="position-relative mb-3">
-                            <canvas id="boatrFishingGearChart" height="200"></canvas>
-                        </div>
-                        <div class="row">
-                            @foreach($fishingGearAnalysis->take(4) as $gear)
-                            <div class="col-6 mb-2">
-                                <div class="p-2 rounded bg-light">
-                                    <h6 class="mb-1 text-truncate">{{ ucwords($gear->primary_fishing_gear) }}</h6>
-                                    <div class="d-flex justify-content-between">
-                                        <small class="text-muted">{{ $gear->total_applications }} boats</small>
-                                        <small class="text-success">{{ round(($gear->approved / max(1, $gear->total_applications)) * 100, 1) }}%</small>
+                        @if($fishingGearAnalysis && $fishingGearAnalysis->count() > 0)
+                            <div class="position-relative mb-3" style="height: 250px;">
+                                <canvas id="boatrFishingGearChart"></canvas>
+                            </div>
+                            <div class="row">
+                                @foreach($fishingGearAnalysis->take(4) as $gear)
+                                <div class="col-6 mb-2">
+                                    <div class="p-2 rounded bg-light">
+                                        <h6 class="mb-1 text-truncate">{{ ucwords($gear->primary_fishing_gear) }}</h6>
+                                        <div class="d-flex justify-content-between">
+                                            <small class="text-muted">{{ $gear->total_applications }} boats</small>
+                                            <small class="text-success">{{ $gear->approval_rate ?? round(($gear->approved / max(1, $gear->total_applications)) * 100, 1) }}%</small>
+                                        </div>
+                                        <div class="progress mt-1" style="height: 4px;">
+                                            <div class="progress-bar bg-warning" 
+                                                 style="width: {{ $gear->percentage ?? (($gear->total_applications / max(1, $fishingGearAnalysis->sum('total_applications'))) * 100) }}%"></div>
+                                        </div>
                                     </div>
                                 </div>
+                                @endforeach
                             </div>
-                            @endforeach
-                        </div>
+                            
+                            <!-- Detailed Fishing Gear Table -->
+                            <div class="mt-3">
+                                <h6 class="mb-2">Detailed Breakdown</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Fishing Gear</th>
+                                                <th>Total</th>
+                                                <th>Approved</th>
+                                                <th>Pending</th>
+                                                <th>Avg Days</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($fishingGearAnalysis as $gear)
+                                            <tr>
+                                                <td><strong>{{ ucwords($gear->primary_fishing_gear) }}</strong></td>
+                                                <td>{{ $gear->total_applications }}</td>
+                                                <td>
+                                                    <span class="badge bg-success">{{ $gear->approved }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-warning">{{ $gear->pending ?? ($gear->total_applications - $gear->approved - $gear->rejected) }}</span>
+                                                </td>
+                                                <td>{{ round($gear->avg_processing_days ?? 0, 1) }} days</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                                <h6 class="text-muted">No Fishing Gear Data Available</h6>
+                                <p class="text-muted mb-0">No BOATR applications with fishing gear information found for the selected date range.</p>
+                                <small class="text-muted">Try expanding your date range or check if applications have been submitted.</small>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -976,65 +1022,124 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function initializeBoatrFishingGearChart() {
         const ctx = document.getElementById('boatrFishingGearChart');
-        if (!ctx) return;
+        if (!ctx) {
+            console.log('Fishing gear chart canvas not found');
+            return;
+        }
         
-        const gearData = [
-            @foreach($fishingGearAnalysis->take(5) as $gear)
-                {{ $gear->total_applications }},
-            @endforeach
-        ];
-        
-        const gearLabels = [
-            @foreach($fishingGearAnalysis->take(5) as $gear)
-                '{{ ucwords($gear->primary_fishing_gear) }}',
-            @endforeach
-        ];
-        
-        chartInstances.boatrFishingGearChart = new Chart(ctx.getContext('2d'), {
-            type: 'doughnut',
-            data: {
-                labels: gearLabels,
-                datasets: [{
-                    data: gearData,
-                    backgroundColor: [
-                        '#3b82f6',  // blue
-                        '#10b981',  // green
-                        '#f59e0b',  // amber
-                        '#8b5cf6',  // purple
-                        '#ef4444'   // red
-                    ],
-                    borderWidth: 0,
-                    cutout: '60%'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 15,
-                            font: {
-                                size: 11
+        // Check if we have fishing gear data
+        @if($fishingGearAnalysis && $fishingGearAnalysis->count() > 0)
+            const gearData = [
+                @foreach($fishingGearAnalysis->take(5) as $gear)
+                    {{ $gear->total_applications }},
+                @endforeach
+            ];
+            
+            const gearLabels = [
+                @foreach($fishingGearAnalysis->take(5) as $gear)
+                    '{{ ucwords($gear->primary_fishing_gear) }}',
+                @endforeach
+            ];
+            
+            const approvalData = [
+                @foreach($fishingGearAnalysis->take(5) as $gear)
+                    {{ $gear->approved }},
+                @endforeach
+            ];
+            
+            const pendingData = [
+                @foreach($fishingGearAnalysis->take(5) as $gear)
+                    {{ $gear->pending ?? ($gear->total_applications - $gear->approved - $gear->rejected) }},
+                @endforeach
+            ];
+            
+            console.log('Fishing gear data:', gearData);
+            console.log('Fishing gear labels:', gearLabels);
+            
+            if (gearData.length === 0 || gearLabels.length === 0) {
+                // Show no data message
+                ctx.getContext('2d').fillText('No fishing gear data available', 10, 50);
+                return;
+            }
+            
+            chartInstances.boatrFishingGearChart = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: gearLabels,
+                    datasets: [{
+                        label: 'Total Applications',
+                        data: gearData,
+                        backgroundColor: [
+                            '#3b82f6',  // blue
+                            '#10b981',  // green
+                            '#f59e0b',  // amber
+                            '#8b5cf6',  // purple
+                            '#ef4444'   // red
+                        ],
+                        borderColor: [
+                            '#2563eb',
+                            '#059669',
+                            '#d97706',
+                            '#7c3aed',
+                            '#dc2626'
+                        ],
+                        borderWidth: 2,
+                        cutout: '60%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${label}: ${value} applications (${percentage}%)`;
+                                },
+                                afterLabel: function(context) {
+                                    const index = context.dataIndex;
+                                    const approved = approvalData[index] || 0;
+                                    const pending = pendingData[index] || 0;
+                                    return [
+                                        `Approved: ${approved}`,
+                                        `Pending: ${pending}`
+                                    ];
+                                }
                             }
                         }
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.parsed;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((value / total) * 100).toFixed(1);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000
                     }
                 }
-            }
-        });
+            });
+        @else
+            // No data available, show placeholder
+            const ctx2d = ctx.getContext('2d');
+            ctx2d.fillStyle = '#6b7280';
+            ctx2d.font = '16px Arial';
+            ctx2d.textAlign = 'center';
+            ctx2d.fillText('No fishing gear data available', ctx.width / 2, ctx.height / 2);
+            
+            ctx2d.font = '12px Arial';
+            ctx2d.fillStyle = '#9ca3af';
+            ctx2d.fillText('Try expanding your date range', ctx.width / 2, (ctx.height / 2) + 25);
+        @endif
     }
     
     // Service tab switching
