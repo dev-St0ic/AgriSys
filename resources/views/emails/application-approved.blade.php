@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,27 +14,32 @@
             margin: 0;
             padding: 20px;
         }
+
         .email-container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+
         .header {
             background-color: #40916c;
             color: white;
             padding: 30px 20px;
             text-align: center;
         }
+
         .header h1 {
             margin: 0;
             font-size: 24px;
         }
+
         .content {
             padding: 30px 20px;
         }
+
         .success-badge {
             background-color: #d4edda;
             color: #155724;
@@ -44,16 +50,19 @@
             text-align: center;
             font-weight: bold;
         }
+
         .info-box {
             background-color: #f8f9fa;
             border-left: 4px solid #40916c;
             padding: 15px;
             margin: 20px 0;
         }
+
         .info-box h3 {
             margin: 0 0 10px 0;
             color: #40916c;
         }
+
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -61,10 +70,12 @@
             border-bottom: 1px solid #eee;
             padding-bottom: 5px;
         }
+
         .info-label {
             font-weight: bold;
             color: #555;
         }
+
         .footer {
             background-color: #f8f9fa;
             padding: 20px;
@@ -73,6 +84,7 @@
             font-size: 14px;
             color: #666;
         }
+
         .btn {
             display: inline-block;
             background-color: #40916c;
@@ -83,11 +95,13 @@
             margin: 20px 0;
             font-weight: bold;
         }
+
         .btn:hover {
             background-color: #2d6e47;
         }
     </style>
 </head>
+
 <body>
     <div class="email-container">
         <!-- Header -->
@@ -98,20 +112,28 @@
         <!-- Content -->
         <div class="content">
             <div class="success-badge">
-                Your {{ $applicationType === 'seedling' ? 'Seedling Request' : 
-                         ($applicationType === 'rsbsa' ? 'RSBSA Registration' : 
-                         ($applicationType === 'fishr' ? 'FishR Registration' : 
-                         ($applicationType === 'boatr' ? 'BoatR Registration' : 'Application'))) }} has been approved!
+                Your
+                {{ $applicationType === 'seedling'
+                    ? 'Seedling Request'
+                    : ($applicationType === 'rsbsa'
+                        ? 'RSBSA Registration'
+                        : ($applicationType === 'fishr'
+                            ? 'FishR Registration'
+                            : ($applicationType === 'boatr'
+                                ? 'BoatR Registration'
+                                : 'Application'))) }}
+                has been approved!
             </div>
 
             <p>Dear {{ $application->first_name }} {{ $application->last_name }},</p>
 
-            <p>Congratulations! We are pleased to inform you that your application has been <strong>approved</strong> by our office.</p>
+            <p>Congratulations! We are pleased to inform you that your application has been <strong>approved</strong> by
+                our office.</p>
 
             <!-- Application Details -->
             <div class="info-box">
                 <h3>Application Details</h3>
-                @if($applicationType === 'seedling')
+                @if ($applicationType === 'seedling')
                     <div class="info-row">
                         <span class="info-label">Request Number:</span>
                         <span>{{ $application->request_number }}</span>
@@ -129,11 +151,11 @@
                         <span class="info-label">Application Number:</span>
                         <span>{{ $application->application_number }}</span>
                     </div>
-                    @if($application->rsbsa_reference_number)
-                    <div class="info-row">
-                        <span class="info-label">RSBSA Reference Number:</span>
-                        <span>{{ $application->rsbsa_reference_number }}</span>
-                    </div>
+                    @if ($application->rsbsa_reference_number)
+                        <div class="info-row">
+                            <span class="info-label">RSBSA Reference Number:</span>
+                            <span>{{ $application->rsbsa_reference_number }}</span>
+                        </div>
                     @endif
                     <div class="info-row">
                         <span class="info-label">Main Livelihood:</span>
@@ -175,7 +197,7 @@
             <!-- Next Steps -->
             <div class="info-box">
                 <h3>Next Steps</h3>
-                @if($applicationType === 'seedling')
+                @if ($applicationType === 'seedling')
                     <p>• You will receive an SMS notification with the pickup date and time</p>
                     <p>• Bring a valid ID when picking up your seedlings</p>
                     <p>• Pickup location: City Agriculture Office</p>
@@ -199,8 +221,9 @@
             <p>Thank you for choosing our services!</p>
 
             <p>Best regards,<br>
-            <strong>City Agriculture Office</strong><br>
-            San Pedro, Laguna</p>
+                <strong>City Agriculture Office</strong><br>
+                San Pedro, Laguna
+            </p>
         </div>
 
         <!-- Footer -->
@@ -211,4 +234,5 @@
         </div>
     </div>
 </body>
+
 </html>
