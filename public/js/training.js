@@ -9,6 +9,10 @@
 
 function openFormTraining(event) {
     event.preventDefault();
+    
+    console.log('Opening Training form');
+    
+    // Hide all main sections and forms first
     if (typeof hideAllMainSections === 'function') hideAllMainSections();
     if (typeof hideAllForms === 'function') hideAllForms();
     
@@ -21,15 +25,72 @@ function openFormTraining(event) {
             activateApplicationTab('training-form');
         }
         
-        // Update URL
-        history.pushState(null, '', '/services/training');
+        // Reset form and clear any previous messages
+        resetTrainingForm();
         
-        // Scroll to the form
-        setTimeout(() => {
-            trainingForm.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        // Update URL
+        history.pushState({page: 'training'}, '', '/services/training');
+        
+        // Scroll to top smoothly
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        console.log('Training form opened successfully');
     } else {
         console.error('Training form section not found');
+        alert('Form not available. Please refresh the page and try again.');
+    }
+}
+
+/**
+ * Closes Training form and returns to main services
+ */
+function closeFormTraining() {
+    console.log('Closing Training form');
+    
+    const formElement = document.getElementById('training-form');
+    if (formElement) {
+        formElement.style.display = 'none';
+        console.log('Training form closed');
+    }
+    
+    // Show main sections again
+    if (typeof showAllMainSections === 'function') showAllMainSections();
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Update URL to home page
+    if (window.location.pathname !== '/') {
+        history.pushState({page: 'home'}, '', '/');
+    }
+}
+
+/**
+ * Resets Training form to initial state
+ */
+function resetTrainingForm() {
+    const form = document.getElementById('training-request-form');
+    if (form) {
+        // Reset form data
+        form.reset();
+        
+        // Hide messages
+        const messagesContainer = document.getElementById('training-messages');
+        if (messagesContainer) {
+            messagesContainer.style.display = 'none';
+        }
+        
+        // Clear any validation error messages
+        clearTrainingErrors();
+        
+        // Reset submit button state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Application';
+        }
+        
+        console.log('Training form reset to initial state');
     }
 }
 
@@ -75,6 +136,21 @@ function showTrainingTab(tabId, event) {
     }
 }
 
+/**
+ * Handle browser back/forward buttons
+ */
+function handleTrainingPopState(event) {
+    console.log('Pop state event:', event.state);
+    
+    if (event.state && event.state.page === 'training') {
+        // User navigated back to Training form
+        openFormTraining(new Event('popstate'));
+    } else {
+        // User navigated away from Training form
+        closeFormTraining();
+    }
+}
+
 // ==============================================
 // FORM SUBMISSION AND VALIDATION
 // ==============================================
@@ -105,8 +181,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Reset button state
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
+                
+                // Close form and return to landing after success
+                setTimeout(() => {
+                    closeFormTraining();
+                }, 2000);
             }, 1500); // Simulate network delay
         });
+    }
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', handleTrainingPopState);
+    
+    // Initialize form if page loads directly on training URL
+    if (window.location.pathname === '/services/training') {
+        setTimeout(() => {
+            const trainingForm = document.getElementById('training-form');
+            if (trainingForm && trainingForm.style.display === 'none') {
+                openFormTraining(new Event('pageload'));
+            }
+        }, 100);
     }
 });
 
@@ -132,29 +226,35 @@ function validateTrainingForm() {
     
     requiredFields.forEach(field => {
         const element = document.getElementById(field.id);
-        if (!element.value.trim()) {
+        if (!element || !element.value.trim()) {
             showFieldError(field.id, `${field.name} is required`);
             isValid = false;
         }
     });
     
     // Validate mobile number format
-    const mobileNumber = document.getElementById('training_mobile_number').value.trim();
-    if (mobileNumber && !validateMobileNumber(mobileNumber)) {
-        showFieldError('training_mobile_number', 'Please enter a valid 11-digit mobile number');
-        isValid = false;
+    const mobileNumberElement = document.getElementById('training_mobile_number');
+    if (mobileNumberElement) {
+        const mobileNumber = mobileNumberElement.value.trim();
+        if (mobileNumber && !validateMobileNumber(mobileNumber)) {
+            showFieldError('training_mobile_number', 'Please enter a valid 11-digit mobile number');
+            isValid = false;
+        }
     }
     
     // Validate email format
-    const email = document.getElementById('training_email').value.trim();
-    if (email && !validateEmail(email)) {
-        showFieldError('training_email', 'Please enter a valid email address');
-        isValid = false;
+    const emailElement = document.getElementById('training_email');
+    if (emailElement) {
+        const email = emailElement.value.trim();
+        if (email && !validateEmail(email)) {
+            showFieldError('training_email', 'Please enter a valid email address');
+            isValid = false;
+        }
     }
     
     // Validate file uploads
     const fileInput = document.getElementById('training_documents');
-    if (fileInput.files.length > 0) {
+    if (fileInput && fileInput.files.length > 0) {
         if (!validateFiles(fileInput.files)) {
             isValid = false;
         }
@@ -202,6 +302,11 @@ function showTrainingMessage(message, type) {
     const successMessage = document.getElementById('training-success-message');
     const errorMessage = document.getElementById('training-error-message');
     
+    if (!messagesContainer || !successMessage || !errorMessage) {
+        console.error('Training message elements not found');
+        return;
+    }
+    
     // Hide all messages first
     messagesContainer.style.display = 'none';
     successMessage.style.display = 'none';
@@ -231,7 +336,10 @@ function showTrainingMessage(message, type) {
 
 function showFieldError(fieldId, message) {
     const field = document.getElementById(fieldId);
+    if (!field) return;
+    
     const formGroup = field.closest('.form-group');
+    if (!formGroup) return;
     
     // Remove existing error
     const existingError = formGroup.querySelector('.error-text');
@@ -243,6 +351,10 @@ function showFieldError(fieldId, message) {
     const errorSpan = document.createElement('span');
     errorSpan.className = 'error-text';
     errorSpan.textContent = message;
+    errorSpan.style.color = '#dc3545';
+    errorSpan.style.fontSize = '12px';
+    errorSpan.style.marginTop = '5px';
+    errorSpan.style.display = 'block';
     formGroup.appendChild(errorSpan);
     
     // Add error styling to field
@@ -262,6 +374,93 @@ function clearTrainingErrors() {
     const messagesContainer = document.getElementById('training-messages');
     if (messagesContainer) {
         messagesContainer.style.display = 'none';
+    }
+}
+
+// ==============================================
+// UTILITY FUNCTIONS - Fallback if not in main landing.js
+// ==============================================
+
+/**
+ * Hide all main page sections
+ */
+function hideAllMainSections() {
+    const sections = [
+        'home',
+        '.announcement', 
+        'services',
+        'how-it-works',
+        '.help-section'
+    ];
+    
+    sections.forEach(selector => {
+        const element = selector.startsWith('.')
+            ? document.querySelector(selector)
+            : document.getElementById(selector);
+        if (element) element.style.display = 'none';
+    });
+}
+
+/**
+ * Show all main page sections
+ */
+function showAllMainSections() {
+    const sections = [
+        'home',
+        '.announcement',
+        'services',
+        'how-it-works',
+        '.help-section'
+    ];
+    
+    sections.forEach(selector => {
+        const element = selector.startsWith('.') 
+            ? document.querySelector(selector)
+            : document.getElementById(selector);
+        if (element) element.style.display = 'block';
+    });
+}
+
+/**
+ * Hide all application forms
+ */
+function hideAllForms() {
+    const formIds = [
+        'rsbsa-choice', 'new-rsbsa', 'old-rsbsa',
+        'seedlings-choice', 'seedlings-form',
+        'fishr-form', 'boatr-form', 'training-form'
+    ];
+    
+    formIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.style.display = 'none';
+    });
+    
+    // Also hide by class selector for application sections
+    const formSections = document.querySelectorAll('.application-section');
+    formSections.forEach(section => {
+        section.style.display = 'none';
+    });
+}
+
+/**
+ * Activate application tab
+ */
+function activateApplicationTab(formId) {
+    const formSection = document.getElementById(formId);
+    if (!formSection) return;
+
+    const firstTabBtn = formSection.querySelector('.training-tab-btn');
+    const firstTabContent = formSection.querySelector('.training-tab-content');
+
+    if (firstTabBtn && firstTabContent) {
+        // Reset all tabs in this form
+        formSection.querySelectorAll('.training-tab-btn').forEach(btn => btn.classList.remove('active'));
+        formSection.querySelectorAll('.training-tab-content').forEach(tab => tab.style.display = 'none');
+
+        // Activate first tab
+        firstTabBtn.classList.add('active');
+        firstTabContent.style.display = 'block';
     }
 }
 
