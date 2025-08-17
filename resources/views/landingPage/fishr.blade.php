@@ -52,7 +52,7 @@
                 <div class="fishr-form-group">
                     <label for="sex">Sex *</label>
                     <select id="sex" name="sex" required>
-                        <option value="">Select sex</option>
+                        <option value="" disabled>Select sex</option>
                         <option value="Male" {{ old('sex') == 'Male' ? 'selected' : '' }}>Male</option>
                         <option value="Female" {{ old('sex') == 'Female' ? 'selected' : '' }}>Female</option>
                         <option value="Preferred not to say" {{ old('sex') == 'Preferred not to say' ? 'selected' : '' }}>Preferred not to say</option>
@@ -65,34 +65,34 @@
                 <div class="fishr-form-group">
                     <label for="barangay">Barangay *</label>
                     <select id="barangay" name="barangay" required>
-                        <option value="">Select barangay</option>
-                        <option value="Bagong Silang" {{ old('barangay') == 'Bagong Silang' ? 'selected' : '' }}>Bagong Silang</option>
-                        <option value="Cuyab" {{ old('barangay') == 'Cuyab' ? 'selected' : '' }}>Cuyab</option>
-                        <option value="Estrella" {{ old('barangay') == 'Estrella' ? 'selected' : '' }}>Estrella</option>
-                        <option value="G.S.I.S." {{ old('barangay') == 'G.S.I.S.' ? 'selected' : '' }}>G.S.I.S.</option>
-                        <option value="Landayan" {{ old('barangay') == 'Landayan' ? 'selected' : '' }}>Landayan</option>
-                        <option value="Langgam" {{ old('barangay') == 'Langgam' ? 'selected' : '' }}>Langgam</option>
-                        <option value="Laram" {{ old('barangay') == 'Laram' ? 'selected' : '' }}>Laram</option>
-                        <option value="Magsaysay" {{ old('barangay') == 'Magsaysay' ? 'selected' : '' }}>Magsaysay</option>
-                        <option value="Nueva" {{ old('barangay') == 'Nueva' ? 'selected' : '' }}>Nueva</option>
-                        <option value="Poblacion" {{ old('barangay') == 'Poblacion' ? 'selected' : '' }}>Poblacion</option>
-                        <option value="Riverside" {{ old('barangay') == 'Riverside' ? 'selected' : '' }}>Riverside</option>
-                        <option value="San Antonio" {{ old('barangay') == 'San Antonio' ? 'selected' : '' }}>San Antonio</option>
-                        <option value="San Roque" {{ old('barangay') == 'San Roque' ? 'selected' : '' }}>San Roque</option>
-                        <option value="San Vicente" {{ old('barangay') == 'San Vicente' ? 'selected' : '' }}>San Vicente</option>
-                        <option value="Santo Niño" {{ old('barangay') == 'Santo Niño' ? 'selected' : '' }}>Santo Niño</option>
-                        <option value="United Bayanihan" {{ old('barangay') == 'United Bayanihan' ? 'selected' : '' }}>United Bayanihan</option>
-                        <option value="United Better Living" {{ old('barangay') == 'United Better Living' ? 'selected' : '' }}>United Better Living</option>
-                        <option value="Sampaguita Village" {{ old('barangay') == 'Sampaguita Village' ? 'selected' : '' }}>Sampaguita Village</option>
-                        <option value="Calendola" {{ old('barangay') == 'Calendola' ? 'selected' : '' }}>Calendola</option>
-                        <option value="Narra" {{ old('barangay') == 'Narra' ? 'selected' : '' }}>Narra</option>
-                        <option value="Chrysanthemum" {{ old('barangay') == 'Chrysanthemum' ? 'selected' : '' }}>Chrysanthemum</option>
-                        <option value="Fatima" {{ old('barangay') == 'Fatima' ? 'selected' : '' }}>Fatima</option>
-                        <option value="Maharlika" {{ old('barangay') == 'Maharlika' ? 'selected' : '' }}>Maharlika</option>
-                        <option value="Pacita 1" {{ old('barangay') == 'Pacita 1' ? 'selected' : '' }}>Pacita 1</option>
-                        <option value="Pacita 2" {{ old('barangay') == 'Pacita 2' ? 'selected' : '' }}>Pacita 2</option>
-                        <option value="Rosario" {{ old('barangay') == 'Rosario' ? 'selected' : '' }}>Rosario</option>
-                        <option value="San Lorenzo Ruiz" {{ old('barangay') == 'San Lorenzo Ruiz' ? 'selected' : '' }}>San Lorenzo Ruiz</option>
+                        <option value="" disabled>Select barangay</option>
+                        <option value="Bagong Silang">Bagong Silang</option>
+                        <option value="Cuyab">Cuyab</option>
+                        <option value="Estrella">Estrella</option>
+                        <option value="G.S.I.S.">G.S.I.S.</option>
+                        <option value="Landayan">Landayan</option>
+                        <option value="Langgam">Langgam</option>
+                        <option value="Laram">Laram</option>
+                        <option value="Magsaysay">Magsaysay</option>
+                        <option value="Nueva">Nueva</option>
+                        <option value="Poblacion">Poblacion</option>
+                        <option value="Riverside">Riverside</option>
+                        <option value="San Antonio">San Antonio</option>
+                        <option value="San Roque">San Roque</option>
+                        <option value="San Vicente">San Vicente</option>
+                        <option value="Santo Niño">Santo Niño</option>
+                        <option value="United Bayanihan">United Bayanihan</option>
+                        <option value="United Better Living">United Better Living</option>
+                        <option value="Sampaguita Village">Sampaguita Village</option>
+                        <option value="Calendola">Calendola</option>
+                        <option value="Narra">Narra</option>
+                        <option value="Chrysanthemum">Chrysanthemum</option>
+                        <option value="Fatima">Fatima</option>
+                        <option value="Maharlika">Maharlika</option>
+                        <option value="Pacita 1">Pacita 1</option>
+                        <option value="Pacita 2">Pacita 2</option>
+                        <option value="Rosario">Rosario</option>
+                        <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
                     </select>
                     @error('barangay')
                         <span class="fishr-error-text">{{ $message }}</span>
@@ -123,12 +123,12 @@
             <div class="fishr-form-group">
                 <label for="main_livelihood">Main Livelihood *</label>
                 <select id="main_livelihood" name="main_livelihood" required onchange="toggleOtherLivelihood(this)">
-                    <option value="">Select livelihood</option>
-                    <option value="capture" {{ old('main_livelihood') == 'capture' ? 'selected' : '' }}>Capture Fishing</option>
-                    <option value="aquaculture" {{ old('main_livelihood') == 'aquaculture' ? 'selected' : '' }}>Aquaculture</option>
-                    <option value="vending" {{ old('main_livelihood') == 'vending' ? 'selected' : '' }}>Fish Vending</option>
-                    <option value="processing" {{ old('main_livelihood') == 'processing' ? 'selected' : '' }}>Fish Processing</option>
-                    <option value="others" {{ old('main_livelihood') == 'others' ? 'selected' : '' }}>Others</option>
+                    <option value="" disabled>Select livelihood</option>
+                    <option value="capture">Capture Fishing</option>
+                    <option value="aquaculture">Aquaculture</option>
+                    <option value="vending">Fish Vending</option>
+                    <option value="processing">Fish Processing</option>
+                    <option value="others">Others</option>
                 </select>
                 @error('main_livelihood')
                     <span class="fishr-error-text">{{ $message }}</span>

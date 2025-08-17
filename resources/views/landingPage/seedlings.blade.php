@@ -206,24 +206,24 @@
     @csrf
             <!-- Add hidden fields for the selected seedlings -->
             <input type="hidden" id="selected_seedlings" name="selected_seedlings" value="">
-            <label for="first_name">First Name</label>
+            <label for="first_name">First Name *</label>
             <input type="text" id="first_name" name="first_name" required>
 
             <label for="middle_name">Middle Name (Optional)</label>
             <input type="text" id="middle_name" name="middle_name">
 
-            <label for="last_name">Last Name</label>
+            <label for="last_name">Last Name *</label>
             <input type="text" id="last_name" name="last_name" required>
 
-            <label for="mobile">Mobile Number</label>
+            <label for="mobile">Mobile Number *</label>
             <input type="tel" id="mobile" name="mobile" required>
             <small>Please provide a valid mobile number for SMS notifications.</small>
 
-            <label for="email">Email Address</label>
+            <label for="email">Email Address *</label>
             <input type="email" id="email" name="email" required>
             <small>Please provide a valid email address for notifications.</small>
 
-            <label for="barangay">Barangay</label>
+            <label for="barangay">Barangay *</label>
             <select id="barangay" name="barangay" required>
                 <option value="" disabled>Select Barangay</option>
                 <option value="Bagong Silang">Bagong Silang</option>
@@ -252,12 +252,12 @@
                 <option value="United Better Living">United Better Living</option>
             </select>
 
-            <label for="address">Complete Address</label>
+            <label for="address">Complete Address *</label>
             <input type="text" id="address" name="address" required>
             <small>Include house number, street, subdivision if applicable.</small>
 
             <div id="supporting-docs-field">
-                <label for="seedlings-docs">Supporting Documents</label>
+                <label for="seedlings-docs">Supporting Documents *</label>
                 <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png" multiple>
                 <small>Upload supporting documents (proof of planting area).</small>
             </div>

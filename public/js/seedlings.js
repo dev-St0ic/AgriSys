@@ -413,7 +413,7 @@ function submitSeedlingsRequest(event) {
     }
     
     // Show loading state
-    const submitBtn = form.querySelector('.submit-btn');
+    const submitBtn = form.querySelector('.seedlings-submit-btn');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Submitting...';
     submitBtn.disabled = true;

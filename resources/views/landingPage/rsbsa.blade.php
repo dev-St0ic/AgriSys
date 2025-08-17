@@ -16,26 +16,26 @@
             @csrf
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             
-            <label>First Name</label>
+            <label>First Name *</label>
             <input type="text" name="first_name" placeholder="Enter your first name" required>
 
             <label>Middle Name (Optional)</label>
             <input type="text" name="middle_name" placeholder="Enter your middle name">
 
-            <label>Last Name</label>
+            <label>Last Name *</label>
             <input type="text" name="last_name" placeholder="Enter your last name" required>
 
-            <label>Sex</label>
+            <label>Sex*</label>
             <select name="sex" required>
-                <option value="">Select sex</option>
+                <option value="" disabled>Select sex</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Preferred not to say">Preferred not to say</option>
             </select>
 
-            <label>Barangay</label>
+            <label>Barangay *</label>
             <select name="barangay" required>
-                <option value="">Select barangay</option>
+                <option value="" disabled>Select barangay</option>
                 <option value="Bagong Silang">Bagong Silang</option>
                 <option value="Cuyab">Cuyab</option>
                 <option value="Estrella">Estrella</option>
@@ -65,15 +65,15 @@
                 <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
             </select>
 
-            <label>Mobile Number</label>
+            <label>Mobile Number *</label>
             <input type="tel" name="mobile" placeholder="Enter your mobile number (e.g., 09123456789)" required>
 
-            <label>Email Address</label>
+            <label>Email Address*</label>
             <input type="email" name="email" placeholder="Enter your email address" required>
 
-            <label>Main Livelihood</label>
+            <label>Main Livelihood *</label>
             <select name="main_livelihood" required>
-                <option value="">Select livelihood</option>
+                <option value="" disabled>Select livelihood</option>
                 <option value="Farmer">Farmer</option>
                 <option value="Farmworker/Laborer">Farmworker/Laborer</option>
                 <option value="Fisherfolk">Fisherfolk</option>
