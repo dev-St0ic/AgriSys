@@ -33,6 +33,48 @@ function openFormTraining(event) {
     }
 }
 
+/**
+ * Main tab switching function for Training form
+ * This is the function your HTML onclick events are calling
+ */
+function showTrainingTab(tabId, event) {
+    console.log('Switching to Training tab:', tabId);
+    
+    // Prevent default button behavior
+    if (event) {
+        event.preventDefault();
+    }
+    
+    // Get the parent section containing all tabs
+    const parentSection = event.target.closest('.training-application-section');
+    if (!parentSection) {
+        console.error('Parent section not found for Training tab switching');
+        return;
+    }
+    
+    // Remove active class from all tab buttons
+    const tabButtons = parentSection.querySelectorAll('.training-tab-btn');
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Hide all tab content
+    const tabContents = parentSection.querySelectorAll('.training-tab-content');
+    tabContents.forEach(content => content.style.display = 'none');
+    
+    // Add active class to clicked button
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+    
+    // Show the selected tab content
+    const selectedTab = document.getElementById(tabId);
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+        console.log('Training tab switched successfully to:', tabId);
+    } else {
+        console.error('Tab content not found:', tabId);
+    }
+}
+
 // ==============================================
 // FORM SUBMISSION AND VALIDATION
 // ==============================================

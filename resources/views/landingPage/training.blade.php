@@ -1,52 +1,52 @@
 <!-- Training Request Form -->
-<section class="application-section" id="training-form" style="display: none;">
-    <div class="form-header">
+<section class="training-application-section" id="training-form" style="display: none;">
+    <div class="training-form-header">
         <h2>Training Request</h2>
         <p>Apply for agricultural training programs offered by the City Agriculture Office of San Pedro.</p>
     </div>
 
-    <div class="form-tabs">
-        <button class="tab-btn active" onclick="showTab('training-form-tab', event)">Application Form</button>
-        <button class="tab-btn" onclick="showTab('training-requirements-tab', event)">Requirements</button>
-        <button class="tab-btn" onclick="showTab('training-info-tab', event)">Information</button>
+    <div class="training-form-tabs">
+        <button class="training-tab-btn active" onclick="showTrainingTab('training-form-tab', event)">Application Form</button>
+        <button class="training-tab-btn" onclick="showTrainingTab('training-requirements-tab', event)">Requirements</button>
+        <button class="training-tab-btn" onclick="showTrainingTab('training-info-tab', event)">Information</button>
     </div>
 
-    <div class="tab-content" id="training-form-tab" style="display: block;">
+    <div class="training-tab-content" id="training-form-tab" style="display: block;">
         <!-- Success/Error Messages -->
         <div id="training-messages" style="display: none;">
-            <div id="training-success-message" class="alert alert-success" style="display: none;"></div>
-            <div id="training-error-message" class="alert alert-danger" style="display: none;"></div>
+            <div id="training-success-message" class="training-alert training-alert-success" style="display: none;"></div>
+            <div id="training-error-message" class="training-alert training-alert-danger" style="display: none;"></div>
         </div>
 
         <form id="training-request-form" enctype="multipart/form-data">
             
-            <div class="form-group">
+            <div class="training-form-group">
                 <label for="training_first_name">First Name *</label>
                 <input type="text" id="training_first_name" name="first_name" placeholder="Enter your first name" required>
             </div>
 
-            <div class="form-group">
+            <div class="training-form-group">
                 <label for="training_middle_name">Middle Name (Optional)</label>
                 <input type="text" id="training_middle_name" name="middle_name" placeholder="Enter your middle name">
             </div>
 
-            <div class="form-group">
+            <div class="training-form-group">
                 <label for="training_last_name">Last Name *</label>
                 <input type="text" id="training_last_name" name="last_name" placeholder="Enter your last name" required>
             </div>
 
-            <div class="form-group">
+            <div class="training-form-group">
                 <label for="training_mobile_number">Mobile Number *</label>
                 <input type="tel" id="training_mobile_number" name="mobile_number" placeholder="Enter your mobile number (e.g., 09123456789)" 
                        pattern="[0-9]{11}" required>
             </div>
 
-            <div class="form-group">
+            <div class="training-form-group">
                 <label for="training_email">Email Address *</label>
                 <input type="email" id="training_email" name="email" placeholder="Enter your email address" required>
             </div>
 
-            <div class="form-group">
+            <div class="training-form-group">
                 <label for="training_type">Training Program *</label>
                 <select id="training_type" name="training_type" required>
                     <option value="" disabled selected>Select a training program</option>
@@ -60,21 +60,21 @@
                 </select>
             </div>
 
-            <div class="form-group">
+            <div class="training-form-group">
                 <label for="training_documents">Supporting Documents (PDF, JPG, PNG - Max 5MB each)</label>
                 <input type="file" id="training_documents" name="documents[]" multiple accept=".pdf,.jpg,.jpeg,.png">
                 <small>Please upload relevant documents such as ID, certificates, or other supporting files.</small>
             </div>
 
-            <div class="form-actions">
-                <button type="button" class="btn-secondary" onclick="goHome(event)">Cancel</button>
-                <button type="submit" class="btn-primary">Submit Application</button>
+            <div class="training-form-actions">
+                <button type="button" class="training-btn-secondary" onclick="goHome(event)">Cancel</button>
+                <button type="submit" class="training-btn-primary">Submit Application</button>
             </div>
         </form>
     </div>
 
-    <div class="tab-content" id="training-requirements-tab" style="display: none;">
-        <div class="requirements-content">
+    <div class="training-tab-content" id="training-requirements-tab" style="display: none;">
+        <div class="training-requirements-content">
             <h3>Required Documents</h3>
             <ul>
                 <li>Valid ID (Government issued ID, Driver's License, Passport, etc.)</li>
@@ -101,8 +101,8 @@
         </div>
     </div>
 
-    <div class="tab-content" id="training-info-tab" style="display: none;">
-        <div class="info-content">
+    <div class="training-tab-content" id="training-info-tab" style="display: none;">
+        <div class="training-info-content">
             <h3>Training Program Details</h3>
             
             <div class="training-program">

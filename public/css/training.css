@@ -1,0 +1,267 @@
+/* Training Request Form Styles */
+
+/* --- Training Section --- */
+.training-application-section {
+    background: #ffffff;
+    padding: 40px 30px;
+    max-width: 850px;
+    margin: 40px auto;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.training-form-header h2 {
+    color: #2d6a4f;
+    margin-bottom: 8px;
+    font-size: 28px;
+}
+
+.training-form-header p {
+    margin-bottom: 25px;
+    color: #444;
+    font-size: 15px;
+}
+
+.training-form-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.training-tab-btn {
+    padding: 10px 18px;
+    background: #f1f1f1;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+.training-tab-btn:hover {
+    background-color: #d8f3dc;
+}
+
+.training-tab-btn.active {
+    background-color: #40916c;
+    color: #ffffff;
+}
+
+.training-tab-content {
+    display: none;
+}
+
+/* --- Training Form Elements --- */
+.training-form-group {
+    margin-bottom: 20px;
+}
+
+.training-form-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.training-form-row .training-form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.training-form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+}
+
+.training-form-group input,
+.training-form-group select,
+.training-form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border 0.2s;
+    box-sizing: border-box;
+}
+
+.training-form-group input:focus,
+.training-form-group select:focus,
+.training-form-group textarea:focus {
+    border-color: #52b788;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.1);
+}
+
+.training-form-group input[type="file"] {
+    padding: 8px;
+    background-color: #f8f9fa;
+}
+
+.training-form-group small,
+.training-form-help {
+    font-size: 0.85rem;
+    color: #666;
+    display: block;
+    margin-top: 5px;
+    line-height: 1.4;
+}
+
+/* --- Training Alert Styles --- */
+.training-alert {
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    font-weight: 500;
+    border-left: 4px solid;
+}
+
+.training-alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left-color: #bee5eb;
+}
+
+.training-alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left-color: #c3e6cb;
+}
+
+.training-alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left-color: #f5c6cb;
+}
+
+.training-alert i {
+    margin-right: 8px;
+}
+
+.training-alert ul {
+    margin: 10px 0 5px 20px;
+    padding: 0;
+}
+
+.training-alert li {
+    margin: 4px 0;
+}
+
+/* --- Fixed Position Training Alerts --- */
+.training-alert.training-fixed-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.training-alert-success.training-fixed-alert::before {
+    content: "✅ ";
+}
+
+.training-alert-danger.training-fixed-alert::before {
+    content: "❌ ";
+}
+
+/* --- Training Form Buttons --- */
+.training-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 35px;
+    flex-wrap: wrap;
+}
+
+.training-btn-secondary,
+.training-btn-primary {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease-in-out;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.training-btn-secondary {
+    background-color: #cccccc;
+    color: #333333;
+}
+
+.training-btn-secondary:hover {
+    background-color: #bbbbbb;
+}
+
+.training-btn-primary {
+    background-color: #40916c;
+    color: #ffffff;
+}
+
+.training-btn-primary:hover {
+    background-color: #2d6a4f;
+}
+
+.training-btn-primary:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+
+/* --- Training Responsive Design --- */
+@media (max-width: 768px) {
+    .training-application-section {
+        padding: 30px 20px;
+        margin: 20px 10px;
+    }
+    
+    .training-form-row {
+        flex-direction: column;
+    }
+    
+    .training-form-row .training-form-group {
+        min-width: 100%;
+    }
+    
+    .training-form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .training-btn-secondary,
+    .training-btn-primary {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .training-form-tabs {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .training-tab-btn {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .training-form-header h2 {
+        font-size: 24px;
+    }
+    
+    .training-program {
+        padding: 15px;
+    }
+    
+    .training-program h4 {
+        font-size: 1.1rem;
+    }
+}
