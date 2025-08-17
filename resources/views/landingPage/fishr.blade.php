@@ -167,11 +167,7 @@
     </div>
 
     <div class="fishr-tab-content tab-content" id="fishr-requirements-tab">
-        <div class="fishr-alert fishr-alert-info">
-            <i class="fas fa-info-circle"></i>
-            <strong>Required Documents</strong>
-        </div>
-        
+        <h4>Required Documents</h4>
         <ul>
             <li>Valid government-issued ID</li>
             <li>Proof of residency in San Pedro, Laguna</li>
@@ -180,11 +176,7 @@
             <li>Barangay Certificate of Residency</li>
         </ul>
 
-        <div class="fishr-alert fishr-alert-info">
-            <i class="fas fa-list-alt"></i>
-            <strong>Livelihood-Specific Requirements</strong>
-        </div>
-        
+        <h4>Livelihood-Specific Requirements</h4>      
         <ul>
             <li><strong>Capture Fishing:</strong> No additional documents required</li>
             <li><strong>Aquaculture:</strong> Proof of fishpond/aquaculture facility</li>
@@ -195,15 +187,6 @@
     </div>
 
     <div class="fishr-tab-content tab-content" id="fishr-info-tab">
-        <div class="fishr-alert fishr-alert-info">
-            <i class="fas fa-clock"></i>
-            <strong>Processing Time:</strong> Applications are reviewed within 3–5 business days.
-        </div>
-        
-        <div class="fishr-alert fishr-alert-info">
-            <i class="fas fa-phone"></i>
-            <strong>Contact Information:</strong> For inquiries, contact the City Agriculture Office.
-        </div>
         
         <h4>Benefits of FishR Registration</h4>
         <ul>

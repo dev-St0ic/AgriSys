@@ -168,26 +168,58 @@ function removeSingleFile() {
 /**
  * Show tab function
  */
+
 function showTab(tabId, event) {
+    if (!event) return;
+
+    const formSection = event.target.closest('#boatr-form') || document.getElementById('boatr-form');
+    if (!formSection) return;
+
     // Hide all tab contents
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(content => {
+    const allTabContents = formSection.querySelectorAll('.boatr-tab-content');
+    allTabContents.forEach(content => {
         content.style.display = 'none';
     });
-    
-    // Remove active class from all tabs
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    tabButtons.forEach(btn => {
+
+    // Remove active class from all tab buttons
+    const allTabButtons = formSection.querySelectorAll('.boatr-tab-btn');
+    allTabButtons.forEach(btn => {
         btn.classList.remove('active');
     });
-    
-    // Show selected tab and mark button as active
-    if (event) {
-        document.getElementById(tabId).style.display = 'block';
+
+    // Show selected tab and activate button
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.style.display = 'block';
         event.target.classList.add('active');
     }
 }
+function initializeBoatRTabs() {
+    const boatrForm = document.getElementById('boatr-form');
+    if (!boatrForm) return;
 
+    // Hide only the Requirements and Information tabs, keep Application Form visible
+    const requirementsTab = document.getElementById('boatr-requirements-tab');
+    const infoTab = document.getElementById('boatr-info-tab');
+    
+    if (requirementsTab) requirementsTab.style.display = 'none';
+    if (infoTab) infoTab.style.display = 'none';
+
+    // Remove active class from all buttons first
+    const allButtons = boatrForm.querySelectorAll('.boatr-tab-btn');
+    allButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Ensure Application Form tab is visible and its button is active
+    const firstTab = document.getElementById('boatr-form-tab');
+    const firstButton = boatrForm.querySelector('.boatr-tab-btn');
+    
+    if (firstTab && firstButton) {
+        firstTab.style.display = 'block';
+        firstButton.classList.add('active');
+    }
+}
 // ==============================================
 // FORM VALIDATION
 // ==============================================
@@ -566,6 +598,9 @@ function validateBoatRForm(form) {
  */
 function initializeBoatRForm() {
     console.log('Initializing BoatR form...');
+
+     // Initialize tabs first
+    initializeBoatRTabs();
     
     // Initialize FishR validation
     initializeFishRValidation();
@@ -651,321 +686,6 @@ function fillSampleBoatRData() {
     }
     
     console.log('Sample data filled');
-}
-
-// ==============================================
-// CSS STYLES INJECTION
-// ==============================================
-
-/**
- * Inject CSS styles for BoatR form
- */
-function injectBoatRStyles() {
-    // Check if styles already injected
-    if (document.querySelector('#boatr-styles')) {
-        return;
-    }
-
-    const style = document.createElement('style');
-    style.id = 'boatr-styles';
-    style.textContent = `
-        /* BoatR Form Styles */
-        .application-section {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .form-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .form-header h2 {
-            color: #2c5530;
-            margin-bottom: 10px;
-        }
-
-        .form-tabs {
-            display: flex;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            color: #666;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active {
-            color: #2c5530;
-            border-bottom: 3px solid #2c5530;
-        }
-
-        .tab-btn:hover {
-            background: #f5f5f5;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #2c5530;
-            box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
-        }
-
-        .form-help {
-            display: block;
-            margin-top: 5px;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .file-preview {
-            margin-top: 10px;
-            padding: 15px;
-            border: 2px dashed #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-
-        .file-preview-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .remove-file-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
-        }
-
-        .remove-file-btn:hover {
-            background: #c82333;
-        }
-
-        .alert {
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-            border-left: 4px solid;
-        }
-
-        .alert-info {
-            background-color: #d1ecf1;
-            border-color: #bee5eb;
-            color: #0c5460;
-        }
-
-        .alert i {
-            margin-right: 8px;
-        }
-
-        .form-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-        }
-
-        .cancel-btn,
-        .submit-btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .cancel-btn {
-            background: #6c757d;
-            color: white;
-        }
-
-        .cancel-btn:hover {
-            background: #5a6268;
-        }
-
-        .submit-btn {
-            background: #2c5530;
-            color: white;
-        }
-
-        .submit-btn:hover {
-            background: #1e3a21;
-        }
-
-        .submit-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* Validation message styles */
-        .validation-message {
-            display: block;
-            margin-top: 5px;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            border-left: 3px solid;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .validation-message.success {
-            background-color: #d4edda;
-            border-color: #28a745;
-            color: #155724;
-        }
-
-        .validation-message.error {
-            background-color: #f8d7da;
-            border-color: #dc3545;
-            color: #721c24;
-        }
-
-        .validation-message.warning {
-            background-color: #fff3cd;
-            border-color: #ffc107;
-            color: #856404;
-        }
-
-        .validation-message.info {
-            background-color: #d1ecf1;
-            border-color: #17a2b8;
-            color: #0c5460;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Enhanced input focus states */
-        #boatr_fishr_number:focus {
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-
-        .validation-message i {
-            margin-right: 5px;
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-            
-            .form-buttons {
-                flex-direction: column;
-            }
-            
-            .tab-btn {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-            
-            .application-section {
-                margin: 10px;
-                padding: 15px;
-            }
-        }
-
-        /* Additional styling for better UX */
-        .form-group input[type="file"] {
-            padding: 8px;
-            border: 2px dashed #ddd;
-            background: #f9f9f9;
-        }
-
-        .form-group input[type="file"]:hover {
-            border-color: #2c5530;
-            background: #f0f8f0;
-        }
-
-        .required-docs-list {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
-        }
-
-        .required-docs-list h4 {
-            color: #2c5530;
-            margin-bottom: 10px;
-        }
-
-        .required-docs-list ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-
-        .required-docs-list li {
-            margin-bottom: 5px;
-            color: #555;
-        }
-    `;
-    
-    document.head.appendChild(style);
-    console.log('BoatR styles injected');
 }
 
 // ==============================================
