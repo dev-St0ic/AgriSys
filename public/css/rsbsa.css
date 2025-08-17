@@ -1,0 +1,429 @@
+/* =================================
+   RSBSA APPLICATION SPECIFIC STYLES
+   ================================= */
+
+/* RSBSA Application Section */
+.rsbsa-application-section {
+    background: #ffffff;
+    padding: 40px 30px;
+    max-width: 850px;
+    margin: 40px auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.rsbsa-form-header h2 {
+    color: #2d6a4f;
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 28px;
+}
+
+.rsbsa-form-header p {
+    margin-bottom: 25px;
+    color: #444;
+    text-align: center;
+    font-size: 15px;
+}
+
+/* RSBSA Form Tabs */
+.rsbsa-form-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.rsbsa-tab-btn {
+    padding: 10px 18px;
+    background: #f1f1f1;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+
+.rsbsa-tab-btn:hover {
+    background-color: #d8f3dc;
+}
+
+.rsbsa-tab-btn.active {
+    background-color: #40916c;
+    color: #ffffff;
+}
+
+.rsbsa-tab-content {
+    display: none;
+}
+
+
+/* RSBSA Form Elements */
+.rsbsa-form-group {
+    margin-bottom: 20px;
+}
+
+.rsbsa-form-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.rsbsa-form-row .rsbsa-form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.rsbsa-application-section label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+}
+
+.rsbsa-application-section input,
+.rsbsa-application-section select,
+.rsbsa-application-section textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border 0.2s;
+    box-sizing: border-box;
+}
+
+.rsbsa-application-section input:focus,
+.rsbsa-application-section select:focus,
+.rsbsa-application-section textarea:focus {
+    border-color: #52b788;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.1);
+}
+
+.rsbsa-application-section input[type="file"] {
+    padding: 8px;
+    background-color: #f8f9fa;
+}
+
+.rsbsa-form-text,
+.rsbsa-form-help {
+    font-size: 0.85rem;
+    color: #666;
+    display: block;
+    margin-top: 5px;
+    line-height: 1.4;
+}
+
+/* RSBSA File Preview Styles */
+.rsbsa-file-preview {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.rsbsa-file-preview p {
+    margin: 0 0 10px 0;
+    color: #495057;
+}
+
+.rsbsa-file-preview button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.rsbsa-file-preview button:hover {
+    background: #c82333;
+}
+
+/* RSBSA Alert Styles */
+.rsbsa-alert {
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    font-weight: 500;
+    border-left: 4px solid;
+}
+
+.rsbsa-alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left-color: #bee5eb;
+}
+
+.rsbsa-alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left-color: #c3e6cb;
+}
+
+.rsbsa-alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left-color: #f5c6cb;
+}
+
+.rsbsa-alert i {
+    margin-right: 8px;
+}
+
+.rsbsa-alert ul {
+    margin: 10px 0 5px 20px;
+    padding: 0;
+}
+
+.rsbsa-alert li {
+    margin: 4px 0;
+}
+
+/* Fixed Position Alerts */
+.rsbsa-alert.rsbsa-fixed-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.rsbsa-alert-success.rsbsa-fixed-alert::before {
+    content: "✅ ";
+}
+
+.rsbsa-alert-danger.rsbsa-fixed-alert::before {
+    content: "❌ ";
+}
+
+/* RSBSA Form Buttons */
+.rsbsa-form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 35px;
+    flex-wrap: wrap;
+}
+
+.rsbsa-cancel-btn,
+.rsbsa-submit-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease-in-out;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.rsbsa-cancel-btn {
+    background-color: #cccccc;
+    color: #333333;
+}
+
+.rsbsa-cancel-btn:hover {
+    background-color: #bbbbbb;
+}
+
+.rsbsa-submit-btn {
+    background-color: #40916c;
+    color: #ffffff;
+}
+
+.rsbsa-submit-btn:hover {
+    background-color: #2d6a4f;
+}
+
+.rsbsa-submit-btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+/* RSBSA Error Text */
+.rsbsa-error-text {
+    color: #721c24;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+}
+
+/* RSBSA Button Loading States */
+.rsbsa-btn-text,
+.rsbsa-btn-loading {
+    transition: opacity 0.2s ease;
+}
+
+.rsbsa-btn-loading {
+    display: none;
+}
+
+/* RSBSA Information Section Styles */
+.rsbsa-requirements-list {
+    background-color: #f1fdf6;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #40916c;
+    margin-bottom: 25px;
+}
+
+.rsbsa-requirements-list h3 {
+    margin-top: 0;
+    color: #2d6a4f;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.rsbsa-requirements-list ul {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.rsbsa-requirements-list li {
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.rsbsa-info-section {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e1f5fe 100%);
+    border: 1px solid #2196f3;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.rsbsa-info-section h3 {
+    margin-top: 0;
+    color: #1976d2;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.rsbsa-info-section p {
+    margin: 15px 0;
+    line-height: 1.6;
+    color: #555;
+}
+
+.rsbsa-info-section ul,
+.rsbsa-info-section ol {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.rsbsa-info-section li {
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.rsbsa-info-section strong {
+    color: #1976d2;
+}
+
+/* RSBSA Contact Information */
+.rsbsa-contact-info {
+    background: linear-gradient(135deg, #fff8e1 0%, #f3e5ab 100%);
+    border: 1px solid #ffa726;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.rsbsa-contact-info h3 {
+    margin-top: 0;
+    color: #f57c00;
+    font-size: 1.2rem;
+}
+
+.rsbsa-process-steps {
+    background-color: #e6ffe6;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #2d6a4f;
+    margin-bottom: 25px;
+}
+
+.rsbsa-process-steps h3 {
+    margin-top: 0;
+    color: #2d6a4f;
+    font-size: 1.2rem;
+}
+
+.rsbsa-process-steps ol {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.rsbsa-process-steps li {
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+/* RSBSA Responsive Design */
+@media (max-width: 768px) {
+    .rsbsa-application-section {
+        padding: 30px 20px;
+        margin: 20px 10px;
+    }
+    
+    .rsbsa-form-row {
+        flex-direction: column;
+    }
+    
+    .rsbsa-form-row .rsbsa-form-group {
+        min-width: 100%;
+    }
+    
+    .rsbsa-form-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .rsbsa-cancel-btn,
+    .rsbsa-submit-btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rsbsa-form-header h2 {
+        font-size: 24px;
+    }
+    
+    .rsbsa-form-tabs {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .rsbsa-tab-btn {
+        text-align: center;
+    }
+    
+    .rsbsa-file-preview {
+        padding: 8px;
+    }
+    
+    .rsbsa-file-preview button {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+    
+    .rsbsa-requirements-list,
+    .rsbsa-info-section,
+    .rsbsa-contact-info,
+    .rsbsa-process-steps {
+        padding: 15px;
+    }
+}

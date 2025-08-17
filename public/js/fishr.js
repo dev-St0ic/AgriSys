@@ -94,6 +94,49 @@ async function fetchWithCSRFRetry(url, options, retries = 1) {
     }
 }
 
+
+/**
+ * Main tab switching function for FishR form
+ * This is the function your HTML onclick events are calling
+ */
+function showFishrTab(tabId, event) {
+    console.log('Switching to FishR tab:', tabId);
+    
+    // Prevent default button behavior
+    if (event) {
+        event.preventDefault();
+    }
+
+    // Get the parent section containing all tabs
+    const parentSection = event.target.closest('.fishr-application-section');
+    if (!parentSection) {
+        console.error('Parent section not found for FishR tab switching');
+        return;
+    }
+
+    // Remove active class from all tab buttons
+    const tabButtons = parentSection.querySelectorAll('.fishr-tab-btn');
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+
+    // Hide all tab content
+    const tabContents = parentSection.querySelectorAll('.fishr-tab-content');
+    tabContents.forEach(content => content.style.display = 'none');
+
+    // Add active class to clicked button
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+
+    // Show the selected tab content
+    const selectedTab = document.getElementById(tabId);
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+        console.log('FishR tab switched successfully to:', tabId);
+    } else {
+        console.error('Tab content not found:', tabId);
+    }
+}
+
 /**
  * Opens the Fish Registration form
  */
@@ -198,7 +241,7 @@ function resetFishRForm() {
         }
         
         // Reset to first tab if showTab function exists
-        if (typeof showTab === 'function') {
+        if (typeof showFishrTab === 'function') {
             const firstTabBtn = document.querySelector('#fishr-form .tab-btn');
             if (firstTabBtn) {
                 showTab('fishr-form-tab', { target: firstTabBtn });
@@ -656,13 +699,13 @@ function activateApplicationTab(formId) {
     const formSection = document.getElementById(formId);
     if (!formSection) return;
 
-    const firstTabBtn = formSection.querySelector('.tab-btn');
-    const firstTabContent = formSection.querySelector('.tab-content');
+    const firstTabBtn = formSection.querySelector('.fishr-tab-btn');
+    const firstTabContent = formSection.querySelector('.fishr-tab-content');
 
     if (firstTabBtn && firstTabContent) {
         // Reset all tabs in this form
-        formSection.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        formSection.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+        formSection.querySelectorAll('.fishr-tab-btn').forEach(btn => btn.classList.remove('active'));
+        formSection.querySelectorAll('.fishr-tab-content').forEach(tab => tab.style.display = 'none');
 
         // Activate first tab
         firstTabBtn.classList.add('active');

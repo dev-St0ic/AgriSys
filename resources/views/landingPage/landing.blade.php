@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
     <link rel="stylesheet" href="{{ asset('css/fishr.css') }}">
     <link rel="stylesheet" href="{{ asset('css/boatr.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/rsbsa.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 

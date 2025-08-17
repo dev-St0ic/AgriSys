@@ -1,17 +1,17 @@
 <!-- RSBSA Registration Form (Updated and Streamlined) -->
-<section class="application-section" id="new-rsbsa" style="display: none;">
-    <div class="form-header">
+<section class="rsbsa-application-section" id="new-rsbsa" style="display: none;">
+    <div class="rsbsa-form-header">
         <h2>RSBSA Registration</h2>
         <p>Registry System for Basic Sectors in Agriculture - Register as a farmer, fisherfolk, or agricultural worker.</p>
     </div>
 
-    <div class="form-tabs">
-        <button class="tab-btn active" onclick="showTab('form', event)">Application Form</button>
-        <button class="tab-btn" onclick="showTab('requirements', event)">Requirements</button>
-        <button class="tab-btn" onclick="showTab('information', event)">Information</button>
+    <div class="rsbsa-form-tabs">
+        <button class="rsbsa-tab-btn active" onclick="showRSBSATab('form', event)">Application Form</button>
+        <button class="rsbsa-tab-btn" onclick="showRSBSATab('requirements', event)">Requirements</button>
+        <button class="rsbsa-tab-btn" onclick="showRSBSATab('information', event)">Information</button>
     </div>
 
-    <div class="tab-content" id="form" style="display: block;">
+    <div class="rsbsa-tab-content" id="form" style="display: block;">
         <form method="POST" action="/apply/rsbsa" enctype="multipart/form-data" id="rsbsa-form">
             @csrf
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -103,14 +103,14 @@
                 <button type="button" onclick="removeFile()" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Remove File</button>
             </div>
 
-            <div class="form-buttons">
-                <button type="button" class="cancel-btn" onclick="closeFormRSBSA()">Cancel</button>
-                <button type="submit" class="submit-btn" id="rsbsa-submit-btn">Submit Application</button>
+            <div class="rsbsa-form-buttons">
+                <button type="button" class="rsbsa-cancel-btn" onclick="closeFormRSBSA()">Cancel</button>
+                <button type="submit" class="rsbsa-submit-btn" id="rsbsa-submit-btn">Submit Application</button>
             </div>
         </form>
     </div>
 
-    <div class="tab-content" id="requirements" style="display: none;">
+    <div class="rsbsa-tab-content" id="requirements" style="display: none;">
         <h3>Required Documents</h3>
         <ul>
             <li>Valid government-issued ID</li>
@@ -121,7 +121,7 @@
         </ul>
     </div>
 
-    <div class="tab-content" id="information" style="display: none;">
+    <div class="rsbsa-tab-content" id="information" style="display: none;">
         <h3>Important Information</h3>
         <p>All applications are subject to review and approval by the City Agriculture Office. Processing time is typically 3–5 working days. You may be contacted for additional information or verification.</p>
         

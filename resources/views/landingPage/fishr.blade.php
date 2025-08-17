@@ -6,9 +6,9 @@
     </div>
 
     <div class="fishr-form-tabs">
-        <button class="fishr-tab-btn tab-btn active" onclick="showTab('fishr-form-tab', event)">Application Form</button>
-        <button class="fishr-tab-btn tab-btn" onclick="showTab('fishr-requirements-tab', event)">Requirements</button>
-        <button class="fishr-tab-btn tab-btn" onclick="showTab('fishr-info-tab', event)">Information</button>
+        <button class="fishr-tab-btn tab-btn active" onclick="showFishrTab('fishr-form-tab', event)">Application Form</button>
+        <button class="fishr-tab-btn tab-btn" onclick="showFishrTab('fishr-requirements-tab', event)">Requirements</button>
+        <button class="fishr-tab-btn tab-btn" onclick="showFishrTab('fishr-info-tab', event)">Information</button>
     </div>
 
     <div class="fishr-tab-content tab-content" id="fishr-form-tab">
