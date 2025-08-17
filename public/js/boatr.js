@@ -65,7 +65,16 @@ function openFormBoatR(event) {
         return;
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to the boat registration form smoothly
+    setTimeout(() => {
+        const formElement = document.getElementById('boatr-form');
+        if (formElement) {
+            formElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     
     // Update URL without page reload
     if (window.history && window.history.pushState) {
@@ -192,7 +201,16 @@ function showTab(tabId, event) {
     if (targetTab) {
         targetTab.style.display = 'block';
         event.target.classList.add('active');
+
+        // Auto-scroll to the active tab content
+        setTimeout(() => {
+            targetTab.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+            });
+        }, 50); // Small delay for smooth transition
     }
+    
 }
 function initializeBoatRTabs() {
     const boatrForm = document.getElementById('boatr-form');
@@ -539,6 +557,18 @@ function validateBoatRForm(form) {
             return field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         });
         alert(`Please fill in the following required fields: ${fieldNames.join(', ')}`);
+
+        // Auto-scroll to the first missing field
+        const firstMissingField = form.querySelector(`[name="${missingFields[0]}"]`);
+        if (firstMissingField) {
+            setTimeout(() => {
+                firstMissingField.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                firstMissingField.focus();
+            }, 100);
+        }
         return false;
     }
     
@@ -547,7 +577,15 @@ function validateBoatRForm(form) {
     if (!fishRNumber.match(/^FISHR-[A-Z0-9]{8}$/i)) {
         alert('Please enter a valid FishR registration number (format: FISHR-XXXXXXXX)');
         const fishRInput = form.querySelector('#boatr_fishr_number');
-        if (fishRInput) fishRInput.focus();
+        if (fishRInput) {
+            setTimeout(() => {
+                fishRInput.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                fishRInput.focus();
+            }, 100);
+        }
         return false;
     }
     
@@ -555,7 +593,14 @@ function validateBoatRForm(form) {
     const fishRInput = form.querySelector('#boatr_fishr_number');
     if (fishRInput && fishRInput.dataset.validated === 'false') {
         alert('The FishR registration number you entered is not valid or not approved. Please enter a valid approved FishR number.');
-        fishRInput.focus();
+        // Auto-scroll to the field and focus
+        setTimeout(() => {
+            fishRInput.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            fishRInput.focus();
+        }, 100);
         return false;
     }
     

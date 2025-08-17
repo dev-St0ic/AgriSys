@@ -131,8 +131,16 @@ function openRSBSAForm(event) {
         // REMOVE THIS CONFLICTING CODE - let the HTML onclick handlers manage tabs
         // The showRSBSATab('form', event) in HTML will handle the initial tab display
         
-        // Scroll to top smoothly
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll to the RSBSA form smoothly
+        setTimeout(() => {
+            const formElement = document.getElementById('new-rsbsa');
+            if (formElement) {
+                formElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }, 100); // Small delay to ensure form is visible
         
         // Update URL without page reload
         if (window.location.pathname !== '/services/rsbsa') {

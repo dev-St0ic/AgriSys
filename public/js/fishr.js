@@ -101,6 +101,13 @@ async function fetchWithCSRFRetry(url, options, retries = 1) {
  */
 function showFishrTab(tabId, event) {
     console.log('Switching to FishR tab:', tabId);
+    // Auto-scroll to the active tab content
+        setTimeout(() => {
+            selectedTab.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+            });
+        }, 50); // Small delay for smooth transition
     
     // Prevent default button behavior
     if (event) {
@@ -159,8 +166,16 @@ function openFormFishR(event) {
         // Reset form and clear any previous messages
         resetFishRForm();
         
-        // Scroll to top smoothly
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll to the fish registration form smoothly
+        setTimeout(() => {
+            const formElement = document.getElementById('fishr-form');
+            if (formElement) {
+                formElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }, 100); // Small delay to ensure form is visible
         
         // Update URL without page reload
         if (window.location.pathname !== '/services/fishr') {

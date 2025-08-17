@@ -30,9 +30,17 @@ function openFormTraining(event) {
         
         // Update URL
         history.pushState({page: 'training'}, '', '/services/training');
-        
-        // Scroll to top smoothly
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+        // Scroll to the training form smoothly
+        setTimeout(() => {
+            const trainingForm = document.getElementById('training-form');
+            if (trainingForm) {
+                trainingForm.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }, 100); // Small delay to ensure form is visible
         
         console.log('Training form opened successfully');
     } else {

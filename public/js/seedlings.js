@@ -17,8 +17,17 @@ function openFormSeedlings(event) {
     
     const choice = document.getElementById('seedlings-choice');
     if (choice) choice.style.display = 'block';
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Scroll to the seedlings choice form smoothly
+    setTimeout(() => {
+        const seedlingsChoice = document.getElementById('seedlings-choice');
+        if (seedlingsChoice) {
+            seedlingsChoice.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings');
 }
 
@@ -42,7 +51,16 @@ function backToSeedlingsChoice() {
         restorePreviousSelections();
     }
     
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to the seedlings choice form smoothly
+    setTimeout(() => {
+        const choice = document.getElementById('seedlings-choice');
+        if (choice) {
+            choice.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings');
 }
 
@@ -188,7 +206,16 @@ function showApplicationForm() {
         activateApplicationTab('seedlings-form');
     }
     
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to the application form smoothly
+    setTimeout(() => {
+        const appForm = document.getElementById('seedlings-form');
+        if (appForm) {
+            appForm.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings/form');
 }
 
@@ -230,6 +257,13 @@ function showSeedlingsTab(tabId, event) {
     if (selectedTab) {
         selectedTab.style.display = 'block';
         console.log('Seedlings tab switched successfully to:', tabId);
+         // Auto-scroll to the active tab content
+        setTimeout(() => {
+            selectedTab.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+            });
+        }, 50); // Small delay for smooth transition
     } else {
         console.error('Tab content not found:', tabId);
     }
@@ -611,7 +645,16 @@ function openFormSeedlings(event) {
     const choice = document.getElementById('seedlings-choice');
     if (choice) choice.style.display = 'block';
     
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to the seedlings choice form smoothly
+    setTimeout(() => {
+        const choice = document.getElementById('seedlings-choice');
+        if (choice) {
+            choice.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings');
 }
 
