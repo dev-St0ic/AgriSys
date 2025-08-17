@@ -106,7 +106,7 @@ function shouldShowRSBSAForm() {
 }
 
 /**
- * Opens the RSBSA Registration form
+ * Opens the RSBSA Registration form - FIXED VERSION
  */
 function openRSBSAForm(event) {
     if (event && typeof event.preventDefault === 'function') {
@@ -122,34 +122,25 @@ function openRSBSAForm(event) {
     const formElement = document.getElementById('new-rsbsa');
     if (formElement) {
         formElement.style.display = 'block';
-        if (typeof activateApplicationTab === 'function') {
-            activateApplicationTab('new-rsbsa');
-        }
         
         // Reset form and clear any previous messages (only if not from page load)
         if (event && event.type !== 'load' && event.type !== 'DOMContentLoaded') {
             resetRSBSAForm();
         }
         
-        // Activate the first tab
-        const firstTab = formElement.querySelector('.tab-content');
-        const firstTabBtn = formElement.querySelector('.tab-btn');
-        if (firstTab && firstTabBtn) {
-            // Hide all tabs first
-            formElement.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-            formElement.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // Show first tab
-            firstTab.style.display = 'block';
-            firstTabBtn.classList.add('active');
-        }
+        // REMOVE THIS CONFLICTING CODE - let the HTML onclick handlers manage tabs
+        // The showRSBSATab('form', event) in HTML will handle the initial tab display
         
-        // Scroll to top smoothly
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll to the RSBSA form smoothly
+        setTimeout(() => {
+            const formElement = document.getElementById('new-rsbsa');
+            if (formElement) {
+                formElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }, 100); // Small delay to ensure form is visible
         
         // Update URL without page reload
         if (window.location.pathname !== '/services/rsbsa') {
@@ -206,7 +197,7 @@ function resetRSBSAForm() {
         errorTexts.forEach(error => error.remove());
         
         // Reset submit button state
-        const submitBtn = form.querySelector('.submit-btn') || form.querySelector('[type="submit"]') || form.querySelector('button[type="submit"]');
+        const submitBtn = form.querySelector('.rsbsa-submit-btn') || form.querySelector('[type="submit"]') || form.querySelector('button[type="submit"]');
         if (submitBtn) {
             submitBtn.disabled = false;
             const btnText = submitBtn.querySelector('.btn-text');
@@ -229,41 +220,74 @@ function resetRSBSAForm() {
         console.log('RSBSA form reset to initial state');
     }
 }
-
 /**
- * Tab switching functionality
+ * RSBSA Tab switching - Based on working BoatR pattern
  */
-function showTab(tabName, event) {
-    // Hide all tab contents within the RSBSA form only
-    const tabContents = document.querySelectorAll('#new-rsbsa .tab-content');
-    tabContents.forEach(content => {
+function showRSBSATab(tabName, event) {
+    if (!event) return;
+
+    // Get the RSBSA form container - be specific
+    const formSection = event.target.closest('#new-rsbsa') || document.getElementById('new-rsbsa');
+    if (!formSection) {
+        console.error('RSBSA form section not found');
+        return;
+    }
+
+    // Hide all tab contents within RSBSA form
+    const allTabContents = formSection.querySelectorAll('.rsbsa-tab-content');
+    allTabContents.forEach(content => {
         content.style.display = 'none';
+        console.log('Hiding tab:', content.id);
     });
-    
-    // Remove active class from all tab buttons within the RSBSA form only
-    const tabButtons = document.querySelectorAll('#new-rsbsa .tab-btn');
-    tabButtons.forEach(btn => {
+
+    // Remove active class from all tab buttons within RSBSA form
+    const allTabButtons = formSection.querySelectorAll('.rsbsa-tab-btn');
+    allTabButtons.forEach(btn => {
         btn.classList.remove('active');
     });
-    
-    // Show selected tab content
+
+    // Show selected tab and activate button
     const targetTab = document.getElementById(tabName);
     if (targetTab) {
         targetTab.style.display = 'block';
-    }
-    
-    // Add active class to clicked button or first button if no event
-    if (event && event.target) {
         event.target.classList.add('active');
+        console.log('Showing tab:', tabName);
     } else {
-        // If no event (called programmatically), activate the first tab button
-        const firstTabBtn = document.querySelector('#new-rsbsa .tab-btn');
-        if (firstTabBtn) {
-            firstTabBtn.classList.add('active');
-        }
+        console.error('Target tab not found:', tabName);
     }
 }
 
+/**
+ * Initialize RSBSA tabs - Based on BoatR pattern
+ */
+function initializeRSBSATabs() {
+    const rsbsaForm = document.getElementById('new-rsbsa');
+    if (!rsbsaForm) return;
+
+    // Hide Requirements and Information tabs, keep form visible
+    const requirementsTab = document.getElementById('requirements');
+    const infoTab = document.getElementById('information');
+    
+    if (requirementsTab) requirementsTab.style.display = 'none';
+    if (infoTab) infoTab.style.display = 'none';
+
+    // Remove active class from all buttons first
+    const allButtons = rsbsaForm.querySelectorAll('.rsbsa-tab-btn');
+    allButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Ensure Application Form tab is visible and its button is active
+    const firstTab = document.getElementById('form');
+    const firstButton = rsbsaForm.querySelector('.rsbsa-tab-btn');
+    
+    if (firstTab && firstButton) {
+        firstTab.style.display = 'block';
+        firstButton.classList.add('active');
+    }
+
+    console.log('RSBSA tabs initialized');
+}
 /**
  * Form validation
  */
@@ -386,7 +410,7 @@ function handleRSBSAFormSubmission() {
         }
         
         // Find submit button
-        const submitButton = this.querySelector('.submit-btn') || this.querySelector('[type="submit"]') || this.querySelector('button[type="submit"]');
+        const submitButton = this.querySelector('.rsbsa-submit-btn') || this.querySelector('[type="submit"]') || this.querySelector('button[type="submit"]');
         if (!submitButton) {
             console.error('Submit button not found');
             return false;
@@ -627,7 +651,7 @@ function hideAllForms() {
     });
     
     // Also hide by class selector for application sections
-    const formSections = document.querySelectorAll('.application-section');
+    const formSections = document.querySelectorAll('.rsbsa-application-section');
     formSections.forEach(section => {
         section.style.display = 'none';
     });
@@ -640,13 +664,13 @@ function activateApplicationTab(formId) {
     const formSection = document.getElementById(formId);
     if (!formSection) return;
 
-    const firstTabBtn = formSection.querySelector('.tab-btn');
-    const firstTabContent = formSection.querySelector('.tab-content');
+    const firstTabBtn = formSection.querySelector('.rsbsa-tab-btn');
+    const firstTabContent = formSection.querySelector('.rsbsa-tab-content');
 
     if (firstTabBtn && firstTabContent) {
         // Reset all tabs in this form
-        formSection.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        formSection.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+        formSection.querySelectorAll('.rsbsa-tab-btn').forEach(btn => btn.classList.remove('active'));
+        formSection.querySelectorAll('.rsbsa-tab-content').forEach(tab => tab.style.display = 'none');
 
         // Activate first tab
         firstTabBtn.classList.add('active');
@@ -796,7 +820,7 @@ document.addEventListener('visibilitychange', function() {
 window.openRSBSAForm = openRSBSAForm;
 window.closeFormRSBSA = closeFormRSBSA;
 window.resetRSBSAForm = resetRSBSAForm;
-window.showTab = showTab;
+window.showRSBSATab = showRSBSATab;
 window.removeFile = removeFile;
 window.fillSampleRSBSAData = fillSampleRSBSAData;
 window.clearRSBSAForm = clearRSBSAForm;

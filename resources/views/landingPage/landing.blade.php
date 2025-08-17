@@ -5,8 +5,12 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>AgriSys - San Pedro City Agriculture Office</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/seedlings.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/fishr.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/boatr.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/rsbsa.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/training.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 

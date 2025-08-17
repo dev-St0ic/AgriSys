@@ -17,8 +17,17 @@ function openFormSeedlings(event) {
     
     const choice = document.getElementById('seedlings-choice');
     if (choice) choice.style.display = 'block';
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Scroll to the seedlings choice form smoothly
+    setTimeout(() => {
+        const seedlingsChoice = document.getElementById('seedlings-choice');
+        if (seedlingsChoice) {
+            seedlingsChoice.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings');
 }
 
@@ -42,7 +51,16 @@ function backToSeedlingsChoice() {
         restorePreviousSelections();
     }
     
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to the seedlings choice form smoothly
+    setTimeout(() => {
+        const choice = document.getElementById('seedlings-choice');
+        if (choice) {
+            choice.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings');
 }
 
@@ -188,8 +206,67 @@ function showApplicationForm() {
         activateApplicationTab('seedlings-form');
     }
     
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to the application form smoothly
+    setTimeout(() => {
+        const appForm = document.getElementById('seedlings-form');
+        if (appForm) {
+            appForm.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings/form');
+}
+
+/**
+ * Main tab switching function for Seedlings form
+ * This is the function your HTML onclick events are calling
+ */
+function showSeedlingsTab(tabId, event) {
+    console.log('Switching to Seedlings tab:', tabId);
+    
+    // Prevent default button behavior
+    if (event) {
+        event.preventDefault();
+    }
+    
+    // Get the parent section containing all tabs
+    const parentSection = event.target.closest('.seedlings-application-section') || 
+                         event.target.closest('#seedlings-form');
+    if (!parentSection) {
+        console.error('Parent section not found for Seedlings tab switching');
+        return;
+    }
+    
+    // Remove active class from all tab buttons
+    const tabButtons = parentSection.querySelectorAll('.seedlings-tab-btn');
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    
+    // Hide all tab content
+    const tabContents = parentSection.querySelectorAll('.seedlings-tab-content');
+    tabContents.forEach(content => content.style.display = 'none');
+    
+    // Add active class to clicked button
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+    
+    // Show the selected tab content
+    const selectedTab = document.getElementById(tabId);
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+        console.log('Seedlings tab switched successfully to:', tabId);
+         // Auto-scroll to the active tab content
+        setTimeout(() => {
+            selectedTab.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+            });
+        }, 50); // Small delay for smooth transition
+    } else {
+        console.error('Tab content not found:', tabId);
+    }
 }
 
 // ==============================================
@@ -336,7 +413,7 @@ function submitSeedlingsRequest(event) {
     }
     
     // Show loading state
-    const submitBtn = form.querySelector('.submit-btn');
+    const submitBtn = form.querySelector('.seedlings-submit-btn');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Submitting...';
     submitBtn.disabled = true;
@@ -568,7 +645,16 @@ function openFormSeedlings(event) {
     const choice = document.getElementById('seedlings-choice');
     if (choice) choice.style.display = 'block';
     
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to the seedlings choice form smoothly
+    setTimeout(() => {
+        const choice = document.getElementById('seedlings-choice');
+        if (choice) {
+            choice.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings');
 }
 

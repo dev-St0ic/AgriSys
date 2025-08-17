@@ -1,41 +1,41 @@
 <!-- RSBSA Registration Form (Updated and Streamlined) -->
-<section class="application-section" id="new-rsbsa" style="display: none;">
-    <div class="form-header">
+<section class="rsbsa-application-section" id="new-rsbsa" style="display: none;">
+    <div class="rsbsa-form-header">
         <h2>RSBSA Registration</h2>
         <p>Registry System for Basic Sectors in Agriculture - Register as a farmer, fisherfolk, or agricultural worker.</p>
     </div>
 
-    <div class="form-tabs">
-        <button class="tab-btn active" onclick="showTab('form', event)">Application Form</button>
-        <button class="tab-btn" onclick="showTab('requirements', event)">Requirements</button>
-        <button class="tab-btn" onclick="showTab('information', event)">Information</button>
+    <div class="rsbsa-form-tabs">
+        <button class="rsbsa-tab-btn active" onclick="showRSBSATab('form', event)">Application Form</button>
+        <button class="rsbsa-tab-btn" onclick="showRSBSATab('requirements', event)">Requirements</button>
+        <button class="rsbsa-tab-btn" onclick="showRSBSATab('information', event)">Information</button>
     </div>
 
-    <div class="tab-content" id="form" style="display: block;">
+    <div class="rsbsa-tab-content" id="form" style="display: block;">
         <form method="POST" action="/apply/rsbsa" enctype="multipart/form-data" id="rsbsa-form">
             @csrf
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             
-            <label>First Name</label>
+            <label>First Name *</label>
             <input type="text" name="first_name" placeholder="Enter your first name" required>
 
             <label>Middle Name (Optional)</label>
             <input type="text" name="middle_name" placeholder="Enter your middle name">
 
-            <label>Last Name</label>
+            <label>Last Name *</label>
             <input type="text" name="last_name" placeholder="Enter your last name" required>
 
-            <label>Sex</label>
+            <label>Sex*</label>
             <select name="sex" required>
-                <option value="">Select sex</option>
+                <option value="" disabled>Select sex</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Preferred not to say">Preferred not to say</option>
             </select>
 
-            <label>Barangay</label>
+            <label>Barangay *</label>
             <select name="barangay" required>
-                <option value="">Select barangay</option>
+                <option value="" disabled>Select barangay</option>
                 <option value="Bagong Silang">Bagong Silang</option>
                 <option value="Cuyab">Cuyab</option>
                 <option value="Estrella">Estrella</option>
@@ -65,15 +65,15 @@
                 <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
             </select>
 
-            <label>Mobile Number</label>
+            <label>Mobile Number *</label>
             <input type="tel" name="mobile" placeholder="Enter your mobile number (e.g., 09123456789)" required>
 
-            <label>Email Address</label>
+            <label>Email Address*</label>
             <input type="email" name="email" placeholder="Enter your email address" required>
 
-            <label>Main Livelihood</label>
+            <label>Main Livelihood *</label>
             <select name="main_livelihood" required>
-                <option value="">Select livelihood</option>
+                <option value="" disabled>Select livelihood</option>
                 <option value="Farmer">Farmer</option>
                 <option value="Farmworker/Laborer">Farmworker/Laborer</option>
                 <option value="Fisherfolk">Fisherfolk</option>
@@ -103,14 +103,14 @@
                 <button type="button" onclick="removeFile()" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Remove File</button>
             </div>
 
-            <div class="form-buttons">
-                <button type="button" class="cancel-btn" onclick="closeFormRSBSA()">Cancel</button>
-                <button type="submit" class="submit-btn" id="rsbsa-submit-btn">Submit Application</button>
+            <div class="rsbsa-form-buttons">
+                <button type="button" class="rsbsa-cancel-btn" onclick="closeFormRSBSA()">Cancel</button>
+                <button type="submit" class="rsbsa-submit-btn" id="rsbsa-submit-btn">Submit Application</button>
             </div>
         </form>
     </div>
 
-    <div class="tab-content" id="requirements" style="display: none;">
+    <div class="rsbsa-tab-content" id="requirements" style="display: none;">
         <h3>Required Documents</h3>
         <ul>
             <li>Valid government-issued ID</li>
@@ -121,7 +121,7 @@
         </ul>
     </div>
 
-    <div class="tab-content" id="information" style="display: none;">
+    <div class="rsbsa-tab-content" id="information" style="display: none;">
         <h3>Important Information</h3>
         <p>All applications are subject to review and approval by the City Agriculture Office. Processing time is typically 3–5 working days. You may be contacted for additional information or verification.</p>
         
