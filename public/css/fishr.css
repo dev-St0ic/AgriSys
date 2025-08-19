@@ -59,17 +59,6 @@
     margin-bottom: 20px;
 }
 
-.fishr-form-row {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.fishr-form-row .fishr-form-group {
-    flex: 1;
-    min-width: 200px;
-}
-
 .fishr-application-section label {
     display: block;
     margin-bottom: 6px;

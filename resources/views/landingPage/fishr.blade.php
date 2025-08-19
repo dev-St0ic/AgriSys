@@ -48,7 +48,7 @@
                 @enderror
             </div>
 
-            <div class="fishr-form-row">
+           
                 <div class="fishr-form-group">
                     <label for="sex">Sex *</label>
                     <select id="sex" name="sex" required>
@@ -98,27 +98,26 @@
                         <span class="fishr-error-text">{{ $message }}</span>
                     @enderror
                 </div>
+           
+
+            <div class="fishr-form-group">
+                <label for="mobile_number">Mobile Number *</label>
+                <input type="tel" id="mobile_number" name="mobile_number" placeholder="Enter your mobile number (e.g., 09123456789)" 
+                        value="{{ old('mobile_number') }}" required>
+                @error('mobile_number')
+                    <span class="fishr-error-text">{{ $message }}</span>
+                @enderror
             </div>
 
-            <div class="fishr-form-row">
-                <div class="fishr-form-group">
-                    <label for="mobile_number">Mobile Number *</label>
-                    <input type="tel" id="mobile_number" name="mobile_number" placeholder="Enter your mobile number (e.g., 09123456789)" 
-                           value="{{ old('mobile_number') }}" required>
-                    @error('mobile_number')
-                        <span class="fishr-error-text">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div class="fishr-form-group">
-                    <label for="email">Email Address *</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email address" 
-                           value="{{ old('email') }}" required>
-                    @error('email')
-                        <span class="fishr-error-text">{{ $message }}</span>
-                    @enderror
-                </div>
+            <div class="fishr-form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email address" 
+                        value="{{ old('email') }}" required>
+                @error('email')
+                    <span class="fishr-error-text">{{ $message }}</span>
+                @enderror
             </div>
+            
 
             <div class="fishr-form-group">
                 <label for="main_livelihood">Main Livelihood *</label>
