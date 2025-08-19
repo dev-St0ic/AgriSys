@@ -5,11 +5,12 @@
         <p>Select the seedlings and/or fertilizer you want to request, then click Next.</p>
     </div>
     <form id="seedlings-choice-form">
-        <div style="display: flex; gap: 30px; justify-content: center; flex-wrap: wrap;">
+        <div class="seedlings-categories">
             <!-- Vegetable Column -->
-            <div style="flex:1; min-width:200px;">
+            <div class="seedlings-column">
                 <strong>Vegetable Seedlings</strong><br>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/vegetableSeedlings/sampaguita.jpg" alt="Sampaguita" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="vegetables" value="sampaguita" onchange="toggleQuantity(this, 'sampaguita-qty')">
                         <span>Sampaguita</span>
@@ -20,6 +21,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/vegetableSeedlings/greencChili.jpg" alt="siling haba" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="vegetables" value="siling haba" onchange="toggleQuantity(this, 'siling-haba-qty')">
                         <span>Siling Haba</span>
@@ -30,6 +32,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/vegetableSeedlings/redchili.jpg" alt="siling labuyo" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="vegetables" value="siling labuyo" onchange="toggleQuantity(this, 'siling-labuyo-qty')">
                         <span>Siling Labuyo</span>
@@ -40,6 +43,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/vegetableSeedlings/eggplant.jpg" alt="eggplant" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="vegetables" value="eggplant" onchange="toggleQuantity(this, 'eggplant-qty')">
                         <span>Eggplant</span>
@@ -50,6 +54,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/vegetableSeedlings/tomato.jpg" alt="kamatis" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="vegetables" value="kamatis" onchange="toggleQuantity(this, 'kamatis-qty')">
                         <span>Kamatis</span>
@@ -60,6 +65,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/vegetableSeedlings/okra.jpg" alt="okra" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="vegetables" value="okra" onchange="toggleQuantity(this, 'okra-qty')">
                         <span>Okra</span>
@@ -70,6 +76,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/vegetableSeedlings/squash.jpg" alt="kalabasa" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="vegetables" value="kalabasa" onchange="toggleQuantity(this, 'kalabasa-qty')">
                         <span>Kalabasa</span>
@@ -80,6 +87,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/vegetableSeedlings/bottleGourd.jpg" alt="upo" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="vegetables" value="upo" onchange="toggleQuantity(this, 'upo-qty')">
                         <span>Upo</span>
@@ -90,6 +98,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/vegetableSeedlings/cucumber.jpg" alt="pipino" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="vegetables" value="pipino" onchange="toggleQuantity(this, 'pipino-qty')">
                         <span>Pipino</span>
@@ -101,9 +110,10 @@
                 </div>
             </div>
             <!-- Fruit Column -->
-            <div style="flex:1; min-width:200px;">
+            <div class="seedlings-column">
                 <strong>Fruit-bearing Seedlings</strong><br>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/fruit-bearingSeedlings/tomato.jpg" alt="calamansi" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="fruits" value="kalamansi" onchange="toggleQuantity(this, 'kalamansi-qty')">
                         <span>Kalamansi</span>
@@ -114,6 +124,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/fruit-bearingSeedlings/guyabano.jpg" alt="guyabano" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="fruits" value="guyabano" onchange="toggleQuantity(this, 'guyabano-qty')">
                         <span>Guyabano</span>
@@ -124,6 +135,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/fruit-bearingSeedlings/lanzones.jpg" alt="lanzones" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="fruits" value="lanzones" onchange="toggleQuantity(this, 'lanzones-qty')">
                         <span>Lanzones</span>
@@ -134,6 +146,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/fruit-bearingSeedlings/mango.jpg" alt="mangga" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="fruits" value="mangga" onchange="toggleQuantity(this, 'mangga-qty')">
                         <span>Mangga</span>
@@ -145,9 +158,10 @@
                 </div>
             </div>
             <!-- Fertilizer Column -->
-            <div style="flex:1; min-width:200px;">
+            <div class="seedlings-column">
                 <strong>Organic Fertilizer</strong><br>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/organicFertilizer/chicken manure.jpg" alt="chicken manure" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="fertilizers" value="chicken manure" onchange="toggleQuantity(this, 'chicken-manure-qty')">
                         <span>Pre-processed Chicken Manure</span>
@@ -158,6 +172,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                    <img src="../images/seedlings/organicFertilizer/humicAcid.jpg" alt="humic acid" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="fertilizers" value="humic acid" onchange="toggleQuantity(this, 'humic-acid-qty')">
                         <span>Humic Acid</span>
@@ -168,6 +183,7 @@
                     </div>
                 </div>
                 <div class="seedlings-option">
+                     <img src="../images/seedlings/organicFertilizer/vermicast.jpg" alt="vermicast" class="seedling-image">
                     <div class="seedlings-checkbox">
                         <input type="checkbox" name="fertilizers" value="vermicast" onchange="toggleQuantity(this, 'vermicast-qty')">
                         <span>Vermicast</span>
