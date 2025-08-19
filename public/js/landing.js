@@ -251,6 +251,135 @@ function handlePopState() {
     }
 }
 
+// ==============================================
+// HELP SECTION FUNCTIONALITY
+// ==============================================
+
+/**
+ * Shows the contact modal
+ */
+function showContactModal() {
+    const modal = document.getElementById('contact-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+}
+
+/**
+ * Hides the contact modal
+ */
+function hideContactModal() {
+    const modal = document.getElementById('contact-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+}
+
+/**
+ * Opens device's default maps app with office directions
+ */
+function openOfficeDirections() {
+    // San Pedro City Hall coordinates (replace with actual coordinates)
+    const latitude = 14.3553;
+    const longitude = 121.0449;
+    const officeName = "San Pedro City Agriculture Office";
+    const address = "San Pedro City Hall, Laguna, Philippines";
+    
+    // Different map URLs for different devices
+    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+    const appleMapsUrl = `maps://maps.google.com/maps?daddr=${latitude},${longitude}`;
+    const generalMapsUrl = `https://maps.google.com/maps?daddr=${encodeURIComponent(address)}`;
+    
+    // Detect device type
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    
+    try {
+        if (isMobile && isIOS) {
+            window.location.href = appleMapsUrl;
+        } else if (isMobile) {
+            window.location.href = googleMapsUrl;
+        } else {
+            window.open(generalMapsUrl, '_blank');
+        }
+    } catch (error) {
+        window.open(generalMapsUrl, '_blank');
+    }
+}
+
+/**
+ * Handles contact form submission
+ */
+function handleContactSubmit(event) {
+    event.preventDefault();
+    
+    // Get form data (you can process this as needed)
+    const formData = new FormData(event.target);
+    
+    // Show success message
+    alert('Thank you for your message! We will get back to you within 24 hours.');
+    
+    // Reset form and close modal
+    event.target.reset();
+    hideContactModal();
+    
+    // Here you would normally send the data to your server
+    // Example: sendToServer(formData);
+}
+
+/**
+ * Initialize help section functionality
+ */
+function initializeHelpButtons() {
+    // Get help buttons
+    const helpButtons = document.querySelectorAll('.btn-help');
+    
+    // Add event listeners
+    if (helpButtons[0]) {
+        helpButtons[0].addEventListener('click', showContactModal);
+    }
+    
+    if (helpButtons[1]) {
+        helpButtons[1].addEventListener('click', openOfficeDirections);
+    }
+    
+    // Modal close functionality
+    const modal = document.getElementById('contact-modal');
+    const closeBtn = document.querySelector('.contact-modal-close');
+    const form = document.getElementById('quick-contact-form');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', hideContactModal);
+    }
+    
+    if (modal) {
+        // Close when clicking outside modal
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                hideContactModal();
+            }
+        });
+    }
+    
+    if (form) {
+        form.addEventListener('submit', handleContactSubmit);
+    }
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            hideContactModal();
+        }
+    });
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeHelpButtons();
+});
+
 /**
  * Handles page load routing
  */

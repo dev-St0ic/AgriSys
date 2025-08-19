@@ -6,11 +6,13 @@
 .seedlings-application-section {
     background: #ffffff;
     padding: 40px 30px;
-    max-width: 850px;
-    margin: 40px auto;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    max-width: 1200px;
+    margin: 0 auto;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+    text-align: center;
 }
 
 /* --- General Application Section (for backward compatibility) --- */
@@ -24,18 +26,30 @@
     font-family: 'Segoe UI', sans-serif;
 }
 
+
 /* --- Seedlings Form Header --- */
 .seedlings-form-header h2 {
     color: #2d6a4f;
-    margin-bottom: 8px;
-    font-size: 28px;
+    margin-bottom: 15px;
+    font-size: 2.5rem;
+    font-weight: 700;
 }
 
 .seedlings-form-header p {
     margin-bottom: 25px;
     color: #444;
-    font-size: 15px;
+    opacity: 0.9;
+    font-size: 1.1rem;
 }
+
+ .seedlings-categories {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
 
 /* --- Seedlings Form Tabs --- */
 .seedlings-form-tabs {
@@ -272,18 +286,21 @@
 
 /* --- Seedlings-specific Option Styles --- */
 .seedlings-option {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    margin-bottom: 8px;
-    font-size: 15px;
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
 }
 
 .seedlings-checkbox {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    margin-bottom: 15px;
 }
 
 .seedlings-option input[type="checkbox"],
@@ -299,15 +316,22 @@
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+    width: 20px;
+    height: 20px;
     border: 2px solid #ccc;
-    border-radius: 3px;
+    border-radius: 4px;
     background-color: white;
     cursor: pointer;
     position: relative;
+    transition: all 0.3s ease;
+}
+
+.seedlings-checkbox input[type="checkbox"]:hover {
+    border-color: #40916c;
 }
 
 .seedlings-option input[type="checkbox"]:checked {
-    background-color: #40916c;
+    background-color: linear-gradient(135deg, #40916c 0%, #52b788 100%);
     border-color: #40916c;
 }
 
@@ -352,11 +376,44 @@
 
 /* --- Seedlings Columns Layout --- */
 .seedlings-columns {
-    display: flex;
-    gap: 30px;
-    justify-content: flex-start;
-    align-items: flex-start;
-    margin-bottom: 20px;
+    flex: 1;
+    min-width: 300px;
+    max-width: 350px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 25px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.seedlings-column strong {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2d6a4f;
+    text-align: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #40916c;
+    position: relative;
+}
+
+.seedlings-column strong::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #40916c, #52b788);
+    border-radius: 2px;
+}
+
+.seedlings-column:hover {
+    border-color: #40916c;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(64, 145, 108, 0.15);
 }
 
 .seedlings-col {
@@ -377,13 +434,33 @@
     border-bottom: 2px solid #40916c;
 }
 
+
+
+.seedling-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.seedlings-option.selected .seedling-image {
+    border-color: #40916c;
+}
 /* --- Quantity Control Styles --- */
 .seedlings-quantity-control {
     display: none;
     margin-left: 24px;
     margin-top: 5px;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    padding: 12px;
+    background-color: #f9f9fa;
+    border-radius: 8px;
 }
 
 .seedlings-quantity-control label {
