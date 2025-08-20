@@ -15,6 +15,7 @@ use App\Http\Controllers\FishrAnalyticsController;
 use App\Http\Controllers\BoatrAnalyticsController;
 use App\Http\Controllers\RsbsaAnalyticsController;
 use App\Http\Controllers\TrainingAnalyticsController;
+use App\Http\Controllers\InventoryAnalyticsController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -177,9 +178,13 @@ Route::middleware('admin')->group(function () {
     Route::get('/boatr', [BoatrAnalyticsController::class, 'index'])->name('boatr');
     Route::get('/boatr/export', [BoatrAnalyticsController::class, 'export'])->name('boatr.export');
 
-    // BOATR ANALYTICS - NEW SECTION
+    // TRAINING ANALYTICS - NEW SECTION
     Route::get('/training', [TrainingAnalyticsController::class, 'index'])->name('training');
     Route::get('/training/export', [TrainingAnalyticsController::class, 'export'])->name('training.export');
+
+    // INVENTORY ANALYTICS - NEW SECTION
+    Route::get('/inventory', [InventoryAnalyticsController::class, 'index'])->name('inventory');
+    Route::get('/inventory/export', [InventoryAnalyticsController::class, 'export'])->name('inventory.export');
     });
 
     
