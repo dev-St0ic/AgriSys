@@ -12,13 +12,8 @@
     </div>
 
     <div class="training-tab-content" id="training-form-tab" style="display: block;">
-        <!-- Success/Error Messages -->
-        <div id="training-messages" style="display: none;">
-            <div id="training-success-message" class="training-alert training-alert-success" style="display: none;"></div>
-            <div id="training-error-message" class="training-alert training-alert-danger" style="display: none;"></div>
-        </div>
-
         <form id="training-request-form" enctype="multipart/form-data">
+            @csrf  
             
             <div class="training-form-group">
                 <label for="training_first_name">First Name *</label>
@@ -49,7 +44,7 @@
             <div class="training-form-group">
                 <label for="training_type">Training Program *</label>
                 <select id="training_type" name="training_type" required>
-                    <option value="" disabled>Select a training program</option>
+                    <option value="" disabled selected>Select Training Program</option>
                     <option value="tilapia_hito">Tilapia and Hito Training</option>
                     <option value="hydroponics">Hydroponics Training</option>
                     <option value="aquaponics">Aquaponics Training</option>

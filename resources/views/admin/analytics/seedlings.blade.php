@@ -42,6 +42,18 @@
                                     <i class="fas fa-ship me-1"></i> BOATR
                                 </a>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="{{ route('admin.analytics.training') }}" 
+                                class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                                    <i class="fas fa-graduation-cap me-1"></i> Training
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="{{ route('admin.analytics.inventory') }}" 
+                                class="nav-link {{ request()->routeIs('admin.analytics.inventory') ? 'active' : '' }}">
+                                    <i class="fas fa-boxes me-1"></i> Inventory
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>

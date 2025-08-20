@@ -8,11 +8,14 @@ use App\Http\Controllers\SeedlingRequestController;
 use App\Http\Controllers\FishRController;
 use App\Http\Controllers\BoatRController;
 use App\Http\Controllers\RsbsaController;
+use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\SeedlingAnalyticsController;
 use App\Http\Controllers\FishrAnalyticsController;
 use App\Http\Controllers\BoatrAnalyticsController;
 use App\Http\Controllers\RsbsaAnalyticsController;
+use App\Http\Controllers\TrainingAnalyticsController;
+use App\Http\Controllers\InventoryAnalyticsController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -33,6 +36,7 @@ Route::post('/apply/rsbsa', [ApplicationController::class, 'submitRsbsa'])->name
 Route::post('/apply/seedlings', [ApplicationController::class, 'submitSeedlings'])->name('apply.seedlings');
 Route::post('/apply/fishr', [ApplicationController::class, 'submitFishR'])->name('apply.fishr');
 Route::post('/apply/boatr', [ApplicationController::class, 'submitBoatR'])->name('apply.boatr');
+Route::post('/apply/training', [ApplicationController::class, 'submitTraining'])->name('apply.training');
 
 // MAIN BoatR submission route (matches JavaScript call)
 Route::post('/submit-boatr', [ApplicationController::class, 'submitBoatR'])->name('submit.boatr');
@@ -131,6 +135,20 @@ Route::middleware('admin')->group(function () {
     });
 
     // ==============================================
+    // TRAINING REGISTRATIONS MANAGEMENT 
+    // ==============================================
+    Route::prefix('admin/training')->name('admin.training.')->group(function () {
+        
+        // Training Applications Management
+        Route::get('/requests', [TrainingController::class, 'index'])->name('requests');
+        Route::get('/requests/{id}', [TrainingController::class, 'show'])->name('requests.show');
+        Route::patch('/requests/{id}/status', [TrainingController::class, 'updateStatus'])->name('requests.update-status');
+        Route::delete('/requests/{id}', [TrainingController::class, 'destroy'])->name('requests.destroy');
+        
+        
+    });
+
+    // ==============================================
     // SEEDLING REQUESTS MANAGEMENT
     // ==============================================
     Route::prefix('admin/seedling-requests')->name('admin.seedling.')->group(function () {
@@ -159,7 +177,17 @@ Route::middleware('admin')->group(function () {
     // BOATR ANALYTICS - NEW SECTION
     Route::get('/boatr', [BoatrAnalyticsController::class, 'index'])->name('boatr');
     Route::get('/boatr/export', [BoatrAnalyticsController::class, 'export'])->name('boatr.export');
+
+    // TRAINING ANALYTICS - NEW SECTION
+    Route::get('/training', [TrainingAnalyticsController::class, 'index'])->name('training');
+    Route::get('/training/export', [TrainingAnalyticsController::class, 'export'])->name('training.export');
+
+    // INVENTORY ANALYTICS - NEW SECTION
+    Route::get('/inventory', [InventoryAnalyticsController::class, 'index'])->name('inventory');
+    Route::get('/inventory/export', [InventoryAnalyticsController::class, 'export'])->name('inventory.export');
     });
+
+    
     
     // ==============================================
     // INVENTORY MANAGEMENT

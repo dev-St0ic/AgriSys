@@ -6,6 +6,7 @@ use App\Models\FishrApplication;
 use App\Models\SeedlingRequest;
 use App\Models\BoatrApplication;
 use App\Models\RsbsaApplication; 
+use App\Models\TrainingApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
@@ -650,6 +651,118 @@ public function submitRsbsa(Request $request)
             }
 
             return redirect()->back()->with('error', $errorMessage)->withInput();
+        }
+    }
+
+    /**
+     * Submit training application
+     */
+    public function submitTraining(Request $request)
+    {
+        try {
+            Log::info('Training submission started', [
+                'request_method' => $request->method(),
+                'has_csrf' => $request->has('_token'),
+                'content_type' => $request->header('Content-Type')
+            ]);
+
+            // Enhanced validation with better error messages
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:255',
+                'middle_name' => 'nullable|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'mobile_number' => 'required|string|size:11',
+                'email' => 'required|email|max:255',
+                'training_type' => 'required|string',
+                'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120'
+            ], [
+                'first_name.required' => 'First name is required',
+                'last_name.required' => 'Last name is required',
+                'mobile_number.required' => 'Mobile number is required',
+                'mobile_number.size' => 'Mobile number must be 11 digits',
+                'email.required' => 'Email address is required',
+                'email.email' => 'Please enter a valid email address',
+                'training_type.required' => 'Please select a training program',
+                'documents.*.mimes' => 'Documents must be PDF, JPG, JPEG, or PNG files',
+                'documents.*.max' => 'Documents must not exceed 5MB'
+            ]);
+
+            // Generate unique application number
+            $applicationNumber = 'TRAIN-' . date('Y') . '-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
+
+            // Handle document uploads with better error handling
+            $documentPaths = [];
+            if ($request->hasFile('documents')) {
+                foreach ($request->file('documents') as $document) {
+                    if ($document->isValid()) {
+                        $path = $document->store('training-documents', 'public');
+                        $documentPaths[] = $path;
+                        Log::info('Training document uploaded', ['path' => $path]);
+                    }
+                }
+            }
+
+            // Create training application with logging
+            $training = TrainingApplication::create([
+                'application_number' => $applicationNumber,
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'last_name' => $validated['last_name'],
+                'mobile_number' => $validated['mobile_number'],
+                'email' => $validated['email'],
+                'training_type' => $validated['training_type'],
+                'document_paths' => $documentPaths,
+                'status' => 'under_review'
+            ]);
+
+            Log::info('Training application created successfully', [
+                'id' => $training->id,
+                'application_number' => $training->application_number,
+                'name' => $training->full_name
+            ]);
+
+            $successMessage = 'Your training application has been submitted successfully! ' . 
+                             'Application Number: ' . $training->application_number . 
+                             '. You will receive an SMS notification once your application is processed.';
+
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage,
+                'application_number' => $training->application_number,
+                'data' => [
+                    'id' => $training->id,
+                    'name' => $training->full_name,
+                    'status' => $training->status
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Training application validation failed', [
+                'errors' => $e->errors(),
+                'request_data' => $request->except(['documents'])
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Please check your input and try again.',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Training application error: ' . $e->getMessage(), [
+                'request_data' => $request->except(['documents']),
+                'file_info' => $request->hasFile('documents') ? [
+                    'count' => count($request->file('documents')),
+                    'types' => collect($request->file('documents'))->map->getMimeType()
+                ] : null,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while submitting your application. Please try again.',
+                'debug_error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
     }
 

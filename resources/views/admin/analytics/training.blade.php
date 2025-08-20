@@ -1,9 +1,9 @@
-{{-- resources/views/admin/analytics/fishr.blade.php --}}
+{{-- resources/views/admin/analytics/training.blade.php --}}
 
 @extends('layouts.app')
 
-@section('title', 'FISHR Analytics - AgriSys Admin')
-@section('page-title', 'FISHR Analytics Dashboard')
+@section('title', 'Training Analytics - AgriSys Admin')
+@section('page-title', 'Training Analytics Dashboard')
 
 @section('content')
 <!-- Header with Service Navigation -->
@@ -13,8 +13,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h4 class="mb-0">FISHR Analytics Dashboard</h4>
-                        <p class="text-muted mb-0">Comprehensive insights into Fishermen Registration Services</p>
+                        <h4 class="mb-0">Training Analytics Dashboard</h4>
+                        <p class="text-muted mb-0">Comprehensive insights into Agricultural Training Services</p>
                     </div>
                     <!-- Service Tabs - Unified Structure -->
                     <ul class="nav nav-pills" id="serviceTab" role="tablist">
@@ -43,10 +43,10 @@
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.training') }}" 
-                                class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                                    <i class="fas fa-graduation-cap me-1"></i> Training
-                                </a>
+                            <a href="{{ route('admin.analytics.training') }}" 
+                            class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                                <i class="fas fa-graduation-cap me-1"></i> Training
+                            </a>
                         </li>
                         <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.inventory') }}" 
@@ -63,15 +63,15 @@
 
 <!-- Service Content -->
 <div class="tab-content" id="serviceTabContent">
-    <!-- FISHR Service Tab -->
-    <div class="tab-pane fade show active" id="fishr-service" role="tabpanel">
+    <!-- Training Service Tab -->
+    <div class="tab-pane fade show active" id="training-service" role="tabpanel">
         
         <!-- Date Range Filter -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <form method="GET" action="{{ route('admin.analytics.fishr') }}" class="row g-3">
+                        <form method="GET" action="{{ route('admin.analytics.training') }}" class="row g-3">
                             <div class="col-md-3">
                                 <label for="start_date" class="form-label">Start Date</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date" 
@@ -86,11 +86,11 @@
                                 <button type="submit" class="btn btn-primary me-2">
                                     <i class="fas fa-filter me-1"></i> Apply Filter
                                 </button>
-                                <a href="{{ route('admin.analytics.fishr.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
+                                <a href="{{ route('admin.analytics.training.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
                                    class="btn btn-success me-2">
                                     <i class="fas fa-download me-1"></i> Export
                                 </a>
-                                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#fishrInsightsModal">
+                                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#trainingInsightsModal">
                                     <i class="fas fa-lightbulb me-1"></i> AI Insights
                                 </button>
                             </div>
@@ -104,18 +104,18 @@
         <div class="row mb-4">
             <!-- Total Applications Card -->
             <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
                     <div class="card-body text-white">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h6 class="card-title mb-2 opacity-75">Total Applications</h6>
                                 <h2 class="mb-1">{{ number_format($overview['total_applications']) }}</h2>
                                 <small class="opacity-75">
-                                    <i class="fas fa-arrow-up me-1"></i>15% from last period
+                                    <i class="fas fa-arrow-up me-1"></i>12% from last period
                                 </small>
                             </div>
                             <div class="p-3 bg-white bg-opacity-20 rounded-circle">
-                                <i class="fas fa-fish fa-lg"></i>
+                                <i class="fas fa-graduation-cap fa-lg"></i>
                             </div>
                         </div>
                     </div>
@@ -140,18 +140,18 @@
                 </div>
             </div>
             
-            <!-- Community Reach Card -->
+            <!-- Training Types Card -->
             <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
                     <div class="card-body text-white">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="card-title mb-2 opacity-75">Community Reach</h6>
-                                <h2 class="mb-1">{{ $overview['active_barangays'] }}</h2>
-                                <small class="opacity-75">{{ number_format($overview['unique_applicants']) }} fishermen registered</small>
+                                <h6 class="card-title mb-2 opacity-75">Training Programs</h6>
+                                <h2 class="mb-1">{{ $overview['unique_training_types'] }}</h2>
+                                <small class="opacity-75">{{ number_format($overview['unique_applicants']) }} unique trainees</small>
                             </div>
                             <div class="p-3 bg-white bg-opacity-20 rounded-circle">
-                                <i class="fas fa-map-marker-alt fa-lg"></i>
+                                <i class="fas fa-book fa-lg"></i>
                             </div>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                     </div>
                     <div class="card-body">
                         <div class="position-relative">
-                            <canvas id="fishrStatusDonutChart" height="250"></canvas>
+                            <canvas id="trainingStatusDonutChart" height="250"></canvas>
                         </div>
                         <div class="mt-3">
                             @foreach($statusAnalysis['counts'] as $status => $count)
@@ -220,7 +220,7 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <canvas id="fishrTrendsChart" height="120"></canvas>
+                        <canvas id="trainingTrendsChart" height="120"></canvas>
                     </div>
                 </div>
             </div>
@@ -228,80 +228,12 @@
 
         <!-- Secondary Analytics Row -->
         <div class="row">
-            <!-- Livelihood Distribution -->
-            <div class="col-lg-6 mb-4">
+            <!-- Training Type Distribution -->
+            <div class="col-lg-8 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-gradient-success text-white">
                         <h5 class="mb-0">
-                            <i class="fas fa-briefcase me-2"></i>Livelihood Distribution
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            @foreach($livelihoodAnalysis->take(5) as $index => $livelihood)
-                            <div class="col-12 mb-3">
-                                <div class="d-flex align-items-center p-3 rounded" style="background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);">
-                                    <div class="me-3">
-                                        <div class="badge bg-success rounded-pill p-2">
-                                            {{ $index + 1 }}
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">{{ ucfirst($livelihood->main_livelihood) }}</h6>
-                                        <div class="progress mb-1" style="height: 6px;">
-                                            <div class="progress-bar bg-success" 
-                                                 style="width: {{ ($livelihood->total_applications / $livelihoodAnalysis->first()->total_applications) * 100 }}%"></div>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <small class="text-muted">{{ $livelihood->total_applications }} applications</small>
-                                            <small class="text-success">{{ round(($livelihood->approved / max(1, $livelihood->total_applications)) * 100, 1) }}% approval</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gender Distribution -->
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-warning text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-users me-2"></i>Gender Distribution
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="position-relative mb-3">
-                            <canvas id="fishrGenderChart" height="200"></canvas>
-                        </div>
-                        <div class="row text-center">
-                            @foreach($genderAnalysis['stats'] as $gender)
-                            <div class="col-6">
-                                <div class="p-3 rounded" style="background: rgba({{ $gender->sex === 'Male' ? '59, 130, 246' : '236, 72, 153' }}, 0.1);">
-                                    <h4 class="mb-1 text-{{ $gender->sex === 'Male' ? 'primary' : 'pink' }}">{{ $gender->total_applications }}</h4>
-                                    <p class="mb-0 text-muted">{{ $gender->sex }} Applicants</p>
-                                    <small class="text-{{ $gender->sex === 'Male' ? 'primary' : 'pink' }}">
-                                        {{ $genderAnalysis['percentages'][$gender->sex] ?? 0 }}%
-                                    </small>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Performing Barangays -->
-        <div class="row">
-            <div class="col-lg-8 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-dark text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-trophy me-2"></i>Top Performing Barangays
+                            <i class="fas fa-graduation-cap me-2"></i>Training Program Performance
                         </h5>
                     </div>
                     <div class="card-body">
@@ -310,36 +242,68 @@
                                 <thead>
                                     <tr>
                                         <th>Rank</th>
-                                        <th>Barangay</th>
+                                        <th>Training Program</th>
                                         <th>Total Applications</th>
                                         <th>Approved</th>
                                         <th>Approval Rate</th>
+                                        <th>Avg Processing Days</th>
                                         <th>With Documents</th>
-                                        <th>Unique Applicants</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($barangayAnalysis->take(10) as $index => $barangay)
+                                    @foreach($trainingTypeAnalysis->take(10) as $index => $training)
                                     <tr>
                                         <td>
                                             <div class="badge bg-{{ $index < 3 ? ($index === 0 ? 'warning' : ($index === 1 ? 'secondary' : 'info')) : 'light text-dark' }} rounded-pill">
                                                 #{{ $index + 1 }}
                                             </div>
                                         </td>
-                                        <td><strong>{{ $barangay->barangay }}</strong></td>
-                                        <td>{{ $barangay->total_applications }}</td>
-                                        <td>{{ $barangay->approved }}</td>
+                                        <td>
+                                            <strong>
+                                                @switch($training->training_type)
+                                                    @case('tilapia_hito')
+                                                        Tilapia & Hito Training
+                                                        @break
+                                                    @case('hydroponics')
+                                                        Hydroponics Training
+                                                        @break
+                                                    @case('aquaponics')
+                                                        Aquaponics Training
+                                                        @break
+                                                    @case('mushrooms')
+                                                        Mushrooms Production
+                                                        @break
+                                                    @case('livestock_poultry')
+                                                        Livestock & Poultry
+                                                        @break
+                                                    @case('high_value_crops')
+                                                        High Value Crops
+                                                        @break
+                                                    @case('sampaguita_propagation')
+                                                        Sampaguita Propagation
+                                                        @break
+                                                    @default
+                                                        {{ ucfirst(str_replace('_', ' ', $training->training_type)) }}
+                                                @endswitch
+                                            </strong>
+                                        </td>
+                                        <td>{{ $training->total_applications }}</td>
+                                        <td>{{ $training->approved }}</td>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="progress me-2" style="width: 60px; height: 6px;">
                                                     <div class="progress-bar bg-success" 
-                                                         style="width: {{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%"></div>
+                                                         style="width: {{ round(($training->approved / max(1, $training->total_applications)) * 100, 1) }}%"></div>
                                                 </div>
-                                                <small>{{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%</small>
+                                                <small>{{ round(($training->approved / max(1, $training->total_applications)) * 100, 1) }}%</small>
                                             </div>
                                         </td>
-                                        <td>{{ $barangay->with_documents }}</td>
-                                        <td>{{ $barangay->unique_applicants }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ $training->avg_processing_days < 3 ? 'success' : ($training->avg_processing_days < 7 ? 'warning' : 'danger') }}">
+                                                {{ round($training->avg_processing_days ?? 0, 1) }}d
+                                            </span>
+                                        </td>
+                                        <td>{{ $training->with_documents }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -349,6 +313,55 @@
                 </div>
             </div>
 
+            <!-- Contact Method Analysis -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-gradient-warning text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-address-book me-2"></i>Contact Method Distribution
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="position-relative mb-3">
+                            <canvas id="trainingContactChart" height="200"></canvas>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(16, 185, 129, 0.1);">
+                                    <h4 class="mb-1 text-success">{{ $contactAnalysis['stats']['both_contacts'] }}</h4>
+                                    <p class="mb-0 text-muted small">Both Contacts</p>
+                                    <small class="text-success">{{ $contactAnalysis['percentages']['both_contacts'] }}%</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(59, 130, 246, 0.1);">
+                                    <h4 class="mb-1 text-primary">{{ $contactAnalysis['stats']['email_only'] }}</h4>
+                                    <p class="mb-0 text-muted small">Email Only</p>
+                                    <small class="text-primary">{{ $contactAnalysis['percentages']['email_only'] }}%</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(245, 158, 11, 0.1);">
+                                    <h4 class="mb-1 text-warning">{{ $contactAnalysis['stats']['mobile_only'] }}</h4>
+                                    <p class="mb-0 text-muted small">Mobile Only</p>
+                                    <small class="text-warning">{{ $contactAnalysis['percentages']['mobile_only'] }}%</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(239, 68, 68, 0.1);">
+                                    <h4 class="mb-1 text-danger">{{ $contactAnalysis['stats']['no_contact'] }}</h4>
+                                    <p class="mb-0 text-muted small">No Contact</p>
+                                    <small class="text-danger">{{ $contactAnalysis['percentages']['no_contact'] }}%</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics & Registration Patterns -->
+        <div class="row">
             <!-- Performance Metrics -->
             <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm">
@@ -410,12 +423,9 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Document Analysis & Registration Patterns -->
-        <div class="row">
             <!-- Document Analysis -->
-            <div class="col-lg-6 mb-4">
+            <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-gradient-info text-white">
                         <h5 class="mb-0">
@@ -468,7 +478,7 @@
             </div>
 
             <!-- Registration Patterns -->
-            <div class="col-lg-6 mb-4">
+            <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-gradient-warning text-white">
                         <h5 class="mb-0">
@@ -523,13 +533,13 @@
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
                                             <div class="p-2 rounded-circle bg-success bg-opacity-10">
-                                                <i class="fas fa-check-circle text-success"></i>
+                                                <i class="fas fa-graduation-cap text-success"></i>
                                             </div>
                                         </div>
                                         <div>
-                                            <h6 class="mb-1">Strong Approval Rate</h6>
+                                            <h6 class="mb-1">Training Diversity</h6>
                                             <p class="text-muted mb-0 small">
-                                                {{ $overview['approval_rate'] }}% approval rate shows effective application processing.
+                                                {{ $overview['unique_training_types'] }} different training programs with {{ $overview['approval_rate'] }}% approval rate.
                                             </p>
                                         </div>
                                     </div>
@@ -545,9 +555,9 @@
                                             </div>
                                         </div>
                                         <div>
-                                            <h6 class="mb-1">Wide Community Reach</h6>
+                                            <h6 class="mb-1">Community Engagement</h6>
                                             <p class="text-muted mb-0 small">
-                                                {{ $overview['active_barangays'] }} barangays with {{ $overview['unique_applicants'] }} registered fishermen.
+                                                {{ $overview['unique_applicants'] }} unique applicants showing strong community interest in training.
                                             </p>
                                         </div>
                                     </div>
@@ -577,13 +587,13 @@
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
                                             <div class="p-2 rounded-circle bg-primary bg-opacity-10">
-                                                <i class="fas fa-clock text-primary"></i>
+                                                <i class="fas fa-phone text-primary"></i>
                                             </div>
                                         </div>
                                         <div>
-                                            <h6 class="mb-1">Efficient Processing</h6>
+                                            <h6 class="mb-1">Communication Channels</h6>
                                             <p class="text-muted mb-0 small">
-                                                Average {{ $processingTimeAnalysis['avg_processing_days'] }} days processing time with {{ $performanceMetrics['completion_rate'] }}% completion rate.
+                                                {{ $contactAnalysis['percentages']['both_contacts'] }}% provide both email and mobile for better follow-up.
                                             </p>
                                         </div>
                                     </div>
@@ -598,13 +608,13 @@
 
 </div>
 
-<!-- FISHR AI Insights Modal -->
-<div class="modal fade" id="fishrInsightsModal" tabindex="-1">
+<!-- Training AI Insights Modal -->
+<div class="modal fade" id="trainingInsightsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-gradient-primary text-white">
                 <h5 class="modal-title">
-                    <i class="fas fa-robot me-2"></i>FISHR AI-Powered Insights
+                    <i class="fas fa-robot me-2"></i>Training AI-Powered Insights
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -615,15 +625,15 @@
                         <ul class="list-unstyled">
                             <li class="mb-2">
                                 <i class="fas fa-arrow-up text-success me-2"></i>
-                                Expand outreach to barangays with low registration rates
+                                Expand popular training programs like {{ $trainingTypeAnalysis->first()->training_type ?? 'aquaponics' }}
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-file-alt text-info me-2"></i>
                                 Promote document submission to improve approval rates
                             </li>
                             <li class="mb-2">
-                                <i class="fas fa-clock text-warning me-2"></i>
-                                Implement online application system for peak hours
+                                <i class="fas fa-envelope text-warning me-2"></i>
+                                Encourage email provision for better communication
                             </li>
                         </ul>
                     </div>
@@ -631,16 +641,16 @@
                         <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>Areas for Improvement</h6>
                         <ul class="list-unstyled">
                             <li class="mb-2">
-                                <i class="fas fa-balance-scale text-warning me-2"></i>
-                                Balance gender representation in applications
+                                <i class="fas fa-clock text-warning me-2"></i>
+                                {{ $processingTimeAnalysis['avg_processing_days'] > 5 ? 'Reduce processing time for faster enrollment' : 'Maintain current processing speed' }}
                             </li>
                             <li class="mb-2">
-                                <i class="fas fa-tachometer-alt text-info me-2"></i>
-                                {{ $processingTimeAnalysis['avg_processing_days'] > 5 ? 'Reduce processing time' : 'Maintain current processing speed' }}
+                                <i class="fas fa-graduation-cap text-info me-2"></i>
+                                Consider hybrid online/offline training options
                             </li>
                             <li class="mb-2">
-                                <i class="fas fa-map-marker-alt text-success me-2"></i>
-                                Focus on underserved livelihood categories
+                                <i class="fas fa-phone text-success me-2"></i>
+                                Improve contact information collection rates
                             </li>
                         </ul>
                     </div>
@@ -650,7 +660,7 @@
                     <div class="col-12">
                         <div class="alert alert-info">
                             <h6><i class="fas fa-lightbulb me-2"></i>Recommendation</h6>
-                            <p class="mb-0">Consider implementing a mobile registration unit for remote barangays and conducting information campaigns about the importance of supporting documents.</p>
+                            <p class="mb-0">Consider implementing online pre-registration for popular training programs and follow-up SMS notifications for approved applicants without email addresses.</p>
                         </div>
                     </div>
                 </div>
@@ -686,6 +696,13 @@
     padding: 1rem;
     border-radius: 8px;
     background: rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
+}
+
+.metric-item:hover {
+    background: rgba(0,0,0,0.05);
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .card {
@@ -702,19 +719,373 @@
     border-radius: 25px;
     margin: 0 5px;
     transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-pills .nav-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
 
 .nav-pills .nav-link.active {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.text-pink {
-    color: #ec4899 !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .table-hover tbody tr:hover {
     background-color: rgba(0,0,0,0.05);
+    transform: translateX(3px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.table-hover tbody tr {
+    transition: all 0.3s ease;
+}
+
+.badge {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.progress-bar {
+    transition: width 1.5s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+.btn {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.btn.disabled, .btn:disabled {
+    transform: none;
+    box-shadow: none;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    border-radius: 15px 15px 0 0;
+    border-bottom: none;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: currentColor;
+    opacity: 0.5;
+}
+
+/* Chart container styling */
+canvas {
+    border-radius: 8px;
+}
+
+.chart-container {
+    position: relative;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+/* Custom scrollbar for tables */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Animation for loading states */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .nav-pills .nav-link {
+        margin: 2px;
+        font-size: 0.875rem;
+    }
+    
+    .card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .metric-item:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .insight-item:hover {
+        transform: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-pills {
+        flex-wrap: wrap;
+    }
+    
+    .nav-pills .nav-link {
+        margin: 2px 1px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .metric-item {
+        padding: 0.75rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .nav-pills .nav-link {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.6rem;
+    }
+    
+    .btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .card-body h2 {
+        font-size: 1.5rem;
+    }
+    
+    .card-body h4 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    .card {
+        background-color: #1f2937;
+        color: #f9fafb;
+    }
+    
+    .table {
+        color: #f9fafb;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-control {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+    
+    .form-control:focus {
+        background-color: #374151;
+        border-color: #667eea;
+        color: #f9fafb;
+    }
+    
+    .modal-content {
+        background-color: #1f2937;
+        color: #f9fafb;
+    }
+    
+    .alert {
+        background-color: #374151;
+        color: #f9fafb;
+    }
+}
+
+/* Print styles */
+@media print {
+    .nav-pills,
+    .btn,
+    .modal {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+    
+    .card-header {
+        background: #000 !important;
+        color: #fff !important;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+    
+    .table {
+        font-size: 10pt;
+    }
+    
+    .badge {
+        border: 1px solid #000;
+    }
+    
+    canvas {
+        display: none !important;
+    }
+}
+
+/* Accessibility improvements */
+.btn:focus,
+.nav-link:focus,
+.form-control:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .card {
+        border: 2px solid #000;
+    }
+    
+    .badge {
+        border: 1px solid #000;
+    }
+    
+    .btn {
+        border: 2px solid #000;
+    }
+    
+    .progress-bar {
+        border: 1px solid #000;
+    }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 </style>
 @endsection
@@ -725,16 +1096,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     let chartInstances = {};
     
-    // Initialize charts immediately for FISHR tab
-    initializeFishrStatusDonutChart();
-    initializeFishrTrendsChart();
-    initializeFishrGenderChart();
+    // Initialize charts immediately for Training tab
+    initializeTrainingStatusDonutChart();
+    initializeTrainingTrendsChart();
+    initializeTrainingContactChart();
     
-    function initializeFishrStatusDonutChart() {
-        const ctx = document.getElementById('fishrStatusDonutChart');
+    function initializeTrainingStatusDonutChart() {
+        const ctx = document.getElementById('trainingStatusDonutChart');
         if (!ctx) return;
         
-        chartInstances.fishrStatusDonutChart = new Chart(ctx.getContext('2d'), {
+        chartInstances.trainingStatusDonutChart = new Chart(ctx.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: [
@@ -776,11 +1147,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    function initializeFishrTrendsChart() {
-        const ctx = document.getElementById('fishrTrendsChart');
+    function initializeTrainingTrendsChart() {
+        const ctx = document.getElementById('trainingTrendsChart');
         if (!ctx) return;
         
-        chartInstances.fishrTrendsChart = new Chart(ctx.getContext('2d'), {
+        chartInstances.trainingTrendsChart = new Chart(ctx.getContext('2d'), {
             type: 'line',
             data: {
                 labels: [
@@ -791,12 +1162,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Total Applications',
                     data: [{{ $monthlyTrends->pluck('total_applications')->implode(',') }}],
-                    borderColor: '#0ea5e9',
-                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
                     borderWidth: 3,
                     tension: 0.4,
                     fill: true,
-                    pointBackgroundColor: '#0ea5e9',
+                    pointBackgroundColor: '#8b5cf6',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     pointRadius: 6,
@@ -823,6 +1194,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     tension: 0.4,
                     fill: false,
                     pointBackgroundColor: '#f59e0b',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Unique Training Types',
+                    data: [{{ $monthlyTrends->pluck('unique_training_types')->implode(',') }}],
+                    borderColor: '#0ea5e9',
+                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: false,
+                    pointBackgroundColor: '#0ea5e9',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     pointRadius: 4,
@@ -891,31 +1275,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    function initializeFishrGenderChart() {
-        const ctx = document.getElementById('fishrGenderChart');
+    function initializeTrainingContactChart() {
+        const ctx = document.getElementById('trainingContactChart');
         if (!ctx) return;
         
-        const genderData = [
-            @foreach($genderAnalysis['stats'] as $gender)
-                {{ $gender->total_applications }},
-            @endforeach
+        const contactData = [
+            {{ $contactAnalysis['stats']['both_contacts'] }},
+            {{ $contactAnalysis['stats']['email_only'] }},
+            {{ $contactAnalysis['stats']['mobile_only'] }},
+            {{ $contactAnalysis['stats']['no_contact'] }}
         ];
         
-        const genderLabels = [
-            @foreach($genderAnalysis['stats'] as $gender)
-                '{{ $gender->sex }}',
-            @endforeach
-        ];
+        const contactLabels = ['Both Contacts', 'Email Only', 'Mobile Only', 'No Contact'];
         
-        chartInstances.fishrGenderChart = new Chart(ctx.getContext('2d'), {
+        chartInstances.trainingContactChart = new Chart(ctx.getContext('2d'), {
             type: 'doughnut',
             data: {
-                labels: genderLabels,
+                labels: contactLabels,
                 datasets: [{
-                    data: genderData,
+                    data: contactData,
                     backgroundColor: [
-                        '#3b82f6',  // blue for male
-                        '#ec4899'   // pink for female
+                        '#10b981',  // green for both contacts
+                        '#3b82f6',  // blue for email only
+                        '#f59e0b',  // amber for mobile only
+                        '#ef4444'   // red for no contact
                     ],
                     borderWidth: 0,
                     cutout: '60%'
@@ -929,9 +1312,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         position: 'bottom',
                         labels: {
                             usePointStyle: true,
-                            padding: 20,
+                            padding: 15,
                             font: {
-                                size: 12
+                                size: 11
                             }
                         }
                     },
@@ -951,8 +1334,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Service tab switching
-    const serviceTabs = document.querySelectorAll('#serviceTab button[data-bs-toggle="tab"], #serviceTab a');
+    // Service tab switching functionality
+    const serviceTabs = document.querySelectorAll('#serviceTab a, #serviceTab button[data-bs-toggle="tab"]');
     serviceTabs.forEach(tab => {
         if (tab.hasAttribute('data-bs-toggle')) {
             tab.addEventListener('shown.bs.tab', function(event) {
@@ -960,18 +1343,129 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Handle other service analytics initialization here
                 switch(targetTab) {
-                    case '#fertilizers-service':
-                        console.log('Fertilizers service selected');
+                    case '#seedlings-service':
+                        console.log('Seedlings service selected');
                         break;
-                    case '#equipment-service':
-                        console.log('Equipment service selected');
+                    case '#rsbsa-service':
+                        console.log('RSBSA service selected');
+                        break;
+                    case '#fishr-service':
+                        console.log('FISHR service selected');
+                        break;
+                    case '#boatr-service':
+                        console.log('BOATR service selected');
                         break;
                     default:
-                        // FISHR is already initialized
+                        // Training is already initialized
                         break;
                 }
             });
         }
+    });
+    
+    // Add smooth scrolling animation for nav links
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Add ripple effect
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+    
+    // Add hover effects for metric cards
+    document.querySelectorAll('.metric-item').forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.transition = 'all 0.3s ease';
+            this.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = 'none';
+        });
+    });
+    
+    // Add animation for insight items
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.insight-item').forEach(item => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        item.style.transition = 'all 0.6s ease';
+        observer.observe(item);
+    });
+    
+    // Add progress bar animations
+    function animateProgressBars() {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            bar.style.transition = 'width 1.5s ease-in-out';
+            
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 200);
+        });
+    }
+    
+    // Trigger progress bar animations on page load
+    setTimeout(animateProgressBars, 500);
+    
+    // Add counter animation for metric cards
+    function animateCounters() {
+        const counters = document.querySelectorAll('.card-body h2, .card-body h4');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.textContent.replace(/[^0-9]/g, ''));
+            if (isNaN(target)) return;
+            
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = counter.textContent.replace(/[0-9,]+/, target.toLocaleString());
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = counter.textContent.replace(/[0-9,]+/, Math.floor(current).toLocaleString());
+                }
+            }, 30);
+        });
+    }
+    
+    // Trigger counter animations
+    setTimeout(animateCounters, 300);
+    
+    // Add chart resize handler
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            Object.values(chartInstances).forEach(chart => {
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        }, 250);
     });
     
     // Cleanup function
@@ -984,25 +1478,129 @@ document.addEventListener('DOMContentLoaded', function() {
         chartInstances = {};
     };
     
-    // Add smooth scrolling for better UX
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            // Add loading animation or effects here if needed
+    // Add loading states for export functionality
+    document.querySelectorAll('a[href*="export"]').forEach(exportLink => {
+        exportLink.addEventListener('click', function(e) {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Exporting...';
+            this.classList.add('disabled');
+            
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.classList.remove('disabled');
+            }, 3000);
         });
     });
     
-    // Add hover effects for metric cards
-    document.querySelectorAll('.metric-item').forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.02)';
-            this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+    // Add smooth transitions for table rows
+    document.querySelectorAll('.table-hover tbody tr').forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+            this.style.transition = 'all 0.3s ease';
         });
         
-        item.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-            this.style.boxShadow = 'none';
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
         });
     });
+    
+    // Add tooltip functionality for badges and metrics
+    function initializeTooltips() {
+        const tooltipElements = document.querySelectorAll('[title], .badge, .progress-bar');
+        tooltipElements.forEach(element => {
+            if (!element.getAttribute('title')) {
+                // Add contextual titles for badges and progress bars
+                if (element.classList.contains('badge')) {
+                    const text = element.textContent.trim();
+                    if (text.includes('%')) {
+                        element.setAttribute('title', 'Click for detailed breakdown');
+                    } else if (text.includes('d')) {
+                        element.setAttribute('title', 'Average processing time in days');
+                    }
+                }
+            }
+        });
+    }
+    
+    initializeTooltips();
+    
+    // Add click handlers for interactive elements
+    document.querySelectorAll('.badge, .metric-item').forEach(element => {
+        element.style.cursor = 'pointer';
+        element.addEventListener('click', function() {
+            // Add click feedback
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+    
+    console.log('Training Analytics Dashboard initialized successfully');
 });
+
+// Add CSS animations via JavaScript
+const style = document.createElement('style');
+style.textContent = `
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+        width: 100px;
+        height: 100px;
+        left: 50%;
+        top: 50%;
+        margin-left: -50px;
+        margin-top: -50px;
+    }
+    
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+    
+    .card {
+        transition: all 0.3s ease !important;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.15) !important;
+    }
+    
+    .progress-bar {
+        transition: width 1.5s ease-in-out !important;
+    }
+    
+    .metric-item:hover {
+        background: rgba(0,0,0,0.05) !important;
+    }
+    
+    .table-hover tbody tr {
+        transition: all 0.3s ease !important;
+    }
+    
+    .nav-pills .nav-link {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .insight-item {
+        transition: all 0.6s ease !important;
+    }
+    
+    @media (max-width: 768px) {
+        .card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    }
+`;
+document.head.appendChild(style);
 </script>
 @endsection

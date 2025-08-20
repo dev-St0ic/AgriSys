@@ -6,9 +6,10 @@
 // ==============================================
 // FORM MANAGEMENT FUNCTIONS
 // ==============================================
-
 function openFormTraining(event) {
-    event.preventDefault();
+    if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+    }
     
     console.log('Opening Training form');
     
@@ -20,27 +21,29 @@ function openFormTraining(event) {
     if (trainingForm) {
         trainingForm.style.display = 'block';
         
-        // Activate the application tab
-        if (typeof activateApplicationTab === 'function') {
-            activateApplicationTab('training-form');
+        // Initialize tabs
+        initializeTrainingTabs();
+        
+        // Reset form only if not from page load
+        if (event && event.type !== 'load' && event.type !== 'DOMContentLoaded') {
+            resetTrainingForm();
+            // Re-initialize tabs after reset
+            initializeTrainingTabs();
         }
         
-        // Reset form and clear any previous messages
-        resetTrainingForm();
-        
         // Update URL
-        history.pushState({page: 'training'}, '', '/services/training');
-      
+        // Update URL with replace to avoid history issues
+        if (window.location.pathname !== '/services/training') {
+            history.replaceState({page: 'training'}, 'Training Application', '/services/training');
+        }
+            
         // Scroll to the training form smoothly
         setTimeout(() => {
-            const trainingForm = document.getElementById('training-form');
-            if (trainingForm) {
-                trainingForm.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
-                });
-            }
-        }, 100); // Small delay to ensure form is visible
+            trainingForm.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }, 100);
         
         console.log('Training form opened successfully');
     } else {
@@ -50,27 +53,97 @@ function openFormTraining(event) {
 }
 
 /**
- * Closes Training form and returns to main services
+ * Check and show Training form on page load if URL matches
  */
-function closeFormTraining() {
-    console.log('Closing Training form');
+function checkAndShowTrainingOnLoad() {
+    console.log('=== IMPROVED: Checking if Training form should be shown ===');
     
-    const formElement = document.getElementById('training-form');
-    if (formElement) {
-        formElement.style.display = 'none';
-        console.log('Training form closed');
+    const currentPath = window.location.pathname;
+    const currentUrl = window.location.href;
+    
+    // Enhanced URL checking
+    const shouldShow = 
+        currentPath === '/services/training' ||
+        currentUrl.includes('/services/training') ||
+        sessionStorage.getItem('lastTrainingUrl') === '/services/training';
+    
+    if (shouldShow) {
+        // Store last known good URL
+        sessionStorage.setItem('lastTrainingUrl', '/services/training');
+        
+        // Force hide other sections
+        if (typeof hideAllMainSections === 'function') hideAllMainSections();
+        if (typeof hideAllForms === 'function') hideAllForms();
+        
+        const formElement = document.getElementById('training-form');
+        if (formElement) {
+            formElement.style.display = 'block';
+            initializeTrainingTabs();
+            
+            // Always ensure correct URL
+            history.replaceState({page: 'training'}, '', '/services/training');
+            
+            return true;
+        }
     }
+    return false;
+}
+
+/**
+ * Initialize Training tabs 
+ */
+function initializeTrainingTabs() {
+    const trainingForm = document.getElementById('training-form');
+    if (!trainingForm) return;
+
+    const allTabContents = trainingForm.querySelectorAll('.training-tab-content');
+    allTabContents.forEach(content => content.style.display = 'none');
+
+    const allButtons = trainingForm.querySelectorAll('.training-tab-btn');
+    allButtons.forEach(btn => btn.classList.remove('active'));
+
+    const firstTab = trainingForm.querySelector('.training-tab-content');
+    const firstButton = trainingForm.querySelector('.training-tab-btn');
     
-    // Show main sections again
-    if (typeof showAllMainSections === 'function') showAllMainSections();
-    
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Update URL to home page
-    if (window.location.pathname !== '/') {
-        history.pushState({page: 'home'}, '', '/');
+    if (firstTab && firstButton) {
+        firstTab.style.display = 'block';
+        firstButton.classList.add('active');
     }
+}
+
+/**
+ * Initialize Training module
+ */
+function initializeTrainingModule() {
+    console.log('Initializing Training module...');
+
+    // Get initial CSRF token
+    getTrainingCSRFToken();
+
+    // Check if we should show the Training form based on URL
+    checkAndShowTrainingOnLoad();
+    
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function(event) {
+        console.log('Pop state event:', event.state);
+        if (event.state && event.state.page === 'training') {
+            checkAndShowTrainingOnLoad();
+        }
+    });
+
+    // Also handle window load event for additional safety
+    window.addEventListener('load', function() {
+        console.log('Window loaded, double-checking Training form display');
+        setTimeout(checkAndShowTrainingOnLoad, 300);
+    });
+
+    // Handle page visibility change (when user returns to tab)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && shouldShowTrainingForm()) {
+            console.log('Page became visible and should show Training form');
+            setTimeout(checkAndShowTrainingOnLoad, 100);
+        }
+    });
 }
 
 /**
@@ -101,6 +174,31 @@ function resetTrainingForm() {
         console.log('Training form reset to initial state');
     }
 }
+
+/**
+ * Closes Training form and returns to main services
+ */
+function closeFormTraining() {
+    console.log('Closing Training form');
+    
+    const formElement = document.getElementById('training-form');
+    if (formElement) {
+        formElement.style.display = 'none';
+        
+        // Only clear URL storage when explicitly closing
+        sessionStorage.removeItem('lastTrainingUrl');
+        
+        // Show main sections again
+        if (typeof showAllMainSections === 'function') showAllMainSections();
+        
+        // Update URL to home page
+        history.pushState({page: 'home'}, '', '/');
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
 
 /**
  * Main tab switching function for Training form
@@ -162,8 +260,9 @@ function handleTrainingPopState(event) {
 // ==============================================
 // FORM SUBMISSION AND VALIDATION
 // ==============================================
-
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing Training form');
+    
     const trainingForm = document.getElementById('training-request-form');
     
     if (trainingForm) {
@@ -183,7 +282,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Simulate form submission (frontend only)
             setTimeout(() => {
-                showTrainingMessage('Application submitted successfully! You will be contacted regarding training schedule.', 'success');
                 trainingForm.reset();
                 
                 // Reset button state
@@ -194,22 +292,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => {
                     closeFormTraining();
                 }, 2000);
-            }, 1500); // Simulate network delay
+            }, 1500);
         });
     }
     
     // Handle browser back/forward buttons
     window.addEventListener('popstate', handleTrainingPopState);
     
-    // Initialize form if page loads directly on training URL
-    if (window.location.pathname === '/services/training') {
-        setTimeout(() => {
-            const trainingForm = document.getElementById('training-form');
-            if (trainingForm && trainingForm.style.display === 'none') {
-                openFormTraining(new Event('pageload'));
-            }
-        }, 100);
-    }
+    // ENHANCED: Initialize with better timing and retry logic
+    setTimeout(() => {
+        initializeTrainingModule(); // Add this line!
+    }, 200);
+    
+    console.log('Training form initialization completed');
 });
 
 // ==============================================
@@ -288,12 +383,12 @@ function validateFiles(files) {
     
     for (let file of files) {
         if (file.size > maxSize) {
-            showTrainingMessage(`File "${file.name}" is too large. Maximum size is 5MB.`, 'error');
+            alert('❌ File "' + file.name + '" is too large. Maximum size is 5MB.');
             return false;
         }
         
         if (!allowedTypes.includes(file.type)) {
-            showTrainingMessage(`File "${file.name}" is not a supported format. Please upload PDF, JPG, or PNG files only.`, 'error');
+            alert('❌ File "' + file.name + '" is not a supported format. Please upload PDF, JPG, or PNG files only.');
             return false;
         }
     }
@@ -304,43 +399,6 @@ function validateFiles(files) {
 // ==============================================
 // ERROR HANDLING AND MESSAGING
 // ==============================================
-
-function showTrainingMessage(message, type) {
-    const messagesContainer = document.getElementById('training-messages');
-    const successMessage = document.getElementById('training-success-message');
-    const errorMessage = document.getElementById('training-error-message');
-    
-    if (!messagesContainer || !successMessage || !errorMessage) {
-        console.error('Training message elements not found');
-        return;
-    }
-    
-    // Hide all messages first
-    messagesContainer.style.display = 'none';
-    successMessage.style.display = 'none';
-    errorMessage.style.display = 'none';
-    
-    // Show appropriate message
-    if (type === 'success') {
-        successMessage.textContent = message;
-        successMessage.style.display = 'block';
-    } else {
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
-    }
-    
-    messagesContainer.style.display = 'block';
-    
-    // Scroll to message
-    messagesContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    // Auto-hide success messages after 5 seconds
-    if (type === 'success') {
-        setTimeout(() => {
-            messagesContainer.style.display = 'none';
-        }, 5000);
-    }
-}
 
 function showFieldError(fieldId, message) {
     const field = document.getElementById(fieldId);
@@ -451,30 +509,11 @@ function hideAllForms() {
     });
 }
 
-/**
- * Activate application tab
- */
-function activateApplicationTab(formId) {
-    const formSection = document.getElementById(formId);
-    if (!formSection) return;
-
-    const firstTabBtn = formSection.querySelector('.training-tab-btn');
-    const firstTabContent = formSection.querySelector('.training-tab-content');
-
-    if (firstTabBtn && firstTabContent) {
-        // Reset all tabs in this form
-        formSection.querySelectorAll('.training-tab-btn').forEach(btn => btn.classList.remove('active'));
-        formSection.querySelectorAll('.training-tab-content').forEach(tab => tab.style.display = 'none');
-
-        // Activate first tab
-        firstTabBtn.classList.add('active');
-        firstTabContent.style.display = 'block';
-    }
-}
-
 // ==============================================
 // UTILITY FUNCTIONS
 // ==============================================
+
+
 
 // Format mobile number as user types
 document.addEventListener('DOMContentLoaded', function() {
@@ -510,5 +549,137 @@ document.addEventListener('DOMContentLoaded', function() {
                 validateFiles(files);
             }
         });
+    }
+});
+
+// Add this function to check if Training form should be shown
+function shouldShowTrainingForm() {
+    const currentPath = window.location.pathname;
+    const currentUrl = window.location.href;
+    
+    // Check for various Training URL patterns
+    return currentPath === '/services/training' || 
+           currentPath.includes('/training') || 
+           currentUrl.includes('/services/training') ||
+           currentUrl.includes('#training');
+}
+
+// Add this at the very top of the file
+(function preserveTrainingUrl() {
+    // Early URL check before anything else loads
+    if (sessionStorage.getItem('lastTrainingUrl') === '/services/training') {
+        history.replaceState({page: 'training'}, '', '/services/training');
+    }
+})();
+
+/**
+ * Get fresh CSRF token
+ */
+async function refreshTrainingCSRFToken() {
+    try {
+        const response = await fetch('/csrf-token');
+        const data = await response.json();
+        csrfToken = data.csrf_token;
+        
+        // Update meta tag
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) {
+            metaTag.setAttribute('content', csrfToken);
+        }
+        
+        console.log('CSRF token refreshed for training');
+        return csrfToken;
+    } catch (error) {
+        console.error('Failed to refresh CSRF token:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get current CSRF token
+ */
+function getTrainingCSRFToken() {
+    if (csrfToken) return csrfToken;
+    
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        csrfToken = metaTag.getAttribute('content');
+        return csrfToken;
+    }
+    
+    console.error('No CSRF token found');
+    return null;
+}
+
+/**
+ * Submit Training form with enhanced error handling and notifications
+ */
+function submitTrainingForm(event) {
+    event.preventDefault();
+    
+    const form = document.getElementById('training-request-form');
+    const formData = new FormData(form);
+
+    // Show loading state - matches FishR style
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    fetch('/apply/training', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(response => {
+        if (response.success) {
+            // Show success alert - matches FishR exactly
+            alert('✅ ' + response.message + 
+                  (response.data.application_number ? 
+                   '\nApplication Number: ' + response.data.application_number : ''));
+
+            // Reset form
+            resetTrainingForm();
+            
+            // Close form after delay - same timing as FishR
+            setTimeout(() => {
+                closeFormTraining();
+            }, 2000);
+
+        } else {
+            // Show error alert - matches FishR exactly
+            if (response.errors) {
+                const errorList = Object.values(response.errors).flat();
+                alert('❌ Please correct the following:\n\n• ' + errorList.join('\n• '));
+                
+                // Show field errors
+                Object.keys(response.errors).forEach(field => {
+                    showFieldError(field, response.errors[field][0]);
+                });
+            } else {
+                alert('❌ ' + (response.message || 'An error occurred while submitting your application'));
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ An error occurred while submitting your application. Please try again.');
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    });
+}
+
+// Initialize form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const trainingForm = document.getElementById('training-request-form');
+    if (trainingForm) {
+        trainingForm.addEventListener('submit', submitTrainingForm);
     }
 });

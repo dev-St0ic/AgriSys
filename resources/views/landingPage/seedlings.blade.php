@@ -241,7 +241,7 @@
 
             <label for="barangay">Barangay *</label>
             <select id="barangay" name="barangay" required>
-                <option value="" disabled>Select Barangay</option>
+                <option value="" disabled selected>Select Barangay</option>
                 <option value="Bagong Silang">Bagong Silang</option>
                 <option value="Calendola">Calendola</option>
                 <option value="Chrysanthemum">Chrysanthemum</option>
