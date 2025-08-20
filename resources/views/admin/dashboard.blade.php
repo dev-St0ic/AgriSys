@@ -173,13 +173,22 @@
                         
                         <!-- Third Row -->
                         <div class="col-md-4">
-                            <a href="{{ route('admin.analytics.seedlings') }}" class="btn btn-dark w-100 py-4 text-center" style="min-height: 120px; border-radius: 15px;">
+                            <a href="{{ route('admin.training.requests') }}" class="btn btn-primary w-100 py-4 text-center" style="min-height: 120px; border-radius: 15px;">
                                 <div>
-                                    <i class="fas fa-chart-line fa-3x mb-2"></i>
-                                    <div class="h6 mb-0">Analytics</div>
+                                    <i class="fas fa-chalkboard-teacher fa-3x mb-2"></i>
+                                    <div class="h6 mb-0">Training Application</div>
                                 </div>
                             </a>
                         </div>
+                        <div class="col-md-4">
+                            <a href="{{ route('admin.analytics.seedlings') }}" class="btn btn-dark w-100 py-4 text-center" style="min-height: 120px; border-radius: 15px;">
+                                <div>
+                                    <i class="fas fa-chart-line fa-3x mb-2"></i>
+                                    <div class="h6 mb-0">Analytics Services</div>
+                                </div>
+                            </a>
+                        </div>
+                        
 
                         @if ($user->isSuperAdmin())
                         <div class="col-md-4">

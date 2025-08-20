@@ -1,9 +1,9 @@
-{{-- resources/views/admin/analytics/boatr.blade.php --}}
+{{-- resources/views/admin/analytics/training.blade.php --}}
 
 @extends('layouts.app')
 
-@section('title', 'BOATR Analytics - AgriSys Admin')
-@section('page-title', 'BOATR Analytics Dashboard')
+@section('title', 'Training Analytics - AgriSys Admin')
+@section('page-title', 'Training Analytics Dashboard')
 
 @section('content')
 <!-- Header with Service Navigation -->
@@ -13,8 +13,8 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h4 class="mb-0">BOATR Analytics Dashboard</h4>
-                        <p class="text-muted mb-0">Comprehensive insights into Boat Registration Services</p>
+                        <h4 class="mb-0">Training Analytics Dashboard</h4>
+                        <p class="text-muted mb-0">Comprehensive insights into Agricultural Training Services</p>
                     </div>
                     <!-- Service Tabs - Unified Structure -->
                     <ul class="nav nav-pills" id="serviceTab" role="tablist">
@@ -57,15 +57,15 @@
 
 <!-- Service Content -->
 <div class="tab-content" id="serviceTabContent">
-    <!-- BOATR Service Tab -->
-    <div class="tab-pane fade show active" id="boatr-service" role="tabpanel">
+    <!-- Training Service Tab -->
+    <div class="tab-pane fade show active" id="training-service" role="tabpanel">
         
         <!-- Date Range Filter -->
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <form method="GET" action="{{ route('admin.analytics.boatr') }}" class="row g-3">
+                        <form method="GET" action="{{ route('admin.analytics.training') }}" class="row g-3">
                             <div class="col-md-3">
                                 <label for="start_date" class="form-label">Start Date</label>
                                 <input type="date" class="form-control" id="start_date" name="start_date" 
@@ -80,11 +80,11 @@
                                 <button type="submit" class="btn btn-primary me-2">
                                     <i class="fas fa-filter me-1"></i> Apply Filter
                                 </button>
-                                <a href="{{ route('admin.analytics.boatr.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
+                                <a href="{{ route('admin.analytics.training.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
                                    class="btn btn-success me-2">
                                     <i class="fas fa-download me-1"></i> Export
                                 </a>
-                                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#boatrInsightsModal">
+                                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#trainingInsightsModal">
                                     <i class="fas fa-lightbulb me-1"></i> AI Insights
                                 </button>
                             </div>
@@ -98,7 +98,7 @@
         <div class="row mb-4">
             <!-- Total Applications Card -->
             <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
                     <div class="card-body text-white">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
@@ -109,7 +109,7 @@
                                 </small>
                             </div>
                             <div class="p-3 bg-white bg-opacity-20 rounded-circle">
-                                <i class="fas fa-ship fa-lg"></i>
+                                <i class="fas fa-graduation-cap fa-lg"></i>
                             </div>
                         </div>
                     </div>
@@ -134,36 +134,36 @@
                 </div>
             </div>
             
-            <!-- Vessel Fleet Card -->
+            <!-- Training Types Card -->
             <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
                     <div class="card-body text-white">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="card-title mb-2 opacity-75">Registered Fleet</h6>
-                                <h2 class="mb-1">{{ $overview['unique_vessels'] }}</h2>
-                                <small class="opacity-75">{{ number_format($overview['unique_applicants']) }} boat owners</small>
+                                <h6 class="card-title mb-2 opacity-75">Training Programs</h6>
+                                <h2 class="mb-1">{{ $overview['unique_training_types'] }}</h2>
+                                <small class="opacity-75">{{ number_format($overview['unique_applicants']) }} unique trainees</small>
                             </div>
                             <div class="p-3 bg-white bg-opacity-20 rounded-circle">
-                                <i class="fas fa-anchor fa-lg"></i>
+                                <i class="fas fa-book fa-lg"></i>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Inspection Status Card -->
+            <!-- Document Submission Card -->
             <div class="col-lg-3 col-md-6 mb-3">
                 <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
                     <div class="card-body text-white">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h6 class="card-title mb-2 opacity-75">Inspection Rate</h6>
-                                <h2 class="mb-1">{{ $overview['inspection_completion_rate'] }}%</h2>
-                                <small class="opacity-75">{{ number_format($overview['inspections_completed']) }} inspections done</small>
+                                <h6 class="card-title mb-2 opacity-75">Document Submission</h6>
+                                <h2 class="mb-1">{{ $overview['document_submission_rate'] }}%</h2>
+                                <small class="opacity-75">{{ number_format($overview['with_documents']) }} with documents</small>
                             </div>
                             <div class="p-3 bg-white bg-opacity-20 rounded-circle">
-                                <i class="fas fa-clipboard-check fa-lg"></i>
+                                <i class="fas fa-file-alt fa-lg"></i>
                             </div>
                         </div>
                     </div>
@@ -183,7 +183,7 @@
                     </div>
                     <div class="card-body">
                         <div class="position-relative">
-                            <canvas id="boatrStatusDonutChart" height="250"></canvas>
+                            <canvas id="trainingStatusDonutChart" height="250"></canvas>
                         </div>
                         <div class="mt-3">
                             @foreach($statusAnalysis['counts'] as $status => $count)
@@ -214,7 +214,7 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <canvas id="boatrTrendsChart" height="120"></canvas>
+                        <canvas id="trainingTrendsChart" height="120"></canvas>
                     </div>
                 </div>
             </div>
@@ -222,157 +222,82 @@
 
         <!-- Secondary Analytics Row -->
         <div class="row">
-            <!-- Boat Type Distribution -->
-            <div class="col-lg-6 mb-4">
+            <!-- Training Type Distribution -->
+            <div class="col-lg-8 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-gradient-success text-white">
                         <h5 class="mb-0">
-                            <i class="fas fa-ship me-2"></i>Boat Type Distribution
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            @foreach($boatTypeAnalysis->take(5) as $index => $boatType)
-                            <div class="col-12 mb-3">
-                                <div class="d-flex align-items-center p-3 rounded" style="background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);">
-                                    <div class="me-3">
-                                        <div class="badge bg-primary rounded-pill p-2">
-                                            {{ $index + 1 }}
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">{{ ucfirst($boatType->boat_type) }}</h6>
-                                        <div class="progress mb-1" style="height: 6px;">
-                                            <div class="progress-bar bg-primary" 
-                                                 style="width: {{ ($boatType->total_applications / $boatTypeAnalysis->first()->total_applications) * 100 }}%"></div>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <small class="text-muted">{{ $boatType->total_applications }} boats</small>
-                                            <small class="text-primary">{{ round(($boatType->approved / max(1, $boatType->total_applications)) * 100, 1) }}% approval</small>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <small class="text-muted">Avg L: {{ round($boatType->avg_length ?? 0, 1) }}ft</small>
-                                            <small class="text-muted">W: {{ round($boatType->avg_width ?? 0, 1) }}ft</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Enhanced Fishing Gear Analysis -->
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-warning text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-tools me-2"></i>Fishing Gear Distribution
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        @if($fishingGearAnalysis && $fishingGearAnalysis->count() > 0)
-                            <div class="position-relative mb-3" style="height: 250px;">
-                                <canvas id="boatrFishingGearChart"></canvas>
-                            </div>
-                            <div class="row">
-                                @foreach($fishingGearAnalysis->take(4) as $gear)
-                                <div class="col-6 mb-2">
-                                    <div class="p-2 rounded bg-light">
-                                        <h6 class="mb-1 text-truncate">{{ ucwords($gear->primary_fishing_gear) }}</h6>
-                                        <div class="d-flex justify-content-between">
-                                            <small class="text-muted">{{ $gear->total_applications }} boats</small>
-                                            <small class="text-success">{{ $gear->approval_rate ?? round(($gear->approved / max(1, $gear->total_applications)) * 100, 1) }}%</small>
-                                        </div>
-                                        <div class="progress mt-1" style="height: 4px;">
-                                            <div class="progress-bar bg-warning" 
-                                                 style="width: {{ $gear->percentage ?? (($gear->total_applications / max(1, $fishingGearAnalysis->sum('total_applications'))) * 100) }}%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                            
-                            <!-- Detailed Fishing Gear Table -->
-                            <div class="mt-3">
-                                <h6 class="mb-2">Detailed Breakdown</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Fishing Gear</th>
-                                                <th>Total</th>
-                                                <th>Approved</th>
-                                                <th>Pending</th>
-                                                <th>Avg Days</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($fishingGearAnalysis as $gear)
-                                            <tr>
-                                                <td><strong>{{ ucwords($gear->primary_fishing_gear) }}</strong></td>
-                                                <td>{{ $gear->total_applications }}</td>
-                                                <td>
-                                                    <span class="badge bg-success">{{ $gear->approved }}</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-warning">{{ $gear->pending ?? ($gear->total_applications - $gear->approved - $gear->rejected) }}</span>
-                                                </td>
-                                                <td>{{ round($gear->avg_processing_days ?? 0, 1) }} days</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        @else
-                            <div class="text-center py-4">
-                                <i class="fas fa-tools fa-3x text-muted mb-3"></i>
-                                <h6 class="text-muted">No Fishing Gear Data Available</h6>
-                                <p class="text-muted mb-0">No BOATR applications with fishing gear information found for the selected date range.</p>
-                                <small class="text-muted">Try expanding your date range or check if applications have been submitted.</small>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Vessel Size & Engine Analysis -->
-        <div class="row">
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-secondary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-ruler-combined me-2"></i>Vessel Size Categories
+                            <i class="fas fa-graduation-cap me-2"></i>Training Program Performance
                         </h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-sm">
+                            <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Size Category</th>
-                                        <th>Count</th>
-                                        <th>Approval</th>
-                                        <th>Avg Dimensions</th>
+                                        <th>Rank</th>
+                                        <th>Training Program</th>
+                                        <th>Total Applications</th>
+                                        <th>Approved</th>
+                                        <th>Approval Rate</th>
+                                        <th>Avg Processing Days</th>
+                                        <th>With Documents</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($vesselSizeAnalysis as $size)
+                                    @foreach($trainingTypeAnalysis->take(10) as $index => $training)
                                     <tr>
-                                        <td><strong>{{ $size->size_category }}</strong></td>
-                                        <td>{{ $size->total_applications }}</td>
                                         <td>
-                                            <span class="badge bg-success">{{ round(($size->approved / max(1, $size->total_applications)) * 100, 1) }}%</span>
+                                            <div class="badge bg-{{ $index < 3 ? ($index === 0 ? 'warning' : ($index === 1 ? 'secondary' : 'info')) : 'light text-dark' }} rounded-pill">
+                                                #{{ $index + 1 }}
+                                            </div>
                                         </td>
                                         <td>
-                                            <small class="text-muted">
-                                                L: {{ round($size->avg_length ?? 0, 1) }}ft<br>
-                                                W: {{ round($size->avg_width ?? 0, 1) }}ft
-                                            </small>
+                                            <strong>
+                                                @switch($training->training_type)
+                                                    @case('tilapia_hito')
+                                                        Tilapia & Hito Training
+                                                        @break
+                                                    @case('hydroponics')
+                                                        Hydroponics Training
+                                                        @break
+                                                    @case('aquaponics')
+                                                        Aquaponics Training
+                                                        @break
+                                                    @case('mushrooms')
+                                                        Mushrooms Production
+                                                        @break
+                                                    @case('livestock_poultry')
+                                                        Livestock & Poultry
+                                                        @break
+                                                    @case('high_value_crops')
+                                                        High Value Crops
+                                                        @break
+                                                    @case('sampaguita_propagation')
+                                                        Sampaguita Propagation
+                                                        @break
+                                                    @default
+                                                        {{ ucfirst(str_replace('_', ' ', $training->training_type)) }}
+                                                @endswitch
+                                            </strong>
                                         </td>
+                                        <td>{{ $training->total_applications }}</td>
+                                        <td>{{ $training->approved }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress me-2" style="width: 60px; height: 6px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         style="width: {{ round(($training->approved / max(1, $training->total_applications)) * 100, 1) }}%"></div>
+                                                </div>
+                                                <small>{{ round(($training->approved / max(1, $training->total_applications)) * 100, 1) }}%</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{{ $training->avg_processing_days < 3 ? 'success' : ($training->avg_processing_days < 7 ? 'warning' : 'danger') }}">
+                                                {{ round($training->avg_processing_days ?? 0, 1) }}d
+                                            </span>
+                                        </td>
+                                        <td>{{ $training->with_documents }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -382,99 +307,59 @@
                 </div>
             </div>
 
-            <!-- Engine Analysis -->
-            <div class="col-lg-6 mb-4">
+            <!-- Contact Method Analysis -->
+            <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-dark text-white">
+                    <div class="card-header bg-gradient-warning text-white">
                         <h5 class="mb-0">
-                            <i class="fas fa-cog me-2"></i>Engine Type Analysis
+                            <i class="fas fa-address-book me-2"></i>Contact Method Distribution
                         </h5>
                     </div>
                     <div class="card-body">
-                        @foreach($engineAnalysis->take(5) as $engine)
-                        <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" style="background: rgba(0,0,0,0.05);">
-                            <div>
-                                <h6 class="mb-1">{{ ucwords($engine->engine_type) }}</h6>
-                                <div class="progress" style="width: 120px; height: 6px;">
-                                    <div class="progress-bar bg-dark" 
-                                         style="width: {{ ($engine->total_applications / $engineAnalysis->first()->total_applications) * 100 }}%"></div>
+                        <div class="position-relative mb-3">
+                            <canvas id="trainingContactChart" height="200"></canvas>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(16, 185, 129, 0.1);">
+                                    <h4 class="mb-1 text-success">{{ $contactAnalysis['stats']['both_contacts'] }}</h4>
+                                    <p class="mb-0 text-muted small">Both Contacts</p>
+                                    <small class="text-success">{{ $contactAnalysis['percentages']['both_contacts'] }}%</small>
                                 </div>
-                                <small class="text-muted">Avg HP: {{ round($engine->avg_horsepower ?? 0, 1) }}</small>
                             </div>
-                            <div class="text-end">
-                                <div class="badge bg-primary">{{ $engine->total_applications }}</div>
-                                <br>
-                                <small class="text-success">{{ round(($engine->approved / max(1, $engine->total_applications)) * 100, 1) }}%</small>
+                            <div class="col-6 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(59, 130, 246, 0.1);">
+                                    <h4 class="mb-1 text-primary">{{ $contactAnalysis['stats']['email_only'] }}</h4>
+                                    <p class="mb-0 text-muted small">Email Only</p>
+                                    <small class="text-primary">{{ $contactAnalysis['percentages']['email_only'] }}%</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(245, 158, 11, 0.1);">
+                                    <h4 class="mb-1 text-warning">{{ $contactAnalysis['stats']['mobile_only'] }}</h4>
+                                    <p class="mb-0 text-muted small">Mobile Only</p>
+                                    <small class="text-warning">{{ $contactAnalysis['percentages']['mobile_only'] }}%</small>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(239, 68, 68, 0.1);">
+                                    <h4 class="mb-1 text-danger">{{ $contactAnalysis['stats']['no_contact'] }}</h4>
+                                    <p class="mb-0 text-muted small">No Contact</p>
+                                    <small class="text-danger">{{ $contactAnalysis['percentages']['no_contact'] }}%</small>
+                                </div>
                             </div>
                         </div>
-                        @endforeach
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Inspection & Document Analysis -->
+        <!-- Performance Metrics & Registration Patterns -->
         <div class="row">
-            <!-- Inspection Analysis -->
-            <div class="col-lg-8 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-info text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-clipboard-check me-2"></i>Inspection Analysis
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-4">
-                            <div class="col-md-3 text-center">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-success mb-1">{{ $inspectionAnalysis['inspections_completed'] }}</h4>
-                                    <p class="mb-0 text-muted">Completed</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-warning mb-1">{{ $inspectionAnalysis['inspections_scheduled'] }}</h4>
-                                    <p class="mb-0 text-muted">Scheduled</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-danger mb-1">{{ $inspectionAnalysis['inspections_required'] }}</h4>
-                                    <p class="mb-0 text-muted">Required</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-info mb-1">{{ $inspectionAnalysis['completion_rate'] }}%</h4>
-                                    <p class="mb-0 text-muted">Rate</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Inspector Workload -->
-                        @if($inspectionAnalysis['inspector_workload']->isNotEmpty())
-                        <h6 class="mb-3">Inspector Workload</h6>
-                        @foreach($inspectionAnalysis['inspector_workload']->take(5) as $inspector)
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>{{ $inspector->inspector->name ?? 'Inspector #' . $inspector->inspected_by }}</span>
-                            <div class="d-flex align-items-center">
-                                <div class="progress me-2" style="width: 100px; height: 6px;">
-                                    <div class="progress-bar bg-info" 
-                                         style="width: {{ ($inspector->inspections_count / $inspectionAnalysis['inspector_workload']->first()->inspections_count) * 100 }}%"></div>
-                                </div>
-                                <span class="badge bg-info">{{ $inspector->inspections_count }}</span>
-                            </div>
-                        </div>
-                        @endforeach
-                        @endif
-                    </div>
-                </div>
-            </div>
-
             <!-- Performance Metrics -->
             <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-warning text-white">
+                    <div class="card-header bg-gradient-secondary text-white">
                         <h5 class="mb-0">
                             <i class="fas fa-tachometer-alt me-2"></i>Performance Metrics
                         </h5>
@@ -483,13 +368,13 @@
                         <div class="metric-item mb-4">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h6 class="mb-0">Processing Time</h6>
-                                <span class="badge bg-{{ $processingTimeAnalysis['avg_processing_days'] < 5 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] < 10 ? 'warning' : 'danger') }}">
+                                <span class="badge bg-{{ $processingTimeAnalysis['avg_processing_days'] < 3 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] < 7 ? 'warning' : 'danger') }}">
                                     {{ $processingTimeAnalysis['avg_processing_days'] }}d avg
                                 </span>
                             </div>
                             <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-{{ $processingTimeAnalysis['avg_processing_days'] < 5 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] < 10 ? 'warning' : 'danger') }}" 
-                                     style="width: {{ min(100, (21 - $processingTimeAnalysis['avg_processing_days']) / 21 * 100) }}%"></div>
+                                <div class="progress-bar bg-{{ $processingTimeAnalysis['avg_processing_days'] < 3 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] < 7 ? 'warning' : 'danger') }}" 
+                                     style="width: {{ min(100, (14 - $processingTimeAnalysis['avg_processing_days']) / 14 * 100) }}%"></div>
                             </div>
                             <small class="text-muted">Median: {{ $processingTimeAnalysis['median_processing_days'] }}d</small>
                         </div>
@@ -516,7 +401,7 @@
                                 <div class="progress-bar bg-{{ $performanceMetrics['quality_score'] > 80 ? 'success' : ($performanceMetrics['quality_score'] > 60 ? 'warning' : 'danger') }}" 
                                      style="width: {{ $performanceMetrics['quality_score'] }}%"></div>
                             </div>
-                            <small class="text-muted">Based on approval & inspection rates</small>
+                            <small class="text-muted">Based on approval & doc rates</small>
                         </div>
                         
                         <div class="metric-item">
@@ -532,14 +417,11 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Document Analysis & Registration Patterns -->
-        <div class="row">
             <!-- Document Analysis -->
-            <div class="col-lg-6 mb-4">
+            <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-success text-white">
+                    <div class="card-header bg-gradient-info text-white">
                         <h5 class="mb-0">
                             <i class="fas fa-file-alt me-2"></i>Document Submission Analysis
                         </h5>
@@ -548,41 +430,41 @@
                         <div class="row text-center mb-3">
                             <div class="col-6">
                                 <div class="p-3 rounded bg-light">
-                                    <h4 class="text-success mb-1">{{ $documentAnalysis['approval_rate_with_user_docs'] }}%</h4>
+                                    <h4 class="text-success mb-1">{{ $documentAnalysis['approval_rate_with_docs'] }}%</h4>
                                     <p class="mb-0 text-muted">Approval with Docs</p>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="p-3 rounded bg-light">
-                                    <h4 class="text-warning mb-1">{{ $documentAnalysis['approval_rate_without_user_docs'] }}%</h4>
+                                    <h4 class="text-warning mb-1">{{ $documentAnalysis['approval_rate_without_docs'] }}%</h4>
                                     <p class="mb-0 text-muted">Approval without Docs</p>
                                 </div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-2">
-                                <span>User Documents</span>
-                                <span class="text-success">{{ $documentAnalysis['with_user_documents'] }}</span>
+                                <span>With Documents</span>
+                                <span class="text-success">{{ $documentAnalysis['with_documents'] }}</span>
                             </div>
                             <div class="progress mb-2" style="height: 8px;">
                                 <div class="progress-bar bg-success" 
-                                     style="width: {{ $documentAnalysis['total'] > 0 ? ($documentAnalysis['with_user_documents'] / $documentAnalysis['total']) * 100 : 0 }}%"></div>
+                                     style="width: {{ $documentAnalysis['total'] > 0 ? ($documentAnalysis['with_documents'] / $documentAnalysis['total']) * 100 : 0 }}%"></div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-2">
-                                <span>Inspection Documents</span>
-                                <span class="text-info">{{ $documentAnalysis['with_inspection_documents'] }}</span>
+                                <span>Without Documents</span>
+                                <span class="text-warning">{{ $documentAnalysis['without_documents'] }}</span>
                             </div>
                             <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-info" 
-                                     style="width: {{ $documentAnalysis['total'] > 0 ? ($documentAnalysis['with_inspection_documents'] / $documentAnalysis['total']) * 100 : 0 }}%"></div>
+                                <div class="progress-bar bg-warning" 
+                                     style="width: {{ $documentAnalysis['total'] > 0 ? ($documentAnalysis['without_documents'] / $documentAnalysis['total']) * 100 : 0 }}%"></div>
                             </div>
                         </div>
                         <div class="alert alert-info">
                             <small>
                                 <i class="fas fa-info-circle me-1"></i>
-                                Applications with user documents have a {{ $documentAnalysis['approval_rate_with_user_docs'] - $documentAnalysis['approval_rate_without_user_docs'] }}% higher approval rate.
+                                Applications with supporting documents have a {{ $documentAnalysis['approval_rate_with_docs'] - $documentAnalysis['approval_rate_without_docs'] }}% higher approval rate.
                             </small>
                         </div>
                     </div>
@@ -590,9 +472,9 @@
             </div>
 
             <!-- Registration Patterns -->
-            <div class="col-lg-6 mb-4">
+            <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-primary text-white">
+                    <div class="card-header bg-gradient-warning text-white">
                         <h5 class="mb-0">
                             <i class="fas fa-calendar-alt me-2"></i>Registration Patterns
                         </h5>
@@ -645,13 +527,13 @@
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
                                             <div class="p-2 rounded-circle bg-success bg-opacity-10">
-                                                <i class="fas fa-check-circle text-success"></i>
+                                                <i class="fas fa-graduation-cap text-success"></i>
                                             </div>
                                         </div>
                                         <div>
-                                            <h6 class="mb-1">Strong Registration Rate</h6>
+                                            <h6 class="mb-1">Training Diversity</h6>
                                             <p class="text-muted mb-0 small">
-                                                {{ $overview['approval_rate'] }}% approval rate with {{ $overview['unique_vessels'] }} vessels registered.
+                                                {{ $overview['unique_training_types'] }} different training programs with {{ $overview['approval_rate'] }}% approval rate.
                                             </p>
                                         </div>
                                     </div>
@@ -663,13 +545,13 @@
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
                                             <div class="p-2 rounded-circle bg-info bg-opacity-10">
-                                                <i class="fas fa-clipboard-check text-info"></i>
+                                                <i class="fas fa-users text-info"></i>
                                             </div>
                                         </div>
                                         <div>
-                                            <h6 class="mb-1">Inspection Progress</h6>
+                                            <h6 class="mb-1">Community Engagement</h6>
                                             <p class="text-muted mb-0 small">
-                                                {{ $inspectionAnalysis['completion_rate'] }}% inspection completion with {{ $inspectionAnalysis['avg_inspection_time'] }}d average time.
+                                                {{ $overview['unique_applicants'] }} unique applicants showing strong community interest in training.
                                             </p>
                                         </div>
                                     </div>
@@ -687,7 +569,7 @@
                                         <div>
                                             <h6 class="mb-1">Document Impact</h6>
                                             <p class="text-muted mb-0 small">
-                                                {{ $documentAnalysis['approval_rate_with_user_docs'] - $documentAnalysis['approval_rate_without_user_docs'] }}% higher approval with supporting documents.
+                                                {{ $documentAnalysis['approval_rate_with_docs'] - $documentAnalysis['approval_rate_without_docs'] }}% higher approval with supporting documents.
                                             </p>
                                         </div>
                                     </div>
@@ -699,13 +581,13 @@
                                     <div class="d-flex align-items-start">
                                         <div class="me-3">
                                             <div class="p-2 rounded-circle bg-primary bg-opacity-10">
-                                                <i class="fas fa-ship text-primary"></i>
+                                                <i class="fas fa-phone text-primary"></i>
                                             </div>
                                         </div>
                                         <div>
-                                            <h6 class="mb-1">Fleet Diversity</h6>
+                                            <h6 class="mb-1">Communication Channels</h6>
                                             <p class="text-muted mb-0 small">
-                                                {{ $overview['unique_boat_types'] }} different boat types with varied fishing gear applications.
+                                                {{ $contactAnalysis['percentages']['both_contacts'] }}% provide both email and mobile for better follow-up.
                                             </p>
                                         </div>
                                     </div>
@@ -720,13 +602,13 @@
 
 </div>
 
-<!-- BOATR AI Insights Modal -->
-<div class="modal fade" id="boatrInsightsModal" tabindex="-1">
+<!-- Training AI Insights Modal -->
+<div class="modal fade" id="trainingInsightsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-gradient-primary text-white">
                 <h5 class="modal-title">
-                    <i class="fas fa-robot me-2"></i>BOATR AI-Powered Insights
+                    <i class="fas fa-robot me-2"></i>Training AI-Powered Insights
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -737,15 +619,15 @@
                         <ul class="list-unstyled">
                             <li class="mb-2">
                                 <i class="fas fa-arrow-up text-success me-2"></i>
-                                Streamline inspection process for faster approvals
+                                Expand popular training programs like {{ $trainingTypeAnalysis->first()->training_type ?? 'aquaponics' }}
                             </li>
                             <li class="mb-2">
                                 <i class="fas fa-file-alt text-info me-2"></i>
-                                Promote digital document submission system
+                                Promote document submission to improve approval rates
                             </li>
                             <li class="mb-2">
-                                <i class="fas fa-ship text-warning me-2"></i>
-                                Focus on underrepresented boat types
+                                <i class="fas fa-envelope text-warning me-2"></i>
+                                Encourage email provision for better communication
                             </li>
                         </ul>
                     </div>
@@ -754,15 +636,15 @@
                         <ul class="list-unstyled">
                             <li class="mb-2">
                                 <i class="fas fa-clock text-warning me-2"></i>
-                                {{ $processingTimeAnalysis['avg_processing_days'] > 10 ? 'Reduce processing time' : 'Maintain current processing speed' }}
+                                {{ $processingTimeAnalysis['avg_processing_days'] > 5 ? 'Reduce processing time for faster enrollment' : 'Maintain current processing speed' }}
                             </li>
                             <li class="mb-2">
-                                <i class="fas fa-clipboard-check text-info me-2"></i>
-                                {{ $inspectionAnalysis['completion_rate'] < 80 ? 'Improve inspection completion rate' : 'Maintain inspection quality' }}
+                                <i class="fas fa-graduation-cap text-info me-2"></i>
+                                Consider hybrid online/offline training options
                             </li>
                             <li class="mb-2">
-                                <i class="fas fa-tools text-success me-2"></i>
-                                Balance fishing gear type registrations
+                                <i class="fas fa-phone text-success me-2"></i>
+                                Improve contact information collection rates
                             </li>
                         </ul>
                     </div>
@@ -772,7 +654,7 @@
                     <div class="col-12">
                         <div class="alert alert-info">
                             <h6><i class="fas fa-lightbulb me-2"></i>Recommendation</h6>
-                            <p class="mb-0">Consider implementing mobile inspection units for remote areas and developing a digital inspection checklist to improve efficiency and consistency across all boat registrations.</p>
+                            <p class="mb-0">Consider implementing online pre-registration for popular training programs and follow-up SMS notifications for approved applicants without email addresses.</p>
                         </div>
                     </div>
                 </div>
@@ -784,12 +666,12 @@
 
 @section('styles')
 <style>
-.bg-gradient-primary { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-.bg-gradient-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-.bg-gradient-info { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
-.bg-gradient-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-.bg-gradient-dark { background: linear-gradient(135deg, #374151 0%, #111827 100%); }
-.bg-gradient-secondary { background: linear-gradient(135deg, #6b7280 0%, #374151 100%); }
+.bg-gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.bg-gradient-success { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.bg-gradient-info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.bg-gradient-warning { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.bg-gradient-dark { background: linear-gradient(135deg, #434343 0%, #000000 100%); }
+.bg-gradient-secondary { background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%); }
 
 .hover-bg-light:hover {
     background-color: rgba(0,0,0,0.05);
@@ -808,6 +690,13 @@
     padding: 1rem;
     border-radius: 8px;
     background: rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
+}
+
+.metric-item:hover {
+    background: rgba(0,0,0,0.05);
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .card {
@@ -824,15 +713,373 @@
     border-radius: 25px;
     margin: 0 5px;
     transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-pills .nav-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
 
 .nav-pills .nav-link.active {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .table-hover tbody tr:hover {
     background-color: rgba(0,0,0,0.05);
+    transform: translateX(3px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.table-hover tbody tr {
+    transition: all 0.3s ease;
+}
+
+.badge {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.badge:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.progress-bar {
+    transition: width 1.5s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+.btn {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.btn.disabled, .btn:disabled {
+    transform: none;
+    box-shadow: none;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    border-radius: 15px 15px 0 0;
+    border-bottom: none;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: currentColor;
+    opacity: 0.5;
+}
+
+/* Chart container styling */
+canvas {
+    border-radius: 8px;
+}
+
+.chart-container {
+    position: relative;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+/* Custom scrollbar for tables */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Animation for loading states */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .nav-pills .nav-link {
+        margin: 2px;
+        font-size: 0.875rem;
+    }
+    
+    .card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .metric-item:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .insight-item:hover {
+        transform: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-pills {
+        flex-wrap: wrap;
+    }
+    
+    .nav-pills .nav-link {
+        margin: 2px 1px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .metric-item {
+        padding: 0.75rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .nav-pills .nav-link {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.6rem;
+    }
+    
+    .btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .card-body h2 {
+        font-size: 1.5rem;
+    }
+    
+    .card-body h4 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    .card {
+        background-color: #1f2937;
+        color: #f9fafb;
+    }
+    
+    .table {
+        color: #f9fafb;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-control {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+    }
+    
+    .form-control:focus {
+        background-color: #374151;
+        border-color: #667eea;
+        color: #f9fafb;
+    }
+    
+    .modal-content {
+        background-color: #1f2937;
+        color: #f9fafb;
+    }
+    
+    .alert {
+        background-color: #374151;
+        color: #f9fafb;
+    }
+}
+
+/* Print styles */
+@media print {
+    .nav-pills,
+    .btn,
+    .modal {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+    
+    .card-header {
+        background: #000 !important;
+        color: #fff !important;
+    }
+    
+    body {
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+    
+    .table {
+        font-size: 10pt;
+    }
+    
+    .badge {
+        border: 1px solid #000;
+    }
+    
+    canvas {
+        display: none !important;
+    }
+}
+
+/* Accessibility improvements */
+.btn:focus,
+.nav-link:focus,
+.form-control:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .card {
+        border: 2px solid #000;
+    }
+    
+    .badge {
+        border: 1px solid #000;
+    }
+    
+    .btn {
+        border: 2px solid #000;
+    }
+    
+    .progress-bar {
+        border: 1px solid #000;
+    }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
 </style>
 @endsection
@@ -843,16 +1090,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     let chartInstances = {};
     
-    // Initialize charts immediately for BOATR tab
-    initializeBoatrStatusDonutChart();
-    initializeBoatrTrendsChart();
-    initializeBoatrFishingGearChart();
+    // Initialize charts immediately for Training tab
+    initializeTrainingStatusDonutChart();
+    initializeTrainingTrendsChart();
+    initializeTrainingContactChart();
     
-    function initializeBoatrStatusDonutChart() {
-        const ctx = document.getElementById('boatrStatusDonutChart');
+    function initializeTrainingStatusDonutChart() {
+        const ctx = document.getElementById('trainingStatusDonutChart');
         if (!ctx) return;
         
-        chartInstances.boatrStatusDonutChart = new Chart(ctx.getContext('2d'), {
+        chartInstances.trainingStatusDonutChart = new Chart(ctx.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: [
@@ -865,11 +1112,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     backgroundColor: [
                         '#10b981',  // green for approved
                         '#ef4444',  // red for rejected  
-                        '#f59e0b',  // amber for under_review
-                        '#8b5cf6',  // purple for inspection_scheduled
-                        '#06b6d4',  // cyan for inspection_required
-                        '#f97316',  // orange for documents_pending
-                        '#6b7280'   // gray for pending
+                        '#f59e0b'   // amber for under_review
                     ],
                     borderWidth: 0,
                     cutout: '70%'
@@ -898,11 +1141,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    function initializeBoatrTrendsChart() {
-        const ctx = document.getElementById('boatrTrendsChart');
+    function initializeTrainingTrendsChart() {
+        const ctx = document.getElementById('trainingTrendsChart');
         if (!ctx) return;
         
-        chartInstances.boatrTrendsChart = new Chart(ctx.getContext('2d'), {
+        chartInstances.trainingTrendsChart = new Chart(ctx.getContext('2d'), {
             type: 'line',
             data: {
                 labels: [
@@ -913,12 +1156,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Total Applications',
                     data: [{{ $monthlyTrends->pluck('total_applications')->implode(',') }}],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
                     borderWidth: 3,
                     tension: 0.4,
                     fill: true,
-                    pointBackgroundColor: '#3b82f6',
+                    pointBackgroundColor: '#8b5cf6',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     pointRadius: 6,
@@ -937,8 +1180,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     pointRadius: 6,
                     pointHoverRadius: 8
                 }, {
-                    label: 'Inspections Completed',
-                    data: [{{ $monthlyTrends->pluck('inspections_completed')->implode(',') }}],
+                    label: 'With Documents',
+                    data: [{{ $monthlyTrends->pluck('with_documents')->implode(',') }}],
                     borderColor: '#f59e0b',
                     backgroundColor: 'rgba(245, 158, 11, 0.1)',
                     borderWidth: 2,
@@ -950,14 +1193,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     pointRadius: 4,
                     pointHoverRadius: 6
                 }, {
-                    label: 'Unique Vessels',
-                    data: [{{ $monthlyTrends->pluck('unique_vessels')->implode(',') }}],
-                    borderColor: '#8b5cf6',
-                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    label: 'Unique Training Types',
+                    data: [{{ $monthlyTrends->pluck('unique_training_types')->implode(',') }}],
+                    borderColor: '#0ea5e9',
+                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
                     borderWidth: 2,
                     tension: 0.4,
                     fill: false,
-                    pointBackgroundColor: '#8b5cf6',
+                    pointBackgroundColor: '#0ea5e9',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     pointRadius: 4,
@@ -1026,130 +1269,67 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    function initializeBoatrFishingGearChart() {
-        const ctx = document.getElementById('boatrFishingGearChart');
-        if (!ctx) {
-            console.log('Fishing gear chart canvas not found');
-            return;
-        }
+    function initializeTrainingContactChart() {
+        const ctx = document.getElementById('trainingContactChart');
+        if (!ctx) return;
         
-        // Check if we have fishing gear data
-        @if($fishingGearAnalysis && $fishingGearAnalysis->count() > 0)
-            const gearData = [
-                @foreach($fishingGearAnalysis->take(5) as $gear)
-                    {{ $gear->total_applications }},
-                @endforeach
-            ];
-            
-            const gearLabels = [
-                @foreach($fishingGearAnalysis->take(5) as $gear)
-                    '{{ ucwords($gear->primary_fishing_gear) }}',
-                @endforeach
-            ];
-            
-            const approvalData = [
-                @foreach($fishingGearAnalysis->take(5) as $gear)
-                    {{ $gear->approved }},
-                @endforeach
-            ];
-            
-            const pendingData = [
-                @foreach($fishingGearAnalysis->take(5) as $gear)
-                    {{ $gear->pending ?? ($gear->total_applications - $gear->approved - $gear->rejected) }},
-                @endforeach
-            ];
-            
-            console.log('Fishing gear data:', gearData);
-            console.log('Fishing gear labels:', gearLabels);
-            
-            if (gearData.length === 0 || gearLabels.length === 0) {
-                // Show no data message
-                ctx.getContext('2d').fillText('No fishing gear data available', 10, 50);
-                return;
-            }
-            
-            chartInstances.boatrFishingGearChart = new Chart(ctx.getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: gearLabels,
-                    datasets: [{
-                        label: 'Total Applications',
-                        data: gearData,
-                        backgroundColor: [
-                            '#3b82f6',  // blue
-                            '#10b981',  // green
-                            '#f59e0b',  // amber
-                            '#8b5cf6',  // purple
-                            '#ef4444'   // red
-                        ],
-                        borderColor: [
-                            '#2563eb',
-                            '#059669',
-                            '#d97706',
-                            '#7c3aed',
-                            '#dc2626'
-                        ],
-                        borderWidth: 2,
-                        cutout: '60%'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 15,
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    return `${label}: ${value} applications (${percentage}%)`;
-                                },
-                                afterLabel: function(context) {
-                                    const index = context.dataIndex;
-                                    const approved = approvalData[index] || 0;
-                                    const pending = pendingData[index] || 0;
-                                    return [
-                                        `Approved: ${approved}`,
-                                        `Pending: ${pending}`
-                                    ];
-                                }
+        const contactData = [
+            {{ $contactAnalysis['stats']['both_contacts'] }},
+            {{ $contactAnalysis['stats']['email_only'] }},
+            {{ $contactAnalysis['stats']['mobile_only'] }},
+            {{ $contactAnalysis['stats']['no_contact'] }}
+        ];
+        
+        const contactLabels = ['Both Contacts', 'Email Only', 'Mobile Only', 'No Contact'];
+        
+        chartInstances.trainingContactChart = new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: contactLabels,
+                datasets: [{
+                    data: contactData,
+                    backgroundColor: [
+                        '#10b981',  // green for both contacts
+                        '#3b82f6',  // blue for email only
+                        '#f59e0b',  // amber for mobile only
+                        '#ef4444'   // red for no contact
+                    ],
+                    borderWidth: 0,
+                    cutout: '60%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 11
                             }
                         }
                     },
-                    animation: {
-                        animateRotate: true,
-                        duration: 1000
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
                     }
                 }
-            });
-        @else
-            // No data available, show placeholder
-            const ctx2d = ctx.getContext('2d');
-            ctx2d.fillStyle = '#6b7280';
-            ctx2d.font = '16px Arial';
-            ctx2d.textAlign = 'center';
-            ctx2d.fillText('No fishing gear data available', ctx.width / 2, ctx.height / 2);
-            
-            ctx2d.font = '12px Arial';
-            ctx2d.fillStyle = '#9ca3af';
-            ctx2d.fillText('Try expanding your date range', ctx.width / 2, (ctx.height / 2) + 25);
-        @endif
+            }
+        });
     }
     
-    // Service tab switching
-    const serviceTabs = document.querySelectorAll('#serviceTab button[data-bs-toggle="tab"], #serviceTab a');
+    // Service tab switching functionality
+    const serviceTabs = document.querySelectorAll('#serviceTab a, #serviceTab button[data-bs-toggle="tab"]');
     serviceTabs.forEach(tab => {
         if (tab.hasAttribute('data-bs-toggle')) {
             tab.addEventListener('shown.bs.tab', function(event) {
@@ -1166,12 +1346,120 @@ document.addEventListener('DOMContentLoaded', function() {
                     case '#fishr-service':
                         console.log('FISHR service selected');
                         break;
+                    case '#boatr-service':
+                        console.log('BOATR service selected');
+                        break;
                     default:
-                        // BOATR is already initialized
+                        // Training is already initialized
                         break;
                 }
             });
         }
+    });
+    
+    // Add smooth scrolling animation for nav links
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Add ripple effect
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+    
+    // Add hover effects for metric cards
+    document.querySelectorAll('.metric-item').forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+            this.style.transition = 'all 0.3s ease';
+            this.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = 'none';
+        });
+    });
+    
+    // Add animation for insight items
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.insight-item').forEach(item => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        item.style.transition = 'all 0.6s ease';
+        observer.observe(item);
+    });
+    
+    // Add progress bar animations
+    function animateProgressBars() {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            bar.style.transition = 'width 1.5s ease-in-out';
+            
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 200);
+        });
+    }
+    
+    // Trigger progress bar animations on page load
+    setTimeout(animateProgressBars, 500);
+    
+    // Add counter animation for metric cards
+    function animateCounters() {
+        const counters = document.querySelectorAll('.card-body h2, .card-body h4');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.textContent.replace(/[^0-9]/g, ''));
+            if (isNaN(target)) return;
+            
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = counter.textContent.replace(/[0-9,]+/, target.toLocaleString());
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = counter.textContent.replace(/[0-9,]+/, Math.floor(current).toLocaleString());
+                }
+            }, 30);
+        });
+    }
+    
+    // Trigger counter animations
+    setTimeout(animateCounters, 300);
+    
+    // Add chart resize handler
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            Object.values(chartInstances).forEach(chart => {
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        }, 250);
     });
     
     // Cleanup function
@@ -1184,25 +1472,129 @@ document.addEventListener('DOMContentLoaded', function() {
         chartInstances = {};
     };
     
-    // Add smooth scrolling for better UX
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            // Add loading animation or effects here if needed
+    // Add loading states for export functionality
+    document.querySelectorAll('a[href*="export"]').forEach(exportLink => {
+        exportLink.addEventListener('click', function(e) {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Exporting...';
+            this.classList.add('disabled');
+            
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.classList.remove('disabled');
+            }, 3000);
         });
     });
     
-    // Add hover effects for metric cards
-    document.querySelectorAll('.metric-item').forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.02)';
-            this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+    // Add smooth transitions for table rows
+    document.querySelectorAll('.table-hover tbody tr').forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+            this.style.transition = 'all 0.3s ease';
         });
         
-        item.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-            this.style.boxShadow = 'none';
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
         });
     });
+    
+    // Add tooltip functionality for badges and metrics
+    function initializeTooltips() {
+        const tooltipElements = document.querySelectorAll('[title], .badge, .progress-bar');
+        tooltipElements.forEach(element => {
+            if (!element.getAttribute('title')) {
+                // Add contextual titles for badges and progress bars
+                if (element.classList.contains('badge')) {
+                    const text = element.textContent.trim();
+                    if (text.includes('%')) {
+                        element.setAttribute('title', 'Click for detailed breakdown');
+                    } else if (text.includes('d')) {
+                        element.setAttribute('title', 'Average processing time in days');
+                    }
+                }
+            }
+        });
+    }
+    
+    initializeTooltips();
+    
+    // Add click handlers for interactive elements
+    document.querySelectorAll('.badge, .metric-item').forEach(element => {
+        element.style.cursor = 'pointer';
+        element.addEventListener('click', function() {
+            // Add click feedback
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+        });
+    });
+    
+    console.log('Training Analytics Dashboard initialized successfully');
 });
+
+// Add CSS animations via JavaScript
+const style = document.createElement('style');
+style.textContent = `
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.6);
+        transform: scale(0);
+        animation: ripple-animation 0.6s linear;
+        pointer-events: none;
+        width: 100px;
+        height: 100px;
+        left: 50%;
+        top: 50%;
+        margin-left: -50px;
+        margin-top: -50px;
+    }
+    
+    @keyframes ripple-animation {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+    
+    .card {
+        transition: all 0.3s ease !important;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.15) !important;
+    }
+    
+    .progress-bar {
+        transition: width 1.5s ease-in-out !important;
+    }
+    
+    .metric-item:hover {
+        background: rgba(0,0,0,0.05) !important;
+    }
+    
+    .table-hover tbody tr {
+        transition: all 0.3s ease !important;
+    }
+    
+    .nav-pills .nav-link {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .insight-item {
+        transition: all 0.6s ease !important;
+    }
+    
+    @media (max-width: 768px) {
+        .card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    }
+`;
+document.head.appendChild(style);
 </script>
 @endsection
