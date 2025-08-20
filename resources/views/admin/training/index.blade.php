@@ -586,7 +586,8 @@
                 <span class="visually-hidden">Loading...</span>
             </div>`;
 
-        fetch(`/admin/training/${id}`)
+        // Update the fetch path to match the route
+        fetch(`/admin/training/requests/${id}`)
             .then(response => response.json())
             .then(response => {
                 if (!response.success) {
@@ -680,7 +681,8 @@
         updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
         updateButton.disabled = true;
 
-        fetch(`/admin/training/${id}/status`, {
+        // Update the fetch path to match the route
+        fetch(`/admin/training/requests/${id}/status`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -733,7 +735,8 @@
         const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
         modal.show();
 
-        fetch(`/admin/training/${id}`)
+        // Update the fetch path to match the route
+        fetch(`/admin/training/requests/${id}`)
             .then(response => response.json())
             .then(response => {
                 if (!response.success) {
