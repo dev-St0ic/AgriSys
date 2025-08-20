@@ -688,7 +688,7 @@ public function submitRsbsa(Request $request)
             ]);
 
             // Generate unique application number
-            $applicationNumber = 'TRN-' . date('Y') . '-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
+            $applicationNumber = 'TRAIN-' . date('Y') . '-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
 
             // Handle document uploads with better error handling
             $documentPaths = [];

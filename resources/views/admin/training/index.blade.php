@@ -581,14 +581,12 @@
 
     // Show update modal function
     function showUpdateModal(id, currentStatus) {
-        // Show loading state in modal
         document.getElementById('updateAppNumber').innerHTML = `
             <div class="spinner-border spinner-border-sm text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>`;
 
-        // First fetch the application details
-        fetch(`/admin/training-applications/${id}`)
+        fetch(`/admin/training/${id}`)
             .then(response => response.json())
             .then(response => {
                 if (!response.success) {
@@ -596,47 +594,33 @@
                 }
 
                 const data = response.data;
-                
-                // Populate the hidden field
                 document.getElementById('updateApplicationId').value = id;
-
-                // Populate application info display
+                
+                // Populate application info
                 document.getElementById('updateAppNumber').textContent = data.application_number;
                 document.getElementById('updateAppName').textContent = data.full_name;
                 document.getElementById('updateAppEmail').textContent = data.email;
                 document.getElementById('updateAppMobile').textContent = data.mobile_number;
                 document.getElementById('updateAppTraining').textContent = data.training_type_display;
-
-                // Show current status with badge styling
-                const currentStatusElement = document.getElementById('updateAppCurrentStatus');
-                currentStatusElement.innerHTML = `
+                document.getElementById('updateAppCurrentStatus').innerHTML = `
                     <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                // Set form values and store original values for comparison
+                // Set form values and store originals for comparison
                 const statusSelect = document.getElementById('newStatus');
                 const remarksTextarea = document.getElementById('remarks');
                 
                 statusSelect.value = data.status;
                 statusSelect.dataset.originalStatus = data.status;
-                
                 remarksTextarea.value = data.remarks || '';
                 remarksTextarea.dataset.originalRemarks = data.remarks || '';
 
-                // Remove any previous change indicators
+                // Reset visual indicators
                 statusSelect.classList.remove('form-changed');
                 remarksTextarea.classList.remove('form-changed');
                 statusSelect.parentElement.classList.remove('change-indicator', 'changed');
                 remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
 
-                // Add change indicator classes
-                statusSelect.parentElement.classList.add('change-indicator');
-                remarksTextarea.parentElement.classList.add('change-indicator');
-
-                // Reset update button state
-                const updateButton = document.querySelector('#updateModal .btn-primary');
-                updateButton.classList.remove('no-changes');
-
-                // Show the modal
+                // Show modal
                 const modal = new bootstrap.Modal(document.getElementById('updateModal'));
                 modal.show();
             })
@@ -696,7 +680,7 @@
         updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
         updateButton.disabled = true;
 
-        fetch(`/admin/training-applications/${id}/status`, {
+        fetch(`/admin/training/${id}/status`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -746,23 +730,19 @@
                 </div>
             </div>`;
 
-        // Show modal while loading
         const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
         modal.show();
 
-        // Fetch application details
-        fetch(`/admin/training-applications/${id}`)
+        fetch(`/admin/training/${id}`)
             .then(response => response.json())
             .then(response => {
-                console.log('Response:', response);
-
                 if (!response.success) {
                     throw new Error('Failed to load application details');
                 }
 
                 const data = response.data;
 
-                // Format the details HTML
+                // Format the details HTML with the same style as FishR
                 const remarksHtml = data.remarks ? `
                     <div class="col-12 mt-3">
                         <h6 class="border-bottom pb-2">Remarks</h6>
@@ -775,25 +755,44 @@
                         </div>
                     </div>` : '';
 
-                // Update modal content
                 document.getElementById('applicationDetails').innerHTML = `
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Personal Information</h6>
+                            <h6 class="border-bottom pb-2">Application Information</h6>
                             <p><strong>Application #:</strong> ${data.application_number}</p>
-                            <p><strong>Name:</strong> ${data.full_name}</p>
+                            <p><strong>Full Name:</strong> ${data.full_name}</p>
                             <p><strong>Mobile:</strong> ${data.mobile_number}</p>
-                            <p><strong>Email:</strong> ${data.email}</p>
+                            <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
                         </div>
                         <div class="col-md-6">
                             <h6 class="border-bottom pb-2">Training Information</h6>
                             <p><strong>Training Type:</strong> ${data.training_type_display}</p>
-                            <p><strong>Current Status:</strong> 
+                            <p><strong>Status:</strong> 
                                 <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
                             </p>
                             <p><strong>Date Applied:</strong> ${data.created_at}</p>
                             <p><strong>Last Updated:</strong> ${data.updated_at}</p>
                         </div>
+                        ${data.document_paths && data.document_paths.length > 0 ? `
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2">Supporting Documents</h6>
+                                <div class="row g-2">
+                                    ${data.document_paths.map((path, index) => `
+                                        <div class="col-md-4">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">Document ${index + 1}</h6>
+                                                    <button class="btn btn-sm btn-outline-primary" 
+                                                        onclick="viewDocuments(['${path}'])">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
                         ${remarksHtml}
                     </div>`;
             })
@@ -808,35 +807,43 @@
     }
 
     // View documents
-    function viewDocuments(documentPaths) {
+    function viewDocuments(paths) {
         const documentViewer = document.getElementById('documentViewer');
-        
-        if (!documentPaths || documentPaths.length === 0) {
-            documentViewer.innerHTML = '<p>No documents available.</p>';
-        } else {
-            let documentsHtml = '';
-            
-            documentPaths.forEach((path, index) => {
-                const fileExtension = path.split('.').pop().toLowerCase();
-                const fileName = path.split('/').pop();
-                
-                documentsHtml += `<div class="document-item">
-                    <h6>Document ${index + 1}: ${fileName}</h6>`;
-                
-                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                    documentsHtml += `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document ${index + 1}">`;
-                } else if (fileExtension === 'pdf') {
-                    documentsHtml += `<embed src="/storage/${path}" type="application/pdf" width="100%" height="400px">`;
-                } else {
-                    documentsHtml += `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
-                }
-                
-                documentsHtml += '</div>';
-            });
-            
-            documentViewer.innerHTML = documentsHtml;
-        }
+        let documentsHtml = '';
 
+        paths.forEach((path, index) => {
+            const fileExtension = path.split('.').pop().toLowerCase();
+            const fileName = path.split('/').pop();
+
+            documentsHtml += `
+                <div class="document-container mb-4">
+                    <h6 class="mb-3">Document ${index + 1}: ${fileName}</h6>`;
+
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                documentsHtml += `
+                    <div class="text-center">
+                        <img src="/storage/${path}" class="img-fluid" alt="Supporting Document">
+                    </div>`;
+            } else if (fileExtension === 'pdf') {
+                documentsHtml += `
+                    <div class="ratio ratio-16x9">
+                        <embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">
+                    </div>`;
+            } else {
+                documentsHtml += `
+                    <div class="alert alert-info">
+                        <i class="fas fa-file me-2"></i>
+                        Document type not supported for preview. 
+                        <a href="/storage/${path}" target="_blank" class="btn btn-sm btn-primary ms-2">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+                    </div>`;
+            }
+
+            documentsHtml += '</div>';
+        });
+
+        documentViewer.innerHTML = documentsHtml;
         const modal = new bootstrap.Modal(document.getElementById('documentModal'));
         modal.show();
     }
