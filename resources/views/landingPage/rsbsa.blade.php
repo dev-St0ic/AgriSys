@@ -25,9 +25,9 @@
             <label>Last Name *</label>
             <input type="text" name="last_name" placeholder="Enter your last name" required>
 
-            <label>Sex*</label>
+            <label>Sex *</label>
             <select name="sex" required>
-                <option value="" disabled>Select sex</option>
+                <option value="" disabled selected>Select Sex</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Preferred not to say">Preferred not to say</option>
@@ -35,7 +35,7 @@
 
             <label>Barangay *</label>
             <select name="barangay" required>
-                <option value="" disabled>Select barangay</option>
+                <option value="" disabled selected>Select Barangay</option>
                 <option value="Bagong Silang">Bagong Silang</option>
                 <option value="Cuyab">Cuyab</option>
                 <option value="Estrella">Estrella</option>
@@ -68,12 +68,12 @@
             <label>Mobile Number *</label>
             <input type="tel" name="mobile" placeholder="Enter your mobile number (e.g., 09123456789)" required>
 
-            <label>Email Address*</label>
+            <label>Email Address *</label>
             <input type="email" name="email" placeholder="Enter your email address" required>
 
             <label>Main Livelihood *</label>
             <select name="main_livelihood" required>
-                <option value="" disabled>Select livelihood</option>
+                <option value="" disabled selected>Select Livelihood</option>
                 <option value="Farmer">Farmer</option>
                 <option value="Farmworker/Laborer">Farmworker/Laborer</option>
                 <option value="Fisherfolk">Fisherfolk</option>

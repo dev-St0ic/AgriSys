@@ -1,4 +1,4 @@
-{{-- resources/views/admin/fishr_requests/index.blade.php --}}
+{{-- resources/views/admin/fishr/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'FishR Registrations - AgriSys Admin')

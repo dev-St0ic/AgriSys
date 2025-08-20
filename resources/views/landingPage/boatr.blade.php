@@ -56,7 +56,7 @@
             <div class="boatr-form-group">
                 <label for="boatr_boat_type">Boat Type *</label>
                 <select id="boatr_boat_type" name="boat_type" required onchange="handleBoatTypeChange(this)">
-                    <option value="" disabled>Select boat type</option>
+                    <option value="" disabled selected>Select Boat Type</option>
                     <option value="Spoon">Spoon</option>
                     <option value="Plumb">Plumb</option>
                     <option value="Banca">Banca</option>
@@ -94,7 +94,7 @@
             <div class="boatr-form-group">
                 <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used *</label>
                 <select id="boatr_primary_fishing_gear" name="primary_fishing_gear" required>
-                    <option value="" disabled>Select primary gear</option>
+                    <option value="" disabled selected>Select Primary Gear</option>
                     <option value="Hook and Line">Hook and Line</option>
                     <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
                     <option value="Fish Trap">Fish Trap</option>

@@ -49,7 +49,7 @@
             <div class="training-form-group">
                 <label for="training_type">Training Program *</label>
                 <select id="training_type" name="training_type" required>
-                    <option value="" disabled>Select a training program</option>
+                    <option value="" disabled selected>Select Training Program</option>
                     <option value="tilapia_hito">Tilapia and Hito Training</option>
                     <option value="hydroponics">Hydroponics Training</option>
                     <option value="aquaponics">Aquaponics Training</option>

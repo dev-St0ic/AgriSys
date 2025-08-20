@@ -69,12 +69,12 @@ class FishRController extends Controller
                 return response()->json([
                     'success' => true,
                     'data' => $registrations,
-                    'view' => view('admin.fishr_requests.partials.table', compact('registrations'))->render()
+                    'view' => view('admin.fishr.partials.table', compact('registrations'))->render()
                 ]);
             }
 
             // FIXED: Changed view path to match your actual file location
-            return view('admin.fishr_requests.index', compact(
+            return view('admin.fishr.index', compact(
                 'registrations',
                 'totalRegistrations',
                 'underReviewCount',

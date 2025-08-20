@@ -52,7 +52,7 @@
                 <div class="fishr-form-group">
                     <label for="sex">Sex *</label>
                     <select id="sex" name="sex" required>
-                        <option value="" disabled>Select sex</option>
+                        <option value="" disabled selected>Select Sex</option>
                         <option value="Male" {{ old('sex') == 'Male' ? 'selected' : '' }}>Male</option>
                         <option value="Female" {{ old('sex') == 'Female' ? 'selected' : '' }}>Female</option>
                         <option value="Preferred not to say" {{ old('sex') == 'Preferred not to say' ? 'selected' : '' }}>Preferred not to say</option>
@@ -65,7 +65,7 @@
                 <div class="fishr-form-group">
                     <label for="barangay">Barangay *</label>
                     <select id="barangay" name="barangay" required>
-                        <option value="" disabled>Select barangay</option>
+                        <option value="" disabled selected>Select Barangay</option>
                         <option value="Bagong Silang">Bagong Silang</option>
                         <option value="Cuyab">Cuyab</option>
                         <option value="Estrella">Estrella</option>
@@ -122,7 +122,7 @@
             <div class="fishr-form-group">
                 <label for="main_livelihood">Main Livelihood *</label>
                 <select id="main_livelihood" name="main_livelihood" required onchange="toggleOtherLivelihood(this)">
-                    <option value="" disabled>Select livelihood</option>
+                    <option value="" disabled selected>Select Livelihood</option>
                     <option value="capture">Capture Fishing</option>
                     <option value="aquaculture">Aquaculture</option>
                     <option value="vending">Fish Vending</option>

@@ -94,6 +94,82 @@ async function fetchWithCSRFRetry(url, options, retries = 1) {
     }
 }
 
+/**
+ * Check URL and show appropriate form on page load
+ */
+function shouldShowFishRForm() {
+    const currentPath = window.location.pathname;
+    const currentUrl = window.location.href;
+    
+    // Check for various FishR URL patterns
+    return currentPath === '/services/fishr' || 
+           currentPath.includes('/fishr') || 
+           currentUrl.includes('/services/fishr') ||
+           currentUrl.includes('#fishr');
+}
+
+function checkAndShowFishROnLoad() {
+    console.log('Checking if FishR form should be shown on page load...');
+    console.log('Current URL:', window.location.href);
+    console.log('Current pathname:', window.location.pathname);
+    
+    if (shouldShowFishRForm()) {
+        console.log('URL indicates FishR form should be shown - opening form');
+        
+        // Wait a bit for DOM to be fully ready
+        setTimeout(() => {
+            const formElement = document.getElementById('fishr-form');
+            if (formElement) {
+                console.log('FishR form element found, opening...');
+                openFormFishR({ type: 'load' });
+            } else {
+                console.log('FishR form element not found, retrying...');
+                // Retry after a bit more time
+                setTimeout(() => {
+                    const retryFormElement = document.getElementById('fishr-form');
+                    if (retryFormElement) {
+                        openFormFishR({ type: 'load' });
+                    } else {
+                        console.error('FishR form element still not found after retry');
+                    }
+                }, 500);
+            }
+        }, 100);
+    } else {
+        console.log('URL does not indicate FishR form should be shown');
+    }
+}
+
+/**
+ * Initialize FishR tabs - Based on RSBSA pattern
+ */
+function initializeFishRTabs() {
+    const fishrForm = document.getElementById('fishr-form');
+    if (!fishrForm) return;
+
+    // Hide all tab contents within FishR form
+    const allTabContents = fishrForm.querySelectorAll('.fishr-tab-content');
+    allTabContents.forEach(content => {
+        content.style.display = 'none';
+    });
+
+    // Remove active class from all buttons first
+    const allButtons = fishrForm.querySelectorAll('.fishr-tab-btn');
+    allButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Ensure Application Form tab is visible and its button is active
+    const firstTab = fishrForm.querySelector('.fishr-tab-content');
+    const firstButton = fishrForm.querySelector('.fishr-tab-btn');
+    
+    if (firstTab && firstButton) {
+        firstTab.style.display = 'block';
+        firstButton.classList.add('active');
+    }
+
+    console.log('FishR tabs initialized');
+}
 
 /**
  * Main tab switching function for FishR form
@@ -148,7 +224,9 @@ function showFishrTab(tabId, event) {
  * Opens the Fish Registration form
  */
 function openFormFishR(event) {
-    event.preventDefault();
+    if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+    }
     
     console.log('Opening FishR form');
     
@@ -159,13 +237,25 @@ function openFormFishR(event) {
     const formElement = document.getElementById('fishr-form');
     if (formElement) {
         formElement.style.display = 'block';
+
+        // Initialize tabs to show the first tab content
+        initializeFishRTabs();
         if (typeof activateApplicationTab === 'function') {
             activateApplicationTab('fishr-form');
         }
         
-        // Reset form and clear any previous messages
+         // Reset form and clear any previous messages (only if not from page load)
+        if (event && event.type !== 'load' && event.type !== 'DOMContentLoaded') {
         resetFishRForm();
+
+        // Re-initialize tabs after reset
+        initializeFishRTabs();
         
+        }   else {
+        // Just initialize tabs without resetting on page load
+        initializeFishRTabs();
+        }
+
         // Scroll to the fish registration form smoothly
         setTimeout(() => {
             const formElement = document.getElementById('fishr-form');
@@ -737,6 +827,9 @@ function activateApplicationTab(formId) {
  */
 function initializeFishRModule() {
     console.log('Initializing FishR module...');
+
+    // Check if we should show the FishR form based on URL
+    checkAndShowFishROnLoad();
     
     // Get initial CSRF token
     getCSRFToken();
@@ -772,6 +865,25 @@ function initializeFishRModule() {
     });
     
     console.log('FishR module initialized successfully');
+
+    /**
+ * Also handle window load event for additional safety*/
+    window.addEventListener('load', function() {
+        console.log('Window loaded, double-checking FishR form display');
+        
+        // Double-check and show form if needed
+        setTimeout(checkAndShowFishROnLoad, 300);
+    });
+
+    /**
+     * Handle page visibility change (when user returns to tab)
+     */
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && shouldShowFishRForm()) {
+            console.log('Page became visible and should show FishR form');
+            setTimeout(checkAndShowFishROnLoad, 100);
+        }
+    });
 }
 
 // Initialize when DOM is loaded
