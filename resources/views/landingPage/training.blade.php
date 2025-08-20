@@ -12,13 +12,8 @@
     </div>
 
     <div class="training-tab-content" id="training-form-tab" style="display: block;">
-        <!-- Success/Error Messages -->
-        <div id="training-messages" style="display: none;">
-            <div id="training-success-message" class="training-alert training-alert-success" style="display: none;"></div>
-            <div id="training-error-message" class="training-alert training-alert-danger" style="display: none;"></div>
-        </div>
-
         <form id="training-request-form" enctype="multipart/form-data">
+            @csrf  
             
             <div class="training-form-group">
                 <label for="training_first_name">First Name *</label>

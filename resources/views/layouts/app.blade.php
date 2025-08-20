@@ -110,6 +110,13 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.training.requests') ? 'active' : '' }}"
+                                        href="{{ route('admin.training.requests') }}">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                        Training Registrations
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}"
                                         href="{{ route('admin.inventory.index') }}">
                                         <i class="fas fa-warehouse me-2"></i>

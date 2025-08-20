@@ -8,6 +8,7 @@ use App\Http\Controllers\SeedlingRequestController;
 use App\Http\Controllers\FishRController;
 use App\Http\Controllers\BoatRController;
 use App\Http\Controllers\RsbsaController;
+use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\SeedlingAnalyticsController;
 use App\Http\Controllers\FishrAnalyticsController;
@@ -33,6 +34,7 @@ Route::post('/apply/rsbsa', [ApplicationController::class, 'submitRsbsa'])->name
 Route::post('/apply/seedlings', [ApplicationController::class, 'submitSeedlings'])->name('apply.seedlings');
 Route::post('/apply/fishr', [ApplicationController::class, 'submitFishR'])->name('apply.fishr');
 Route::post('/apply/boatr', [ApplicationController::class, 'submitBoatR'])->name('apply.boatr');
+Route::post('/apply/training', [ApplicationController::class, 'submitTraining'])->name('apply.training');
 
 // MAIN BoatR submission route (matches JavaScript call)
 Route::post('/submit-boatr', [ApplicationController::class, 'submitBoatR'])->name('submit.boatr');
@@ -128,6 +130,20 @@ Route::middleware('admin')->group(function () {
         
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
+    });
+
+    // ==============================================
+    // TRAINING REGISTRATIONS MANAGEMENT 
+    // ==============================================
+    Route::prefix('admin/training')->name('admin.training.')->group(function () {
+        
+        // Training Applications Management
+        Route::get('/requests', [TrainingController::class, 'index'])->name('requests');
+        Route::get('/requests/{id}', [TrainingController::class, 'show'])->name('requests.show');
+        Route::patch('/requests/{id}/status', [TrainingController::class, 'updateStatus'])->name('requests.update-status');
+        Route::delete('/requests/{id}', [TrainingController::class, 'destroy'])->name('requests.destroy');
+        
+        
     });
 
     // ==============================================

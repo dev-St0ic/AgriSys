@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
             FishrRequestSeeder::class,
             SeedlingRequestSeeder::class,
             BoatrRequestSeeder::class,
-            RsbsaApplicationSeeder::class
+            RsbsaApplicationSeeder::class,
+            TrainingApplicationSeeder::class
         ]);
     }
 }

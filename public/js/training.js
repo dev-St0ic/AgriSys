@@ -117,6 +117,9 @@ function initializeTrainingTabs() {
 function initializeTrainingModule() {
     console.log('Initializing Training module...');
 
+    // Get initial CSRF token
+    getTrainingCSRFToken();
+
     // Check if we should show the Training form based on URL
     checkAndShowTrainingOnLoad();
     
@@ -279,7 +282,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Simulate form submission (frontend only)
             setTimeout(() => {
-                showTrainingMessage('Application submitted successfully! You will be contacted regarding training schedule.', 'success');
                 trainingForm.reset();
                 
                 // Reset button state
@@ -304,7 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('Training form initialization completed');
 });
-
 
 // ==============================================
 // VALIDATION FUNCTIONS
@@ -382,12 +383,12 @@ function validateFiles(files) {
     
     for (let file of files) {
         if (file.size > maxSize) {
-            showTrainingMessage(`File "${file.name}" is too large. Maximum size is 5MB.`, 'error');
+            alert('❌ File "' + file.name + '" is too large. Maximum size is 5MB.');
             return false;
         }
         
         if (!allowedTypes.includes(file.type)) {
-            showTrainingMessage(`File "${file.name}" is not a supported format. Please upload PDF, JPG, or PNG files only.`, 'error');
+            alert('❌ File "' + file.name + '" is not a supported format. Please upload PDF, JPG, or PNG files only.');
             return false;
         }
     }
@@ -398,43 +399,6 @@ function validateFiles(files) {
 // ==============================================
 // ERROR HANDLING AND MESSAGING
 // ==============================================
-
-function showTrainingMessage(message, type) {
-    const messagesContainer = document.getElementById('training-messages');
-    const successMessage = document.getElementById('training-success-message');
-    const errorMessage = document.getElementById('training-error-message');
-    
-    if (!messagesContainer || !successMessage || !errorMessage) {
-        console.error('Training message elements not found');
-        return;
-    }
-    
-    // Hide all messages first
-    messagesContainer.style.display = 'none';
-    successMessage.style.display = 'none';
-    errorMessage.style.display = 'none';
-    
-    // Show appropriate message
-    if (type === 'success') {
-        successMessage.textContent = message;
-        successMessage.style.display = 'block';
-    } else {
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
-    }
-    
-    messagesContainer.style.display = 'block';
-    
-    // Scroll to message
-    messagesContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    // Auto-hide success messages after 5 seconds
-    if (type === 'success') {
-        setTimeout(() => {
-            messagesContainer.style.display = 'none';
-        }, 5000);
-    }
-}
 
 function showFieldError(fieldId, message) {
     const field = document.getElementById(fieldId);
@@ -607,3 +571,115 @@ function shouldShowTrainingForm() {
         history.replaceState({page: 'training'}, '', '/services/training');
     }
 })();
+
+/**
+ * Get fresh CSRF token
+ */
+async function refreshTrainingCSRFToken() {
+    try {
+        const response = await fetch('/csrf-token');
+        const data = await response.json();
+        csrfToken = data.csrf_token;
+        
+        // Update meta tag
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) {
+            metaTag.setAttribute('content', csrfToken);
+        }
+        
+        console.log('CSRF token refreshed for training');
+        return csrfToken;
+    } catch (error) {
+        console.error('Failed to refresh CSRF token:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get current CSRF token
+ */
+function getTrainingCSRFToken() {
+    if (csrfToken) return csrfToken;
+    
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (metaTag) {
+        csrfToken = metaTag.getAttribute('content');
+        return csrfToken;
+    }
+    
+    console.error('No CSRF token found');
+    return null;
+}
+
+/**
+ * Submit Training form with enhanced error handling and notifications
+ */
+function submitTrainingForm(event) {
+    event.preventDefault();
+    
+    const form = document.getElementById('training-request-form');
+    const formData = new FormData(form);
+
+    // Show loading state - matches FishR style
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+
+    fetch('/apply/training', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(response => {
+        if (response.success) {
+            // Show success alert - matches FishR exactly
+            alert('✅ ' + response.message + 
+                  (response.data.application_number ? 
+                   '\nApplication Number: ' + response.data.application_number : ''));
+
+            // Reset form
+            resetTrainingForm();
+            
+            // Close form after delay - same timing as FishR
+            setTimeout(() => {
+                closeFormTraining();
+            }, 2000);
+
+        } else {
+            // Show error alert - matches FishR exactly
+            if (response.errors) {
+                const errorList = Object.values(response.errors).flat();
+                alert('❌ Please correct the following:\n\n• ' + errorList.join('\n• '));
+                
+                // Show field errors
+                Object.keys(response.errors).forEach(field => {
+                    showFieldError(field, response.errors[field][0]);
+                });
+            } else {
+                alert('❌ ' + (response.message || 'An error occurred while submitting your application'));
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ An error occurred while submitting your application. Please try again.');
+    })
+    .finally(() => {
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    });
+}
+
+// Initialize form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const trainingForm = document.getElementById('training-request-form');
+    if (trainingForm) {
+        trainingForm.addEventListener('submit', submitTrainingForm);
+    }
+});
