@@ -68,7 +68,7 @@ class SeedlingRequestController extends Controller
         // Get unique barangays for filter dropdown
         $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
         
-        return view('admin.seedling_requests.index', compact(
+        return view('admin.seedlings.index', compact(
             'requests',
             'totalRequests',
             'underReviewCount', 
@@ -83,7 +83,7 @@ class SeedlingRequestController extends Controller
      */
     public function show(SeedlingRequest $seedlingRequest)
     {
-        return view('admin.seedling_requests.show', compact('seedlingRequest'));
+        return view('admin.seedlings.show', compact('seedlingRequest'));
     }
 
     /**

@@ -1,4 +1,4 @@
-{{-- resources/views/admin/seedling_requests/index.blade.php --}}
+{{-- resources/views/admin/seedlings/index.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'Seedling Requests - AgriSys Admin')
