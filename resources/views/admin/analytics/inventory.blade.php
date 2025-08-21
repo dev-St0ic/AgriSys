@@ -1601,11 +1601,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showNotification('An error occurred. Some features may not work properly.', 'error');
     });
     
-    // Success message on page load
-    setTimeout(() => {
-        const chartsLoaded = Object.keys(chartInstances).length;
-        showNotification(`Inventory analytics loaded successfully! (${chartsLoaded} charts initialized)`, 'success');
-    }, 1000);
     
     console.log('Inventory Analytics Dashboard initialized successfully');
     console.log('Available charts:', Object.keys(chartInstances));
