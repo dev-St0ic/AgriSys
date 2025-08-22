@@ -1,4 +1,5 @@
 {{-- resources/views/admin/seedlings/index.blade.php --}}
+
 @extends('layouts.app')
 
 @section('title', 'Seedling Requests - AgriSys Admin')
@@ -8,7 +9,7 @@
     <div class="container-fluid">
         <!-- Statistics Cards -->
         <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-4">
+            <div class="col-xl-2 col-md-4 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
@@ -26,7 +27,7 @@
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6 mb-4">
+            <div class="col-xl-2 col-md-4 mb-4">
                 <div class="card border-left-warning shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
@@ -44,13 +45,13 @@
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6 mb-4">
+            <div class="col-xl-2 col-md-4 mb-4">
                 <div class="card border-left-success shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Approved
+                                    Fully Approved
                                 </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $approvedCount }}</div>
                             </div>
@@ -62,7 +63,25 @@
                 </div>
             </div>
 
-            <div class="col-xl-3 col-md-6 mb-4">
+            <div class="col-xl-2 col-md-4 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Partially Approved
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $partiallyApprovedCount ?? 0 }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-double fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-2 col-md-4 mb-4">
                 <div class="card border-left-danger shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
@@ -89,14 +108,16 @@
                 </h6>
             </div>
             <div class="card-body">
-                <form method="GET" action="{{ route('admin.seedling.requests') }}" id="filterForm">
+                <form method="GET" action="{{ route('admin.seedlings.requests') }}" id="filterForm">
                     <div class="row">
                         <div class="col-md-2">
                             <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Status</option>
                                 <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
                                     Under Review</option>
-                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Fully Approved
+                                </option>
+                                <option value="partially_approved" {{ request('status') == 'partially_approved' ? 'selected' : '' }}>Partially Approved
                                 </option>
                                 <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected
                                 </option>
@@ -129,7 +150,7 @@
                                 oninput="autoSearch()" id="searchInput">
                         </div>
                         <div class="col-md-2">
-                            <a href="{{ route('admin.seedling.requests') }}" class="btn btn-secondary btn-sm w-100">
+                            <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-secondary btn-sm w-100">
                                 <i class="fas fa-times"></i> Clear
                             </a>
                         </div>
@@ -148,12 +169,11 @@
                                     <th>Request #</th>
                                     <th>Name</th>
                                     <th>Contact</th>
-                                    <th>Email</th>
                                     <th>Barangay</th>
-                                    <th>Items Requested</th>
-                                    <th>Total Qty</th>
-                                    <th>Inventory Status</th>
-                                    <th>Status</th>
+                                    <th>Vegetables</th>
+                                    <th>Fruits</th>
+                                    <th>Fertilizers</th>
+                                    <th>Overall Status</th>
                                     <th>Date Applied</th>
                                     <th>Actions</th>
                                 </tr>
@@ -166,72 +186,144 @@
                                         </td>
                                         <td>{{ $request->full_name }}</td>
                                         <td>{{ $request->contact_number }}</td>
-                                        <td>{{ $request->email ?? 'N/A' }}</td>
                                         <td>{{ $request->barangay }}</td>
+                                        
+                                        <!-- Vegetables Column -->
                                         <td>
                                             @if ($request->vegetables && count($request->vegetables) > 0)
+                                                @php
+                                                    $vegStatus = $request->vegetables_status ?? 'under_review';
+                                                    $vegCheck = $request->checkCategoryInventoryAvailability('vegetables');
+                                                @endphp
+                                                
                                                 <div class="mb-1">
-                                                    <strong style="color: #28a745;">🌱 Vegetables:</strong><br>
                                                     <small>{{ $request->formatted_vegetables }}</small>
                                                 </div>
+                                                
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <!-- Status Badge -->
+                                                    <span class="badge bg-{{ match($vegStatus) {
+                                                        'approved' => 'success',
+                                                        'rejected' => 'danger',
+                                                        'under_review' => 'secondary',
+                                                        default => 'secondary'
+                                                    } }} fs-6">
+                                                        {{ ucfirst(str_replace('_', ' ', $vegStatus)) }}
+                                                    </span>
+                                                    
+                                                    <!-- Inventory Status -->
+                                                    @if ($vegStatus !== 'approved')
+                                                        @if ($vegCheck['can_fulfill'])
+                                                            <span class="badge bg-success fs-6" title="Stock Available">
+                                                                <i class="fas fa-check"></i>
+                                                            </span>
+                                                        @else
+                                                            <span class="badge bg-danger fs-6" title="Low Stock">
+                                                                <i class="fas fa-exclamation-triangle"></i>
+                                                            </span>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="text-muted">-</span>
                                             @endif
-
+                                        </td>
+                                        
+                                        <!-- Fruits Column -->
+                                        <td>
                                             @if ($request->fruits && count($request->fruits) > 0)
+                                                @php
+                                                    $fruitStatus = $request->fruits_status ?? 'under_review';
+                                                    $fruitCheck = $request->checkCategoryInventoryAvailability('fruits');
+                                                @endphp
+                                                
                                                 <div class="mb-1">
-                                                    <strong style="color: #17a2b8;">🍎 Fruits:</strong><br>
                                                     <small>{{ $request->formatted_fruits }}</small>
                                                 </div>
+                                                
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <!-- Status Badge -->
+                                                    <span class="badge bg-{{ match($fruitStatus) {
+                                                        'approved' => 'success',
+                                                        'rejected' => 'danger',
+                                                        'under_review' => 'secondary',
+                                                        default => 'secondary'
+                                                    } }} fs-6">
+                                                        {{ ucfirst(str_replace('_', ' ', $fruitStatus)) }}
+                                                    </span>
+                                                    
+                                                    <!-- Inventory Status -->
+                                                    @if ($fruitStatus !== 'approved')
+                                                        @if ($fruitCheck['can_fulfill'])
+                                                            <span class="badge bg-success fs-6" title="Stock Available">
+                                                                <i class="fas fa-check"></i>
+                                                            </span>
+                                                        @else
+                                                            <span class="badge bg-danger fs-6" title="Low Stock">
+                                                                <i class="fas fa-exclamation-triangle"></i>
+                                                            </span>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <span class="text-muted">-</span>
                                             @endif
-
+                                        </td>
+                                        
+                                        <!-- Fertilizers Column -->
+                                        <td>
                                             @if ($request->fertilizers && count($request->fertilizers) > 0)
+                                                @php
+                                                    $fertStatus = $request->fertilizers_status ?? 'under_review';
+                                                    $fertCheck = $request->checkCategoryInventoryAvailability('fertilizers');
+                                                @endphp
+                                                
                                                 <div class="mb-1">
-                                                    <strong style="color: #ffc107;">🌿 Fertilizers:</strong><br>
                                                     <small>{{ $request->formatted_fertilizers }}</small>
                                                 </div>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-primary fs-6 px-3 py-2">
-                                                {{ $request->total_quantity ?? $request->requested_quantity }} pcs
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @php
-                                                $inventoryStatus = $request->checkInventoryAvailability();
-                                                $canFulfill = $inventoryStatus['can_fulfill'] ?? false;
-                                                $unavailableItems = $inventoryStatus['unavailable_items'] ?? [];
-                                            @endphp
-
-                                            @if ($request->status === 'approved')
-                                                <span class="badge bg-secondary fs-6 px-2 py-1">
-                                                    <i class="fas fa-check"></i> Deducted
-                                                </span>
-                                            @elseif($canFulfill)
-                                                <span class="badge bg-success fs-6 px-2 py-1">
-                                                    <i class="fas fa-check"></i> Available
-                                                </span>
+                                                
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <!-- Status Badge -->
+                                                    <span class="badge bg-{{ match($fertStatus) {
+                                                        'approved' => 'success',
+                                                        'rejected' => 'danger',
+                                                        'under_review' => 'secondary',
+                                                        default => 'secondary'
+                                                    } }} fs-6">
+                                                        {{ ucfirst(str_replace('_', ' ', $fertStatus)) }}
+                                                    </span>
+                                                    
+                                                    <!-- Inventory Status -->
+                                                    @if ($fertStatus !== 'approved')
+                                                        @if ($fertCheck['can_fulfill'])
+                                                            <span class="badge bg-success fs-6" title="Stock Available">
+                                                                <i class="fas fa-check"></i>
+                                                            </span>
+                                                        @else
+                                                            <span class="badge bg-danger fs-6" title="Low Stock">
+                                                                <i class="fas fa-exclamation-triangle"></i>
+                                                            </span>
+                                                        @endif
+                                                    @endif
+                                                </div>
                                             @else
-                                                <span class="badge bg-danger fs-6 px-2 py-1">
-                                                    <i class="fas fa-exclamation-triangle"></i> Low Stock
-                                                </span>
-                                                @if (count($unavailableItems) > 0)
-                                                    <br><small class="text-danger">
-                                                        Short:
-                                                        {{ implode(
-                                                            ', ',
-                                                            array_map(function ($item) {
-                                                                return $item['name'] . ' (need ' . $item['needed'] . ', have ' . $item['available'] . ')';
-                                                            }, $unavailableItems),
-                                                        ) }}
-                                                    </small>
-                                                @endif
+                                                <span class="text-muted">-</span>
                                             @endif
                                         </td>
+                                        
+                                        <!-- Overall Status -->
                                         <td>
-                                            <span class="badge bg-{{ $request->status_color }} fs-6 px-3 py-2">
-                                                {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                            <span class="badge bg-{{ match($request->overall_status) {
+                                                'approved' => 'success',
+                                                'partially_approved' => 'warning',
+                                                'rejected' => 'danger',
+                                                'under_review' => 'secondary',
+                                                default => 'secondary'
+                                            } }} fs-6 px-3 py-2">
+                                                {{ ucfirst(str_replace('_', ' ', $request->overall_status)) }}
                                             </span>
                                         </td>
+                                        
                                         <td>{{ $request->created_at->format('M d, Y g:i A') }}</td>
                                         <td>
                                             <div class="btn-group" role="group">
@@ -242,7 +334,7 @@
                                                 </button>
                                                 <button type="button" class="btn btn-sm btn-outline-success"
                                                     data-bs-toggle="modal"
-                                                    data-bs-target="#statusModal{{ $request->id }}">
+                                                    data-bs-target="#categoryModal{{ $request->id }}">
                                                     <i class="fas fa-edit"></i> Update
                                                 </button>
 
@@ -281,9 +373,15 @@
                                                             <h6>Request Information</h6>
                                                             <p><strong>Total Quantity:</strong>
                                                                 {{ $request->total_quantity }} pcs</p>
-                                                            <p><strong>Status:</strong>
-                                                                <span class="badge bg-{{ $request->status_color }}">
-                                                                    {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                                            <p><strong>Overall Status:</strong>
+                                                                <span class="badge bg-{{ match($request->overall_status) {
+                                                                    'approved' => 'success',
+                                                                    'partially_approved' => 'warning',
+                                                                    'rejected' => 'danger',
+                                                                    'under_review' => 'secondary',
+                                                                    default => 'secondary'
+                                                                } }}">
+                                                                    {{ ucfirst(str_replace('_', ' ', $request->overall_status)) }}
                                                                 </span>
                                                             </p>
                                                             <p><strong>Date Submitted:</strong>
@@ -296,188 +394,296 @@
 
                                                     <hr>
 
-                                                    <h6>Inventory Availability</h6>
-                                                    @php
-                                                        $inventoryStatus = $request->checkInventoryAvailability();
-                                                        $canFulfill = $inventoryStatus['can_fulfill'] ?? false;
-                                                        $unavailableItems = $inventoryStatus['unavailable_items'] ?? [];
-                                                        $availableItems = $inventoryStatus['available_items'] ?? [];
-                                                    @endphp
-
-                                                    @if ($request->status === 'approved')
-                                                        <div class="alert alert-success">
-                                                            <i class="fas fa-check-circle"></i> This request has been
-                                                            approved and inventory has been deducted.
-                                                        </div>
-                                                    @elseif($canFulfill)
-                                                        <div class="alert alert-success">
-                                                            <i class="fas fa-check-circle"></i> All requested items are
-                                                            available in inventory.
-                                                        </div>
-                                                    @else
-                                                        <div class="alert alert-warning">
-                                                            <i class="fas fa-exclamation-triangle"></i> Some items have
-                                                            insufficient stock for approval.
-                                                        </div>
-                                                    @endif
-
-                                                    @if (count($availableItems) > 0)
-                                                        <div class="mb-3">
-                                                            <strong class="text-success">✓ Available Items:</strong>
-                                                            <ul class="list-unstyled mt-2">
-                                                                @foreach ($availableItems as $item)
-                                                                    <li class="text-success">
-                                                                        <i class="fas fa-check"></i> {{ $item['name'] }}
-                                                                        ({{ $item['available'] }} available,
-                                                                        {{ $item['needed'] }} needed)
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
-                                                    @endif
-
-                                                    @if (count($unavailableItems) > 0)
-                                                        <div class="mb-3">
-                                                            <strong class="text-danger">⚠ Insufficient Stock:</strong>
-                                                            <ul class="list-unstyled mt-2">
-                                                                @foreach ($unavailableItems as $item)
-                                                                    <li class="text-danger">
-                                                                        <i class="fas fa-times"></i> {{ $item['name'] }}
-                                                                        ({{ $item['available'] }} available,
-                                                                        {{ $item['needed'] }} needed)
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
-                                                    @endif
-
-                                                    <hr>
-
-                                                    <h6>Selected Items</h6>
+                                                    <h6>Category Status & Inventory</h6>
+                                                    
+                                                    <!-- Vegetables -->
                                                     @if ($request->vegetables && count($request->vegetables) > 0)
-                                                        <p><strong>🌱 Vegetables:</strong>
-                                                            {{ $request->formatted_vegetables }}</p>
+                                                        @php
+                                                            $vegStatus = $request->vegetables_status ?? 'under_review';
+                                                            $vegCheck = $request->checkCategoryInventoryAvailability('vegetables');
+                                                        @endphp
+                                                        <div class="mb-3 p-3 border rounded">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <strong class="text-success">🌱 Vegetables</strong>
+                                                                <span class="badge bg-{{ match($vegStatus) {
+                                                                    'approved' => 'success',
+                                                                    'rejected' => 'danger',
+                                                                    'under_review' => 'secondary',
+                                                                    default => 'secondary'
+                                                                } }}">
+                                                                    {{ ucfirst(str_replace('_', ' ', $vegStatus)) }}
+                                                                </span>
+                                                            </div>
+                                                            <p><small>{{ $request->formatted_vegetables }}</small></p>
+                                                            
+                                                            @if ($vegStatus !== 'approved')
+                                                                @if ($vegCheck['can_fulfill'])
+                                                                    <div class="alert alert-success alert-sm">
+                                                                        <i class="fas fa-check-circle"></i> All items available in stock
+                                                                    </div>
+                                                                @else
+                                                                    <div class="alert alert-warning alert-sm">
+                                                                        <i class="fas fa-exclamation-triangle"></i> Some items have insufficient stock
+                                                                        @if (count($vegCheck['unavailable_items']) > 0)
+                                                                            <ul class="mt-1 mb-0">
+                                                                                @foreach ($vegCheck['unavailable_items'] as $item)
+                                                                                    <li>{{ $item['name'] }}: {{ $item['available'] }} available, {{ $item['needed'] }} needed</li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                            @else
+                                                                <div class="alert alert-info alert-sm">
+                                                                    <i class="fas fa-check"></i> Approved and inventory deducted
+                                                                </div>
+                                                            @endif
+                                                        </div>
                                                     @endif
+                                                    
+                                                    <!-- Fruits -->
                                                     @if ($request->fruits && count($request->fruits) > 0)
-                                                        <p><strong>🍎 Fruits:</strong> {{ $request->formatted_fruits }}</p>
+                                                        @php
+                                                            $fruitStatus = $request->fruits_status ?? 'under_review';
+                                                            $fruitCheck = $request->checkCategoryInventoryAvailability('fruits');
+                                                        @endphp
+                                                        <div class="mb-3 p-3 border rounded">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <strong class="text-info">🍎 Fruits</strong>
+                                                                <span class="badge bg-{{ match($fruitStatus) {
+                                                                    'approved' => 'success',
+                                                                    'rejected' => 'danger',
+                                                                    'under_review' => 'secondary',
+                                                                    default => 'secondary'
+                                                                } }}">
+                                                                    {{ ucfirst(str_replace('_', ' ', $fruitStatus)) }}
+                                                                </span>
+                                                            </div>
+                                                            <p><small>{{ $request->formatted_fruits }}</small></p>
+                                                            
+                                                            @if ($fruitStatus !== 'approved')
+                                                                @if ($fruitCheck['can_fulfill'])
+                                                                    <div class="alert alert-success alert-sm">
+                                                                        <i class="fas fa-check-circle"></i> All items available in stock
+                                                                    </div>
+                                                                @else
+                                                                    <div class="alert alert-warning alert-sm">
+                                                                        <i class="fas fa-exclamation-triangle"></i> Some items have insufficient stock
+                                                                        @if (count($fruitCheck['unavailable_items']) > 0)
+                                                                            <ul class="mt-1 mb-0">
+                                                                                @foreach ($fruitCheck['unavailable_items'] as $item)
+                                                                                    <li>{{ $item['name'] }}: {{ $item['available'] }} available, {{ $item['needed'] }} needed</li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                            @else
+                                                                <div class="alert alert-info alert-sm">
+                                                                    <i class="fas fa-check"></i> Approved and inventory deducted
+                                                                </div>
+                                                            @endif
+                                                        </div>
                                                     @endif
+                                                    
+                                                    <!-- Fertilizers -->
                                                     @if ($request->fertilizers && count($request->fertilizers) > 0)
-                                                        <p><strong>🌿 Fertilizers:</strong>
-                                                            {{ $request->formatted_fertilizers }}</p>
+                                                        @php
+                                                            $fertStatus = $request->fertilizers_status ?? 'under_review';
+                                                            $fertCheck = $request->checkCategoryInventoryAvailability('fertilizers');
+                                                        @endphp
+                                                        <div class="mb-3 p-3 border rounded">
+                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                <strong class="text-warning">🌿 Fertilizers</strong>
+                                                                <span class="badge bg-{{ match($fertStatus) {
+                                                                    'approved' => 'success',
+                                                                    'rejected' => 'danger',
+                                                                    'under_review' => 'secondary',
+                                                                    default => 'secondary'
+                                                                } }}">
+                                                                    {{ ucfirst(str_replace('_', ' ', $fertStatus)) }}
+                                                                </span>
+                                                            </div>
+                                                            <p><small>{{ $request->formatted_fertilizers }}</small></p>
+                                                            
+                                                            @if ($fertStatus !== 'approved')
+                                                                @if ($fertCheck['can_fulfill'])
+                                                                    <div class="alert alert-success alert-sm">
+                                                                        <i class="fas fa-check-circle"></i> All items available in stock
+                                                                    </div>
+                                                                @else
+                                                                    <div class="alert alert-warning alert-sm">
+                                                                        <i class="fas fa-exclamation-triangle"></i> Some items have insufficient stock
+                                                                        @if (count($fertCheck['unavailable_items']) > 0)
+                                                                            <ul class="mt-1 mb-0">
+                                                                                @foreach ($fertCheck['unavailable_items'] as $item)
+                                                                                    <li>{{ $item['name'] }}: {{ $item['available'] }} available, {{ $item['needed'] }} needed</li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                            @else
+                                                                <div class="alert alert-info alert-sm">
+                                                                    <i class="fas fa-check"></i> Approved and inventory deducted
+                                                                </div>
+                                                            @endif
+                                                        </div>
                                                     @endif
 
                                                     @if ($request->hasDocuments())
                                                         <hr>
                                                         <h6>Supporting Documents</h6>
                                                         <p>
-                                                            @if (($request->total_quantity ?? $request->requested_quantity) >= 100)
-                                                                <span class="badge bg-success mb-2">Required Document
-                                                                    Provided</span><br>
-                                                            @else
-                                                                <span class="badge bg-info mb-2">Optional Document
-                                                                    Provided</span><br>
-                                                            @endif
                                                             <a href="{{ $request->document_url }}" target="_blank"
                                                                 class="btn btn-sm btn-outline-primary">
                                                                 <i class="fas fa-file-alt"></i> View Document
                                                             </a>
                                                         </p>
-                                                    @else
-                                                        @if (($request->total_quantity ?? $request->requested_quantity) >= 100)
-                                                            <hr>
-                                                            <h6>Supporting Documents</h6>
-                                                            <div class="alert alert-warning">
-                                                                <i class="fas fa-exclamation-triangle"></i>
-                                                                Required supporting document is missing for this request
-                                                                (>100 pcs).
-                                                            </div>
-                                                        @endif
                                                     @endif
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Status Update Modal -->
-                                    <div class="modal fade" id="statusModal{{ $request->id }}" tabindex="-1">
-                                        <div class="modal-dialog">
+                                    <!-- Category-specific Update Modal -->
+                                    <div class="modal fade" id="categoryModal{{ $request->id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-lg">
                                             <div class="modal-content">
-                                                <form method="POST"
-                                                    action="{{ route('admin.seedling.update-status', $request) }}">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Update Status -
-                                                            {{ $request->request_number }}</h5>
-                                                        <button type="button" class="btn-close"
-                                                            data-bs-dismiss="modal"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        @php
-                                                            $inventoryCheck = $request->checkInventoryAvailability();
-                                                            $canFulfill = $inventoryCheck['can_fulfill'] ?? false;
-                                                            $unavailableItems =
-                                                                $inventoryCheck['unavailable_items'] ?? [];
-                                                        @endphp
-
-                                                        @if (!$canFulfill && count($unavailableItems) > 0 && $request->status !== 'approved')
-                                                            <div class="alert alert-warning">
-                                                                <i class="fas fa-exclamation-triangle"></i>
-                                                                <strong>Inventory Warning:</strong> Some items have
-                                                                insufficient stock.
-                                                                <ul class="mt-2 mb-0">
-                                                                    @foreach ($unavailableItems as $item)
-                                                                        <li>{{ $item['name'] }}: {{ $item['available'] }}
-                                                                            available, {{ $item['needed'] }} needed</li>
-                                                                    @endforeach
-                                                                </ul>
-                                                                <small class="text-muted">Cannot approve until inventory is
-                                                                    restocked.</small>
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Update Categories - {{ $request->request_number }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form method="POST" action="{{ route('admin.seedlings.bulk-update-categories', $request) }}" id="categoryForm{{ $request->id }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        
+                                                        <!-- Vegetables Section -->
+                                                        @if ($request->vegetables && count($request->vegetables) > 0)
+                                                            @php
+                                                                $vegCheck = $request->checkCategoryInventoryAvailability('vegetables');
+                                                                $vegStatus = $request->vegetables_status ?? 'under_review';
+                                                            @endphp
+                                                            <div class="mb-4 p-3 border rounded">
+                                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                    <h6 class="mb-0 text-success">🌱 Vegetables</h6>
+                                                                    <span class="badge bg-{{ $vegCheck['can_fulfill'] ? 'success' : 'danger' }}">
+                                                                        {{ $vegCheck['can_fulfill'] ? 'Stock Available' : 'Low Stock' }}
+                                                                    </span>
+                                                                </div>
+                                                                
+                                                                <p class="mb-2"><small>{{ $request->formatted_vegetables }}</small></p>
+                                                                
+                                                                <input type="hidden" name="categories[]" value="vegetables">
+                                                                <select name="statuses[]" class="form-select form-select-sm">
+                                                                    <option value="under_review" {{ $vegStatus == 'under_review' ? 'selected' : '' }}>Under Review</option>
+                                                                    <option value="approved" {{ $vegStatus == 'approved' ? 'selected' : '' }} {{ !$vegCheck['can_fulfill'] ? 'disabled' : '' }}>
+                                                                        Approved {{ !$vegCheck['can_fulfill'] ? '(Insufficient Stock)' : '' }}
+                                                                    </option>
+                                                                    <option value="rejected" {{ $vegStatus == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                                                </select>
+                                                                
+                                                                @if (!$vegCheck['can_fulfill'])
+                                                                    <div class="alert alert-warning mt-2 alert-sm">
+                                                                        <small>
+                                                                            <i class="fas fa-exclamation-triangle"></i> Insufficient stock:
+                                                                            @foreach ($vegCheck['unavailable_items'] as $item)
+                                                                                {{ $item['name'] }} (need {{ $item['needed'] }}, have {{ $item['available'] }}){{ !$loop->last ? ', ' : '' }}
+                                                                            @endforeach
+                                                                        </small>
+                                                                    </div>
+                                                                @endif
                                                             </div>
                                                         @endif
 
-                                                        <div class="mb-3">
-                                                            <label for="status{{ $request->id }}"
-                                                                class="form-label">Status</label>
-                                                            <select name="status" id="status{{ $request->id }}"
-                                                                class="form-select" required>
-                                                                <option value="under_review"
-                                                                    {{ $request->status == 'under_review' ? 'selected' : '' }}>
-                                                                    Under Review</option>
-                                                                <option value="approved"
-                                                                    {{ $request->status == 'approved' ? 'selected' : '' }}>
-                                                                    Approved</option>
-                                                                <option value="rejected"
-                                                                    {{ $request->status == 'rejected' ? 'selected' : '' }}>
-                                                                    Rejected</option>
-                                                            </select>
-                                                        </div>
+                                                        <!-- Fruits Section -->
+                                                        @if ($request->fruits && count($request->fruits) > 0)
+                                                            @php
+                                                                $fruitCheck = $request->checkCategoryInventoryAvailability('fruits');
+                                                                $fruitStatus = $request->fruits_status ?? 'under_review';
+                                                            @endphp
+                                                            <div class="mb-4 p-3 border rounded">
+                                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                    <h6 class="mb-0 text-info">🍎 Fruits</h6>
+                                                                    <span class="badge bg-{{ $fruitCheck['can_fulfill'] ? 'success' : 'danger' }}">
+                                                                        {{ $fruitCheck['can_fulfill'] ? 'Stock Available' : 'Low Stock' }}
+                                                                    </span>
+                                                                </div>
+                                                                
+                                                                <p class="mb-2"><small>{{ $request->formatted_fruits }}</small></p>
+                                                                
+                                                                <input type="hidden" name="categories[]" value="fruits">
+                                                                <select name="statuses[]" class="form-select form-select-sm">
+                                                                    <option value="under_review" {{ $fruitStatus == 'under_review' ? 'selected' : '' }}>Under Review</option>
+                                                                    <option value="approved" {{ $fruitStatus == 'approved' ? 'selected' : '' }} {{ !$fruitCheck['can_fulfill'] ? 'disabled' : '' }}>
+                                                                        Approved {{ !$fruitCheck['can_fulfill'] ? '(Insufficient Stock)' : '' }}
+                                                                    </option>
+                                                                    <option value="rejected" {{ $fruitStatus == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                                                </select>
+                                                                
+                                                                @if (!$fruitCheck['can_fulfill'])
+                                                                    <div class="alert alert-warning mt-2 alert-sm">
+                                                                        <small>
+                                                                            <i class="fas fa-exclamation-triangle"></i> Insufficient stock:
+                                                                            @foreach ($fruitCheck['unavailable_items'] as $item)
+                                                                                {{ $item['name'] }} (need {{ $item['needed'] }}, have {{ $item['available'] }}){{ !$loop->last ? ', ' : '' }}
+                                                                            @endforeach
+                                                                        </small>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        @endif
 
-                                                        <div class="mb-3">
-                                                            <label for="approved_quantity{{ $request->id }}"
-                                                                class="form-label">Approved Quantity</label>
-                                                            <input type="number" name="approved_quantity"
-                                                                id="approved_quantity{{ $request->id }}"
-                                                                class="form-control"
-                                                                value="{{ $request->approved_quantity ?? $request->total_quantity }}"
-                                                                min="1" max="{{ $request->total_quantity }}">
-                                                            <small class="text-muted">Max: {{ $request->total_quantity }}
-                                                                pcs</small>
-                                                        </div>
+                                                        <!-- Fertilizers Section -->
+                                                        @if ($request->fertilizers && count($request->fertilizers) > 0)
+                                                            @php
+                                                                $fertCheck = $request->checkCategoryInventoryAvailability('fertilizers');
+                                                                $fertStatus = $request->fertilizers_status ?? 'under_review';
+                                                            @endphp
+                                                            <div class="mb-4 p-3 border rounded">
+                                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                    <h6 class="mb-0 text-warning">Fertilizers</h6>
+                                                                    <span class="badge bg-{{ $fertCheck['can_fulfill'] ? 'success' : 'danger' }}">
+                                                                        {{ $fertCheck['can_fulfill'] ? 'Stock Available' : 'Low Stock' }}
+                                                                    </span>
+                                                                </div>
+                                                                
+                                                                <p class="mb-2"><small>{{ $request->formatted_fertilizers }}</small></p>
+                                                                
+                                                                <input type="hidden" name="categories[]" value="fertilizers">
+                                                                <select name="statuses[]" class="form-select form-select-sm">
+                                                                    <option value="under_review" {{ $fertStatus == 'under_review' ? 'selected' : '' }}>Under Review</option>
+                                                                    <option value="approved" {{ $fertStatus == 'approved' ? 'selected' : '' }} {{ !$fertCheck['can_fulfill'] ? 'disabled' : '' }}>
+                                                                        Approved {{ !$fertCheck['can_fulfill'] ? '(Insufficient Stock)' : '' }}
+                                                                    </option>
+                                                                    <option value="rejected" {{ $fertStatus == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                                                </select>
+                                                                
+                                                                @if (!$fertCheck['can_fulfill'])
+                                                                    <div class="alert alert-warning mt-2 alert-sm">
+                                                                        <small>
+                                                                            <i class="fas fa-exclamation-triangle"></i> Insufficient stock:
+                                                                            @foreach ($fertCheck['unavailable_items'] as $item)
+                                                                                {{ $item['name'] }} (need {{ $item['needed'] }}, have {{ $item['available'] }}){{ !$loop->last ? ', ' : '' }}
+                                                                            @endforeach
+                                                                        </small>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                        @endif
 
+                                                        <!-- General Remarks -->
                                                         <div class="mb-3">
-                                                            <label for="remarks{{ $request->id }}"
-                                                                class="form-label">Remarks</label>
-                                                            <textarea name="remarks" id="remarks{{ $request->id }}" class="form-control" rows="3">{{ $request->remarks }}</textarea>
+                                                            <label for="remarks{{ $request->id }}" class="form-label">General Remarks</label>
+                                                            <textarea name="remarks" id="remarks{{ $request->id }}" class="form-control" rows="3" placeholder="Add any general comments or notes...">{{ $request->remarks }}</textarea>
                                                         </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="submit" class="btn btn-primary">Update
-                                                            Status</button>
-                                                    </div>
-                                                </form>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" form="categoryForm{{ $request->id }}" class="btn btn-primary">Update Categories</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -561,7 +767,7 @@
                         @endif
                     </p>
                     @if (request('search') || request('status'))
-                        <a href="{{ route('admin.seedling.requests') }}" class="btn btn-outline-primary">
+                        <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-outline-primary">
                             <i class="fas fa-times"></i> Clear Filters
                         </a>
                     @endif
@@ -596,6 +802,10 @@
             border-left: 0.25rem solid #1cc88a !important;
         }
 
+        .border-left-info {
+            border-left: 0.25rem solid #36b9cc !important;
+        }
+
         .border-left-warning {
             border-left: 0.25rem solid #f6c23e !important;
         }
@@ -622,6 +832,24 @@
 
         .badge {
             font-size: 0.75em;
+        }
+
+        .alert-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .alert-sm ul {
+            margin: 0;
+            padding-left: 1rem;
+        }
+
+        /* Custom table cell styling for category columns */
+        .table td:nth-child(5), 
+        .table td:nth-child(6), 
+        .table td:nth-child(7) {
+            min-width: 180px;
+            vertical-align: middle;
         }
 
         /* Custom Pagination Styles */
@@ -666,6 +894,17 @@
         .pagination .page-item:last-child .page-link {
             font-weight: 600;
         }
+
+        /* Category status indicators */
+        .category-status {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .stock-indicator {
+            font-size: 0.7rem;
+        }
     </style>
 
     <script>
@@ -702,5 +941,43 @@
             const modal = new bootstrap.Modal(document.getElementById('documentModal'));
             modal.show();
         }
+
+        // Real-time inventory checking (optional enhancement)
+        function checkInventoryStatus(requestId, category) {
+            fetch(`/admin/seedling-requests/${requestId}/inventory/${category}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update UI based on inventory status
+                        updateInventoryIndicator(requestId, category, data.data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking inventory:', error);
+                });
+        }
+
+        function updateInventoryIndicator(requestId, category, inventoryData) {
+            const indicator = document.querySelector(`#${category}-indicator-${requestId}`);
+            if (indicator) {
+                if (inventoryData.can_fulfill) {
+                    indicator.className = 'badge bg-success fs-6';
+                    indicator.innerHTML = '<i class="fas fa-check"></i>';
+                    indicator.title = 'Stock Available';
+                } else {
+                    indicator.className = 'badge bg-danger fs-6';
+                    indicator.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                    indicator.title = 'Low Stock';
+                }
+            }
+        }
+
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
     </script>
 @endsection
