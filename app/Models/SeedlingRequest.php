@@ -32,6 +32,12 @@ class SeedlingRequest extends Model
         'preferred_delivery_date',
         'document_path',
         'status',
+        'vegetables_status',
+        'fruits_status', 
+        'fertilizers_status',
+        'vegetables_approved_items',
+        'fruits_approved_items',
+        'fertilizers_approved_items',
         'reviewed_by',
         'reviewed_at',
         'remarks',
@@ -50,7 +56,10 @@ class SeedlingRequest extends Model
         'total_quantity' => 'integer',
         'vegetables' => 'array',
         'fruits' => 'array',
-        'fertilizers' => 'array'
+        'fertilizers' => 'array',
+        'vegetables_approved_items' => 'array',
+        'fruits_approved_items' => 'array',
+        'fertilizers_approved_items' => 'array'
     ];
 
     public function getFullNameAttribute(): string
@@ -62,35 +71,280 @@ class SeedlingRequest extends Model
     {
         return match($this->status) {
             'approved' => 'success',
+            'partially_approved' => 'warning',
             'rejected' => 'danger', 
             'under_review' => 'warning',
             default => 'secondary'
         };
     }
 
-    public function getFormattedSeedlingsAttribute(): string
+    /**
+     * Get overall status based on individual category statuses
+     */
+    public function getOverallStatusAttribute(): string
     {
-        $parts = [];
-        
-        if (!empty($this->vegetables)) {
-            $vegNames = collect($this->vegetables)->pluck('name')->toArray();
-            $parts[] = 'Vegetables: ' . implode(', ', $vegNames);
+        $statuses = array_filter([
+            $this->vegetables_status,
+            $this->fruits_status, 
+            $this->fertilizers_status
+        ]);
+
+        if (empty($statuses)) return 'under_review';
+
+        $approvedCount = count(array_filter($statuses, fn($s) => $s === 'approved'));
+        $rejectedCount = count(array_filter($statuses, fn($s) => $s === 'rejected'));
+        $totalCount = count($statuses);
+
+        if ($approvedCount === $totalCount) {
+            return 'approved';
+        } elseif ($rejectedCount === $totalCount) {
+            return 'rejected';
+        } elseif ($approvedCount > 0) {
+            return 'partially_approved';
         }
-        
-        if (!empty($this->fruits)) {
-            $fruitNames = collect($this->fruits)->pluck('name')->toArray();
-            $parts[] = 'Fruits: ' . implode(', ', $fruitNames);
-        }
-        
-        if (!empty($this->fertilizers)) {
-            $fertNames = collect($this->fertilizers)->pluck('name')->toArray();
-            $parts[] = 'Fertilizers: ' . implode(', ', $fertNames);
-        }
-        
-        return implode(' | ', $parts);
+
+        return 'under_review';
     }
 
-    // Add individual formatters for each category
+    /**
+     * Check inventory availability by category
+     */
+    public function checkCategoryInventoryAvailability(string $category): array
+    {
+        $availableItems = [];
+        $unavailableItems = [];
+        $canFulfill = true;
+        $items = $this->{$category} ?? [];
+
+        if (!empty($items)) {
+            foreach ($items as $item) {
+                $inventory = Inventory::where('item_name', $item['name'])
+                    ->where('category', $category)
+                    ->where('is_active', true)
+                    ->first();
+                
+                if (!$inventory) {
+                    $unavailableItems[] = [
+                        'name' => $item['name'],
+                        'needed' => $item['quantity'],
+                        'available' => 0
+                    ];
+                    $canFulfill = false;
+                } elseif ($inventory->current_stock < $item['quantity']) {
+                    $unavailableItems[] = [
+                        'name' => $item['name'],
+                        'needed' => $item['quantity'],
+                        'available' => $inventory->current_stock
+                    ];
+                    $canFulfill = false;
+                } else {
+                    $availableItems[] = [
+                        'name' => $item['name'],
+                        'needed' => $item['quantity'],
+                        'available' => $inventory->current_stock
+                    ];
+                }
+            }
+        }
+
+        return [
+            'can_fulfill' => $canFulfill,
+            'available_items' => $availableItems,
+            'unavailable_items' => $unavailableItems,
+            'has_items' => !empty($items)
+        ];
+    }
+
+    /**
+     * Check inventory availability for all categories
+     */
+    public function checkInventoryAvailability(): array
+    {
+        $categories = ['vegetables', 'fruits', 'fertilizers'];
+        $results = [];
+        $overallCanFulfill = true;
+        $allAvailable = [];
+        $allUnavailable = [];
+
+        foreach ($categories as $category) {
+            $result = $this->checkCategoryInventoryAvailability($category);
+            $results[$category] = $result;
+            
+            if ($result['has_items'] && !$result['can_fulfill']) {
+                $overallCanFulfill = false;
+            }
+            
+            $allAvailable = array_merge($allAvailable, $result['available_items']);
+            $allUnavailable = array_merge($allUnavailable, $result['unavailable_items']);
+        }
+
+        return [
+            'can_fulfill' => $overallCanFulfill,
+            'available_items' => $allAvailable,
+            'unavailable_items' => $allUnavailable,
+            'by_category' => $results
+        ];
+    }
+
+    /**
+     * Deduct inventory for a specific category
+     */
+    public function deductCategoryFromInventory(string $category): bool
+    {
+        \DB::beginTransaction();
+        
+        try {
+            $items = $this->{$category} ?? [];
+            
+            if (!empty($items)) {
+                foreach ($items as $item) {
+                    $inventory = Inventory::where('item_name', $item['name'])
+                        ->where('category', $category)
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($inventory && $inventory->current_stock >= $item['quantity']) {
+                        $inventory->decrement('current_stock', $item['quantity']);
+                        $inventory->update(['updated_by' => auth()->id()]);
+                    } else {
+                        throw new \Exception("Insufficient stock for {$item['name']} in {$category}");
+                    }
+                }
+            }
+            
+            \DB::commit();
+            return true;
+            
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error("Inventory deduction failed for {$category}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Restore inventory for a specific category
+     */
+    public function restoreCategoryToInventory(string $category): bool
+    {
+        \DB::beginTransaction();
+        
+        try {
+            $categoryStatus = $this->{$category . '_status'};
+            
+            // Only restore if the category was previously approved
+            if ($categoryStatus !== 'approved') {
+                return true; // Nothing to restore
+            }
+            
+            $items = $this->{$category} ?? [];
+            
+            if (!empty($items)) {
+                foreach ($items as $item) {
+                    $inventory = Inventory::where('item_name', $item['name'])
+                        ->where('category', $category)
+                        ->where('is_active', true)
+                        ->first();
+                    
+                    if ($inventory) {
+                        $inventory->increment('current_stock', $item['quantity']);
+                        $inventory->update(['updated_by' => auth()->id()]);
+                    }
+                }
+            }
+            
+            \DB::commit();
+            return true;
+            
+        } catch (\Exception $e) {
+            \DB::rollback();
+            \Log::error("Inventory restoration failed for {$category}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Update category status and handle inventory
+     */
+    public function updateCategoryStatus(string $category, string $status, array $approvedItems = []): bool
+    {
+        $oldStatus = $this->{$category . '_status'};
+        
+        // If approving, check inventory first
+        if ($status === 'approved') {
+            $inventoryCheck = $this->checkCategoryInventoryAvailability($category);
+            
+            if (!$inventoryCheck['can_fulfill']) {
+                throw new \Exception("Insufficient inventory for {$category}");
+            }
+
+            // Deduct from inventory
+            if (!$this->deductCategoryFromInventory($category)) {
+                throw new \Exception("Failed to deduct {$category} from inventory");
+            }
+        }
+
+        // If changing from approved to another status, restore inventory
+        if ($oldStatus === 'approved' && $status !== 'approved') {
+            $this->restoreCategoryToInventory($category);
+        }
+
+        // Update the category status
+        $this->update([
+            $category . '_status' => $status,
+            $category . '_approved_items' => $status === 'approved' ? $approvedItems : null,
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+
+        // Update overall status
+        $this->update(['status' => $this->overall_status]);
+
+        return true;
+    }
+
+    /**
+     * Get formatted items for a category with approval status
+     */
+    public function getFormattedCategoryItems(string $category): string
+    {
+        $items = $this->{$category} ?? [];
+        $status = $this->{$category . '_status'} ?? 'under_review';
+        
+        if (empty($items)) {
+            return '';
+        }
+        
+        $formatted = collect($items)->map(function($item) {
+            return $item['name'] . ' (' . $item['quantity'] . ' pcs)';
+        })->implode(', ');
+
+        $statusBadge = match($status) {
+            'approved' => '<span class="badge bg-success ms-2">Approved</span>',
+            'rejected' => '<span class="badge bg-danger ms-2">Rejected</span>',
+            'partially_approved' => '<span class="badge bg-warning ms-2">Partial</span>',
+            default => '<span class="badge bg-secondary ms-2">Pending</span>'
+        };
+
+        return $formatted . ' ' . $statusBadge;
+    }
+
+    public function getFormattedVegetablesWithStatusAttribute(): string
+    {
+        return $this->getFormattedCategoryItems('vegetables');
+    }
+
+    public function getFormattedFruitsWithStatusAttribute(): string
+    {
+        return $this->getFormattedCategoryItems('fruits');
+    }
+
+    public function getFormattedFertilizersWithStatusAttribute(): string
+    {
+        return $this->getFormattedCategoryItems('fertilizers');
+    }
+
+    // Keep existing methods for backward compatibility
     public function getFormattedVegetablesAttribute(): string
     {
         if (empty($this->vegetables)) {
@@ -124,13 +378,12 @@ class SeedlingRequest extends Model
         })->implode(', ');
     }
 
-    // Check if request has supporting documents
+    // Keep other existing methods...
     public function hasDocuments(): bool
     {
         return !empty($this->document_path) && Storage::disk('public')->exists($this->document_path);
     }
 
-    // Get document URL
     public function getDocumentUrlAttribute(): ?string
     {
         if ($this->hasDocuments()) {
@@ -138,254 +391,5 @@ class SeedlingRequest extends Model
         }
         
         return null;
-    }
-
-    /**
-     * Check inventory availability for this request
-     */
-    public function checkInventoryAvailability(): array
-    {
-        $availableItems = [];
-        $unavailableItems = [];
-        $canFulfill = true;
-        
-        // Check vegetables
-        if (!empty($this->vegetables)) {
-            foreach ($this->vegetables as $vegetable) {
-                $inventory = Inventory::where('item_name', $vegetable['name'])
-                    ->where('category', 'vegetables')
-                    ->where('is_active', true)
-                    ->first();
-                
-                if (!$inventory) {
-                    $unavailableItems[] = [
-                        'name' => $vegetable['name'],
-                        'needed' => $vegetable['quantity'],
-                        'available' => 0
-                    ];
-                    $canFulfill = false;
-                } elseif ($inventory->current_stock < $vegetable['quantity']) {
-                    $unavailableItems[] = [
-                        'name' => $vegetable['name'],
-                        'needed' => $vegetable['quantity'],
-                        'available' => $inventory->current_stock
-                    ];
-                    $canFulfill = false;
-                } else {
-                    $availableItems[] = [
-                        'name' => $vegetable['name'],
-                        'needed' => $vegetable['quantity'],
-                        'available' => $inventory->current_stock
-                    ];
-                }
-            }
-        }
-        
-        // Check fruits
-        if (!empty($this->fruits)) {
-            foreach ($this->fruits as $fruit) {
-                $inventory = Inventory::where('item_name', $fruit['name'])
-                    ->where('category', 'fruits')
-                    ->where('is_active', true)
-                    ->first();
-                
-                if (!$inventory) {
-                    $unavailableItems[] = [
-                        'name' => $fruit['name'],
-                        'needed' => $fruit['quantity'],
-                        'available' => 0
-                    ];
-                    $canFulfill = false;
-                } elseif ($inventory->current_stock < $fruit['quantity']) {
-                    $unavailableItems[] = [
-                        'name' => $fruit['name'],
-                        'needed' => $fruit['quantity'],
-                        'available' => $inventory->current_stock
-                    ];
-                    $canFulfill = false;
-                } else {
-                    $availableItems[] = [
-                        'name' => $fruit['name'],
-                        'needed' => $fruit['quantity'],
-                        'available' => $inventory->current_stock
-                    ];
-                }
-            }
-        }
-        
-        // Check fertilizers
-        if (!empty($this->fertilizers)) {
-            foreach ($this->fertilizers as $fertilizer) {
-                $inventory = Inventory::where('item_name', $fertilizer['name'])
-                    ->where('category', 'fertilizers')
-                    ->where('is_active', true)
-                    ->first();
-                
-                if (!$inventory) {
-                    $unavailableItems[] = [
-                        'name' => $fertilizer['name'],
-                        'needed' => $fertilizer['quantity'],
-                        'available' => 0
-                    ];
-                    $canFulfill = false;
-                } elseif ($inventory->current_stock < $fertilizer['quantity']) {
-                    $unavailableItems[] = [
-                        'name' => $fertilizer['name'],
-                        'needed' => $fertilizer['quantity'],
-                        'available' => $inventory->current_stock
-                    ];
-                    $canFulfill = false;
-                } else {
-                    $availableItems[] = [
-                        'name' => $fertilizer['name'],
-                        'needed' => $fertilizer['quantity'],
-                        'available' => $inventory->current_stock
-                    ];
-                }
-            }
-        }
-        
-        return [
-            'can_fulfill' => $canFulfill,
-            'available_items' => $availableItems,
-            'unavailable_items' => $unavailableItems
-        ];
-    }
-
-    /**
-     * Deduct inventory when request is approved
-     */
-    public function deductFromInventory(): bool
-    {
-        \DB::beginTransaction();
-        
-        try {
-            // Deduct vegetables
-            if (!empty($this->vegetables)) {
-                foreach ($this->vegetables as $vegetable) {
-                    $inventory = Inventory::where('item_name', $vegetable['name'])
-                        ->where('category', 'vegetables')
-                        ->where('is_active', true)
-                        ->first();
-                    
-                    if ($inventory && $inventory->current_stock >= $vegetable['quantity']) {
-                        $inventory->decrement('current_stock', $vegetable['quantity']);
-                        $inventory->update(['updated_by' => auth()->id()]);
-                    } else {
-                        throw new \Exception("Insufficient stock for {$vegetable['name']}");
-                    }
-                }
-            }
-            
-            // Deduct fruits
-            if (!empty($this->fruits)) {
-                foreach ($this->fruits as $fruit) {
-                    $inventory = Inventory::where('item_name', $fruit['name'])
-                        ->where('category', 'fruits')
-                        ->where('is_active', true)
-                        ->first();
-                    
-                    if ($inventory && $inventory->current_stock >= $fruit['quantity']) {
-                        $inventory->decrement('current_stock', $fruit['quantity']);
-                        $inventory->update(['updated_by' => auth()->id()]);
-                    } else {
-                        throw new \Exception("Insufficient stock for {$fruit['name']}");
-                    }
-                }
-            }
-            
-            // Deduct fertilizers
-            if (!empty($this->fertilizers)) {
-                foreach ($this->fertilizers as $fertilizer) {
-                    $inventory = Inventory::where('item_name', $fertilizer['name'])
-                        ->where('category', 'fertilizers')
-                        ->where('is_active', true)
-                        ->first();
-                    
-                    if ($inventory && $inventory->current_stock >= $fertilizer['quantity']) {
-                        $inventory->decrement('current_stock', $fertilizer['quantity']);
-                        $inventory->update(['updated_by' => auth()->id()]);
-                    } else {
-                        throw new \Exception("Insufficient stock for {$fertilizer['name']}");
-                    }
-                }
-            }
-            
-            \DB::commit();
-            return true;
-            
-        } catch (\Exception $e) {
-            \DB::rollback();
-            \Log::error('Inventory deduction failed: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Restore inventory when request is rejected or cancelled
-     */
-    public function restoreToInventory(): bool
-    {
-        \DB::beginTransaction();
-        
-        try {
-            // Only restore if the request was previously approved
-            if ($this->status !== 'approved') {
-                return true; // Nothing to restore
-            }
-            
-            // Restore vegetables
-            if (!empty($this->vegetables)) {
-                foreach ($this->vegetables as $vegetable) {
-                    $inventory = Inventory::where('item_name', $vegetable['name'])
-                        ->where('category', 'vegetables')
-                        ->where('is_active', true)
-                        ->first();
-                    
-                    if ($inventory) {
-                        $inventory->increment('current_stock', $vegetable['quantity']);
-                        $inventory->update(['updated_by' => auth()->id()]);
-                    }
-                }
-            }
-            
-            // Restore fruits
-            if (!empty($this->fruits)) {
-                foreach ($this->fruits as $fruit) {
-                    $inventory = Inventory::where('item_name', $fruit['name'])
-                        ->where('category', 'fruits')
-                        ->where('is_active', true)
-                        ->first();
-                    
-                    if ($inventory) {
-                        $inventory->increment('current_stock', $fruit['quantity']);
-                        $inventory->update(['updated_by' => auth()->id()]);
-                    }
-                }
-            }
-            
-            // Restore fertilizers
-            if (!empty($this->fertilizers)) {
-                foreach ($this->fertilizers as $fertilizer) {
-                    $inventory = Inventory::where('item_name', $fertilizer['name'])
-                        ->where('category', 'fertilizers')
-                        ->where('is_active', true)
-                        ->first();
-                    
-                    if ($inventory) {
-                        $inventory->increment('current_stock', $fertilizer['quantity']);
-                        $inventory->update(['updated_by' => auth()->id()]);
-                    }
-                }
-            }
-            
-            \DB::commit();
-            return true;
-            
-        } catch (\Exception $e) {
-            \DB::rollback();
-            \Log::error('Inventory restoration failed: ' . $e->getMessage());
-            return false;
-        }
     }
 }

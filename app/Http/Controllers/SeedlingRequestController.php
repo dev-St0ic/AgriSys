@@ -63,16 +63,18 @@ class SeedlingRequestController extends Controller
         $totalRequests = SeedlingRequest::count();
         $underReviewCount = SeedlingRequest::where('status', 'under_review')->count();
         $approvedCount = SeedlingRequest::where('status', 'approved')->count();
+        $partiallyApprovedCount = SeedlingRequest::where('status', 'partially_approved')->count();
         $rejectedCount = SeedlingRequest::where('status', 'rejected')->count();
 
         // Get unique barangays for filter dropdown
         $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
         
-        return view('admin.seedling_requests.index', compact(
+        return view('admin.seedlings.index', compact(
             'requests',
             'totalRequests',
             'underReviewCount', 
             'approvedCount',
+            'partiallyApprovedCount',
             'rejectedCount',
             'barangays'
         ));
@@ -83,11 +85,11 @@ class SeedlingRequestController extends Controller
      */
     public function show(SeedlingRequest $seedlingRequest)
     {
-        return view('admin.seedling_requests.show', compact('seedlingRequest'));
+        return view('admin.seedlings.show', compact('seedlingRequest'));
     }
 
     /**
-     * Update the status of a seedling request
+     * Update the status of a seedling request (legacy method for overall status)
      */
     public function updateStatus(Request $request, SeedlingRequest $seedlingRequest)
     {
@@ -97,68 +99,190 @@ class SeedlingRequestController extends Controller
             'approved_quantity' => 'nullable|integer|min:1'
         ]);
 
-        $oldStatus = $seedlingRequest->status;
         $newStatus = $request->status;
 
-        // Check inventory availability and deduct when approving
-        if ($newStatus === 'approved') {
-            $inventoryCheck = $seedlingRequest->checkInventoryAvailability();
-            
-            if (!$inventoryCheck['can_fulfill']) {
-                $unavailableItems = $inventoryCheck['unavailable_items'];
-                $errorMessage = 'Cannot approve request due to insufficient inventory: ';
-                $shortages = [];
-                foreach ($unavailableItems as $item) {
-                    $shortages[] = $item['name'] . ' (need ' . $item['needed'] . ', available ' . $item['available'] . ')';
+        try {
+            \DB::beginTransaction();
+
+            if ($newStatus === 'approved') {
+                // Approve all categories that have items
+                $categories = ['vegetables', 'fruits', 'fertilizers'];
+                foreach ($categories as $category) {
+                    if (!empty($seedlingRequest->{$category})) {
+                        $seedlingRequest->updateCategoryStatus($category, 'approved', $seedlingRequest->{$category});
+                    }
                 }
-                $errorMessage .= implode(', ', $shortages);
-                
-                return redirect()->back()
-                    ->withErrors(['inventory' => $errorMessage])
-                    ->withInput();
+            } elseif ($newStatus === 'rejected') {
+                // Reject all categories
+                $categories = ['vegetables', 'fruits', 'fertilizers'];
+                foreach ($categories as $category) {
+                    if (!empty($seedlingRequest->{$category})) {
+                        $seedlingRequest->updateCategoryStatus($category, 'rejected');
+                    }
+                }
             }
 
-            // Deduct from inventory in real-time when approved
-            if (!$seedlingRequest->deductFromInventory()) {
-                return redirect()->back()
-                    ->withErrors(['inventory' => 'Failed to deduct items from inventory. Please try again.'])
-                    ->withInput();
+            $seedlingRequest->update([
+                'status' => $newStatus,
+                'remarks' => $request->remarks,
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now(),
+                'approved_quantity' => $newStatus === 'approved' ? $request->approved_quantity : null,
+                'approved_at' => $newStatus === 'approved' ? now() : null,
+                'rejected_at' => $newStatus === 'rejected' ? now() : null,
+            ]);
+
+            \DB::commit();
+
+            // Send email notification if approved and email is available
+            if ($newStatus === 'approved' && $seedlingRequest->email) {
+                try {
+                    Mail::to($seedlingRequest->email)->send(new ApplicationApproved($seedlingRequest, 'seedling'));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send approval email for seedling request ' . $seedlingRequest->id . ': ' . $e->getMessage());
+                }
             }
-        }
 
-        // If changing from approved to rejected/under_review, restore inventory
-        if ($oldStatus === 'approved' && $newStatus !== 'approved') {
-            $seedlingRequest->restoreToInventory();
-        }
+            $message = match($newStatus) {
+                'approved' => 'Request approved successfully and inventory has been updated. ' . 
+                             ($seedlingRequest->email ? 'Email notification sent to applicant.' : ''),
+                'rejected' => 'Request rejected successfully.',
+                'under_review' => 'Request moved back to under review.',
+                default => 'Request status updated successfully.'
+            };
 
-        $seedlingRequest->update([
-            'status' => $newStatus,
-            'remarks' => $request->remarks,
-            'reviewed_by' => auth()->id(),
-            'reviewed_at' => now(),
-            'approved_quantity' => $newStatus === 'approved' ? $request->approved_quantity : null,
-            'approved_at' => $newStatus === 'approved' ? now() : null,
-            'rejected_at' => $newStatus === 'rejected' ? now() : null,
+            return redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return redirect()->back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Update category-specific status
+     */
+    public function updateCategoryStatus(Request $request, SeedlingRequest $seedlingRequest)
+    {
+        $request->validate([
+            'category' => 'required|in:vegetables,fruits,fertilizers',
+            'status' => 'required|in:approved,rejected,under_review',
+            'remarks' => 'nullable|string|max:500',
         ]);
 
-        // Send email notification if approved and email is available
-        if ($newStatus === 'approved' && $seedlingRequest->email) {
-            try {
-                Mail::to($seedlingRequest->email)->send(new ApplicationApproved($seedlingRequest, 'seedling'));
-            } catch (\Exception $e) {
-                // Log the error but don't fail the status update
-                \Log::error('Failed to send approval email for seedling request ' . $seedlingRequest->id . ': ' . $e->getMessage());
+        $category = $request->category;
+        $status = $request->status;
+
+        try {
+            \DB::beginTransaction();
+
+            // Check if category has items
+            if (empty($seedlingRequest->{$category})) {
+                throw new \Exception("No {$category} found in this request");
             }
+
+            $seedlingRequest->updateCategoryStatus($category, $status, $seedlingRequest->{$category});
+            
+            // Update remarks if provided
+            if ($request->remarks) {
+                $seedlingRequest->update(['remarks' => $request->remarks]);
+            }
+
+            \DB::commit();
+
+            $categoryName = ucfirst($category);
+            $message = match($status) {
+                'approved' => "{$categoryName} approved successfully and inventory updated.",
+                'rejected' => "{$categoryName} rejected successfully.",
+                'under_review' => "{$categoryName} moved back to under review.",
+                default => "{$categoryName} status updated successfully."
+            };
+
+            return redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return redirect()->back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Bulk update categories
+     */
+    public function bulkUpdateCategories(Request $request, SeedlingRequest $seedlingRequest)
+    {
+        $request->validate([
+            'categories' => 'required|array',
+            'categories.*' => 'required|in:vegetables,fruits,fertilizers',
+            'statuses' => 'required|array',
+            'statuses.*' => 'required|in:approved,rejected,under_review',
+            'remarks' => 'nullable|string|max:500',
+        ]);
+
+        try {
+            \DB::beginTransaction();
+
+            $categories = $request->categories;
+            $statuses = $request->statuses;
+            
+            foreach ($categories as $index => $category) {
+                if (!empty($seedlingRequest->{$category})) {
+                    $status = $statuses[$index] ?? 'under_review';
+                    $seedlingRequest->updateCategoryStatus($category, $status, $seedlingRequest->{$category});
+                }
+            }
+
+            // Update remarks if provided
+            if ($request->remarks) {
+                $seedlingRequest->update(['remarks' => $request->remarks]);
+            }
+
+            \DB::commit();
+
+            return redirect()->back()->with('success', 'Categories updated successfully.');
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return redirect()->back()
+                ->withErrors(['error' => $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Get inventory status for AJAX requests
+     */
+    public function getInventoryStatus(SeedlingRequest $seedlingRequest)
+    {
+        $inventoryStatus = $seedlingRequest->checkInventoryAvailability();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryStatus
+        ]);
+    }
+
+    /**
+     * Get category inventory status for AJAX requests
+     */
+    public function getCategoryInventoryStatus(SeedlingRequest $seedlingRequest, $category)
+    {
+        if (!in_array($category, ['vegetables', 'fruits', 'fertilizers'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid category'
+            ], 400);
         }
 
-        $message = match($newStatus) {
-            'approved' => 'Request approved successfully and inventory has been updated in real-time. ' . 
-                         ($seedlingRequest->email ? 'Email notification sent to applicant.' : ''),
-            'rejected' => 'Request rejected successfully.',
-            'under_review' => 'Request moved back to under review.',
-            default => 'Request status updated successfully.'
-        };
-
-        return redirect()->back()->with('success', $message);
+        $inventoryStatus = $seedlingRequest->checkCategoryInventoryAvailability($category);
+        
+        return response()->json([
+            'success' => true,
+            'data' => $inventoryStatus
+        ]);
     }
 }

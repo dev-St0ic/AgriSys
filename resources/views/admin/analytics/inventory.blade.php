@@ -11,50 +11,52 @@
     <div class="col-12">
         <div class="card shadow-sm">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="text-center mb-4">
                     <div>
-                        <h4 class="mb-0">Inventory Analytics Dashboard</h4>
+                        <h4 class="mb-2">Inventory Analytics Dashboard</h4>
                         <p class="text-muted mb-0">Comprehensive insights into Inventory Management</p>
                     </div>
                     <!-- Service Tabs - Unified Structure -->
-                    <ul class="nav nav-pills" id="serviceTab" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <a href="{{ route('admin.analytics.seedlings') }}" 
-                            class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                                <i class="fas fa-seedling me-1"></i> Seedlings
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a href="{{ route('admin.analytics.rsbsa') }}" 
-                            class="nav-link {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                                <i class="fas fa-user-check me-1"></i> RSBSA
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a href="{{ route('admin.analytics.fishr') }}" 
-                            class="nav-link {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                                <i class="fas fa-fish me-1"></i> FISHR
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a href="{{ route('admin.analytics.boatr') }}" 
-                            class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                                <i class="fas fa-ship me-1"></i> BOATR
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.training') }}" 
-                                class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                                    <i class="fas fa-graduation-cap me-1"></i> Training
+                    <div class="d-flex justify-content-center">
+                        <ul class="nav nav-pills" id="serviceTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a href="{{ route('admin.analytics.seedlings') }}" 
+                                class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
+                                    <i class="fas fa-seedling me-1"></i> Seedlings
                                 </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a href="{{ route('admin.analytics.inventory') }}" 
-                            class="nav-link {{ request()->routeIs('admin.analytics.inventory') ? 'active' : '' }}">
-                                <i class="fas fa-boxes me-1"></i> Inventory
-                            </a>
-                        </li>
-                    </ul>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="{{ route('admin.analytics.rsbsa') }}" 
+                                class="nav-link {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
+                                    <i class="fas fa-user-check me-1"></i> RSBSA
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="{{ route('admin.analytics.fishr') }}" 
+                                class="nav-link {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
+                                    <i class="fas fa-fish me-1"></i> FISHR
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="{{ route('admin.analytics.boatr') }}" 
+                                class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                                    <i class="fas fa-ship me-1"></i> BOATR
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                    <a href="{{ route('admin.analytics.training') }}" 
+                                    class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                                        <i class="fas fa-graduation-cap me-1"></i> Training
+                                    </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a href="{{ route('admin.analytics.inventory') }}" 
+                                class="nav-link {{ request()->routeIs('admin.analytics.inventory') ? 'active' : '' }}">
+                                    <i class="fas fa-boxes me-1"></i> Inventory
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1599,11 +1601,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showNotification('An error occurred. Some features may not work properly.', 'error');
     });
     
-    // Success message on page load
-    setTimeout(() => {
-        const chartsLoaded = Object.keys(chartInstances).length;
-        showNotification(`Inventory analytics loaded successfully! (${chartsLoaded} charts initialized)`, 'success');
-    }, 1000);
     
     console.log('Inventory Analytics Dashboard initialized successfully');
     console.log('Available charts:', Object.keys(chartInstances));

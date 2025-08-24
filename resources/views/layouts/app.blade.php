@@ -89,8 +89,8 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('admin.seedling.requests') ? 'active' : '' }}"
-                                        href="{{ route('admin.seedling.requests') }}">
+                                    <a class="nav-link {{ request()->routeIs('admin.seedlings.requests') ? 'active' : '' }}"
+                                        href="{{ route('admin.seedlings.requests') }}">
                                         <i class="fas fa-seedling me-2"></i>
                                         Seedling Requests
                                     </a>
@@ -140,18 +140,6 @@
                                     </li>
                                 @endif
                             </ul>
-
-                            <hr class="text-white">
-
-                            <div class="nav-item">
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="nav-link btn btn-link text-start">
-                                        <i class="fas fa-sign-out-alt me-2"></i>
-                                        Logout
-                                    </button>
-                                </form>
-                            </div>
                         </div>
                     </nav>
 
@@ -170,13 +158,17 @@
                                         <li>
                                             <form method="POST" action="{{ route('logout') }}">
                                                 @csrf
-                                                <button type="submit" class="dropdown-item">
+                                                <button type="button" class="dropdown-item" onclick="confirmLogout()">
                                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                                 </button>
                                             </form>
                                         </li>
                                     </ul>
                                 </div>
+                                <!-- Hidden logout form -->
+                                <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display: none;">
+                                    @csrf
+                                </form>
                             </div>
                         </div>
 
@@ -248,6 +240,13 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @yield('scripts')
+    <script>
+        function confirmLogout() {
+            if (confirm('Are you sure you want to log out?')) {
+                document.getElementById('logout-form').submit();
+            }
+        }
+    </script>
 </body>
 
 </html>

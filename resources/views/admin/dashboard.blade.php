@@ -137,7 +137,7 @@
                             </a>
                         </div>
                         <div class="col-md-4">
-                            <a href="{{ route('admin.seedling.requests') }}" class="btn btn-success w-100 py-4 text-center" style="min-height: 120px; border-radius: 15px;">
+                            <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-success w-100 py-4 text-center" style="min-height: 120px; border-radius: 15px;">
                                 <div>
                                     <i class="fas fa-seedling fa-3x mb-2"></i>
                                     <div class="h6 mb-0">Seedling Requests</div>

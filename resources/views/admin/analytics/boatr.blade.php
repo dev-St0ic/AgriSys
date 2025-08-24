@@ -11,12 +11,14 @@
     <div class="col-12">
         <div class="card shadow-sm">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="mb-0">BOATR Analytics Dashboard</h4>
-                        <p class="text-muted mb-0">Comprehensive insights into Boat Registration Services</p>
-                    </div>
-                    <!-- Service Tabs - Unified Structure -->
+                <!-- Title and Description at Top -->
+                <div class="text-center mb-4">
+                    <h4 class="mb-2">BOATR Analytics Dashboard</h4>
+                    <p class="text-muted mb-0">Comprehensive insights into Boat Registration Services</p>
+                </div>
+                
+                <!-- Centered Service Navigation Buttons -->
+                <div class="d-flex justify-content-center">
                     <ul class="nav nav-pills" id="serviceTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <a href="{{ route('admin.analytics.seedlings') }}" 
@@ -49,10 +51,10 @@
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.inventory') }}" 
-                                class="nav-link {{ request()->routeIs('admin.analytics.inventory') ? 'active' : '' }}">
-                                    <i class="fas fa-boxes me-1"></i> Inventory
-                                </a>
+                            <a href="{{ route('admin.analytics.inventory') }}" 
+                            class="nav-link {{ request()->routeIs('admin.analytics.inventory') ? 'active' : '' }}">
+                                <i class="fas fa-boxes me-1"></i> Inventory
+                            </a>
                         </li>
                     </ul>
                 </div>
