@@ -123,57 +123,78 @@
         </div>
     </div>
 
-    <!-- Enhanced Overall Summary -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-gradient-primary text-white py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 font-weight-bold">
-                            <i class="fas fa-chart-pie me-3"></i>Application Overview
-                        </h5>
+    <!-- Application Overview Cards -->
+    <div class="row mb-4 justify-content-center">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="metric-icon bg-success">
+                            <i class="fas fa-check-circle text-white"></i>
+                        </div>
+                        <div class="ms-3 flex-grow-1">
+                            <div class="metric-label">Total Approved</div>
+                            <div class="metric-value text-success counter-number"
+                                data-target="{{ $analyticsData['totals']['approved'] }}">0</div>
+                            <div class="metric-trend">
+                                @if ($analyticsData['totals']['total'] > 0)
+                                    <i class="fas fa-percentage text-success me-1"></i>
+                                    <small
+                                        class="text-success">{{ round(($analyticsData['totals']['approved'] / $analyticsData['totals']['total']) * 100, 1) }}%
+                                        approval rate</small>
+                                @else
+                                    <i class="fas fa-info-circle text-muted me-1"></i>
+                                    <small class="text-muted">No data yet</small>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <div class="summary-item text-center">
-                                <div class="summary-icon bg-primary-light">
-                                    <i class="fas fa-clipboard-list text-primary"></i>
-                                </div>
-                                <div class="summary-number text-primary counter-number"
-                                    data-target="{{ $analyticsData['totals']['total'] }}">0</div>
-                                <div class="summary-label">Total Applications</div>
+                    <div class="d-flex align-items-center">
+                        <div class="metric-icon bg-warning">
+                            <i class="fas fa-clock text-white"></i>
+                        </div>
+                        <div class="ms-3 flex-grow-1">
+                            <div class="metric-label">Total Pending</div>
+                            <div class="metric-value text-warning counter-number"
+                                data-target="{{ $analyticsData['totals']['pending'] }}">0</div>
+                            <div class="metric-trend">
+                                <i class="fas fa-hourglass-half text-warning me-1"></i>
+                                <small class="text-warning">Awaiting Review</small>
                             </div>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="summary-item text-center">
-                                <div class="summary-icon bg-success-light">
-                                    <i class="fas fa-check-circle text-success"></i>
-                                </div>
-                                <div class="summary-number text-success counter-number"
-                                    data-target="{{ $analyticsData['totals']['approved'] }}">0</div>
-                                <div class="summary-label">Total Approved</div>
-                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="metric-icon bg-danger">
+                            <i class="fas fa-times-circle text-white"></i>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="summary-item text-center">
-                                <div class="summary-icon bg-warning-light">
-                                    <i class="fas fa-clock text-warning"></i>
-                                </div>
-                                <div class="summary-number text-warning counter-number"
-                                    data-target="{{ $analyticsData['totals']['pending'] }}">0</div>
-                                <div class="summary-label">Total Pending</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="summary-item text-center">
-                                <div class="summary-icon bg-danger-light">
-                                    <i class="fas fa-times-circle text-danger"></i>
-                                </div>
-                                <div class="summary-number text-danger counter-number"
-                                    data-target="{{ $analyticsData['totals']['rejected'] }}">0</div>
-                                <div class="summary-label">Total Rejected</div>
+                        <div class="ms-3 flex-grow-1">
+                            <div class="metric-label">Total Rejected</div>
+                            <div class="metric-value text-danger counter-number"
+                                data-target="{{ $analyticsData['totals']['rejected'] }}">0</div>
+                            <div class="metric-trend">
+                                @if ($analyticsData['totals']['total'] > 0)
+                                    <i class="fas fa-percentage text-danger me-1"></i>
+                                    <small
+                                        class="text-danger">{{ round(($analyticsData['totals']['rejected'] / $analyticsData['totals']['total']) * 100, 1) }}%
+                                        rejection rate</small>
+                                @else
+                                    <i class="fas fa-info-circle text-muted me-1"></i>
+                                    <small class="text-muted">No data yet</small>
+                                @endif
                             </div>
                         </div>
                     </div>
