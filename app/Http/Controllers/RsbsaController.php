@@ -38,19 +38,23 @@ class RsbsaController extends Controller
                 $query->where('main_livelihood', $request->main_livelihood);
             }
 
-            if ($request->filled('registration_type')) {
-                $query->where('registration_type', $request->registration_type);
-            }
-
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('application_number', 'like', "%{$search}%")
                       ->orWhere('first_name', 'like', "%{$search}%")
                       ->orWhere('last_name', 'like', "%{$search}%")
-                      ->orWhere('mobile_number', 'like', "%{$search}%")  // Changed from contact_number
-                      ->orWhere('rsbsa_reference_number', 'like', "%{$search}%");
+                      ->orWhere('mobile_number', 'like', "%{$search}%");
                 });
+            }
+
+            // Date range filtering
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
             }
 
             // Sort and paginate
@@ -114,7 +118,7 @@ class RsbsaController extends Controller
     {
         try {
             $application = RsbsaApplication::findOrFail($id);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -122,23 +126,20 @@ class RsbsaController extends Controller
                     'application_number' => $application->application_number,
                     'full_name' => $application->full_name,
                     'sex' => $application->sex,
-                    'date_of_birth' => $application->date_of_birth?->format('M d, Y'),
                     'mobile_number' => $application->mobile_number,  // Updated field name
                     'contact_number' => $application->mobile_number,  // Keep for backward compatibility
                     'barangay' => $application->barangay,
-                    'registration_type' => $application->registration_type,
                     'main_livelihood' => $application->main_livelihood,
                     'land_area' => $application->land_area,
                     'farm_location' => $application->farm_location,
                     'commodity' => $application->commodity,
-                    'rsbsa_reference_number' => $application->rsbsa_reference_number,
                     'status' => $application->status,
                     'status_color' => $application->status_color,
                     'formatted_status' => $application->formatted_status,
                     'remarks' => $application->remarks,
                     'created_at' => $application->created_at->format('M d, Y h:i A'),
                     'updated_at' => $application->updated_at->format('M d, Y h:i A'),
-                    'reviewed_at' => $application->reviewed_at ? 
+                    'reviewed_at' => $application->reviewed_at ?
                         $application->reviewed_at->format('M d, Y h:i A') : null,
                     'reviewer_name' => optional($application->reviewer)->name,
                     'number_assigned_at' => $application->number_assigned_at ?
@@ -151,7 +152,7 @@ class RsbsaController extends Controller
                 'id' => $id,
                 'error' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error loading application details: ' . $e->getMessage()
@@ -173,7 +174,7 @@ class RsbsaController extends Controller
 
             // Find the application
             $application = RsbsaApplication::findOrFail($id);
-            
+
             // Update the application
             $updateData = [
                 'status' => $validated['status'],
@@ -206,7 +207,7 @@ class RsbsaController extends Controller
             // Return success response
             return response()->json([
                 'success' => true,
-                'message' => 'Application status updated successfully' . 
+                'message' => 'Application status updated successfully' .
                            ($validated['status'] === 'approved' && $application->email ? '. Email notification sent to applicant.' : ''),
                 'data' => [
                     'status' => $application->status,
@@ -294,7 +295,7 @@ class RsbsaController extends Controller
                 return redirect()->back()->with('error', 'Document not found');
             }
 
-            $fileName = "RSBSA_{$application->application_number}_document." . 
+            $fileName = "RSBSA_{$application->application_number}_document." .
                        pathinfo($application->supporting_document_path, PATHINFO_EXTENSION);
 
             return Storage::disk('public')->download($application->supporting_document_path, $fileName);
@@ -330,10 +331,6 @@ class RsbsaController extends Controller
                 $query->where('main_livelihood', $request->main_livelihood);
             }
 
-            if ($request->filled('registration_type')) {
-                $query->where('registration_type', $request->registration_type);
-            }
-
             $applications = $query->orderBy('created_at', 'desc')->get();
 
             $filename = 'rsbsa_applications_' . now()->format('Y-m-d_H-i-s') . '.csv';
@@ -345,21 +342,18 @@ class RsbsaController extends Controller
 
             $callback = function() use ($applications) {
                 $file = fopen('php://output', 'w');
-                
+
                 // CSV headers
                 fputcsv($file, [
                     'Application Number',
                     'Full Name',
                     'Sex',
-                    'Date of Birth',
                     'Mobile Number',
                     'Barangay',
-                    'Registration Type',
                     'Main Livelihood',
                     'Land Area (ha)',
                     'Farm Location',
                     'Commodity',
-                    'RSBSA Reference Number',
                     'Status',
                     'Date Applied',
                     'Date Reviewed'
@@ -371,18 +365,15 @@ class RsbsaController extends Controller
                         $application->application_number,
                         $application->full_name,
                         $application->sex,
-                        $application->date_of_birth ? $application->date_of_birth->format('M d, Y') : 'N/A',
                         $application->mobile_number,
                         $application->barangay,
-                        ucfirst($application->registration_type),
                         $application->main_livelihood,
                         $application->land_area,
                         $application->farm_location,
                         $application->commodity,
-                        $application->rsbsa_reference_number ?? 'N/A',
                         $application->formatted_status,
                         $application->created_at->format('M d, Y h:i A'),
-                        $application->reviewed_at ? 
+                        $application->reviewed_at ?
                             $application->reviewed_at->format('M d, Y h:i A') : 'N/A'
                     ]);
                 }
