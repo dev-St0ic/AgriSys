@@ -243,6 +243,116 @@
         </div>
     @endif
 
+    <!-- Quick Actions Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-gradient-dark text-white py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 font-weight-bold">
+                            <i class="fas fa-bolt me-3"></i>Quick Actions
+                        </h5>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <!-- First Row -->
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{{ route('landing.page') }}" target="_blank" class="action-card-small btn-info">
+                                <div class="action-icon-small">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div class="action-content-small">
+                                    <h6 class="action-title-small">Landing</h6>
+                                    <small class="action-desc-small">Public site</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{{ route('admin.inventory.index') }}" class="action-card-small btn-secondary">
+                                <div class="action-icon-small">
+                                    <i class="fas fa-warehouse"></i>
+                                </div>
+                                <div class="action-content-small">
+                                    <h6 class="action-title-small">Inventory</h6>
+                                    <small class="action-desc-small">Stock</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{{ route('admin.seedlings.requests') }}" class="action-card-small btn-success">
+                                <div class="action-icon-small">
+                                    <i class="fas fa-seedling"></i>
+                                </div>
+                                <div class="action-content-small">
+                                    <h6 class="action-title-small">Seedlings</h6>
+                                    <small class="action-desc-small">Requests</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{{ route('admin.rsbsa.applications') }}" class="action-card-small btn-primary">
+                                <div class="action-icon-small">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="action-content-small">
+                                    <h6 class="action-title-small">RSBSA</h6>
+                                    <small class="action-desc-small">Apps</small>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Second Row -->
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{{ route('admin.fishr.requests') }}" class="action-card-small btn-info">
+                                <div class="action-icon-small">
+                                    <i class="fas fa-fish"></i>
+                                </div>
+                                <div class="action-content-small">
+                                    <h6 class="action-title-small">FishR</h6>
+                                    <small class="action-desc-small">Register</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{{ route('admin.boatr.requests') }}" class="action-card-small btn-warning">
+                                <div class="action-icon-small">
+                                    <i class="fas fa-ship"></i>
+                                </div>
+                                <div class="action-content-small">
+                                    <h6 class="action-title-small">BoatR</h6>
+                                    <small class="action-desc-small">Apps</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{{ route('admin.training.requests') }}" class="action-card-small btn-purple">
+                                <div class="action-icon-small">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                                <div class="action-content-small">
+                                    <h6 class="action-title-small">Training</h6>
+                                    <small class="action-desc-small">Apps</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <a href="{{ route('admin.analytics.seedlings') }}" class="action-card-small btn-dark">
+                                <div class="action-icon-small">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="action-content-small">
+                                    <h6 class="action-title-small">Analytics</h6>
+                                    <small class="action-desc-small">Reports</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Application Statistics by Service -->
     <div class="row mb-4">
         <div class="col-12">
@@ -255,12 +365,12 @@
                     </div>
                 </div>
                 <div class="card-body p-4">
-                    <div class="row">
+                    <div class="row justify-content-center">
                         @foreach ($analyticsData['services'] as $serviceKey => $service)
-                            <div class="col-lg-4 col-md-6 mb-4">
-                                <div class="card service-card h-100 border-0 shadow-sm position-relative">
+                            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12 mb-4 d-flex">
+                                <div class="card service-card flex-fill border-0 shadow-sm position-relative">
                                     <div class="service-header bg-{{ $service['color'] }}"></div>
-                                    <div class="card-body p-4">
+                                    <div class="card-body p-4 d-flex flex-column">
                                         <div class="d-flex align-items-center mb-3">
                                             <div class="service-icon bg-{{ $service['color'] }}-light">
                                                 <i class="{{ $service['icon'] }} text-{{ $service['color'] }}"></i>
@@ -315,7 +425,7 @@
 
                                         @if ($service['total'] > 0)
                                             <!-- Enhanced Progress Bar -->
-                                            <div class="progress-container">
+                                            <div class="progress-container mt-auto">
                                                 <div class="progress modern-progress" style="height: 8px;">
                                                     <div class="progress-bar bg-success progress-bar-animated"
                                                         role="progressbar"
@@ -340,129 +450,17 @@
                                                     <small class="text-muted">Approval Rate</small>
                                                 </div>
                                             </div>
+                                        @else
+                                            <div class="progress-container mt-auto">
+                                                <div class="text-center">
+                                                    <small class="text-muted">No applications yet</small>
+                                                </div>
+                                            </div>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                         @endforeach
-
-                        <!-- Quick Actions Card in the 6th position -->
-                        <div class="col-lg-4 col-md-6 mb-4">
-                            <div class="card border-0 shadow-lg h-100">
-                                <div class="card-header bg-gradient-dark text-white py-3">
-                                    <h6 class="mb-0 font-weight-bold">
-                                        <i class="fas fa-bolt me-2"></i>Quick Actions
-                                    </h6>
-                                </div>
-                                <div class="card-body p-3">
-                                    <div class="row g-2">
-                                        <!-- First Row -->
-                                        <div class="col-6">
-                                            <a href="{{ route('landing.page') }}" target="_blank"
-                                                class="action-card-small btn-info">
-                                                <div class="action-icon-small">
-                                                    <i class="fas fa-home"></i>
-                                                </div>
-                                                <div class="action-content-small">
-                                                    <h6 class="action-title-small">Landing</h6>
-                                                    <small class="action-desc-small">Public site</small>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-6">
-                                            <a href="{{ route('admin.inventory.index') }}"
-                                                class="action-card-small btn-secondary">
-                                                <div class="action-icon-small">
-                                                    <i class="fas fa-warehouse"></i>
-                                                </div>
-                                                <div class="action-content-small">
-                                                    <h6 class="action-title-small">Inventory</h6>
-                                                    <small class="action-desc-small">Stock</small>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <!-- Second Row -->
-                                        <div class="col-6">
-                                            <a href="{{ route('admin.seedlings.requests') }}"
-                                                class="action-card-small btn-success">
-                                                <div class="action-icon-small">
-                                                    <i class="fas fa-seedling"></i>
-                                                </div>
-                                                <div class="action-content-small">
-                                                    <h6 class="action-title-small">Seedlings</h6>
-                                                    <small class="action-desc-small">Requests</small>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-6">
-                                            <a href="{{ route('admin.rsbsa.applications') }}"
-                                                class="action-card-small btn-primary">
-                                                <div class="action-icon-small">
-                                                    <i class="fas fa-file-alt"></i>
-                                                </div>
-                                                <div class="action-content-small">
-                                                    <h6 class="action-title-small">RSBSA</h6>
-                                                    <small class="action-desc-small">Apps</small>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <!-- Third Row -->
-                                        <div class="col-6">
-                                            <a href="{{ route('admin.fishr.requests') }}"
-                                                class="action-card-small btn-info">
-                                                <div class="action-icon-small">
-                                                    <i class="fas fa-fish"></i>
-                                                </div>
-                                                <div class="action-content-small">
-                                                    <h6 class="action-title-small">FishR</h6>
-                                                    <small class="action-desc-small">Register</small>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-6">
-                                            <a href="{{ route('admin.boatr.requests') }}"
-                                                class="action-card-small btn-warning">
-                                                <div class="action-icon-small">
-                                                    <i class="fas fa-ship"></i>
-                                                </div>
-                                                <div class="action-content-small">
-                                                    <h6 class="action-title-small">BoatR</h6>
-                                                    <small class="action-desc-small">Apps</small>
-                                                </div>
-                                            </a>
-                                        </div>
-
-                                        <!-- Fourth Row -->
-                                        <div class="col-6">
-                                            <a href="{{ route('admin.training.requests') }}"
-                                                class="action-card-small btn-purple">
-                                                <div class="action-icon-small">
-                                                    <i class="fas fa-chalkboard-teacher"></i>
-                                                </div>
-                                                <div class="action-content-small">
-                                                    <h6 class="action-title-small">Training</h6>
-                                                    <small class="action-desc-small">Apps</small>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <div class="col-6">
-                                            <a href="{{ route('admin.analytics.seedlings') }}"
-                                                class="action-card-small btn-dark">
-                                                <div class="action-icon-small">
-                                                    <i class="fas fa-chart-line"></i>
-                                                </div>
-                                                <div class="action-content-small">
-                                                    <h6 class="action-title-small">Analytics</h6>
-                                                    <small class="action-desc-small">Reports</small>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
