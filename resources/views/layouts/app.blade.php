@@ -13,6 +13,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
+        body {
+            overflow-x: auto; /* Allow horizontal scroll on body */
+        }
+
         .sidebar {
             min-height: 100vh;
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
@@ -23,6 +27,7 @@
             z-index: 1000;
             width: 250px;
             overflow-x: hidden;
+            overflow-y: auto; /* Allow vertical scroll within sidebar if needed */
         }
 
         .sidebar.collapsed {
@@ -52,7 +57,6 @@
             color: white;
         }
 
-        /* Original centered style for collapsed sidebar */
         .sidebar.collapsed .nav-link {
             justify-content: center;
             text-align: center;
@@ -79,7 +83,6 @@
             flex-shrink: 0;
         }
 
-        /* Ensure icons are centered when collapsed */
         .sidebar.collapsed .nav-link i {
             margin: 0;
         }
@@ -106,19 +109,42 @@
             opacity: 1;
         }
 
+        /* FIXED: Main content with proper horizontal scroll support */
         .main-content {
             background-color: #f8f9fa;
             min-height: 100vh;
-            margin-left: 250px;
-            transition: all 0.3s ease;
+            margin-left: 250px; /* Default: full sidebar width */
+            transition: margin-left 0.3s ease;
+            position: relative; /* Important for proper positioning */
+            overflow-x: auto; /* Allow horizontal scroll within main content */
+            width: calc(100vw - 250px); /* Ensure proper width calculation */
+            max-width: calc(100vw - 250px); /* Prevent overflow */
         }
 
-        .main-content.expanded {
+        /* When sidebar is collapsed (desktop) */
+        .main-content.sidebar-collapsed {
             margin-left: 80px;
+            width: calc(100vw - 80px);
+            max-width: calc(100vw - 80px);
         }
 
-        .main-content.full-width {
+        /* When sidebar is hidden (mobile) or not authenticated */
+        .main-content.no-sidebar {
             margin-left: 0;
+            width: 100vw;
+            max-width: 100vw;
+        }
+
+        /* Ensure tables and wide content can scroll horizontally */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        
+
+        /* Prevent content from breaking layout */
+        .container-fluid {
+            min-width: 0; /* Allow container to shrink */
         }
 
         .card {
@@ -155,7 +181,7 @@
             width: 100%;
         }
 
-        /* Hamburger toggle button - positioned before AgriSys but aligns with nav icons when collapsed */
+        /* Hamburger toggle button */
         .toggle-sidebar-btn {
             background: transparent;
             border: none;
@@ -193,7 +219,6 @@
             flex: 1;
         }
 
-        /* When collapsed, center the hamburger icon like other nav items */
         .sidebar.collapsed .toggle-sidebar-btn {
             justify-content: center;
             text-align: center;
@@ -252,79 +277,46 @@
             opacity: 1;
         }
 
-        /* Mobile responsiveness */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 250px !important;
-            }
-            
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0 !important;
-            }
-            
-            .sidebar-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
-                display: none;
-            }
-            
-            .sidebar-overlay.show {
-                display: block;
-            }
 
-            .mobile-toggle-btn {
-                position: fixed;
-                top: 20px;
-                left: 15px;
-                z-index: 1001;
-                background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-                border: 2px solid rgba(52, 152, 219, 0.3);
-                border-radius: 0.25rem;
-                padding: 0.5rem;
-                width: 45px;
-                height: 45px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                color: #ecf0f1;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-            .mobile-toggle-btn:hover {
-                background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-                color: #3498db;
-            }
-
-            .sidebar-brand {
-                justify-content: center;
-            }
-
-            .toggle-sidebar-btn {
-                display: none;
-            }
-        }
 
         .nav-item {
             margin-bottom: 0.25rem;
+        }
+
+        /* Additional styles to ensure smooth horizontal scrolling */
+        .main-content::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .main-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .main-content::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Ensure wide tables don't break layout */
+        .table {
+            white-space: nowrap;
+        }
+
+        /* Fix for any potential content overflow */
+        .container-fluid {
+            padding-right: 15px;
+            padding-left: 15px;
         }
     </style>
 </head>
 
 <body>
-    <div class="container-fluid">
-        <div class="row">
+    <div class="container-fluid p-0">
+        <div class="row g-0">
             @auth
                 @if(auth()->check() && (request()->routeIs('admin.*') || request()->routeIs('dashboard')))
                     <!-- Sidebar Overlay for mobile -->
@@ -354,79 +346,76 @@
                             </div>
 
                             <ul class="nav flex-column px-2">
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.dashboard') }}" data-tooltip="Dashboard">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span class="nav-link-text">Dashboard</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.rsbsa.*') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.rsbsa.applications') }}" data-tooltip="RSBSA Applications">
+                                        <i class="fas fa-file-alt"></i>
+                                        <span class="nav-link-text">RSBSA Applications</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.seedlings.requests') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.seedlings.requests') }}" data-tooltip="Seedling Requests">
+                                        <i class="fas fa-seedling"></i>
+                                        <span class="nav-link-text">Seedling Requests</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.fishr.requests') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.fishr.requests') }}" data-tooltip="FishR Registrations">
+                                        <i class="fas fa-fish"></i>
+                                        <span class="nav-link-text">FishR Registrations</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.boatr.requests') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.boatr.requests') }}" data-tooltip="BoatR Registrations">
+                                        <i class="fas fa-ship"></i>
+                                        <span class="nav-link-text">BoatR Registrations</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.training.requests') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.training.requests') }}" data-tooltip="Training Registrations">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                        <span class="nav-link-text">Training Registrations</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.inventory.index') }}" data-tooltip="Inventory Management">
+                                        <i class="fas fa-warehouse"></i>
+                                        <span class="nav-link-text">Inventory Management</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.analytics.analytics') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.analytics.seedlings') }}" data-tooltip="Analytics">
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span class="nav-link-text">Analytics</span>
+                                    </a>
+                                </li>
+                                @if (auth()->user()->isSuperAdmin())
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.dashboard') }}" data-tooltip="Dashboard">
-                                            <i class="fas fa-tachometer-alt"></i>
-                                            <span class="nav-link-text">Dashboard</span>
+                                        <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }} tooltip-custom"
+                                            href="{{ route('admin.admins.index') }}" data-tooltip="Manage Admins">
+                                            <i class="fas fa-users-cog"></i>
+                                            <span class="nav-link-text">Manage Admins</span>
                                         </a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.rsbsa.*') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.rsbsa.applications') }}" data-tooltip="RSBSA Applications">
-                                            <i class="fas fa-file-alt"></i>
-                                            <span class="nav-link-text">RSBSA Applications</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.seedlings.requests') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.seedlings.requests') }}" data-tooltip="Seedling Requests">
-                                            <i class="fas fa-seedling"></i>
-                                            <span class="nav-link-text">Seedling Requests</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.fishr.requests') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.fishr.requests') }}" data-tooltip="FishR Registrations">
-                                            <i class="fas fa-fish"></i>
-                                            <span class="nav-link-text">FishR Registrations</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.boatr.requests') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.boatr.requests') }}" data-tooltip="BoatR Registrations">
-                                            <i class="fas fa-ship"></i>
-                                            <span class="nav-link-text">BoatR Registrations</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.training.requests') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.training.requests') }}" data-tooltip="Training Registrations">
-                                            <i class="fas fa-chalkboard-teacher"></i>
-                                            <span class="nav-link-text">Training Registrations</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.inventory.index') }}" data-tooltip="Inventory Management">
-                                            <i class="fas fa-warehouse"></i>
-                                            <span class="nav-link-text">Inventory Management</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('admin.analytics.analytics') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.analytics.seedlings') }}" data-tooltip="Analytics">
-                                            <i class="fas fa-chart-bar"></i>
-                                            <span class="nav-link-text">Analytics</span>
-                                        </a>
-                                    </li>
-                                    @if (auth()->user()->isSuperAdmin())
-                                        <li class="nav-item">
-                                            <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }} tooltip-custom"
-                                                href="{{ route('admin.admins.index') }}" data-tooltip="Manage Admins">
-                                                <i class="fas fa-users-cog"></i>
-                                                <span class="nav-link-text">Manage Admins</span>
-                                            </a>
-                                        </li>
-                                    @endif
-                                </ul>
-                            </div>
+                                @endif
+                            </ul>
+                        </div>
                     </nav>
 
-                    <!-- Mobile Toggle Button -->
-                    <button class="mobile-toggle-btn d-md-none" id="mobileToggleSidebar" onclick="toggleSidebar()">
-                        <i class="fas fa-bars" id="mobileToggleIcon"></i>
-                    </button>
+
 
                     <!-- Main content with sidebar -->
                     <main class="main-content" id="mainContent">
@@ -479,7 +468,32 @@
                     </main>
                 @else
                     <!-- Authenticated but not on admin routes - full width -->
-                    <main class="col-12 main-content full-width">
+                    <main class="main-content no-sidebar">
+                        <div class="container-fluid px-4">
+                            <!-- Flash messages -->
+                            @if (session('success'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            @endif
+
+                            @if (session('error'))
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            @endif
+
+                            <!-- Page content -->
+                            @yield('content')
+                        </div>
+                    </main>
+                @endif
+            @else
+                <!-- Not authenticated - full width, no sidebar -->
+                <main class="main-content no-sidebar">
+                    <div class="container-fluid px-4">
                         <!-- Flash messages -->
                         @if (session('success'))
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -497,28 +511,7 @@
 
                         <!-- Page content -->
                         @yield('content')
-                    </main>
-                @endif
-            @else
-                <!-- Not authenticated - full width, no sidebar -->
-                <main class="col-12 main-content full-width">
-                    <!-- Flash messages -->
-                    @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <!-- Page content -->
-                    @yield('content')
+                    </div>
                 </main>
             @endauth
         </div>
@@ -539,73 +532,63 @@
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const toggleIcon = document.getElementById('toggleIcon');
-            const mobileToggleIcon = document.getElementById('mobileToggleIcon');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
             
-            // Check if mobile view
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-                
-                if (sidebar.classList.contains('show')) {
-                    mobileToggleIcon.className = 'fas fa-times';
-                } else {
-                    mobileToggleIcon.className = 'fas fa-bars';
-                }
-            } else {
-                // Desktop view - toggle collapsed state but keep hamburger icon
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-                
-                // Always keep hamburger icon in desktop view
-                toggleIcon.className = 'fas fa-bars';
-            }
+            // Desktop: Toggle collapsed state and adjust main content
+            sidebar.classList.toggle('collapsed');
+            updateMainContentLayout();
+            
+            // Always keep hamburger icon
+            toggleIcon.className = 'fas fa-bars';
         }
 
-        function closeSidebarMobile() {
-            const sidebar = document.getElementById('sidebar');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-            const mobileToggleIcon = document.getElementById('mobileToggleIcon');
-            
-            sidebar.classList.remove('show');
-            sidebarOverlay.classList.remove('show');
-            mobileToggleIcon.className = 'fas fa-bars';
-        }
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
+        function updateMainContentLayout() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            const toggleIcon = document.getElementById('toggleIcon');
-            const mobileToggleIcon = document.getElementById('mobileToggleIcon');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
             
-            if (window.innerWidth > 768) {
-                // Desktop view - remove mobile classes
-                sidebar.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-                
-                // Always use hamburger icon in desktop
-                toggleIcon.className = 'fas fa-bars';
-                mobileToggleIcon.className = 'fas fa-bars';
+            if (!sidebar || !mainContent) return;
+            
+            if (sidebar.classList.contains('collapsed')) {
+                mainContent.classList.add('sidebar-collapsed');
+                mainContent.classList.remove('no-sidebar');
             } else {
-                // Mobile view - remove desktop classes
-                sidebar.classList.remove('collapsed');
-                mainContent.classList.remove('expanded');
-                toggleIcon.className = 'fas fa-bars';
+                mainContent.classList.remove('sidebar-collapsed');
+                mainContent.classList.remove('no-sidebar');
             }
+        }
+
+        // Handle window resize with improved layout management
+        window.addEventListener('resize', function() {
+            updateMainContentLayout();
         });
 
         // Initialize sidebar state on page load
         document.addEventListener('DOMContentLoaded', function() {
             const toggleIcon = document.getElementById('toggleIcon');
-            const mobileToggleIcon = document.getElementById('mobileToggleIcon');
             
-            // Always start with hamburger icons
+            // Always start with hamburger icon
             if (toggleIcon) toggleIcon.className = 'fas fa-bars';
-            if (mobileToggleIcon) mobileToggleIcon.className = 'fas fa-bars';
+            
+            // Set initial layout state
+            updateMainContentLayout();
+        });
+
+        // Prevent sidebar from scrolling with main content horizontally
+        document.addEventListener('scroll', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && window.innerWidth > 768) {
+                // Ensure sidebar stays fixed during any scroll
+                sidebar.style.position = 'fixed';
+                sidebar.style.left = '0';
+            }
         });
     </script>
+
+    <!-- Demo content to test horizontal scrolling -->
+    <style>
+        .demo-wide-table {
+            min-width: 1200px; /* Force horizontal scroll for testing */
+        }
+    </style>
 </body>
 
 </html>
