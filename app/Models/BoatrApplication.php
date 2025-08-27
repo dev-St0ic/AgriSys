@@ -17,25 +17,26 @@ class BoatrApplication extends Model
         'first_name',
         'middle_name',
         'last_name',
-        'mobile',
+        'contact_number',
         'email',
+        'barangay',
         'fishr_number',
         'vessel_name',
         'boat_type',
         'boat_length',
-        'boat_width', 
+        'boat_width',
         'boat_depth',
         'engine_type',
         'engine_horsepower',
         'primary_fishing_gear',
-        
+
         // UPDATED: Single User Document
         'user_document_path',
         'user_document_name',
         'user_document_type',
         'user_document_size',
         'user_document_uploaded_at',
-        
+
         // Multiple Inspection Documents
         'inspection_documents',
         'inspection_completed',
@@ -45,7 +46,7 @@ class BoatrApplication extends Model
         'documents_verified',
         'documents_verified_at',
         'document_verification_notes',
-        
+
         // Status and workflow
         'status',
         'remarks',
@@ -67,16 +68,16 @@ class BoatrApplication extends Model
         'user_document_uploaded_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        
+
         'inspection_completed' => 'boolean',
         'documents_verified' => 'boolean',
-        
+
         'boat_length' => 'decimal:2',
         'boat_width' => 'decimal:2',
         'boat_depth' => 'decimal:2',
         'engine_horsepower' => 'integer',
         'user_document_size' => 'integer',
-        
+
         // JSON fields
         'inspection_documents' => 'array',
         'status_history' => 'array'
@@ -159,7 +160,7 @@ class BoatrApplication extends Model
     public function setUserDocument($filePath, $originalName, $fileSize = null)
     {
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
-        
+
         $this->update([
             'user_document_path' => $filePath,
             'user_document_name' => $originalName,
@@ -184,7 +185,7 @@ class BoatrApplication extends Model
             'notes' => $notes,
             'size' => Storage::disk('public')->exists($filePath) ? Storage::disk('public')->size($filePath) : null
         ];
-        
+
         $this->update([
             'inspection_documents' => $documents
         ]);
@@ -196,9 +197,9 @@ class BoatrApplication extends Model
     public function getUserDocumentWithUrl()
     {
         if (!$this->user_document_path) return null;
-        
+
         $exists = Storage::disk('public')->exists($this->user_document_path);
-        
+
         return [
             'path' => $this->user_document_path,
             'original_name' => $this->user_document_name ?: 'User Document',
@@ -216,10 +217,10 @@ class BoatrApplication extends Model
     public function getInspectionDocumentsWithUrls()
     {
         if (!$this->inspection_documents) return [];
-        
+
         return collect($this->inspection_documents)->map(function ($doc, $index) {
             $exists = Storage::disk('public')->exists($doc['path']);
-            
+
             return array_merge($doc, [
                 'index' => $index,
                 'url' => $exists ? asset('storage/' . $doc['path']) : null,
@@ -227,7 +228,7 @@ class BoatrApplication extends Model
                 'extension' => $doc['type'] ?? pathinfo($doc['path'], PATHINFO_EXTENSION),
                 'uploader' => isset($doc['uploaded_by']) ? User::find($doc['uploaded_by'])?->name : null,
                 'formatted_size' => $this->formatFileSize($doc['size'] ?? 0),
-                'uploaded_at_formatted' => isset($doc['uploaded_at']) ? 
+                'uploaded_at_formatted' => isset($doc['uploaded_at']) ?
                     \Carbon\Carbon::parse($doc['uploaded_at'])->format('M d, Y h:i A') : null
             ]);
         })->toArray();
@@ -265,7 +266,7 @@ class BoatrApplication extends Model
     private function formatFileSize($bytes)
     {
         if (!$bytes || $bytes === 0) return 'Unknown size';
-        
+
         $sizes = ['Bytes', 'KB', 'MB', 'GB'];
         $i = floor(log($bytes) / log(1024));
         return round($bytes / pow(1024, $i) * 100) / 100 . ' ' . $sizes[$i];
@@ -292,7 +293,7 @@ class BoatrApplication extends Model
         if ($this->user_document_path && Storage::disk('public')->exists($this->user_document_path)) {
             Storage::disk('public')->delete($this->user_document_path);
         }
-        
+
         $this->update([
             'user_document_path' => null,
             'user_document_name' => null,
@@ -308,18 +309,18 @@ class BoatrApplication extends Model
     public function deleteInspectionDocument($index)
     {
         $documents = $this->inspection_documents ?? [];
-        
+
         if (isset($documents[$index])) {
             $document = $documents[$index];
-            
+
             // Delete file
             if (Storage::disk('public')->exists($document['path'])) {
                 Storage::disk('public')->delete($document['path']);
             }
-            
+
             // Remove from array
             array_splice($documents, $index, 1);
-            
+
             $this->update([
                 'inspection_documents' => $documents
             ]);
@@ -337,7 +338,7 @@ class BoatrApplication extends Model
     {
         $oldStatus = $this->status;
         $history = $this->status_history ?? [];
-        
+
         $history[] = [
             'from_status' => $oldStatus,
             'to_status' => $newStatus,
@@ -400,7 +401,7 @@ class BoatrApplication extends Model
      */
     public function requiresInspection()
     {
-        return !$this->inspection_completed && 
+        return !$this->inspection_completed &&
                in_array($this->status, ['inspection_required', 'inspection_scheduled']);
     }
 

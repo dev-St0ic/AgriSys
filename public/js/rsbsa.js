@@ -14,18 +14,18 @@ async function refreshRSBSACSRFToken() {
         const response = await fetch('/csrf-token');
         const data = await response.json();
         rsbsaCSRFToken = data.csrf_token;
-        
+
         // Update meta tag
         const metaTag = document.querySelector('meta[name="csrf-token"]');
         if (metaTag) {
             metaTag.setAttribute('content', rsbsaCSRFToken);
         }
-        
+
         // Update all CSRF input fields
         document.querySelectorAll('input[name="_token"]').forEach(input => {
             input.value = rsbsaCSRFToken;
         });
-        
+
         console.log('RSBSA CSRF token refreshed');
         return rsbsaCSRFToken;
     } catch (error) {
@@ -39,13 +39,13 @@ async function refreshRSBSACSRFToken() {
  */
 function getRSBSACSRFToken() {
     if (rsbsaCSRFToken) return rsbsaCSRFToken;
-    
+
     const metaTag = document.querySelector('meta[name="csrf-token"]');
     if (metaTag) {
         rsbsaCSRFToken = metaTag.getAttribute('content');
         return rsbsaCSRFToken;
     }
-    
+
     console.error('No RSBSA CSRF token found');
     return null;
 }
@@ -56,32 +56,32 @@ function getRSBSACSRFToken() {
 async function fetchRSBSAWithCSRFRetry(url, options, retries = 1) {
     try {
         const response = await fetch(url, options);
-        
+
         // If CSRF error, refresh token and retry
         if (response.status === 419 && retries > 0) {
             console.log('RSBSA CSRF token mismatch, refreshing token and retrying...');
-            
+
             // Refresh CSRF token
             const newToken = await refreshRSBSACSRFToken();
-            
+
             // Update headers with new token
             if (options.headers) {
                 options.headers['X-CSRF-TOKEN'] = newToken;
             }
-            
+
             // If FormData, we need to update the _token field
             if (options.body instanceof FormData) {
                 options.body.set('_token', newToken);
             }
-            
+
             // Retry the request
             return await fetchRSBSAWithCSRFRetry(url, options, retries - 1);
         }
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return response;
     } catch (error) {
         if (retries > 0 && error.message.includes('419')) {
@@ -96,13 +96,11 @@ async function fetchRSBSAWithCSRFRetry(url, options, retries = 1) {
  */
 function shouldShowRSBSAForm() {
     const currentPath = window.location.pathname;
-    const currentUrl = window.location.href;
-    
-    // Check for various RSBSA URL patterns
-    return currentPath === '/services/rsbsa' || 
-           currentPath.includes('/rsbsa') || 
-           currentUrl.includes('/services/rsbsa') ||
-           currentUrl.includes('#rsbsa');
+
+    // Only show RSBSA form if the URL explicitly matches RSBSA paths
+    return currentPath === '/services/rsbsa' ||
+           currentPath === '/services/rsbsa/new' ||
+           currentPath === '/services/rsbsa/old';
 }
 
 /**
@@ -112,9 +110,9 @@ function openRSBSAForm(event) {
     if (event && typeof event.preventDefault === 'function') {
         event.preventDefault();
     }
-    
+
     console.log('Opening RSBSA form');
-    
+
     // Hide all main sections and forms first
     if (typeof hideAllMainSections === 'function') hideAllMainSections();
     if (typeof hideAllForms === 'function') hideAllForms();
@@ -122,31 +120,31 @@ function openRSBSAForm(event) {
     const formElement = document.getElementById('new-rsbsa');
     if (formElement) {
         formElement.style.display = 'block';
-        
+
         // Reset form and clear any previous messages (only if not from page load)
         if (event && event.type !== 'load' && event.type !== 'DOMContentLoaded') {
             resetRSBSAForm();
         }
-        
+
         // REMOVE THIS CONFLICTING CODE - let the HTML onclick handlers manage tabs
         // The showRSBSATab('form', event) in HTML will handle the initial tab display
-        
+
         // Scroll to the RSBSA form smoothly
         setTimeout(() => {
             const formElement = document.getElementById('new-rsbsa');
             if (formElement) {
-                formElement.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
+                formElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                 });
             }
         }, 100); // Small delay to ensure form is visible
-        
+
         // Update URL without page reload
         if (window.location.pathname !== '/services/rsbsa') {
             history.pushState({page: 'rsbsa'}, '', '/services/rsbsa');
         }
-        
+
         console.log('RSBSA form opened successfully');
     } else {
         console.error('RSBSA Registration form element not found');
@@ -160,19 +158,19 @@ function openRSBSAForm(event) {
  */
 function closeFormRSBSA() {
     console.log('Closing RSBSA form');
-    
+
     const formElement = document.getElementById('new-rsbsa');
     if (formElement) {
         formElement.style.display = 'none';
         console.log('RSBSA form closed');
     }
-    
+
     // Show main sections again
     if (typeof showAllMainSections === 'function') showAllMainSections();
-    
+
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
+
     // Update URL to home page
     if (window.location.pathname !== '/') {
         history.pushState({page: 'home'}, '', '/');
@@ -187,15 +185,15 @@ function resetRSBSAForm() {
     if (form) {
         // Reset form data
         form.reset();
-        
+
         // Clear any error styling
         const errorFields = form.querySelectorAll('.error');
         errorFields.forEach(field => field.classList.remove('error'));
-        
+
         // Clear any validation error messages
         const errorTexts = form.querySelectorAll('.error-text');
         errorTexts.forEach(error => error.remove());
-        
+
         // Reset submit button state
         const submitBtn = form.querySelector('.rsbsa-submit-btn') || form.querySelector('[type="submit"]') || form.querySelector('button[type="submit"]');
         if (submitBtn) {
@@ -205,18 +203,18 @@ function resetRSBSAForm() {
             if (btnText) btnText.style.display = 'inline';
             if (btnLoading) btnLoading.style.display = 'none';
         }
-        
+
         // Clear file input if exists
         const fileInput = form.querySelector('[name="supporting_docs"]');
         if (fileInput) {
             fileInput.value = '';
         }
-        
+
         // Remove any file display elements
         if (typeof removeFile === 'function') {
             removeFile();
         }
-        
+
         console.log('RSBSA form reset to initial state');
     }
 }
@@ -267,7 +265,7 @@ function initializeRSBSATabs() {
     // Hide Requirements and Information tabs, keep form visible
     const requirementsTab = document.getElementById('requirements');
     const infoTab = document.getElementById('information');
-    
+
     if (requirementsTab) requirementsTab.style.display = 'none';
     if (infoTab) infoTab.style.display = 'none';
 
@@ -280,7 +278,7 @@ function initializeRSBSATabs() {
     // Ensure Application Form tab is visible and its button is active
     const firstTab = document.getElementById('form');
     const firstButton = rsbsaForm.querySelector('.rsbsa-tab-btn');
-    
+
     if (firstTab && firstButton) {
         firstTab.style.display = 'block';
         firstButton.classList.add('active');
@@ -300,17 +298,17 @@ function validateRSBSAForm(form) {
         'mobile',
         'main_livelihood'
     ];
-    
+
     let isValid = true;
     let errors = [];
-    
+
     requiredFields.forEach(fieldName => {
         const field = form.querySelector(`[name="${fieldName}"]`);
         if (!field || !field.value.trim()) {
             isValid = false;
             const fieldLabel = fieldName.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
             errors.push(`${fieldLabel} is required`);
-            
+
             // Add error styling
             if (field) {
                 field.classList.add('error');
@@ -320,7 +318,7 @@ function validateRSBSAForm(form) {
             }
         }
     });
-    
+
     // Validate mobile number format
     const mobileField = form.querySelector('[name="mobile"]');
     if (mobileField && mobileField.value) {
@@ -331,7 +329,7 @@ function validateRSBSAForm(form) {
             mobileField.classList.add('error');
         }
     }
-    
+
     // Validate land area if provided
     const landAreaField = form.querySelector('[name="land_area"]');
     if (landAreaField && landAreaField.value) {
@@ -342,27 +340,27 @@ function validateRSBSAForm(form) {
             landAreaField.classList.add('error');
         }
     }
-    
+
     // Validate file upload
     const fileField = form.querySelector('[name="supporting_docs"]');
     if (fileField && fileField.files.length > 0) {
         const file = fileField.files[0];
         const maxSize = 5 * 1024 * 1024; // 5MB
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-        
+
         if (file.size > maxSize) {
             isValid = false;
             errors.push('File size must be less than 5MB');
             fileField.classList.add('error');
         }
-        
+
         if (!allowedTypes.includes(file.type)) {
             isValid = false;
             errors.push('File must be JPG, PNG, or PDF format');
             fileField.classList.add('error');
         }
     }
-    
+
     return { isValid, errors };
 }
 
@@ -371,14 +369,14 @@ function validateRSBSAForm(form) {
  */
 function formatMobileNumber(input) {
     let value = input.value.replace(/\D/g, ''); // Remove non-digits
-    
+
     // Format mobile number
     if (value.startsWith('63') && value.length === 12) {
         value = '+' + value;
     } else if (value.startsWith('9') && value.length === 10) {
         value = '0' + value;
     }
-    
+
     input.value = value;
 }
 
@@ -387,7 +385,7 @@ function formatMobileNumber(input) {
  */
 function handleRSBSAFormSubmission() {
     const rsbsaForm = document.querySelector('#rsbsa-form') || document.querySelector('#new-rsbsa form');
-    
+
     if (!rsbsaForm) {
         console.error('RSBSA form not found');
         return;
@@ -399,28 +397,28 @@ function handleRSBSAFormSubmission() {
         // Prevent default form submission immediately
         e.preventDefault();
         e.stopPropagation();
-        
+
         console.log('RSBSA form submission intercepted');
-        
+
         // Validate form
         const validation = validateRSBSAForm(this);
         if (!validation.isValid) {
             alert('❌ Please correct the following errors:\n• ' + validation.errors.join('\n• '));
             return false;
         }
-        
+
         // Find submit button
         const submitButton = this.querySelector('.rsbsa-submit-btn') || this.querySelector('[type="submit"]') || this.querySelector('button[type="submit"]');
         if (!submitButton) {
             console.error('Submit button not found');
             return false;
         }
-        
+
         // Show loading state - EXACTLY LIKE FISHR
         const originalText = submitButton.textContent;
         const btnText = submitButton.querySelector('.btn-text');
         const btnLoading = submitButton.querySelector('.btn-loading');
-        
+
         if (btnText && btnLoading) {
             // New button style with spans
             btnText.style.display = 'none';
@@ -430,31 +428,31 @@ function handleRSBSAFormSubmission() {
             submitButton.textContent = 'Submitting...';
         }
         submitButton.disabled = true;
-        
+
         try {
             // Ensure CSRF token
             console.log('Ensuring CSRF token...');
             let csrfToken = getRSBSACSRFToken();
-            
+
             if (!csrfToken) {
                 console.log('No cached CSRF token, fetching fresh one...');
                 csrfToken = await refreshRSBSACSRFToken();
             }
-            
+
             if (!csrfToken) {
                 throw new Error('CSRF token could not be obtained');
             }
-            
+
             console.log('CSRF token obtained:', csrfToken.substring(0, 10) + '...');
-            
+
             // Prepare form data
             const formData = new FormData(this);
-            
+
             // Ensure CSRF token is in form data
             formData.set('_token', csrfToken);
-            
+
             console.log('Submitting to /apply/rsbsa');
-            
+
             // Submit form via fetch with retry logic
             const response = await fetchRSBSAWithCSRFRetry('/apply/rsbsa', {
                 method: 'POST',
@@ -466,9 +464,9 @@ function handleRSBSAFormSubmission() {
                 },
                 credentials: 'same-origin'
             });
-            
+
             console.log('Response status:', response.status);
-            
+
             // Check if response is JSON
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
@@ -476,18 +474,18 @@ function handleRSBSAFormSubmission() {
                 console.error('Non-JSON response:', text.substring(0, 500));
                 throw new Error('Server returned non-JSON response. Please check server logs.');
             }
-            
+
             const result = await response.json();
             console.log('Response data:', result);
-            
+
             if (response.ok && result.success) {
                 // Show success message - EXACTLY LIKE FISHR STYLE
                 const successMessage = result.message || 'Your RSBSA application has been submitted successfully!';
                 const applicationNumber = result.application_number || result.reference_number || 'N/A';
-                
+
                 // Simple alert like FishR - clean and consistent
                 alert('✅ ' + successMessage + (applicationNumber !== 'N/A' ? '\n\nReference: ' + applicationNumber : ''));
-                
+
                 // Reset form and close immediately - EXACTLY LIKE FISHR
                 this.reset();
                 if (typeof removeFile === 'function') {
@@ -496,20 +494,20 @@ function handleRSBSAFormSubmission() {
                 closeFormRSBSA();
             } else {
                 let errorMessage = result.message || 'There was an error submitting your application.';
-                
+
                 // Handle validation errors
                 if (result.errors) {
                     const errorList = Object.values(result.errors).flat();
                     errorMessage = errorList.join(', ');
                 }
-                
+
                 console.error('Application submission failed:', result);
                 alert('❌ ' + errorMessage);
             }
-            
+
         } catch (error) {
             console.error('Submission error:', error);
-            
+
             // Handle specific error types - EXACTLY LIKE FISHR
             if (error.message.includes('419') || error.message.includes('CSRF')) {
                 alert('❌ Your session has expired. Please refresh the page and try again.');
@@ -528,7 +526,7 @@ function handleRSBSAFormSubmission() {
             }
             submitButton.disabled = false;
         }
-        
+
         return false;
     });
 }
@@ -539,7 +537,7 @@ function handleRSBSAFormSubmission() {
 function fillSampleRSBSAData() {
     const form = document.querySelector('#new-rsbsa form') || document.getElementById('rsbsa-form');
     if (!form) return;
-    
+
     // Sample data
     const sampleData = {
         first_name: 'Maria',
@@ -550,20 +548,20 @@ function fillSampleRSBSAData() {
         mobile: '09123456789',
         main_livelihood: 'rice'
     };
-    
+
     // Fill form fields
     Object.keys(sampleData).forEach(fieldName => {
         const input = form.querySelector(`[name="${fieldName}"]`);
         if (input) {
             input.value = sampleData[fieldName];
-            
+
             // Trigger change event for select elements
             if (input.tagName === 'SELECT') {
                 input.dispatchEvent(new Event('change'));
             }
         }
     });
-    
+
     console.log('Sample data filled for RSBSA form');
 }
 
@@ -581,7 +579,7 @@ function clearRSBSAForm() {
  */
 function handleRSBSAPopState(event) {
     console.log('RSBSA Pop state event:', event.state);
-    
+
     if (event.state && event.state.page === 'rsbsa') {
         // User navigated back to RSBSA form
         openRSBSAForm(new Event('popstate'));
@@ -601,12 +599,12 @@ function handleRSBSAPopState(event) {
 function hideAllMainSections() {
     const sections = [
         'home',
-        '.announcement', 
+        '.announcement',
         'services',
         'how-it-works',
         '.help-section'
     ];
-    
+
     sections.forEach(selector => {
         const element = selector.startsWith('.')
             ? document.querySelector(selector)
@@ -626,9 +624,9 @@ function showAllMainSections() {
         'how-it-works',
         '.help-section'
     ];
-    
+
     sections.forEach(selector => {
-        const element = selector.startsWith('.') 
+        const element = selector.startsWith('.')
             ? document.querySelector(selector)
             : document.getElementById(selector);
         if (element) element.style.display = 'block';
@@ -644,12 +642,12 @@ function hideAllForms() {
         'seedlings-choice', 'seedlings-form',
         'fishr-form', 'boatr-form'
     ];
-    
+
     formIds.forEach(id => {
         const element = document.getElementById(id);
         if (element) element.style.display = 'none';
     });
-    
+
     // Also hide by class selector for application sections
     const formSections = document.querySelectorAll('.rsbsa-application-section');
     formSections.forEach(section => {
@@ -687,13 +685,13 @@ function removeFile() {
     if (fileDisplay) {
         fileDisplay.remove();
     }
-    
+
     // Reset file input
     const fileInput = document.querySelector('[name="supporting_docs"]');
     if (fileInput) {
         fileInput.value = '';
     }
-    
+
     console.log('File removed from RSBSA form');
 }
 
@@ -704,10 +702,10 @@ function checkAndShowRSBSAOnLoad() {
     console.log('Checking if RSBSA form should be shown on page load...');
     console.log('Current URL:', window.location.href);
     console.log('Current pathname:', window.location.pathname);
-    
+
     if (shouldShowRSBSAForm()) {
         console.log('URL indicates RSBSA form should be shown - opening form');
-        
+
         // Wait a bit for DOM to be fully ready
         setTimeout(() => {
             const formElement = document.getElementById('new-rsbsa');
@@ -737,16 +735,16 @@ function checkAndShowRSBSAOnLoad() {
  */
 function initializeRSBSAModule() {
     console.log('Initializing RSBSA module...');
-    
+
     // Check if we should show the RSBSA form based on URL
     checkAndShowRSBSAOnLoad();
-    
+
     // Get initial CSRF token
     getRSBSACSRFToken();
-    
+
     // Initialize form submission handler
     handleRSBSAFormSubmission();
-    
+
     // Initialize mobile number formatting
     const mobileInput = document.querySelector('#new-rsbsa [name="mobile"]');
     if (mobileInput) {
@@ -754,7 +752,7 @@ function initializeRSBSAModule() {
             formatMobileNumber(e.target);
         });
     }
-    
+
     // Initialize error removal on focus
     const allInputs = document.querySelectorAll('#new-rsbsa input, #new-rsbsa select');
     allInputs.forEach(input => {
@@ -762,10 +760,10 @@ function initializeRSBSAModule() {
             this.classList.remove('error');
         });
     });
-    
+
     // Handle browser back/forward buttons
     window.addEventListener('popstate', handleRSBSAPopState);
-    
+
     // Add keyboard shortcuts for development - EXACTLY LIKE FISHR
     document.addEventListener('keydown', function(e) {
         // Ctrl + Shift + R = Fill sample RSBSA data
@@ -773,14 +771,14 @@ function initializeRSBSAModule() {
             e.preventDefault();
             fillSampleRSBSAData();
         }
-        
+
         // Ctrl + Shift + C = Clear RSBSA form
         if (e.ctrlKey && e.shiftKey && e.key === 'C') {
             e.preventDefault();
             clearRSBSAForm();
         }
     });
-    
+
     console.log('RSBSA module initialized successfully');
 }
 
@@ -789,10 +787,10 @@ function initializeRSBSAModule() {
  */
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing RSBSA form');
-    
+
     // Initialize module with delay to ensure all elements are ready
     setTimeout(initializeRSBSAModule, 200);
-    
+
     console.log('RSBSA form initialization scheduled');
 });
 
@@ -801,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 window.addEventListener('load', function() {
     console.log('Window loaded, double-checking RSBSA form display');
-    
+
     // Double-check and show form if needed
     setTimeout(checkAndShowRSBSAOnLoad, 300);
 });

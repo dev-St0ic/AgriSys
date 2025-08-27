@@ -49,6 +49,11 @@ return new class extends Migration
             $table->json('fruits_approved_items')->nullable();
             $table->json('fertilizers_approved_items')->nullable();
 
+            // Rejected items
+            $table->json('vegetables_rejected_items')->nullable(); // Added rejected items fields
+            $table->json('fruits_rejected_items')->nullable();
+            $table->json('fertilizers_rejected_items')->nullable();
+
             // Review information
             $table->unsignedBigInteger('reviewed_by')->nullable();
             $table->timestamp('reviewed_at')->nullable();

@@ -16,7 +16,7 @@ class SeedlingRequestController extends Controller
     public function index(Request $request)
     {
         $query = SeedlingRequest::orderBy('created_at', 'desc');
-        
+
         // Add search functionality
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
@@ -58,7 +58,7 @@ class SeedlingRequestController extends Controller
         }
 
         $requests = $query->paginate(15)->withQueryString();
-        
+
         // Get statistics
         $totalRequests = SeedlingRequest::count();
         $underReviewCount = SeedlingRequest::where('status', 'under_review')->count();
@@ -68,11 +68,11 @@ class SeedlingRequestController extends Controller
 
         // Get unique barangays for filter dropdown
         $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
-        
+
         return view('admin.seedlings.index', compact(
             'requests',
             'totalRequests',
-            'underReviewCount', 
+            'underReviewCount',
             'approvedCount',
             'partiallyApprovedCount',
             'rejectedCount',
@@ -144,7 +144,7 @@ class SeedlingRequestController extends Controller
             }
 
             $message = match($newStatus) {
-                'approved' => 'Request approved successfully and inventory has been updated. ' . 
+                'approved' => 'Request approved successfully and inventory has been updated. ' .
                              ($seedlingRequest->email ? 'Email notification sent to applicant.' : ''),
                 'rejected' => 'Request rejected successfully.',
                 'under_review' => 'Request moved back to under review.',
@@ -184,7 +184,7 @@ class SeedlingRequestController extends Controller
             }
 
             $seedlingRequest->updateCategoryStatus($category, $status, $seedlingRequest->{$category});
-            
+
             // Update remarks if provided
             if ($request->remarks) {
                 $seedlingRequest->update(['remarks' => $request->remarks]);
@@ -211,15 +211,14 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Bulk update categories
+     * Bulk update categories with individual item status control
      */
     public function bulkUpdateCategories(Request $request, SeedlingRequest $seedlingRequest)
     {
         $request->validate([
             'categories' => 'required|array',
             'categories.*' => 'required|in:vegetables,fruits,fertilizers',
-            'statuses' => 'required|array',
-            'statuses.*' => 'required|in:approved,rejected,under_review',
+            'item_statuses' => 'required|array',
             'remarks' => 'nullable|string|max:500',
         ]);
 
@@ -227,12 +226,15 @@ class SeedlingRequestController extends Controller
             \DB::beginTransaction();
 
             $categories = $request->categories;
-            $statuses = $request->statuses;
-            
-            foreach ($categories as $index => $category) {
+            $itemStatuses = $request->item_statuses;
+
+            foreach ($categories as $category) {
                 if (!empty($seedlingRequest->{$category})) {
-                    $status = $statuses[$index] ?? 'under_review';
-                    $seedlingRequest->updateCategoryStatus($category, $status, $seedlingRequest->{$category});
+                    $this->updateCategoryWithIndividualItemStatuses(
+                        $seedlingRequest,
+                        $category,
+                        $itemStatuses[$category] ?? []
+                    );
                 }
             }
 
@@ -243,7 +245,7 @@ class SeedlingRequestController extends Controller
 
             \DB::commit();
 
-            return redirect()->back()->with('success', 'Categories updated successfully.');
+            return redirect()->back()->with('success', 'Items updated successfully with individual approval status.');
 
         } catch (\Exception $e) {
             \DB::rollback();
@@ -254,12 +256,100 @@ class SeedlingRequestController extends Controller
     }
 
     /**
+     * Update category with individual item statuses
+     */
+    private function updateCategoryWithIndividualItemStatuses($seedlingRequest, $category, $itemStatuses)
+    {
+        $requestedItems = $seedlingRequest->{$category} ?? [];
+        $approvedItems = [];
+        $rejectedItems = [];
+
+        foreach ($requestedItems as $item) {
+            $itemKey = is_array($item) ? $item['name'] : $item;
+            $status = $itemStatuses[$itemKey] ?? 'pending';
+
+            if ($status === 'approved') {
+                $approvedItems[] = $item;
+            } elseif ($status === 'rejected') {
+                $rejectedItems[] = $item;
+            }
+        }
+
+        // Determine overall category status
+        $categoryStatus = $this->determineCategoryStatusFromStatuses($itemStatuses, $requestedItems);
+
+        // Update the seedling request
+        $seedlingRequest->update([
+            "{$category}_status" => $categoryStatus,
+            "{$category}_approved_items" => $approvedItems,
+            "{$category}_rejected_items" => $rejectedItems,
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+
+        // Update inventory if items are approved
+        if (!empty($approvedItems)) {
+            $this->updateInventoryForApprovedItems($approvedItems, $category);
+        }
+    }
+
+    /**
+     * Determine category status based on individual item statuses
+     */
+    private function determineCategoryStatusFromStatuses($itemStatuses, $requestedItems)
+    {
+        $totalItems = count($requestedItems);
+        $approvedCount = 0;
+        $rejectedCount = 0;
+
+        foreach ($requestedItems as $item) {
+            $itemKey = is_array($item) ? $item['name'] : $item;
+            $status = $itemStatuses[$itemKey] ?? 'pending';
+
+            if ($status === 'approved') {
+                $approvedCount++;
+            } elseif ($status === 'rejected') {
+                $rejectedCount++;
+            }
+        }
+
+        if ($approvedCount === $totalItems) {
+            return 'approved';
+        } elseif ($rejectedCount === $totalItems) {
+            return 'rejected';
+        } elseif ($approvedCount > 0) {
+            return 'partially_approved';
+        } else {
+            return 'under_review';
+        }
+    }
+
+    /**
+     * Update inventory for approved items
+     */
+    private function updateInventoryForApprovedItems($approvedItems, $category)
+    {
+        foreach ($approvedItems as $item) {
+            $itemName = is_array($item) ? $item['name'] : $item;
+            $quantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+
+            $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$itemName}%")
+                ->where('category', $category === 'fertilizers' ? 'fertilizer' : substr($category, 0, -1))
+                ->first();
+
+            if ($inventory && $inventory->current_stock >= $quantity) {
+                $inventory->decrement('current_stock', $quantity);
+            }
+        }
+    }
+
+    /**
      * Get inventory status for AJAX requests
      */
     public function getInventoryStatus(SeedlingRequest $seedlingRequest)
     {
         $inventoryStatus = $seedlingRequest->checkInventoryAvailability();
-        
+
         return response()->json([
             'success' => true,
             'data' => $inventoryStatus
@@ -279,7 +369,7 @@ class SeedlingRequestController extends Controller
         }
 
         $inventoryStatus = $seedlingRequest->checkCategoryInventoryAvailability($category);
-        
+
         return response()->json([
             'success' => true,
             'data' => $inventoryStatus
