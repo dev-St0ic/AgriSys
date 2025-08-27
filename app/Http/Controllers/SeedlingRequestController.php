@@ -56,7 +56,7 @@ class SeedlingRequestController extends Controller
         if ($request->has('date_from') && !empty($request->date_from)) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
-        
+
         if ($request->has('date_to') && !empty($request->date_to)) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }
@@ -76,7 +76,7 @@ class SeedlingRequestController extends Controller
         $perPage = 15;
         $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage();
         $currentItems = $allResults->slice(($currentPage - 1) * $perPage, $perPage)->values();
-        
+
         $requests = new \Illuminate\Pagination\LengthAwarePaginator(
             $currentItems,
             $allResults->count(),
@@ -127,7 +127,7 @@ class SeedlingRequestController extends Controller
         if ($request->has('date_from') && !empty($request->date_from)) {
             $statsQuery->whereDate('created_at', '>=', $request->date_from);
         }
-        
+
         if ($request->has('date_to') && !empty($request->date_to)) {
             $statsQuery->whereDate('created_at', '<=', $request->date_to);
         }

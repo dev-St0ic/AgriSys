@@ -203,13 +203,13 @@
                                     <th class="px-3 py-3 fw-medium text-muted border-end">Request #</th>
                                     <th class="px-3 py-3 fw-medium text-muted border-end">Name</th>
                                     <th class="px-3 py-3 fw-medium text-muted border-end">Barangay</th>
-                                    @if(!request('category') || request('category') == 'vegetables')
+                                    @if (!request('category') || request('category') == 'vegetables')
                                         <th class="px-3 py-3 fw-medium text-muted border-end">Vegetables</th>
                                     @endif
-                                    @if(!request('category') || request('category') == 'fruits')
+                                    @if (!request('category') || request('category') == 'fruits')
                                         <th class="px-3 py-3 fw-medium text-muted border-end">Fruits</th>
                                     @endif
-                                    @if(!request('category') || request('category') == 'fertilizers')
+                                    @if (!request('category') || request('category') == 'fertilizers')
                                         <th class="px-3 py-3 fw-medium text-muted border-end">Fertilizers</th>
                                     @endif
                                     <th class="px-3 py-3 fw-medium text-muted border-end">Overall Status</th>
@@ -235,281 +235,177 @@
                                         </td>
 
                                         <!-- Vegetables Column -->
-                                        @if(!request('category') || request('category') == 'vegetables')
-                                        <td class="px-3 py-3 border-end">
-                                            @if ($request->vegetables && count($request->vegetables) > 0)
-                                                @php
-                                                    $vegStatus = $request->vegetables_status ?? 'under_review';
-                                                    $vegCheck = $request->checkCategoryInventoryAvailability(
-                                                        'vegetables',
-                                                    );
-                                                    $approvedItems = $request->vegetables_approved_items ?? [];
-                                                    $rejectedItems = $request->vegetables_rejected_items ?? [];
-                                                @endphp
-
-                                                <!-- Item Status List -->
-                                                <div class="small">
-                                                    @if (count($approvedItems) > 0)
-                                                        <div class="mb-2">
-                                                            <div class="mb-1">
-                                                                <span class="text-success fw-medium">✓ Approved:</span>
-                                                            </div>
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach ($approvedItems as $item)
-                                                                    <span
-                                                                        class="badge bg-success text-white fw-normal fs-6">
-                                                                        <i class="fas fa-check-circle me-1"></i>
-                                                                        {{ is_array($item) ? $item['name'] : $item }}
-                                                                        @if (is_array($item) && isset($item['quantity']))
-                                                                            ({{ $item['quantity'] }} pcs)
-                                                                        @endif
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
-                                                    @if (count($rejectedItems) > 0)
-                                                        <div class="mb-2">
-                                                            <div class="mb-1">
-                                                                <span class="text-danger fw-medium">✗ Rejected:</span>
-                                                            </div>
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach ($rejectedItems as $item)
-                                                                    <span
-                                                                        class="badge bg-danger text-white fw-normal fs-6">
-                                                                        <i class="fas fa-times-circle me-1"></i>
-                                                                        {{ is_array($item) ? $item['name'] : $item }}
-                                                                        @if (is_array($item) && isset($item['quantity']))
-                                                                            ({{ $item['quantity'] }} pcs)
-                                                                        @endif
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
+                                        @if (!request('category') || request('category') == 'vegetables')
+                                            <td class="px-3 py-3 border-end">
+                                                @if ($request->vegetables && count($request->vegetables) > 0)
                                                     @php
-                                                        $pendingItems = collect($request->vegetables)->filter(function (
-                                                            $vegetable,
-                                                        ) use ($approvedItems, $rejectedItems) {
-                                                            $itemName = is_array($vegetable)
-                                                                ? $vegetable['name']
-                                                                : $vegetable;
-
-                                                            $isApproved = collect($approvedItems)->contains(function (
-                                                                $item,
-                                                            ) use ($itemName) {
-                                                                return (is_array($item) ? $item['name'] : $item) ===
-                                                                    $itemName;
-                                                            });
-
-                                                            $isRejected = collect($rejectedItems)->contains(function (
-                                                                $item,
-                                                            ) use ($itemName) {
-                                                                return (is_array($item) ? $item['name'] : $item) ===
-                                                                    $itemName;
-                                                            });
-
-                                                            return !$isApproved && !$isRejected;
-                                                        });
+                                                        $vegStatus = $request->vegetables_status ?? 'under_review';
+                                                        $vegCheck = $request->checkCategoryInventoryAvailability(
+                                                            'vegetables',
+                                                        );
+                                                        $approvedItems = $request->vegetables_approved_items ?? [];
+                                                        $rejectedItems = $request->vegetables_rejected_items ?? [];
                                                     @endphp
 
-                                                    @if ($pendingItems->count() > 0)
-                                                        <div class="mb-2">
-                                                            <div class="mb-1">
-                                                                <span class="text-warning fw-medium">⏳ Pending:</span>
+                                                    <!-- Item Status List -->
+                                                    <div class="small">
+                                                        @if (count($approvedItems) > 0)
+                                                            <div class="mb-2">
+                                                                <div class="mb-1">
+                                                                    <span class="text-success fw-medium">✓ Approved:</span>
+                                                                </div>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach ($approvedItems as $item)
+                                                                        <span
+                                                                            class="badge bg-success text-white fw-normal fs-6">
+                                                                            <i class="fas fa-check-circle me-1"></i>
+                                                                            {{ is_array($item) ? $item['name'] : $item }}
+                                                                            @if (is_array($item) && isset($item['quantity']))
+                                                                                ({{ $item['quantity'] }} pcs)
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
                                                             </div>
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach ($pendingItems as $item)
-                                                                    <span
-                                                                        class="badge bg-warning text-white fw-normal fs-6">
-                                                                        <i class="fas fa-clock me-1"></i>
-                                                                        {{ is_array($item) ? $item['name'] : $item }}
-                                                                        @if (is_array($item) && isset($item['quantity']))
-                                                                            ({{ $item['quantity'] }} pcs)
-                                                                        @endif
-                                                                    </span>
-                                                                @endforeach
+                                                        @endif
+
+                                                        @if (count($rejectedItems) > 0)
+                                                            <div class="mb-2">
+                                                                <div class="mb-1">
+                                                                    <span class="text-danger fw-medium">✗ Rejected:</span>
+                                                                </div>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach ($rejectedItems as $item)
+                                                                        <span
+                                                                            class="badge bg-danger text-white fw-normal fs-6">
+                                                                            <i class="fas fa-times-circle me-1"></i>
+                                                                            {{ is_array($item) ? $item['name'] : $item }}
+                                                                            @if (is_array($item) && isset($item['quantity']))
+                                                                                ({{ $item['quantity'] }} pcs)
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @else
-                                                <span class="text-muted">No Request</span>
-                                            @endif
-                                        </td>
+                                                        @endif
+
+                                                        @php
+                                                            $pendingItems = collect($request->vegetables)->filter(
+                                                                function ($vegetable) use (
+                                                                    $approvedItems,
+                                                                    $rejectedItems,
+                                                                ) {
+                                                                    $itemName = is_array($vegetable)
+                                                                        ? $vegetable['name']
+                                                                        : $vegetable;
+
+                                                                    $isApproved = collect($approvedItems)->contains(
+                                                                        function ($item) use ($itemName) {
+                                                                            return (is_array($item)
+                                                                                ? $item['name']
+                                                                                : $item) === $itemName;
+                                                                        },
+                                                                    );
+
+                                                                    $isRejected = collect($rejectedItems)->contains(
+                                                                        function ($item) use ($itemName) {
+                                                                            return (is_array($item)
+                                                                                ? $item['name']
+                                                                                : $item) === $itemName;
+                                                                        },
+                                                                    );
+
+                                                                    return !$isApproved && !$isRejected;
+                                                                },
+                                                            );
+                                                        @endphp
+
+                                                        @if ($pendingItems->count() > 0)
+                                                            <div class="mb-2">
+                                                                <div class="mb-1">
+                                                                    <span class="text-warning fw-medium">⏳ Pending:</span>
+                                                                </div>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach ($pendingItems as $item)
+                                                                        <span
+                                                                            class="badge bg-warning text-white fw-normal fs-6">
+                                                                            <i class="fas fa-clock me-1"></i>
+                                                                            {{ is_array($item) ? $item['name'] : $item }}
+                                                                            @if (is_array($item) && isset($item['quantity']))
+                                                                                ({{ $item['quantity'] }} pcs)
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted">No Request</span>
+                                                @endif
+                                            </td>
                                         @endif
 
                                         <!-- Fruits Column -->
-                                        @if(!request('category') || request('category') == 'fruits')
-                                        <td class="px-3 py-3 border-end">
-                                            @if ($request->fruits && count($request->fruits) > 0)
-                                                @php
-                                                    $fruitStatus = $request->fruits_status ?? 'under_review';
-                                                    $fruitCheck = $request->checkCategoryInventoryAvailability(
-                                                        'fruits',
-                                                    );
-                                                    $approvedItems = $request->fruits_approved_items ?? [];
-                                                    $rejectedItems = $request->fruits_rejected_items ?? [];
-                                                @endphp
-
-                                                <!-- Item Status List -->
-                                                <div class="small">
-                                                    @if (count($approvedItems) > 0)
-                                                        <div class="mb-2">
-                                                            <div class="mb-1">
-                                                                <span class="text-success fw-medium">✓ Approved:</span>
-                                                            </div>
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach ($approvedItems as $item)
-                                                                    <span
-                                                                        class="badge bg-success text-white fw-normal fs-6">
-                                                                        <i class="fas fa-check-circle me-1"></i>
-                                                                        {{ is_array($item) ? $item['name'] : $item }}
-                                                                        @if (is_array($item) && isset($item['quantity']))
-                                                                            ({{ $item['quantity'] }} pcs)
-                                                                        @endif
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
-                                                    @if (count($rejectedItems) > 0)
-                                                        <div class="mb-2">
-                                                            <div class="mb-1">
-                                                                <span class="text-danger fw-medium">✗ Rejected:</span>
-                                                            </div>
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach ($rejectedItems as $item)
-                                                                    <span
-                                                                        class="badge bg-danger text-white fw-normal fs-6">
-                                                                        <i class="fas fa-times-circle me-1"></i>
-                                                                        {{ is_array($item) ? $item['name'] : $item }}
-                                                                        @if (is_array($item) && isset($item['quantity']))
-                                                                            ({{ $item['quantity'] }} pcs)
-                                                                        @endif
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
+                                        @if (!request('category') || request('category') == 'fruits')
+                                            <td class="px-3 py-3 border-end">
+                                                @if ($request->fruits && count($request->fruits) > 0)
                                                     @php
-                                                        $pendingItems = collect($request->fruits)->filter(function (
-                                                            $fruit,
-                                                        ) use ($approvedItems, $rejectedItems) {
-                                                            $itemName = is_array($fruit) ? $fruit['name'] : $fruit;
-
-                                                            $isApproved = collect($approvedItems)->contains(function (
-                                                                $item,
-                                                            ) use ($itemName) {
-                                                                return (is_array($item) ? $item['name'] : $item) ===
-                                                                    $itemName;
-                                                            });
-
-                                                            $isRejected = collect($rejectedItems)->contains(function (
-                                                                $item,
-                                                            ) use ($itemName) {
-                                                                return (is_array($item) ? $item['name'] : $item) ===
-                                                                    $itemName;
-                                                            });
-
-                                                            return !$isApproved && !$isRejected;
-                                                        });
+                                                        $fruitStatus = $request->fruits_status ?? 'under_review';
+                                                        $fruitCheck = $request->checkCategoryInventoryAvailability(
+                                                            'fruits',
+                                                        );
+                                                        $approvedItems = $request->fruits_approved_items ?? [];
+                                                        $rejectedItems = $request->fruits_rejected_items ?? [];
                                                     @endphp
 
-                                                    @if ($pendingItems->count() > 0)
-                                                        <div class="mb-2">
-                                                            <div class="mb-1">
-                                                                <span class="text-warning fw-medium">⏳ Pending:</span>
+                                                    <!-- Item Status List -->
+                                                    <div class="small">
+                                                        @if (count($approvedItems) > 0)
+                                                            <div class="mb-2">
+                                                                <div class="mb-1">
+                                                                    <span class="text-success fw-medium">✓ Approved:</span>
+                                                                </div>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach ($approvedItems as $item)
+                                                                        <span
+                                                                            class="badge bg-success text-white fw-normal fs-6">
+                                                                            <i class="fas fa-check-circle me-1"></i>
+                                                                            {{ is_array($item) ? $item['name'] : $item }}
+                                                                            @if (is_array($item) && isset($item['quantity']))
+                                                                                ({{ $item['quantity'] }} pcs)
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
                                                             </div>
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach ($pendingItems as $item)
-                                                                    <span
-                                                                        class="badge bg-warning text-white fw-normal fs-6">
-                                                                        <i class="fas fa-clock me-1"></i>
-                                                                        {{ is_array($item) ? $item['name'] : $item }}
-                                                                        @if (is_array($item) && isset($item['quantity']))
-                                                                            ({{ $item['quantity'] }} pcs)
-                                                                        @endif
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @else
-                                                <span class="text-muted">No Request</span>
-                                            @endif
-                                        </td>
-                                        @endif
+                                                        @endif
 
-                                        <!-- Fertilizers Column -->
-                                        @if(!request('category') || request('category') == 'fertilizers')
-                                        <td class="px-3 py-3 border-end">
-                                            @if ($request->fertilizers && count($request->fertilizers) > 0)
-                                                @php
-                                                    $fertStatus = $request->fertilizers_status ?? 'under_review';
-                                                    $fertCheck = $request->checkCategoryInventoryAvailability(
-                                                        'fertilizers',
-                                                    );
-                                                    $approvedItems = $request->fertilizers_approved_items ?? [];
-                                                    $rejectedItems = $request->fertilizers_rejected_items ?? [];
-                                                @endphp
+                                                        @if (count($rejectedItems) > 0)
+                                                            <div class="mb-2">
+                                                                <div class="mb-1">
+                                                                    <span class="text-danger fw-medium">✗ Rejected:</span>
+                                                                </div>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach ($rejectedItems as $item)
+                                                                        <span
+                                                                            class="badge bg-danger text-white fw-normal fs-6">
+                                                                            <i class="fas fa-times-circle me-1"></i>
+                                                                            {{ is_array($item) ? $item['name'] : $item }}
+                                                                            @if (is_array($item) && isset($item['quantity']))
+                                                                                ({{ $item['quantity'] }} pcs)
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
 
-                                                <!-- Item Status List -->
-                                                <div class="small">
-                                                    @if (count($approvedItems) > 0)
-                                                        <div class="mb-2">
-                                                            <div class="mb-1">
-                                                                <span class="text-success fw-medium">✓ Approved:</span>
-                                                            </div>
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach ($approvedItems as $item)
-                                                                    <span
-                                                                        class="badge bg-success text-white fw-normal fs-6">
-                                                                        <i class="fas fa-check-circle me-1"></i>
-                                                                        {{ is_array($item) ? $item['name'] : $item }}
-                                                                        @if (is_array($item) && isset($item['quantity']))
-                                                                            ({{ $item['quantity'] }} pcs)
-                                                                        @endif
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
-                                                    @if (count($rejectedItems) > 0)
-                                                        <div class="mb-2">
-                                                            <div class="mb-1">
-                                                                <span class="text-danger fw-medium">✗ Rejected:</span>
-                                                            </div>
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach ($rejectedItems as $item)
-                                                                    <span
-                                                                        class="badge bg-danger text-white fw-normal fs-6">
-                                                                        <i class="fas fa-times-circle me-1"></i>
-                                                                        {{ is_array($item) ? $item['name'] : $item }}
-                                                                        @if (is_array($item) && isset($item['quantity']))
-                                                                            ({{ $item['quantity'] }} pcs)
-                                                                        @endif
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
-
-                                                    @php
-                                                        $pendingItems = collect($request->fertilizers)->filter(
-                                                            function ($fertilizer) use (
-                                                                $approvedItems,
-                                                                $rejectedItems,
-                                                            ) {
-                                                                $itemName = is_array($fertilizer)
-                                                                    ? $fertilizer['name']
-                                                                    : $fertilizer;
+                                                        @php
+                                                            $pendingItems = collect($request->fruits)->filter(function (
+                                                                $fruit,
+                                                            ) use ($approvedItems, $rejectedItems) {
+                                                                $itemName = is_array($fruit) ? $fruit['name'] : $fruit;
 
                                                                 $isApproved = collect($approvedItems)->contains(
                                                                     function ($item) use ($itemName) {
@@ -528,34 +424,145 @@
                                                                 );
 
                                                                 return !$isApproved && !$isRejected;
-                                                            },
+                                                            });
+                                                        @endphp
+
+                                                        @if ($pendingItems->count() > 0)
+                                                            <div class="mb-2">
+                                                                <div class="mb-1">
+                                                                    <span class="text-warning fw-medium">⏳ Pending:</span>
+                                                                </div>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach ($pendingItems as $item)
+                                                                        <span
+                                                                            class="badge bg-warning text-white fw-normal fs-6">
+                                                                            <i class="fas fa-clock me-1"></i>
+                                                                            {{ is_array($item) ? $item['name'] : $item }}
+                                                                            @if (is_array($item) && isset($item['quantity']))
+                                                                                ({{ $item['quantity'] }} pcs)
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted">No Request</span>
+                                                @endif
+                                            </td>
+                                        @endif
+
+                                        <!-- Fertilizers Column -->
+                                        @if (!request('category') || request('category') == 'fertilizers')
+                                            <td class="px-3 py-3 border-end">
+                                                @if ($request->fertilizers && count($request->fertilizers) > 0)
+                                                    @php
+                                                        $fertStatus = $request->fertilizers_status ?? 'under_review';
+                                                        $fertCheck = $request->checkCategoryInventoryAvailability(
+                                                            'fertilizers',
                                                         );
+                                                        $approvedItems = $request->fertilizers_approved_items ?? [];
+                                                        $rejectedItems = $request->fertilizers_rejected_items ?? [];
                                                     @endphp
 
-                                                    @if ($pendingItems->count() > 0)
-                                                        <div class="mb-2">
-                                                            <div class="mb-1">
-                                                                <span class="text-warning fw-medium">⏳ Pending:</span>
+                                                    <!-- Item Status List -->
+                                                    <div class="small">
+                                                        @if (count($approvedItems) > 0)
+                                                            <div class="mb-2">
+                                                                <div class="mb-1">
+                                                                    <span class="text-success fw-medium">✓ Approved:</span>
+                                                                </div>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach ($approvedItems as $item)
+                                                                        <span
+                                                                            class="badge bg-success text-white fw-normal fs-6">
+                                                                            <i class="fas fa-check-circle me-1"></i>
+                                                                            {{ is_array($item) ? $item['name'] : $item }}
+                                                                            @if (is_array($item) && isset($item['quantity']))
+                                                                                ({{ $item['quantity'] }} pcs)
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
                                                             </div>
-                                                            <div class="d-flex flex-wrap gap-1">
-                                                                @foreach ($pendingItems as $item)
-                                                                    <span
-                                                                        class="badge bg-warning text-white fw-normal fs-6">
-                                                                        <i class="fas fa-clock me-1"></i>
-                                                                        {{ is_array($item) ? $item['name'] : $item }}
-                                                                        @if (is_array($item) && isset($item['quantity']))
-                                                                            ({{ $item['quantity'] }} pcs)
-                                                                        @endif
-                                                                    </span>
-                                                                @endforeach
+                                                        @endif
+
+                                                        @if (count($rejectedItems) > 0)
+                                                            <div class="mb-2">
+                                                                <div class="mb-1">
+                                                                    <span class="text-danger fw-medium">✗ Rejected:</span>
+                                                                </div>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach ($rejectedItems as $item)
+                                                                        <span
+                                                                            class="badge bg-danger text-white fw-normal fs-6">
+                                                                            <i class="fas fa-times-circle me-1"></i>
+                                                                            {{ is_array($item) ? $item['name'] : $item }}
+                                                                            @if (is_array($item) && isset($item['quantity']))
+                                                                                ({{ $item['quantity'] }} pcs)
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @else
-                                                <span class="text-muted">No Request</span>
-                                            @endif
-                                        </td>
+                                                        @endif
+
+                                                        @php
+                                                            $pendingItems = collect($request->fertilizers)->filter(
+                                                                function ($fertilizer) use (
+                                                                    $approvedItems,
+                                                                    $rejectedItems,
+                                                                ) {
+                                                                    $itemName = is_array($fertilizer)
+                                                                        ? $fertilizer['name']
+                                                                        : $fertilizer;
+
+                                                                    $isApproved = collect($approvedItems)->contains(
+                                                                        function ($item) use ($itemName) {
+                                                                            return (is_array($item)
+                                                                                ? $item['name']
+                                                                                : $item) === $itemName;
+                                                                        },
+                                                                    );
+
+                                                                    $isRejected = collect($rejectedItems)->contains(
+                                                                        function ($item) use ($itemName) {
+                                                                            return (is_array($item)
+                                                                                ? $item['name']
+                                                                                : $item) === $itemName;
+                                                                        },
+                                                                    );
+
+                                                                    return !$isApproved && !$isRejected;
+                                                                },
+                                                            );
+                                                        @endphp
+
+                                                        @if ($pendingItems->count() > 0)
+                                                            <div class="mb-2">
+                                                                <div class="mb-1">
+                                                                    <span class="text-warning fw-medium">⏳ Pending:</span>
+                                                                </div>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach ($pendingItems as $item)
+                                                                        <span
+                                                                            class="badge bg-warning text-white fw-normal fs-6">
+                                                                            <i class="fas fa-clock me-1"></i>
+                                                                            {{ is_array($item) ? $item['name'] : $item }}
+                                                                            @if (is_array($item) && isset($item['quantity']))
+                                                                                ({{ $item['quantity'] }} pcs)
+                                                                            @endif
+                                                                        </span>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted">No Request</span>
+                                                @endif
+                                            </td>
                                         @endif
 
                                         <!-- Overall Status -->
