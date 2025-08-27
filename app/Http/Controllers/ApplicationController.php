@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\FishrApplication;
 use App\Models\SeedlingRequest;
 use App\Models\BoatrApplication;
-use App\Models\RsbsaApplication; 
+use App\Models\RsbsaApplication;
 use App\Models\TrainingApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -27,7 +27,7 @@ class ApplicationController extends Controller
                 'last_name' => 'required|string|max:255',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
                 'barangay' => 'required|string|max:255',
-                'mobile_number' => 'required|string|max:20',
+                'contact_number' => 'required|string|max:20',
                 'email' => 'required|email|max:255',
                 'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
                 'other_livelihood' => 'nullable|string|max:255|required_if:main_livelihood,others',
@@ -37,7 +37,7 @@ class ApplicationController extends Controller
                 'last_name.required' => 'Last name is required',
                 'sex.required' => 'Please select your sex',
                 'barangay.required' => 'Please select your barangay',
-                'mobile_number.required' => 'Mobile number is required',
+                'contact_number.required' => 'Contact number is required',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
                 'main_livelihood.required' => 'Please select your main livelihood',
@@ -60,7 +60,7 @@ class ApplicationController extends Controller
 
             // Determine livelihood description
             $livelihoodDescription = $this->getLivelihoodDescription(
-                $validated['main_livelihood'], 
+                $validated['main_livelihood'],
                 $validated['other_livelihood'] ?? null
             );
 
@@ -75,7 +75,7 @@ class ApplicationController extends Controller
                 'last_name' => $validated['last_name'],
                 'sex' => $validated['sex'],
                 'barangay' => $validated['barangay'],
-                'contact_number' => $validated['mobile_number'],
+                'contact_number' => $validated['contact_number'],
                 'email' => $validated['email'],
                 'main_livelihood' => $validated['main_livelihood'],
                 'livelihood_description' => $livelihoodDescription,
@@ -91,8 +91,8 @@ class ApplicationController extends Controller
                 'livelihood' => $livelihoodDescription
             ]);
 
-            $successMessage = 'Your FishR registration has been submitted successfully! Registration Number: ' . 
-                            $fishRRegistration->registration_number . 
+            $successMessage = 'Your FishR registration has been submitted successfully! Registration Number: ' .
+                            $fishRRegistration->registration_number .
                             '. You will receive an SMS notification once your registration is processed.';
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -233,8 +233,8 @@ class ApplicationController extends Controller
                 'total_quantity' => $seedlingRequest->total_quantity
             ]);
 
-            $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' . 
-                            $seedlingRequest->request_number . 
+            $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' .
+                            $seedlingRequest->request_number .
                             '. You will receive an SMS notification once your request is processed.';
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -351,11 +351,11 @@ public function submitRsbsa(Request $request)
                 try {
                     // Create directory if it doesn't exist
                     Storage::disk('public')->makeDirectory('rsbsa_documents');
-                    
+
                     // Generate unique filename
                     $fileName = 'rsbsa_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                     $documentPath = $file->storeAs('rsbsa_documents', $fileName, 'public');
-                    
+
                     Log::info('RSBSA document uploaded', [
                         'path' => $documentPath,
                         'original_name' => $file->getClientOriginalName(),
@@ -381,17 +381,17 @@ public function submitRsbsa(Request $request)
             'middle_name' => $validated['middle_name'] ?: null,
             'last_name' => $validated['last_name'],
             'sex' => $validated['sex'],
-            'mobile_number' => $validated['mobile'],
+            'contact_number' => $validated['mobile'],
             'email' => $validated['email'],
             'barangay' => $validated['barangay'],
             'main_livelihood' => $validated['main_livelihood'],
             'land_area' => $validated['land_area'],
-            'farm_location' => $validated['farm_location'], 
-            'commodity' => $validated['commodity'], 
+            'farm_location' => $validated['farm_location'],
+            'commodity' => $validated['commodity'],
             'supporting_document_path' => $documentPath,
             'status' => 'pending'
         ];
-        
+
         Log::info('Attempting to create RSBSA application', ['data' => $applicationData]);
 
         // Create the RSBSA application
@@ -404,8 +404,8 @@ public function submitRsbsa(Request $request)
             'livelihood' => $rsbsaApplication->main_livelihood
         ]);
 
-        $successMessage = 'Your RSBSA application has been submitted successfully! Application Number: ' . 
-                        $rsbsaApplication->application_number . 
+        $successMessage = 'Your RSBSA application has been submitted successfully! Application Number: ' .
+                        $rsbsaApplication->application_number .
                         '. You will receive an SMS notification once your application is processed.';
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -574,12 +574,12 @@ public function submitRsbsa(Request $request)
                 if ($file->isValid()) {
                     $originalName = $file->getClientOriginalName();
                     $fileName = $applicationNumber . '_user_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    
+
                     // Ensure directory exists
                     Storage::disk('public')->makeDirectory('boatr_documents/user_uploads');
-                    
+
                     $documentPath = $file->storeAs('boatr_documents/user_uploads', $fileName, 'public');
-                    
+
                     // Update the registration with document info
                     $boatRRegistration->update([
                         'user_document_path' => $documentPath,
@@ -588,7 +588,7 @@ public function submitRsbsa(Request $request)
                         'user_document_size' => $file->getSize(),
                         'user_document_uploaded_at' => now()
                     ]);
-                    
+
                     $documentUploaded = true;
                     Log::info('Document uploaded successfully', ['path' => $documentPath]);
                 }
@@ -600,8 +600,8 @@ public function submitRsbsa(Request $request)
                 'has_document' => $documentUploaded
             ]);
 
-            $successMessage = 'Your BoatR registration has been submitted successfully! Application Number: ' . 
-                            $boatRRegistration->application_number . 
+            $successMessage = 'Your BoatR registration has been submitted successfully! Application Number: ' .
+                            $boatRRegistration->application_number .
                             '. An on-site inspection will be scheduled. You will receive an SMS notification with further instructions.';
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -671,15 +671,15 @@ public function submitRsbsa(Request $request)
                 'first_name' => 'required|string|max:255',
                 'middle_name' => 'nullable|string|max:255',
                 'last_name' => 'required|string|max:255',
-                'mobile_number' => 'required|string|size:11',
+                'contact_number' => 'required|string|size:11',
                 'email' => 'required|email|max:255',
                 'training_type' => 'required|string',
                 'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120'
             ], [
                 'first_name.required' => 'First name is required',
                 'last_name.required' => 'Last name is required',
-                'mobile_number.required' => 'Mobile number is required',
-                'mobile_number.size' => 'Mobile number must be 11 digits',
+                'contact_number.required' => 'Contact number is required',
+                'contact_number.size' => 'Contact number must be 11 digits',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
                 'training_type.required' => 'Please select a training program',
@@ -708,7 +708,7 @@ public function submitRsbsa(Request $request)
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
                 'last_name' => $validated['last_name'],
-                'mobile_number' => $validated['mobile_number'],
+                'contact_number' => $validated['contact_number'],
                 'email' => $validated['email'],
                 'training_type' => $validated['training_type'],
                 'document_paths' => $documentPaths,
@@ -721,8 +721,8 @@ public function submitRsbsa(Request $request)
                 'name' => $training->full_name
             ]);
 
-            $successMessage = 'Your training application has been submitted successfully! ' . 
-                             'Application Number: ' . $training->application_number . 
+            $successMessage = 'Your training application has been submitted successfully! ' .
+                             'Application Number: ' . $training->application_number .
                              '. You will receive an SMS notification once your application is processed.';
 
             return response()->json([

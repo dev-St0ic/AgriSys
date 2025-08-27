@@ -21,32 +21,34 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('extension_name')->nullable();
             $table->string('contact_number');
+            $table->string('email')->nullable();
             $table->string('address');
             $table->string('barangay');
+            $table->unsignedBigInteger('barangay_id')->nullable(); // Foreign key to barangays table
             $table->string('planting_location')->nullable();
             $table->string('purpose')->nullable();
             $table->string('seedling_type')->nullable();
-            
+
             // Item requests
-            $table->json('vegetables')->nullable();           
-            $table->json('fruits')->nullable();              
-            $table->json('fertilizers')->nullable();         
+            $table->json('vegetables')->nullable();
+            $table->json('fruits')->nullable();
+            $table->json('fertilizers')->nullable();
             $table->integer('requested_quantity')->nullable();
-            $table->integer('total_quantity')->default(0);   
+            $table->integer('total_quantity')->default(0);
             $table->date('preferred_delivery_date')->nullable();
             $table->string('document_path')->nullable();
-            
+
             // Status fields
             $table->string('status')->default('under_review');
             $table->string('vegetables_status')->nullable(); // Added individual status fields
             $table->string('fruits_status')->nullable();
             $table->string('fertilizers_status')->nullable();
-            
+
             // Approved items
             $table->json('vegetables_approved_items')->nullable(); // Added approved items fields
             $table->json('fruits_approved_items')->nullable();
             $table->json('fertilizers_approved_items')->nullable();
-            
+
             // Review information
             $table->unsignedBigInteger('reviewed_by')->nullable();
             $table->timestamp('reviewed_at')->nullable();
@@ -59,8 +61,14 @@ return new class extends Migration
 
             // Indexes
             $table->index('barangay');
+            $table->index('barangay_id');
             $table->index('status');
+            $table->index('email');
             $table->index(['vegetables_status', 'fruits_status', 'fertilizers_status'], 'seedling_requests_category_status_index');
+
+            // Foreign key constraints - will be added in separate migration
+            // $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('set null');
+            // $table->foreign('reviewed_by')->references('id')->on('users')->onDelete('set null');
         });
     }
 

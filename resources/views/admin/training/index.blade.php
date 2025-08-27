@@ -97,8 +97,7 @@
                                     <i class="fas fa-search text-muted"></i>
                                 </span>
                                 <input type="text" name="search" class="form-control border-start-0"
-                                    placeholder="🔍 Search name, number, email..." 
-                                    value="{{ request('search') }}"
+                                    placeholder="🔍 Search name, number, email..." value="{{ request('search') }}"
                                     oninput="autoSearch()" id="searchInput">
                             </div>
                         </div>
@@ -119,25 +118,31 @@
                         <div class="col-md-3">
                             <select name="training_type" class="form-select" onchange="submitFilterForm()">
                                 <option value="">🎓 All Training Types</option>
-                                <option value="tilapia_hito" {{ request('training_type') == 'tilapia_hito' ? 'selected' : '' }}>
+                                <option value="tilapia_hito"
+                                    {{ request('training_type') == 'tilapia_hito' ? 'selected' : '' }}>
                                     🐟 Tilapia and Hito Training
                                 </option>
-                                <option value="hydroponics" {{ request('training_type') == 'hydroponics' ? 'selected' : '' }}>
+                                <option value="hydroponics"
+                                    {{ request('training_type') == 'hydroponics' ? 'selected' : '' }}>
                                     🌱 Hydroponics Training
                                 </option>
-                                <option value="aquaponics" {{ request('training_type') == 'aquaponics' ? 'selected' : '' }}>
+                                <option value="aquaponics"
+                                    {{ request('training_type') == 'aquaponics' ? 'selected' : '' }}>
                                     🐠 Aquaponics Training
                                 </option>
                                 <option value="mushrooms" {{ request('training_type') == 'mushrooms' ? 'selected' : '' }}>
                                     🍄 Mushrooms Production Training
                                 </option>
-                                <option value="livestock_poultry" {{ request('training_type') == 'livestock_poultry' ? 'selected' : '' }}>
+                                <option value="livestock_poultry"
+                                    {{ request('training_type') == 'livestock_poultry' ? 'selected' : '' }}>
                                     🐄 Livestock and Poultry Training
                                 </option>
-                                <option value="high_value_crops" {{ request('training_type') == 'high_value_crops' ? 'selected' : '' }}>
+                                <option value="high_value_crops"
+                                    {{ request('training_type') == 'high_value_crops' ? 'selected' : '' }}>
                                     🌾 High Value Crops Training
                                 </option>
-                                <option value="sampaguita_propagation" {{ request('training_type') == 'sampaguita_propagation' ? 'selected' : '' }}>
+                                <option value="sampaguita_propagation"
+                                    {{ request('training_type') == 'sampaguita_propagation' ? 'selected' : '' }}>
                                     🌸 Sampaguita Propagation Training
                                 </option>
                             </select>
@@ -187,7 +192,7 @@
                                     <strong class="text-primary">{{ $training->application_number }}</strong>
                                 </td>
                                 <td>{{ $training->full_name }}</td>
-                                <td>{{ $training->mobile_number }}</td>
+                                <td>{{ $training->contact_number }}</td>
                                 <td>{{ $training->email }}</td>
                                 <td>
                                     <span class="badge bg-info">{{ $training->training_type_display }}</span>
@@ -272,8 +277,7 @@
                                     </li>
                                 @else
                                     <li class="page-item">
-                                        <a class="page-link"
-                                            href="{{ $trainings->url($page) }}">{{ $page }}</a>
+                                        <a class="page-link" href="{{ $trainings->url($page) }}">{{ $page }}</a>
                                     </li>
                                 @endif
                             @endfor
@@ -281,8 +285,7 @@
                             {{-- Next Page Link --}}
                             @if ($trainings->hasMorePages())
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ $trainings->nextPageUrl() }}"
-                                        rel="next">Next</a>
+                                    <a class="page-link" href="{{ $trainings->nextPageUrl() }}" rel="next">Next</a>
                                 </li>
                             @else
                                 <li class="page-item disabled">
@@ -315,14 +318,17 @@
                             </h6>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Application #:</strong> <span id="updateAppNumber"></span></p>
+                                    <p class="mb-1"><strong>Application #:</strong> <span id="updateAppNumber"></span>
+                                    </p>
                                     <p class="mb-1"><strong>Name:</strong> <span id="updateAppName"></span></p>
                                     <p class="mb-1"><strong>Email:</strong> <span id="updateAppEmail"></span></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mb-1"><strong>Mobile:</strong> <span id="updateAppMobile"></span></p>
-                                    <p class="mb-1"><strong>Training Type:</strong> <span id="updateAppTraining"></span></p>
-                                    <p class="mb-1"><strong>Current Status:</strong> <span id="updateAppCurrentStatus"></span></p>
+                                    <p class="mb-1"><strong>Training Type:</strong> <span id="updateAppTraining"></span>
+                                    </p>
+                                    <p class="mb-1"><strong>Current Status:</strong> <span
+                                            id="updateAppCurrentStatus"></span></p>
                                 </div>
                             </div>
                         </div>
@@ -343,15 +349,15 @@
                         <div class="mb-3">
                             <label for="remarks" class="form-label">Remarks (Optional):</label>
                             <textarea class="form-control" id="remarks" rows="3"
-                                placeholder="Add any notes or comments about this status change..."
-                                maxlength="1000"></textarea>
+                                placeholder="Add any notes or comments about this status change..." maxlength="1000"></textarea>
                             <div class="form-text">Maximum 1000 characters</div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="updateApplicationStatus()">Update Status</button>
+                    <button type="button" class="btn btn-primary" onclick="updateApplicationStatus()">Update
+                        Status</button>
                 </div>
             </div>
         </div>
@@ -546,207 +552,213 @@
 @endsection
 
 @section('scripts')
-<script>
-    // Add CSRF token to all AJAX requests
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    <script>
+        // Add CSRF token to all AJAX requests
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        let searchTimeout;
+
+        // Auto search functionality
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500);
         }
-    });
 
-    let searchTimeout;
-
-    // Auto search functionality
-    function autoSearch() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
+        // Submit filter form when dropdowns change
+        function submitFilterForm() {
             document.getElementById('filterForm').submit();
-        }, 500);
-    }
-
-    // Submit filter form when dropdowns change
-    function submitFilterForm() {
-        document.getElementById('filterForm').submit();
-    }
-
-    // Helper function to get status display text
-    function getStatusText(status) {
-        switch(status) {
-            case 'under_review': return 'Under Review';
-            case 'approved': return 'Approved';
-            case 'rejected': return 'Rejected';
-            default: return status;
         }
-    }
 
-    // Show update modal function
-    function showUpdateModal(id, currentStatus) {
-        document.getElementById('updateAppNumber').innerHTML = `
+        // Helper function to get status display text
+        function getStatusText(status) {
+            switch (status) {
+                case 'under_review':
+                    return 'Under Review';
+                case 'approved':
+                    return 'Approved';
+                case 'rejected':
+                    return 'Rejected';
+                default:
+                    return status;
+            }
+        }
+
+        // Show update modal function
+        function showUpdateModal(id, currentStatus) {
+            document.getElementById('updateAppNumber').innerHTML = `
             <div class="spinner-border spinner-border-sm text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>`;
 
-        // Update the fetch path to match the route
-        fetch(`/admin/training/requests/${id}`)
-            .then(response => response.json())
-            .then(response => {
-                if (!response.success) {
-                    throw new Error('Failed to load application details');
-                }
+            // Update the fetch path to match the route
+            fetch(`/admin/training/requests/${id}`)
+                .then(response => response.json())
+                .then(response => {
+                    if (!response.success) {
+                        throw new Error('Failed to load application details');
+                    }
 
-                const data = response.data;
-                document.getElementById('updateApplicationId').value = id;
-                
-                // Populate application info
-                document.getElementById('updateAppNumber').textContent = data.application_number;
-                document.getElementById('updateAppName').textContent = data.full_name;
-                document.getElementById('updateAppEmail').textContent = data.email;
-                document.getElementById('updateAppMobile').textContent = data.mobile_number;
-                document.getElementById('updateAppTraining').textContent = data.training_type_display;
-                document.getElementById('updateAppCurrentStatus').innerHTML = `
+                    const data = response.data;
+                    document.getElementById('updateApplicationId').value = id;
+
+                    // Populate application info
+                    document.getElementById('updateAppNumber').textContent = data.application_number;
+                    document.getElementById('updateAppName').textContent = data.full_name;
+                    document.getElementById('updateAppEmail').textContent = data.email;
+                    document.getElementById('updateAppMobile').textContent = data.contact_number;
+                    document.getElementById('updateAppTraining').textContent = data.training_type_display;
+                    document.getElementById('updateAppCurrentStatus').innerHTML = `
                     <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                // Set form values and store originals for comparison
-                const statusSelect = document.getElementById('newStatus');
-                const remarksTextarea = document.getElementById('remarks');
-                
-                statusSelect.value = data.status;
-                statusSelect.dataset.originalStatus = data.status;
-                remarksTextarea.value = data.remarks || '';
-                remarksTextarea.dataset.originalRemarks = data.remarks || '';
+                    // Set form values and store originals for comparison
+                    const statusSelect = document.getElementById('newStatus');
+                    const remarksTextarea = document.getElementById('remarks');
 
-                // Reset visual indicators
-                statusSelect.classList.remove('form-changed');
-                remarksTextarea.classList.remove('form-changed');
-                statusSelect.parentElement.classList.remove('change-indicator', 'changed');
-                remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
+                    statusSelect.value = data.status;
+                    statusSelect.dataset.originalStatus = data.status;
+                    remarksTextarea.value = data.remarks || '';
+                    remarksTextarea.dataset.originalRemarks = data.remarks || '';
 
-                // Show modal
-                const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-                modal.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error loading application details: ' + error.message);
-            });
-    }
+                    // Reset visual indicators
+                    statusSelect.classList.remove('form-changed');
+                    remarksTextarea.classList.remove('form-changed');
+                    statusSelect.parentElement.classList.remove('change-indicator', 'changed');
+                    remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
 
-    // Update application status function
-    function updateApplicationStatus() {
-        const id = document.getElementById('updateApplicationId').value;
-        const newStatus = document.getElementById('newStatus').value;
-        const remarks = document.getElementById('remarks').value;
-
-        if (!newStatus) {
-            alert('Please select a status');
-            return;
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading application details: ' + error.message);
+                });
         }
 
-        // Get the original values to compare changes
-        const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-        const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+        // Update application status function
+        function updateApplicationStatus() {
+            const id = document.getElementById('updateApplicationId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const remarks = document.getElementById('remarks').value;
 
-        // Check if nothing has changed
-        if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-            alert('No changes detected. Please modify the status or remarks before updating.');
-            return;
-        }
-
-        // Show confirmation dialog with changes summary
-        let changesSummary = [];
-        if (newStatus !== originalStatus) {
-            const originalStatusText = getStatusText(originalStatus);
-            const newStatusText = getStatusText(newStatus);
-            changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-        }
-        if (remarks.trim() !== originalRemarks.trim()) {
-            if (originalRemarks.trim() === '') {
-                changesSummary.push('Remarks: Added new remarks');
-            } else if (remarks.trim() === '') {
-                changesSummary.push('Remarks: Removed existing remarks');
-            } else {
-                changesSummary.push('Remarks: Modified');
+            if (!newStatus) {
+                alert('Please select a status');
+                return;
             }
+
+            // Get the original values to compare changes
+            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
+            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+
+            // Check if nothing has changed
+            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
+                alert('No changes detected. Please modify the status or remarks before updating.');
+                return;
+            }
+
+            // Show confirmation dialog with changes summary
+            let changesSummary = [];
+            if (newStatus !== originalStatus) {
+                const originalStatusText = getStatusText(originalStatus);
+                const newStatusText = getStatusText(newStatus);
+                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+            }
+            if (remarks.trim() !== originalRemarks.trim()) {
+                if (originalRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Added new remarks');
+                } else if (remarks.trim() === '') {
+                    changesSummary.push('Remarks: Removed existing remarks');
+                } else {
+                    changesSummary.push('Remarks: Modified');
+                }
+            }
+
+            const confirmMessage =
+                `Are you sure you want to update this application with the following changes?\n\n${changesSummary.join('\n')}`;
+
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            // Show loading state
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+            const originalText = updateButton.innerHTML;
+            updateButton.innerHTML =
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.disabled = true;
+
+            // Update the fetch path to match the route
+            fetch(`/admin/training/requests/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        remarks: remarks
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    if (response.success) {
+                        // Show success message and reload page
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                        modal.hide();
+                        alert(response.message);
+                        window.location.reload();
+                    } else {
+                        throw new Error(response.message || 'Error updating status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating application status: ' + error.message);
+                })
+                .finally(() => {
+                    // Reset button state
+                    updateButton.innerHTML = originalText;
+                    updateButton.disabled = false;
+                });
         }
 
-        const confirmMessage = `Are you sure you want to update this application with the following changes?\n\n${changesSummary.join('\n')}`;
-        
-        if (!confirm(confirmMessage)) {
-            return;
-        }
-
-        // Show loading state
-        const updateButton = document.querySelector('#updateModal .btn-primary');
-        const originalText = updateButton.innerHTML;
-        updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
-        updateButton.disabled = true;
-
-        // Update the fetch path to match the route
-        fetch(`/admin/training/requests/${id}/status`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                status: newStatus,
-                remarks: remarks
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(response => {
-            if (response.success) {
-                // Show success message and reload page
-                const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                modal.hide();
-                alert(response.message);
-                window.location.reload();
-            } else {
-                throw new Error(response.message || 'Error updating status');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error updating application status: ' + error.message);
-        })
-        .finally(() => {
-            // Reset button state
-            updateButton.innerHTML = originalText;
-            updateButton.disabled = false;
-        });
-    }
-
-    // View application details
-    function viewApplication(id) {
-        // Show loading state
-        document.getElementById('applicationDetails').innerHTML = `
+        // View application details
+        function viewApplication(id) {
+            // Show loading state
+            document.getElementById('applicationDetails').innerHTML = `
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>`;
 
-        const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
-        modal.show();
+            const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
+            modal.show();
 
-        // Update the fetch path to match the route
-        fetch(`/admin/training/requests/${id}`)
-            .then(response => response.json())
-            .then(response => {
-                if (!response.success) {
-                    throw new Error('Failed to load application details');
-                }
+            // Update the fetch path to match the route
+            fetch(`/admin/training/requests/${id}`)
+                .then(response => response.json())
+                .then(response => {
+                    if (!response.success) {
+                        throw new Error('Failed to load application details');
+                    }
 
-                const data = response.data;
+                    const data = response.data;
 
-                // Format the details HTML with the same style as FishR
-                const remarksHtml = data.remarks ? `
+                    // Format the details HTML with the same style as FishR
+                    const remarksHtml = data.remarks ? `
                     <div class="col-12 mt-3">
                         <h6 class="border-bottom pb-2">Remarks</h6>
                         <div class="alert alert-info">
@@ -758,34 +770,34 @@
                         </div>
                     </div>` : '';
 
-                document.getElementById('applicationDetails').innerHTML = `
+                    document.getElementById('applicationDetails').innerHTML = `
                     <div class="row g-3">
                         <div class="col-md-6">
                             <h6 class="border-bottom pb-2">Application Information</h6>
                             <p><strong>Application #:</strong> ${data.application_number}</p>
                             <p><strong>Full Name:</strong> ${data.full_name}</p>
-                            <p><strong>Mobile:</strong> ${data.mobile_number}</p>
+                            <p><strong>Mobile:</strong> ${data.contact_number}</p>
                             <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
                         </div>
                         <div class="col-md-6">
                             <h6 class="border-bottom pb-2">Training Information</h6>
                             <p><strong>Training Type:</strong> ${data.training_type_display}</p>
-                            <p><strong>Status:</strong> 
+                            <p><strong>Status:</strong>
                                 <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
                             </p>
                             <p><strong>Date Applied:</strong> ${data.created_at}</p>
                             <p><strong>Last Updated:</strong> ${data.updated_at}</p>
                         </div>
                         ${data.document_paths && data.document_paths.length > 0 ? `
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Supporting Documents</h6>
-                                <div class="row g-2">
-                                    ${data.document_paths.map((path, index) => `
+                                <div class="col-12">
+                                    <h6 class="border-bottom pb-2">Supporting Documents</h6>
+                                    <div class="row g-2">
+                                        ${data.document_paths.map((path, index) => `
                                         <div class="col-md-4">
                                             <div class="card">
                                                 <div class="card-body">
                                                     <h6 class="card-title">Document ${index + 1}</h6>
-                                                    <button class="btn btn-sm btn-outline-primary" 
+                                                    <button class="btn btn-sm btn-outline-primary"
                                                         onclick="viewDocuments(['${path}'])">
                                                         <i class="fas fa-eye"></i> View
                                                     </button>
@@ -793,106 +805,106 @@
                                             </div>
                                         </div>
                                     `).join('')}
+                                    </div>
                                 </div>
-                            </div>
-                        ` : ''}
+                            ` : ''}
                         ${remarksHtml}
                     </div>`;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('applicationDetails').innerHTML = `
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('applicationDetails').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle me-2"></i>
                         ${error.message || 'Error loading application details. Please try again.'}
                     </div>`;
-            });
-    }
+                });
+        }
 
-    // View documents
-    function viewDocuments(paths) {
-        const documentViewer = document.getElementById('documentViewer');
-        let documentsHtml = '';
+        // View documents
+        function viewDocuments(paths) {
+            const documentViewer = document.getElementById('documentViewer');
+            let documentsHtml = '';
 
-        paths.forEach((path, index) => {
-            const fileExtension = path.split('.').pop().toLowerCase();
-            const fileName = path.split('/').pop();
+            paths.forEach((path, index) => {
+                const fileExtension = path.split('.').pop().toLowerCase();
+                const fileName = path.split('/').pop();
 
-            documentsHtml += `
+                documentsHtml += `
                 <div class="document-container mb-4">
                     <h6 class="mb-3">Document ${index + 1}: ${fileName}</h6>`;
 
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                documentsHtml += `
+                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                    documentsHtml += `
                     <div class="text-center">
                         <img src="/storage/${path}" class="img-fluid" alt="Supporting Document">
                     </div>`;
-            } else if (fileExtension === 'pdf') {
-                documentsHtml += `
+                } else if (fileExtension === 'pdf') {
+                    documentsHtml += `
                     <div class="ratio ratio-16x9">
                         <embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">
                     </div>`;
-            } else {
-                documentsHtml += `
+                } else {
+                    documentsHtml += `
                     <div class="alert alert-info">
                         <i class="fas fa-file me-2"></i>
-                        Document type not supported for preview. 
+                        Document type not supported for preview.
                         <a href="/storage/${path}" target="_blank" class="btn btn-sm btn-primary ms-2">
                             <i class="fas fa-download"></i> Download
                         </a>
                     </div>`;
+                }
+
+                documentsHtml += '</div>';
+            });
+
+            documentViewer.innerHTML = documentsHtml;
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            modal.show();
+        }
+
+        // Function to check for changes and provide visual feedback
+        function checkForChanges() {
+            const statusSelect = document.getElementById('newStatus');
+            const remarksTextarea = document.getElementById('remarks');
+
+            if (!statusSelect.dataset.originalStatus) return;
+
+            const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+            const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+
+            // Visual feedback for status field
+            statusSelect.classList.toggle('form-changed', statusChanged);
+            statusSelect.parentElement.classList.toggle('changed', statusChanged);
+
+            // Visual feedback for remarks field
+            remarksTextarea.classList.toggle('form-changed', remarksChanged);
+            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+
+            // Update button state
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+            updateButton.classList.toggle('no-changes', !statusChanged && !remarksChanged);
+
+            // Update button text based on changes
+            if (!statusChanged && !remarksChanged) {
+                updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>No Changes';
+            } else {
+                updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+            }
+        }
+
+        // Add event listeners when document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.getElementById('newStatus');
+            const remarksTextarea = document.getElementById('remarks');
+
+            if (statusSelect) {
+                statusSelect.addEventListener('change', checkForChanges);
             }
 
-            documentsHtml += '</div>';
+            if (remarksTextarea) {
+                remarksTextarea.addEventListener('input', checkForChanges);
+            }
         });
-
-        documentViewer.innerHTML = documentsHtml;
-        const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-        modal.show();
-    }
-
-    // Function to check for changes and provide visual feedback
-    function checkForChanges() {
-        const statusSelect = document.getElementById('newStatus');
-        const remarksTextarea = document.getElementById('remarks');
-        
-        if (!statusSelect.dataset.originalStatus) return;
-        
-        const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
-        const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
-        
-        // Visual feedback for status field
-        statusSelect.classList.toggle('form-changed', statusChanged);
-        statusSelect.parentElement.classList.toggle('changed', statusChanged);
-        
-        // Visual feedback for remarks field
-        remarksTextarea.classList.toggle('form-changed', remarksChanged);
-        remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
-        
-        // Update button state
-        const updateButton = document.querySelector('#updateModal .btn-primary');
-        updateButton.classList.toggle('no-changes', !statusChanged && !remarksChanged);
-        
-        // Update button text based on changes
-        if (!statusChanged && !remarksChanged) {
-            updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>No Changes';
-        } else {
-            updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
-        }
-    }
-
-    // Add event listeners when document is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        const statusSelect = document.getElementById('newStatus');
-        const remarksTextarea = document.getElementById('remarks');
-        
-        if (statusSelect) {
-            statusSelect.addEventListener('change', checkForChanges);
-        }
-        
-        if (remarksTextarea) {
-            remarksTextarea.addEventListener('input', checkForChanges);
-        }
-    });
-</script>
+    </script>
 @endsection

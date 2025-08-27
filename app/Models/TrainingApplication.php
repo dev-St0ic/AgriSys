@@ -15,7 +15,7 @@ class TrainingApplication extends Model
         'first_name',
         'middle_name',
         'last_name',
-        'mobile_number',
+        'contact_number',
         'email',
         'training_type',
         'document_paths',
@@ -125,7 +125,7 @@ class TrainingApplication extends Model
                   ->orWhere('middle_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('application_number', 'like', "%{$search}%")
-                  ->orWhere('mobile_number', 'like', "%{$search}%")
+                  ->orWhere('contact_number', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
             });
         }
@@ -179,4 +179,4 @@ class TrainingApplication extends Model
     {
         return $this->first_document_extension === 'pdf';
     }
-} 
+}

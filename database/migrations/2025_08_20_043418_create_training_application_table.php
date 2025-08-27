@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
-            $table->string('mobile_number', 20);
+            $table->string('contact_number', 20);
             $table->string('email');
             $table->enum('training_type', [
                 'tilapia_hito',
-                'hydroponics', 
+                'hydroponics',
                 'aquaponics',
                 'mushrooms',
                 'livestock_poultry',
@@ -30,25 +30,24 @@ return new class extends Migration
             ]);
             $table->json('document_paths')->nullable(); // Store multiple document paths
             $table->enum('status', ['under_review', 'approved', 'rejected'])->default('under_review');
-            
+
             // Admin management fields
             $table->text('remarks')->nullable();
             $table->timestamp('status_updated_at')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
-            
+
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Indexes for better performance
             $table->index(['status', 'created_at']);
             $table->index(['training_type', 'status']);
             $table->index('application_number');
-            $table->index('mobile_number');
+            $table->index('contact_number');
             $table->index('email');
             $table->index(['first_name', 'last_name']); // Added for name searches
-            
-            // Foreign key for admin who updated the status
-            // Uncomment this line if you have a users table for admins
+
+            // Foreign key for admin who updated the status - will be added in separate migration
             // $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
         });
     }

@@ -280,7 +280,7 @@
                                 <td>{{ $application->full_name }}</td>
                                 <td>{{ $application->sex }}</td>
                                 <td>{{ $application->barangay }}</td>
-                                <td>{{ $application->mobile_number }}</td>
+                                <td>{{ $application->contact_number }}</td>
                                 <td>
                                     <span class="badge bg-info">{{ $application->main_livelihood }}</span>
                                 </td>
@@ -1524,7 +1524,7 @@
                         <p><strong>Name:</strong> ${data.full_name || 'N/A'}</p>
                         <p><strong>Sex:</strong> ${data.sex || 'N/A'}</p>
                         ${data.date_of_birth ? `<p><strong>Date of Birth:</strong> ${data.date_of_birth}</p>` : ''}
-                        <p><strong>Contact:</strong> ${data.mobile_number || data.contact_number || 'N/A'}</p>
+                        <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
                         <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
                     </div>
                     <div class="col-md-6">

@@ -19,30 +19,35 @@ return new class extends Migration
             $table->string('last_name');
             $table->enum('sex', ['Male', 'Female', 'Preferred not to say']);
             $table->string('barangay');
+            $table->unsignedBigInteger('barangay_id')->nullable(); // Foreign key to barangays table
             $table->string('contact_number', 20);
+            $table->string('email')->nullable();
             $table->enum('main_livelihood', ['capture', 'aquaculture', 'vending', 'processing', 'others']);
             $table->string('livelihood_description');
             $table->string('other_livelihood')->nullable();
             $table->string('document_path')->nullable();
             $table->enum('status', ['under_review', 'approved', 'rejected'])->default('under_review');
-            
+
             // Admin management fields
             $table->text('remarks')->nullable();
             $table->timestamp('status_updated_at')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
-            
+
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Indexes for better performance
             $table->index(['status', 'created_at']);
             $table->index(['barangay', 'main_livelihood']);
+            $table->index('barangay_id');
             $table->index('registration_number');
             $table->index('contact_number'); // Added for search functionality
+            $table->index('email'); // Added for email search functionality
             $table->index(['first_name', 'last_name']); // Added for name searches
-            
-            // Foreign key for admin who updated the status
-            // Uncomment this line if you have a users table for admins
+
+            // Foreign key for admin who updated the status and barangay
+            // Will be added in separate migration after all tables are created
+            // $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('set null');
             // $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
         });
     }
