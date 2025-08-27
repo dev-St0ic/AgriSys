@@ -12,9 +12,30 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
+    <!-- Apply sidebar state IMMEDIATELY to prevent flash -->
+    <script>
+        // Inline script to apply state before any rendering
+        (function() {
+            const SIDEBAR_STORAGE_KEY = 'agrisys_sidebar_collapsed';
+            
+            function getSavedState() {
+                try {
+                    return localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1';
+                } catch (e) {
+                    return false;
+                }
+            }
+            
+            // Apply CSS class to html element immediately
+            if (getSavedState()) {
+                document.documentElement.classList.add('sidebar-collapsed-state');
+            }
+        })();
+    </script>
+
     <style>
         body {
-            overflow-x: auto; /* Allow horizontal scroll on body */
+            overflow-x: auto;
         }
 
         .sidebar {
@@ -27,11 +48,51 @@
             z-index: 1000;
             width: 250px;
             overflow-x: hidden;
-            overflow-y: auto; /* Allow vertical scroll within sidebar if needed */
+            overflow-y: auto;
         }
 
         .sidebar.collapsed {
             width: 80px;
+        }
+
+        /* Apply collapsed state from HTML class */
+        html.sidebar-collapsed-state .sidebar {
+            width: 80px;
+        }
+
+        html.sidebar-collapsed-state .main-content {
+            margin-left: 80px !important;
+            width: calc(100vw - 80px) !important;
+            max-width: calc(100vw - 80px) !important;
+        }
+
+        html.sidebar-collapsed-state .nav-link {
+            justify-content: center !important;
+            text-align: center !important;
+            padding: 0.75rem !important;
+        }
+
+        html.sidebar-collapsed-state .nav-link-text,
+        html.sidebar-collapsed-state .sidebar-brand-text {
+            opacity: 0 !important;
+            width: 0 !important;
+            margin-left: 0 !important;
+        }
+
+        html.sidebar-collapsed-state .sidebar-brand h4 {
+            opacity: 0 !important;
+            transform: scale(0) !important;
+        }
+
+        html.sidebar-collapsed-state .nav-link i,
+        html.sidebar-collapsed-state .toggle-sidebar-btn i {
+            margin: 0 !important;
+        }
+
+        html.sidebar-collapsed-state .toggle-sidebar-btn {
+            justify-content: center !important;
+            text-align: center !important;
+            padding: 0.75rem !important;
         }
 
         .sidebar .nav-link {
@@ -109,42 +170,36 @@
             opacity: 1;
         }
 
-        /* FIXED: Main content with proper horizontal scroll support */
         .main-content {
             background-color: #f8f9fa;
             min-height: 100vh;
-            margin-left: 250px; /* Default: full sidebar width */
+            margin-left: 250px;
             transition: margin-left 0.3s ease;
-            position: relative; /* Important for proper positioning */
-            overflow-x: auto; /* Allow horizontal scroll within main content */
-            width: calc(100vw - 250px); /* Ensure proper width calculation */
-            max-width: calc(100vw - 250px); /* Prevent overflow */
+            position: relative;
+            overflow-x: auto;
+            width: calc(100vw - 250px);
+            max-width: calc(100vw - 250px);
         }
 
-        /* When sidebar is collapsed (desktop) */
         .main-content.sidebar-collapsed {
             margin-left: 80px;
             width: calc(100vw - 80px);
             max-width: calc(100vw - 80px);
         }
 
-        /* When sidebar is hidden (mobile) or not authenticated */
         .main-content.no-sidebar {
             margin-left: 0;
             width: 100vw;
             max-width: 100vw;
         }
 
-        /* Ensure tables and wide content can scroll horizontally */
         .table-responsive {
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            -webkit-overflow-scrolling: touch;
         }
-        
 
-        /* Prevent content from breaking layout */
         .container-fluid {
-            min-width: 0; /* Allow container to shrink */
+            min-width: 0;
         }
 
         .card {
@@ -161,7 +216,6 @@
             background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
         }
 
-        /* Enhanced sidebar brand */
         .sidebar-brand {
             padding: 1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -181,7 +235,6 @@
             width: 100%;
         }
 
-        /* Hamburger toggle button */
         .toggle-sidebar-btn {
             background: transparent;
             border: none;
@@ -235,7 +288,6 @@
             margin: 0;
         }
 
-        /* Tooltip for collapsed sidebar */
         .tooltip-custom {
             position: relative;
         }
@@ -277,13 +329,10 @@
             opacity: 1;
         }
 
-
-
         .nav-item {
             margin-bottom: 0.25rem;
         }
 
-        /* Additional styles to ensure smooth horizontal scrolling */
         .main-content::-webkit-scrollbar {
             height: 8px;
         }
@@ -301,12 +350,10 @@
             background: #a8a8a8;
         }
 
-        /* Ensure wide tables don't break layout */
         .table {
             white-space: nowrap;
         }
 
-        /* Fix for any potential content overflow */
         .container-fluid {
             padding-right: 15px;
             padding-left: 15px;
@@ -325,7 +372,7 @@
                     <!-- Sidebar -->
                     <nav class="sidebar" id="sidebar">
                         <div class="position-sticky pt-3">
-                            <!-- Hamburger Toggle Button - positioned before AgriSys -->
+                            <!-- Hamburger Toggle Button -->
                             <div class="d-none d-md-block px-2">
                                 <button class="toggle-sidebar-btn tooltip-custom" id="toggleSidebar" onclick="toggleSidebar()" data-tooltip="Toggle Menu">
                                     <i class="fas fa-bars" id="toggleIcon"></i>
@@ -415,8 +462,6 @@
                         </div>
                     </nav>
 
-
-
                     <!-- Main content with sidebar -->
                     <main class="main-content" id="mainContent">
                         <div class="container-fluid px-4">
@@ -433,7 +478,7 @@
                                             <li>
                                                 <form method="POST" action="{{ route('logout') }}">
                                                     @csrf
-                                                    <button type="button" class="dropdown-item" onclick="confirmLogout()">
+                                                    <button type="button" class="dropdown-item d-flex align-items-center" onclick="confirmLogout()">
                                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                                                     </button>
                                                 </form>
@@ -505,7 +550,7 @@
                         @if (session('error'))
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                <button type="button" class="bs-dismiss="alert"></button>
                             </div>
                         @endif
 
@@ -522,6 +567,32 @@
     @yield('scripts')
     
     <script>
+        // Enhanced persistent sidebar state management
+        const SIDEBAR_STORAGE_KEY = 'agrisys_sidebar_collapsed';
+
+        function saveSidebarState(isCollapsed) {
+            try {
+                localStorage.setItem(SIDEBAR_STORAGE_KEY, isCollapsed ? '1' : '0');
+                // Also update HTML class immediately
+                if (isCollapsed) {
+                    document.documentElement.classList.add('sidebar-collapsed-state');
+                } else {
+                    document.documentElement.classList.remove('sidebar-collapsed-state');
+                }
+            } catch (e) {
+                console.warn('Could not save sidebar state to localStorage');
+            }
+        }
+
+        function getSavedSidebarState() {
+            try {
+                const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+                return saved === '1';
+            } catch (e) {
+                return false;
+            }
+        }
+
         function confirmLogout() {
             if (confirm('Are you sure you want to log out?')) {
                 document.getElementById('logout-form').submit();
@@ -533,60 +604,89 @@
             const mainContent = document.getElementById('mainContent');
             const toggleIcon = document.getElementById('toggleIcon');
             
-            // Desktop: Toggle collapsed state and adjust main content
-            sidebar.classList.toggle('collapsed');
-            updateMainContentLayout();
+            if (!sidebar || !mainContent || !toggleIcon) return;
             
-            // Always keep hamburger icon
-            toggleIcon.className = 'fas fa-bars';
+            // Toggle collapsed state
+            const isCurrentlyCollapsed = sidebar.classList.contains('collapsed');
+            const willBeCollapsed = !isCurrentlyCollapsed;
+            
+            if (willBeCollapsed) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('sidebar-collapsed');
+                mainContent.classList.remove('no-sidebar');
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('sidebar-collapsed');
+                mainContent.classList.remove('no-sidebar');
+            }
+            
+            // Save the new state (this also updates HTML class)
+            saveSidebarState(willBeCollapsed);
         }
 
-        function updateMainContentLayout() {
+        function applySidebarState() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             
             if (!sidebar || !mainContent) return;
             
-            if (sidebar.classList.contains('collapsed')) {
+            // Get saved state
+            const shouldBeCollapsed = getSavedSidebarState();
+            
+            // Remove any existing transition temporarily
+            sidebar.style.transition = 'none';
+            mainContent.style.transition = 'none';
+            
+            if (shouldBeCollapsed) {
+                sidebar.classList.add('collapsed');
                 mainContent.classList.add('sidebar-collapsed');
                 mainContent.classList.remove('no-sidebar');
+                document.documentElement.classList.add('sidebar-collapsed-state');
             } else {
+                sidebar.classList.remove('collapsed');
                 mainContent.classList.remove('sidebar-collapsed');
                 mainContent.classList.remove('no-sidebar');
+                document.documentElement.classList.remove('sidebar-collapsed-state');
             }
+            
+            // Re-enable transitions after a short delay
+            setTimeout(() => {
+                sidebar.style.transition = '';
+                mainContent.style.transition = '';
+            }, 50);
         }
 
-        // Handle window resize with improved layout management
+        // Apply state immediately when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                applySidebarState();
+                // Apply again after a small delay to ensure it sticks
+                setTimeout(applySidebarState, 100);
+            });
+        } else {
+            applySidebarState();
+            setTimeout(applySidebarState, 100);
+        }
+
+        // Apply when page is fully loaded
+        window.addEventListener('load', function() {
+            applySidebarState();
+        });
+
+        // Handle window resize
         window.addEventListener('resize', function() {
-            updateMainContentLayout();
+            applySidebarState();
         });
 
-        // Initialize sidebar state on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleIcon = document.getElementById('toggleIcon');
-            
-            // Always start with hamburger icon
-            if (toggleIcon) toggleIcon.className = 'fas fa-bars';
-            
-            // Set initial layout state
-            updateMainContentLayout();
-        });
-
-        // Prevent sidebar from scrolling with main content horizontally
-        document.addEventListener('scroll', function() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && window.innerWidth > 768) {
-                // Ensure sidebar stays fixed during any scroll
-                sidebar.style.position = 'fixed';
-                sidebar.style.left = '0';
-            }
-        });
+        // Apply state multiple times to ensure reliability
+        setTimeout(applySidebarState, 250);
+        setTimeout(applySidebarState, 500);
     </script>
 
     <!-- Demo content to test horizontal scrolling -->
     <style>
         .demo-wide-table {
-            min-width: 1200px; /* Force horizontal scroll for testing */
+            min-width: 1200px;
         }
     </style>
 </body>
