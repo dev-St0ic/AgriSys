@@ -35,22 +35,22 @@ class TrainingApplicationFactory extends Factory
             'high_value_crops',
             'sampaguita_propagation'
         ];
-        
+
         $trainingType = $this->faker->randomElement($trainingTypes);
         $status = $this->faker->randomElement(['under_review', 'approved', 'rejected']);
-        
+
         // Generate creation time
         $createdAt = $this->faker->dateTimeBetween('-1 year', 'now');
-        
+
         // Generate status update time (if status is not under_review)
         $statusUpdatedAt = null;
         $updatedBy = null;
         $remarks = null;
-        
+
         if ($status !== 'under_review') {
             $statusUpdatedAt = $this->faker->dateTimeBetween($createdAt, 'now');
             $updatedBy = User::inRandomOrder()->first()?->id ?? 1;
-            
+
             // Generate remarks for some entries
             if ($this->faker->boolean(60)) {
                 $remarks = $this->getRandomRemarks($status, $trainingType);
@@ -59,13 +59,13 @@ class TrainingApplicationFactory extends Factory
 
         $firstName = $this->faker->firstName;
         $lastName = $this->faker->lastName;
-        
+
         return [
             'application_number' => 'TRAIN-' . strtoupper(Str::random(8)),
             'first_name' => $firstName,
             'middle_name' => $this->faker->optional(0.7)->firstName,
             'last_name' => $lastName,
-            'mobile_number' => $this->faker->randomElement([
+            'contact_number' => $this->faker->randomElement([
                 '09' . $this->faker->numerify('#########'),
                 '+639' . $this->faker->numerify('#########')
             ]),

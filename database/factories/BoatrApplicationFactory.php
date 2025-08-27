@@ -29,13 +29,13 @@ class BoatrApplicationFactory extends Factory
         $firstName = $this->faker->firstName();
         $middleName = $this->faker->optional(0.7)->firstName();
         $lastName = $this->faker->lastName();
-        
+
         // Generate unique application number
         $applicationNumber = 'BOATR-' . strtoupper(Str::random(8));
-        
+
         // Generate fake FishR number
         $fishrNumber = 'FISHR-' . strtoupper(Str::random(8));
-        
+
         // Boat types from your model
         $boatTypes = [
             'Spoon',
@@ -45,7 +45,7 @@ class BoatrApplicationFactory extends Factory
             'Rake Stem - Transom/Spoon/Plumb Stern',
             'Skiff (Typical Design)'
         ];
-        
+
         // Fishing gear types from your model
         $fishingGears = [
             'Hook and Line',
@@ -53,7 +53,7 @@ class BoatrApplicationFactory extends Factory
             'Fish Trap',
             'Fish Coral'
         ];
-        
+
         // Engine types
         $engineTypes = [
             'Yamaha Outboard Motor',
@@ -70,7 +70,7 @@ class BoatrApplicationFactory extends Factory
             'middle_name' => $middleName,
             'last_name' => $lastName,
             'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
-            'mobile' => $this->faker->phoneNumber(), // Added missing mobile field
+            'contact_number' => $this->faker->phoneNumber(), // Added missing contact_number field
             'fishr_number' => $fishrNumber,
             'vessel_name' => 'MV ' . $this->faker->words(2, true),
             'boat_type' => $this->faker->randomElement($boatTypes),
@@ -80,14 +80,14 @@ class BoatrApplicationFactory extends Factory
             'engine_type' => $this->faker->randomElement($engineTypes),
             'engine_horsepower' => $this->faker->numberBetween(15, 150),
             'primary_fishing_gear' => $this->faker->randomElement($fishingGears),
-            
+
             // Single document fields (may be null)
             'user_document_path' => $this->faker->optional(0.6)->passthrough('boatr_documents/user_uploads/sample_' . Str::random(8) . '.pdf'),
             'user_document_name' => $this->faker->optional(0.6)->passthrough('sample_document.pdf'),
             'user_document_type' => $this->faker->optional(0.6)->passthrough('pdf'),
             'user_document_size' => $this->faker->optional(0.6)->numberBetween(100000, 2000000), // 100KB - 2MB
             'user_document_uploaded_at' => $this->faker->optional(0.6)->dateTimeBetween('-30 days', 'now'),
-            
+
             // Inspection documents (JSON - may be null)
             'inspection_documents' => null, // Will be set by state methods if needed
             'inspection_completed' => false,
@@ -97,7 +97,7 @@ class BoatrApplicationFactory extends Factory
             'documents_verified' => false,
             'documents_verified_at' => null,
             'document_verification_notes' => null,
-            
+
             // Status and workflow
             'status' => 'pending',
             'remarks' => null,
@@ -169,7 +169,7 @@ class BoatrApplicationFactory extends Factory
     public function documentsPending(): static
     {
         $adminUser = User::where('role', 'admin')->inRandomOrder()->first();
-        
+
         return $this->state(fn (array $attributes) => [
             'status' => 'documents_pending',
             'reviewed_at' => $this->faker->dateTimeBetween('-2 days', 'now'),
@@ -200,7 +200,7 @@ class BoatrApplicationFactory extends Factory
         $adminUser = User::where('role', 'admin')->inRandomOrder()->first();
         $inspectionDate = $this->faker->dateTimeBetween('-10 days', '-2 days');
         $approvedDate = $this->faker->dateTimeBetween($inspectionDate, 'now');
-        
+
         return $this->state(fn (array $attributes) => [
             'status' => 'approved',
             'reviewed_at' => $approvedDate,
@@ -243,7 +243,7 @@ class BoatrApplicationFactory extends Factory
     {
         $adminUser = User::where('role', 'admin')->inRandomOrder()->first();
         $rejectedDate = $this->faker->dateTimeBetween('-5 days', 'now');
-        
+
         $rejectionReasons = [
             'Boat does not meet safety requirements.',
             'Invalid or expired FishR registration.',
@@ -251,7 +251,7 @@ class BoatrApplicationFactory extends Factory
             'Required documents not provided.',
             'Boat condition does not meet standards.'
         ];
-        
+
         return $this->state(fn (array $attributes) => [
             'status' => 'rejected',
             'reviewed_at' => $rejectedDate,
@@ -282,7 +282,7 @@ class BoatrApplicationFactory extends Factory
     public function withInspectionDocuments(): static
     {
         $adminUser = User::where('role', 'admin')->inRandomOrder()->first();
-        
+
         return $this->state(fn (array $attributes) => [
             'inspection_documents' => [
                 [

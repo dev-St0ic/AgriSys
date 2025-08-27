@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\SeedlingRequest;
+use App\Models\User;
 use Illuminate\Support\Str;
 
 /**
@@ -64,8 +65,8 @@ class SeedlingRequestFactory extends Factory
         $selectedFertilizers = $this->faker->randomElements($fertilizers, $this->faker->numberBetween(0, 2));
 
         // Calculate total quantity
-        $totalQuantity = collect($selectedVegetables)->sum('quantity') + 
-                        collect($selectedFruits)->sum('quantity') + 
+        $totalQuantity = collect($selectedVegetables)->sum('quantity') +
+                        collect($selectedFruits)->sum('quantity') +
                         collect($selectedFertilizers)->sum('quantity');
 
         $firstName = $this->faker->firstName;
@@ -109,20 +110,20 @@ class SeedlingRequestFactory extends Factory
             'total_quantity' => $totalQuantity,
             'preferred_delivery_date' => $this->faker->optional(0.8)->dateTimeBetween('now', '+30 days'),
             'document_path' => $this->faker->optional(0.3)->filePath(),
-            
+
             // Status fields
             'status' => $this->faker->randomElement(['approved', 'rejected', 'under_review', 'partially_approved']),
             'vegetables_status' => $vegetablesStatus,
             'fruits_status' => $fruitsStatus,
             'fertilizers_status' => $fertilizersStatus,
-            
+
             // Approved items
             'vegetables_approved_items' => $vegetablesApprovedItems,
             'fruits_approved_items' => $fruitsApprovedItems,
             'fertilizers_approved_items' => $fertilizersApprovedItems,
-            
+
             // Review information
-            'reviewed_by' => $this->faker->optional(0.6)->numberBetween(1, 10),
+            'reviewed_by' => $this->faker->optional(0.6)->randomElement(User::pluck('id')->toArray() ?: [1]),
             'reviewed_at' => $this->faker->optional(0.6)->dateTimeBetween('-30 days', 'now'),
             'remarks' => $this->faker->optional(0.4)->sentence(10),
             'approved_quantity' => null,
@@ -137,22 +138,22 @@ class SeedlingRequestFactory extends Factory
     private function formatSeedlingTypes($vegetables, $fruits, $fertilizers): string
     {
         $types = [];
-        
+
         if (!empty($vegetables)) {
             $vegNames = collect($vegetables)->pluck('name')->toArray();
             $types[] = 'Vegetables: ' . implode(', ', $vegNames);
         }
-        
+
         if (!empty($fruits)) {
             $fruitNames = collect($fruits)->pluck('name')->toArray();
             $types[] = 'Fruits: ' . implode(', ', $fruitNames);
         }
-        
+
         if (!empty($fertilizers)) {
             $fertNames = collect($fertilizers)->pluck('name')->toArray();
             $types[] = 'Fertilizers: ' . implode(', ', $fertNames);
         }
-        
+
         return implode(' | ', $types);
     }
 
@@ -172,7 +173,7 @@ class SeedlingRequestFactory extends Factory
                 'fertilizers_approved_items' => $attributes['fertilizers'] ?? null,
                 'approved_quantity' => $attributes['total_quantity'],
                 'approved_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
-                'reviewed_by' => $this->faker->numberBetween(1, 10),
+                'reviewed_by' => User::inRandomOrder()->first()?->id ?? 1,
                 'reviewed_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
                 'remarks' => 'Request approved and ready for pickup.',
             ];
@@ -194,7 +195,7 @@ class SeedlingRequestFactory extends Factory
                 'fruits_approved_items' => null,
                 'fertilizers_approved_items' => null,
                 'rejected_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
-                'reviewed_by' => $this->faker->numberBetween(1, 10),
+                'reviewed_by' => User::inRandomOrder()->first()?->id ?? 1,
                 'reviewed_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
                 'remarks' => $this->faker->randomElement([
                     'Insufficient stock available.',
@@ -215,7 +216,7 @@ class SeedlingRequestFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $statuses = ['approved', 'rejected'];
-            
+
             return [
                 'status' => 'partially_approved',
                 'vegetables_status' => !empty($attributes['vegetables']) ? $this->faker->randomElement($statuses) : null,
@@ -224,7 +225,7 @@ class SeedlingRequestFactory extends Factory
                 'vegetables_approved_items' => !empty($attributes['vegetables']) && $this->faker->boolean() ? $attributes['vegetables'] : null,
                 'fruits_approved_items' => !empty($attributes['fruits']) && $this->faker->boolean() ? $attributes['fruits'] : null,
                 'fertilizers_approved_items' => !empty($attributes['fertilizers']) && $this->faker->boolean() ? $attributes['fertilizers'] : null,
-                'reviewed_by' => $this->faker->numberBetween(1, 10),
+                'reviewed_by' => User::inRandomOrder()->first()?->id ?? 1,
                 'reviewed_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
                 'remarks' => 'Some items approved, others rejected due to stock limitations.',
             ];

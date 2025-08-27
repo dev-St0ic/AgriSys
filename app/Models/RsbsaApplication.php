@@ -17,7 +17,7 @@ class RsbsaApplication extends Model
         'middle_name',
         'last_name',
         'sex',
-        'mobile_number',
+        'contact_number',
         'email',
         'barangay',
         'main_livelihood',
@@ -51,19 +51,19 @@ class RsbsaApplication extends Model
     public function getFullNameAttribute()
     {
         $parts = array_filter([
-            $this->first_name, 
-            $this->middle_name, 
+            $this->first_name,
+            $this->middle_name,
             $this->last_name
         ]);
         return implode(' ', $parts);
     }
 
     /**
-     * Get the contact number (alias for mobile_number for backward compatibility)
+     * Get the contact number (alias for contact_number for backward compatibility)
      */
     public function getContactNumberAttribute()
     {
-        return $this->mobile_number;
+        return $this->attributes['contact_number'];
     }
 
     /**
@@ -162,7 +162,7 @@ class RsbsaApplication extends Model
                   ->orWhere('middle_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('application_number', 'like', "%{$search}%")
-                  ->orWhere('mobile_number', 'like', "%{$search}%");
+                  ->orWhere('contact_number', 'like', "%{$search}%");
             });
         }
         return $query;

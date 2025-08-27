@@ -29,7 +29,7 @@ class RsbsaApplicationFactory extends Factory
         $livelihoods = ['Farmer', 'Farmworker/Laborer', 'Fisherfolk', 'Agri-youth'];
         $mainLivelihood = $this->faker->randomElement($livelihoods);
         $status = $this->faker->randomElement(['pending', 'under_review', 'approved', 'rejected']);
-        
+
         $barangays = [
             'Bagong Silang', 'Cuyab', 'Estrella', 'G.S.I.S.', 'Landayan',
             'Langgam', 'Laram', 'Magsaysay', 'Nueva', 'Poblacion',
@@ -38,10 +38,10 @@ class RsbsaApplicationFactory extends Factory
             'Calendola', 'Narra', 'Chrysanthemum', 'Fatima', 'Maharlika',
             'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
         ];
-        
+
         // Generate creation time
         $createdAt = $this->faker->dateTimeBetween('-1 year', 'now');
-        
+
         // Generate review time and related fields (if status is not pending)
         $reviewedAt = null;
         $reviewedBy = null;
@@ -50,11 +50,11 @@ class RsbsaApplicationFactory extends Factory
         $remarks = null;
         $numberAssignedAt = null;
         $assignedBy = null;
-        
+
         if ($status !== 'pending') {
             $reviewedAt = $this->faker->dateTimeBetween($createdAt, 'now');
             $reviewedBy = User::inRandomOrder()->first()?->id ?? 1; // Assumes you have users
-            
+
             if ($status === 'approved') {
                 $approvedAt = $reviewedAt;
                 $numberAssignedAt = $reviewedAt;
@@ -62,13 +62,13 @@ class RsbsaApplicationFactory extends Factory
             } elseif ($status === 'rejected') {
                 $rejectedAt = $reviewedAt;
             }
-            
+
             // Generate remarks for some entries
             if ($this->faker->boolean(70)) { // 70% chance of having remarks
                 $remarks = $this->getRandomRemarks($status);
             }
         }
-        
+
         $firstName = $this->faker->firstName;
         $lastName = $this->faker->lastName;
 
@@ -79,7 +79,7 @@ class RsbsaApplicationFactory extends Factory
             'last_name' => $lastName,
             'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'sex' => $this->faker->randomElement(['Male', 'Female']),
-            'mobile_number' => $this->faker->randomElement([
+            'contact_number' => $this->faker->randomElement([
                 '09' . $this->faker->numerify('#########'),
                 '+639' . $this->faker->numerify('#########')
             ]),
