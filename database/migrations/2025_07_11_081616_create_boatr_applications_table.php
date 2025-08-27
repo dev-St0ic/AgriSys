@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('contact_number', 20);
             $table->string('email')->nullable();
+            $table->string('barangay'); // Barangay location
             $table->string('fishr_number'); // FishR registration number
             $table->unsignedBigInteger('fishr_application_id')->nullable(); // Foreign key to fishr_applications table
 

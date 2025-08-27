@@ -17,18 +17,18 @@ async function refreshCSRFToken() {
         const response = await fetch('/csrf-token');
         const data = await response.json();
         csrfToken = data.csrf_token;
-        
+
         // Update meta tag
         const metaTag = document.querySelector('meta[name="csrf-token"]');
         if (metaTag) {
             metaTag.setAttribute('content', csrfToken);
         }
-        
+
         // Update all CSRF input fields
         document.querySelectorAll('input[name="_token"]').forEach(input => {
             input.value = csrfToken;
         });
-        
+
         console.log('CSRF token refreshed');
         return csrfToken;
     } catch (error) {
@@ -42,13 +42,13 @@ async function refreshCSRFToken() {
  */
 function getCSRFToken() {
     if (csrfToken) return csrfToken;
-    
+
     const metaTag = document.querySelector('meta[name="csrf-token"]');
     if (metaTag) {
         csrfToken = metaTag.getAttribute('content');
         return csrfToken;
     }
-    
+
     console.error('No CSRF token found');
     return null;
 }
@@ -59,32 +59,32 @@ function getCSRFToken() {
 async function fetchWithCSRFRetry(url, options, retries = 1) {
     try {
         const response = await fetch(url, options);
-        
+
         // If CSRF error, refresh token and retry
         if (response.status === 419 && retries > 0) {
             console.log('CSRF token mismatch, refreshing token and retrying...');
-            
+
             // Refresh CSRF token
             const newToken = await refreshCSRFToken();
-            
+
             // Update headers with new token
             if (options.headers) {
                 options.headers['X-CSRF-TOKEN'] = newToken;
             }
-            
+
             // If FormData, we need to update the _token field
             if (options.body instanceof FormData) {
                 options.body.set('_token', newToken);
             }
-            
+
             // Retry the request
             return await fetchWithCSRFRetry(url, options, retries - 1);
         }
-        
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return response;
     } catch (error) {
         if (retries > 0 && error.message.includes('419')) {
@@ -99,23 +99,19 @@ async function fetchWithCSRFRetry(url, options, retries = 1) {
  */
 function shouldShowFishRForm() {
     const currentPath = window.location.pathname;
-    const currentUrl = window.location.href;
-    
-    // Check for various FishR URL patterns
-    return currentPath === '/services/fishr' || 
-           currentPath.includes('/fishr') || 
-           currentUrl.includes('/services/fishr') ||
-           currentUrl.includes('#fishr');
+
+    // Only show FishR form if the URL explicitly matches FishR path
+    return currentPath === '/services/fishr';
 }
 
 function checkAndShowFishROnLoad() {
     console.log('Checking if FishR form should be shown on page load...');
     console.log('Current URL:', window.location.href);
     console.log('Current pathname:', window.location.pathname);
-    
+
     if (shouldShowFishRForm()) {
         console.log('URL indicates FishR form should be shown - opening form');
-        
+
         // Wait a bit for DOM to be fully ready
         setTimeout(() => {
             const formElement = document.getElementById('fishr-form');
@@ -162,7 +158,7 @@ function initializeFishRTabs() {
     // Ensure Application Form tab is visible and its button is active
     const firstTab = fishrForm.querySelector('.fishr-tab-content');
     const firstButton = fishrForm.querySelector('.fishr-tab-btn');
-    
+
     if (firstTab && firstButton) {
         firstTab.style.display = 'block';
         firstButton.classList.add('active');
@@ -179,12 +175,12 @@ function showFishrTab(tabId, event) {
     console.log('Switching to FishR tab:', tabId);
     // Auto-scroll to the active tab content
         setTimeout(() => {
-            selectedTab.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'nearest' 
+            selectedTab.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
             });
         }, 50); // Small delay for smooth transition
-    
+
     // Prevent default button behavior
     if (event) {
         event.preventDefault();
@@ -227,9 +223,9 @@ function openFormFishR(event) {
     if (event && typeof event.preventDefault === 'function') {
         event.preventDefault();
     }
-    
+
     console.log('Opening FishR form');
-    
+
     // Hide all main sections and forms first
     if (typeof hideAllMainSections === 'function') hideAllMainSections();
     if (typeof hideAllForms === 'function') hideAllForms();
@@ -243,14 +239,14 @@ function openFormFishR(event) {
         if (typeof activateApplicationTab === 'function') {
             activateApplicationTab('fishr-form');
         }
-        
+
          // Reset form and clear any previous messages (only if not from page load)
         if (event && event.type !== 'load' && event.type !== 'DOMContentLoaded') {
         resetFishRForm();
 
         // Re-initialize tabs after reset
         initializeFishRTabs();
-        
+
         }   else {
         // Just initialize tabs without resetting on page load
         initializeFishRTabs();
@@ -260,18 +256,18 @@ function openFormFishR(event) {
         setTimeout(() => {
             const formElement = document.getElementById('fishr-form');
             if (formElement) {
-                formElement.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
+                formElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                 });
             }
         }, 100); // Small delay to ensure form is visible
-        
+
         // Update URL without page reload
         if (window.location.pathname !== '/services/fishr') {
             history.pushState({page: 'fishr'}, '', '/services/fishr');
         }
-        
+
         console.log('FishR form opened successfully');
     } else {
         console.error('Fish Registration form element not found');
@@ -285,19 +281,19 @@ function openFormFishR(event) {
  */
 function closeFormFishR() {
     console.log('Closing FishR form');
-    
+
     const formElement = document.getElementById('fishr-form');
     if (formElement) {
         formElement.style.display = 'none';
         console.log('FishR form closed');
     }
-    
+
     // Show main sections again
     if (typeof showAllMainSections === 'function') showAllMainSections();
-    
+
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
+
     // Update URL to home page
     if (window.location.pathname !== '/') {
         history.pushState({page: 'home'}, '', '/');
@@ -312,29 +308,29 @@ function resetFishRForm() {
     if (form) {
         // Reset form data
         form.reset();
-        
+
         // Hide other livelihood field
         const otherField = document.getElementById('other-livelihood-field');
         if (otherField) {
             otherField.style.display = 'none';
         }
-        
+
         // Remove required attribute from other livelihood input
         const otherInput = document.getElementById('other_livelihood');
         if (otherInput) {
             otherInput.removeAttribute('required');
         }
-        
+
         // Hide messages
         const messagesContainer = document.getElementById('fishr-messages');
         if (messagesContainer) {
             messagesContainer.style.display = 'none';
         }
-        
+
         // Clear any validation error messages
         const errorTexts = form.querySelectorAll('.error-text');
         errorTexts.forEach(error => error.remove());
-        
+
         // Reset submit button state
         const submitBtn = document.getElementById('fishr-submit-btn');
         if (submitBtn) {
@@ -344,7 +340,7 @@ function resetFishRForm() {
             if (btnText) btnText.style.display = 'inline';
             if (btnLoading) btnLoading.style.display = 'none';
         }
-        
+
         // Reset to first tab if showTab function exists
         if (typeof showFishrTab === 'function') {
             const firstTabBtn = document.querySelector('#fishr-form .tab-btn');
@@ -352,7 +348,7 @@ function resetFishRForm() {
                 showTab('fishr-form-tab', { target: firstTabBtn });
             }
         }
-        
+
         console.log('FishR form reset to initial state');
     }
 }
@@ -386,7 +382,7 @@ function toggleOtherLivelihood(select) {
 
     // Update supporting documents requirement based on livelihood
     updateDocumentsRequirement(selectedValue);
-    
+
     console.log('FishR livelihood changed to:', selectedValue);
 }
 
@@ -397,7 +393,7 @@ function updateDocumentsRequirement(livelihoodType) {
     const docsInput = document.getElementById('supporting_documents');
     const docsLabel = document.querySelector('label[for="supporting_documents"]');
     const docsHelp = document.querySelector('#supporting_documents + .form-text');
-    
+
     if (docsInput && docsLabel) {
         if (livelihoodType === 'capture') {
             // Capture fishing - documents optional
@@ -439,14 +435,14 @@ function initializeFishRFormSubmission() {
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         console.log('FishR form submitted');
-        
+
         const submitBtn = document.getElementById('fishr-submit-btn');
-        
+
         // Show loading state - handle both button styles
         const originalText = submitBtn.textContent;
         const btnText = submitBtn.querySelector('.btn-text');
         const btnLoading = submitBtn.querySelector('.btn-loading');
-        
+
         if (btnText && btnLoading) {
             // New button style with spans
             btnText.style.display = 'none';
@@ -456,7 +452,7 @@ function initializeFishRFormSubmission() {
             submitBtn.textContent = 'Submitting...';
         }
         submitBtn.disabled = true;
-        
+
         try {
             // Ensure we have a fresh CSRF token
             let token = getCSRFToken();
@@ -464,12 +460,12 @@ function initializeFishRFormSubmission() {
                 console.log('No CSRF token found, refreshing...');
                 token = await refreshCSRFToken();
             }
-            
+
             // Create FormData
             const formData = new FormData(form);
-            
+
             console.log('Sending AJAX request to:', form.action);
-            
+
             // Submit via AJAX with retry logic
             const response = await fetchWithCSRFRetry(form.action, {
                 method: 'POST',
@@ -479,29 +475,29 @@ function initializeFishRFormSubmission() {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             });
-            
+
             const data = await response.json();
             console.log('Response data:', data);
-            
+
             if (data.success) {
                 // Show success message
                 alert('✅ ' + data.message);
-                
+
                 // Reset form and go back to home
                 form.reset();
-                
+
                 // Reset other livelihood field if it was showing
                 const livelihoodSelect = document.getElementById('main_livelihood');
                 if (livelihoodSelect) {
                     toggleOtherLivelihood(livelihoodSelect);
                 }
-                
+
                 // Close form and return to landing
                 closeFormFishR();
             } else {
                 // Show error message
                 alert('❌ ' + (data.message || 'There was an error submitting your request.'));
-                
+
                 // Show validation errors if available
                 if (data.errors) {
                     showFishRValidationErrors(data.errors);
@@ -509,7 +505,7 @@ function initializeFishRFormSubmission() {
             }
         } catch (error) {
             console.error('FishR submission error:', error);
-            
+
             if (error.message.includes('CSRF') || error.message.includes('419')) {
                 alert('❌ Your session has expired. Please refresh the page and try again.');
             } else {
@@ -535,16 +531,16 @@ function showFishRMessage(type, message) {
     const messagesContainer = document.getElementById('fishr-messages');
     const successDiv = document.getElementById('fishr-success-message');
     const errorDiv = document.getElementById('fishr-error-message');
-    
+
     if (!messagesContainer || !successDiv || !errorDiv) {
         console.error('FishR message elements not found');
         return;
     }
-    
+
     // Hide both message divs first
     successDiv.style.display = 'none';
     errorDiv.style.display = 'none';
-    
+
     // Show the appropriate message
     if (type === 'success') {
         successDiv.innerHTML = message;
@@ -553,9 +549,9 @@ function showFishRMessage(type, message) {
         errorDiv.innerHTML = message;
         errorDiv.style.display = 'block';
     }
-    
+
     messagesContainer.style.display = 'block';
-    
+
     // Auto-hide after 5 seconds
     setTimeout(() => {
         messagesContainer.style.display = 'none';
@@ -567,11 +563,11 @@ function showFishRMessage(type, message) {
  */
 function showFishRValidationErrors(errors) {
     console.log('Showing validation errors:', errors);
-    
+
     // Clear previous error messages
     const errorSpans = document.querySelectorAll('#fishr-form .error-text');
     errorSpans.forEach(span => span.remove());
-    
+
     // Show new error messages
     for (const field in errors) {
         const input = document.querySelector(`#fishr-form [name="${field}"]`);
@@ -594,10 +590,10 @@ function showFishRValidationErrors(errors) {
 function validateFishRForm() {
     const form = document.getElementById('fishr-registration-form');
     if (!form) return false;
-    
+
     let isValid = true;
     const errors = [];
-    
+
     // Required field validation
     const requiredFields = [
         { name: 'first_name', label: 'First Name' },
@@ -607,7 +603,7 @@ function validateFishRForm() {
         { name: 'mobile_number', label: 'Mobile Number' },
         { name: 'main_livelihood', label: 'Main Livelihood' }
     ];
-    
+
     requiredFields.forEach(field => {
         const input = form.querySelector(`[name="${field.name}"]`);
         if (!input || !input.value.trim()) {
@@ -615,18 +611,18 @@ function validateFishRForm() {
             isValid = false;
         }
     });
-    
+
     // Conditional validation for "others" livelihood
     const livelihoodSelect = form.querySelector('[name="main_livelihood"]');
     const otherLivelihoodInput = form.querySelector('[name="other_livelihood"]');
-    
+
     if (livelihoodSelect && livelihoodSelect.value === 'others') {
         if (!otherLivelihoodInput || !otherLivelihoodInput.value.trim()) {
             errors.push('Please specify your livelihood when selecting "Others"');
             isValid = false;
         }
     }
-    
+
     // Mobile number format validation
     const mobileInput = form.querySelector('[name="mobile_number"]');
     if (mobileInput && mobileInput.value) {
@@ -637,7 +633,7 @@ function validateFishRForm() {
             isValid = false;
         }
     }
-    
+
     // Supporting documents validation for non-capture livelihoods
     const docsInput = form.querySelector('[name="supporting_documents"]');
     if (livelihoodSelect && livelihoodSelect.value && livelihoodSelect.value !== 'capture') {
@@ -646,13 +642,13 @@ function validateFishRForm() {
             isValid = false;
         }
     }
-    
+
     // Show validation errors if any
     if (!isValid) {
         const errorMessage = 'Please correct the following errors:\n• ' + errors.join('\n• ');
         alert(errorMessage);
     }
-    
+
     return isValid;
 }
 
@@ -662,7 +658,7 @@ function validateFishRForm() {
 function fillSampleFishRData() {
     const form = document.getElementById('fishr-registration-form');
     if (!form) return;
-    
+
     // Sample data
     const sampleData = {
         first_name: 'Juan',
@@ -673,20 +669,20 @@ function fillSampleFishRData() {
         mobile_number: '09123456789',
         main_livelihood: 'aquaculture'
     };
-    
+
     // Fill form fields
     Object.keys(sampleData).forEach(fieldName => {
         const input = form.querySelector(`[name="${fieldName}"]`);
         if (input) {
             input.value = sampleData[fieldName];
-            
+
             // Trigger change event for select elements
             if (input.tagName === 'SELECT') {
                 input.dispatchEvent(new Event('change'));
             }
         }
     });
-    
+
     console.log('Sample data filled for FishR form');
 }
 
@@ -711,7 +707,7 @@ function showFishRStats() {
         approved: 0,
         rejected: 0
     };
-    
+
     console.log('FishR Registration Statistics:', stats);
     return stats;
 }
@@ -721,7 +717,7 @@ function showFishRStats() {
  */
 function handlePopState(event) {
     console.log('Pop state event:', event.state);
-    
+
     if (event.state && event.state.page === 'fishr') {
         // User navigated back to FishR form
         openFormFishR(new Event('popstate'));
@@ -741,12 +737,12 @@ function handlePopState(event) {
 function hideAllMainSections() {
     const sections = [
         'home',
-        '.announcement', 
+        '.announcement',
         'services',
         'how-it-works',
         '.help-section'
     ];
-    
+
     sections.forEach(selector => {
         const element = selector.startsWith('.')
             ? document.querySelector(selector)
@@ -766,9 +762,9 @@ function showAllMainSections() {
         'how-it-works',
         '.help-section'
     ];
-    
+
     sections.forEach(selector => {
-        const element = selector.startsWith('.') 
+        const element = selector.startsWith('.')
             ? document.querySelector(selector)
             : document.getElementById(selector);
         if (element) element.style.display = 'block';
@@ -784,12 +780,12 @@ function hideAllForms() {
         'seedlings-choice', 'seedlings-form',
         'fishr-form', 'boatr-form'
     ];
-    
+
     formIds.forEach(id => {
         const element = document.getElementById(id);
         if (element) element.style.display = 'none';
     });
-    
+
     // Also hide by class selector for application sections
     const formSections = document.querySelectorAll('.application-section');
     formSections.forEach(section => {
@@ -830,13 +826,13 @@ function initializeFishRModule() {
 
     // Check if we should show the FishR form based on URL
     checkAndShowFishROnLoad();
-    
+
     // Get initial CSRF token
     getCSRFToken();
-    
+
     // Initialize AJAX form submission
     initializeFishRFormSubmission();
-    
+
     // Set up initial form state
     const livelihoodSelect = document.getElementById('main_livelihood');
     if (livelihoodSelect) {
@@ -845,10 +841,10 @@ function initializeFishRModule() {
             toggleOtherLivelihood(livelihoodSelect);
         }
     }
-    
+
     // Handle browser back/forward buttons
     window.addEventListener('popstate', handlePopState);
-    
+
     // Add keyboard shortcuts for development
     document.addEventListener('keydown', function(e) {
         // Ctrl + Shift + F = Fill sample data
@@ -856,33 +852,23 @@ function initializeFishRModule() {
             e.preventDefault();
             fillSampleFishRData();
         }
-        
+
         // Ctrl + Shift + C = Clear form
         if (e.ctrlKey && e.shiftKey && e.key === 'C') {
             e.preventDefault();
             clearFishRForm();
         }
     });
-    
+
     console.log('FishR module initialized successfully');
 
     /**
  * Also handle window load event for additional safety*/
     window.addEventListener('load', function() {
         console.log('Window loaded, double-checking FishR form display');
-        
-        // Double-check and show form if needed
-        setTimeout(checkAndShowFishROnLoad, 300);
-    });
 
-    /**
-     * Handle page visibility change (when user returns to tab)
-     */
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden && shouldShowFishRForm()) {
-            console.log('Page became visible and should show FishR form');
-            setTimeout(checkAndShowFishROnLoad, 100);
-        }
+        // Double-check and show form if needed (only once)
+        setTimeout(checkAndShowFishROnLoad, 300);
     });
 }
 
@@ -891,5 +877,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Small delay to ensure all elements are ready
     setTimeout(initializeFishRModule, 100);
 });
+
+// ==============================================
+// GLOBAL FUNCTIONS FOR COMPATIBILITY
+// ==============================================
+
+// Make functions available globally for HTML onclick handlers
+window.openFormFishR = openFormFishR;
+window.closeFormFishR = closeFormFishR;
+window.showFishrTab = showFishrTab;
+window.toggleOtherLivelihood = toggleOtherLivelihood;
+window.fillSampleFishRData = fillSampleFishRData;
 
 console.log('Enhanced FishR JavaScript module loaded with CSRF protection');

@@ -71,6 +71,13 @@ class BoatrApplicationFactory extends Factory
             'last_name' => $lastName,
             'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'contact_number' => $this->faker->phoneNumber(), // Added missing contact_number field
+            'barangay' => $this->faker->randomElement([
+                'Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Fatima',
+                'G.S.I.S.', 'Landayan', 'Laram', 'Magsaysay', 'Maharlika',
+                'Narra', 'Nueva', 'Pacita 1', 'Pacita 2', 'Poblacion',
+                'Rosario', 'Riverside', 'Sampaguita Village', 'San Antonio',
+                'San Lorenzo Ruiz', 'San Roque', 'San Vicente', 'United Bayanihan', 'United Better Living'
+            ]),
             'fishr_number' => $fishrNumber,
             'vessel_name' => 'MV ' . $this->faker->words(2, true),
             'boat_type' => $this->faker->randomElement($boatTypes),

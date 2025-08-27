@@ -485,8 +485,9 @@ public function submitRsbsa(Request $request)
                 'first_name' => 'required|string|max:255',
                 'middle_name' => 'nullable|string|max:255',
                 'last_name' => 'required|string|max:255',
-                'mobile' => 'required|string|max:20',
+                'contact_number' => 'required|string|max:20',
                 'email' => 'required|email|max:255',
+                'barangay' => 'required|string|max:255',
                 'fishr_number' => 'required|string|max:255',
                 'vessel_name' => 'required|string|max:255',
                 'boat_type' => 'required|in:Spoon,Plumb,Banca,Rake Stem - Rake Stern,Rake Stem - Transom/Spoon/Plumb Stern,Skiff (Typical Design)',
@@ -500,9 +501,10 @@ public function submitRsbsa(Request $request)
             ], [
                 'first_name.required' => 'First name is required',
                 'last_name.required' => 'Last name is required',
-                'mobile.required' => 'Mobile number is required',
+                'contact_number.required' => 'Contact number is required',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
+                'barangay.required' => 'Barangay is required',
                 'fishr_number.required' => 'FishR registration number is required',
                 'vessel_name.required' => 'Vessel name is required',
                 'boat_type.required' => 'Please select a boat type',
@@ -550,8 +552,9 @@ public function submitRsbsa(Request $request)
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
                 'last_name' => $validated['last_name'],
-                'mobile' => $validated['mobile'],
+                'contact_number' => $validated['contact_number'],
                 'email' => $validated['email'],
+                'barangay' => $validated['barangay'],
                 'fishr_number' => $validated['fishr_number'],
                 'vessel_name' => $validated['vessel_name'],
                 'boat_type' => $validated['boat_type'],
@@ -673,6 +676,7 @@ public function submitRsbsa(Request $request)
                 'last_name' => 'required|string|max:255',
                 'contact_number' => 'required|string|size:11',
                 'email' => 'required|email|max:255',
+                'barangay' => 'required|string|max:255',
                 'training_type' => 'required|string',
                 'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120'
             ], [
@@ -682,6 +686,7 @@ public function submitRsbsa(Request $request)
                 'contact_number.size' => 'Contact number must be 11 digits',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
+                'barangay.required' => 'Barangay is required',
                 'training_type.required' => 'Please select a training program',
                 'documents.*.mimes' => 'Documents must be PDF, JPG, JPEG, or PNG files',
                 'documents.*.max' => 'Documents must not exceed 5MB'
@@ -710,6 +715,7 @@ public function submitRsbsa(Request $request)
                 'last_name' => $validated['last_name'],
                 'contact_number' => $validated['contact_number'],
                 'email' => $validated['email'],
+                'barangay' => $validated['barangay'],
                 'training_type' => $validated['training_type'],
                 'document_paths' => $documentPaths,
                 'status' => 'under_review'

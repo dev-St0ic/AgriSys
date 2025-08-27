@@ -70,6 +70,13 @@ class TrainingApplicationFactory extends Factory
                 '+639' . $this->faker->numerify('#########')
             ]),
             'email' => $this->faker->optional(0.9)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
+            'barangay' => $this->faker->randomElement([
+                'Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Fatima',
+                'G.S.I.S.', 'Landayan', 'Laram', 'Magsaysay', 'Maharlika',
+                'Narra', 'Nueva', 'Pacita 1', 'Pacita 2', 'Poblacion',
+                'Rosario', 'Riverside', 'Sampaguita Village', 'San Antonio',
+                'San Lorenzo Ruiz', 'San Roque', 'San Vicente', 'United Bayanihan', 'United Better Living'
+            ]),
             'training_type' => $trainingType,
             'document_paths' => $this->faker->optional(0.6)->randomElement([
                 ['training_documents/sample_id.pdf'],

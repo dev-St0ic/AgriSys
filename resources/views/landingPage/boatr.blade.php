@@ -14,7 +14,7 @@
     <div class="boatr-tab-content" id="boatr-form-tab" style="display: block;">
         <form id="boatr-registration-form" onsubmit="submitBoatRForm(event)" enctype="multipart/form-data">
             @csrf
-            
+
             <div class="boatr-form-group">
                 <label for="boatr_first_name">First Name *</label>
                 <input type="text" id="boatr_first_name" name="first_name" placeholder="Enter first name" required>
@@ -31,9 +31,10 @@
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_mobile">Mobile Number *</label>
-                <input type="tel" id="boatr_mobile" name="mobile" placeholder="Enter your mobile number (e.g., 09123456789)" required>
-                <small class="boatr-form-help">Please provide a valid mobile number for SMS notifications.</small>
+                <label for="boatr_contact_number">Contact Number *</label>
+                <input type="tel" id="boatr_contact_number" name="contact_number"
+                    placeholder="Enter your contact number (e.g., 09123456789)" required>
+                <small class="boatr-form-help">Please provide a valid contact number for SMS notifications.</small>
             </div>
 
             <div class="boatr-form-group">
@@ -43,14 +44,47 @@
             </div>
 
             <div class="boatr-form-group">
+                <label for="boatr_barangay">Barangay *</label>
+                <select id="boatr_barangay" name="barangay" required>
+                    <option value="" disabled selected>Select Barangay</option>
+                    <option value="Bagong Silang">Bagong Silang</option>
+                    <option value="Calendola">Calendola</option>
+                    <option value="Chrysanthemum">Chrysanthemum</option>
+                    <option value="Cuyab">Cuyab</option>
+                    <option value="Fatima">Fatima</option>
+                    <option value="G.S.I.S.">G.S.I.S.</option>
+                    <option value="Landayan">Landayan</option>
+                    <option value="Laram">Laram</option>
+                    <option value="Magsaysay">Magsaysay</option>
+                    <option value="Maharlika">Maharlika</option>
+                    <option value="Narra">Narra</option>
+                    <option value="Nueva">Nueva</option>
+                    <option value="Pacita 1">Pacita 1</option>
+                    <option value="Pacita 2">Pacita 2</option>
+                    <option value="Poblacion">Poblacion</option>
+                    <option value="Rosario">Rosario</option>
+                    <option value="Riverside">Riverside</option>
+                    <option value="Sampaguita Village">Sampaguita Village</option>
+                    <option value="San Antonio">San Antonio</option>
+                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                    <option value="San Roque">San Roque</option>
+                    <option value="San Vicente">San Vicente</option>
+                    <option value="United Bayanihan">United Bayanihan</option>
+                    <option value="United Better Living">United Better Living</option>
+                </select>
+            </div>
+
+            <div class="boatr-form-group">
                 <label for="boatr_fishr_number">FishR Number *</label>
-                <input type="text" id="boatr_fishr_number" name="fishr_number" placeholder="Enter FishR Number (e.g., FISHR-ABC12345)" required>
+                <input type="text" id="boatr_fishr_number" name="fishr_number"
+                    placeholder="Enter FishR Number (e.g., FISHR-ABC12345)" required>
                 <small class="boatr-form-help">Enter your approved FishR registration number</small>
             </div>
 
             <div class="boatr-form-group">
                 <label for="boatr_vessel_name">Vessel Name *</label>
-                <input type="text" id="boatr_vessel_name" name="vessel_name" placeholder="Enter vessel name" required>
+                <input type="text" id="boatr_vessel_name" name="vessel_name" placeholder="Enter vessel name"
+                    required>
             </div>
 
             <div class="boatr-form-group">
@@ -61,7 +95,8 @@
                     <option value="Plumb">Plumb</option>
                     <option value="Banca">Banca</option>
                     <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
-                    <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom/Spoon/Plumb Stern</option>
+                    <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom/Spoon/Plumb Stern
+                    </option>
                     <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
                 </select>
             </div>
@@ -69,26 +104,31 @@
             <div class="boatr-form-row">
                 <div class="boatr-form-group">
                     <label for="boatr_boat_length">Length (feet) *</label>
-                    <input type="number" id="boatr_boat_length" name="boat_length" step="0.01" min="1" max="200" placeholder="Length" required>
+                    <input type="number" id="boatr_boat_length" name="boat_length" step="0.01" min="1"
+                        max="200" placeholder="Length" required>
                 </div>
                 <div class="boatr-form-group">
                     <label for="boatr_boat_width">Width (feet) *</label>
-                    <input type="number" id="boatr_boat_width" name="boat_width" step="0.01" min="1" max="50" placeholder="Width" required>
+                    <input type="number" id="boatr_boat_width" name="boat_width" step="0.01" min="1"
+                        max="50" placeholder="Width" required>
                 </div>
                 <div class="boatr-form-group">
                     <label for="boatr_boat_depth">Depth (feet) *</label>
-                    <input type="number" id="boatr_boat_depth" name="boat_depth" step="0.01" min="1" max="30" placeholder="Depth" required>
+                    <input type="number" id="boatr_boat_depth" name="boat_depth" step="0.01" min="1"
+                        max="30" placeholder="Depth" required>
                 </div>
             </div>
 
             <div class="boatr-form-group">
                 <label for="boatr_engine_type">Engine Type *</label>
-                <input type="text" id="boatr_engine_type" name="engine_type" placeholder="Enter engine type (e.g., Yamaha Outboard Motor)" required>
+                <input type="text" id="boatr_engine_type" name="engine_type"
+                    placeholder="Enter engine type (e.g., Yamaha Outboard Motor)" required>
             </div>
 
             <div class="boatr-form-group">
                 <label for="boatr_engine_horsepower">Engine Horsepower *</label>
-                <input type="number" id="boatr_engine_horsepower" name="engine_horsepower" step="1" min="1" max="500" placeholder="Enter engine horsepower" required>
+                <input type="number" id="boatr_engine_horsepower" name="engine_horsepower" step="1"
+                    min="1" max="500" placeholder="Enter engine horsepower" required>
             </div>
 
             <div class="boatr-form-group">
@@ -104,19 +144,19 @@
 
             <div class="boatr-form-group">
                 <label for="boatr_supporting_documents">Supporting Document (Optional)</label>
-                <input type="file" id="boatr_supporting_documents" name="supporting_documents" 
-                       accept=".pdf,.jpg,.jpeg,.png" onchange="previewSingleFile(this)">
+                <input type="file" id="boatr_supporting_documents" name="supporting_documents"
+                    accept=".pdf,.jpg,.jpeg,.png" onchange="previewSingleFile(this)">
                 <small class="boatr-form-help">
-                    Upload one relevant document (PDF, JPG, JPEG, PNG - Max 10MB). 
+                    Upload one relevant document (PDF, JPG, JPEG, PNG - Max 10MB).
                     Additional documents will be collected during on-site inspection.
                 </small>
             </div>
-            
+
 
             <!-- <div class="boatr-alert boatr-alert-info">
                 <i class="fas fa-info-circle"></i>
                 <strong>Document Submission Process:</strong>
-                <p>You may upload one initial document now to expedite your application. Additional supporting documents will be collected and verified during the mandatory on-site inspection by the City Agriculture Office. 
+                <p>You may upload one initial document now to expedite your application. Additional supporting documents will be collected and verified during the mandatory on-site inspection by the City Agriculture Office.
                 Please prepare the following for inspection:</p>
                 <ul>
                     <li>Valid government-issued ID (original)</li>
@@ -128,7 +168,7 @@
             </div> -->
 
             <!-- <div id="required-docs-list"> -->
-                <!-- Dynamic content will be inserted here by JavaScript -->
+            <!-- Dynamic content will be inserted here by JavaScript -->
             <!-- </div> -->
 
             <div class="boatr-form-buttons">
@@ -148,7 +188,7 @@
             <li>FishR registration certificate (original for inspection)</li>
             <li>On-site inspection approval (scheduled after application submission)</li>
         </ul>
-        
+
         <h3>Boat Specifications</h3>
         <ul>
             <li>Must be used for municipal fishing only</li>
@@ -171,7 +211,7 @@
             <li>You will receive SMS notifications for status updates.</li>
             <li>Contact City Agriculture Office at (123) 456-7890 or email agriculture@sanpedro.gov.ph</li>
         </ul>
-        
+
         <h3>Application Process</h3>
         <ol>
             <li><strong>Submit Application:</strong> Complete and submit this form with required information</li>

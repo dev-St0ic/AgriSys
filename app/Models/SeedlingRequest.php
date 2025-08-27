@@ -10,11 +10,11 @@ use App\Models\Inventory;
 class SeedlingRequest extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'request_number',
         'first_name',
-        'middle_name', 
+        'middle_name',
         'last_name',
         'extension_name',
         'contact_number',
@@ -33,11 +33,14 @@ class SeedlingRequest extends Model
         'document_path',
         'status',
         'vegetables_status',
-        'fruits_status', 
+        'fruits_status',
         'fertilizers_status',
         'vegetables_approved_items',
         'fruits_approved_items',
         'fertilizers_approved_items',
+        'vegetables_rejected_items',
+        'fruits_rejected_items',
+        'fertilizers_rejected_items',
         'reviewed_by',
         'reviewed_at',
         'remarks',
@@ -48,7 +51,7 @@ class SeedlingRequest extends Model
 
     protected $casts = [
         'reviewed_at' => 'datetime',
-        'approved_at' => 'datetime', 
+        'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
         'preferred_delivery_date' => 'date',
         'requested_quantity' => 'integer',
@@ -59,7 +62,10 @@ class SeedlingRequest extends Model
         'fertilizers' => 'array',
         'vegetables_approved_items' => 'array',
         'fruits_approved_items' => 'array',
-        'fertilizers_approved_items' => 'array'
+        'fertilizers_approved_items' => 'array',
+        'vegetables_rejected_items' => 'array',
+        'fruits_rejected_items' => 'array',
+        'fertilizers_rejected_items' => 'array'
     ];
 
     public function getFullNameAttribute(): string
@@ -72,7 +78,7 @@ class SeedlingRequest extends Model
         return match($this->status) {
             'approved' => 'success',
             'partially_approved' => 'warning',
-            'rejected' => 'danger', 
+            'rejected' => 'danger',
             'under_review' => 'warning',
             default => 'secondary'
         };
@@ -85,7 +91,7 @@ class SeedlingRequest extends Model
     {
         $statuses = array_filter([
             $this->vegetables_status,
-            $this->fruits_status, 
+            $this->fruits_status,
             $this->fertilizers_status
         ]);
 
@@ -122,7 +128,7 @@ class SeedlingRequest extends Model
                     ->where('category', $category)
                     ->where('is_active', true)
                     ->first();
-                
+
                 if (!$inventory) {
                     $unavailableItems[] = [
                         'name' => $item['name'],
@@ -169,11 +175,11 @@ class SeedlingRequest extends Model
         foreach ($categories as $category) {
             $result = $this->checkCategoryInventoryAvailability($category);
             $results[$category] = $result;
-            
+
             if ($result['has_items'] && !$result['can_fulfill']) {
                 $overallCanFulfill = false;
             }
-            
+
             $allAvailable = array_merge($allAvailable, $result['available_items']);
             $allUnavailable = array_merge($allUnavailable, $result['unavailable_items']);
         }
@@ -192,17 +198,17 @@ class SeedlingRequest extends Model
     public function deductCategoryFromInventory(string $category): bool
     {
         \DB::beginTransaction();
-        
+
         try {
             $items = $this->{$category} ?? [];
-            
+
             if (!empty($items)) {
                 foreach ($items as $item) {
                     $inventory = Inventory::where('item_name', $item['name'])
                         ->where('category', $category)
                         ->where('is_active', true)
                         ->first();
-                    
+
                     if ($inventory && $inventory->current_stock >= $item['quantity']) {
                         $inventory->decrement('current_stock', $item['quantity']);
                         $inventory->update(['updated_by' => auth()->id()]);
@@ -211,10 +217,10 @@ class SeedlingRequest extends Model
                     }
                 }
             }
-            
+
             \DB::commit();
             return true;
-            
+
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error("Inventory deduction failed for {$category}: " . $e->getMessage());
@@ -228,34 +234,34 @@ class SeedlingRequest extends Model
     public function restoreCategoryToInventory(string $category): bool
     {
         \DB::beginTransaction();
-        
+
         try {
             $categoryStatus = $this->{$category . '_status'};
-            
+
             // Only restore if the category was previously approved
             if ($categoryStatus !== 'approved') {
                 return true; // Nothing to restore
             }
-            
+
             $items = $this->{$category} ?? [];
-            
+
             if (!empty($items)) {
                 foreach ($items as $item) {
                     $inventory = Inventory::where('item_name', $item['name'])
                         ->where('category', $category)
                         ->where('is_active', true)
                         ->first();
-                    
+
                     if ($inventory) {
                         $inventory->increment('current_stock', $item['quantity']);
                         $inventory->update(['updated_by' => auth()->id()]);
                     }
                 }
             }
-            
+
             \DB::commit();
             return true;
-            
+
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error("Inventory restoration failed for {$category}: " . $e->getMessage());
@@ -269,11 +275,11 @@ class SeedlingRequest extends Model
     public function updateCategoryStatus(string $category, string $status, array $approvedItems = []): bool
     {
         $oldStatus = $this->{$category . '_status'};
-        
+
         // If approving, check inventory first
         if ($status === 'approved') {
             $inventoryCheck = $this->checkCategoryInventoryAvailability($category);
-            
+
             if (!$inventoryCheck['can_fulfill']) {
                 throw new \Exception("Insufficient inventory for {$category}");
             }
@@ -310,11 +316,11 @@ class SeedlingRequest extends Model
     {
         $items = $this->{$category} ?? [];
         $status = $this->{$category . '_status'} ?? 'under_review';
-        
+
         if (empty($items)) {
             return '';
         }
-        
+
         $formatted = collect($items)->map(function($item) {
             return $item['name'] . ' (' . $item['quantity'] . ' pcs)';
         })->implode(', ');
@@ -350,7 +356,7 @@ class SeedlingRequest extends Model
         if (empty($this->vegetables)) {
             return '';
         }
-        
+
         return collect($this->vegetables)->map(function($item) {
             return $item['name'] . ' (' . $item['quantity'] . ' pcs)';
         })->implode(', ');
@@ -361,7 +367,7 @@ class SeedlingRequest extends Model
         if (empty($this->fruits)) {
             return '';
         }
-        
+
         return collect($this->fruits)->map(function($item) {
             return $item['name'] . ' (' . $item['quantity'] . ' pcs)';
         })->implode(', ');
@@ -372,7 +378,7 @@ class SeedlingRequest extends Model
         if (empty($this->fertilizers)) {
             return '';
         }
-        
+
         return collect($this->fertilizers)->map(function($item) {
             return $item['name'] . ' (' . $item['quantity'] . ' pcs)';
         })->implode(', ');
@@ -389,7 +395,7 @@ class SeedlingRequest extends Model
         if ($this->hasDocuments()) {
             return Storage::disk('public')->url($this->document_path);
         }
-        
+
         return null;
     }
 }

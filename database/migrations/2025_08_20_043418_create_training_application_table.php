@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('contact_number', 20);
             $table->string('email');
+            $table->string('barangay'); // Barangay location
             $table->enum('training_type', [
                 'tilapia_hito',
                 'hydroponics',
