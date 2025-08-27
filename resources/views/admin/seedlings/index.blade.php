@@ -203,9 +203,15 @@
                                     <th class="px-3 py-3 fw-medium text-muted border-end">Request #</th>
                                     <th class="px-3 py-3 fw-medium text-muted border-end">Name</th>
                                     <th class="px-3 py-3 fw-medium text-muted border-end">Barangay</th>
-                                    <th class="px-3 py-3 fw-medium text-muted border-end">Vegetables</th>
-                                    <th class="px-3 py-3 fw-medium text-muted border-end">Fruits</th>
-                                    <th class="px-3 py-3 fw-medium text-muted border-end">Fertilizers</th>
+                                    @if(!request('category') || request('category') == 'vegetables')
+                                        <th class="px-3 py-3 fw-medium text-muted border-end">Vegetables</th>
+                                    @endif
+                                    @if(!request('category') || request('category') == 'fruits')
+                                        <th class="px-3 py-3 fw-medium text-muted border-end">Fruits</th>
+                                    @endif
+                                    @if(!request('category') || request('category') == 'fertilizers')
+                                        <th class="px-3 py-3 fw-medium text-muted border-end">Fertilizers</th>
+                                    @endif
                                     <th class="px-3 py-3 fw-medium text-muted border-end">Overall Status</th>
                                     <th class="px-3 py-3 fw-medium text-muted text-center">Actions</th>
                                 </tr>
@@ -229,6 +235,7 @@
                                         </td>
 
                                         <!-- Vegetables Column -->
+                                        @if(!request('category') || request('category') == 'vegetables')
                                         <td class="px-3 py-3 border-end">
                                             @if ($request->vegetables && count($request->vegetables) > 0)
                                                 @php
@@ -243,36 +250,42 @@
                                                 <!-- Item Status List -->
                                                 <div class="small">
                                                     @if (count($approvedItems) > 0)
-                                                        <div class="mb-1">
-                                                            <span class="text-success fw-medium">✓ Approved:</span>
-                                                            <ul class="list-unstyled mb-0 ps-3">
+                                                        <div class="mb-2">
+                                                            <div class="mb-1">
+                                                                <span class="text-success fw-medium">✓ Approved:</span>
+                                                            </div>
+                                                            <div class="d-flex flex-wrap gap-1">
                                                                 @foreach ($approvedItems as $item)
-                                                                    <li class="text-success">
+                                                                    <span
+                                                                        class="badge bg-success text-white fw-normal fs-6">
                                                                         <i class="fas fa-check-circle me-1"></i>
                                                                         {{ is_array($item) ? $item['name'] : $item }}
                                                                         @if (is_array($item) && isset($item['quantity']))
                                                                             ({{ $item['quantity'] }} pcs)
                                                                         @endif
-                                                                    </li>
+                                                                    </span>
                                                                 @endforeach
-                                                            </ul>
+                                                            </div>
                                                         </div>
                                                     @endif
 
                                                     @if (count($rejectedItems) > 0)
-                                                        <div class="mb-1">
-                                                            <span class="text-danger fw-medium">✗ Rejected:</span>
-                                                            <ul class="list-unstyled mb-0 ps-3">
+                                                        <div class="mb-2">
+                                                            <div class="mb-1">
+                                                                <span class="text-danger fw-medium">✗ Rejected:</span>
+                                                            </div>
+                                                            <div class="d-flex flex-wrap gap-1">
                                                                 @foreach ($rejectedItems as $item)
-                                                                    <li class="text-danger">
+                                                                    <span
+                                                                        class="badge bg-danger text-white fw-normal fs-6">
                                                                         <i class="fas fa-times-circle me-1"></i>
                                                                         {{ is_array($item) ? $item['name'] : $item }}
                                                                         @if (is_array($item) && isset($item['quantity']))
                                                                             ({{ $item['quantity'] }} pcs)
                                                                         @endif
-                                                                    </li>
+                                                                    </span>
                                                                 @endforeach
-                                                            </ul>
+                                                            </div>
                                                         </div>
                                                     @endif
 
@@ -303,19 +316,22 @@
                                                     @endphp
 
                                                     @if ($pendingItems->count() > 0)
-                                                        <div class="mb-1">
-                                                            <span class="text-warning fw-medium">⏳ Pending:</span>
-                                                            <ul class="list-unstyled mb-0 ps-3">
+                                                        <div class="mb-2">
+                                                            <div class="mb-1">
+                                                                <span class="text-warning fw-medium">⏳ Pending:</span>
+                                                            </div>
+                                                            <div class="d-flex flex-wrap gap-1">
                                                                 @foreach ($pendingItems as $item)
-                                                                    <li class="text-warning">
+                                                                    <span
+                                                                        class="badge bg-warning text-white fw-normal fs-6">
                                                                         <i class="fas fa-clock me-1"></i>
                                                                         {{ is_array($item) ? $item['name'] : $item }}
                                                                         @if (is_array($item) && isset($item['quantity']))
                                                                             ({{ $item['quantity'] }} pcs)
                                                                         @endif
-                                                                    </li>
+                                                                    </span>
                                                                 @endforeach
-                                                            </ul>
+                                                            </div>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -323,8 +339,10 @@
                                                 <span class="text-muted">No Request</span>
                                             @endif
                                         </td>
+                                        @endif
 
                                         <!-- Fruits Column -->
+                                        @if(!request('category') || request('category') == 'fruits')
                                         <td class="px-3 py-3 border-end">
                                             @if ($request->fruits && count($request->fruits) > 0)
                                                 @php
@@ -339,36 +357,42 @@
                                                 <!-- Item Status List -->
                                                 <div class="small">
                                                     @if (count($approvedItems) > 0)
-                                                        <div class="mb-1">
-                                                            <span class="text-success fw-medium">✓ Approved:</span>
-                                                            <ul class="list-unstyled mb-0 ps-3">
+                                                        <div class="mb-2">
+                                                            <div class="mb-1">
+                                                                <span class="text-success fw-medium">✓ Approved:</span>
+                                                            </div>
+                                                            <div class="d-flex flex-wrap gap-1">
                                                                 @foreach ($approvedItems as $item)
-                                                                    <li class="text-success">
+                                                                    <span
+                                                                        class="badge bg-success text-white fw-normal fs-6">
                                                                         <i class="fas fa-check-circle me-1"></i>
                                                                         {{ is_array($item) ? $item['name'] : $item }}
                                                                         @if (is_array($item) && isset($item['quantity']))
                                                                             ({{ $item['quantity'] }} pcs)
                                                                         @endif
-                                                                    </li>
+                                                                    </span>
                                                                 @endforeach
-                                                            </ul>
+                                                            </div>
                                                         </div>
                                                     @endif
 
                                                     @if (count($rejectedItems) > 0)
-                                                        <div class="mb-1">
-                                                            <span class="text-danger fw-medium">✗ Rejected:</span>
-                                                            <ul class="list-unstyled mb-0 ps-3">
+                                                        <div class="mb-2">
+                                                            <div class="mb-1">
+                                                                <span class="text-danger fw-medium">✗ Rejected:</span>
+                                                            </div>
+                                                            <div class="d-flex flex-wrap gap-1">
                                                                 @foreach ($rejectedItems as $item)
-                                                                    <li class="text-danger">
+                                                                    <span
+                                                                        class="badge bg-danger text-white fw-normal fs-6">
                                                                         <i class="fas fa-times-circle me-1"></i>
                                                                         {{ is_array($item) ? $item['name'] : $item }}
                                                                         @if (is_array($item) && isset($item['quantity']))
                                                                             ({{ $item['quantity'] }} pcs)
                                                                         @endif
-                                                                    </li>
+                                                                    </span>
                                                                 @endforeach
-                                                            </ul>
+                                                            </div>
                                                         </div>
                                                     @endif
 
@@ -397,19 +421,22 @@
                                                     @endphp
 
                                                     @if ($pendingItems->count() > 0)
-                                                        <div class="mb-1">
-                                                            <span class="text-warning fw-medium">⏳ Pending:</span>
-                                                            <ul class="list-unstyled mb-0 ps-3">
+                                                        <div class="mb-2">
+                                                            <div class="mb-1">
+                                                                <span class="text-warning fw-medium">⏳ Pending:</span>
+                                                            </div>
+                                                            <div class="d-flex flex-wrap gap-1">
                                                                 @foreach ($pendingItems as $item)
-                                                                    <li class="text-warning">
+                                                                    <span
+                                                                        class="badge bg-warning text-white fw-normal fs-6">
                                                                         <i class="fas fa-clock me-1"></i>
                                                                         {{ is_array($item) ? $item['name'] : $item }}
                                                                         @if (is_array($item) && isset($item['quantity']))
                                                                             ({{ $item['quantity'] }} pcs)
                                                                         @endif
-                                                                    </li>
+                                                                    </span>
                                                                 @endforeach
-                                                            </ul>
+                                                            </div>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -417,8 +444,10 @@
                                                 <span class="text-muted">No Request</span>
                                             @endif
                                         </td>
+                                        @endif
 
                                         <!-- Fertilizers Column -->
+                                        @if(!request('category') || request('category') == 'fertilizers')
                                         <td class="px-3 py-3 border-end">
                                             @if ($request->fertilizers && count($request->fertilizers) > 0)
                                                 @php
@@ -433,36 +462,42 @@
                                                 <!-- Item Status List -->
                                                 <div class="small">
                                                     @if (count($approvedItems) > 0)
-                                                        <div class="mb-1">
-                                                            <span class="text-success fw-medium">✓ Approved:</span>
-                                                            <ul class="list-unstyled mb-0 ps-3">
+                                                        <div class="mb-2">
+                                                            <div class="mb-1">
+                                                                <span class="text-success fw-medium">✓ Approved:</span>
+                                                            </div>
+                                                            <div class="d-flex flex-wrap gap-1">
                                                                 @foreach ($approvedItems as $item)
-                                                                    <li class="text-success">
+                                                                    <span
+                                                                        class="badge bg-success text-white fw-normal fs-6">
                                                                         <i class="fas fa-check-circle me-1"></i>
                                                                         {{ is_array($item) ? $item['name'] : $item }}
                                                                         @if (is_array($item) && isset($item['quantity']))
                                                                             ({{ $item['quantity'] }} pcs)
                                                                         @endif
-                                                                    </li>
+                                                                    </span>
                                                                 @endforeach
-                                                            </ul>
+                                                            </div>
                                                         </div>
                                                     @endif
 
                                                     @if (count($rejectedItems) > 0)
-                                                        <div class="mb-1">
-                                                            <span class="text-danger fw-medium">✗ Rejected:</span>
-                                                            <ul class="list-unstyled mb-0 ps-3">
+                                                        <div class="mb-2">
+                                                            <div class="mb-1">
+                                                                <span class="text-danger fw-medium">✗ Rejected:</span>
+                                                            </div>
+                                                            <div class="d-flex flex-wrap gap-1">
                                                                 @foreach ($rejectedItems as $item)
-                                                                    <li class="text-danger">
+                                                                    <span
+                                                                        class="badge bg-danger text-white fw-normal fs-6">
                                                                         <i class="fas fa-times-circle me-1"></i>
                                                                         {{ is_array($item) ? $item['name'] : $item }}
                                                                         @if (is_array($item) && isset($item['quantity']))
                                                                             ({{ $item['quantity'] }} pcs)
                                                                         @endif
-                                                                    </li>
+                                                                    </span>
                                                                 @endforeach
-                                                            </ul>
+                                                            </div>
                                                         </div>
                                                     @endif
 
@@ -498,19 +533,22 @@
                                                     @endphp
 
                                                     @if ($pendingItems->count() > 0)
-                                                        <div class="mb-1">
-                                                            <span class="text-warning fw-medium">⏳ Pending:</span>
-                                                            <ul class="list-unstyled mb-0 ps-3">
+                                                        <div class="mb-2">
+                                                            <div class="mb-1">
+                                                                <span class="text-warning fw-medium">⏳ Pending:</span>
+                                                            </div>
+                                                            <div class="d-flex flex-wrap gap-1">
                                                                 @foreach ($pendingItems as $item)
-                                                                    <li class="text-warning">
+                                                                    <span
+                                                                        class="badge bg-warning text-white fw-normal fs-6">
                                                                         <i class="fas fa-clock me-1"></i>
                                                                         {{ is_array($item) ? $item['name'] : $item }}
                                                                         @if (is_array($item) && isset($item['quantity']))
                                                                             ({{ $item['quantity'] }} pcs)
                                                                         @endif
-                                                                    </li>
+                                                                    </span>
                                                                 @endforeach
-                                                            </ul>
+                                                            </div>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -518,6 +556,7 @@
                                                 <span class="text-muted">No Request</span>
                                             @endif
                                         </td>
+                                        @endif
 
                                         <!-- Overall Status -->
                                         <td class="px-3 py-3 border-end">
@@ -630,7 +669,7 @@
                                             </div>
                                             <p><small>{{ $request->formatted_vegetables }}</small></p>
 
-                                            @if ($vegStatus !== 'approved')
+                                            @if ($vegStatus !== '')
                                                 @if ($vegCheck['can_fulfill'])
                                                     <div class="alert alert-success alert-sm">
                                                         <i class="fas fa-check-circle"></i> All items
@@ -653,7 +692,7 @@
                                                 @endif
                                             @else
                                                 <div class="alert alert-info alert-sm">
-                                                    <i class="fas fa-check"></i> Approved and inventory
+                                                    <i class="fas fa-check"></i> and inventory
                                                     deducted
                                                 </div>
                                             @endif
@@ -1826,8 +1865,14 @@
             updateDateFilterStatus(dateFrom, dateTo);
 
             // Close modal and submit form
-            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
-            if (modal) modal.hide();
+            const modalElement = document.getElementById('dateFilterModal');
+            if (modalElement) {
+                let modal = bootstrap.Modal.getInstance(modalElement);
+                if (!modal) {
+                    modal = new bootstrap.Modal(modalElement);
+                }
+                modal.hide();
+            }
 
             submitFilterForm();
         }

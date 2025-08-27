@@ -29,12 +29,7 @@ class SeedlingRequestController extends Controller
             });
         }
 
-        // Add status filter
-        if ($request->has('status') && !empty($request->status)) {
-            $query->where('status', $request->status);
-        }
-
-        // Add category filter
+        // Apply other filters first
         if ($request->has('category') && !empty($request->category)) {
             $category = $request->category;
             $query->where(function($q) use ($category) {
@@ -57,14 +52,95 @@ class SeedlingRequestController extends Controller
             $query->where('barangay', $request->barangay);
         }
 
-        $requests = $query->paginate(15)->withQueryString();
+        // Add date filter
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
 
-        // Get statistics
-        $totalRequests = SeedlingRequest::count();
-        $underReviewCount = SeedlingRequest::where('status', 'under_review')->count();
-        $approvedCount = SeedlingRequest::where('status', 'approved')->count();
-        $partiallyApprovedCount = SeedlingRequest::where('status', 'partially_approved')->count();
-        $rejectedCount = SeedlingRequest::where('status', 'rejected')->count();
+        // Get initial results
+        $allResults = $query->get();
+
+        // Apply status filter using the overall_status accessor
+        if ($request->has('status') && !empty($request->status)) {
+            $statusFilter = $request->status;
+            $allResults = $allResults->filter(function($seedlingRequest) use ($statusFilter) {
+                return $seedlingRequest->overall_status === $statusFilter;
+            });
+        }
+
+        // Paginate manually
+        $perPage = 15;
+        $currentPage = \Illuminate\Pagination\Paginator::resolveCurrentPage();
+        $currentItems = $allResults->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        
+        $requests = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentItems,
+            $allResults->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        // Create a base query for statistics (apply same filters except status)
+        $statsQuery = SeedlingRequest::orderBy('created_at', 'desc');
+
+        // Apply the same filters to statistics (except status filter)
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $statsQuery->where(function($q) use ($search) {
+                $q->where('request_number', 'like', "%{$search}%")
+                  ->orWhere('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('contact_number', 'like', "%{$search}%")
+                  ->orWhere('barangay', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->has('category') && !empty($request->category)) {
+            $category = $request->category;
+            $statsQuery->where(function($q) use ($category) {
+                switch($category) {
+                    case 'vegetables':
+                        $q->whereNotNull('vegetables')->where('vegetables', '!=', '[]');
+                        break;
+                    case 'fruits':
+                        $q->whereNotNull('fruits')->where('fruits', '!=', '[]');
+                        break;
+                    case 'fertilizers':
+                        $q->whereNotNull('fertilizers')->where('fertilizers', '!=', '[]');
+                        break;
+                }
+            });
+        }
+
+        if ($request->has('barangay') && !empty($request->barangay)) {
+            $statsQuery->where('barangay', $request->barangay);
+        }
+
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $statsQuery->whereDate('created_at', '>=', $request->date_from);
+        }
+        
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $statsQuery->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Get all filtered results for statistics calculation
+        $statsResults = $statsQuery->get();
+
+        // Calculate statistics using overall_status accessor
+        $totalRequests = $statsResults->count();
+        $underReviewCount = $statsResults->filter(fn($r) => $r->overall_status === 'under_review')->count();
+        $approvedCount = $statsResults->filter(fn($r) => $r->overall_status === 'approved')->count();
+        $partiallyApprovedCount = $statsResults->filter(fn($r) => $r->overall_status === 'partially_approved')->count();
+        $rejectedCount = $statsResults->filter(fn($r) => $r->overall_status === 'rejected')->count();
 
         // Get unique barangays for filter dropdown
         $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
