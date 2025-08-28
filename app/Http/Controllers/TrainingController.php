@@ -29,6 +29,15 @@ class TrainingController extends Controller
             $query->withTrainingType($request->training_type);
         }
 
+        // Add date filtering
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
         // Order by latest first
         $query->orderBy('created_at', 'desc');
 
@@ -56,7 +65,7 @@ class TrainingController extends Controller
     public function show($id)
     {
         $training = TrainingApplication::with('updatedBy')->findOrFail($id);
-        
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -95,7 +104,7 @@ class TrainingController extends Controller
         ]);
 
         $training = TrainingApplication::findOrFail($id);
-        
+
         $training->update([
             'status' => $request->status,
             'remarks' => $request->remarks,

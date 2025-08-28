@@ -2,7 +2,12 @@
 @extends('layouts.app')
 
 @section('title', 'Training Applications - AgriSys Admin')
-@section('page-title', 'Training Applications')
+@section('page-title')
+    <div class="d-flex align-items-center">
+        <i class="fas fa-graduation-cap me-2 text-primary"></i>
+        <span class="text-primary fw-bold">Training Applications</span>
+    </div>
+@endsection
 
 @section('content')
     <div class="row">
@@ -87,79 +92,80 @@
                 <i class="fas fa-filter me-2"></i>Filters & Search
             </h6>
         </div>
-        <div class="card-body p-4">
-            <div class="filter-section mb-0">
-                <form method="GET" action="{{ route('admin.training.requests') }}" id="filterForm">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
-                                <input type="text" name="search" class="form-control border-start-0"
-                                    placeholder="🔍 Search name, number, email..." value="{{ request('search') }}"
-                                    oninput="autoSearch()" id="searchInput">
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <select name="status" class="form-select" onchange="submitFilterForm()">
-                                <option value="">📊 All Status</option>
-                                <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
-                                    ⏳ Under Review
-                                </option>
-                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
-                                    ✅ Approved
-                                </option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
-                                    ❌ Rejected
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <select name="training_type" class="form-select" onchange="submitFilterForm()">
-                                <option value="">🎓 All Training Types</option>
-                                <option value="tilapia_hito"
-                                    {{ request('training_type') == 'tilapia_hito' ? 'selected' : '' }}>
-                                    🐟 Tilapia and Hito Training
-                                </option>
-                                <option value="hydroponics"
-                                    {{ request('training_type') == 'hydroponics' ? 'selected' : '' }}>
-                                    🌱 Hydroponics Training
-                                </option>
-                                <option value="aquaponics"
-                                    {{ request('training_type') == 'aquaponics' ? 'selected' : '' }}>
-                                    🐠 Aquaponics Training
-                                </option>
-                                <option value="mushrooms" {{ request('training_type') == 'mushrooms' ? 'selected' : '' }}>
-                                    🍄 Mushrooms Production Training
-                                </option>
-                                <option value="livestock_poultry"
-                                    {{ request('training_type') == 'livestock_poultry' ? 'selected' : '' }}>
-                                    🐄 Livestock and Poultry Training
-                                </option>
-                                <option value="high_value_crops"
-                                    {{ request('training_type') == 'high_value_crops' ? 'selected' : '' }}>
-                                    🌾 High Value Crops Training
-                                </option>
-                                <option value="sampaguita_propagation"
-                                    {{ request('training_type') == 'sampaguita_propagation' ? 'selected' : '' }}>
-                                    🌸 Sampaguita Propagation Training
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="btn-group w-100" role="group">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-filter me-1"></i>Filter
-                                </button>
-                                <a href="{{ route('admin.training.requests') }}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-refresh me-1"></i>Reset
-                                </a>
-                            </div>
+        <div class="card-body p-3">
+            <form method="GET" action="{{ route('admin.training.requests') }}" id="filterForm">
+                <input type="hidden" name="date_from" value="{{ request('date_from') }}" id="dateFromHidden">
+                <input type="hidden" name="date_to" value="{{ request('date_to') }}" id="dateToHidden">
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Status</option>
+                            <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
+                                Under Review
+                            </option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
+                                Approved
+                            </option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
+                                Rejected
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="training_type" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Training Types</option>
+                            <option value="tilapia_hito"
+                                {{ request('training_type') == 'tilapia_hito' ? 'selected' : '' }}>
+                                Tilapia and Hito
+                            </option>
+                            <option value="hydroponics" {{ request('training_type') == 'hydroponics' ? 'selected' : '' }}>
+                                Hydroponics
+                            </option>
+                            <option value="aquaponics" {{ request('training_type') == 'aquaponics' ? 'selected' : '' }}>
+                                Aquaponics
+                            </option>
+                            <option value="mushrooms" {{ request('training_type') == 'mushrooms' ? 'selected' : '' }}>
+                                Mushrooms Production
+                            </option>
+                            <option value="livestock_poultry"
+                                {{ request('training_type') == 'livestock_poultry' ? 'selected' : '' }}>
+                                Livestock and Poultry
+                            </option>
+                            <option value="high_value_crops"
+                                {{ request('training_type') == 'high_value_crops' ? 'selected' : '' }}>
+                                High Value Crops
+                            </option>
+                            <option value="sampaguita_propagation"
+                                {{ request('training_type') == 'sampaguita_propagation' ? 'selected' : '' }}>
+                                Sampaguita Propagation
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control form-control-sm"
+                                placeholder="Search name, number, email..." value="{{ request('search') }}"
+                                oninput="autoSearch()" id="searchInput">
+                            <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
+                                id="searchButton">
+                                <i class="fas fa-search"></i>
+                            </button>
                         </div>
                     </div>
-                </form>
-            </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
+                            data-bs-target="#dateFilterModal">
+                            <i class="fas fa-calendar-alt me-1"></i>Date Filter
+                        </button>
+                    </div>
+                    <div class="col-md-1">
+                        <a href="{{ route('admin.training.requests') }}" class="btn btn-secondary btn-sm w-100">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -175,50 +181,46 @@
                 <table class="table table-bordered table-hover" id="applicationsTable">
                     <thead class="table-dark">
                         <tr>
+                            <th>Date Applied</th>
                             <th>Application #</th>
                             <th>Name</th>
-                            <th>Mobile</th>
-                            <th>Email</th>
                             <th>Training Type</th>
                             <th>Status</th>
-                            <th>Date Applied</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($trainings as $training)
                             <tr>
+                                <td>{{ $training->created_at->format('M d, Y g:i A') }}</td>
                                 <td>
                                     <strong class="text-primary">{{ $training->application_number }}</strong>
                                 </td>
                                 <td>{{ $training->full_name }}</td>
-                                <td>{{ $training->contact_number }}</td>
-                                <td>{{ $training->email }}</td>
                                 <td>
-                                    <span class="badge bg-info">{{ $training->training_type_display }}</span>
+                                    <span class="badge bg-info fs-6">{{ $training->training_type_display }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ $training->status_color }}">
+                                    <span class="badge bg-{{ $training->status_color }} fs-6">
                                         {{ $training->formatted_status }}
                                     </span>
                                 </td>
-                                <td>{{ $training->created_at->format('M d, Y g:i A') }}</td>
                                 <td>
-                                    <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-outline-primary"
+                                    <div class="d-flex gap-1">
+                                        <button class="btn btn-sm btn-primary"
                                             onclick="viewApplication({{ $training->id }})" title="View Details">
-                                            <i class="fas fa-eye"></i> View
+                                            <i class="fas fa-eye me-1"></i>View
                                         </button>
-                                        <button class="btn btn-sm btn-outline-success"
+                                        <button class="btn btn-sm btn-warning"
                                             onclick="showUpdateModal({{ $training->id }}, '{{ $training->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit"></i> Update
+                                            <i class="fas fa-edit me-1"></i>Update
                                         </button>
                                         @if ($training->document_paths)
-                                            <button class="btn btn-sm btn-outline-info"
+                                            <button class="btn btn-sm btn-info"
                                                 onclick="viewDocuments({{ json_encode($training->document_paths) }})"
                                                 title="View Documents">
-                                                <i class="fas fa-file-alt"></i>
+                                                <i class="fas fa-file-alt me-1"></i>Docs
                                             </button>
                                         @endif
                                     </div>
@@ -226,9 +228,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
-                                    <i class="fas fa-graduation-cap fa-3x mb-3"></i>
-                                    <p>No training applications found.</p>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="fas fa-graduation-cap fa-3x mb-3 text-gray-300"></i>
+                                    <p>No training applications found</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -789,10 +791,10 @@
                             <p><strong>Last Updated:</strong> ${data.updated_at}</p>
                         </div>
                         ${data.document_paths && data.document_paths.length > 0 ? `
-                                <div class="col-12">
-                                    <h6 class="border-bottom pb-2">Supporting Documents</h6>
-                                    <div class="row g-2">
-                                        ${data.document_paths.map((path, index) => `
+                                        <div class="col-12">
+                                            <h6 class="border-bottom pb-2">Supporting Documents</h6>
+                                            <div class="row g-2">
+                                                ${data.document_paths.map((path, index) => `
                                         <div class="col-md-4">
                                             <div class="card">
                                                 <div class="card-body">
@@ -805,9 +807,9 @@
                                             </div>
                                         </div>
                                     `).join('')}
-                                    </div>
-                                </div>
-                            ` : ''}
+                                            </div>
+                                        </div>
+                                    ` : ''}
                         ${remarksHtml}
                     </div>`;
                 })
@@ -906,5 +908,118 @@
                 remarksTextarea.addEventListener('input', checkForChanges);
             }
         });
+
+        // Date filtering functions
+        function submitFilterForm() {
+            document.getElementById('filterForm').submit();
+        }
+
+        function autoSearch() {
+            clearTimeout(window.searchTimeout);
+            window.searchTimeout = setTimeout(function() {
+                document.getElementById('filterForm').submit();
+            }, 500);
+        }
+
+        function applyDateFilter() {
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+
+            if (dateFrom) {
+                document.getElementById('dateFromHidden').value = dateFrom;
+            }
+            if (dateTo) {
+                document.getElementById('dateToHidden').value = dateTo;
+            }
+
+            // Close modal and submit form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+            modal.hide();
+
+            submitFilterForm();
+        }
+
+        function setDateRange(days) {
+            const today = new Date();
+            const fromDate = new Date();
+
+            if (days === 0) {
+                // Today
+                fromDate.setDate(today.getDate());
+            } else if (days === 7) {
+                // This week
+                fromDate.setDate(today.getDate() - 7);
+            } else if (days === 30) {
+                // This month
+                fromDate.setDate(today.getDate() - 30);
+            }
+
+            document.getElementById('dateFrom').value = fromDate.toISOString().split('T')[0];
+            document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+        }
+
+        function clearDates() {
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            document.getElementById('dateFromHidden').value = '';
+            document.getElementById('dateToHidden').value = '';
+
+            // Close modal and submit form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+            modal.hide();
+
+            submitFilterForm();
+        }
     </script>
+
+    <!-- Date Filter Modal -->
+    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dateFilterModalLabel">
+                        <i class="fas fa-calendar-alt me-2"></i>Filter by Date Range
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="dateFrom" class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="dateFrom"
+                                value="{{ request('date_from') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dateTo" class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="dateTo" value="{{ request('date_to') }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Quick Select:</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setDateRange(0)">
+                                Today
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setDateRange(7)">
+                                Last 7 Days
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setDateRange(30)">
+                                Last 30 Days
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="clearDates()">
+                        <i class="fas fa-times me-1"></i>Clear Filter
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="applyDateFilter()">
+                        <i class="fas fa-filter me-1"></i>Apply Filter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
