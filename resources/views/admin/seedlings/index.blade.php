@@ -119,8 +119,8 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-light py-3 border-bottom">
                 <h6 class="m-0 font-weight-bold text-primary">
-                     <i class="fas fa-filter me-2"></i>Filters & Search
-                 </h6>
+                    <i class="fas fa-filter me-2"></i>Filters & Search
+                </h6>
             </div>
             <div class="card-body p-3">
                 <form method="GET" action="{{ route('admin.seedlings.requests') }}" id="filterForm">
