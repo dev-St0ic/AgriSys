@@ -26,28 +26,35 @@ class SeedlingRequestFactory extends Factory
      */
     public function definition(): array
     {
+        // Updated to match current inventory items from FormBasedInventorySeeder
         $vegetables = [
-            ['name' => 'sampaguita', 'quantity' => $this->faker->numberBetween(1, 20)],
-            ['name' => 'siling haba', 'quantity' => $this->faker->numberBetween(1, 15)],
-            ['name' => 'eggplant', 'quantity' => $this->faker->numberBetween(1, 10)],
-            ['name' => 'tomato', 'quantity' => $this->faker->numberBetween(1, 25)],
-            ['name' => 'okra', 'quantity' => $this->faker->numberBetween(1, 15)],
-            ['name' => 'kangkong', 'quantity' => $this->faker->numberBetween(1, 30)],
+            ['name' => 'Sampaguita', 'quantity' => $this->faker->numberBetween(1, 20)],
+            ['name' => 'Siling Haba', 'quantity' => $this->faker->numberBetween(1, 15)],
+            ['name' => 'Siling Labuyo', 'quantity' => $this->faker->numberBetween(1, 12)],
+            ['name' => 'Eggplant', 'quantity' => $this->faker->numberBetween(1, 18)],
+            ['name' => 'Kamatis', 'quantity' => $this->faker->numberBetween(1, 25)],
+            ['name' => 'Okra', 'quantity' => $this->faker->numberBetween(1, 15)],
+            ['name' => 'Kalabasa', 'quantity' => $this->faker->numberBetween(1, 12)],
+            ['name' => 'Upo', 'quantity' => $this->faker->numberBetween(1, 10)],
+            ['name' => 'Pipino', 'quantity' => $this->faker->numberBetween(1, 16)],
+            ['name' => 'Kangkong', 'quantity' => $this->faker->numberBetween(1, 30)], // Added for variety
         ];
 
         $fruits = [
-            ['name' => 'kalamansi', 'quantity' => $this->faker->numberBetween(1, 5)],
-            ['name' => 'mangga', 'quantity' => $this->faker->numberBetween(1, 3)],
-            ['name' => 'avocado', 'quantity' => $this->faker->numberBetween(1, 2)],
-            ['name' => 'papaya', 'quantity' => $this->faker->numberBetween(1, 4)],
-            ['name' => 'guava', 'quantity' => $this->faker->numberBetween(1, 5)],
+            ['name' => 'Kalamansi', 'quantity' => $this->faker->numberBetween(1, 8)],
+            ['name' => 'Avocado', 'quantity' => $this->faker->numberBetween(1, 3)],
+            ['name' => 'Papaya', 'quantity' => $this->faker->numberBetween(1, 4)],
+            ['name' => 'Guava', 'quantity' => $this->faker->numberBetween(1, 5)],
+            ['name' => 'Guyabano', 'quantity' => $this->faker->numberBetween(1, 4)],
+            ['name' => 'Lanzones', 'quantity' => $this->faker->numberBetween(1, 5)],
+            ['name' => 'Mangga', 'quantity' => $this->faker->numberBetween(1, 6)],
+            ['name' => 'Rambutan', 'quantity' => $this->faker->numberBetween(1, 4)], // Added for variety
         ];
 
         $fertilizers = [
-            ['name' => 'chicken manure', 'quantity' => $this->faker->numberBetween(1, 10)],
-            ['name' => 'vermicast', 'quantity' => $this->faker->numberBetween(1, 5)],
-            ['name' => 'organic compost', 'quantity' => $this->faker->numberBetween(1, 8)],
-            ['name' => 'rice hull', 'quantity' => $this->faker->numberBetween(1, 15)],
+            ['name' => 'Pre-processed Chicken Manure', 'quantity' => $this->faker->numberBetween(1, 8)],
+            ['name' => 'Humic Acid', 'quantity' => $this->faker->numberBetween(1, 5)],
+            ['name' => 'Vermicast', 'quantity' => $this->faker->numberBetween(1, 12)],
         ];
 
         $barangays = [
