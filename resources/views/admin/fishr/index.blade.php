@@ -2,7 +2,12 @@
 @extends('layouts.app')
 
 @section('title', 'FishR Registrations - AgriSys Admin')
-@section('page-title', 'FishR Registrations')
+@section('page-title')
+    <div class="d-flex align-items-center">
+        <i class="fas fa-fish text-primary me-2"></i>
+        <span class="text-primary fw-bold">FishR Registrations</span>
+    </div>
+@endsection
 
 @section('content')
     <div class="row">
@@ -80,177 +85,179 @@
         </div>
     </div>
 
-    <!-- Enhanced Filters Section (Updated to match inventory style) -->
+    <!-- Enhanced Filters Section -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-filter me-2"></i>Filters & Search
             </h6>
         </div>
-        <div class="card-body p-4">
-            <!-- Enhanced Search and Filter Form (matches inventory style) -->
-            <div class="filter-section mb-0">
-                <form method="GET" action="{{ route('admin.fishr.requests') }}" id="filterForm">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
-                                <input type="text" name="search" class="form-control border-start-0"
-                                    placeholder="🔍 Search name, number, contact..." 
-                                    value="{{ request('search') }}"
-                                    oninput="autoSearch()" id="searchInput">
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <select name="status" class="form-select" onchange="submitFilterForm()">
-                                <option value="">📊 All Status</option>
-                                <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
-                                    ⏳ Under Review
-                                </option>
-                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
-                                    ✅ Approved
-                                </option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
-                                    ❌ Rejected
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <select name="livelihood" class="form-select" onchange="submitFilterForm()">
-                                <option value="">🎣 All Livelihood</option>
-                                <option value="capture" {{ request('livelihood') == 'capture' ? 'selected' : '' }}>
-                                    🎣 Capture Fishing
-                                </option>
-                                <option value="aquaculture" {{ request('livelihood') == 'aquaculture' ? 'selected' : '' }}>
-                                    🐟 Aquaculture
-                                </option>
-                                <option value="vending" {{ request('livelihood') == 'vending' ? 'selected' : '' }}>
-                                    🛒 Fish Vending
-                                </option>
-                                <option value="processing" {{ request('livelihood') == 'processing' ? 'selected' : '' }}>
-                                    🏭 Fish Processing
-                                </option>
-                                <option value="others" {{ request('livelihood') == 'others' ? 'selected' : '' }}>
-                                    📋 Others
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <select name="barangay" class="form-select" onchange="submitFilterForm()">
-                                <option value="">🏘️ All Barangay</option>
-                                <option value="Bagong Silang" {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>
-                                    Bagong Silang
-                                </option>
-                                <option value="Calendola" {{ request('barangay') == 'Calendola' ? 'selected' : '' }}>
-                                    Calendola
-                                </option>
-                                <option value="Chrysanthemum" {{ request('barangay') == 'Chrysanthemum' ? 'selected' : '' }}>
-                                    Chrysanthemum
-                                </option>
-                                <option value="Cuyab" {{ request('barangay') == 'Cuyab' ? 'selected' : '' }}>
-                                    Cuyab
-                                </option>
-                                <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>
-                                    Estrella
-                                </option>
-                                <option value="Fatima" {{ request('barangay') == 'Fatima' ? 'selected' : '' }}>
-                                    Fatima
-                                </option>
-                                <option value="G.S.I.S." {{ request('barangay') == 'G.S.I.S.' ? 'selected' : '' }}>
-                                    G.S.I.S.
-                                </option>
-                                <option value="Landayan" {{ request('barangay') == 'Landayan' ? 'selected' : '' }}>
-                                    Landayan
-                                </option>
-                                <option value="Langgam" {{ request('barangay') == 'Langgam' ? 'selected' : '' }}>
-                                    Langgam
-                                </option>
-                                <option value="Laram" {{ request('barangay') == 'Laram' ? 'selected' : '' }}>
-                                    Laram
-                                </option>
-                                <option value="Magsaysay" {{ request('barangay') == 'Magsaysay' ? 'selected' : '' }}>
-                                    Magsaysay
-                                </option>
-                                <option value="Maharlika" {{ request('barangay') == 'Maharlika' ? 'selected' : '' }}>
-                                    Maharlika
-                                </option>
-                                <option value="Narra" {{ request('barangay') == 'Narra' ? 'selected' : '' }}>
-                                    Narra
-                                </option>
-                                <option value="Nueva" {{ request('barangay') == 'Nueva' ? 'selected' : '' }}>
-                                    Nueva
-                                </option>
-                                <option value="Pacita 1" {{ request('barangay') == 'Pacita 1' ? 'selected' : '' }}>
-                                    Pacita 1
-                                </option>
-                                <option value="Pacita 2" {{ request('barangay') == 'Pacita 2' ? 'selected' : '' }}>
-                                    Pacita 2
-                                </option>
-                                <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>
-                                    Poblacion
-                                </option>
-                                <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>
-                                    Riverside
-                                </option>
-                                <option value="Rosario" {{ request('barangay') == 'Rosario' ? 'selected' : '' }}>
-                                    Rosario
-                                </option>
-                                <option value="Sampaguita Village" {{ request('barangay') == 'Sampaguita Village' ? 'selected' : '' }}>
-                                    Sampaguita Village
-                                </option>
-                                <option value="San Antonio" {{ request('barangay') == 'San Antonio' ? 'selected' : '' }}>
-                                    San Antonio
-                                </option>
-                                <option value="San Lorenzo Ruiz" {{ request('barangay') == 'San Lorenzo Ruiz' ? 'selected' : '' }}>
-                                    San Lorenzo Ruiz
-                                </option>
-                                <option value="San Roque" {{ request('barangay') == 'San Roque' ? 'selected' : '' }}>
-                                    San Roque
-                                </option>
-                                <option value="San Vicente" {{ request('barangay') == 'San Vicente' ? 'selected' : '' }}>
-                                    San Vicente
-                                </option>
-                                <option value="Santo Niño" {{ request('barangay') == 'Santo Niño' ? 'selected' : '' }}>
-                                    Santo Niño
-                                </option>
-                                <option value="United Bayanihan" {{ request('barangay') == 'United Bayanihan' ? 'selected' : '' }}>
-                                    United Bayanihan
-                                </option>
-                                <option value="United Better Living" {{ request('barangay') == 'United Better Living' ? 'selected' : '' }}>
-                                    United Better Living
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="btn-group w-100" role="group">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-filter me-1"></i>Filter
-                                </button>
-                                <a href="{{ route('admin.fishr.requests') }}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-refresh me-1"></i>Reset
-                                </a>
-                            </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.fishr.requests') }}" id="filterForm">
+                <!-- Hidden date inputs -->
+                <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
+                <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Status</option>
+                            <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
+                                Under Review
+                            </option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
+                                Approved
+                            </option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
+                                Rejected
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="livelihood" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Livelihood</option>
+                            <option value="capture" {{ request('livelihood') == 'capture' ? 'selected' : '' }}>
+                                Capture Fishing
+                            </option>
+                            <option value="aquaculture" {{ request('livelihood') == 'aquaculture' ? 'selected' : '' }}>
+                                Aquaculture
+                            </option>
+                            <option value="vending" {{ request('livelihood') == 'vending' ? 'selected' : '' }}>
+                                Fish Vending
+                            </option>
+                            <option value="processing" {{ request('livelihood') == 'processing' ? 'selected' : '' }}>
+                                Fish Processing
+                            </option>
+                            <option value="others" {{ request('livelihood') == 'others' ? 'selected' : '' }}>
+                                Others
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="barangay" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Barangay</option>
+                            <option value="Bagong Silang" {{ request('barangay') == 'Bagong Silang' ? 'selected' : '' }}>
+                                Bagong Silang
+                            </option>
+                            <option value="Calendola" {{ request('barangay') == 'Calendola' ? 'selected' : '' }}>
+                                Calendola
+                            </option>
+                            <option value="Chrysanthemum" {{ request('barangay') == 'Chrysanthemum' ? 'selected' : '' }}>
+                                Chrysanthemum
+                            </option>
+                            <option value="Cuyab" {{ request('barangay') == 'Cuyab' ? 'selected' : '' }}>
+                                Cuyab
+                            </option>
+                            <option value="Estrella" {{ request('barangay') == 'Estrella' ? 'selected' : '' }}>
+                                Estrella
+                            </option>
+                            <option value="Fatima" {{ request('barangay') == 'Fatima' ? 'selected' : '' }}>
+                                Fatima
+                            </option>
+                            <option value="G.S.I.S." {{ request('barangay') == 'G.S.I.S.' ? 'selected' : '' }}>
+                                G.S.I.S.
+                            </option>
+                            <option value="Landayan" {{ request('barangay') == 'Landayan' ? 'selected' : '' }}>
+                                Landayan
+                            </option>
+                            <option value="Langgam" {{ request('barangay') == 'Langgam' ? 'selected' : '' }}>
+                                Langgam
+                            </option>
+                            <option value="Laram" {{ request('barangay') == 'Laram' ? 'selected' : '' }}>
+                                Laram
+                            </option>
+                            <option value="Magsaysay" {{ request('barangay') == 'Magsaysay' ? 'selected' : '' }}>
+                                Magsaysay
+                            </option>
+                            <option value="Maharlika" {{ request('barangay') == 'Maharlika' ? 'selected' : '' }}>
+                                Maharlika
+                            </option>
+                            <option value="Narra" {{ request('barangay') == 'Narra' ? 'selected' : '' }}>
+                                Narra
+                            </option>
+                            <option value="Nueva" {{ request('barangay') == 'Nueva' ? 'selected' : '' }}>
+                                Nueva
+                            </option>
+                            <option value="Pacita 1" {{ request('barangay') == 'Pacita 1' ? 'selected' : '' }}>
+                                Pacita 1
+                            </option>
+                            <option value="Pacita 2" {{ request('barangay') == 'Pacita 2' ? 'selected' : '' }}>
+                                Pacita 2
+                            </option>
+                            <option value="Poblacion" {{ request('barangay') == 'Poblacion' ? 'selected' : '' }}>
+                                Poblacion
+                            </option>
+                            <option value="Riverside" {{ request('barangay') == 'Riverside' ? 'selected' : '' }}>
+                                Riverside
+                            </option>
+                            <option value="Rosario" {{ request('barangay') == 'Rosario' ? 'selected' : '' }}>
+                                Rosario
+                            </option>
+                            <option value="Sampaguita Village"
+                                {{ request('barangay') == 'Sampaguita Village' ? 'selected' : '' }}>
+                                Sampaguita Village
+                            </option>
+                            <option value="San Antonio" {{ request('barangay') == 'San Antonio' ? 'selected' : '' }}>
+                                San Antonio
+                            </option>
+                            <option value="San Lorenzo Ruiz"
+                                {{ request('barangay') == 'San Lorenzo Ruiz' ? 'selected' : '' }}>
+                                San Lorenzo Ruiz
+                            </option>
+                            <option value="San Roque" {{ request('barangay') == 'San Roque' ? 'selected' : '' }}>
+                                San Roque
+                            </option>
+                            <option value="San Vicente" {{ request('barangay') == 'San Vicente' ? 'selected' : '' }}>
+                                San Vicente
+                            </option>
+                            <option value="Santo Niño" {{ request('barangay') == 'Santo Niño' ? 'selected' : '' }}>
+                                Santo Niño
+                            </option>
+                            <option value="United Bayanihan"
+                                {{ request('barangay') == 'United Bayanihan' ? 'selected' : '' }}>
+                                United Bayanihan
+                            </option>
+                            <option value="United Better Living"
+                                {{ request('barangay') == 'United Better Living' ? 'selected' : '' }}>
+                                United Better Living
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control form-control-sm"
+                                placeholder="Search name, number, contact..." value="{{ request('search') }}"
+                                oninput="autoSearch()" id="searchInput">
+                            <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
+                                id="searchButton">
+                                <i class="fas fa-search"></i>
+                            </button>
                         </div>
                     </div>
-                </form>
-            </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
+                            data-bs-target="#dateFilterModal">
+                            <i class="fas fa-calendar-alt me-1"></i>Date Filter
+                        </button>
+                    </div>
+                    <div class="col-md-1">
+                        <a href="{{ route('admin.fishr.requests') }}" class="btn btn-secondary btn-sm w-100">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
     <!-- Registrations Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-fish me-2"></i>FishR Registrations
-            </h6>
-        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover" id="registrationsTable">
                     <thead class="table-dark">
                         <tr>
+                            <th>Date Applied</th>
                             <th>Registration #</th>
                             <th>Name</th>
                             <th>Sex</th>
@@ -259,13 +266,13 @@
                             <th>Email</th>
                             <th>Livelihood</th>
                             <th>Status</th>
-                            <th>Date Applied</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($registrations as $registration)
                             <tr>
+                                <td>{{ $registration->created_at->format('M d, Y g:i A') }}</td>
                                 <td>
                                     <strong class="text-primary">{{ $registration->registration_number }}</strong>
                                 </td>
@@ -275,14 +282,13 @@
                                 <td>{{ $registration->contact_number }}</td>
                                 <td>{{ $registration->email ?? 'N/A' }}</td>
                                 <td>
-                                    <span class="badge bg-info">{{ $registration->livelihood_description }}</span>
+                                    <span class="badge bg-info fs-6">{{ $registration->livelihood_description }}</span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ $registration->status_color }}">
+                                    <span class="badge bg-{{ $registration->status_color }} fs-6">
                                         {{ $registration->formatted_status }}
                                     </span>
                                 </td>
-                                <td>{{ $registration->created_at->format('M d, Y g:i A') }}</td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <button class="btn btn-sm btn-outline-primary"
@@ -300,15 +306,20 @@
                                             <button class="btn btn-sm btn-outline-info"
                                                 onclick="viewDocument('{{ $registration->document_path }}')"
                                                 title="View Document">
-                                                <i class="fas fa-file-alt"></i>
+                                                <i class="fas fa-file-image"></i>Doc
                                             </button>
+                                        @else
+                                            <span class="btn btn-sm btn-outline-danger disabled text-danger"
+                                                title="No Document Available">
+                                                <i class="fas fa-file-slash text-danger"></i> None
+                                            </span>
                                         @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-4">
+                                <td colspan="10" class="text-center text-muted py-4">
                                     <i class="fas fa-fish fa-3x mb-3"></i>
                                     <p>No FishR registrations found.</p>
                                 </td>
@@ -484,62 +495,107 @@
         </div>
     </div>
 
+    <!-- Date Filter Modal -->
+    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="dateFilterModalLabel">
+                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Date Range Inputs -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="modal_date_from" class="form-label">From Date</label>
+                                        <input type="date" id="modal_date_from" class="form-control"
+                                            value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="modal_date_to" class="form-label">To Date</label>
+                                        <input type="date" id="modal_date_to" class="form-control"
+                                            value="{{ request('date_to') }}">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        onclick="applyCustomDateRange()">
+                                        <i class="fas fa-check me-2"></i>Apply Custom Range
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Date Presets -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-clock me-2"></i>Quick Presets
+                                    </h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="setDateRangeModal('today')">
+                                            <i class="fas fa-calendar-day me-2"></i>Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="setDateRangeModal('week')">
+                                            <i class="fas fa-calendar-week me-2"></i>This Week
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning"
+                                            onclick="setDateRangeModal('month')">
+                                            <i class="fas fa-calendar me-2"></i>This Month
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="setDateRangeModal('year')">
+                                            <i class="fas fa-calendar-alt me-2"></i>This Year
+                                        </button>
+                                        <hr class="my-3">
+                                        <button type="button" class="btn btn-outline-secondary w-100"
+                                            onclick="clearDateRangeModal()">
+                                            <i class="fas fa-times me-2"></i>Clear Date Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="dateFilterStatus">
+                                    @if (request('date_from') || request('date_to'))
+                                        Current filter:
+                                        @if (request('date_from'))
+                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                        @endif
+                                        @if (request('date_to'))
+                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        No date filter applied - showing all registrations
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
-        /* Enhanced Filter Section Styling (matches inventory) */
-        .filter-section .form-control,
-        .filter-section .form-select {
-            border-radius: 8px;
-            border: 1px solid #e3e6f0;
-            transition: all 0.3s ease;
-        }
-
-        .filter-section .form-control:focus,
-        .filter-section .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-
-        .filter-section .input-group-text {
-            border-radius: 8px 0 0 8px;
-        }
-
-        .filter-section .form-control {
-            border-radius: 0 8px 8px 0;
-        }
-
-        /* Enhanced visual feedback for changed fields */
-        .form-changed {
-            border-left: 3px solid #ffc107 !important;
-            background-color: #fff3cd;
-            transition: all 0.3s ease;
-        }
-
-        .no-changes {
-            opacity: 0.7;
-            transition: all 0.3s ease;
-        }
-
-        /* Change indicator */
-        .change-indicator {
-            position: relative;
-        }
-
-        .change-indicator::after {
-            content: "●";
-            color: #ffc107;
-            font-size: 12px;
-            position: absolute;
-            right: -15px;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .change-indicator.changed::after {
-            opacity: 1;
-        }
-
         /* Existing styles maintained */
         .border-left-primary {
             border-left: 0.25rem solid #4e73df !important;
@@ -575,6 +631,39 @@
 
         .badge {
             font-size: 0.75em;
+        }
+
+        /* Enhanced visual feedback for changed fields */
+        .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd;
+            transition: all 0.3s ease;
+        }
+
+        .no-changes {
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        /* Change indicator */
+        .change-indicator {
+            position: relative;
+        }
+
+        .change-indicator::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .change-indicator.changed::after {
+            opacity: 1;
         }
 
         /* Custom Pagination Styles */
@@ -623,224 +712,230 @@
 @endsection
 
 @section('scripts')
-<script>
-    // Add this at the top of your scripts section
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    <script>
+        // Add this at the top of your scripts section
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        let searchTimeout;
+
+        // Auto search functionality (matches inventory)
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500); // Wait 500ms after user stops typing
         }
-    });
 
-    let searchTimeout;
-
-    // Auto search functionality (matches inventory)
-    function autoSearch() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
+        // Submit filter form when dropdowns change (matches inventory)
+        function submitFilterForm() {
             document.getElementById('filterForm').submit();
-        }, 500); // Wait 500ms after user stops typing
-    }
-
-    // Submit filter form when dropdowns change (matches inventory)
-    function submitFilterForm() {
-        document.getElementById('filterForm').submit();
-    }
-
-    // Helper function to get status display text
-    function getStatusText(status) {
-        switch(status) {
-            case 'under_review': return 'Under Review';
-            case 'approved': return 'Approved';
-            case 'rejected': return 'Rejected';
-            default: return status;
         }
-    }
 
-    // Enhanced show update modal function to store original values
-    function showUpdateModal(id, currentStatus) {
-        // Show loading state in modal
-        document.getElementById('updateRegId').innerHTML = `
+        // Helper function to get status display text
+        function getStatusText(status) {
+            switch (status) {
+                case 'under_review':
+                    return 'Under Review';
+                case 'approved':
+                    return 'Approved';
+                case 'rejected':
+                    return 'Rejected';
+                default:
+                    return status;
+            }
+        }
+
+        // Enhanced show update modal function to store original values
+        function showUpdateModal(id, currentStatus) {
+            // Show loading state in modal
+            document.getElementById('updateRegId').innerHTML = `
             <div class="spinner-border spinner-border-sm text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>`;
 
-        // First fetch the registration details
-        fetch(`/admin/fishr-registrations/${id}`)
-            .then(response => response.json())
-            .then(response => {
-                if (!response.success) {
-                    throw new Error('Failed to load registration details');
-                }
+            // First fetch the registration details
+            fetch(`/admin/fishr-registrations/${id}`)
+                .then(response => response.json())
+                .then(response => {
+                    if (!response.success) {
+                        throw new Error('Failed to load registration details');
+                    }
 
-                const data = response.data;
-                
-                // Populate the hidden field
-                document.getElementById('updateRegistrationId').value = id;
+                    const data = response.data;
 
-                // Populate registration info display
-                document.getElementById('updateRegId').textContent = data.registration_number;
-                document.getElementById('updateRegNumber').textContent = data.registration_number;
-                document.getElementById('updateRegName').textContent = data.full_name;
-                document.getElementById('updateRegBarangay').textContent = data.barangay;
-                document.getElementById('updateRegLivelihood').textContent = data.livelihood_description;
+                    // Populate the hidden field
+                    document.getElementById('updateRegistrationId').value = id;
 
-                // Show current status with badge styling
-                const currentStatusElement = document.getElementById('updateRegCurrentStatus');
-                currentStatusElement.innerHTML = `
+                    // Populate registration info display
+                    document.getElementById('updateRegId').textContent = data.registration_number;
+                    document.getElementById('updateRegNumber').textContent = data.registration_number;
+                    document.getElementById('updateRegName').textContent = data.full_name;
+                    document.getElementById('updateRegBarangay').textContent = data.barangay;
+                    document.getElementById('updateRegLivelihood').textContent = data.livelihood_description;
+
+                    // Show current status with badge styling
+                    const currentStatusElement = document.getElementById('updateRegCurrentStatus');
+                    currentStatusElement.innerHTML = `
                     <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                // Set form values and store original values for comparison
-                const statusSelect = document.getElementById('newStatus');
-                const remarksTextarea = document.getElementById('remarks');
-                
-                statusSelect.value = data.status;
-                statusSelect.dataset.originalStatus = data.status; // Store original status
-                
-                remarksTextarea.value = data.remarks || '';
-                remarksTextarea.dataset.originalRemarks = data.remarks || ''; // Store original remarks
+                    // Set form values and store original values for comparison
+                    const statusSelect = document.getElementById('newStatus');
+                    const remarksTextarea = document.getElementById('remarks');
 
-                // Remove any previous change indicators
-                statusSelect.classList.remove('form-changed');
-                remarksTextarea.classList.remove('form-changed');
-                statusSelect.parentElement.classList.remove('change-indicator', 'changed');
-                remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
+                    statusSelect.value = data.status;
+                    statusSelect.dataset.originalStatus = data.status; // Store original status
 
-                // Add change indicator classes
-                statusSelect.parentElement.classList.add('change-indicator');
-                remarksTextarea.parentElement.classList.add('change-indicator');
+                    remarksTextarea.value = data.remarks || '';
+                    remarksTextarea.dataset.originalRemarks = data.remarks || ''; // Store original remarks
 
-                // Reset update button state
-                const updateButton = document.querySelector('#updateModal .btn-primary');
-                updateButton.classList.remove('no-changes');
+                    // Remove any previous change indicators
+                    statusSelect.classList.remove('form-changed');
+                    remarksTextarea.classList.remove('form-changed');
+                    statusSelect.parentElement.classList.remove('change-indicator', 'changed');
+                    remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
 
-                // Show the modal
-                const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-                modal.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error loading registration details: ' + error.message);
-            });
-    }
+                    // Add change indicator classes
+                    statusSelect.parentElement.classList.add('change-indicator');
+                    remarksTextarea.parentElement.classList.add('change-indicator');
 
-    // Enhanced update registration status function with change detection
-    function updateRegistrationStatus() {
-        const id = document.getElementById('updateRegistrationId').value;
-        const newStatus = document.getElementById('newStatus').value;
-        const remarks = document.getElementById('remarks').value;
+                    // Reset update button state
+                    const updateButton = document.querySelector('#updateModal .btn-primary');
+                    updateButton.classList.remove('no-changes');
 
-        if (!newStatus) {
-            alert('Please select a status');
-            return;
+                    // Show the modal
+                    const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading registration details: ' + error.message);
+                });
         }
 
-        // Get the original values to compare changes
-        const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-        const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+        // Enhanced update registration status function with change detection
+        function updateRegistrationStatus() {
+            const id = document.getElementById('updateRegistrationId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const remarks = document.getElementById('remarks').value;
 
-        // Check if nothing has changed
-        if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-            alert('No changes detected. Please modify the status or remarks before updating.');
-            return;
-        }
-
-        // Show confirmation dialog with changes summary
-        let changesSummary = [];
-        if (newStatus !== originalStatus) {
-            const originalStatusText = getStatusText(originalStatus);
-            const newStatusText = getStatusText(newStatus);
-            changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-        }
-        if (remarks.trim() !== originalRemarks.trim()) {
-            if (originalRemarks.trim() === '') {
-                changesSummary.push('Remarks: Added new remarks');
-            } else if (remarks.trim() === '') {
-                changesSummary.push('Remarks: Removed existing remarks');
-            } else {
-                changesSummary.push('Remarks: Modified');
+            if (!newStatus) {
+                alert('Please select a status');
+                return;
             }
+
+            // Get the original values to compare changes
+            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
+            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+
+            // Check if nothing has changed
+            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
+                alert('No changes detected. Please modify the status or remarks before updating.');
+                return;
+            }
+
+            // Show confirmation dialog with changes summary
+            let changesSummary = [];
+            if (newStatus !== originalStatus) {
+                const originalStatusText = getStatusText(originalStatus);
+                const newStatusText = getStatusText(newStatus);
+                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+            }
+            if (remarks.trim() !== originalRemarks.trim()) {
+                if (originalRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Added new remarks');
+                } else if (remarks.trim() === '') {
+                    changesSummary.push('Remarks: Removed existing remarks');
+                } else {
+                    changesSummary.push('Remarks: Modified');
+                }
+            }
+
+            const confirmMessage =
+                `Are you sure you want to update this registration with the following changes?\n\n${changesSummary.join('\n')}`;
+
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            // Show loading state
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+            const originalText = updateButton.innerHTML;
+            updateButton.innerHTML =
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.disabled = true;
+
+            fetch(`/admin/fishr-registrations/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        remarks: remarks
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    if (response.success) {
+                        // Show success message and reload page
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                        modal.hide();
+                        alert(response.message);
+                        window.location.reload();
+                    } else {
+                        throw new Error(response.message || 'Error updating status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating registration status: ' + error.message);
+                })
+                .finally(() => {
+                    // Reset button state
+                    updateButton.innerHTML = originalText;
+                    updateButton.disabled = false;
+                });
         }
 
-        const confirmMessage = `Are you sure you want to update this registration with the following changes?\n\n${changesSummary.join('\n')}`;
-        
-        if (!confirm(confirmMessage)) {
-            return;
-        }
-
-        // Show loading state
-        const updateButton = document.querySelector('#updateModal .btn-primary');
-        const originalText = updateButton.innerHTML;
-        updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
-        updateButton.disabled = true;
-
-        fetch(`/admin/fishr-registrations/${id}/status`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                status: newStatus,
-                remarks: remarks
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(response => {
-            if (response.success) {
-                // Show success message and reload page
-                const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                modal.hide();
-                alert(response.message);
-                window.location.reload();
-            } else {
-                throw new Error(response.message || 'Error updating status');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error updating registration status: ' + error.message);
-        })
-        .finally(() => {
-            // Reset button state
-            updateButton.innerHTML = originalText;
-            updateButton.disabled = false;
-        });
-    }
-
-    // View registration details
-    function viewRegistration(id) {
-        // Show loading state
-        document.getElementById('registrationDetails').innerHTML = `
+        // View registration details
+        function viewRegistration(id) {
+            // Show loading state
+            document.getElementById('registrationDetails').innerHTML = `
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>`;
 
-        // Show modal while loading
-        const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
-        modal.show();
+            // Show modal while loading
+            const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+            modal.show();
 
-        // Fetch registration details
-        fetch(`/admin/fishr-registrations/${id}`)
-            .then(response => response.json())  // First parse the JSON
-            .then(response => {
-                console.log('Response:', response); // Debug log
+            // Fetch registration details
+            fetch(`/admin/fishr-registrations/${id}`)
+                .then(response => response.json()) // First parse the JSON
+                .then(response => {
+                    console.log('Response:', response); // Debug log
 
-                if (!response.success) {
-                    throw new Error('Failed to load registration details');
-                }
+                    if (!response.success) {
+                        throw new Error('Failed to load registration details');
+                    }
 
-                const data = response.data;
+                    const data = response.data;
 
-                // Format the details HTML
-                const remarksHtml = data.remarks ? `
+                    // Format the details HTML
+                    const remarksHtml = data.remarks ? `
                     <div class="col-12 mt-3">
                         <h6 class="border-bottom pb-2">Remarks</h6>
                         <div class="alert alert-info">
@@ -852,8 +947,8 @@
                         </div>
                     </div>` : '';
 
-                // Update modal content
-                document.getElementById('registrationDetails').innerHTML = `
+                    // Update modal content
+                    document.getElementById('registrationDetails').innerHTML = `
                     <div class="row g-3">
                         <div class="col-md-6">
                             <h6 class="border-bottom pb-2">Personal Information</h6>
@@ -866,7 +961,7 @@
                         </div>
                         <div class="col-md-6">
                             <h6 class="border-bottom pb-2">Status Information</h6>
-                            <p><strong>Current Status:</strong> 
+                            <p><strong>Current Status:</strong>
                                 <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
                             </p>
                             <p><strong>Main Livelihood:</strong> ${data.livelihood_description}</p>
@@ -876,78 +971,174 @@
                         </div>
                         ${remarksHtml}
                     </div>`;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('registrationDetails').innerHTML = `
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('registrationDetails').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle me-2"></i>
                         ${error.message || 'Error loading registration details. Please try again.'}
                     </div>`;
-            });
-    }
-
-    // View document
-    function viewDocument(path) {
-        const documentViewer = document.getElementById('documentViewer');
-        const fileExtension = path.split('.').pop().toLowerCase();
-
-        if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-            documentViewer.innerHTML = `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document">`;
-        } else if (fileExtension === 'pdf') {
-            documentViewer.innerHTML =
-                `<embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">`;
-        } else {
-            documentViewer.innerHTML =
-                `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
+                });
         }
 
-        const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-        modal.show();
-    }
+        // View document
+        function viewDocument(path) {
+            const documentViewer = document.getElementById('documentViewer');
+            const fileExtension = path.split('.').pop().toLowerCase();
 
-    // Function to check for changes and provide visual feedback
-    function checkForChanges() {
-        const statusSelect = document.getElementById('newStatus');
-        const remarksTextarea = document.getElementById('remarks');
-        
-        if (!statusSelect.dataset.originalStatus) return; // Don't check if original values aren't set yet
-        
-        const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
-        const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
-        
-        // Visual feedback for status field
-        statusSelect.classList.toggle('form-changed', statusChanged);
-        statusSelect.parentElement.classList.toggle('changed', statusChanged);
-        
-        // Visual feedback for remarks field
-        remarksTextarea.classList.toggle('form-changed', remarksChanged);
-        remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
-        
-        // Update button state
-        const updateButton = document.querySelector('#updateModal .btn-primary');
-        updateButton.classList.toggle('no-changes', !statusChanged && !remarksChanged);
-        
-        // Update button text based on changes
-        if (!statusChanged && !remarksChanged) {
-            updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>No Changes';
-        } else {
-            updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
-        }
-    }
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                documentViewer.innerHTML = `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document">`;
+            } else if (fileExtension === 'pdf') {
+                documentViewer.innerHTML =
+                    `<embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">`;
+            } else {
+                documentViewer.innerHTML =
+                    `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
+            }
 
-    // Add event listeners when document is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        const statusSelect = document.getElementById('newStatus');
-        const remarksTextarea = document.getElementById('remarks');
-        
-        if (statusSelect) {
-            statusSelect.addEventListener('change', checkForChanges);
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            modal.show();
         }
-        
-        if (remarksTextarea) {
-            remarksTextarea.addEventListener('input', checkForChanges);
+
+        // Function to check for changes and provide visual feedback
+        function checkForChanges() {
+            const statusSelect = document.getElementById('newStatus');
+            const remarksTextarea = document.getElementById('remarks');
+
+            if (!statusSelect.dataset.originalStatus) return; // Don't check if original values aren't set yet
+
+            const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+            const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+
+            // Visual feedback for status field
+            statusSelect.classList.toggle('form-changed', statusChanged);
+            statusSelect.parentElement.classList.toggle('changed', statusChanged);
+
+            // Visual feedback for remarks field
+            remarksTextarea.classList.toggle('form-changed', remarksChanged);
+            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+
+            // Update button state
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+            updateButton.classList.toggle('no-changes', !statusChanged && !remarksChanged);
+
+            // Update button text based on changes
+            if (!statusChanged && !remarksChanged) {
+                updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>No Changes';
+            } else {
+                updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+            }
         }
-    });
-</script>
+
+        // Add event listeners when document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.getElementById('newStatus');
+            const remarksTextarea = document.getElementById('remarks');
+
+            if (statusSelect) {
+                statusSelect.addEventListener('change', checkForChanges);
+            }
+
+            if (remarksTextarea) {
+                remarksTextarea.addEventListener('input', checkForChanges);
+            }
+        });
+
+        // Date Filter Functions
+        function setDateRangeModal(period) {
+            const today = new Date();
+            let startDate, endDate;
+
+            switch (period) {
+                case 'today':
+                    startDate = endDate = today;
+                    break;
+                case 'week':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+                    endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 6); // End of week (Saturday)
+                    break;
+                case 'month':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1); // First day of month
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of month
+                    break;
+                case 'year':
+                    startDate = new Date(today.getFullYear(), 0, 1); // First day of year
+                    endDate = new Date(today.getFullYear(), 11, 31); // Last day of year
+                    break;
+            }
+
+            // Format dates to YYYY-MM-DD
+            const startDateStr = startDate.toISOString().split('T')[0];
+            const endDateStr = endDate.toISOString().split('T')[0];
+
+            // Update modal inputs
+            document.getElementById('modal_date_from').value = startDateStr;
+            document.getElementById('modal_date_to').value = endDateStr;
+
+            // Apply the filter immediately
+            applyDateFilter(startDateStr, endDateStr);
+        }
+
+        function applyCustomDateRange() {
+            const dateFrom = document.getElementById('modal_date_from').value;
+            const dateTo = document.getElementById('modal_date_to').value;
+
+            if (dateFrom && dateTo && dateFrom > dateTo) {
+                alert('From date cannot be later than To date');
+                return;
+            }
+
+            applyDateFilter(dateFrom, dateTo);
+        }
+
+        function applyDateFilter(dateFrom, dateTo) {
+            // Update hidden inputs
+            document.getElementById('date_from').value = dateFrom;
+            document.getElementById('date_to').value = dateTo;
+
+            // Update status display
+            updateDateFilterStatus(dateFrom, dateTo);
+
+            // Close modal and submit form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+            if (modal) modal.hide();
+
+            submitFilterForm();
+        }
+
+        function clearDateRangeModal() {
+            document.getElementById('modal_date_from').value = '';
+            document.getElementById('modal_date_to').value = '';
+            applyDateFilter('', '');
+        }
+
+        function updateDateFilterStatus(dateFrom, dateTo) {
+            const statusElement = document.getElementById('dateFilterStatus');
+            if (!dateFrom && !dateTo) {
+                statusElement.innerHTML = 'No date filter applied - showing all registrations';
+            } else {
+                let statusText = 'Current filter: ';
+                if (dateFrom) {
+                    const fromDate = new Date(dateFrom).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `From ${fromDate} `;
+                }
+                if (dateTo) {
+                    const toDate = new Date(dateTo).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `To ${toDate}`;
+                }
+                statusElement.innerHTML = statusText;
+            }
+        }
+    </script>
 @endsection
