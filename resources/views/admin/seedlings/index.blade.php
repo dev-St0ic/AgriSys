@@ -620,7 +620,7 @@
                                         <div class="col-md-6">
                                             <h6>Personal Information</h6>
                                             <p><strong>Name:</strong> {{ $request->full_name }}</p>
-                                            <p><strong>Contact:</strong> {{ $request->contact_number }}</p>
+                                            <p><strong>Contact Number:</strong> {{ $request->contact_number }}</p>
                                             <p><strong>Email:</strong> {{ $request->email ?? 'N/A' }}</p>
                                             <p><strong>Barangay:</strong> {{ $request->barangay }}</p>
                                             <p><strong>Address:</strong> {{ $request->address }}</p>

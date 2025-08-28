@@ -37,6 +37,15 @@ class BoatRController extends Controller
                 $query->where('primary_fishing_gear', $request->primary_fishing_gear);
             }
 
+            // Add date filtering
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+
             // Add search functionality
             if ($request->filled('search')) {
                 $search = $request->search;
@@ -151,7 +160,7 @@ class BoatRController extends Controller
                 'email_sent' => ($validated['status'] === 'approved' && $registration->email) ? 'yes' : 'no'
             ]);
 
-            $message = "Application {$registration->application_number} status updated to " . 
+            $message = "Application {$registration->application_number} status updated to " .
                       $registration->formatted_status .
                       ($validated['status'] === 'approved' && $registration->email ? '. Email notification sent to applicant.' : '');
 
@@ -218,7 +227,7 @@ class BoatRController extends Controller
                 if ($file->isValid()) {
                     $fileName = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                     $filePath = $file->storeAs('boatr_documents/inspection', $fileName, 'public');
-                    
+
                     // Add inspection document
                     $registration->addInspectionDocument($filePath, $file->getClientOriginalName());
                 }
@@ -283,7 +292,7 @@ class BoatRController extends Controller
 
             // Get user document with URL (single document) - FIXED
             $userDocument = $registration->getUserDocumentWithUrl();
-            
+
             // Get inspection documents with URLs (multiple documents)
             $inspectionDocuments = $registration->getInspectionDocumentsWithUrls();
 
@@ -310,18 +319,18 @@ class BoatRController extends Controller
                 'status_color' => $registration->status_color,
                 'formatted_status' => $registration->formatted_status,
                 'remarks' => $registration->remarks,
-                
+
                 // FIXED: Single user document - return as array for consistency with frontend
                 'user_documents' => $userDocument ? [$userDocument] : [],
                 'has_user_document' => $registration->hasUserDocument(),
-                
+
                 // Multiple inspection documents
                 'inspection_documents' => $inspectionDocuments,
                 'has_inspection_documents' => $registration->hasInspectionDocuments(),
-                
+
                 // Document counts
                 'total_documents_count' => $registration->total_documents_count,
-                
+
                 // Inspection information
                 'inspection_completed' => $registration->inspection_completed,
                 'inspection_date' => $registration->inspection_date?->format('M d, Y h:i A'),
@@ -329,18 +338,18 @@ class BoatRController extends Controller
                 'inspector_name' => $registration->inspector?->name,
                 'documents_verified' => $registration->documents_verified,
                 'documents_verified_at' => $registration->documents_verified_at?->format('M d, Y h:i A'),
-                
+
                 // Workflow information
                 'is_ready_for_approval' => $registration->isReadyForApproval(),
                 'requires_inspection' => $registration->requiresInspection(),
-                
+
                 // Timestamps
                 'created_at' => $registration->created_at->format('M d, Y h:i A'),
                 'updated_at' => $registration->updated_at->format('M d, Y h:i A'),
-                'reviewed_at' => $registration->reviewed_at ? 
+                'reviewed_at' => $registration->reviewed_at ?
                     $registration->reviewed_at->format('M d, Y h:i A') : null,
                 'reviewed_by_name' => $registration->reviewer?->name ?? null,
-                
+
                 // Status history
                 'status_history' => $registration->status_history ?? []
             ]);
@@ -398,7 +407,7 @@ class BoatRController extends Controller
             } else {
                 // Multiple inspection documents
                 $inspectionDocs = $registration->getInspectionDocumentsWithUrls();
-                
+
                 if (!$inspectionDocs || !isset($inspectionDocs[$documentIndex])) {
                     return response()->json(['error' => 'Inspection document not found'], 404);
                 }
@@ -474,7 +483,7 @@ class BoatRController extends Controller
 
             } else {
                 $inspectionDocs = $registration->getInspectionDocumentsWithUrls();
-                
+
                 if (!$inspectionDocs || !isset($inspectionDocs[$documentIndex])) {
                     return response()->json([
                         'success' => false,
@@ -544,7 +553,7 @@ class BoatRController extends Controller
 
             } else {
                 $inspectionDocs = $registration->inspection_documents ?? [];
-                
+
                 if (!isset($inspectionDocs[$documentIndex])) {
                     abort(404, 'Inspection document not found');
                 }
@@ -669,7 +678,7 @@ class BoatRController extends Controller
 
             $callback = function() use ($registrations) {
                 $file = fopen('php://output', 'w');
-                
+
                 // CSV headers
                 fputcsv($file, [
                     'Application Number',
@@ -710,7 +719,7 @@ class BoatRController extends Controller
                         $registration->inspection_completed ? 'Yes' : 'No',
                         $registration->documents_verified ? 'Yes' : 'No',
                         $registration->created_at->format('M d, Y h:i A'),
-                        $registration->reviewed_at ? 
+                        $registration->reviewed_at ?
                             $registration->reviewed_at->format('M d, Y h:i A') : 'N/A',
                         $registration->reviewer?->name ?? 'N/A',
                         $registration->inspector?->name ?? 'N/A'

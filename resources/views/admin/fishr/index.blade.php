@@ -262,7 +262,7 @@
                             <th>Name</th>
                             <th>Sex</th>
                             <th>Barangay</th>
-                            <th>Contact</th>
+                            <th>Contact Number</th>
                             <th>Email</th>
                             <th>Livelihood</th>
                             <th>Status</th>

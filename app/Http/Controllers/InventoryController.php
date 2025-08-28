@@ -43,6 +43,15 @@ class InventoryController extends Controller
             });
         }
 
+        // Add date filtering
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
         $inventories = $query->orderBy('item_name')->paginate(15);
 
         // Get statistics
@@ -197,5 +206,29 @@ class InventoryController extends Controller
 
         return redirect()->back()
             ->with('success', "Stock adjusted from {$oldStock} to {$newStock} {$inventory->unit}.");
+    }
+
+    /**
+     * Get inventory details for modal view
+     */
+    public function getDetails(Inventory $inventory)
+    {
+        return response()->json([
+            'success' => true,
+            'inventory' => [
+                'id' => $inventory->id,
+                'item_name' => $inventory->item_name,
+                'category' => $inventory->category,
+                'variety' => $inventory->variety,
+                'current_stock' => $inventory->current_stock,
+                'maximum_stock' => $inventory->maximum_stock,
+                'low_stock_threshold' => $inventory->low_stock_threshold,
+                'unit' => $inventory->unit,
+                'description' => $inventory->description,
+                'created_at' => $inventory->created_at->toISOString(),
+                'updated_at' => $inventory->updated_at->toISOString(),
+                'last_restocked' => $inventory->last_restocked ? $inventory->last_restocked->toISOString() : null,
+            ]
+        ]);
     }
 }

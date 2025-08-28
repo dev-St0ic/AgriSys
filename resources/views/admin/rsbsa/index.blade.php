@@ -263,7 +263,7 @@
                             <th>Name</th>
                             <th>Sex</th>
                             <th>Barangay</th>
-                            <th>Contact</th>
+                            <th>Contact Number</th>
                             <th>Livelihood</th>
                             <th>Land Area</th>
                             <th>Status</th>
