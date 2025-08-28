@@ -3,7 +3,12 @@
 @extends('layouts.app')
 
 @section('title', 'Seedling Requests - AgriSys Admin')
-@section('page-title', 'Seedling Requests')
+@section('page-title')
+    <div class="d-flex align-items-center">
+        <i class="fas fa-seedling text-primary me-2"></i>
+        <span class="text-primary fw-bold">Seedling Requests</span>
+    </div>
+@endsection
 
 @section('content')
     <div class="container-fluid">
@@ -113,9 +118,9 @@
         <!-- Filters & Search -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-light py-3 border-bottom">
-                <h6 class="mb-0 fw-bold text-dark">
-                    <i class="fas fa-filter me-2 text-primary"></i>Filters & Search
-                </h6>
+                <h6 class="m-0 font-weight-bold text-primary">
+                     <i class="fas fa-filter me-2"></i>Filters & Search
+                 </h6>
             </div>
             <div class="card-body p-3">
                 <form method="GET" action="{{ route('admin.seedlings.requests') }}" id="filterForm">
@@ -125,7 +130,6 @@
 
                     <div class="row g-3">
                         <div class="col-md-2">
-                            <label class="form-label text-sm fw-medium text-muted">Status</label>
                             <select name="status" class="form-select form-select-sm border-light"
                                 onchange="submitFilterForm()">
                                 <option value="">All Status</option>
@@ -142,7 +146,6 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label text-sm fw-medium text-muted">Category</label>
                             <select name="category" class="form-select form-select-sm border-light"
                                 onchange="submitFilterForm()">
                                 <option value="">All Categories</option>
@@ -155,7 +158,6 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label text-sm fw-medium text-muted">Barangay</label>
                             <select name="barangay" class="form-select form-select-sm border-light"
                                 onchange="submitFilterForm()">
                                 <option value="">All Barangay</option>
@@ -167,24 +169,20 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label text-sm fw-medium text-muted">Search</label>
                             <input type="text" name="search" class="form-control form-control-sm border-light"
                                 placeholder="Search name, number, contact..." value="{{ request('search') }}"
                                 oninput="autoSearch()" id="searchInput">
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label text-sm fw-medium text-muted">&nbsp;</label>
                             <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
                                 data-bs-target="#dateFilterModal">
                                 <i class="fas fa-calendar-alt me-1"></i>Date Filter
                             </button>
                         </div>
                         <div class="col-md-1">
-                            <label class="form-label text-sm fw-medium text-muted">&nbsp;</label>
                             <a href="{{ route('admin.seedlings.requests') }}"
-                                class="btn btn-light btn-sm w-100 d-block border">
+                                class="btn btn-light btn-sm w-100 d-flex align-items-center justify-content-center border">
                                 <i class="fas fa-times"></i>
-                            </a>
                             </a>
                         </div>
                     </div>
@@ -197,23 +195,23 @@
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered align-middle mb-0">
-                            <thead class="bg-light border-bottom">
+                            <thead class="table-dark">
                                 <tr>
-                                    <th class="px-3 py-3 fw-medium text-muted border-end">Date Applied</th>
-                                    <th class="px-3 py-3 fw-medium text-muted border-end">Request #</th>
-                                    <th class="px-3 py-3 fw-medium text-muted border-end">Name</th>
-                                    <th class="px-3 py-3 fw-medium text-muted border-end">Barangay</th>
+                                    <th class="px-3 py-3 fw-medium text-white border-end">Date Applied</th>
+                                    <th class="px-3 py-3 fw-medium text-white border-end">Request #</th>
+                                    <th class="px-3 py-3 fw-medium text-white border-end">Name</th>
+                                    <th class="px-3 py-3 fw-medium text-white border-end">Barangay</th>
                                     @if (!request('category') || request('category') == 'vegetables')
-                                        <th class="px-3 py-3 fw-medium text-muted border-end">Vegetables</th>
+                                        <th class="px-3 py-3 fw-medium text-white border-end">Vegetables</th>
                                     @endif
                                     @if (!request('category') || request('category') == 'fruits')
-                                        <th class="px-3 py-3 fw-medium text-muted border-end">Fruits</th>
+                                        <th class="px-3 py-3 fw-medium text-white border-end">Fruits</th>
                                     @endif
                                     @if (!request('category') || request('category') == 'fertilizers')
-                                        <th class="px-3 py-3 fw-medium text-muted border-end">Fertilizers</th>
+                                        <th class="px-3 py-3 fw-medium text-white border-end">Fertilizers</th>
                                     @endif
-                                    <th class="px-3 py-3 fw-medium text-muted border-end">Overall Status</th>
-                                    <th class="px-3 py-3 fw-medium text-muted text-center">Actions</th>
+                                    <th class="px-3 py-3 fw-medium text-white border-end">Overall Status</th>
+                                    <th class="px-3 py-3 fw-medium text-white text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1447,6 +1445,18 @@
 
         .table-hover tbody tr:hover {
             background-color: #f8f9fa;
+        }
+
+        /* Custom Table Header Styling */
+        .table-dark th {
+            background-color: #212529 !important;
+            color: #ffffff !important;
+            border-color: #32383e !important;
+        }
+
+        .table thead th {
+            background-color: #212529 !important;
+            color: #ffffff !important;
         }
 
         .badge {

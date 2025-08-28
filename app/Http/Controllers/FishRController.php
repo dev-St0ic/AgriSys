@@ -38,6 +38,15 @@ class FishRController extends Controller
                 $query->where('main_livelihood', $request->livelihood);
             }
 
+            // Date range filtering
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
@@ -108,7 +117,7 @@ class FishRController extends Controller
     {
         try {
             $registration = FishrApplication::findOrFail($id);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -127,7 +136,7 @@ class FishRController extends Controller
                     'remarks' => $registration->remarks,
                     'created_at' => $registration->created_at->format('M d, Y h:i A'),
                     'updated_at' => $registration->updated_at->format('M d, Y h:i A'),
-                    'status_updated_at' => $registration->status_updated_at ? 
+                    'status_updated_at' => $registration->status_updated_at ?
                         $registration->status_updated_at->format('M d, Y h:i A') : null,
                     'updated_by_name' => optional($registration->updatedBy)->name
                 ]
@@ -137,7 +146,7 @@ class FishRController extends Controller
                 'id' => $id,
                 'error' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error loading registration details: ' . $e->getMessage()
@@ -159,7 +168,7 @@ class FishRController extends Controller
 
             // Find the registration
             $registration = FishrApplication::findOrFail($id);
-            
+
             // Update the registration
             $registration->update([
                 'status' => $validated['status'],
@@ -182,7 +191,7 @@ class FishRController extends Controller
             // Return success response
             return response()->json([
                 'success' => true,
-                'message' => 'Registration status updated successfully' . 
+                'message' => 'Registration status updated successfully' .
                            ($validated['status'] === 'approved' && $registration->email ? '. Email notification sent to applicant.' : ''),
                 'data' => [
                     'status' => $registration->status,
@@ -270,7 +279,7 @@ class FishRController extends Controller
                 return redirect()->back()->with('error', 'Document not found');
             }
 
-            $fileName = "FishR_{$registration->registration_number}_document." . 
+            $fileName = "FishR_{$registration->registration_number}_document." .
                        pathinfo($registration->document_path, PATHINFO_EXTENSION);
 
             return Storage::disk('public')->download($registration->document_path, $fileName);
@@ -317,7 +326,7 @@ class FishRController extends Controller
 
             $callback = function() use ($registrations) {
                 $file = fopen('php://output', 'w');
-                
+
                 // CSV headers
                 fputcsv($file, [
                     'Registration Number',
@@ -344,7 +353,7 @@ class FishRController extends Controller
                         $registration->livelihood_description,
                         $registration->formatted_status,
                         $registration->created_at->format('M d, Y h:i A'),
-                        $registration->status_updated_at ? 
+                        $registration->status_updated_at ?
                             $registration->status_updated_at->format('M d, Y h:i A') : 'N/A'
                     ]);
                 }
@@ -429,7 +438,7 @@ class FishRController extends Controller
     {
         try {
             $registration = FishrApplication::findOrFail($id);
-            
+
             if ($registration->fishr_number) {
                 return response()->json([
                     'success' => false,

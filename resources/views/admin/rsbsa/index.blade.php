@@ -2,7 +2,12 @@
 @extends('layouts.app')
 
 @section('title', 'RSBSA Applications - AgriSys Admin')
-@section('page-title', 'RSBSA Applications')
+@section('page-title')
+    <div class="d-flex align-items-center">
+        <i class="fas fa-file-alt text-primary me-2"></i>
+        <span class="text-primary fw-bold">RSBSA Applications</span>
+    </div>
+@endsection
 
 @section('content')
     <div class="row">
@@ -248,11 +253,6 @@
 
     <!-- Applications Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-seedling me-2"></i>RSBSA Applications
-            </h6>
-        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover" id="applicationsTable">
@@ -307,12 +307,12 @@
                                             <button class="btn btn-sm btn-outline-info"
                                                 onclick="viewDocument('{{ $application->supporting_document_path }}')"
                                                 title="View Document">
-                                                <i class="fas fa-file-alt"></i>Doc
+                                                <i class="fas fa-file-pdf"></i>Doc
                                             </button>
                                         @else
                                             <span class="btn btn-sm btn-outline-danger disabled text-danger"
                                                 title="No Document Available">
-                                                <i class="fas fa-file-times text-danger"></i> None
+                                                <i class="fas fa-file-excel text-danger"></i> None
                                             </span>
                                         @endif
                                     </div>
