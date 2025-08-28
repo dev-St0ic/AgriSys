@@ -45,13 +45,19 @@ class SeedlingAnalyticsController extends Controller
             // 6. Top Requested Items
             $topItems = $this->getTopRequestedItems(clone $baseQuery);
 
-            // 7. Request Processing Time Analysis
+            // 7. Least Requested Items
+            $leastRequestedItems = $this->getLeastRequestedItems(clone $baseQuery);
+
+            // 8. Request Processing Time Analysis
             $processingTimeAnalysis = $this->getProcessingTimeAnalysis(clone $baseQuery);
 
-            // 8. Seasonal Analysis
+            // 9. Seasonal Analysis
             $seasonalAnalysis = $this->getSeasonalAnalysis(clone $baseQuery);
 
-            // 9. Inventory Impact Analysis
+            // 10. Monthly Barangay Analysis
+            $monthlyBarangayAnalysis = $this->getMonthlyBarangayAnalysis($startDate, $endDate);
+
+            // 11. Inventory Impact Analysis
             $inventoryImpact = $this->getInventoryImpactAnalysis(clone $baseQuery);
 
             return view('admin.analytics.seedlings', compact(
@@ -61,8 +67,10 @@ class SeedlingAnalyticsController extends Controller
                 'barangayAnalysis',
                 'categoryAnalysis',
                 'topItems',
+                'leastRequestedItems',
                 'processingTimeAnalysis',
                 'seasonalAnalysis',
+                'monthlyBarangayAnalysis',
                 'inventoryImpact',
                 'startDate',
                 'endDate'
@@ -373,6 +381,88 @@ class SeedlingAnalyticsController extends Controller
     }
 
     /**
+     * Get least requested items across all categories
+     */
+    private function getLeastRequestedItems($baseQuery)
+    {
+        try {
+            $requests = (clone $baseQuery)->get();
+            $allItems = [];
+
+            foreach ($requests as $request) {
+                // Process vegetables
+                $vegetables = $this->safeJsonDecode($request->vegetables);
+                if (!empty($vegetables) && is_array($vegetables)) {
+                    foreach ($vegetables as $item) {
+                        if (isset($item['name']) && isset($item['quantity'])) {
+                            $name = trim($item['name']);
+                            if (!empty($name)) {
+                                $key = 'vegetables_' . $name;
+                                $quantity = (int) $item['quantity'];
+                                $allItems[$key] = [
+                                    'name' => $name,
+                                    'category' => 'vegetables',
+                                    'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
+                                    'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                // Process fruits
+                $fruits = $this->safeJsonDecode($request->fruits);
+                if (!empty($fruits) && is_array($fruits)) {
+                    foreach ($fruits as $item) {
+                        if (isset($item['name']) && isset($item['quantity'])) {
+                            $name = trim($item['name']);
+                            if (!empty($name)) {
+                                $key = 'fruits_' . $name;
+                                $quantity = (int) $item['quantity'];
+                                $allItems[$key] = [
+                                    'name' => $name,
+                                    'category' => 'fruits',
+                                    'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
+                                    'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                // Process fertilizers
+                $fertilizers = $this->safeJsonDecode($request->fertilizers);
+                if (!empty($fertilizers) && is_array($fertilizers)) {
+                    foreach ($fertilizers as $item) {
+                        if (isset($item['name']) && isset($item['quantity'])) {
+                            $name = trim($item['name']);
+                            if (!empty($name)) {
+                                $key = 'fertilizers_' . $name;
+                                $quantity = (int) $item['quantity'];
+                                $allItems[$key] = [
+                                    'name' => $name,
+                                    'category' => 'fertilizers',
+                                    'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
+                                    'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Sort by total quantity ascending and return least requested items
+            return collect($allItems)
+                ->sortBy('total_quantity')
+                ->take(15)
+                ->values();
+        } catch (\Exception $e) {
+            Log::error('Least Requested Items Error: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    /**
      * Get processing time analysis
      */
     private function getProcessingTimeAnalysis($baseQuery)
@@ -452,6 +542,70 @@ class SeedlingAnalyticsController extends Controller
                 'Dry Season (Nov-Apr)' => ['months' => [11, 12, 1, 2, 3, 4], 'requests' => 0, 'quantity' => 0],
                 'Wet Season (May-Oct)' => ['months' => [5, 6, 7, 8, 9, 10], 'requests' => 0, 'quantity' => 0]
             ];
+        }
+    }
+
+    /**
+     * Get monthly barangay analysis showing top and least active barangays per month
+     */
+    private function getMonthlyBarangayAnalysis($startDate, $endDate)
+    {
+        try {
+            $monthlyData = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->select(
+                    DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
+                    'barangay',
+                    DB::raw('COUNT(*) as request_count'),
+                    DB::raw('SUM(COALESCE(total_quantity, 0)) as total_quantity')
+                )
+                ->whereNotNull('barangay')
+                ->where('barangay', '!=', '')
+                ->groupBy('month', 'barangay')
+                ->orderBy('month')
+                ->orderBy('request_count', 'desc')
+                ->get();
+
+            $monthlyAnalysis = [];
+
+            foreach ($monthlyData as $data) {
+                $month = $data->month;
+
+                if (!isset($monthlyAnalysis[$month])) {
+                    $monthlyAnalysis[$month] = [
+                        'month' => $month,
+                        'barangays' => [],
+                        'top_barangay' => null,
+                        'least_barangay' => null,
+                        'total_requests' => 0
+                    ];
+                }
+
+                $monthlyAnalysis[$month]['barangays'][] = [
+                    'barangay' => $data->barangay,
+                    'requests' => $data->request_count,
+                    'quantity' => $data->total_quantity
+                ];
+
+                $monthlyAnalysis[$month]['total_requests'] += $data->request_count;
+            }
+
+            // Determine top and least active barangays for each month
+            foreach ($monthlyAnalysis as $month => &$analysis) {
+                if (!empty($analysis['barangays'])) {
+                    // Sort by request count
+                    usort($analysis['barangays'], function($a, $b) {
+                        return $b['requests'] - $a['requests'];
+                    });
+
+                    $analysis['top_barangay'] = $analysis['barangays'][0];
+                    $analysis['least_barangay'] = end($analysis['barangays']);
+                }
+            }
+
+            return collect($monthlyAnalysis)->values();
+        } catch (\Exception $e) {
+            Log::error('Monthly Barangay Analysis Error: ' . $e->getMessage());
+            return collect([]);
         }
     }
 
@@ -562,6 +716,7 @@ class SeedlingAnalyticsController extends Controller
                 'barangay_analysis' => $this->getBarangayAnalysis(clone $baseQuery)->toArray(),
                 'category_analysis' => $this->getCategoryAnalysis(clone $baseQuery),
                 'top_items' => $this->getTopRequestedItems(clone $baseQuery)->toArray(),
+                'least_requested_items' => $this->getLeastRequestedItems(clone $baseQuery)->toArray(),
                 'processing_time' => $this->getProcessingTimeAnalysis(clone $baseQuery),
                 'seasonal_analysis' => $this->getSeasonalAnalysis(clone $baseQuery),
                 'inventory_impact' => $this->getInventoryImpactAnalysis(clone $baseQuery)
