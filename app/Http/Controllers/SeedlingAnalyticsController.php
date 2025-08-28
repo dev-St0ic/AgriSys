@@ -19,41 +19,41 @@ class SeedlingAnalyticsController extends Controller
             // Date range filter with better defaults
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
+
             // Base query with date range
             $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-            
+
             // 1. Overview Statistics
             $overview = $this->getOverviewStatistics(clone $baseQuery);
-            
+
             // 2. Request Status Analysis
             $statusAnalysis = $this->getStatusAnalysis(clone $baseQuery);
-            
+
             // 3. Monthly Trends
             $monthlyTrends = $this->getMonthlyTrends($startDate, $endDate);
-            
+
             // 4. Barangay Analysis
             $barangayAnalysis = $this->getBarangayAnalysis(clone $baseQuery);
-            
+
             // 5. Seedling Category Analysis
             $categoryAnalysis = $this->getCategoryAnalysis(clone $baseQuery);
-            
+
             // 6. Top Requested Items
             $topItems = $this->getTopRequestedItems(clone $baseQuery);
-            
+
             // 7. Request Processing Time Analysis
             $processingTimeAnalysis = $this->getProcessingTimeAnalysis(clone $baseQuery);
-            
+
             // 8. Seasonal Analysis
             $seasonalAnalysis = $this->getSeasonalAnalysis(clone $baseQuery);
-            
+
             // 9. Inventory Impact Analysis
             $inventoryImpact = $this->getInventoryImpactAnalysis(clone $baseQuery);
-            
+
             return view('admin.analytics.seedlings', compact(
                 'overview',
                 'statusAnalysis',
@@ -74,7 +74,7 @@ class SeedlingAnalyticsController extends Controller
             return back()->with('error', 'Error loading analytics data. Please try again.');
         }
     }
-    
+
     /**
      * Get overview statistics
      */
@@ -85,22 +85,22 @@ class SeedlingAnalyticsController extends Controller
             $approved = (clone $baseQuery)->where('status', 'approved')->count();
             $rejected = (clone $baseQuery)->where('status', 'rejected')->count();
             $pending = (clone $baseQuery)->where('status', 'under_review')->count();
-            
+
             // Get totals with null safety
             $totalQuantityRequested = (clone $baseQuery)->whereNotNull('total_quantity')->sum('total_quantity') ?: 0;
             $totalQuantityApproved = (clone $baseQuery)->where('status', 'approved')->whereNotNull('approved_quantity')->sum('approved_quantity') ?: 0;
             $avgRequestSize = $total > 0 ? round((clone $baseQuery)->whereNotNull('total_quantity')->avg('total_quantity') ?: 0, 2) : 0;
-            
+
             // Count unique applicants safely
             $uniqueApplicants = (clone $baseQuery)
                 ->select(DB::raw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) as full_name"))
                 ->distinct()
                 ->whereNotNull('first_name')
                 ->count();
-                
+
             // Count active barangays
             $activeBarangays = (clone $baseQuery)->whereNotNull('barangay')->distinct()->count('barangay');
-            
+
             return [
                 'total_requests' => $total,
                 'approved_requests' => $approved,
@@ -118,7 +118,7 @@ class SeedlingAnalyticsController extends Controller
             return $this->getDefaultOverview();
         }
     }
-    
+
     /**
      * Get status analysis with trends
      */
@@ -129,18 +129,18 @@ class SeedlingAnalyticsController extends Controller
                 ->groupBy('status')
                 ->pluck('count', 'status')
                 ->toArray();
-                
+
             // Ensure all statuses are present with default values
             $defaultStatuses = ['approved' => 0, 'rejected' => 0, 'under_review' => 0];
             $statusCounts = array_merge($defaultStatuses, $statusCounts);
-                
+
             // Add percentage calculations
             $total = array_sum($statusCounts);
             $statusPercentages = [];
             foreach ($statusCounts as $status => $count) {
                 $statusPercentages[$status] = $total > 0 ? round(($count / $total) * 100, 2) : 0;
             }
-            
+
             return [
                 'counts' => $statusCounts,
                 'percentages' => $statusPercentages,
@@ -155,7 +155,7 @@ class SeedlingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get monthly trends
      */
@@ -175,14 +175,14 @@ class SeedlingAnalyticsController extends Controller
                 ->groupBy('month')
                 ->orderBy('month')
                 ->get();
-                
+
             return $trends;
         } catch (\Exception $e) {
             Log::error('Monthly Trends Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get barangay analysis
      */
@@ -202,14 +202,14 @@ class SeedlingAnalyticsController extends Controller
                 ->groupBy('barangay')
                 ->orderBy('total_requests', 'desc')
                 ->get();
-                
+
             return $barangayStats;
         } catch (\Exception $e) {
             Log::error('Barangay Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get category analysis (vegetables, fruits, fertilizers)
      */
@@ -217,19 +217,19 @@ class SeedlingAnalyticsController extends Controller
     {
         try {
             $requests = (clone $baseQuery)->get();
-            
+
             $categoryStats = [
                 'vegetables' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
                 'fruits' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
                 'fertilizers' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []]
             ];
-            
+
             foreach ($requests as $request) {
                 // Handle JSON decoding safely
                 $vegetables = $this->safeJsonDecode($request->vegetables);
                 $fruits = $this->safeJsonDecode($request->fruits);
                 $fertilizers = $this->safeJsonDecode($request->fertilizers);
-                
+
                 // Vegetables analysis
                 if (!empty($vegetables) && is_array($vegetables)) {
                     $categoryStats['vegetables']['requests']++;
@@ -239,13 +239,13 @@ class SeedlingAnalyticsController extends Controller
                             $categoryStats['vegetables']['total_items'] += $quantity;
                             $name = trim($item['name']);
                             if (!empty($name)) {
-                                $categoryStats['vegetables']['unique_items'][$name] = 
+                                $categoryStats['vegetables']['unique_items'][$name] =
                                     ($categoryStats['vegetables']['unique_items'][$name] ?? 0) + $quantity;
                             }
                         }
                     }
                 }
-                
+
                 // Fruits analysis
                 if (!empty($fruits) && is_array($fruits)) {
                     $categoryStats['fruits']['requests']++;
@@ -255,13 +255,13 @@ class SeedlingAnalyticsController extends Controller
                             $categoryStats['fruits']['total_items'] += $quantity;
                             $name = trim($item['name']);
                             if (!empty($name)) {
-                                $categoryStats['fruits']['unique_items'][$name] = 
+                                $categoryStats['fruits']['unique_items'][$name] =
                                     ($categoryStats['fruits']['unique_items'][$name] ?? 0) + $quantity;
                             }
                         }
                     }
                 }
-                
+
                 // Fertilizers analysis
                 if (!empty($fertilizers) && is_array($fertilizers)) {
                     $categoryStats['fertilizers']['requests']++;
@@ -271,14 +271,14 @@ class SeedlingAnalyticsController extends Controller
                             $categoryStats['fertilizers']['total_items'] += $quantity;
                             $name = trim($item['name']);
                             if (!empty($name)) {
-                                $categoryStats['fertilizers']['unique_items'][$name] = 
+                                $categoryStats['fertilizers']['unique_items'][$name] =
                                     ($categoryStats['fertilizers']['unique_items'][$name] ?? 0) + $quantity;
                             }
                         }
                     }
                 }
             }
-            
+
             return $categoryStats;
         } catch (\Exception $e) {
             Log::error('Category Analysis Error: ' . $e->getMessage());
@@ -289,7 +289,7 @@ class SeedlingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get top requested items across all categories
      */
@@ -298,7 +298,7 @@ class SeedlingAnalyticsController extends Controller
         try {
             $requests = (clone $baseQuery)->get();
             $allItems = [];
-            
+
             foreach ($requests as $request) {
                 // Process vegetables
                 $vegetables = $this->safeJsonDecode($request->vegetables);
@@ -319,7 +319,7 @@ class SeedlingAnalyticsController extends Controller
                         }
                     }
                 }
-                
+
                 // Process fruits
                 $fruits = $this->safeJsonDecode($request->fruits);
                 if (!empty($fruits) && is_array($fruits)) {
@@ -339,7 +339,7 @@ class SeedlingAnalyticsController extends Controller
                         }
                     }
                 }
-                
+
                 // Process fertilizers
                 $fertilizers = $this->safeJsonDecode($request->fertilizers);
                 if (!empty($fertilizers) && is_array($fertilizers)) {
@@ -360,7 +360,7 @@ class SeedlingAnalyticsController extends Controller
                     }
                 }
             }
-            
+
             // Sort by total quantity and return top 15
             return collect($allItems)
                 ->sortByDesc('total_quantity')
@@ -371,7 +371,7 @@ class SeedlingAnalyticsController extends Controller
             return collect([]);
         }
     }
-    
+
     /**
      * Get processing time analysis
      */
@@ -379,7 +379,7 @@ class SeedlingAnalyticsController extends Controller
     {
         try {
             $processedRequests = (clone $baseQuery)->whereNotNull('reviewed_at')->get();
-            
+
             $processingTimes = [];
             foreach ($processedRequests as $request) {
                 if ($request->reviewed_at && $request->created_at) {
@@ -388,7 +388,7 @@ class SeedlingAnalyticsController extends Controller
                     $processingTimes[] = $processingTime;
                 }
             }
-            
+
             if (empty($processingTimes)) {
                 return [
                     'avg_processing_days' => 0,
@@ -397,7 +397,7 @@ class SeedlingAnalyticsController extends Controller
                     'processed_count' => 0
                 ];
             }
-            
+
             return [
                 'avg_processing_days' => round(array_sum($processingTimes) / count($processingTimes), 2),
                 'min_processing_days' => min($processingTimes),
@@ -414,7 +414,7 @@ class SeedlingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get seasonal analysis
      */
@@ -429,12 +429,12 @@ class SeedlingAnalyticsController extends Controller
                 ->groupBy('month')
                 ->orderBy('month')
                 ->get();
-                
+
             $seasons = [
                 'Dry Season (Nov-Apr)' => ['months' => [11, 12, 1, 2, 3, 4], 'requests' => 0, 'quantity' => 0],
                 'Wet Season (May-Oct)' => ['months' => [5, 6, 7, 8, 9, 10], 'requests' => 0, 'quantity' => 0]
             ];
-            
+
             foreach ($seasonalData as $data) {
                 if (in_array($data->month, $seasons['Dry Season (Nov-Apr)']['months'])) {
                     $seasons['Dry Season (Nov-Apr)']['requests'] += $data->request_count;
@@ -444,7 +444,7 @@ class SeedlingAnalyticsController extends Controller
                     $seasons['Wet Season (May-Oct)']['quantity'] += $data->total_quantity;
                 }
             }
-            
+
             return $seasons;
         } catch (\Exception $e) {
             Log::error('Seasonal Analysis Error: ' . $e->getMessage());
@@ -454,7 +454,7 @@ class SeedlingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get inventory impact analysis
      */
@@ -462,19 +462,19 @@ class SeedlingAnalyticsController extends Controller
     {
         try {
             $approvedRequests = (clone $baseQuery)->where('status', 'approved')->get();
-            
+
             $inventoryImpact = [
                 'total_items_distributed' => 0,
                 'requests_fulfilled' => $approvedRequests->count(),
                 'avg_fulfillment_quantity' => 0
             ];
-            
+
             $totalDistributed = $approvedRequests->sum('approved_quantity') ?: 0;
             $inventoryImpact['total_items_distributed'] = $totalDistributed;
-            $inventoryImpact['avg_fulfillment_quantity'] = $approvedRequests->count() > 0 
-                ? round($totalDistributed / $approvedRequests->count(), 2) 
+            $inventoryImpact['avg_fulfillment_quantity'] = $approvedRequests->count() > 0
+                ? round($totalDistributed / $approvedRequests->count(), 2)
                 : 0;
-                
+
             return $inventoryImpact;
         } catch (\Exception $e) {
             Log::error('Inventory Impact Error: ' . $e->getMessage());
@@ -485,7 +485,7 @@ class SeedlingAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Calculate approval rate
      */
@@ -493,7 +493,7 @@ class SeedlingAnalyticsController extends Controller
     {
         return $total > 0 ? round(($approved / $total) * 100, 2) : 0;
     }
-    
+
     /**
      * Safe JSON decode with fallback
      */
@@ -502,17 +502,17 @@ class SeedlingAnalyticsController extends Controller
         if (empty($json)) {
             return [];
         }
-        
+
         if (is_string($json)) {
             $decoded = json_decode($json, true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                 return $decoded;
             }
         }
-        
+
         return is_array($json) ? $json : [];
     }
-    
+
     /**
      * Get default overview when errors occur
      */
@@ -531,7 +531,7 @@ class SeedlingAnalyticsController extends Controller
             'active_barangays' => 0
         ];
     }
-    
+
     /**
      * Export analytics data
      */
@@ -540,13 +540,13 @@ class SeedlingAnalyticsController extends Controller
         try {
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
+
             $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-            
+
             $data = [
                 'export_info' => [
                     'generated_at' => now()->format('Y-m-d H:i:s'),
@@ -566,9 +566,9 @@ class SeedlingAnalyticsController extends Controller
                 'seasonal_analysis' => $this->getSeasonalAnalysis(clone $baseQuery),
                 'inventory_impact' => $this->getInventoryImpactAnalysis(clone $baseQuery)
             ];
-            
+
             $filename = 'seedling-analytics-' . $startDate . '-to-' . $endDate . '.json';
-            
+
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'
