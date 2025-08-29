@@ -41,12 +41,18 @@ class SeedlingDSSPDFService
             'overview' => $this->sanitizeOverviewData($analyticsData['overview'] ?? []),
             'insights' => $this->sanitizeInsightsData($insights),
             'analytics' => $this->processAnalyticsForReport($analyticsData),
+            
+            // Add these direct variables for template compatibility:
+            'topItems' => collect($this->sanitizeItemData($analyticsData['topItems'] ?? [])),
+            'leastRequestedItems' => collect($this->sanitizeItemData($analyticsData['leastRequestedItems'] ?? [])),
+            'barangayAnalysis' => $this->sanitizeBarangayData($analyticsData['barangayAnalysis'] ?? []),
+            'processingTimeAnalysis' => $analyticsData['processingTimeAnalysis'] ?? [],
+            
             'charts_data' => $this->prepareChartsData($analyticsData),
             'performance_summary' => $this->generatePerformanceSummary($analyticsData),
             'ai_confidence' => $insights['ai_confidence'] ?? 'medium'
         ];
     }
-
     /**
      * Sanitize overview data to ensure proper types
      */

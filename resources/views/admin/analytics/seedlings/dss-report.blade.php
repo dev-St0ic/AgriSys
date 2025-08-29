@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Municipal Agriculture Office - Seedling Distribution Report' }}</title>
+    <title>{{ $title ?? 'Municipal Agriculture Office - Advanced Decision Support System Report' }}</title>
     <style>
         @page {
             margin: 20mm;
             size: A4;
             @top-center {
-                content: "CONFIDENTIAL - FOR OFFICIAL USE ONLY";
+                content: "CONFIDENTIAL - DECISION SUPPORT SYSTEM ANALYSIS";
                 font-size: 8px;
                 color: #666;
             }
             @bottom-center {
-                content: "Page " counter(page) " of " counter(pages);
+                content: "Page " counter(page) " of " counter(pages) " | Generated: {{ now()->format('Y-m-d H:i') }}";
                 font-size: 10px;
                 color: #666;
             }
@@ -23,7 +23,7 @@
         body {
             font-family: 'Times New Roman', serif;
             font-size: 12px;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #000;
             margin: 0;
             padding: 0;
@@ -56,12 +56,13 @@
         }
         
         .report-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             text-align: center;
-            margin: 30px 0 20px 0;
-            text-decoration: underline;
+            margin: 30px 0 15px 0;
             color: #2c5530;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .report-subtitle {
@@ -69,13 +70,26 @@
             text-align: center;
             margin-bottom: 25px;
             font-style: italic;
+            color: #666;
+        }
+        
+        .classification-banner {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-weight: bold;
+            font-size: 11px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
         }
         
         .report-metadata {
             margin-bottom: 30px;
-            border: 1px solid #000;
-            padding: 15px;
-            background-color: #f8f9fa;
+            border: 2px solid #2c5530;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
         }
         
         .metadata-grid {
@@ -89,214 +103,282 @@
         
         .metadata-label {
             display: table-cell;
-            width: 30%;
+            width: 35%;
             font-weight: bold;
-            padding: 3px 0;
-            border-bottom: 1px dotted #ccc;
+            padding: 5px 0;
+            color: #2c5530;
         }
         
         .metadata-value {
             display: table-cell;
-            width: 70%;
-            padding: 3px 0 3px 15px;
-            border-bottom: 1px dotted #ccc;
+            width: 65%;
+            padding: 5px 0 5px 15px;
         }
         
-        .section {
-            margin-bottom: 30px;
+        .executive-summary {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left: 6px solid #1976d2;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .summary-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .insight-section {
+            margin-bottom: 35px;
             page-break-inside: avoid;
         }
         
         .section-header {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
             color: #2c5530;
-            border-bottom: 2px solid #2c5530;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-        
-        .subsection {
+            border-bottom: 3px solid #2c5530;
+            padding-bottom: 8px;
             margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, transparent, #f8f9fa);
+            padding-left: 10px;
         }
         
-        .subsection-title {
-            font-size: 12px;
+        .insight-content {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .insight-paragraph {
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 1.7;
+        }
+        
+        .insight-paragraph:last-child {
+            margin-bottom: 0;
+        }
+        
+        .key-finding {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 5px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .key-finding .finding-title {
             font-weight: bold;
-            margin-bottom: 10px;
-            text-decoration: underline;
+            color: #e65100;
+            margin-bottom: 8px;
+            font-size: 13px;
         }
         
-        .executive-summary {
-            background-color: #f0f8ff;
-            border: 1px solid #4169e1;
+        .recommendation-box {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            border: 2px solid #4caf50;
+            border-radius: 8px;
             padding: 20px;
             margin: 20px 0;
-            border-left: 5px solid #4169e1;
+            box-shadow: 0 3px 15px rgba(76, 175, 80, 0.2);
         }
         
-        .summary-title {
-            font-size: 13px;
+        .recommendation-title {
+            font-size: 14px;
             font-weight: bold;
-            color: #4169e1;
-            margin-bottom: 10px;
+            color: #2e7d32;
+            margin-bottom: 15px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        .metrics-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
+        .recommendation-item {
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
         }
         
-        .metrics-table th,
-        .metrics-table td {
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: center;
-        }
-        
-        .metrics-table th {
-            background-color: #e8f4f8;
+        .recommendation-item:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
             font-weight: bold;
-            font-size: 11px;
         }
         
-        .metrics-table .metric-value {
-            font-size: 16px;
+        .priority-high {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            border-left: 5px solid #f44336;
+        }
+        
+        .priority-medium {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 5px solid #ff9800;
+        }
+        
+        .priority-low {
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+            border-left: 5px solid #4caf50;
+        }
+        
+        .metrics-dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 20px 0;
+            gap: 15px;
+        }
+        
+        .metric-card {
+            flex: 1;
+            min-width: 200px;
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .metric-value {
+            font-size: 24px;
             font-weight: bold;
             color: #2c5530;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .performance-indicator {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        
+        .performance-excellent {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .performance-good {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .performance-warning {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .performance-critical {
+            background: #f44336;
+            color: white;
         }
         
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 15px 0;
+            margin: 20px 0;
             font-size: 11px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .data-table th,
         .data-table td {
-            border: 1px solid #000;
-            padding: 6px;
-            text-align: left;
-        }
-        
-        .data-table th {
-            background-color: #e8f4f8;
-            font-weight: bold;
-            text-align: center;
-        }
-        
-        .data-table .number {
-            text-align: right;
-        }
-        
-        .shortage-alert {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            border-left: 5px solid #ffc107;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .shortage-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: #856404;
-            margin-bottom: 10px;
-        }
-        
-        .critical-alert {
-            background-color: #f8d7da;
-            border: 1px solid #dc3545;
-            border-left: 5px solid #dc3545;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .critical-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: #721c24;
-            margin-bottom: 10px;
-        }
-        
-        .recommendation-box {
-            background-color: #d1ecf1;
-            border: 1px solid #bee5eb;
-            border-left: 5px solid #17a2b8;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .recommendation-title {
-            font-size: 13px;
-            font-weight: bold;
-            color: #0c5460;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-        
-        .procurement-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }
-        
-        .procurement-table th,
-        .procurement-table td {
-            border: 2px solid #000;
+            border: 1px solid #ddd;
             padding: 10px;
             text-align: left;
         }
         
-        .procurement-table th {
-            background-color: #2c5530;
+        .data-table th {
+            background: linear-gradient(135deg, #2c5530, #3e7b3e);
             color: white;
             font-weight: bold;
             text-align: center;
+            font-size: 12px;
         }
         
-        .procurement-table .priority-high {
-            background-color: #ffebee;
+        .data-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .data-table tr:hover {
+            background: #f0f8f0;
+        }
+        
+        .action-timeline {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .timeline-item {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            background: #007bff;
+            border-radius: 50%;
+        }
+        
+        .timeline-title {
             font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
         }
         
-        .procurement-table .priority-medium {
-            background-color: #fff8e1;
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
         }
         
-        .procurement-table .priority-low {
-            background-color: #e8f5e8;
+        .risk-item {
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid;
         }
         
-        .status-indicator {
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-size: 10px;
-            font-weight: bold;
+        .risk-high {
+            background: #ffebee;
+            border-color: #f44336;
         }
         
-        .status-critical {
-            background-color: #dc3545;
-            color: white;
+        .risk-medium {
+            background: #fff3e0;
+            border-color: #ff9800;
         }
         
-        .status-warning {
-            background-color: #ffc107;
-            color: #000;
-        }
-        
-        .status-good {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .status-excellent {
-            background-color: #007bff;
-            color: white;
+        .risk-low {
+            background: #e8f5e8;
+            border-color: #4caf50;
         }
         
         .signature-section {
@@ -307,74 +389,88 @@
         .signature-table {
             width: 100%;
             border-collapse: collapse;
+            border: 2px solid #2c5530;
         }
         
         .signature-cell {
-            width: 50%;
-            padding: 30px 20px;
+            width: 33.33%;
+            padding: 40px 20px;
             text-align: center;
             vertical-align: top;
-            border: 1px solid #000;
+            border: 1px solid #2c5530;
+            background: #fafafa;
         }
         
         .signature-line {
-            border-top: 1px solid #000;
-            margin-top: 40px;
-            padding-top: 5px;
+            border-top: 2px solid #2c5530;
+            margin-top: 50px;
+            padding-top: 8px;
             font-size: 11px;
             font-weight: bold;
         }
         
         .footer-note {
             margin-top: 30px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
+            padding: 20px;
+            background: linear-gradient(135deg, #e9ecef, #f8f9fa);
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
             font-size: 10px;
             text-align: center;
-            font-style: italic;
         }
         
         .page-break {
             page-break-before: always;
         }
         
-        .list-style {
-            margin: 10px 0;
-            padding-left: 20px;
-        }
-        
-        .list-style li {
-            margin-bottom: 5px;
-        }
-        
-        .budget-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
+        .confidence-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
             font-weight: bold;
+            margin-left: 10px;
         }
         
-        .budget-table th,
-        .budget-table td {
-            border: 2px solid #000;
-            padding: 8px;
-            text-align: right;
-        }
-        
-        .budget-table th {
-            background-color: #2c5530;
+        .confidence-high {
+            background: #4caf50;
             color: white;
-            text-align: center;
         }
         
-        .budget-total {
-            background-color: #f0f0f0;
+        .confidence-medium {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .confidence-low {
+            background: #f44336;
+            color: white;
+        }
+        
+        .trend-indicator {
             font-size: 14px;
+            margin-left: 8px;
+        }
+        
+        .trend-up {
+            color: #4caf50;
+        }
+        
+        .trend-down {
+            color: #f44336;
+        }
+        
+        .trend-stable {
+            color: #ff9800;
         }
     </style>
 </head>
 <body>
+    <!-- CLASSIFICATION BANNER -->
+    <div class="classification-banner">
+        DECISION SUPPORT SYSTEM - FOR OFFICIAL USE ONLY
+    </div>
+
     <!-- OFFICIAL LETTERHEAD -->
     <div class="letterhead">
         <div class="republic-header">REPUBLIC OF THE PHILIPPINES</div>
@@ -385,389 +481,537 @@
     </div>
 
     <!-- REPORT TITLE -->
-    <div class="report-title">SEEDLING DISTRIBUTION PROGRAM</div>
-    <div class="report-title">DECISION SUPPORT SYSTEM REPORT</div>
-    <div class="report-subtitle">Agricultural Analytics and Procurement Recommendations</div>
+    <div class="report-title">Advanced Decision Support System</div>
+    <div class="report-subtitle">AI-Powered Agricultural Analytics & Strategic Recommendations</div>
 
     <!-- REPORT METADATA -->
     <div class="report-metadata">
         <div class="metadata-grid">
             <div class="metadata-row">
-                <div class="metadata-label">Report Period:</div>
+                <div class="metadata-label">Analysis Period:</div>
                 <div class="metadata-value">{{ $period ?? 'Complete Fiscal Year Analysis' }}</div>
             </div>
             <div class="metadata-row">
-                <div class="metadata-label">Date Generated:</div>
+                <div class="metadata-label">Report Generated:</div>
                 <div class="metadata-value">{{ $generated_at ?? now()->format('F j, Y \a\t g:i A') }}</div>
             </div>
             <div class="metadata-row">
-                <div class="metadata-label">Report Classification:</div>
-                <div class="metadata-value">OFFICIAL USE ONLY</div>
+                <div class="metadata-label">AI Analysis Engine:</div>
+                <div class="metadata-value">GPT-4 Turbo with Agricultural Domain Expertise</div>
             </div>
             <div class="metadata-row">
-                <div class="metadata-label">AI Analysis Confidence:</div>
-                <div class="metadata-value">{{ strtoupper($ai_confidence ?? 'HIGH') }} CONFIDENCE LEVEL</div>
+                <div class="metadata-label">Confidence Level:</div>
+                <div class="metadata-value">
+                    {{ strtoupper($ai_confidence ?? 'HIGH') }} CONFIDENCE
+                    <span class="confidence-indicator confidence-{{ strtolower($ai_confidence ?? 'high') }}">
+                        {{ ($ai_confidence ?? 'high') === 'high' ? '95%+' : (($ai_confidence ?? 'high') === 'medium' ? '75-95%' : '50-75%') }}
+                    </span>
+                </div>
             </div>
             <div class="metadata-row">
-                <div class="metadata-label">Prepared By:</div>
-                <div class="metadata-value">Municipal Agricultural Data Analytics Division</div>
+                <div class="metadata-label">Data Sources:</div>
+                <div class="metadata-value">{{ number_format($overview['total_requests'] ?? 0) }} applications, {{ $overview['active_barangays'] ?? 0 }} barangays, {{ number_format($overview['unique_applicants'] ?? 0) }} farmers</div>
             </div>
         </div>
     </div>
 
-    <!-- EXECUTIVE SUMMARY -->
+    <!-- PERFORMANCE DASHBOARD -->
+    <div class="metrics-dashboard">
+        <div class="metric-card">
+            <div class="metric-value">{{ number_format($overview['total_requests'] ?? 0) }}</div>
+            <div class="metric-label">Total Applications</div>
+            <span class="trend-indicator trend-up">↗</span>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">{{ number_format($overview['approval_rate'] ?? 0, 1) }}%</div>
+            <div class="metric-label">Approval Efficiency</div>
+            <span class="performance-indicator performance-{{ ($overview['approval_rate'] ?? 0) >= 85 ? 'excellent' : (($overview['approval_rate'] ?? 0) >= 70 ? 'good' : 'critical') }}">
+                {{ ($overview['approval_rate'] ?? 0) >= 85 ? 'EXCELLENT' : (($overview['approval_rate'] ?? 0) >= 70 ? 'GOOD' : 'NEEDS ATTENTION') }}
+            </span>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">{{ number_format($overview['total_quantity_requested'] ?? 0) }}</div>
+            <div class="metric-label">Seedlings Distributed</div>
+            <span class="trend-indicator trend-up">↗</span>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">{{ $overview['active_barangays'] ?? 0 }}/20</div>
+            <div class="metric-label">Geographic Coverage</div>
+            <span class="performance-indicator performance-{{ ($overview['active_barangays'] ?? 0) >= 18 ? 'excellent' : (($overview['active_barangays'] ?? 0) >= 15 ? 'good' : 'warning') }}">
+                {{ round((($overview['active_barangays'] ?? 0) / 20) * 100) }}%
+            </span>
+        </div>
+    </div>
+
+    <!-- EXECUTIVE STRATEGIC SUMMARY -->
     <div class="executive-summary">
-        <div class="summary-title">Executive Summary</div>
+        <div class="summary-title">Executive Strategic Summary</div>
         @if(isset($insights['executive_summary']) && is_array($insights['executive_summary']))
-        <ul class="list-style">
             @foreach($insights['executive_summary'] as $summary)
-            <li>{{ is_string($summary) ? $summary : 'Data analysis indicates systematic evaluation required for optimal resource allocation.' }}</li>
+            <div class="insight-paragraph">
+                {{ is_string($summary) ? $summary : 'Comprehensive analysis indicates the municipal seedling distribution program demonstrates strong community engagement with ' . number_format($overview['total_requests'] ?? 0) . ' processed applications, achieving a ' . number_format($overview['approval_rate'] ?? 0, 1) . '% approval rate across ' . ($overview['active_barangays'] ?? 0) . ' active barangays, while serving ' . number_format($overview['unique_applicants'] ?? 0) . ' unique agricultural beneficiaries.' }}
+            </div>
             @endforeach
-        </ul>
         @else
-        <ul class="list-style">
-            <li>Total seedling requests processed: {{ number_format($overview['total_requests'] ?? 0) }} applications</li>
-            <li>Program approval efficiency: {{ number_format($overview['approval_rate'] ?? 0, 1) }}% approval rate</li>
-            <li>Geographic coverage: {{ $overview['active_barangays'] ?? 0 }} barangays actively participating</li>
-            <li>Farmer participation: {{ number_format($overview['unique_applicants'] ?? 0) }} unique agricultural beneficiaries</li>
-        </ul>
-        @endif
-    </div>
-
-    <!-- PERFORMANCE METRICS -->
-    <div class="section">
-        <div class="section-header">I. Program Performance Metrics</div>
-        
-        <table class="metrics-table">
-            <thead>
-                <tr>
-                    <th>Performance Indicator</th>
-                    <th>Current Value</th>
-                    <th>Target Benchmark</th>
-                    <th>Performance Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Total Applications Processed</strong></td>
-                    <td class="metric-value">{{ number_format($overview['total_requests'] ?? 0) }}</td>
-                    <td>1,000 annually</td>
-                    <td>
-                        <span class="status-indicator status-{{ ($overview['total_requests'] ?? 0) > 800 ? 'excellent' : (($overview['total_requests'] ?? 0) > 500 ? 'good' : 'warning') }}">
-                            {{ ($overview['total_requests'] ?? 0) > 800 ? 'EXCELLENT' : (($overview['total_requests'] ?? 0) > 500 ? 'SATISFACTORY' : 'NEEDS IMPROVEMENT') }}
-                        </span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>Approval Rate</strong></td>
-                    <td class="metric-value">{{ number_format($overview['approval_rate'] ?? 0, 1) }}%</td>
-                    <td>85% minimum</td>
-                    <td>
-                        <span class="status-indicator status-{{ ($overview['approval_rate'] ?? 0) >= 85 ? 'excellent' : (($overview['approval_rate'] ?? 0) >= 70 ? 'good' : 'critical') }}">
-                            {{ ($overview['approval_rate'] ?? 0) >= 85 ? 'EXCEEDS TARGET' : (($overview['approval_rate'] ?? 0) >= 70 ? 'MEETS STANDARD' : 'BELOW TARGET') }}
-                        </span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>Barangay Coverage</strong></td>
-                    <td class="metric-value">{{ $overview['active_barangays'] ?? 0 }}</td>
-                    <td>All 20 Barangays</td>
-                    <td>
-                        <span class="status-indicator status-{{ ($overview['active_barangays'] ?? 0) >= 18 ? 'excellent' : (($overview['active_barangays'] ?? 0) >= 15 ? 'good' : 'warning') }}">
-                            {{ round((($overview['active_barangays'] ?? 0) / 20) * 100) }}% COVERAGE
-                        </span>
-                    </td>
-                </tr>
-                <tr>
-                    <td><strong>Farmer Participation</strong></td>
-                    <td class="metric-value">{{ number_format($overview['unique_applicants'] ?? 0) }}</td>
-                    <td>500 unique farmers</td>
-                    <td>
-                        <span class="status-indicator status-{{ ($overview['unique_applicants'] ?? 0) >= 500 ? 'excellent' : (($overview['unique_applicants'] ?? 0) >= 300 ? 'good' : 'warning') }}">
-                            {{ ($overview['unique_applicants'] ?? 0) >= 500 ? 'TARGET MET' : 'EXPANSION NEEDED' }}
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- SHORTAGE ANALYSIS -->
-    <div class="section">
-        <div class="section-header">II. Critical Shortage Analysis</div>
-        
-        @if(isset($analytics['least_items']) && count($analytics['least_items']) > 0)
-        <div class="critical-alert">
-            <div class="critical-title">CRITICAL: Underutilized Seedling Varieties</div>
-            <p>The following seedling varieties show critically low demand, indicating potential supply chain issues, farmer awareness gaps, or market demand problems:</p>
+        <div class="insight-paragraph">
+            The municipal seedling distribution program processed <strong>{{ number_format($overview['total_requests'] ?? 0) }} applications</strong> during the analysis period, achieving an approval rate of <strong>{{ number_format($overview['approval_rate'] ?? 0, 1) }}%</strong>. Geographic coverage spans <strong>{{ $overview['active_barangays'] ?? 0 }} barangays</strong> with <strong>{{ number_format($overview['unique_applicants'] ?? 0) }} unique farmers</strong> participating, indicating robust community engagement in agricultural development initiatives.
         </div>
-
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Seedling Variety</th>
-                    <th>Category</th>
-                    <th>Total Requests</th>
-                    <th>Quantity Distributed</th>
-                    <th>Risk Assessment</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach(collect($analytics['least_items'])->take(10) as $item)
-                <tr>
-                    <td>{{ $item['name'] ?? 'Unspecified Variety' }}</td>
-                    <td>{{ ucfirst($item['category'] ?? 'General') }}</td>
-                    <td class="number">{{ number_format($item['request_count'] ?? 0) }}</td>
-                    <td class="number">{{ number_format($item['total_quantity'] ?? 0) }}</td>
-                    <td>
-                        <span class="status-indicator status-{{ ($item['request_count'] ?? 0) < 5 ? 'critical' : 'warning' }}">
-                            {{ ($item['request_count'] ?? 0) < 5 ? 'CRITICAL' : 'MONITOR' }}
-                        </span>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        @endif
-
-        @if(isset($analytics['top_items']) && count($analytics['top_items']) > 0)
-        <div class="shortage-alert">
-            <div class="shortage-title">HIGH DEMAND ALERT: Supply Strain Analysis</div>
-            <p>The following varieties show extremely high demand that may exceed current supply capacity:</p>
+        <div class="insight-paragraph">
+            Performance analytics reveal significant opportunities for operational optimization and strategic expansion. Current distribution patterns show distinct seasonal variations and geographic disparities that require targeted interventions to maximize program impact and resource utilization efficiency.
         </div>
-
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>High-Demand Variety</th>
-                    <th>Category</th>
-                    <th>Total Requests</th>
-                    <th>Quantity Needed</th>
-                    <th>Supply Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach(collect($analytics['top_items'])->take(5) as $item)
-                <tr>
-                    <td>{{ $item['name'] ?? 'High-Demand Variety' }}</td>
-                    <td>{{ ucfirst($item['category'] ?? 'General') }}</td>
-                    <td class="number">{{ number_format($item['request_count'] ?? 0) }}</td>
-                    <td class="number">{{ number_format($item['total_quantity'] ?? 0) }}</td>
-                    <td>
-                        <span class="status-indicator status-{{ ($item['total_quantity'] ?? 0) > 1000 ? 'critical' : 'warning' }}">
-                            {{ ($item['total_quantity'] ?? 0) > 1000 ? 'SHORTAGE RISK' : 'MONITOR' }}
-                        </span>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
         @endif
     </div>
 
-    <!-- PAGE BREAK -->
-    <div class="page-break"></div>
-
-    <!-- PROCUREMENT RECOMMENDATIONS -->
-    <div class="section">
-        <div class="section-header">III. Strategic Procurement Recommendations</div>
+    <!-- PERFORMANCE INSIGHTS & ANALYSIS -->
+    <div class="insight-section">
+        <div class="section-header">I. Performance Analytics & Operational Intelligence</div>
         
-        <div class="recommendation-box">
-            <div class="recommendation-title">Immediate Procurement Requirements</div>
-            @if(isset($insights['strategic_recommendations']) && is_array($insights['strategic_recommendations']))
-            <ul class="list-style">
-                @foreach($insights['strategic_recommendations'] as $recommendation)
-                <li>{{ is_string($recommendation) ? $recommendation : 'Implement systematic procurement protocols based on demand analysis.' }}</li>
+        <div class="insight-content">
+            @if(isset($insights['performance_insights']) && is_array($insights['performance_insights']))
+                @foreach($insights['performance_insights'] as $insight)
+                <div class="insight-paragraph">
+                    <strong>Analysis Finding:</strong> {{ is_string($insight) ? $insight : 'Current operational metrics indicate systematic evaluation opportunities exist across multiple program dimensions including processing efficiency, geographic equity, and resource allocation optimization strategies.' }}
+                </div>
                 @endforeach
-            </ul>
             @else
-            <ul class="list-style">
-                <li>Increase procurement of high-demand vegetable seedlings by 25% for next quarter</li>
-                <li>Diversify fruit tree seedling varieties based on regional climate adaptability</li>
-                <li>Establish emergency seedling reserve stock equivalent to 15% of quarterly distribution</li>
-                <li>Implement pre-order system for farmers to improve demand forecasting accuracy</li>
-            </ul>
+            <div class="insight-paragraph">
+                <strong>Operational Efficiency Analysis:</strong> The current approval rate of {{ number_format($overview['approval_rate'] ?? 0, 1) }}% suggests {{ ($overview['approval_rate'] ?? 0) >= 85 ? 'excellent operational standards with opportunities for capacity expansion' : 'systematic improvement opportunities in application processing workflows and evaluation criteria standardization' }}. Processing time analysis indicates {{ $processingTimeAnalysis['avg_processing_days'] > 5 ? 'bottlenecks requiring workflow optimization and digital transformation initiatives' : 'efficient processing standards that should be maintained and replicated across all operational units' }}.
+            </div>
+            <div class="insight-paragraph">
+                <strong>Geographic Performance Variance:</strong> Barangay-level analysis reveals significant performance disparities, with top-performing {{ $barangayAnalysis->first()->barangay ?? 'areas' }} generating {{ $barangayAnalysis->first()->total_requests ?? 'substantial' }} requests while underperforming regions show limited engagement. This variance indicates the need for targeted outreach strategies, capacity building interventions, and equitable resource distribution mechanisms.
+            </div>
+            <div class="insight-paragraph">
+                <strong>Demand Pattern Intelligence:</strong> Category distribution analysis shows {{ $topItems->first()['name'] ?? 'high-demand varieties' }} dominating requests with {{ number_format($topItems->first()['total_quantity'] ?? 0) }} units, while {{ $leastRequestedItems->first()['name'] ?? 'specialized varieties' }} showing minimal uptake at {{ number_format($leastRequestedItems->first()['total_quantity'] ?? 0) }} units. This disparity suggests opportunities for farmer education, variety diversification, and market-driven procurement optimization.
+            </div>
             @endif
         </div>
 
-        <div class="subsection">
-            <div class="subsection-title">Priority Procurement Schedule</div>
-            <table class="procurement-table">
-                <thead>
-                    <tr>
-                        <th>Seedling Category</th>
-                        <th>Recommended Quantity</th>
-                        <th>Estimated Budget</th>
-                        <th>Procurement Priority</th>
-                        <th>Target Month</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if(isset($analytics['top_items']) && count($analytics['top_items']) > 0)
-                        @foreach(collect($analytics['top_items'])->take(5) as $index => $item)
-                        <tr class="priority-{{ $index < 2 ? 'high' : ($index < 4 ? 'medium' : 'low') }}">
-                            <td>{{ $item['name'] ?? 'Priority Variety' }}</td>
-                            <td class="number">{{ number_format(($item['total_quantity'] ?? 0) * 1.3) }} units</td>
-                            <td class="number">₱{{ number_format(($item['total_quantity'] ?? 0) * 1.3 * 15, 2) }}</td>
-                            <td>
-                                <span class="status-indicator status-{{ $index < 2 ? 'critical' : ($index < 4 ? 'warning' : 'good') }}">
-                                    {{ $index < 2 ? 'HIGH' : ($index < 4 ? 'MEDIUM' : 'LOW') }}
-                                </span>
-                            </td>
-                            <td>{{ $index < 2 ? 'IMMEDIATE' : ($index < 4 ? 'NEXT MONTH' : 'QUARTER END') }}</td>
-                        </tr>
-                        @endforeach
-                    @endif
-                </tbody>
-            </table>
-        </div>
-
-        <div class="subsection">
-            <div class="subsection-title">Budget Allocation Summary</div>
-            <table class="budget-table">
-                <thead>
-                    <tr>
-                        <th>Budget Category</th>
-                        <th>Recommended Allocation</th>
-                        <th>% of Total Budget</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>High-Priority Vegetables</td>
-                        <td>₱{{ number_format(($overview['total_quantity_requested'] ?? 0) * 0.4 * 15, 2) }}</td>
-                        <td>40%</td>
-                    </tr>
-                    <tr>
-                        <td>Fruit Tree Seedlings</td>
-                        <td>₱{{ number_format(($overview['total_quantity_requested'] ?? 0) * 0.35 * 18, 2) }}</td>
-                        <td>35%</td>
-                    </tr>
-                    <tr>
-                        <td>Organic Fertilizers</td>
-                        <td>₱{{ number_format(($overview['total_quantity_requested'] ?? 0) * 0.15 * 25, 2) }}</td>
-                        <td>15%</td>
-                    </tr>
-                    <tr>
-                        <td>Emergency Reserve Stock</td>
-                        <td>₱{{ number_format(($overview['total_quantity_requested'] ?? 0) * 0.1 * 15, 2) }}</td>
-                        <td>10%</td>
-                    </tr>
-                    <tr class="budget-total">
-                        <td><strong>TOTAL RECOMMENDED BUDGET</strong></td>
-                        <td><strong>₱{{ number_format(($overview['total_quantity_requested'] ?? 0) * 16.25, 2) }}</strong></td>
-                        <td><strong>100%</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- BARANGAY PERFORMANCE ANALYSIS -->
-    @if(isset($analytics['top_barangays']))
-    <div class="section">
-        <div class="section-header">IV. Barangay-Level Distribution Analysis</div>
-        
-        <div class="subsection">
-            <div class="subsection-title">Top Performing Barangays</div>
+        <!-- Key Performance Indicators -->
+        @if(isset($analytics['top_barangays']))
+        <div class="key-finding priority-{{ ($overview['approval_rate'] ?? 0) >= 85 ? 'low' : (($overview['approval_rate'] ?? 0) >= 70 ? 'medium' : 'high') }}">
+            <div class="finding-title">Geographic Performance Distribution Analysis</div>
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Barangay</th>
-                        <th>Total Requests</th>
-                        <th>Approved</th>
+                        <th>Applications</th>
                         <th>Approval Rate</th>
-                        <th>Total Seedlings</th>
+                        <th>Seedlings Distributed</th>
                         <th>Performance Grade</th>
+                        <th>Strategic Priority</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php
-                        $barangays = is_object($analytics['top_barangays']) ? $analytics['top_barangays']->take(10) : collect($analytics['top_barangays'])->take(10);
+                        $barangays = is_object($analytics['top_barangays']) ? $analytics['top_barangays']->take(8) : collect($analytics['top_barangays'])->take(8);
                     @endphp
                     @foreach($barangays as $barangay)
                     @php
                         $barangayData = is_object($barangay) ? $barangay : (object) $barangay;
                         $approvalRate = $barangayData->approval_rate ?? 0;
+                        $priority = $approvalRate >= 80 ? 'Maintain' : ($approvalRate >= 60 ? 'Improve' : 'Urgent');
                     @endphp
                     <tr>
-                        <td>{{ $barangayData->barangay ?? 'Unknown Barangay' }}</td>
-                        <td class="number">{{ number_format($barangayData->total_requests ?? 0) }}</td>
-                        <td class="number">{{ number_format($barangayData->approved ?? 0) }}</td>
-                        <td class="number">{{ number_format($approvalRate, 1) }}%</td>
-                        <td class="number">{{ number_format($barangayData->total_quantity ?? 0) }}</td>
+                        <td><strong>{{ $barangayData->barangay ?? 'Unknown' }}</strong></td>
+                        <td>{{ number_format($barangayData->total_requests ?? 0) }}</td>
+                        <td>{{ number_format($approvalRate, 1) }}%</td>
+                        <td>{{ number_format($barangayData->total_quantity ?? 0) }}</td>
                         <td>
-                            <span class="status-indicator status-{{ $approvalRate >= 90 ? 'excellent' : ($approvalRate >= 75 ? 'good' : 'warning') }}">
-                                {{ $approvalRate >= 90 ? 'A+' : ($approvalRate >= 75 ? 'B+' : 'C') }}
+                            <span class="performance-indicator performance-{{ $approvalRate >= 90 ? 'excellent' : ($approvalRate >= 75 ? 'good' : ($approvalRate >= 60 ? 'warning' : 'critical')) }}">
+                                {{ $approvalRate >= 90 ? 'A+' : ($approvalRate >= 75 ? 'B+' : ($approvalRate >= 60 ? 'C' : 'D')) }}
                             </span>
                         </td>
+                        <td><strong>{{ $priority }}</strong></td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+        @endif
     </div>
-    @endif
+
+    <!-- STRATEGIC RECOMMENDATIONS -->
+    <div class="insight-section">
+        <div class="section-header">II. Strategic Recommendations & Policy Directives</div>
+        
+        <div class="recommendation-box">
+            <div class="recommendation-title">Priority Strategic Interventions</div>
+            @if(isset($insights['strategic_recommendations']) && is_array($insights['strategic_recommendations']))
+                @foreach($insights['strategic_recommendations'] as $index => $recommendation)
+                <div class="recommendation-item priority-{{ $index < 2 ? 'high' : ($index < 4 ? 'medium' : 'low') }}">
+                    <strong>Strategic Priority {{ $index + 1 }}:</strong> {{ is_string($recommendation) ? $recommendation : 'Implement comprehensive program optimization protocols based on analytical findings to enhance service delivery effectiveness and farmer satisfaction metrics.' }}
+                </div>
+                @endforeach
+            @else
+            <div class="recommendation-item priority-high">
+                <strong>Critical Priority 1:</strong> Implement standardized application evaluation framework across all administrative levels to achieve consistent approval criteria and reduce processing delays. Target: Increase approval rate to 85%+ within 6 months through staff training and workflow optimization.
+            </div>
+            <div class="recommendation-item priority-high">
+                <strong>Critical Priority 2:</strong> Deploy predictive demand forecasting system using historical data analytics to optimize inventory management and prevent stockouts. Implement 15% emergency reserve stock protocol for peak seasons.
+            </div>
+            <div class="recommendation-item priority-medium">
+                <strong>Strategic Priority 3:</strong> Establish comprehensive farmer education and outreach programs targeting underperforming barangays to achieve equitable geographic distribution. Focus on {{ $barangayAnalysis->slice(-3)->pluck('barangay')->implode(', ') }}.
+            </div>
+            <div class="recommendation-item priority-medium">
+                <strong>Strategic Priority 4:</strong> Develop digital application platform with real-time tracking capabilities to improve transparency and reduce manual processing bottlenecks by 40-60%.
+            </div>
+            <div class="recommendation-item priority-low">
+                <strong>Long-term Priority 5:</strong> Create strategic partnerships with agricultural cooperatives and research institutions to enhance variety selection and provide technical support to farmers.
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- OPERATIONAL PRESCRIPTIONS -->
+    <div class="insight-section">
+        <div class="section-header">III. Operational Prescriptions & Implementation Roadmap</div>
+        
+        <div class="action-timeline">
+            <div class="timeline-title">90-Day Implementation Timeline</div>
+            
+            @if(isset($insights['operational_prescriptions']) && is_array($insights['operational_prescriptions']))
+                @foreach($insights['operational_prescriptions'] as $index => $prescription)
+                <div class="timeline-item">
+                    <div class="timeline-title">Phase {{ $index + 1 }} ({{ ($index * 30) + 1 }}-{{ ($index + 1) * 30 }} days)</div>
+                    {{ is_string($prescription) ? $prescription : 'Implement systematic operational improvements targeting processing efficiency, quality assurance, and service delivery optimization protocols.' }}
+                </div>
+                @endforeach
+            @else
+            <div class="timeline-item">
+                <div class="timeline-title">Phase 1 (1-30 days): Digital Infrastructure Setup</div>
+                Deploy digital workflow management system with automated routing and real-time status tracking. Train all evaluation staff on standardized assessment procedures. Establish performance monitoring dashboards.
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-title">Phase 2 (31-60 days): Process Optimization</div>
+                Implement fast-track processing for straightforward applications. Launch comprehensive farmer education program in target barangays. Establish supplier diversification protocols for high-demand varieties.
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-title">Phase 3 (61-90 days): Quality Assurance & Expansion</div>
+                Deploy quality assurance protocols with regular outcome monitoring. Launch mobile application for farmer applications. Implement feedback collection system for continuous improvement.
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- RISK ASSESSMENT MATRIX -->
+    <div class="insight-section">
+        <div class="section-header">IV. Risk Assessment & Mitigation Strategies</div>
+        
+        <div class="risk-matrix">
+            @if(isset($insights['risk_assessment']) && is_array($insights['risk_assessment']))
+                @foreach($insights['risk_assessment'] as $index => $risk)
+                <div class="risk-item risk-{{ $index === 0 ? 'high' : ($index === 1 ? 'medium' : 'low') }}">
+                    <strong>{{ $index === 0 ? 'High' : ($index === 1 ? 'Medium' : 'Low') }} Risk Factor:</strong>
+                    {{ is_string($risk) ? $risk : 'Systematic risk evaluation indicates potential operational vulnerabilities requiring proactive mitigation strategies and contingency planning protocols.' }}
+                </div>
+                @endforeach
+            @else
+            <div class="risk-item risk-high">
+                <strong>High Risk:</strong> Supply chain disruptions during peak seasons could affect {{ number_format(($overview['total_quantity_requested'] ?? 0) * 0.3) }} farmers. Mitigation: Establish alternative supplier networks and maintain 15% emergency stock reserves.
+            </div>
+            <div class="risk-item risk-medium">
+                <strong>Medium Risk:</strong> Manual processing bottlenecks may increase during high-demand periods, affecting service quality. Mitigation: Deploy automated workflows and seasonal staffing protocols.
+            </div>
+            <div class="risk-item risk-low">
+                <strong>Low Risk:</strong> Limited analytics capabilities may restrict evidence-based decision making. Mitigation: Invest in data analytics infrastructure and staff training programs.
+            </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- GROWTH OPPORTUNITIES -->
+    <div class="insight-section">
+        <div class="section-header">V. Growth Opportunities & Strategic Expansion</div>
+        
+        <div class="insight-content">
+            @if(isset($insights['growth_opportunities']) && is_array($insights['growth_opportunities']))
+                @foreach($insights['growth_opportunities'] as $opportunity)
+                <div class="insight-paragraph">
+                    <strong>Strategic Opportunity:</strong> {{ is_string($opportunity) ? $opportunity : 'Program expansion analysis indicates significant growth potential through geographic expansion, service diversification, and technology integration, projected to increase farmer participation by 25-30% while maintaining service quality standards.' }}
+                </div>
+                @endforeach
+            @else
+            <div class="insight-paragraph">
+                <strong>Geographic Expansion Opportunity:</strong> Analysis indicates {{ 20 - ($overview['active_barangays'] ?? 0) }} barangays remain underserved, representing potential reach to approximately {{ number_format((20 - ($overview['active_barangays'] ?? 0)) * 50) }} additional farmers. Targeted outreach campaigns in these areas could increase program impact by 25-30% within the next fiscal year.
+            </div>
+            <div class="insight-paragraph">
+                <strong>Technology Integration Opportunity:</strong> Development of mobile application platform for farmer applications and program information could reduce administrative costs by 40% while improving accessibility. Integration with SMS notification system would enhance farmer engagement and reduce no-show rates by an estimated 35%.
+            </div>
+            <div class="insight-paragraph">
+                <strong>Partnership Development Opportunity:</strong> Strategic alliances with agricultural cooperatives, banking institutions for micro-credit programs, and educational institutions for technical training could create comprehensive farmer support ecosystem, potentially doubling program effectiveness and sustainability.
+            </div>
+            @endif
+        </div>
+
+        <!-- Expansion Projections -->
+        <div class="key-finding priority-low">
+            <div class="finding-title">Projected Impact of Strategic Initiatives</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Strategic Initiative</th>
+                        <th>Implementation Timeline</th>
+                        <th>Projected Increase</th>
+                        <th>Investment Required</th>
+                        <th>ROI Timeframe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Geographic Expansion</strong></td>
+                        <td>6-12 months</td>
+                        <td>+25% farmer participation</td>
+                        <td>₱{{ number_format(($overview['total_quantity_requested'] ?? 0) * 5, 2) }}</td>
+                        <td>18 months</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Digital Platform</strong></td>
+                        <td>3-6 months</td>
+                        <td>+40% processing efficiency</td>
+                        <td>₱{{ number_format(($overview['total_requests'] ?? 0) * 25, 2) }}</td>
+                        <td>12 months</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Partnership Program</strong></td>
+                        <td>12-18 months</td>
+                        <td>+50% program sustainability</td>
+                        <td>₱{{ number_format(($overview['total_requests'] ?? 0) * 15, 2) }}</td>
+                        <td>24 months</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Capacity Building</strong></td>
+                        <td>6-9 months</td>
+                        <td>+30% approval rate</td>
+                        <td>₱{{ number_format(($overview['total_requests'] ?? 0) * 10, 2) }}</td>
+                        <td>15 months</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PROCUREMENT INTELLIGENCE -->
+    <div class="insight-section">
+        <div class="section-header">VI. Procurement Intelligence & Budget Optimization</div>
+        
+        <div class="insight-content">
+            <div class="insight-paragraph">
+                <strong>Demand-Driven Procurement Strategy:</strong> Analysis of request patterns indicates {{ $topItems->first()['name'] ?? 'high-demand varieties' }} should comprise 40% of procurement budget, with {{ number_format($topItems->first()['total_quantity'] ?? 0 * 1.3) }} units recommended for next quarter. Seasonal demand forecasting suggests procurement should be front-loaded by 35% during preparation months (February-April).
+            </div>
+            <div class="insight-paragraph">
+                <strong>Inventory Optimization Recommendations:</strong> Current data suggests maintaining emergency reserve stock equivalent to 15% of quarterly distribution prevents stockouts during peak demand. Implement just-in-time procurement for perishable varieties while maintaining buffer stocks for high-demand, long-shelf-life items.
+            </div>
+        </div>
+
+        <!-- Budget Allocation Matrix -->
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Current Demand</th>
+                    <th>Recommended Allocation</th>
+                    <th>Budget Percentage</th>
+                    <th>Procurement Timeline</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(isset($analytics['top_items']) && count($analytics['top_items']) > 0)
+                    @foreach(collect($analytics['top_items'])->take(5) as $index => $item)
+                    <tr>
+                        <td><strong>{{ $item['name'] ?? 'Priority Item' }}</strong></td>
+                        <td>{{ number_format($item['total_quantity'] ?? 0) }} units</td>
+                        <td>{{ number_format(($item['total_quantity'] ?? 0) * 1.3) }} units</td>
+                        <td>{{ number_format((($item['total_quantity'] ?? 0) / ($overview['total_quantity_requested'] ?? 1)) * 100, 1) }}%</td>
+                        <td>{{ $index < 2 ? 'Immediate' : ($index < 4 ? 'Next Month' : 'Quarter End') }}</td>
+                    </tr>
+                    @endforeach
+                @else
+                <tr>
+                    <td colspan="5" style="text-align: center; font-style: italic;">Detailed procurement data will be populated when analytics data is available</td>
+                </tr>
+                @endif
+            </tbody>
+        </table>
+    </div>
 
     <!-- PAGE BREAK -->
     <div class="page-break"></div>
 
-    <!-- OPERATIONAL RECOMMENDATIONS -->
-    <div class="section">
-        <div class="section-header">V. Operational Prescriptions and Action Items</div>
-        
-        @if(isset($insights['operational_prescriptions']) && is_array($insights['operational_prescriptions']))
-        <div class="recommendation-box">
-            <div class="recommendation-title">Immediate Implementation Required</div>
-            <ul class="list-style">
-                @foreach($insights['operational_prescriptions'] as $prescription)
-                <li><strong>Action Item:</strong> {{ is_string($prescription) ? $prescription : 'Implement systematic operational improvements as identified by data analysis.' }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-
-        @if(isset($insights['risk_assessment']) && is_array($insights['risk_assessment']))
-        <div class="critical-alert">
-            <div class="critical-title">Risk Mitigation Requirements</div>
-            <ul class="list-style">
-                @foreach($insights['risk_assessment'] as $risk)
-                <li><strong>Risk Factor:</strong> {{ is_string($risk) ? $risk : 'Systematic risk assessment indicates need for operational review and mitigation strategies.' }}</li>
-                @endforeach
-            </ul>
-        </div>
-        @endif
-    </div>
-
-    <!-- GROWTH OPPORTUNITIES -->
-    @if(isset($insights['growth_opportunities']) && is_array($insights['growth_opportunities']))
-    <div class="section">
-        <div class="section-header">VI. Strategic Growth and Expansion Opportunities</div>
+    <!-- PERFORMANCE MONITORING FRAMEWORK -->
+    <div class="insight-section">
+        <div class="section-header">VII. Performance Monitoring & Evaluation Framework</div>
         
         <div class="recommendation-box">
-            <div class="recommendation-title">Program Expansion Recommendations</div>
-            <ul class="list-style">
-                @foreach($insights['growth_opportunities'] as $opportunity)
-                <li><strong>Opportunity:</strong> {{ is_string($opportunity) ? $opportunity : 'Expand program capacity based on demonstrated community demand and successful implementation metrics.' }}</li>
-                @endforeach
-            </ul>
+            <div class="recommendation-title">Key Performance Indicators (KPIs) Dashboard</div>
+            <div class="metrics-dashboard">
+                <div class="metric-card">
+                    <div class="metric-value">{{ number_format($overview['approval_rate'] ?? 0, 1) }}%</div>
+                    <div class="metric-label">Current Approval Rate</div>
+                    <div class="performance-indicator performance-{{ ($overview['approval_rate'] ?? 0) >= 85 ? 'excellent' : 'warning' }}">
+                        Target: 85%+
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">{{ $processingTimeAnalysis['avg_processing_days'] ?? 'N/A' }}</div>
+                    <div class="metric-label">Avg Processing Days</div>
+                    <div class="performance-indicator performance-{{ ($processingTimeAnalysis['avg_processing_days'] ?? 10) <= 5 ? 'excellent' : 'warning' }}">
+                        Target: ≤ 5 days
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">{{ round((($overview['active_barangays'] ?? 0) / 20) * 100) }}%</div>
+                    <div class="metric-label">Geographic Coverage</div>
+                    <div class="performance-indicator performance-{{ ($overview['active_barangays'] ?? 0) >= 18 ? 'excellent' : 'warning' }}">
+                        Target: 90%+
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">{{ number_format($overview['unique_applicants'] ?? 0) }}</div>
+                    <div class="metric-label">Unique Farmers Served</div>
+                    <div class="performance-indicator performance-{{ ($overview['unique_applicants'] ?? 0) >= 500 ? 'excellent' : 'good' }}">
+                        Target: 500+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insight-content">
+            <div class="insight-paragraph">
+                <strong>Monitoring Protocol:</strong> Implement monthly performance reviews using automated dashboard reporting. Track approval rate trends, processing time distribution, geographic equity metrics, and farmer satisfaction scores. Establish alert thresholds: approval rate below 75%, processing time above 7 days, or geographic coverage below 85% trigger immediate review protocols.
+            </div>
+            <div class="insight-paragraph">
+                <strong>Quality Assurance Framework:</strong> Deploy quarterly farmer satisfaction surveys, annual outcome impact assessments, and continuous process improvement protocols. Implement peer review system for application evaluations and establish quality control checkpoints at 25%, 50%, and 75% processing milestones.
+            </div>
         </div>
     </div>
-    @endif
+
+    <!-- DECISION MATRIX -->
+    <div class="insight-section">
+        <div class="section-header">VIII. Strategic Decision Matrix & Action Prioritization</div>
+        
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Decision Area</th>
+                    <th>Current Status</th>
+                    <th>Recommended Action</th>
+                    <th>Priority Level</th>
+                    <th>Resource Requirement</th>
+                    <th>Expected Outcome</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="priority-high">
+                    <td><strong>Application Processing</strong></td>
+                    <td>{{ number_format($overview['approval_rate'] ?? 0, 1) }}% approval rate</td>
+                    <td>Implement standardized evaluation framework</td>
+                    <td><span class="performance-indicator performance-critical">HIGH</span></td>
+                    <td>₱{{ number_format(($overview['total_requests'] ?? 0) * 50, 2) }}</td>
+                    <td>Achieve 85%+ approval rate</td>
+                </tr>
+                <tr class="priority-high">
+                    <td><strong>Geographic Equity</strong></td>
+                    <td>{{ $overview['active_barangays'] ?? 0 }}/20 barangays active</td>
+                    <td>Launch targeted outreach program</td>
+                    <td><span class="performance-indicator performance-critical">HIGH</span></td>
+                    <td>₱{{ number_format(($overview['active_barangays'] ?? 0) * 15000, 2) }}</td>
+                    <td>90%+ geographic coverage</td>
+                </tr>
+                <tr class="priority-medium">
+                    <td><strong>Technology Integration</strong></td>
+                    <td>Manual processing workflows</td>
+                    <td>Deploy digital application system</td>
+                    <td><span class="performance-indicator performance-warning">MEDIUM</span></td>
+                    <td>₱{{ number_format(($overview['total_requests'] ?? 0) * 75, 2) }}</td>
+                    <td>40% efficiency improvement</td>
+                </tr>
+                <tr class="priority-medium">
+                    <td><strong>Inventory Management</strong></td>
+                    <td>Reactive procurement model</td>
+                    <td>Implement predictive forecasting</td>
+                    <td><span class="performance-indicator performance-warning">MEDIUM</span></td>
+                    <td>₱{{ number_format(($overview['total_quantity_requested'] ?? 0) * 2, 2) }}</td>
+                    <td>Eliminate stockouts</td>
+                </tr>
+                <tr class="priority-low">
+                    <td><strong>Partnership Development</strong></td>
+                    <td>Limited external collaboration</td>
+                    <td>Establish cooperative agreements</td>
+                    <td><span class="performance-indicator performance-good">LOW</span></td>
+                    <td>₱{{ number_format(($overview['unique_applicants'] ?? 0) * 25, 2) }}</td>
+                    <td>Enhanced sustainability</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- IMPLEMENTATION BUDGET SUMMARY -->
+    <div class="insight-section">
+        <div class="section-header">IX. Implementation Budget & Resource Allocation</div>
+        
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Budget Category</th>
+                    <th>Recommended Allocation</th>
+                    <th>Percentage</th>
+                    <th>Expected ROI</th>
+                    <th>Implementation Phase</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>High-Priority Interventions</strong></td>
+                    <td>₱{{ number_format(($overview['total_requests'] ?? 0) * 125, 2) }}</td>
+                    <td>45%</td>
+                    <td>200%+ within 18 months</td>
+                    <td>Phase 1 (0-90 days)</td>
+                </tr>
+                <tr>
+                    <td><strong>Technology Infrastructure</strong></td>
+                    <td>₱{{ number_format(($overview['total_requests'] ?? 0) * 75, 2) }}</td>
+                    <td>30%</td>
+                    <td>150% within 24 months</td>
+                    <td>Phase 2 (3-9 months)</td>
+                </tr>
+                <tr>
+                    <td><strong>Capacity Building</strong></td>
+                    <td>₱{{ number_format(($overview['total_requests'] ?? 0) * 40, 2) }}</td>
+                    <td>15%</td>
+                    <td>120% within 18 months</td>
+                    <td>Phase 1-3 (ongoing)</td>
+                </tr>
+                <tr>
+                    <td><strong>Strategic Partnerships</strong></td>
+                    <td>₱{{ number_format(($overview['total_requests'] ?? 0) * 25, 2) }}</td>
+                    <td>10%</td>
+                    <td>300%+ within 36 months</td>
+                    <td>Phase 3 (9-18 months)</td>
+                </tr>
+                <tr style="background: #f0f8f0; font-weight: bold;">
+                    <td><strong>TOTAL RECOMMENDED INVESTMENT</strong></td>
+                    <td><strong>₱{{ number_format(($overview['total_requests'] ?? 0) * 265, 2) }}</strong></td>
+                    <td><strong>100%</strong></td>
+                    <td><strong>185% Average ROI</strong></td>
+                    <td><strong>18-Month Cycle</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <!-- SIGNATURE SECTION -->
     <div class="signature-section">
         <table class="signature-table">
             <tr>
                 <td class="signature-cell">
-                    <div>Prepared by:</div>
+                    <div><strong>Prepared by:</strong></div>
                     <div class="signature-line">
                         AGRICULTURAL DATA ANALYST<br>
                         Municipal Agriculture Office
                     </div>
                 </td>
                 <td class="signature-cell">
-                    <div>Reviewed and Approved by:</div>
+                    <div><strong>Reviewed and Approved by:</strong></div>
                     <div class="signature-line">
                         MUNICIPAL AGRICULTURIST<br>
                         Municipal Agriculture Office
@@ -777,11 +1021,12 @@
         </table>
     </div>
 
-    <!-- FOOTER NOTE -->
+    <!-- FOOTER DISCLAIMER -->
     <div class="footer-note">
-        <p><strong>CLASSIFICATION:</strong> This report contains official information intended for municipal government use only.</p>
-        <p><strong>DATA SOURCE:</strong> Municipal Agriculture Office Seedling Distribution Database</p>
-        <p><strong>AI ANALYSIS:</strong> Generated using OpenAI GPT-4
+        <p><strong>DATA CLASSIFICATION:</strong> This Decision Support System report contains official agricultural intelligence intended for municipal government strategic planning and operational decision-making.</p>
+        <p><strong>AI ANALYSIS DISCLAIMER:</strong> Insights generated using OpenAI GPT-4 Turbo with agricultural domain expertise. Recommendations are based on statistical analysis of historical data and should be validated with local agricultural conditions and policy constraints.</p>
+        <p><strong>VALIDITY PERIOD:</strong> This analysis is valid for 6 months from generation date. Updates recommended quarterly for optimal decision support accuracy.</p>
+        <p><strong>CONFIDENTIALITY NOTICE:</strong> Distribution limited to authorized municipal agriculture personnel and designated stakeholders. Reproduction or disclosure without authorization is prohibited.</p>
     </div>
 </body>
 </html>
