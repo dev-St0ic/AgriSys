@@ -35,4 +35,44 @@ return [
         ],
     ],
 
+   /*
+    |--------------------------------------------------------------------------
+    | OpenAI Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for OpenAI API integration used by the Decision Support
+    | System for generating AI-powered insights and recommendations.
+    |
+    */
+
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+        'organization' => env('OPENAI_ORGANIZATION'),
+        'model' => env('OPENAI_MODEL', 'gpt-4-turbo-preview'),
+        'max_tokens' => env('OPENAI_MAX_TOKENS', 2000),
+        'temperature' => env('OPENAI_TEMPERATURE', 0.3),
+        'timeout' => env('OPENAI_TIMEOUT', 60),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | PDF Generation Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for PDF generation used by the DSS reporting system.
+    |
+    */
+
+    'pdf' => [
+        'default_font' => env('PDF_DEFAULT_FONT', 'Arial'),
+        'margin' => [
+            'top' => env('PDF_MARGIN_TOP', '15mm'),
+            'right' => env('PDF_MARGIN_RIGHT', '15mm'),
+            'bottom' => env('PDF_MARGIN_BOTTOM', '15mm'),
+            'left' => env('PDF_MARGIN_LEFT', '15mm'),
+        ],
+        'paper_size' => env('PDF_PAPER_SIZE', 'A4'),
+        'orientation' => env('PDF_ORIENTATION', 'portrait'),
+    ],
+
 ];
