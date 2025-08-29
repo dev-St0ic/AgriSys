@@ -3,13 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\SeedlingRequest;
+use App\Services\SeedlingAnalyticsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class SeedlingAnalyticsController extends Controller
-{
+{    
+    protected SeedlingAnalyticsService $analyticsService;
+
+    public function __construct(SeedlingAnalyticsService $analyticsService)
+    {
+        $this->analyticsService = $analyticsService;
+    }
+
     /**
      * Display seedling analytics dashboard
      */
@@ -686,51 +694,19 @@ class SeedlingAnalyticsController extends Controller
         ];
     }
 
-    /**
-     * Export analytics data
-     */
-    public function export(Request $request)
+        // Generate Decision Support System (DSS) Report
+    public function generateDSSReport(Request $request)
     {
         try {
-            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-            $endDate = $request->get('end_date', now()->format('Y-m-d'));
-
-            // Validate dates
-            $startDate = Carbon::parse($startDate)->format('Y-m-d');
-            $endDate = Carbon::parse($endDate)->format('Y-m-d');
-
-            $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-
-            $data = [
-                'export_info' => [
-                    'generated_at' => now()->format('Y-m-d H:i:s'),
-                    'date_range' => [
-                        'start' => $startDate,
-                        'end' => $endDate
-                    ],
-                    'generated_by' => auth()->user()->name ?? 'System'
-                ],
-                'overview' => $this->getOverviewStatistics(clone $baseQuery),
-                'status_analysis' => $this->getStatusAnalysis(clone $baseQuery),
-                'monthly_trends' => $this->getMonthlyTrends($startDate, $endDate)->toArray(),
-                'barangay_analysis' => $this->getBarangayAnalysis(clone $baseQuery)->toArray(),
-                'category_analysis' => $this->getCategoryAnalysis(clone $baseQuery),
-                'top_items' => $this->getTopRequestedItems(clone $baseQuery)->toArray(),
-                'least_requested_items' => $this->getLeastRequestedItems(clone $baseQuery)->toArray(),
-                'processing_time' => $this->getProcessingTimeAnalysis(clone $baseQuery),
-                'seasonal_analysis' => $this->getSeasonalAnalysis(clone $baseQuery),
-                'inventory_impact' => $this->getInventoryImpactAnalysis(clone $baseQuery)
-            ];
-
-            $filename = 'seedling-analytics-' . $startDate . '-to-' . $endDate . '.json';
-
-            return response()->json($data, 200, [
-                'Content-Type' => 'application/json',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
-            ]);
+            $startDate = $request->get('start_date');
+            $endDate = $request->get('end_date');
+            
+            $pdf = $this->analyticsService->generateDSSReport($startDate, $endDate);
+            
+            return $pdf->download('seedling_dss_report_' . date('Y-m-d_H-i-s') . '.pdf');
         } catch (\Exception $e) {
-            Log::error('Export Error: ' . $e->getMessage());
-            return back()->with('error', 'Error exporting data: ' . $e->getMessage());
+            Log::error('DSS Report Generation Error: ' . $e->getMessage());
+            return back()->with('error', 'Error generating DSS report: ' . $e->getMessage());
         }
     }
 }

@@ -88,9 +88,10 @@
                                     <button type="submit" class="btn btn-primary me-2">
                                         <i class="fas fa-filter me-1"></i> Apply Filter
                                     </button>
-                                    <a href="{{ route('admin.analytics.seedlings.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
-                                        class="btn btn-success me-2">
-                                        <i class="fas fa-download me-1"></i> Export
+                                     <!-- new DSS Report button -->
+                                    <a href="{{ route('admin.analytics.seedlings.dss-report') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
+                                        class="btn btn-info me-2" target="_blank">
+                                        <i class="fas fa-file-download me-1"></i> DSS Report
                                     </a>
                                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
                                         data-bs-target="#insightsModal">
