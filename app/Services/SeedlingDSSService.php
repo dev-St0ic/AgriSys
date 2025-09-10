@@ -29,7 +29,7 @@ class SeedlingDSSService
         try {
             // Skip caching during testing - remove this line in production
             // $cacheKey = 'seedling_dss_insights_' . md5(serialize($analyticsData));
-            
+
             // For now, directly call OpenAI without caching for debugging
             if (!empty($this->openaiApiKey)) {
                 $insights = $this->callOpenAI($analyticsData);
@@ -85,7 +85,7 @@ class SeedlingDSSService
 
         $result = $response->json();
         Log::info('OpenAI Response:', ['response' => $result]);
-        
+
         return $this->parseAIResponse($result['choices'][0]['message']['content']);
     }
 
@@ -124,25 +124,25 @@ AGRICULTURAL SEEDLING DISTRIBUTION PROGRAM - COMPREHENSIVE ANALYSIS REQUEST
 **GEOGRAPHIC PERFORMANCE DATA:**
 Top Performing Areas: " . collect($barangayArray)->take(3)->map(function($b) {
     $barangay = is_object($b) ? $b : (object) $b;
-    return ($barangay->barangay ?? 'Unknown') . " (" . ($barangay->total_requests ?? 0) . " requests, " . 
+    return ($barangay->barangay ?? 'Unknown') . " (" . ($barangay->total_requests ?? 0) . " requests, " .
            number_format(($barangay->approval_rate ?? 0), 1) . "% success rate)";
 })->implode('; ') . "
 
 Underperforming Areas: " . collect($barangayArray)->slice(-3)->map(function($b) {
     $barangay = is_object($b) ? $b : (object) $b;
-    return ($barangay->barangay ?? 'Unknown') . " (" . ($barangay->total_requests ?? 0) . " requests, " . 
+    return ($barangay->barangay ?? 'Unknown') . " (" . ($barangay->total_requests ?? 0) . " requests, " .
            number_format(($barangay->approval_rate ?? 0), 1) . "% success rate)";
 })->implode('; ') . "
 
 **HIGH-DEMAND AGRICULTURAL ITEMS:**
 " . collect($topItems)->take(5)->map(function($item, $index) {
-    return ($index + 1) . ". " . ($item['name'] ?? 'Unknown') . " (" . ($item['category'] ?? 'general') . "): " . 
+    return ($index + 1) . ". " . ($item['name'] ?? 'Unknown') . " (" . ($item['category'] ?? 'general') . "): " .
            number_format($item['total_quantity'] ?? 0) . " units requested across " . ($item['request_count'] ?? 0) . " applications";
 })->implode("\n") . "
 
 **UNDERUTILIZED RESOURCES:**
 " . collect($leastRequestedItems)->take(5)->map(function($item, $index) {
-    return ($index + 1) . ". " . ($item['name'] ?? 'Unknown') . " (" . ($item['category'] ?? 'general') . "): Only " . 
+    return ($index + 1) . ". " . ($item['name'] ?? 'Unknown') . " (" . ($item['category'] ?? 'general') . "): Only " .
            number_format($item['total_quantity'] ?? 0) . " units in " . ($item['request_count'] ?? 0) . " requests";
 })->implode("\n") . "
 
@@ -157,7 +157,7 @@ You must provide a comprehensive Decision Support System analysis with exactly t
 **EXECUTIVE_SUMMARY**
 Provide 3-4 key strategic findings that municipal officials need to know immediately.
 
-**PERFORMANCE_INSIGHTS** 
+**PERFORMANCE_INSIGHTS**
 Provide 4-5 detailed analytical observations about program effectiveness, efficiency gaps, and operational strengths.
 
 **STRATEGIC_RECOMMENDATIONS**
@@ -168,9 +168,6 @@ Provide 3-4 immediate operational improvements focusing on process optimization,
 
 **RISK_ASSESSMENT**
 Identify 2-3 critical risks to program sustainability and provide specific mitigation strategies.
-
-**GROWTH_OPPORTUNITIES**
-Identify 2-3 concrete expansion or improvement opportunities with implementation guidance.
 
 Please structure your response as clear paragraphs under each heading, not as JSON. Write detailed, professional analysis suitable for municipal agricultural administrators.
         ";
@@ -189,14 +186,13 @@ Please structure your response as clear paragraphs under each heading, not as JS
             'performance_insights' => [],
             'strategic_recommendations' => [],
             'operational_prescriptions' => [],
-            'risk_assessment' => [],
-            'growth_opportunities' => []
+            'risk_assessment' => []
         ];
 
         // Clean and split response
         $response = strip_tags($response);
         $lines = explode("\n", $response);
-        
+
         $currentSection = null;
         $currentContent = '';
 
@@ -225,10 +221,6 @@ Please structure your response as clear paragraphs under each heading, not as JS
             } elseif (strpos($lowerLine, 'risk') !== false && strpos($lowerLine, 'assessment') !== false) {
                 $this->saveSectionContent($sections, $currentSection, $currentContent);
                 $currentSection = 'risk_assessment';
-                $currentContent = '';
-            } elseif (strpos($lowerLine, 'growth') !== false && strpos($lowerLine, 'opportunit') !== false) {
-                $this->saveSectionContent($sections, $currentSection, $currentContent);
-                $currentSection = 'growth_opportunities';
                 $currentContent = '';
             } elseif ($currentSection) {
                 // Add content to current section
@@ -259,7 +251,6 @@ Please structure your response as clear paragraphs under each heading, not as JS
             'strategic_recommendations' => $sections['strategic_recommendations'],
             'operational_prescriptions' => $sections['operational_prescriptions'],
             'risk_assessment' => $sections['risk_assessment'],
-            'growth_opportunities' => $sections['growth_opportunities'],
             'generated_at' => Carbon::now()->toISOString(),
             'ai_confidence' => 'high'
         ];
@@ -327,11 +318,6 @@ Please structure your response as clear paragraphs under each heading, not as JS
                 "Supply chain disruptions pose significant risks to program continuity, requiring development of alternative supplier networks and emergency procurement protocols.",
                 "Heavy reliance on manual processes creates bottlenecks during peak seasons and increases error rates, necessitating systematic digitization initiatives.",
                 "Limited data analytics capabilities restrict evidence-based decision-making and long-term strategic planning effectiveness, requiring investment in analytical infrastructure and staff training."
-            ],
-            'growth_opportunities' => [
-                "Expansion to currently underserved barangays could increase program impact by 25-30%, requiring additional outreach efforts and resource allocation.",
-                "Development of mobile application platforms for farmer applications and program information could improve accessibility and reduce administrative costs.",
-                "Strategic partnerships with agricultural cooperatives and farming associations could enhance program reach and provide additional technical support to beneficiaries."
             ],
             'generated_at' => Carbon::now()->toISOString(),
             'ai_confidence' => 'fallback_system'

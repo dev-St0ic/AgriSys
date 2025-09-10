@@ -63,7 +63,7 @@ header {
     color: #2d6a4f;
     display: flex;
     flex-direction: column;
-    line-height: 1.3; 
+    line-height: 1.3;
     margin-left: 5px;
 }
 
@@ -119,7 +119,7 @@ header {
 
 /* --- Welcome Section --- */
 .welcome {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.4)), /* Dark overlay for better text visibility */ 
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.4)), /* Dark overlay for better text visibility */
         url('../images/hero/temporaryBG.jpg');
 
     background-size: cover;
@@ -152,7 +152,7 @@ header {
 /* Ensure content appears above overlay */
 
 .welcome > * {
-    position: relative; 
+    position: relative;
     z-index: 2; /* Ensure content is above the overlay */
 }
 
@@ -242,11 +242,11 @@ header {
         min-height: 450px;
         padding: 50px 20px;
     }
-    
+
     .welcome h2 {
         font-size: 3rem;
     }
-    
+
     #home .welcome p {
         font-size: 1.6rem;
         max-width: 600px;
@@ -260,19 +260,19 @@ header {
         padding: 40px 15px;
         background-attachment: scroll; /* Remove parallax on mobile for performance */
     }
-    
+
     .welcome h2 {
         font-size: 2.5rem;
         margin-bottom: 15px;
     }
-    
+
     #home .welcome p {
         font-size: 1.3rem;
         max-width: 100%;
         margin-bottom: 50px;
         padding: 0 10px;
     }
-    
+
     .welcome .btn-services {
         padding: 16px 28px;
         font-size: 1rem;
@@ -286,18 +286,18 @@ header {
         min-height: 350px;
         padding: 30px 10px;
     }
-    
+
     .welcome h2 {
         font-size: 2rem;
         margin-bottom: 12px;
     }
-    
+
     #home .welcome p {
         font-size: 1.1rem;
         margin-bottom: 25px;
         line-height: 1.3;
     }
-    
+
     .welcome .btn-services {
         padding: 14px 24px;
         font-size: 0.95rem;
@@ -353,11 +353,13 @@ header {
 }
 
 .services-grid {
-    max-width: 1200px;
-    display: grid;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
     margin: 0 auto;
-    gap: 30px;
-    justify-items: center;
+    gap: 40px;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Row layouts for balanced positioning */
@@ -367,6 +369,25 @@ header {
     grid-template-columns: 1fr 1fr;
     gap: 60px;
     justify-items: center;
+}
+
+.row-three {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 50px;
+    justify-items: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.row-two-centered {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 60px;
+    justify-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .row-one {
@@ -380,9 +401,9 @@ header {
     background-color: white;
     border: 1px solid #ddd;
     border-radius: 15px;
-    padding: 45px;
+    padding: 35px;
     width: 100%;
-    max-width: 350px;
+    max-width: 320px;
     min-height: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     text-align: center;
@@ -399,9 +420,10 @@ header {
 }
 
 .card-image {
-    width: 350px;
-    height: 150px;
-    margin: 0 auto 25px auto;
+    width: 100%;
+    max-width: 300px;
+    height: 140px;
+    margin: 0 auto 20px auto;
     background-color: #e8f5e8;
     border-radius: 30px;
     display: flex;
@@ -461,22 +483,44 @@ header {
 }
 
 /* Enhanced spacing for visual balance */
-.services-grid > .row-two:first-child {
-    margin-bottom: 30px;
-}
-
-.services-grid > .row-two:nth-child(2) {
+.services-grid > .row-three:first-child {
     margin-bottom: 40px;
 }
 
+.services-grid > .row-two-centered {
+    margin-top: 20px;
+}
+
 /* Responsive Design */
-@media (max-width: 968px) {
-    .row-two {
+@media (max-width: 1200px) {
+    .row-three {
         gap: 40px;
+        max-width: 1000px;
     }
-    
+
     .card {
         max-width: 280px;
+        padding: 30px;
+    }
+
+    .card-image {
+        height: 120px;
+    }
+}
+
+@media (max-width: 968px) {
+    .row-two, .row-two-centered {
+        gap: 40px;
+    }
+
+    .row-three {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+        max-width: 700px;
+    }
+
+    .card {
+        max-width: 300px;
         min-height: 320px;
         padding: 30px;
     }
@@ -486,37 +530,41 @@ header {
     .services {
         padding: 60px 20px;
     }
-    
+
     .services h2 {
         font-size: 2.5rem;
     }
-    
-    .row-two {
-        grid-template-columns: 1fr;
+
+    .services-grid {
         gap: 30px;
     }
-    
+
+    .row-two, .row-three, .row-two-centered {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        max-width: 400px;
+    }
+
     .card {
         max-width: 100%;
         min-height: 300px;
         padding: 25px;
     }
-    
+
     .card h3 {
         font-size: 1.5rem;
     }
-    
+
     .card p {
         font-size: 1rem;
     }
-    
+
     .card .btn {
         padding: 14px 28px;
         font-size: 1.1rem;
     }
-    
+
     .card-image {
-        width: 180px;
         height: 100px;
         font-size: 2.5rem;
     }
@@ -526,21 +574,21 @@ header {
     .services {
         padding: 40px 15px;
     }
-    
+
     .services h2 {
         font-size: 2rem;
     }
-    
+
     .card-image {
         width: 150px;
         height: 90px;
         font-size: 2rem;
     }
-    
+
     .card h3 {
         font-size: 1.3rem;
     }
-    
+
     .card .btn {
         padding: 12px 24px;
         font-size: 1rem;
@@ -717,7 +765,7 @@ header {
     .step {
         transition: none;
     }
-            
+
     .step:hover {
         transform: none;
     }
@@ -728,12 +776,12 @@ header {
     .step {
         border: 2px solid #000;
     }
-            
+
     .step-number {
         background: #000;
         color: #fff;
     }
-            
+
     .step h3 {
         color: #000;
     }
@@ -744,15 +792,15 @@ header {
     .how-it-works h2 {
         font-size: 3.2rem;
     }
-            
+
     .subtitle {
         font-size: 1.3rem;
     }
-            
+
     .step h3 {
         font-size: 1.6rem;
     }
-            
+
     .step p {
         font-size: 1.2rem;
     }
@@ -812,16 +860,16 @@ header {
     .help-section {
         padding: 60px 20px;
     }
-    
+
     .help-section h2 {
         font-size: 2rem;
     }
-    
+
     .help-section p {
         font-size: 1.1rem;
         margin-bottom: 20px;
     }
-    
+
     .btn-help {
         width: 100%;
         padding: 16px 30px;
@@ -1000,7 +1048,7 @@ header {
         width: 95%;
         margin: 10px;
     }
-    
+
     .contact-modal-body {
         padding: 20px;
     }
@@ -1104,11 +1152,11 @@ header {
         flex-direction: column;
         gap: 25px;
     }
-            
+
     .footer-column {
         min-width: 100%;
     }
-            
+
     .social-links {
         justify-content: center;
     }
@@ -1147,45 +1195,45 @@ header {
         gap: 15px;
         padding: 15px 20px;
     }
-    
+
     .header-left {
         flex-direction: column;
         text-align: center;
         gap: 10px;
     }
-    
+
     .welcome h2 {
         font-size: 2rem;
     }
-    
+
     #home .welcome p {
         font-size: 1.2rem;
     }
-    
+
     .services h2,
     .how-it-works h2 {
         font-size: 2rem;
     }
-    
+
     .card {
         width: 100%;
         max-width: 350px;
     }
-    
+
     .steps {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .step {
         max-width: 100%;
     }
-    
+
     .help-buttons {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .footer-container {
         flex-direction: column;
     }
@@ -1196,25 +1244,25 @@ header {
         font-size: 20px;
         padding: 6px 12px;
     }
-    
+
     .welcome {
         padding: 30px 15px;
     }
-    
+
     .welcome h2 {
         font-size: 1.8rem;
     }
-    
+
     #home .welcome p {
         font-size: 1rem;
     }
-    
+
     .services,
     .how-it-works,
     .help-section {
         padding: 40px 15px;
     }
-    
+
     .card {
         padding: 20px;
         width: 100%;
