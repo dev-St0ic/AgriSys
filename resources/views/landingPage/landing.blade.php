@@ -33,22 +33,22 @@
             <div class="logos">
                 <img src="../images/logos/AgriSysRemoveBG.png" alt="System Logo" class="logo-img-1">
                 <img src="../images/logos/CagoRemoveBG.png" alt="Client Logo" class="logo-img-2">
-            
-            <div class="location">
-                <div class="city">San Pedro</div>
-                <div>City Agriculture Office</div> 
+
+                <div class="location">
+                    <div class="city">San Pedro</div>
+                    <div>City Agriculture Office</div>
+                </div>
             </div>
-        </div>
-        <div class="buttons">
-            <button type="button" class="btn" onclick="goHome(event)">Home</button>
-            <button type="button" class="btn" onclick="openRSBSAForm(event)">RSBSA</button>
-            <button type="button" class="btn" onclick="openFormSeedlings(event)">Seedlings</button>
-            <button type="button" class="btn" onclick="openFormFishR(event)">FishR</button>
-            <button type="button" class="btn" onclick="openFormBoatR(event)">BoatR</button>
-            <button type="button" class="btn" onclick="openFormTraining(event)">Training</button>
-        </div>
+            <div class="buttons">
+                <button type="button" class="btn" onclick="goHome(event)">Home</button>
+                <button type="button" class="btn" onclick="openRSBSAForm(event)">RSBSA</button>
+                <button type="button" class="btn" onclick="openFormSeedlings(event)">Seedlings</button>
+                <button type="button" class="btn" onclick="openFormFishR(event)">FishR</button>
+                <button type="button" class="btn" onclick="openFormBoatR(event)">BoatR</button>
+                <button type="button" class="btn" onclick="openFormTraining(event)">Training</button>
+            </div>
     </header>
-    
+
     <section class="announcement">
         <p><strong>📢 Announcement:</strong> Seedling distribution starts July 1, 2025. Visit the Seedlings section for
             more info.</p>
@@ -66,11 +66,12 @@
     <!-- Services Section -->
     <section class="services" id="services">
         <h2>OUR SERVICES</h2>
-        <p class="services-subtitle">We provide comprehensive agricultural and fisheries support services to help you grow and succeed</p>
+        <p class="services-subtitle">We provide comprehensive agricultural and fisheries support services to help you
+            grow and succeed</p>
 
         <div class="services-grid">
-            <!-- Row 1: Cards 1 & 2 -->
-            <div class="row-two"> 
+            <!-- Row 1: Cards 1, 2, & 3 (Top row with 3 cards) -->
+            <div class="row-three">
                 <div class="card">
                     <div class="card-image">
                         <img src="../images/services/ServicesRSBSATemporary.jpg" alt="RSBSA Service">
@@ -87,9 +88,6 @@
                     <p>Request free seedlings to support your agricultural livelihood.</p>
                     <button class="btn-choice" onclick="openFormSeedlings(event)">Apply Now</button>
                 </div>
-            </div>
-             <!-- Row 2: Cards 3 & 4 -->
-            <div class="row-two">
                 <div class="card">
                     <div class="card-image">
                         <img src="../images/services/ServicesFishrTemporary.jpg" alt="Fishr Service">
@@ -98,6 +96,9 @@
                     <p>Register in the FishR system for fisherfolk support and services.</p>
                     <button class="btn-choice" onclick="openFormFishR(event)">Apply Now</button>
                 </div>
+            </div>
+            <!-- Row 2: Cards 4 & 5 (Bottom row with 2 cards, centered) -->
+            <div class="row-two-centered">
                 <div class="card">
                     <div class="card-image">
                         <img src="../images/services/ServicesBoatrTemporary.jpg" alt="Boatr Service">
@@ -106,9 +107,6 @@
                     <p>Apply for registration and assistance for your fishing boats.</p>
                     <button class="btn-choice" onclick="openFormBoatR(event)">Apply Now</button>
                 </div>
-            </div>
-            <!-- Row 3: Card 5 (centered) -->
-            <div class="row-one">
                 <div class="card">
                     <div class="card-image">
                         <img src="../images/services/ServicesTrainingTemporary.jpg" alt="Training Service">
@@ -130,7 +128,8 @@
 
     <section class="how-it-works" id="how-it-works">
         <h2>How It Works</h2>
-        <p class="HowItWorks-subtitle">Getting started with our agricultural services is simple and straightforward. Follow these three easy steps:</p>
+        <p class="HowItWorks-subtitle">Getting started with our agricultural services is simple and straightforward.
+            Follow these three easy steps:</p>
         <div class="steps">
             <div class="step">
                 <div class="step-icon"></div>
@@ -155,7 +154,8 @@
 
     <section class="help-section">
         <h2>Need Help?</h2>
-        <p>If you have questions about your application or urgent agricultural concerns such as crop diseases or natural disasters, our support team is here to assist you.</p>
+        <p>If you have questions about your application or urgent agricultural concerns such as crop diseases or natural
+            disasters, our support team is here to assist you.</p>
         <div class="help-buttons">
             <button class="btn-help">Contact Us</button>
             <button class="btn-help">Visit Office</button>
@@ -189,7 +189,7 @@
                         San Pedro City Hall, Laguna
                     </div>
                 </div>
-            
+
                 <div class="quick-contact-section">
                     <h4>Send Quick Message</h4>
                     <form id="quick-contact-form">
@@ -221,8 +221,10 @@
                 <div class="social-links">
                     <span style="margin-right: 10px; color: #a8e6cf;">Facebook us on Facebook:</span>
                     <a href="https://www.facebook.com/sanpedroagri" target="_blank" title="Facebook">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.8;">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"
+                            style="opacity: 0.8;">
+                            <path
+                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                     </a>
                 </div>
@@ -255,8 +257,8 @@
         <div class="footer-bottom">
             <p>© 2025 City Agriculture Office of San Pedro. All rights reserved.</p>
             <p style="margin-top: 10px; font-size: 0.8rem;">
-                <a href="#privacy" style="color: #ccc;">Privacy Policy</a> | 
-                <a href="#terms" style="color: #ccc;">Terms of Service</a> | 
+                <a href="#privacy" style="color: #ccc;">Privacy Policy</a> |
+                <a href="#terms" style="color: #ccc;">Terms of Service</a> |
                 <a href="#accessibility" style="color: #ccc;">Accessibility</a>
             </p>
         </div>

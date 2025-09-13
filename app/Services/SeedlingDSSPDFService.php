@@ -15,16 +15,16 @@ class SeedlingDSSPDFService
     public function generateDSSReport(array $analyticsData, array $insights, string $startDate = null, string $endDate = null): \Barryvdh\DomPDF\PDF
     {
         $reportData = $this->prepareReportData($analyticsData, $insights, $startDate, $endDate);
-        
+
         $pdf = Pdf::loadView('admin.analytics.seedlings.dss-report', $reportData);
-        
+
         $pdf->setPaper('A4', 'portrait');
         $pdf->setOptions([
             'defaultFont' => 'Arial',
             'isRemoteEnabled' => true,
             'isHtml5ParserEnabled' => true,
         ]);
-        
+
         return $pdf;
     }
 
@@ -33,26 +33,89 @@ class SeedlingDSSPDFService
      */
     private function prepareReportData(array $analyticsData, array $insights, string $startDate = null, string $endDate = null): array
     {
+        // Check if this is the new prescriptive format
+        $isPrescriptive = isset($insights['critical_prescriptions']) || isset($insights['ai_confidence']) && $insights['ai_confidence'] === 'prescriptive_analysis';
+
         return [
-            'title' => 'Seedling Distribution Analytics - DSS Report',
-            'subtitle' => 'Decision Support System Analysis & Recommendations',
+            'title' => 'Seedling Distribution Analytics - ' . ($isPrescriptive ? 'Prescriptive DSS Report' : 'DSS Report'),
+            'subtitle' => $isPrescriptive ? 'Prescriptive Decision Support System Analysis' : 'Decision Support System Analysis & Recommendations',
             'period' => $this->formatReportPeriod($startDate, $endDate),
             'generated_at' => Carbon::now()->format('F j, Y \a\t g:i A'),
             'overview' => $this->sanitizeOverviewData($analyticsData['overview'] ?? []),
-            'insights' => $this->sanitizeInsightsData($insights),
+            'insights' => $isPrescriptive ? $this->transformPrescriptiveInsights($insights) : $this->sanitizeInsightsData($insights),
             'analytics' => $this->processAnalyticsForReport($analyticsData),
-            
+            'is_prescriptive' => $isPrescriptive,
+            'prescriptive_data' => $isPrescriptive ? $this->preparePrescriptiveData($insights) : null,
+
             // Add these direct variables for template compatibility:
             'topItems' => collect($this->sanitizeItemData($analyticsData['topItems'] ?? [])),
             'leastRequestedItems' => collect($this->sanitizeItemData($analyticsData['leastRequestedItems'] ?? [])),
             'barangayAnalysis' => $this->sanitizeBarangayData($analyticsData['barangayAnalysis'] ?? []),
             'processingTimeAnalysis' => $analyticsData['processingTimeAnalysis'] ?? [],
-            
+
             'charts_data' => $this->prepareChartsData($analyticsData),
             'performance_summary' => $this->generatePerformanceSummary($analyticsData),
             'ai_confidence' => $insights['ai_confidence'] ?? 'medium'
         ];
     }
+    /**
+     * Transform prescriptive insights to be compatible with existing template
+     */
+    private function transformPrescriptiveInsights(array $insights): array
+    {
+        // Map prescriptive sections to template-expected sections
+        return [
+            'executive_summary' => $insights['executive_summary'] ?? [],
+            'performance_insights' => $this->combinePrescriptiveSections($insights, [
+                'critical_prescriptions',
+                'process_prescriptions'
+            ]),
+            'strategic_recommendations' => $insights['resource_prescriptions'] ?? [],
+            'operational_prescriptions' => $insights['geographic_prescriptions'] ?? [],
+            'risk_assessment' => $insights['capacity_prescriptions'] ?? [],
+            'generated_at' => $insights['generated_at'] ?? Carbon::now()->toISOString(),
+            'ai_confidence' => $insights['ai_confidence'] ?? 'prescriptive'
+        ];
+    }
+
+    /**
+     * Prepare prescriptive-specific data for enhanced PDF sections
+     */
+    private function preparePrescriptiveData(array $insights): array
+    {
+        return [
+            'data_quality_score' => $insights['data_quality_score'] ?? 0,
+            'confidence_level' => $insights['ai_confidence'] ?? 'unknown',
+            'critical_actions' => array_slice($insights['critical_prescriptions'] ?? [], 0, 5),
+            'resource_optimizations' => array_slice($insights['resource_prescriptions'] ?? [], 0, 5),
+            'geographic_interventions' => array_slice($insights['geographic_prescriptions'] ?? [], 0, 5),
+            'process_improvements' => array_slice($insights['process_prescriptions'] ?? [], 0, 5),
+            'capacity_adjustments' => array_slice($insights['capacity_prescriptions'] ?? [], 0, 3),
+            'monitoring_protocols' => array_slice($insights['monitoring_prescriptions'] ?? [], 0, 3),
+
+            // AI-enhanced sections if available
+            'ai_roadmap' => $insights['ai_implementation_roadmap'] ?? [],
+            'ai_resources' => $insights['ai_resource_requirements'] ?? [],
+            'ai_metrics' => $insights['ai_success_metrics'] ?? [],
+            'ai_risks' => $insights['ai_risk_mitigation'] ?? [],
+            'ai_stakeholders' => $insights['ai_stakeholder_actions'] ?? []
+        ];
+    }
+
+    /**
+     * Combine multiple prescriptive sections into one array
+     */
+    private function combinePrescriptiveSections(array $insights, array $sectionKeys): array
+    {
+        $combined = [];
+        foreach ($sectionKeys as $key) {
+            if (!empty($insights[$key]) && is_array($insights[$key])) {
+                $combined = array_merge($combined, $insights[$key]);
+            }
+        }
+        return $combined;
+    }
+
     /**
      * Sanitize overview data to ensure proper types
      */
@@ -77,19 +140,18 @@ class SeedlingDSSPDFService
     private function sanitizeInsightsData(array $insights): array
     {
         $sanitized = [];
-        
+
         $sections = [
             'executive_summary',
             'performance_insights',
             'strategic_recommendations',
             'operational_prescriptions',
-            'risk_assessment',
-            'growth_opportunities'
+            'risk_assessment'
         ];
 
         foreach ($sections as $section) {
             $sanitized[$section] = [];
-            
+
             if (isset($insights[$section]) && is_array($insights[$section])) {
                 foreach ($insights[$section] as $item) {
                     if (is_string($item)) {
@@ -117,8 +179,8 @@ class SeedlingDSSPDFService
         return [
             'top_barangays' => $this->sanitizeBarangayData($data['barangayAnalysis'] ?? []),
             'bottom_barangays' => $this->sanitizeBarangayData(
-                is_array($data['barangayAnalysis'] ?? []) 
-                    ? array_slice($data['barangayAnalysis'], -5) 
+                is_array($data['barangayAnalysis'] ?? [])
+                    ? array_slice($data['barangayAnalysis'], -5)
                     : ($data['barangayAnalysis'] ?? collect())->slice(-5)->toArray()
             ),
             'top_items' => $this->sanitizeItemData($data['topItems'] ?? []),
@@ -192,15 +254,15 @@ class SeedlingDSSPDFService
     private function generatePerformanceSummary(array $data): array
     {
         $overview = $data['overview'] ?? [];
-        $barangayCount = is_countable($data['barangayAnalysis'] ?? []) 
-            ? count($data['barangayAnalysis']) 
-            : (is_object($data['barangayAnalysis'] ?? null) && method_exists($data['barangayAnalysis'], 'count') 
-                ? $data['barangayAnalysis']->count() 
+        $barangayCount = is_countable($data['barangayAnalysis'] ?? [])
+            ? count($data['barangayAnalysis'])
+            : (is_object($data['barangayAnalysis'] ?? null) && method_exists($data['barangayAnalysis'], 'count')
+                ? $data['barangayAnalysis']->count()
                 : 0);
-        
+
         $avgProcessingDays = (float) ($data['processingTimeAnalysis']['avg_processing_days'] ?? 0);
         $approvalRate = (float) ($overview['approval_rate'] ?? 0);
-        
+
         return [
             'overall_grade' => $this->calculateOverallGrade($overview),
             'efficiency_score' => $this->calculateEfficiencyScore($data),
@@ -232,7 +294,7 @@ class SeedlingDSSPDFService
     private function calculateOverallGrade(array $overview): string
     {
         $approvalRate = (float) ($overview['approval_rate'] ?? 0);
-        
+
         if ($approvalRate >= 90) return 'A+';
         if ($approvalRate >= 85) return 'A';
         if ($approvalRate >= 80) return 'B+';
@@ -249,10 +311,10 @@ class SeedlingDSSPDFService
     {
         $processingTime = (float) ($data['processingTimeAnalysis']['avg_processing_days'] ?? 7);
         $approvalRate = (float) ($data['overview']['approval_rate'] ?? 0);
-        
+
         $timeScore = max(0, 100 - ($processingTime * 10));
         $approvalScore = $approvalRate;
-        
+
         return (int) (($timeScore + $approvalScore) / 2);
     }
 
@@ -261,17 +323,17 @@ class SeedlingDSSPDFService
      */
     private function calculateDistributionScore(array $data): int
     {
-        $barangayCount = is_countable($data['barangayAnalysis'] ?? []) 
-            ? count($data['barangayAnalysis']) 
-            : (is_object($data['barangayAnalysis'] ?? null) && method_exists($data['barangayAnalysis'], 'count') 
-                ? $data['barangayAnalysis']->count() 
+        $barangayCount = is_countable($data['barangayAnalysis'] ?? [])
+            ? count($data['barangayAnalysis'])
+            : (is_object($data['barangayAnalysis'] ?? null) && method_exists($data['barangayAnalysis'], 'count')
+                ? $data['barangayAnalysis']->count()
                 : 0);
-        
+
         $totalFarmers = (int) ($data['overview']['unique_applicants'] ?? 0);
-        
+
         $coverageScore = min(100, ($barangayCount / 20) * 100);
         $reachScore = min(100, ($totalFarmers / 500) * 100);
-        
+
         return (int) (($coverageScore + $reachScore) / 2);
     }
 
@@ -281,7 +343,7 @@ class SeedlingDSSPDFService
     private function calculateSatisfactionIndicator(array $overview): string
     {
         $approvalRate = (float) ($overview['approval_rate'] ?? 0);
-        
+
         if ($approvalRate >= 85) return 'High';
         if ($approvalRate >= 70) return 'Medium';
         return 'Low';
@@ -331,10 +393,10 @@ class SeedlingDSSPDFService
         if (!$startDate || !$endDate) {
             return 'All Available Data';
         }
-        
+
         $start = Carbon::parse($startDate)->format('M j, Y');
         $end = Carbon::parse($endDate)->format('M j, Y');
-        
+
         return "{$start} - {$end}";
     }
 }
