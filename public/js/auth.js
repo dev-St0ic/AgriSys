@@ -1,7 +1,3 @@
-// ==========================================
-// UPDATED AUTH MODAL JAVASCRIPT
-// ==========================================
-
 // Auth Modal Functions
 function openAuthModal(type = 'login') {
     const modal = document.getElementById('auth-modal');
@@ -27,7 +23,7 @@ function closeAuthModal() {
     
     // Reset forms
     const loginForm = document.getElementById('login-form');
-    const signupForm = document.getElementById('signup-form');
+    const signupForm = document.getElementById('signup-form-submit');
     
     if (loginForm) loginForm.reset();
     if (signupForm) signupForm.reset();
@@ -71,8 +67,148 @@ function showSignUpForm() {
     
     hideAuthMessages();
     clearValidationErrors();
+    
+    // Focus first input
+    setTimeout(() => {
+        const firstInput = signupForm.querySelector('input');
+        if (firstInput) firstInput.focus();
+    }, 100);
 }
 
+// Validation Functions
+function validateSignupForm() {
+    const firstname = document.getElementById('signup-firstname').value.trim();
+    const lastname = document.getElementById('signup-lastname').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const confirmPassword = document.getElementById('signup-confirm-password').value;
+    const agreeTerms = document.getElementById('agree-terms').checked;
+    
+    let isValid = true;
+    let errors = [];
+    
+    // First name validation
+    if (!firstname) {
+        errors.push('First name is required');
+        isValid = false;
+    }
+    
+    // Last name validation
+    if (!lastname) {
+        errors.push('Last name is required');
+        isValid = false;
+    }
+    
+    // Email validation
+    if (!email) {
+        errors.push('Email is required');
+        isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.push('Please enter a valid email address');
+        isValid = false;
+    }
+    
+    // Password validation
+    if (!password) {
+        errors.push('Password is required');
+        isValid = false;
+    } else if (password.length < 8) {
+        errors.push('Password must be at least 8 characters');
+        isValid = false;
+    }
+    
+    // Password confirmation
+    if (password !== confirmPassword) {
+        errors.push('Passwords do not match');
+        isValid = false;
+    }
+    
+    // Terms agreement
+    if (!agreeTerms) {
+        errors.push('You must agree to the Terms of Service and Privacy Policy');
+        isValid = false;
+    }
+    
+    if (!isValid) {
+        showAuthError(errors.join(', '));
+    } else {
+        hideAuthMessages();
+    }
+    
+    return isValid;
+}
+
+// Password strength checker
+function checkPasswordStrength(password) {
+    const strengthBar = document.querySelector('.strength-fill');
+    const strengthText = document.querySelector('.strength-text');
+    
+    if (!strengthBar || !strengthText) return;
+    
+    let strength = 0;
+    let strengthLabel = 'Too weak';
+    
+    // Length check
+    if (password.length >= 8) strength++;
+    
+    // Lowercase letter
+    if (/[a-z]/.test(password)) strength++;
+    
+    // Uppercase letter
+    if (/[A-Z]/.test(password)) strength++;
+    
+    // Number
+    if (/\d/.test(password)) strength++;
+    
+    // Special character
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    
+    // Update strength indicator
+    strengthBar.className = 'strength-fill';
+    
+    switch (strength) {
+        case 0:
+        case 1:
+            strengthBar.classList.add('weak');
+            strengthLabel = 'Weak';
+            break;
+        case 2:
+            strengthBar.classList.add('fair');
+            strengthLabel = 'Fair';
+            break;
+        case 3:
+        case 4:
+            strengthBar.classList.add('good');
+            strengthLabel = 'Good';
+            break;
+        case 5:
+            strengthBar.classList.add('strong');
+            strengthLabel = 'Strong';
+            break;
+    }
+    
+    strengthText.textContent = `Password strength: ${strengthLabel}`;
+}
+
+// Password match checker
+function checkPasswordMatch(password, confirmPassword) {
+    const matchStatus = document.querySelector('.password-match-status');
+    
+    if (!matchStatus || !confirmPassword) {
+        if (matchStatus) matchStatus.innerHTML = '';
+        return;
+    }
+    
+    if (password === confirmPassword) {
+        matchStatus.className = 'password-match-status match';
+        matchStatus.textContent = 'Passwords match';
+    } else {
+        matchStatus.className = 'password-match-status no-match';
+        matchStatus.textContent = 'Passwords do not match';
+    }
+}
+
+// Utility Functions
 function togglePasswordVisibility(inputId) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -82,82 +218,26 @@ function togglePasswordVisibility(inputId) {
     
     if (input.type === 'password') {
         input.type = 'text';
-        toggle.textContent = '🙈';
+        toggle.textContent = 'Hide';
     } else {
         input.type = 'password';
-        toggle.textContent = '👁️';
+        toggle.textContent = 'Show';
     }
 }
 
 // Google Authentication Functions
 function signInWithGoogle() {
-    // Template function for Google Sign In
     console.log('Google Sign In clicked');
     showAuthError('Google Sign In will be implemented soon!');
     
     // TODO: Implement Google Sign In API
-    // Example implementation:
-    /*
-    gapi.load('auth2', function() {
-        gapi.auth2.init({
-            client_id: 'YOUR_GOOGLE_CLIENT_ID.googleusercontent.com'
-        }).then(function() {
-            const authInstance = gapi.auth2.getAuthInstance();
-            authInstance.signIn().then(function(googleUser) {
-                const profile = googleUser.getBasicProfile();
-                const id_token = googleUser.getAuthResponse().id_token;
-                
-                // Send token to your server for verification
-                handleGoogleSignIn(id_token, profile);
-            });
-        });
-    });
-    */
 }
 
 function signUpWithGoogle() {
-    // Template function for Google Sign Up
     console.log('Google Sign Up clicked');
     showAuthError('Google Sign Up will be implemented soon!');
     
     // TODO: Implement Google Sign Up API
-    // This would typically be the same as sign in, but you might handle new users differently
-}
-
-function handleGoogleSignIn(idToken, profile) {
-    // Template function to handle Google authentication response
-    // Send the ID token to your Laravel backend for verification
-    
-    /*
-    fetch('/auth/google', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({
-            id_token: idToken,
-            name: profile.getName(),
-            email: profile.getEmail(),
-            image: profile.getImageUrl()
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAuthSuccess('Google sign in successful! Redirecting...');
-            setTimeout(() => {
-                window.location.href = data.redirect || '/dashboard';
-            }, 1500);
-        } else {
-            showAuthError(data.message || 'Google sign in failed');
-        }
-    })
-    .catch(error => {
-        console.error('Google sign in error:', error);
-        showAuthError('An error occurred with Google sign in');
-    });
-    */
 }
 
 // Message Functions
@@ -167,7 +247,7 @@ function showAuthError(message) {
     
     if (errorDiv) {
         errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
+        errorDiv.style.display = 'flex';
     }
     if (successDiv) {
         successDiv.style.display = 'none';
@@ -180,7 +260,7 @@ function showAuthSuccess(message) {
     
     if (successDiv) {
         successDiv.textContent = message;
-        successDiv.style.display = 'block';
+        successDiv.style.display = 'flex';
     }
     if (errorDiv) {
         errorDiv.style.display = 'none';
@@ -196,108 +276,25 @@ function hideAuthMessages() {
 }
 
 function clearValidationErrors() {
-    // Remove any validation error classes from inputs
     const inputs = document.querySelectorAll('.auth-form input');
     inputs.forEach(input => {
-        input.classList.remove('error', 'invalid');
+        input.classList.remove('error', 'invalid', 'valid');
         input.style.borderColor = '';
     });
     
-    // Clear any existing error messages under inputs
     const errorMessages = document.querySelectorAll('.field-error');
     errorMessages.forEach(msg => msg.remove());
-}
-
-// Form Validation Functions
-function validateLoginForm() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('login-password').value;
-    
-    let isValid = true;
-    let errors = [];
-    
-    if (!username) {
-        errors.push('Username or email is required');
-        isValid = false;
-    }
-    
-    if (!password) {
-        errors.push('Password is required');
-        isValid = false;
-    }
-    
-    if (!isValid) {
-        showAuthError(errors.join(', '));
-    }
-    
-    return isValid;
-}
-
-function validateSignUpForm() {
-    const firstname = document.getElementById('signup-firstname').value.trim();
-    const lastname = document.getElementById('signup-lastname').value.trim();
-    const role = document.getElementById('signup-role').value;
-    const contact = document.getElementById('signup-contact').value.trim();
-    const password = document.getElementById('signup-password').value;
-    const confirmPassword = document.getElementById('signup-confirm-password').value;
-    const agreeTerms = document.getElementById('agree-terms').checked;
-    
-    let isValid = true;
-    let errors = [];
-    
-    if (!firstname) {
-        errors.push('First name is required');
-        isValid = false;
-    }
-    
-    if (!lastname) {
-        errors.push('Last name is required');
-        isValid = false;
-    }
-    
-    if (!role) {
-        errors.push('Role selection is required');
-        isValid = false;
-    }
-    
-    if (!contact) {
-        errors.push('Contact number is required');
-        isValid = false;
-    } else if (!/^[0-9+\-\s()]+$/.test(contact)) {
-        errors.push('Please enter a valid contact number');
-        isValid = false;
-    }
-    
-    if (!password) {
-        errors.push('Password is required');
-        isValid = false;
-    } else if (password.length < 8) {
-        errors.push('Password must be at least 8 characters long');
-        isValid = false;
-    }
-    
-    if (password !== confirmPassword) {
-        errors.push('Passwords do not match');
-        isValid = false;
-    }
-    
-    if (!agreeTerms) {
-        errors.push('You must agree to the Terms of Service and Privacy Policy');
-        isValid = false;
-    }
-    
-    if (!isValid) {
-        showAuthError(errors.join(', '));
-    }
-    
-    return isValid;
 }
 
 // Form Submission Functions
 function handleLoginSubmit(event) {
     event.preventDefault();
     
-    if (!validateLoginForm()) {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('login-password').value;
+    
+    if (!username || !password) {
+        showAuthError('Please fill in all fields');
         return false;
     }
     
@@ -334,7 +331,7 @@ function handleLoginSubmit(event) {
     })
     .catch(error => {
         console.error('Login error:', error);
-        showAuthError('An error occurred during login. Please try again.');
+        showAuthError('An error occurred. Please try again.');
     })
     .finally(() => {
         // Reset loading state
@@ -346,10 +343,10 @@ function handleLoginSubmit(event) {
     return false;
 }
 
-function handleSignUpSubmit(event) {
+function handleSignupSubmit(event) {
     event.preventDefault();
     
-    if (!validateSignUpForm()) {
+    if (!validateSignupForm()) {
         return false;
     }
     
@@ -363,31 +360,46 @@ function handleSignUpSubmit(event) {
     btnText.style.display = 'none';
     btnLoader.style.display = 'inline-block';
     
-    const formData = new FormData(form);
+    // Create FormData
+    const signupData = new FormData(form);
     
-    // TODO: Replace with your actual registration endpoint
+    // Add CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (csrfToken) {
+        signupData.append('_token', csrfToken.content);
+    }
+    
+    // TODO: Replace with your actual signup endpoint
     fetch('/auth/register', {
         method: 'POST',
-        body: formData,
+        body: signupData,
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
         }
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             showAuthSuccess('Account created successfully! Please check your email to verify your account.');
-            // Optionally switch to login form after a delay
             setTimeout(() => {
-                showLogInForm();
-            }, 3000);
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    closeAuthModal();
+                    showLogInForm();
+                }
+            }, 2000);
         } else {
             showAuthError(data.message || 'Registration failed. Please try again.');
+            // If there are field-specific errors, handle them
+            if (data.errors) {
+                handleValidationErrors(data.errors);
+            }
         }
     })
     .catch(error => {
-        console.error('Registration error:', error);
-        showAuthError('An error occurred during registration. Please try again.');
+        console.error('Signup error:', error);
+        showAuthError('An error occurred. Please try again.');
     })
     .finally(() => {
         // Reset loading state
@@ -399,51 +411,65 @@ function handleSignUpSubmit(event) {
     return false;
 }
 
-// Forgot Password Function
-function showForgotPassword() {
-    // TODO: Implement forgot password functionality
-    showAuthError('Forgot password feature will be implemented soon!');
+function handleValidationErrors(errors) {
+    // Show specific field errors
+    const errorFields = Object.keys(errors);
     
-    /*
-    // Example implementation:
-    const email = prompt('Please enter your email address:');
-    if (email && email.includes('@')) {
-        fetch('/auth/forgot-password', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({ email: email })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAuthSuccess('Password reset link sent to your email!');
-            } else {
-                showAuthError(data.message || 'Failed to send reset link');
-            }
-        })
-        .catch(error => {
-            console.error('Forgot password error:', error);
-            showAuthError('An error occurred. Please try again.');
-        });
-    }
-    */
+    errorFields.forEach(field => {
+        const input = document.querySelector(`[name="${field}"]`);
+        if (input) {
+            input.classList.add('error');
+            
+            // Create error message element
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'field-error';
+            errorMsg.textContent = errors[field][0]; // Laravel returns arrays
+            errorMsg.style.color = '#ef4444';
+            errorMsg.style.fontSize = '12px';
+            errorMsg.style.marginTop = '4px';
+            
+            // Insert after the input
+            input.parentElement.insertBefore(errorMsg, input.nextSibling);
+        }
+    });
 }
 
-// Event Listeners
+// Forgot Password Function
+function showForgotPassword() {
+    // TODO: Implement forgot password modal or redirect
+    showAuthError('Forgot password feature will be implemented soon!');
+    console.log('Show forgot password modal');
+}
+
+// Event Listeners Setup
 document.addEventListener('DOMContentLoaded', function() {
-    // Add form submit event listeners
+    // Login form submission
     const loginForm = document.getElementById('login-form');
-    const signupForm = document.getElementById('signup-form');
-    
     if (loginForm) {
         loginForm.addEventListener('submit', handleLoginSubmit);
     }
     
+    // Signup form submission
+    const signupForm = document.getElementById('signup-form-submit');
     if (signupForm) {
-        signupForm.addEventListener('submit', handleSignUpSubmit);
+        signupForm.addEventListener('submit', handleSignupSubmit);
+    }
+    
+    // Password strength checker
+    const passwordInput = document.getElementById('signup-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+        });
+    }
+    
+    // Password confirmation checker
+    const confirmPasswordInput = document.getElementById('signup-confirm-password');
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            const password = document.getElementById('signup-password').value;
+            checkPasswordMatch(password, this.value);
+        });
     }
     
     // Close modal when clicking outside
@@ -456,74 +482,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Close modal with Escape key
+    // ESC key to close modal
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             const modal = document.getElementById('auth-modal');
-            if (modal && modal.style.display === 'flex') {
+            if (modal && modal.style.display !== 'none') {
                 closeAuthModal();
             }
         }
     });
-    
-    // Real-time password confirmation validation
-    const confirmPasswordInput = document.getElementById('signup-confirm-password');
-    if (confirmPasswordInput) {
-        confirmPasswordInput.addEventListener('input', function() {
-            const password = document.getElementById('signup-password').value;
-            const confirmPassword = this.value;
-            
-            if (confirmPassword && password !== confirmPassword) {
-                this.style.borderColor = '#e53e3e';
-            } else {
-                this.style.borderColor = '';
-            }
-        });
-    }
-    
-    // Contact number formatting
-    const contactInput = document.getElementById('signup-contact');
-    if (contactInput) {
-        contactInput.addEventListener('input', function() {
-            // Remove any non-numeric characters except +, -, (, ), and spaces
-            let value = this.value.replace(/[^0-9+\-\s()]/g, '');
-            this.value = value;
-        });
-    }
 });
 
-// // Navigation Functions (referenced in your header)
-// function goHome(event) {
-//     event.preventDefault();
-//     window.location.href = '/';
-// }
-
-// function openRSBSAForm(event) {
-//     event.preventDefault();
-//     // TODO: Implement RSBSA form opening logic
-//     console.log('Opening RSBSA form');
-// }
-
-// function openFormSeedlings(event) {
-//     event.preventDefault();
-//     // TODO: Implement Seedlings form opening logic
-//     console.log('Opening Seedlings form');
-// }
-
-// function openFormFishR(event) {
-//     event.preventDefault();
-//     // TODO: Implement FishR form opening logic
-//     console.log('Opening FishR form');
-// }
-
-// function openFormBoatR(event) {
-//     event.preventDefault();
-//     // TODO: Implement BoatR form opening logic
-//     console.log('Opening BoatR form');
-// }
-
-// function openFormTraining(event) {
-//     event.preventDefault();
-//     // TODO: Implement Training form opening logic
-//     console.log('Opening Training form');
-// }
+// Global functions to be called from HTML
+window.openAuthModal = openAuthModal;
+window.closeAuthModal = closeAuthModal;
+window.showLogInForm = showLogInForm;
+window.showSignUpForm = showSignUpForm;
+window.togglePasswordVisibility = togglePasswordVisibility;
+window.signInWithGoogle = signInWithGoogle;
+window.signUpWithGoogle = signUpWithGoogle;
+window.showForgotPassword = showForgotPassword;
