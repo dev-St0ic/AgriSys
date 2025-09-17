@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/boatr.css') }}">
     <link rel="stylesheet" href="{{ asset('css/rsbsa.css') }}">
     <link rel="stylesheet" href="{{ asset('css/training.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
@@ -39,13 +40,17 @@
                     <div>City Agriculture Office</div>
                 </div>
             </div>
-            <div class="buttons">
+            <div class="header-center nav-buttons">
                 <button type="button" class="btn" onclick="goHome(event)">Home</button>
                 <button type="button" class="btn" onclick="openRSBSAForm(event)">RSBSA</button>
                 <button type="button" class="btn" onclick="openFormSeedlings(event)">Seedlings</button>
                 <button type="button" class="btn" onclick="openFormFishR(event)">FishR</button>
                 <button type="button" class="btn" onclick="openFormBoatR(event)">BoatR</button>
                 <button type="button" class="btn" onclick="openFormTraining(event)">Training</button>
+            </div>
+
+            <div class="header-right auth-buttons">
+            <button type="button" class="btn btn-login" onclick="openAuthModal('login')">Log in</button>
             </div>
     </header>
 
@@ -172,19 +177,19 @@
             <div class="contact-modal-body">
                 <div class="contact-info-section">
                     <div class="contact-info-item">
-                        <strong>📧 Email:</strong>
+                        <strong>Email:</strong>
                         <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a>
                     </div>
                     <div class="contact-info-item">
-                        <strong>📞 Phone:</strong>
+                        <strong>Phone:</strong>
                         <a href="tel:+631234567890">(049) 123-4567</a>
                     </div>
                     <div class="contact-info-item">
-                        <strong>🕐 Office Hours:</strong>
+                        <strong>Office Hours:</strong>
                         Monday - Friday: 8:00 AM - 5:00 PM
                     </div>
                     <div class="contact-info-item">
-                        <strong>📍 Address:</strong>
+                        <strong>Address:</strong>
                         City Agriculture Office<br>
                         San Pedro City Hall, Laguna
                     </div>
@@ -206,6 +211,174 @@
                         <button type="submit" class="contact-form-submit">Send Message</button>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH MODALS -->
+    <div id="auth-modal" class="auth-modal-overlay" style="display: none;">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
+                <h3 id="auth-modal-title">Welcome Back</h3>
+                <span class="auth-modal-close" onclick="closeAuthModal()">&times;</span>
+            </div>
+            
+            <div class="auth-modal-body">
+                <!-- Error/Success Messages -->
+                <div id="auth-error-message" class="auth-message auth-error" style="display: none;"></div>
+                <div id="auth-success-message" class="auth-message auth-success" style="display: none;"></div>
+
+                <!-- Log In Form (Default) -->
+                <form id="login-form" class="auth-form" style="display: block;">
+                    @csrf
+                    <div class="form-group">
+                        <label for="username">Username or Email</label>
+                        <input type="text" id="username" name="username" required placeholder="Enter your username or email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="login-password" name="password" required placeholder="Enter your password">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password')">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-links">
+                        <a href="#" onclick="showForgotPassword()">Forgot your password?</a>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-loader" style="display: none;">⏳</span>
+                    </button>
+
+                    <!-- Divider -->
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+
+                    <!-- Google Sign In Button -->
+                    <button type="button" class="google-signin-btn" onclick="signInWithGoogle()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" class="google-icon">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Continue with Google
+                    </button>
+
+                    <!-- Sign Up Prompt -->
+                    <div class="signup-prompt">
+                        <p>Don't have an account? <a href="#" onclick="showSignUpForm()">Sign up here</a></p>
+                    </div>
+                </form>
+
+                <!-- Sign Up Form (Hidden by default) -->
+                <form id="signup-form" class="auth-form" style="display: none;">
+                    @csrf
+                    <div class="back-to-login">
+                        <button type="button" onclick="showLogInForm()" class="back-btn">← Back to Sign In</button>
+                    </div>
+
+                    <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Create Your Account</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="signup-firstname">First Name</label>
+                            <input type="text" id="signup-firstname" name="firstname" required placeholder="Enter first name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="signup-middlename">Middle Name <span class="optional">(optional)</span></label>
+                            <input type="text" id="signup-middlename" name="middlename" placeholder="Enter middle name">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="signup-lastname">Last Name</label>
+                            <input type="text" id="signup-lastname" name="lastname" required placeholder="Enter last name">
+                        </div>
+                        
+                        <div class="form-group suffix">
+                            <label for="signup-suffix">Suffix</label>
+                            <select id="signup-suffix" name="suffix">
+                                <option value="">None</option>
+                                <option value="jr">Jr.</option>
+                                <option value="sr">Sr.</option>
+                                <option value="ii">II</option>
+                                <option value="iii">III</option>
+                                <option value="iv">IV</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-role">Role</label>
+                        <select id="signup-role" name="role" required>
+                            <option value="">Select your role</option>
+                            <option value="farmer">Farmer</option>
+                            <option value="fisherman">Fisherman</option>
+                            <option value="agricultural_worker">Agricultural Worker</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-contact">Contact Number</label>
+                        <input type="tel" id="signup-contact" name="contact" required placeholder="Enter contact number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="signup-password" name="password" required minlength="8" placeholder="Create password (min. 8 characters)">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-password')">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signup-confirm-password">Confirm Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="signup-confirm-password" name="confirm_password" required placeholder="Confirm your password">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-confirm-password')">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="agree-terms" name="agree_terms" required>
+                            <label for="agree-terms">I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a></label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn">
+                        <span class="btn-text">Create Account</span>
+                        <span class="btn-loader" style="display: none;">⏳</span>
+                    </button>
+
+                    <!-- Google Sign Up Option -->
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+
+                    <button type="button" class="google-signin-btn" onclick="signUpWithGoogle()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" class="google-icon">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Sign up with Google
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -270,6 +443,9 @@
     <script src="{{ asset('js/fishr.js') }}"></script>
     <script src="{{ asset('js/boatr.js') }}"></script>
     <script src="{{ asset('js/training.js') }}"></script>
+    <script src="{{ asset('js/api-service.js') }}"></script>
+    <script src="{{ asset('js/auth.js') }}"></script>
+    <script src="{{ asset('js/session-manager.js') }}"></script>
 </body>
 
 </html>
