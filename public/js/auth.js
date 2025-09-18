@@ -49,7 +49,7 @@ function showLogInForm() {
     if (loginForm) loginForm.style.display = 'block';
     if (signupForm) signupForm.style.display = 'none';
     
-    if (modalTitle) modalTitle.textContent = 'Welcome Back';
+    if (modalTitle) modalTitle.textContent = 'LOG IN';
     
     hideAuthMessages();
     clearValidationErrors();
@@ -63,7 +63,7 @@ function showSignUpForm() {
     if (loginForm) loginForm.style.display = 'none';
     if (signupForm) signupForm.style.display = 'block';
     
-    if (modalTitle) modalTitle.textContent = 'Create Your Account';
+    if (modalTitle) modalTitle.textContent = 'SIGN UP';
     
     hideAuthMessages();
     clearValidationErrors();

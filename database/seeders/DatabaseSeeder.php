@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
             SeedlingRequestSeeder::class,
             BoatrRequestSeeder::class,
             RsbsaApplicationSeeder::class,
-            TrainingApplicationSeeder::class
+            TrainingApplicationSeeder::class,
+            UserRegistrationSeeder::class
         ]);
     }
 }

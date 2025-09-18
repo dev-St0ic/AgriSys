@@ -372,6 +372,7 @@
             </div>
         </div>
     </div>
+    
     <!-- Footer Section -->
     <footer class="footer" id="main-footer">
         <div class="footer-container">

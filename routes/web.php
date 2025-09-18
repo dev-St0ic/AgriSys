@@ -16,6 +16,8 @@ use App\Http\Controllers\BoatrAnalyticsController;
 use App\Http\Controllers\RsbsaAnalyticsController;
 use App\Http\Controllers\TrainingAnalyticsController;
 use App\Http\Controllers\InventoryAnalyticsController;
+use App\Http\Controllers\UserRegistrationController;
+use App\Http\Controllers\Auth\LoginController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -333,6 +335,27 @@ if (config('app.debug')) {
         ]);
     })->name('debug.test-boatr');
 }
+
+
+// Admin routes group (for managing user registrations)
+Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'], 'as' => 'admin.'], function () {
+    
+    // User registration management routes
+    Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
+    Route::get('/users/{registration}', [UserRegistrationController::class, 'show'])->name('registrations.show');
+    Route::post('/users/{registration}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
+    Route::post('/users/{registration}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
+    Route::delete('/users/{registration}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
+    Route::get('/users-statistics', [UserRegistrationController::class, 'statistics'])->name('registrations.statistics');
+});
+
+// Client-side public routes (for users to register)
+Route::group(['prefix' => 'client'], function () {
+    Route::get('/register', [UserRegistrationController::class, 'create'])->name('client.register');
+    Route::post('/register', [UserRegistrationController::class, 'store'])->name('client.register.store');
+    Route::post('/login', [UserRegistrationController::class, 'clientLogin'])->name('client.login');
+    Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('client.verify.email');
+});
 
 // ==============================================
 // FALLBACK ROUTE
