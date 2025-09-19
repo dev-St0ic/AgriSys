@@ -1,4 +1,9 @@
-// Updated Auth Modal Functions with username-based signup
+// Enhanced Auth Modal Functions with User Profile Management
+
+// ==============================================
+// AUTH MODAL FUNCTIONS
+// ==============================================
+
 function openAuthModal(type = 'login') {
     const modal = document.getElementById('auth-modal');
     if (!modal) {
@@ -7,11 +12,7 @@ function openAuthModal(type = 'login') {
     }
     
     modal.style.display = 'flex';
-    
-    // Always show login form by default
     showLogInForm();
-    
-    // Prevent body scroll
     document.body.style.overflow = 'hidden';
 }
 
@@ -28,16 +29,9 @@ function closeAuthModal() {
     if (loginForm) loginForm.reset();
     if (signupForm) signupForm.reset();
     
-    // Clear messages
     hideAuthMessages();
-    
-    // Clear any validation styling
     clearValidationErrors();
-    
-    // Restore body scroll
     document.body.style.overflow = 'auto';
-    
-    // Always reset to login form when closing
     showLogInForm();
 }
 
@@ -48,7 +42,6 @@ function showLogInForm() {
     
     if (loginForm) loginForm.style.display = 'block';
     if (signupForm) signupForm.style.display = 'none';
-    
     if (modalTitle) modalTitle.textContent = 'LOG IN';
     
     hideAuthMessages();
@@ -62,20 +55,89 @@ function showSignUpForm() {
     
     if (loginForm) loginForm.style.display = 'none';
     if (signupForm) signupForm.style.display = 'block';
-    
     if (modalTitle) modalTitle.textContent = 'SIGN UP';
     
     hideAuthMessages();
     clearValidationErrors();
     
-    // Focus first input
     setTimeout(() => {
         const firstInput = signupForm.querySelector('input');
         if (firstInput) firstInput.focus();
     }, 100);
 }
 
-// Username availability checker with debouncing
+// ==============================================
+// USER PROFILE FUNCTIONS
+// ==============================================
+
+function toggleUserDropdown() {
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+}
+
+function scrollToMyApplications() {
+    const element = document.getElementById('my-applications');
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+    }
+    // Close dropdown
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+    }
+}
+
+function viewProfile() {
+    showNotification('info', 'Profile feature will be available soon!');
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+    }
+}
+
+function accountSettings() {
+    showNotification('info', 'Account settings will be available soon!');
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+    }
+}
+
+function logoutUser() {
+    if (confirm('Are you sure you want to log out?')) {
+        fetch('/auth/logout', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('success', 'Successfully logged out!');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                showNotification('error', 'Logout failed. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Logout error:', error);
+            // Fallback: reload page anyway
+            window.location.reload();
+        });
+    }
+}
+
+// ==============================================
+// USERNAME AVAILABILITY CHECKER
+// ==============================================
+
 let usernameCheckTimeout;
 
 function checkUsernameAvailability(username) {
@@ -91,9 +153,8 @@ function checkUsernameAvailability(username) {
         return;
     }
     
-    // Show checking status
     if (usernameStatus) {
-        usernameStatus.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin"></i> Checking...</span>';
+        usernameStatus.innerHTML = '<span class="text-info">Checking...</span>';
     }
     
     usernameCheckTimeout = setTimeout(() => {
@@ -109,11 +170,11 @@ function checkUsernameAvailability(username) {
         .then(data => {
             if (usernameStatus) {
                 if (data.available) {
-                    usernameStatus.innerHTML = '<span class="text-success"><i class="fas fa-check"></i> Username available</span>';
+                    usernameStatus.innerHTML = '<span class="text-success">✓ Username available</span>';
                     usernameInput.classList.remove('is-invalid');
                     usernameInput.classList.add('is-valid');
                 } else {
-                    usernameStatus.innerHTML = '<span class="text-danger"><i class="fas fa-times"></i> Username already taken</span>';
+                    usernameStatus.innerHTML = '<span class="text-danger">✗ Username already taken</span>';
                     usernameInput.classList.remove('is-valid');
                     usernameInput.classList.add('is-invalid');
                 }
@@ -122,13 +183,16 @@ function checkUsernameAvailability(username) {
         .catch(error => {
             console.error('Error checking username:', error);
             if (usernameStatus) {
-                usernameStatus.innerHTML = '<span class="text-muted"><i class="fas fa-exclamation-triangle"></i> Could not check availability</span>';
+                usernameStatus.innerHTML = '<span class="text-muted">⚠ Could not check availability</span>';
             }
         });
-    }, 500); // Wait 500ms after user stops typing
+    }, 500);
 }
 
-// Simplified validation for username-based signup
+// ==============================================
+// FORM VALIDATION
+// ==============================================
+
 function validateBasicSignupForm() {
     const username = document.getElementById('signup-username').value.trim();
     const email = document.getElementById('signup-email').value.trim();
@@ -139,7 +203,6 @@ function validateBasicSignupForm() {
     let isValid = true;
     let errors = [];
     
-    // Username validation
     if (!username) {
         errors.push('Username is required');
         isValid = false;
@@ -151,7 +214,6 @@ function validateBasicSignupForm() {
         isValid = false;
     }
     
-    // Email validation
     if (!email) {
         errors.push('Email is required');
         isValid = false;
@@ -160,7 +222,6 @@ function validateBasicSignupForm() {
         isValid = false;
     }
     
-    // Password validation
     if (!password) {
         errors.push('Password is required');
         isValid = false;
@@ -169,19 +230,16 @@ function validateBasicSignupForm() {
         isValid = false;
     }
     
-    // Password confirmation
     if (password !== confirmPassword) {
         errors.push('Passwords do not match');
         isValid = false;
     }
     
-    // Terms agreement
     if (!agreeTerms) {
         errors.push('You must agree to the Terms of Service and Privacy Policy');
         isValid = false;
     }
     
-    // Check if username validation shows error
     const usernameInput = document.getElementById('signup-username');
     if (usernameInput.classList.contains('is-invalid')) {
         errors.push('Please choose a different username');
@@ -197,7 +255,6 @@ function validateBasicSignupForm() {
     return isValid;
 }
 
-// Password strength checker
 function checkPasswordStrength(password) {
     const strengthBar = document.querySelector('.strength-fill');
     const strengthText = document.querySelector('.strength-text');
@@ -207,22 +264,12 @@ function checkPasswordStrength(password) {
     let strength = 0;
     let strengthLabel = 'Too weak';
     
-    // Length check
     if (password.length >= 8) strength++;
-    
-    // Lowercase letter
     if (/[a-z]/.test(password)) strength++;
-    
-    // Uppercase letter
     if (/[A-Z]/.test(password)) strength++;
-    
-    // Number
     if (/\d/.test(password)) strength++;
-    
-    // Special character
     if (/[^a-zA-Z0-9]/.test(password)) strength++;
     
-    // Update strength indicator
     strengthBar.className = 'strength-fill';
     
     switch (strength) {
@@ -249,7 +296,6 @@ function checkPasswordStrength(password) {
     strengthText.textContent = `Password strength: ${strengthLabel}`;
 }
 
-// Password match checker
 function checkPasswordMatch(password, confirmPassword) {
     const matchStatus = document.querySelector('.password-match-status');
     
@@ -267,7 +313,10 @@ function checkPasswordMatch(password, confirmPassword) {
     }
 }
 
-// Utility Functions
+// ==============================================
+// UTILITY FUNCTIONS
+// ==============================================
+
 function togglePasswordVisibility(inputId) {
     const input = document.getElementById(inputId);
     if (!input) return;
@@ -284,9 +333,7 @@ function togglePasswordVisibility(inputId) {
     }
 }
 
-// Show notification without emoji by default
 function showNotification(type, message) {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
@@ -295,7 +342,6 @@ function showNotification(type, message) {
         </div>
     `;
     
-    // Add styles if not exist
     if (!document.querySelector('#notification-styles')) {
         const styles = document.createElement('style');
         styles.id = 'notification-styles';
@@ -329,9 +375,9 @@ function showNotification(type, message) {
                 background: linear-gradient(135deg, #fff8f8 0%, #f5e8e8 100%);
             }
             
-            .notification-warning {
-                border-left-color: #ffc107;
-                background: linear-gradient(135deg, #fffdf8 0%, #f5f2e8 100%);
+            .notification-info {
+                border-left-color: #17a2b8;
+                background: linear-gradient(135deg, #f8fdff 0%, #e8f5f8 100%);
             }
             
             .notification-content {
@@ -348,31 +394,36 @@ function showNotification(type, message) {
         document.head.appendChild(styles);
     }
     
-    // Add to page
     document.body.appendChild(notification);
     
-    // Trigger animation
     setTimeout(() => notification.classList.add('show'), 100);
     
-    // Auto remove
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
     }, 4000);
 }
 
-// Google Authentication Functions
+// ==============================================
+// PLACEHOLDER FUNCTIONS
+// ==============================================
+
 function signInWithGoogle() {
-    console.log('Google Sign In clicked');
-    showAuthError('Google Sign In will be implemented soon!');
+    showNotification('info', 'Google Sign In will be implemented soon!');
 }
 
 function signUpWithGoogle() {
-    console.log('Google Sign Up clicked');
-    showAuthError('Google Sign Up will be implemented soon!');
+    showNotification('info', 'Google Sign Up will be implemented soon!');
 }
 
-// Message Functions
+function showForgotPassword() {
+    showNotification('info', 'Forgot password feature will be available soon!');
+}
+
+// ==============================================
+// MESSAGE FUNCTIONS
+// ==============================================
+
 function showAuthError(message) {
     const errorDiv = document.getElementById('auth-error-message');
     const successDiv = document.getElementById('auth-success-message');
@@ -417,14 +468,16 @@ function clearValidationErrors() {
     const errorMessages = document.querySelectorAll('.field-error');
     errorMessages.forEach(msg => msg.remove());
     
-    // Clear username status
     const usernameStatus = document.querySelector('.username-status');
     if (usernameStatus) {
         usernameStatus.innerHTML = '';
     }
 }
 
-// Form Submission Functions
+// ==============================================
+// FORM SUBMISSION HANDLERS
+// ==============================================
+
 function handleLoginSubmit(event) {
     event.preventDefault();
     
@@ -460,7 +513,7 @@ function handleLoginSubmit(event) {
         if (data.success) {
             showAuthSuccess('Login successful! Redirecting...');
             setTimeout(() => {
-                window.location.href = data.redirect || '/dashboard';
+                window.location.href = data.redirect || '/';
             }, 1500);
         } else {
             showAuthError(data.message || 'Login failed. Please check your credentials.');
@@ -480,7 +533,6 @@ function handleLoginSubmit(event) {
     return false;
 }
 
-// Updated signup form submission with username-based signup
 function handleSignupSubmit(event) {
     event.preventDefault();
     
@@ -493,14 +545,13 @@ function handleSignupSubmit(event) {
     const btnText = submitBtn.querySelector('.btn-text');
     const btnLoader = submitBtn.querySelector('.btn-loader');
     
-    // Show loading state with "Creating..." text
+    // Show loading state
     submitBtn.classList.add('loading');
     btnText.textContent = 'Creating...';
     btnText.style.display = 'inline';
     btnLoader.style.display = 'inline-block';
     submitBtn.disabled = true;
     
-    // Get form data
     const formData = {
         username: document.getElementById('signup-username').value.trim(),
         email: document.getElementById('signup-email').value.trim(),
@@ -509,7 +560,6 @@ function handleSignupSubmit(event) {
         terms_accepted: document.getElementById('agree-terms').checked
     };
     
-    // Add CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
     
     fetch('/auth/register', {
@@ -529,42 +579,32 @@ function handleSignupSubmit(event) {
     })
     .then(data => {
         if (data.success) {
-            // Show success notification
-            showNotification('success', 'Account created successfully! Your account has been added to our database.');
-            
-            // Show success message in modal
+            showNotification('success', 'Account created successfully!');
             showAuthSuccess('Account created! You can now log in with your credentials.');
             
-            // Clear the form
             form.reset();
             
-            // Clear username status
             const usernameStatus = document.querySelector('.username-status');
             if (usernameStatus) {
                 usernameStatus.innerHTML = '';
             }
             
-            // Switch to login form after delay
             setTimeout(() => {
                 showLogInForm();
                 hideAuthMessages();
                 
-                // Pre-fill username in login form
                 const loginUsernameField = document.getElementById('username');
                 if (loginUsernameField) {
                     loginUsernameField.value = formData.username;
                 }
                 
-                // Show another notification
                 showNotification('success', 'You can now log in with your new account!');
             }, 2000);
             
         } else {
-            // Show error notification
             showNotification('error', data.message || 'Registration failed. Please try again.');
             showAuthError(data.message || 'Registration failed. Please try again.');
             
-            // Handle field-specific errors
             if (data.errors) {
                 handleValidationErrors(data.errors);
             }
@@ -577,7 +617,6 @@ function handleSignupSubmit(event) {
         showAuthError(errorMessage);
     })
     .finally(() => {
-        // Reset loading state
         submitBtn.classList.remove('loading');
         btnText.textContent = 'SIGN UP';
         btnLoader.style.display = 'none';
@@ -588,14 +627,11 @@ function handleSignupSubmit(event) {
 }
 
 function handleValidationErrors(errors) {
-    // Clear previous errors
     clearValidationErrors();
     
-    // Show specific field errors
     const errorFields = Object.keys(errors);
     
     errorFields.forEach(field => {
-        // Map API field names to form field names
         const fieldMapping = {
             'username': 'signup-username',
             'email': 'signup-email',
@@ -610,7 +646,6 @@ function handleValidationErrors(errors) {
             input.classList.add('error', 'is-invalid');
             input.style.borderColor = '#dc3545';
             
-            // Create error message element
             const errorMsg = document.createElement('div');
             errorMsg.className = 'field-error';
             errorMsg.textContent = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
@@ -618,20 +653,114 @@ function handleValidationErrors(errors) {
             errorMsg.style.fontSize = '12px';
             errorMsg.style.marginTop = '4px';
             
-            // Insert after the input's parent element
             const parent = input.closest('.form-group') || input.parentElement;
             parent.appendChild(errorMsg);
         }
     });
 }
 
-// Forgot Password Function
-function showForgotPassword() {
-    showNotification('info', 'Forgot password feature will be available soon!');
-    console.log('Show forgot password modal');
+// ==============================================
+// APPLICATION MANAGEMENT FOR USERS
+// ==============================================
+
+function loadUserApplications() {
+    if (!window.userData) return;
+    
+    const grid = document.getElementById('applications-grid');
+    if (!grid) return;
+    
+    // Replace this with actual API call to your backend
+    fetch('/api/user/applications', {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.applications) {
+            renderApplications(data.applications);
+        } else {
+            // Fallback to mock data for development
+            renderMockApplications();
+        }
+    })
+    .catch(error => {
+        console.log('Loading mock applications for development');
+        renderMockApplications();
+    });
 }
 
-// Event Listeners Setup
+function renderApplications(applications) {
+    const grid = document.getElementById('applications-grid');
+    if (!grid) return;
+    
+    if (applications.length === 0) {
+        grid.innerHTML = `
+            <div class="application-card" style="text-align: center; grid-column: 1 / -1; color: #6b7280;">
+                <h4>No Applications Yet</h4>
+                <p>You haven't submitted any applications yet. Browse our services below to get started!</p>
+                <button class="quick-action-btn" onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">
+                    <span>🌾</span> Browse Services
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = applications.map(app => `
+        <div class="application-card">
+            <h4>${app.type}</h4>
+            <p>${app.description || 'Application submitted'}</p>
+            <div class="application-status status-${app.status}">
+                ${app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+            </div>
+            <small style="color: #6b7280;">Submitted: ${formatDate(app.date)}</small>
+        </div>
+    `).join('');
+}
+
+function renderMockApplications() {
+    const mockApplications = [
+        {
+            id: 1,
+            type: 'Seedlings Request',
+            date: '2025-01-15',
+            status: 'pending',
+            description: 'Vegetable seedlings for farming'
+        },
+        {
+            id: 2,
+            type: 'FishR Registration',
+            date: '2025-01-10',
+            status: 'approved',
+            description: 'Fisherfolk registration application'
+        },
+        {
+            id: 3,
+            type: 'Training Request',
+            date: '2025-01-08',
+            status: 'processing',
+            description: 'Agricultural training program'
+        }
+    ];
+    
+    renderApplications(mockApplications);
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+// ==============================================
+// EVENT LISTENERS AND INITIALIZATION
+// ==============================================
+
 document.addEventListener('DOMContentLoaded', function() {
     // Login form submission
     const loginForm = document.getElementById('login-form');
@@ -670,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Close modal when clicking outside
+    // Modal close functionality
     const modal = document.getElementById('auth-modal');
     if (modal) {
         modal.addEventListener('click', function(event) {
@@ -680,18 +809,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // ESC key to close modal
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('user-dropdown');
+        const profile = document.getElementById('user-profile');
+        
+        if (dropdown && profile && !profile.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+    
+    // ESC key to close modals
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
-            const modal = document.getElementById('auth-modal');
-            if (modal && modal.style.display !== 'none') {
+            const authModal = document.getElementById('auth-modal');
+            if (authModal && authModal.style.display !== 'none') {
                 closeAuthModal();
+            }
+            
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
             }
         }
     });
+    
+    // Load user applications if logged in
+    loadUserApplications();
 });
 
-// Global functions to be called from HTML
+// ==============================================
+// GLOBAL FUNCTION EXPORTS
+// ==============================================
+
+// Make functions available globally
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
 window.showLogInForm = showLogInForm;
@@ -700,3 +851,10 @@ window.togglePasswordVisibility = togglePasswordVisibility;
 window.signInWithGoogle = signInWithGoogle;
 window.signUpWithGoogle = signUpWithGoogle;
 window.showForgotPassword = showForgotPassword;
+window.toggleUserDropdown = toggleUserDropdown;
+window.scrollToMyApplications = scrollToMyApplications;
+window.viewProfile = viewProfile;
+window.accountSettings = accountSettings;
+window.logoutUser = logoutUser;
+
+console.log('Enhanced Auth.js with User Profile Management loaded successfully');

@@ -13,6 +13,13 @@
     <link rel="stylesheet" href="{{ asset('css/training.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    @if(isset($user))
+    <script>
+        // Pass user data to JavaScript
+        window.userData = @json($user);
+    </script>
+    @endif
 </head>
 
 <body>
@@ -50,8 +57,58 @@
             </div>
 
             <div class="header-right auth-buttons">
-            <button type="button" class="btn btn-login" onclick="openAuthModal('login')">Log in</button>
+                @if(isset($user))
+                    <!-- User Profile Dropdown -->
+                    <div class="user-profile" id="user-profile" onclick="toggleUserDropdown()">
+                        <div class="user-info">
+                            <div class="user-name">{{ $user['name'] ?? $user['username'] }}</div>
+                            <div class="user-status">{{ ucfirst($user['status'] ?? 'Active') }}</div>
+                        </div>
+                        <div class="user-avatar">
+                            {{ strtoupper(substr($user['name'] ?? $user['username'], 0, 1)) }}
+                        </div>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="user-dropdown" id="user-dropdown">
+                            <div class="dropdown-header">
+                                <div class="dropdown-user-info">
+                                    <div class="dropdown-avatar">
+                                        {{ strtoupper(substr($user['name'] ?? $user['username'], 0, 1)) }}
+                                    </div>
+                                    <div class="dropdown-details">
+                                        <div class="dropdown-name">{{ $user['name'] ?? $user['username'] }}</div>
+                                        <div class="dropdown-email">{{ $user['email'] }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item" onclick="scrollToMyApplications()">
+                                    <span class="dropdown-icon">📋</span>
+                                    My Applications
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="viewProfile()">
+                                    <span class="dropdown-icon">👤</span>
+                                    View Profile
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="accountSettings()">
+                                    <span class="dropdown-icon">⚙️</span>
+                                    Account Settings
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item logout" onclick="logoutUser()">
+                                    <span class="dropdown-icon">🚪</span>
+                                    Log Out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <!-- Login Button (for guests) -->
+                    <button type="button" class="btn btn-login" onclick="openAuthModal('login')">Log in</button>
+                @endif
             </div>
+        </div>
     </header>
 
     <section class="announcement">
@@ -59,16 +116,47 @@
             more info.</p>
     </section>
 
-    <section class="welcome" id="home">
-        <h2>Welcome to AgriSys</h2>
-        <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
-        <button class="btn-services"
-            onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore
-            Services</button>
-    </section>
+    @if(isset($user))
+        <!-- User Welcome Section -->
+        <section class="user-welcome-section">
+            <h3>Welcome back, {{ $user['name'] ?? $user['username'] }}!</h3>
+            <p>Your account status: <strong>{{ ucfirst($user['status'] ?? 'Active') }}</strong></p>
+            <div class="user-quick-actions">
+                <button class="quick-action-btn" onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">
+                    <span>🌾</span> Browse Services
+                </button>
+                <button class="quick-action-btn" onclick="scrollToMyApplications()">
+                    <span>📋</span> My Applications
+                </button>
+                <button class="quick-action-btn" onclick="viewProfile()">
+                    <span>👤</span> View Profile
+                </button>
+            </div>
+        </section>
+        
+        <!-- My Applications Section -->
+        <section class="my-applications-section" id="my-applications">
+            <h3>My Applications</h3>
+            <div class="applications-grid" id="applications-grid">
+                <!-- Will be populated by JavaScript -->
+                <div class="application-card" style="text-align: center; grid-column: 1 / -1; color: #6b7280;">
+                    <h4>Loading Applications...</h4>
+                    <p>Please wait while we fetch your application history.</p>
+                </div>
+            </div>
+        </section>
+    @else
+        <!-- Guest Welcome Section -->
+        <section class="welcome" id="home">
+            <h2>Welcome to AgriSys</h2>
+            <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
+            <button class="btn-services"
+                onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore
+                Services</button>
+        </section>
+    @endif
 
-
-    <!-- Services Section -->
+    <!-- Services Section (Always visible) -->
     <section class="services" id="services">
         <h2>OUR SERVICES</h2>
         <p class="services-subtitle">We provide comprehensive agricultural and fisheries support services to help you
@@ -214,7 +302,9 @@
             </div>
         </div>
     </div>
-    <!-- AUTH MODALS -->
+    
+    @if(!isset($user))
+    <!-- AUTH MODALS (Only show for guests) -->
     <div id="auth-modal" class="auth-modal-overlay" style="display: none;">
         <div class="auth-modal-content">
             <div class="auth-modal-header">
@@ -369,6 +459,7 @@
             </div>
         </div>
     </div>
+    @endif
     
     <!-- Footer Section -->
     <footer class="footer" id="main-footer">

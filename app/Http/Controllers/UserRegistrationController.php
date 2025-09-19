@@ -199,7 +199,7 @@ class UserRegistrationController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|string', // Changed from 'login' to 'username'
+            'username' => 'required|string',
             'password' => 'required|string',
         ], [
             'username.required' => 'Username or email is required',
@@ -232,7 +232,17 @@ class UserRegistrationController extends Controller
                     ], 403);
                 }
 
-                // Create session for the user
+                // Store user data in 'user' session key (this is what your middleware expects)
+                $request->session()->put('user', [
+                    'id' => $userRegistration->id,
+                    'username' => $userRegistration->username,
+                    'email' => $userRegistration->email,
+                    'name' => $userRegistration->full_name ?? $userRegistration->username,
+                    'user_type' => $userRegistration->user_type,
+                    'status' => $userRegistration->status
+                ]);
+                
+                // Also store individual keys for backward compatibility if needed
                 $request->session()->put('user_id', $userRegistration->id);
                 $request->session()->put('user_email', $userRegistration->email);
                 $request->session()->put('user_username', $userRegistration->username);
@@ -276,6 +286,16 @@ class UserRegistrationController extends Controller
             
             if ($user && Hash::check($password, $user->password)) {
                 Auth::login($user);
+                
+                // For admin users, also store in session format expected by middleware
+                $request->session()->put('user', [
+                    'id' => $user->id,
+                    'username' => $user->email, // Admin users might not have username
+                    'email' => $user->email,
+                    'name' => $user->name,
+                    'user_type' => 'admin',
+                    'status' => 'approved'
+                ]);
                 
                 return response()->json([
                     'success' => true,
