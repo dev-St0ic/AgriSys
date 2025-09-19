@@ -286,21 +286,18 @@
                         <h2 class="step-header">Create Your Account</h2>
                         <p class="step-description">Fill in the details below to get started</p>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="signup-firstname">First Name</label>
-                                <input type="text" id="signup-firstname" name="firstname" required 
-                                    placeholder="Enter first name"
-                                    autocomplete="given-name">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="signup-lastname">Last Name</label>
-                                <input type="text" id="signup-lastname" name="lastname" required 
-                                    placeholder="Enter last name"
-                                    autocomplete="family-name">
-                            </div>
-                        </div>
+                       
+                        <div class="form-group">
+                            <label for="signup-username">Username</label>
+                            <input type="text" id="signup-username" name="username" required 
+                                placeholder="Choose a username (letters, numbers, underscore only)"
+                                autocomplete="username"
+                                pattern="[a-zA-Z0-9_]+"
+                                minlength="5"
+                                maxlength="50">
+                            <div class="username-status"></div>
+                            <div class="form-text">Username must be characters, letters, numbers, and underscores only</div>
+                        </div>           
 
                         <div class="form-group">
                             <label for="signup-email">Email Address</label>

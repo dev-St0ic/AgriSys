@@ -424,40 +424,6 @@ header {
     justify-content: center;
 }
 
-/* Row layouts for balanced positioning */
-
-.row-two {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    justify-items: center;
-}
-
-.row-three {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 50px;
-    justify-items: center;
-    width: 100%;
-    max-width: 1200px;
-}
-
-.row-two-centered {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 60px;
-    justify-items: center;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.row-one {
-    display: grid;
-    grid-template-columns: 1fr;
-    justify-items: center;
-    margin-top: 20px;
-}
 
 .card {
     background-color: white;
@@ -544,22 +510,8 @@ header {
     box-shadow: 0 6px 20px rgba(45, 106, 79, 0.3);
 }
 
-/* Enhanced spacing for visual balance */
-.services-grid > .row-three:first-child {
-    margin-bottom: 40px;
-}
-
-.services-grid > .row-two-centered {
-    margin-top: 20px;
-}
-
 /* Responsive Design */
 @media (max-width: 1200px) {
-    .row-three {
-        gap: 40px;
-        max-width: 1000px;
-    }
-
     .card {
         max-width: 280px;
         padding: 30px;
@@ -571,16 +523,6 @@ header {
 }
 
 @media (max-width: 968px) {
-    .row-two, .row-two-centered {
-        gap: 40px;
-    }
-
-    .row-three {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 40px;
-        max-width: 700px;
-    }
-
     .card {
         max-width: 300px;
         min-height: 320px;
@@ -599,12 +541,6 @@ header {
 
     .services-grid {
         gap: 30px;
-    }
-
-    .row-two, .row-three, .row-two-centered {
-        grid-template-columns: 1fr;
-        gap: 30px;
-        max-width: 400px;
     }
 
     .card {

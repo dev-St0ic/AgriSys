@@ -1,4 +1,4 @@
-// Auth Modal Functions
+// Updated Auth Modal Functions with username-based signup
 function openAuthModal(type = 'login') {
     const modal = document.getElementById('auth-modal');
     if (!modal) {
@@ -75,10 +75,62 @@ function showSignUpForm() {
     }, 100);
 }
 
-// Validation Functions
-function validateSignupForm() {
-    const firstname = document.getElementById('signup-firstname').value.trim();
-    const lastname = document.getElementById('signup-lastname').value.trim();
+// Username availability checker with debouncing
+let usernameCheckTimeout;
+
+function checkUsernameAvailability(username) {
+    clearTimeout(usernameCheckTimeout);
+    
+    const usernameInput = document.getElementById('signup-username');
+    const usernameStatus = document.querySelector('.username-status');
+    
+    if (!username || username.length < 3) {
+        if (usernameStatus) {
+            usernameStatus.innerHTML = '';
+        }
+        return;
+    }
+    
+    // Show checking status
+    if (usernameStatus) {
+        usernameStatus.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin"></i> Checking...</span>';
+    }
+    
+    usernameCheckTimeout = setTimeout(() => {
+        fetch('/auth/check-username', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ username: username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (usernameStatus) {
+                if (data.available) {
+                    usernameStatus.innerHTML = '<span class="text-success"><i class="fas fa-check"></i> Username available</span>';
+                    usernameInput.classList.remove('is-invalid');
+                    usernameInput.classList.add('is-valid');
+                } else {
+                    usernameStatus.innerHTML = '<span class="text-danger"><i class="fas fa-times"></i> Username already taken</span>';
+                    usernameInput.classList.remove('is-valid');
+                    usernameInput.classList.add('is-invalid');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking username:', error);
+            if (usernameStatus) {
+                usernameStatus.innerHTML = '<span class="text-muted"><i class="fas fa-exclamation-triangle"></i> Could not check availability</span>';
+            }
+        });
+    }, 500); // Wait 500ms after user stops typing
+}
+
+// Simplified validation for username-based signup
+function validateBasicSignupForm() {
+    const username = document.getElementById('signup-username').value.trim();
     const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
     const confirmPassword = document.getElementById('signup-confirm-password').value;
@@ -87,15 +139,15 @@ function validateSignupForm() {
     let isValid = true;
     let errors = [];
     
-    // First name validation
-    if (!firstname) {
-        errors.push('First name is required');
+    // Username validation
+    if (!username) {
+        errors.push('Username is required');
         isValid = false;
-    }
-    
-    // Last name validation
-    if (!lastname) {
-        errors.push('Last name is required');
+    } else if (username.length < 3) {
+        errors.push('Username must be at least 3 characters');
+        isValid = false;
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        errors.push('Username can only contain letters, numbers, and underscores');
         isValid = false;
     }
     
@@ -126,6 +178,13 @@ function validateSignupForm() {
     // Terms agreement
     if (!agreeTerms) {
         errors.push('You must agree to the Terms of Service and Privacy Policy');
+        isValid = false;
+    }
+    
+    // Check if username validation shows error
+    const usernameInput = document.getElementById('signup-username');
+    if (usernameInput.classList.contains('is-invalid')) {
+        errors.push('Please choose a different username');
         isValid = false;
     }
     
@@ -225,19 +284,92 @@ function togglePasswordVisibility(inputId) {
     }
 }
 
+// Show notification without emoji by default
+function showNotification(type, message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-message">${message}</span>
+        </div>
+    `;
+    
+    // Add styles if not exist
+    if (!document.querySelector('#notification-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'notification-styles';
+        styles.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                padding: 16px 20px;
+                z-index: 10000;
+                transform: translateX(400px);
+                transition: all 0.3s ease;
+                border-left: 4px solid;
+                min-width: 300px;
+            }
+            
+            .notification.show {
+                transform: translateX(0);
+            }
+            
+            .notification-success {
+                border-left-color: #28a745;
+                background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
+            }
+            
+            .notification-error {
+                border-left-color: #dc3545;
+                background: linear-gradient(135deg, #fff8f8 0%, #f5e8e8 100%);
+            }
+            
+            .notification-warning {
+                border-left-color: #ffc107;
+                background: linear-gradient(135deg, #fffdf8 0%, #f5f2e8 100%);
+            }
+            
+            .notification-content {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .notification-message {
+                font-weight: 500;
+                color: #333;
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Trigger animation
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Auto remove
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
 // Google Authentication Functions
 function signInWithGoogle() {
     console.log('Google Sign In clicked');
     showAuthError('Google Sign In will be implemented soon!');
-    
-    // TODO: Implement Google Sign In API
 }
 
 function signUpWithGoogle() {
     console.log('Google Sign Up clicked');
     showAuthError('Google Sign Up will be implemented soon!');
-    
-    // TODO: Implement Google Sign Up API
 }
 
 // Message Functions
@@ -278,12 +410,18 @@ function hideAuthMessages() {
 function clearValidationErrors() {
     const inputs = document.querySelectorAll('.auth-form input');
     inputs.forEach(input => {
-        input.classList.remove('error', 'invalid', 'valid');
+        input.classList.remove('error', 'invalid', 'valid', 'is-invalid', 'is-valid');
         input.style.borderColor = '';
     });
     
     const errorMessages = document.querySelectorAll('.field-error');
     errorMessages.forEach(msg => msg.remove());
+    
+    // Clear username status
+    const usernameStatus = document.querySelector('.username-status');
+    if (usernameStatus) {
+        usernameStatus.innerHTML = '';
+    }
 }
 
 // Form Submission Functions
@@ -310,7 +448,6 @@ function handleLoginSubmit(event) {
     
     const formData = new FormData(form);
     
-    // TODO: Replace with your actual login endpoint
     fetch('/auth/login', {
         method: 'POST',
         body: formData,
@@ -343,10 +480,11 @@ function handleLoginSubmit(event) {
     return false;
 }
 
+// Updated signup form submission with username-based signup
 function handleSignupSubmit(event) {
     event.preventDefault();
     
-    if (!validateSignupForm()) {
+    if (!validateBasicSignupForm()) {
         return false;
     }
     
@@ -355,43 +493,78 @@ function handleSignupSubmit(event) {
     const btnText = submitBtn.querySelector('.btn-text');
     const btnLoader = submitBtn.querySelector('.btn-loader');
     
-    // Show loading state
+    // Show loading state with "Creating..." text
     submitBtn.classList.add('loading');
-    btnText.style.display = 'none';
+    btnText.textContent = 'Creating...';
+    btnText.style.display = 'inline';
     btnLoader.style.display = 'inline-block';
+    submitBtn.disabled = true;
     
-    // Create FormData
-    const signupData = new FormData(form);
+    // Get form data
+    const formData = {
+        username: document.getElementById('signup-username').value.trim(),
+        email: document.getElementById('signup-email').value.trim(),
+        password: document.getElementById('signup-password').value,
+        password_confirmation: document.getElementById('signup-confirm-password').value,
+        terms_accepted: document.getElementById('agree-terms').checked
+    };
     
     // Add CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
-    if (csrfToken) {
-        signupData.append('_token', csrfToken.content);
-    }
     
-    // TODO: Replace with your actual signup endpoint
     fetch('/auth/register', {
         method: 'POST',
-        body: signupData,
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-        }
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken ? csrfToken.content : '',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(formData)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            showAuthSuccess('Account created successfully! Please check your email to verify your account.');
+            // Show success notification
+            showNotification('success', 'Account created successfully! Your account has been added to our database.');
+            
+            // Show success message in modal
+            showAuthSuccess('Account created! You can now log in with your credentials.');
+            
+            // Clear the form
+            form.reset();
+            
+            // Clear username status
+            const usernameStatus = document.querySelector('.username-status');
+            if (usernameStatus) {
+                usernameStatus.innerHTML = '';
+            }
+            
+            // Switch to login form after delay
             setTimeout(() => {
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                } else {
-                    closeAuthModal();
-                    showLogInForm();
+                showLogInForm();
+                hideAuthMessages();
+                
+                // Pre-fill username in login form
+                const loginUsernameField = document.getElementById('username');
+                if (loginUsernameField) {
+                    loginUsernameField.value = formData.username;
                 }
+                
+                // Show another notification
+                showNotification('success', 'You can now log in with your new account!');
             }, 2000);
+            
         } else {
+            // Show error notification
+            showNotification('error', data.message || 'Registration failed. Please try again.');
             showAuthError(data.message || 'Registration failed. Please try again.');
-            // If there are field-specific errors, handle them
+            
+            // Handle field-specific errors
             if (data.errors) {
                 handleValidationErrors(data.errors);
             }
@@ -399,45 +572,62 @@ function handleSignupSubmit(event) {
     })
     .catch(error => {
         console.error('Signup error:', error);
-        showAuthError('An error occurred. Please try again.');
+        const errorMessage = 'An error occurred. Please check your connection and try again.';
+        showNotification('error', errorMessage);
+        showAuthError(errorMessage);
     })
     .finally(() => {
         // Reset loading state
         submitBtn.classList.remove('loading');
-        btnText.style.display = 'inline';
+        btnText.textContent = 'SIGN UP';
         btnLoader.style.display = 'none';
+        submitBtn.disabled = false;
     });
     
     return false;
 }
 
 function handleValidationErrors(errors) {
+    // Clear previous errors
+    clearValidationErrors();
+    
     // Show specific field errors
     const errorFields = Object.keys(errors);
     
     errorFields.forEach(field => {
-        const input = document.querySelector(`[name="${field}"]`);
+        // Map API field names to form field names
+        const fieldMapping = {
+            'username': 'signup-username',
+            'email': 'signup-email',
+            'password': 'signup-password',
+            'terms_accepted': 'agree-terms'
+        };
+        
+        const fieldName = fieldMapping[field] || field;
+        const input = document.getElementById(fieldName);
+        
         if (input) {
-            input.classList.add('error');
+            input.classList.add('error', 'is-invalid');
+            input.style.borderColor = '#dc3545';
             
             // Create error message element
             const errorMsg = document.createElement('div');
             errorMsg.className = 'field-error';
-            errorMsg.textContent = errors[field][0]; // Laravel returns arrays
-            errorMsg.style.color = '#ef4444';
+            errorMsg.textContent = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+            errorMsg.style.color = '#dc3545';
             errorMsg.style.fontSize = '12px';
             errorMsg.style.marginTop = '4px';
             
-            // Insert after the input
-            input.parentElement.insertBefore(errorMsg, input.nextSibling);
+            // Insert after the input's parent element
+            const parent = input.closest('.form-group') || input.parentElement;
+            parent.appendChild(errorMsg);
         }
     });
 }
 
 // Forgot Password Function
 function showForgotPassword() {
-    // TODO: Implement forgot password modal or redirect
-    showAuthError('Forgot password feature will be implemented soon!');
+    showNotification('info', 'Forgot password feature will be available soon!');
     console.log('Show forgot password modal');
 }
 
@@ -453,6 +643,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const signupForm = document.getElementById('signup-form-submit');
     if (signupForm) {
         signupForm.addEventListener('submit', handleSignupSubmit);
+    }
+    
+    // Username availability checker
+    const usernameInput = document.getElementById('signup-username');
+    if (usernameInput) {
+        usernameInput.addEventListener('input', function() {
+            checkUsernameAvailability(this.value);
+        });
     }
     
     // Password strength checker

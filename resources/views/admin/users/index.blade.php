@@ -38,6 +38,26 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Unverified (Basic Signup)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="unverified-count">
+                                {{ $stats['unverified'] ?? 0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                 Pending Review
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800" id="pending-count">
@@ -110,6 +130,9 @@
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                             <option value="">All Status</option>
+                            <option value="unverified" {{ request('status') == 'unverified' ? 'selected' : '' }}>
+                                Unverified (Basic Signup)
+                            </option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
                                 Pending Review
                             </option>
@@ -133,6 +156,9 @@
                             <option value="general" {{ request('user_type') == 'general' ? 'selected' : '' }}>
                                 General Public
                             </option>
+                            <option value="not_selected" {{ request('user_type') == 'not_selected' ? 'selected' : '' }}>
+                                Not Selected Yet
+                            </option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -149,7 +175,7 @@
                     <div class="col-md-3">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
-                                placeholder="Search name, email, phone..." value="{{ request('search') }}"
+                                placeholder="Search username, email, name..." value="{{ request('search') }}"
                                 oninput="autoSearch()" id="searchInput">
                             <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
                                 id="searchButton">
@@ -181,9 +207,6 @@
                 <button type="button" class="btn btn-primary btn-sm" onclick="exportRegistrations()">
                     <i class="fas fa-download me-2"></i>Export Data
                 </button>
-                <button type="button" class="btn btn-success btn-sm" onclick="showBulkActions()">
-                    <i class="fas fa-tasks me-2"></i>Bulk Actions
-                </button>
             </div>
         </div>
         
@@ -192,38 +215,47 @@
                 <table class="table table-bordered table-hover" width="100%" cellspacing="0">
                     <thead class="table-dark">
                         <tr>
-                            <th width="30"><input type="checkbox" class="form-check-input" id="selectAllTable"></th>
                             <th>Registration Date</th>
+                            <th>Username</th>
                             <th>Full Name</th>
                             <th>Email</th>
-                            <th>Phone</th>
+                            <th>Contact Number</th>
                             <th>User Type</th>
                             <th>Status</th>
                             <th>Email Verified</th>
-                            <th>Location</th>
+                            <th>Documents</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($registrations as $registration)
                         <tr data-id="{{ $registration->id }}">
-                            <td>
-                                <input type="checkbox" class="form-check-input row-select" 
-                                       value="{{ $registration->id }}">
-                            </td>
                             <td>{{ $registration->created_at->format('M d, Y g:i A') }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar rounded-circle me-2 d-flex align-items-center justify-content-center text-white font-weight-bold" 
                                          style="width: 35px; height: 35px; 
                                          background-color: {{ $registration->user_type === 'farmer' ? '#28a745' : ($registration->user_type === 'fisherfolk' ? '#17a2b8' : '#6c757d') }}">
-                                        {{ strtoupper(substr($registration->first_name ?? '', 0, 1) . substr($registration->last_name ?? '', 0, 1)) }}
+                                        {{ strtoupper(substr($registration->username, 0, 2)) }}
                                     </div>
                                     <div>
-                                        <div class="font-weight-bold">{{ $registration->full_name }}</div>
-                                        <small class="text-muted">{{ $registration->user_type_display ?? ucfirst($registration->user_type) }}</small>
+                                        <div class="font-weight-bold text-primary">{{ $registration->username }}</div>
+                                        @if($registration->user_type)
+                                            <small class="text-muted">{{ ucfirst($registration->user_type) }}</small>
+                                        @else
+                                            <small class="text-muted text-warning">Type not selected</small>
+                                        @endif
                                     </div>
                                 </div>
+                            </td>
+                            <td>
+                                @if($registration->first_name || $registration->last_name)
+                                    <div class="font-weight-bold">
+                                        {{ trim($registration->first_name . ' ' . ($registration->middle_name ? $registration->middle_name . ' ' : '') . $registration->last_name . ($registration->name_extension ? ', ' . $registration->name_extension : '')) }}
+                                    </div>
+                                @else
+                                    <span class="text-muted font-italic">Not provided (Basic signup only)</span>
+                                @endif
                             </td>
                             <td>
                                 <a href="mailto:{{ $registration->email }}" class="text-decoration-none">
@@ -231,26 +263,44 @@
                                 </a>
                             </td>
                             <td>
-                                @if($registration->phone)
-                                    <a href="tel:{{ $registration->phone }}" class="text-decoration-none">
-                                        {{ $registration->phone }}
+                                @if($registration->contact_number)
+                                    <a href="tel:{{ $registration->contact_number }}" class="text-decoration-none">
+                                        {{ $registration->contact_number }}
                                     </a>
                                 @else
                                     <span class="text-muted">Not provided</span>
                                 @endif
                             </td>
                             <td>
-                                <span class="badge fs-6
-                                    @if($registration->user_type === 'farmer') bg-success 
-                                    @elseif($registration->user_type === 'fisherfolk') bg-info 
-                                    @else bg-secondary @endif">
-                                    {{ ucfirst($registration->user_type) }}
-                                </span>
+                                @if($registration->user_type)
+                                    <span class="badge fs-6
+                                        @if($registration->user_type === 'farmer') bg-success 
+                                        @elseif($registration->user_type === 'fisherfolk') bg-info 
+                                        @else bg-secondary @endif">
+                                        {{ ucfirst($registration->user_type) }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-warning fs-6">Not Selected</span>
+                                @endif
                             </td>
                             <td>
-                                <span class="badge bg-{{ $registration->status === 'pending' ? 'warning' : ($registration->status === 'approved' ? 'success' : 'danger') }} fs-6">
-                                    {{ ucfirst($registration->status) }}
-                                </span>
+                                @php
+                                    $statusColor = match($registration->status) {
+                                        'unverified' => 'warning',
+                                        'pending' => 'info',
+                                        'approved' => 'success',
+                                        'rejected' => 'danger',
+                                        default => 'secondary'
+                                    };
+                                    $statusText = match($registration->status) {
+                                        'unverified' => 'Basic Signup',
+                                        'pending' => 'Pending Review',
+                                        'approved' => 'Approved',
+                                        'rejected' => 'Rejected',
+                                        default => ucfirst($registration->status)
+                                    };
+                                @endphp
+                                <span class="badge bg-{{ $statusColor }} fs-6">{{ $statusText }}</span>
                             </td>
                             <td>
                                 @if($registration->hasVerifiedEmail())
@@ -264,13 +314,40 @@
                                 @endif
                             </td>
                             <td>
-                                @if($registration->address)
-                                    <span title="{{ $registration->address }}">
-                                        {{ Str::limit($registration->address, 30) }}
-                                    </span>
-                                @else
-                                    <span class="text-muted">Not provided</span>
-                                @endif
+                                <div class="d-flex flex-wrap gap-1">
+                                    <!-- Location Document -->
+                                    @if($registration->location_document_path)
+                                        <span class="badge bg-success fs-6" title="Location Document Uploaded">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary fs-6" title="Location Document Missing">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </span>
+                                    @endif
+                                    
+                                    <!-- ID Front -->
+                                    @if($registration->id_front_path)
+                                        <span class="badge bg-success fs-6" title="ID Front Uploaded">
+                                            <i class="fas fa-id-card"></i>
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary fs-6" title="ID Front Missing">
+                                            <i class="fas fa-id-card"></i>
+                                        </span>
+                                    @endif
+                                    
+                                    <!-- ID Back -->
+                                    @if($registration->id_back_path)
+                                        <span class="badge bg-success fs-6" title="ID Back Uploaded">
+                                            <i class="fas fa-id-card-alt"></i>
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary fs-6" title="ID Back Missing">
+                                            <i class="fas fa-id-card-alt"></i>
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
@@ -389,13 +466,15 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <p class="mb-1"><strong>ID:</strong> <span id="updateRegId"></span></p>
-                                    <p class="mb-1"><strong>Name:</strong> <span id="updateRegName"></span></p>
+                                    <p class="mb-1"><strong>Username:</strong> <span id="updateRegUsername"></span></p>
+                                    <p class="mb-1"><strong>Full Name:</strong> <span id="updateRegName"></span></p>
                                     <p class="mb-1"><strong>Email:</strong> <span id="updateRegEmail"></span></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mb-1"><strong>User Type:</strong> <span id="updateRegType"></span></p>
-                                    <p class="mb-1"><strong>Phone:</strong> <span id="updateRegPhone"></span></p>
+                                    <p class="mb-1"><strong>Contact Number:</strong> <span id="updateRegContact"></span></p>
                                     <p class="mb-1"><strong>Current Status:</strong> <span id="updateRegCurrentStatus"></span></p>
+                                    <p class="mb-1"><strong>Documents:</strong> <span id="updateRegDocuments"></span></p>
                                 </div>
                             </div>
                         </div>
@@ -408,6 +487,7 @@
                             <label for="newStatus" class="form-label">Select New Status:</label>
                             <select class="form-select" id="newStatus" required>
                                 <option value="">Choose status...</option>
+                                <option value="unverified">Unverified (Basic Signup)</option>
                                 <option value="pending">Pending Review</option>
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
@@ -443,38 +523,41 @@
                     <!-- Content will be loaded here -->
                 </div>
                 <div class="modal-footer">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('location')" id="viewLocationDoc">
+                            <i class="fas fa-map-marker-alt me-2"></i>View Location Document
+                        </button>
+                        <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('id_front')" id="viewIdFront">
+                            <i class="fas fa-id-card me-2"></i>View ID Front
+                        </button>
+                        <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('id_back')" id="viewIdBack">
+                            <i class="fas fa-id-card-alt me-2"></i>View ID Back
+                        </button>
+                    </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bulk Actions Modal -->
-    <div class="modal fade" id="bulkActionsModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+    <!-- Document Viewer Modal -->
+    <div class="modal fade" id="documentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-tasks me-2"></i>Bulk Actions
+                    <h5 class="modal-title" id="documentModalTitle">
+                        <i class="fas fa-file-image me-2"></i>Document View
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <p>Select an action to perform on <span id="selectedCount">0</span> selected registrations:</p>
-                    <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-success" onclick="bulkApprove()">
-                            <i class="fas fa-check me-2"></i>Approve Selected
-                        </button>
-                        <button type="button" class="btn btn-danger" onclick="bulkReject()">
-                            <i class="fas fa-times me-2"></i>Reject Selected
-                        </button>
-                        <button type="button" class="btn btn-outline-danger" onclick="bulkDelete()">
-                            <i class="fas fa-trash me-2"></i>Delete Selected
-                        </button>
-                    </div>
+                <div class="modal-body text-center" id="documentModalBody">
+                    <!-- Document content will be loaded here -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="downloadDocument()">
+                        <i class="fas fa-download me-2"></i>Download
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -584,6 +667,10 @@
             border-left: 0.25rem solid #f6c23e !important;
         }
 
+        .border-left-info {
+            border-left: 0.25rem solid #36b9cc !important;
+        }
+
         .border-left-danger {
             border-left: 0.25rem solid #e74a3b !important;
         }
@@ -641,6 +728,24 @@
             opacity: 1;
         }
 
+        /* Document viewer styles */
+        .document-image {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .document-placeholder {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+        }
+
         /* Custom Pagination Styles */
         .pagination {
             background-color: #f8f9fa;
@@ -688,7 +793,7 @@
 
 @section('scripts')
     <script>
-        // Add this at the top of your scripts section
+        // Add CSRF token to all AJAX requests
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -696,6 +801,8 @@
         });
 
         let searchTimeout;
+        let currentRegistrationId = null;
+        let currentDocumentUrl = null;
 
         // Auto search functionality
         function autoSearch() {
@@ -710,35 +817,11 @@
             document.getElementById('filterForm').submit();
         }
 
-        // Initialize select all functionality
-        function initializeSelectAll() {
-            $('#selectAllTable').change(function() {
-                const isChecked = $(this).is(':checked');
-                $('.row-select').prop('checked', isChecked);
-                updateSelectedCount();
-            });
-            
-            $('.row-select').change(function() {
-                updateSelectAllState();
-                updateSelectedCount();
-            });
-        }
-
-        function updateSelectAllState() {
-            const totalCheckboxes = $('.row-select').length;
-            const checkedCheckboxes = $('.row-select:checked').length;
-            
-            $('#selectAllTable').prop('checked', totalCheckboxes === checkedCheckboxes);
-        }
-
-        function updateSelectedCount() {
-            const count = $('.row-select:checked').length;
-            $('#selectedCount').text(count);
-        }
-
         // Helper function to get status display text
         function getStatusText(status) {
             switch (status) {
+                case 'unverified':
+                    return 'Unverified (Basic Signup)';
                 case 'pending':
                     return 'Pending Review';
                 case 'approved':
@@ -773,16 +856,27 @@
 
                     // Populate registration info display
                     document.getElementById('updateRegId').textContent = data.id;
-                    document.getElementById('updateRegName').textContent = data.full_name;
+                    document.getElementById('updateRegUsername').textContent = data.username || 'N/A';
+                    document.getElementById('updateRegName').textContent = data.full_name || 'Not provided (Basic signup only)';
                     document.getElementById('updateRegEmail').textContent = data.email;
-                    document.getElementById('updateRegType').textContent = data.user_type;
-                    document.getElementById('updateRegPhone').textContent = data.phone || 'Not provided';
+                    document.getElementById('updateRegType').textContent = data.user_type || 'Not selected';
+                    document.getElementById('updateRegContact').textContent = data.contact_number || 'Not provided';
 
                     // Show current status with badge styling
                     const currentStatusElement = document.getElementById('updateRegCurrentStatus');
-                    const statusColor = data.status === 'pending' ? 'warning' : (data.status === 'approved' ? 'success' : 'danger');
+                    const statusColor = data.status === 'unverified' ? 'warning' : 
+                                      (data.status === 'pending' ? 'info' : 
+                                      (data.status === 'approved' ? 'success' : 'danger'));
                     currentStatusElement.innerHTML = `
-                    <span class="badge bg-${statusColor}">${data.status}</span>`;
+                    <span class="badge bg-${statusColor}">${getStatusText(data.status)}</span>`;
+
+                    // Show document status
+                    const documentsElement = document.getElementById('updateRegDocuments');
+                    let documentStatus = [];
+                    if (data.location_document_path) documentStatus.push('<span class="badge bg-success fs-6">Location</span>');
+                    if (data.id_front_path) documentStatus.push('<span class="badge bg-success fs-6">ID Front</span>');
+                    if (data.id_back_path) documentStatus.push('<span class="badge bg-success fs-6">ID Back</span>');
+                    documentsElement.innerHTML = documentStatus.length > 0 ? documentStatus.join(' ') : '<span class="text-muted">None uploaded</span>';
 
                     // Set form values and store original values for comparison
                     const statusSelect = document.getElementById('newStatus');
@@ -881,7 +975,7 @@
                     send_notification: true
                 };
             } else {
-                // For pending status or other updates, use a generic update endpoint if available
+                // For unverified, pending status or other updates
                 endpoint = `/admin/registrations/${id}/update-status`;
                 requestData = {
                     status: newStatus,
@@ -928,8 +1022,10 @@
             });
         }
 
-        // View registration details
+        // View registration details function
         function viewRegistration(id) {
+            currentRegistrationId = id;
+            
             // Show loading state
             document.getElementById('registrationDetails').innerHTML = `
             <div class="text-center">
@@ -965,41 +1061,106 @@
                         </div>
                     </div>` : '';
 
+                    // Check if this is a basic signup user
+                    const isBasicSignup = !data.first_name && !data.last_name && !data.contact_number;
+                    
+                    const basicSignupAlert = isBasicSignup ? `
+                    <div class="col-12 mb-3">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Basic Signup User:</strong> This user has only provided username, email, and password. 
+                            They need to complete their profile to access full services.
+                        </div>
+                    </div>` : '';
+
                     // Update modal content
                     document.getElementById('registrationDetails').innerHTML = `
                     <div class="row g-3">
+                        ${basicSignupAlert}
                         <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Personal Information</h6>
-                            <p><strong>Full Name:</strong> ${data.full_name}</p>
+                            <h6 class="border-bottom pb-2">Account Information</h6>
+                            <p><strong>Username:</strong> ${data.username || 'N/A'}</p>
+                            <p><strong>First Name:</strong> ${data.first_name || '<span class="text-muted">Not provided</span>'}</p>
+                            <p><strong>Middle Name:</strong> ${data.middle_name || '<span class="text-muted">Not provided</span>'}</p>
+                            <p><strong>Last Name:</strong> ${data.last_name || '<span class="text-muted">Not provided</span>'}</p>
+                            <p><strong>Name Extension:</strong> ${data.name_extension || '<span class="text-muted">Not provided</span>'}</p>
                             <p><strong>Email:</strong> ${data.email}</p>
-                            <p><strong>Phone:</strong> ${data.phone || 'Not provided'}</p>
-                            <p><strong>Date of Birth:</strong> ${data.date_of_birth || 'Not provided'}</p>
-                            <p><strong>Gender:</strong> ${data.gender || 'Not specified'}</p>
-                            <p><strong>Address:</strong> ${data.address || 'Not provided'}</p>
+                            <p><strong>Contact Number:</strong> ${data.contact_number || '<span class="text-muted">Not provided</span>'}</p>
+                            <p><strong>Date of Birth:</strong> ${data.date_of_birth || '<span class="text-muted">Not provided</span>'}</p>
+                            <p><strong>Gender:</strong> ${data.gender || '<span class="text-muted">Not specified</span>'}</p>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Registration Information</h6>
-                            <p><strong>User Type:</strong> ${data.user_type}</p>
-                            <p><strong>Occupation:</strong> ${data.occupation || 'Not specified'}</p>
-                            <p><strong>Organization:</strong> ${data.organization || 'Not specified'}</p>
+                            <h6 class="border-bottom pb-2">Registration Status</h6>
+                            <p><strong>User Type:</strong> ${data.user_type || '<span class="text-warning">Not selected yet</span>'}</p>
                             <p><strong>Current Status:</strong>
-                                <span class="badge bg-${data.status === 'pending' ? 'warning' : (data.status === 'approved' ? 'success' : 'danger')}">${data.status}</span>
+                                <span class="badge bg-${data.status === 'unverified' ? 'warning' : (data.status === 'pending' ? 'info' : (data.status === 'approved' ? 'success' : 'danger'))}">${getStatusText(data.status)}</span>
                             </p>
                             <p><strong>Email Verified:</strong> ${data.email_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>'}</p>
                             <p><strong>Registration Date:</strong> ${data.created_at}</p>
+                            <p><strong>Last Login:</strong> ${data.last_login_at || '<span class="text-muted">Never</span>'}</p>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Emergency Contact</h6>
-                            <p><strong>Contact Name:</strong> ${data.emergency_contact_name || 'Not provided'}</p>
-                            <p><strong>Contact Phone:</strong> ${data.emergency_contact_phone || 'Not provided'}</p>
+                            <h6 class="border-bottom pb-2">Address Information</h6>
+                            <p><strong>Complete Address:</strong> ${data.complete_address || '<span class="text-muted">Not provided</span>'}</p>
+                            <p><strong>Barangay:</strong> ${data.barangay || '<span class="text-muted">Not provided</span>'}</p>
                         </div>
                         <div class="col-md-6">
+                            <h6 class="border-bottom pb-2">Additional Information</h6>
+                            <p><strong>Occupation:</strong> ${data.occupation || '<span class="text-muted">Not specified</span>'}</p>
+                            <p><strong>Organization:</strong> ${data.organization || '<span class="text-muted">Not specified</span>'}</p>
+                            <p><strong>Emergency Contact:</strong> ${data.emergency_contact_name || '<span class="text-muted">Not provided</span>'}</p>
+                            <p><strong>Emergency Phone:</strong> ${data.emergency_contact_phone || '<span class="text-muted">Not provided</span>'}</p>
+                        </div>
+                        <div class="col-md-12">
+                            <h6 class="border-bottom pb-2">Document Status</h6>
+                            <div class="row">
+                                <div class="col-md-4 text-center">
+                                    <div class="card ${data.location_document_path ? 'border-success' : 'border-secondary'}">
+                                        <div class="card-body">
+                                            <i class="fas fa-map-marker-alt fa-2x ${data.location_document_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                            <h6>Location Document</h6>
+                                            <span class="badge ${data.location_document_path ? 'bg-success' : 'bg-secondary'}">${data.location_document_path ? 'Uploaded' : 'Not Uploaded'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="card ${data.id_front_path ? 'border-success' : 'border-secondary'}">
+                                        <div class="card-body">
+                                            <i class="fas fa-id-card fa-2x ${data.id_front_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                            <h6>ID Front</h6>
+                                            <span class="badge ${data.id_front_path ? 'bg-success' : 'bg-secondary'}">${data.id_front_path ? 'Uploaded' : 'Not Uploaded'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="card ${data.id_back_path ? 'border-success' : 'border-secondary'}">
+                                        <div class="card-body">
+                                            <i class="fas fa-id-card-alt fa-2x ${data.id_back_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                            <h6>ID Back</h6>
+                                            <span class="badge ${data.id_back_path ? 'bg-success' : 'bg-secondary'}">${data.id_back_path ? 'Uploaded' : 'Not Uploaded'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
                             <h6 class="border-bottom pb-2">Technical Information</h6>
-                            <p><strong>Registration IP:</strong> <code>${data.registration_ip || 'N/A'}</code></p>
-                            <p><strong>Referral Source:</strong> ${data.referral_source || 'Direct'}</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Registration IP:</strong> <code>${data.registration_ip || 'N/A'}</code></p>
+                                    <p><strong>Referral Source:</strong> ${data.referral_source || 'Direct'}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Terms Accepted:</strong> ${data.terms_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
+                                    <p><strong>Privacy Accepted:</strong> ${data.privacy_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
+                                </div>
+                            </div>
                         </div>
                         ${remarksHtml}
                     </div>`;
+
+                    // Update document viewer buttons visibility
+                    updateDocumentButtons(data);
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -1009,6 +1170,99 @@
                         ${error.message || 'Error loading registration details. Please try again.'}
                     </div>`;
                 });
+        }
+
+        // Update document viewer buttons based on available documents
+        function updateDocumentButtons(data) {
+            const locationBtn = document.getElementById('viewLocationDoc');
+            const idFrontBtn = document.getElementById('viewIdFront');
+            const idBackBtn = document.getElementById('viewIdBack');
+
+            locationBtn.style.display = data.location_document_path ? 'inline-block' : 'none';
+            idFrontBtn.style.display = data.id_front_path ? 'inline-block' : 'none';
+            idBackBtn.style.display = data.id_back_path ? 'inline-block' : 'none';
+        }
+
+        // View document function
+        function viewDocument(documentType) {
+            if (!currentRegistrationId) {
+                alert('Registration ID not found');
+                return;
+            }
+
+            const documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
+            const modalTitle = document.getElementById('documentModalTitle');
+            const modalBody = document.getElementById('documentModalBody');
+
+            // Set modal title
+            const titles = {
+                'location': 'Location Document',
+                'id_front': 'Government ID - Front',
+                'id_back': 'Government ID - Back'
+            };
+            modalTitle.innerHTML = `<i class="fas fa-file-image me-2"></i>${titles[documentType]}`;
+
+            // Show loading
+            modalBody.innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading document...</p>
+            </div>`;
+
+            // Show modal
+            documentModal.show();
+
+            // Fetch document
+            fetch(`/admin/registrations/${currentRegistrationId}/document/${documentType}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Document not found or could not be loaded');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.document_url) {
+                        currentDocumentUrl = data.document_url;
+                        modalBody.innerHTML = `
+                        <img src="${data.document_url}" 
+                             alt="${titles[documentType]}" 
+                             class="document-image"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="document-placeholder" style="display: none;">
+                            <i class="fas fa-file-image fa-3x mb-3"></i>
+                            <p>Unable to load image preview</p>
+                            <p class="text-muted">The document may be in a format that cannot be displayed inline.</p>
+                        </div>`;
+                    } else {
+                        throw new Error(data.message || 'Document not available');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading document:', error);
+                    modalBody.innerHTML = `
+                    <div class="document-placeholder">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
+                        <p>Document could not be loaded</p>
+                        <p class="text-muted">${error.message}</p>
+                    </div>`;
+                    currentDocumentUrl = null;
+                });
+        }
+
+        // Download document function
+        function downloadDocument() {
+            if (currentDocumentUrl) {
+                const link = document.createElement('a');
+                link.href = currentDocumentUrl;
+                link.download = '';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('No document available for download');
+            }
         }
 
         // Delete registration
@@ -1044,163 +1298,33 @@
             });
         }
 
-        // Bulk actions
-        function showBulkActions() {
-            const selectedCount = $('.row-select:checked').length;
-            
-            if (selectedCount === 0) {
-                showAlert('warning', 'Please select at least one registration.');
-                return;
-            }
-            
-            updateSelectedCount();
-            $('#bulkActionsModal').modal('show');
-        }
-
-        function bulkApprove() {
-            const selectedIds = $('.row-select:checked').map(function() {
-                return this.value;
-            }).get();
-            
-            if (selectedIds.length === 0) {
-                showAlert('warning', 'No registrations selected.');
-                return;
-            }
-            
-            if (!confirm(`Are you sure you want to approve ${selectedIds.length} selected registrations?`)) {
-                return;
-            }
-            
-            fetch('/admin/registrations/bulk/approve', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    registration_ids: selectedIds
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', data.message);
-                    $('#bulkActionsModal').modal('hide');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    showAlert('danger', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'An error occurred during bulk approval.');
-            });
-        }
-
-        function bulkReject() {
-            const selectedIds = $('.row-select:checked').map(function() {
-                return this.value;
-            }).get();
-            
-            if (selectedIds.length === 0) {
-                showAlert('warning', 'No registrations selected.');
-                return;
-            }
-            
-            const reason = prompt(`Enter rejection reason for ${selectedIds.length} selected registrations (optional):`);
-            
-            if (reason === null) {
-                return; // User cancelled
-            }
-            
-            if (!confirm(`Are you sure you want to reject ${selectedIds.length} selected registrations?`)) {
-                return;
-            }
-            
-            fetch('/admin/registrations/bulk/reject', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    registration_ids: selectedIds,
-                    reason: reason
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', data.message);
-                    $('#bulkActionsModal').modal('hide');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    showAlert('danger', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'An error occurred during bulk rejection.');
-            });
-        }
-
-        function bulkDelete() {
-            const selectedIds = $('.row-select:checked').map(function() {
-                return this.value;
-            }).get();
-            
-            if (selectedIds.length === 0) {
-                showAlert('warning', 'No registrations selected.');
-                return;
-            }
-            
-            if (!confirm(`Are you sure you want to delete ${selectedIds.length} selected registrations? This action cannot be undone.`)) {
-                return;
-            }
-            
-            fetch('/admin/registrations/bulk/delete', {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    registration_ids: selectedIds
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', data.message);
-                    $('#bulkActionsModal').modal('hide');
-                    // Remove selected rows
-                    selectedIds.forEach(id => {
-                        $(`tr[data-id="${id}"]`).fadeOut(300, function() {
-                            $(this).remove();
-                        });
-                    });
-                    setTimeout(refreshStats, 500);
-                } else {
-                    showAlert('danger', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'An error occurred during bulk deletion.');
-            });
-        }
-
-        // Export registrations
+        // Export registrations function
         function exportRegistrations() {
+            // Get current filter parameters
             const params = new URLSearchParams(window.location.search);
-            params.set('export', '1');
             
-            const exportUrl = `${window.location.pathname}?${params.toString()}`;
-            window.open(exportUrl, '_blank');
+            // Show loading state
+            const exportBtn = document.querySelector('[onclick="exportRegistrations()"]');
+            const originalText = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Exporting...';
+            exportBtn.disabled = true;
+
+            // Create export URL with current filters
+            const exportUrl = '/admin/registrations/export?' + params.toString();
+            
+            // Create temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = exportUrl;
+            link.download = `registrations_${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Reset button after delay
+            setTimeout(() => {
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+            }, 2000);
         }
 
         // Refresh statistics
@@ -1211,6 +1335,7 @@
                     if (data.success) {
                         const stats = data.data;
                         $('#total-count').text(stats.total);
+                        $('#unverified-count').text(stats.unverified);
                         $('#pending-count').text(stats.pending);
                         $('#approved-count').text(stats.approved);
                         $('#rejected-count').text(stats.rejected);
@@ -1275,100 +1400,70 @@
             }
         }
 
-        // Date Filter Functions
-        function setDateRangeModal(period) {
-            const today = new Date();
-            let startDate, endDate;
+        // Date filter functions
+        function setDateRangeModal(preset) {
+            const now = new Date();
+            let fromDate, toDate;
 
-            switch (period) {
+            switch (preset) {
                 case 'today':
-                    startDate = endDate = today;
+                    fromDate = toDate = now.toISOString().split('T')[0];
                     break;
                 case 'week':
-                    startDate = new Date(today);
-                    startDate.setDate(today.getDate() - today.getDay());
-                    endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + 6);
+                    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                    fromDate = startOfWeek.toISOString().split('T')[0];
+                    toDate = new Date().toISOString().split('T')[0];
                     break;
                 case 'month':
-                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    fromDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                    toDate = new Date().toISOString().split('T')[0];
                     break;
                 case 'year':
-                    startDate = new Date(today.getFullYear(), 0, 1);
-                    endDate = new Date(today.getFullYear(), 11, 31);
+                    fromDate = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
+                    toDate = new Date().toISOString().split('T')[0];
                     break;
             }
 
-            const startDateStr = startDate.toISOString().split('T')[0];
-            const endDateStr = endDate.toISOString().split('T')[0];
-
-            document.getElementById('modal_date_from').value = startDateStr;
-            document.getElementById('modal_date_to').value = endDateStr;
-
-            applyDateFilter(startDateStr, endDateStr);
+            document.getElementById('modal_date_from').value = fromDate;
+            document.getElementById('modal_date_to').value = toDate;
+            
+            applyCustomDateRange();
         }
 
         function applyCustomDateRange() {
-            const dateFrom = document.getElementById('modal_date_from').value;
-            const dateTo = document.getElementById('modal_date_to').value;
+            const fromDate = document.getElementById('modal_date_from').value;
+            const toDate = document.getElementById('modal_date_to').value;
 
-            if (dateFrom && dateTo && dateFrom > dateTo) {
-                alert('From date cannot be later than To date');
+            if (fromDate && toDate && fromDate > toDate) {
+                alert('From date cannot be later than to date');
                 return;
             }
 
-            applyDateFilter(dateFrom, dateTo);
-        }
+            document.getElementById('date_from').value = fromDate;
+            document.getElementById('date_to').value = toDate;
 
-        function applyDateFilter(dateFrom, dateTo) {
-            document.getElementById('date_from').value = dateFrom;
-            document.getElementById('date_to').value = dateTo;
-
-            updateDateFilterStatus(dateFrom, dateTo);
-
+            // Close modal and submit form
             const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
-            if (modal) modal.hide();
-
-            submitFilterForm();
+            modal.hide();
+            
+            document.getElementById('filterForm').submit();
         }
 
         function clearDateRangeModal() {
             document.getElementById('modal_date_from').value = '';
             document.getElementById('modal_date_to').value = '';
-            applyDateFilter('', '');
-        }
+            document.getElementById('date_from').value = '';
+            document.getElementById('date_to').value = '';
 
-        function updateDateFilterStatus(dateFrom, dateTo) {
-            const statusElement = document.getElementById('dateFilterStatus');
-            if (!dateFrom && !dateTo) {
-                statusElement.innerHTML = 'No date filter applied - showing all registrations';
-            } else {
-                let statusText = 'Current filter: ';
-                if (dateFrom) {
-                    const fromDate = new Date(dateFrom).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                    statusText += `From ${fromDate} `;
-                }
-                if (dateTo) {
-                    const toDate = new Date(dateTo).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                    statusText += `To ${toDate}`;
-                }
-                statusElement.innerHTML = statusText;
-            }
+            // Close modal and submit form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+            modal.hide();
+            
+            document.getElementById('filterForm').submit();
         }
 
         // Add event listeners when document is ready
         document.addEventListener('DOMContentLoaded', function() {
-            initializeSelectAll();
-
             const statusSelect = document.getElementById('newStatus');
             const remarksTextarea = document.getElementById('remarks');
 
@@ -1378,6 +1473,14 @@
 
             if (remarksTextarea) {
                 remarksTextarea.addEventListener('input', checkForChanges);
+            }
+
+            // Initialize tooltips if Bootstrap tooltips are available
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
             }
         });
     </script>

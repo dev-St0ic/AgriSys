@@ -336,25 +336,70 @@ if (config('app.debug')) {
     })->name('debug.test-boatr');
 }
 
-
-// Admin routes group (for managing user registrations)
-Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin'], 'as' => 'admin.'], function () {
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes (Public)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('auth')->group(function () {
+    // User registration and login
+    Route::post('/register', [UserRegistrationController::class, 'register'])->name('auth.register');
+    Route::post('/login', [UserRegistrationController::class, 'login'])->name('auth.login');
+    Route::post('/logout', [UserRegistrationController::class, 'logout'])->name('auth.logout');
     
-    // User registration management routes
-    Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
-    Route::get('/users/{registration}', [UserRegistrationController::class, 'show'])->name('registrations.show');
-    Route::post('/users/{registration}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
-    Route::post('/users/{registration}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
-    Route::delete('/users/{registration}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
-    Route::get('/users-statistics', [UserRegistrationController::class, 'statistics'])->name('registrations.statistics');
+    // Username availability check
+    Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('auth.check.username');
+    
+    // Email verification (for future implementation)
+    Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('auth.verify.email');
+    Route::post('/resend-verification', [UserRegistrationController::class, 'resendVerification'])->name('auth.resend.verification');
 });
 
-// Client-side public routes (for users to register)
-Route::group(['prefix' => 'client'], function () {
-    Route::get('/register', [UserRegistrationController::class, 'create'])->name('client.register');
-    Route::post('/register', [UserRegistrationController::class, 'store'])->name('client.register.store');
-    Route::post('/login', [UserRegistrationController::class, 'clientLogin'])->name('client.login');
-    Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('client.verify.email');
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (for managing user registrations)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
+    
+    // Main user management interface
+    Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
+    
+    // Individual registration management
+    Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
+    Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
+    
+    // Status management
+    Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
+    Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
+    
+    // Statistics and export
+    Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
+    Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
+});
+
+/*
+|--------------------------------------------------------------------------
+| User Profile/Verification Routes (for completing verification)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('profile')->middleware(['user.session'])->name('profile.')->group(function () {
+    // Profile completion for verification
+    Route::get('/complete', [UserRegistrationController::class, 'showProfileCompletion'])->name('complete');
+    Route::post('/complete', [UserRegistrationController::class, 'completeProfile'])->name('complete.submit');
+    
+    // Document upload for verification
+    Route::post('/upload-documents', [UserRegistrationController::class, 'uploadDocuments'])->name('upload.documents');
+});
+
+/*
+|--------------------------------------------------------------------------
+| User Dashboard Routes
+|--------------------------------------------------------------------------
+*/
+Route::prefix('dashboard')->middleware(['user.session'])->name('dashboard.')->group(function () {
+    Route::get('/', [UserRegistrationController::class, 'dashboard'])->name('index');
+    Route::get('/profile', [UserRegistrationController::class, 'showProfile'])->name('profile');
 });
 
 // ==============================================

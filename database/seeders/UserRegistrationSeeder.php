@@ -4,8 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\UserRegistration;
-use App\Models\User;
-use Faker\Factory as Faker;
+use Illuminate\Support\Facades\Hash;
 
 class UserRegistrationSeeder extends Seeder
 {
@@ -14,243 +13,275 @@ class UserRegistrationSeeder extends Seeder
      */
     public function run(): void
     {
-        $faker = Faker::create('en_PH'); // Use Philippines locale for more relevant data
+        $this->command->info('Seeding user registrations...');
 
-        // Create sample registrations with realistic data for Filipino users
-        $this->createFarmers($faker);
-        $this->createFisherfolk($faker);
-        $this->createGeneralPublic($faker);
+        // Create different types of registrations to showcase the workflow
+        
+        // 1. Unverified users (basic signup only) - 20 users
+        $this->createUnverifiedUsers();
+        
+        // 2. Pending users (completed profile, waiting for admin approval) - 15 users
+        $this->createPendingUsers();
+        
+        // 3. Approved users (admin approved) - 25 users
+        $this->createApprovedUsers();
+        
+        // 4. Rejected users (admin rejected) - 5 users
+        $this->createRejectedUsers();
+        
+        // 5. Create some test users for development
+        $this->createTestUsers();
         
         $this->command->info('User registrations seeded successfully!');
+        $this->command->info('Total created: ' . UserRegistration::count() . ' registrations');
+        $this->command->info('- Unverified: ' . UserRegistration::unverified()->count());
+        $this->command->info('- Pending: ' . UserRegistration::pending()->count());
+        $this->command->info('- Approved: ' . UserRegistration::approved()->count());
+        $this->command->info('- Rejected: ' . UserRegistration::rejected()->count());
     }
 
     /**
-     * Create farmer registrations
+     * Create unverified users (basic signup only)
      */
-    private function createFarmers($faker)
+    private function createUnverifiedUsers()
     {
-        $farmerOccupations = [
-            'Rice Farmer', 'Vegetable Farmer', 'Fruit Farmer', 'Livestock Farmer',
-            'Organic Farmer', 'Crop Farmer', 'Dairy Farmer', 'Poultry Farmer'
-        ];
+        $this->command->info('Creating unverified users...');
+        
+        // Mix of different user types, all unverified (basic signup only)
+        UserRegistration::factory()
+            ->count(8)
+            ->unverified()
+            ->incompleteProfile()
+            ->emailUnverified()
+            ->recent()
+            ->create();
 
-        $farmerOrganizations = [
-            'San Pedro Farmers Association',
-            'Laguna Rice Farmers Cooperative',
-            'Organic Farmers Guild',
-            'Biñan Agricultural Cooperative',
-            'CALABARZON Farmers Union',
-            'Independent Farmer',
-            null // Some don't have organizations
-        ];
+        UserRegistration::factory()
+            ->count(6)
+            ->unverified()
+            ->incompleteProfile()
+            ->emailUnverified()
+            ->recent()
+            ->create();
 
-        for ($i = 0; $i < 15; $i++) {
-            $firstName = $faker->firstName();
-            $lastName = $faker->lastName();
-            $email = strtolower($firstName . '.' . $lastName . $faker->numberBetween(1, 99) . '@' . $faker->randomElement(['gmail.com', 'yahoo.com', 'hotmail.com']));
-            
-            UserRegistration::create([
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'email' => $email,
-                'password' => 'password123', // Will be hashed by model
-                'date_of_birth' => $faker->dateTimeBetween('-65 years', '-18 years'),
-                'gender' => $faker->randomElement(['male', 'female', 'prefer_not_to_say']),
-                'phone' => '+63' . $faker->numberBetween(900000000, 999999999),
-                'address' => $faker->address() . ', ' . $faker->randomElement([
-                    'San Pedro, Laguna',
-                    'Biñan, Laguna', 
-                    'Calamba, Laguna',
-                    'Cabuyao, Laguna',
-                    'Santa Rosa, Laguna'
-                ]),
-                'user_type' => 'farmer',
-                'occupation' => $faker->randomElement($farmerOccupations),
-                'organization' => $faker->randomElement($farmerOrganizations),
-                'emergency_contact_name' => $faker->name(),
-                'emergency_contact_phone' => '+63' . $faker->numberBetween(900000000, 999999999),
-                'status' => $faker->randomElement(['pending', 'approved', 'rejected']),
-                'email_verified_at' => $faker->optional(0.8)->dateTimeBetween('-30 days', 'now'),
-                'verification_token' => $faker->optional(0.2)->sha256(),
-                'terms_accepted' => true,
-                'privacy_accepted' => true,
-                'marketing_consent' => $faker->boolean(60),
-                'registration_ip' => $faker->ipv4(),
-                'user_agent' => $this->getRandomUserAgent($faker),
-                'referral_source' => $faker->randomElement(['direct', 'facebook', 'google', 'barangay_office', 'friend_referral']),
-                'created_at' => $faker->dateTimeBetween('-3 months', 'now'),
-            ]);
-        }
+        UserRegistration::factory()
+            ->count(6)
+            ->unverified()
+            ->incompleteProfile()
+            ->emailUnverified()
+            ->recent()
+            ->create();
     }
 
     /**
-     * Create fisherfolk registrations
+     * Create pending users (profile completed, awaiting approval)
      */
-    private function createFisherfolk($faker)
+    private function createPendingUsers()
     {
-        $fisherOccupations = [
-            'Commercial Fisher', 'Artisanal Fisher', 'Aquaculture Farmer', 
-            'Fish Vendor', 'Boat Operator', 'Net Fisherman', 'Fish Cage Operator'
-        ];
+        $this->command->info('Creating pending users...');
+        
+        UserRegistration::factory()
+            ->count(6)
+            ->farmer()
+            ->pending()
+            ->completeProfile()
+            ->emailVerified()
+            ->create();
 
-        $fisherOrganizations = [
-            'Laguna de Bay Fishermen Association',
-            'San Pedro Bay Fisherfolk Cooperative',
-            'CALABARZON Fisheries Alliance',
-            'Small-scale Fishermen Federation',
-            'Independent Fisher',
-            null
-        ];
+        UserRegistration::factory()
+            ->count(5)
+            ->fisherfolk()
+            ->pending()
+            ->completeProfile()
+            ->emailVerified()
+            ->create();
 
-        for ($i = 0; $i < 12; $i++) {
-            $firstName = $faker->firstName();
-            $lastName = $faker->lastName();
-            $email = strtolower($firstName . '.' . $lastName . $faker->numberBetween(1, 99) . '@' . $faker->randomElement(['gmail.com', 'yahoo.com', 'hotmail.com']));
-            
-            UserRegistration::create([
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'email' => $email,
-                'password' => 'password123',
-                'date_of_birth' => $faker->dateTimeBetween('-60 years', '-18 years'),
-                'gender' => $faker->randomElement(['male', 'female']),
-                'phone' => '+63' . $faker->numberBetween(900000000, 999999999),
-                'address' => $faker->address() . ', ' . $faker->randomElement([
-                    'San Pedro, Laguna',
-                    'Biñan, Laguna',
-                    'Bay, Laguna',
-                    'Los Baños, Laguna'
-                ]),
-                'user_type' => 'fisherfolk',
-                'occupation' => $faker->randomElement($fisherOccupations),
-                'organization' => $faker->randomElement($fisherOrganizations),
-                'emergency_contact_name' => $faker->name(),
-                'emergency_contact_phone' => '+63' . $faker->numberBetween(900000000, 999999999),
-                'status' => $faker->randomElement(['pending', 'approved', 'rejected']),
-                'email_verified_at' => $faker->optional(0.75)->dateTimeBetween('-30 days', 'now'),
-                'verification_token' => $faker->optional(0.25)->sha256(),
-                'terms_accepted' => true,
-                'privacy_accepted' => true,
-                'marketing_consent' => $faker->boolean(50),
-                'registration_ip' => $faker->ipv4(),
-                'user_agent' => $this->getRandomUserAgent($faker),
-                'referral_source' => $faker->randomElement(['direct', 'facebook', 'barangay_office', 'cooperative']),
-                'created_at' => $faker->dateTimeBetween('-3 months', 'now'),
-            ]);
-        }
+        UserRegistration::factory()
+            ->count(4)
+            ->pending()
+            ->completeProfile()
+            ->emailVerified()
+            ->create();
     }
 
     /**
-     * Create general public registrations
+     * Create approved users
      */
-    private function createGeneralPublic($faker)
+    private function createApprovedUsers()
     {
-        $generalOccupations = [
-            'Teacher', 'Student', 'Business Owner', 'Government Employee',
-            'Healthcare Worker', 'Engineer', 'Accountant', 'Entrepreneur',
-            'Retiree', 'Homemaker', 'Construction Worker', 'Driver'
-        ];
+        $this->command->info('Creating approved users...');
+        
+        UserRegistration::factory()
+            ->count(10)
+            ->farmer()
+            ->approved()
+            ->completeProfile()
+            ->emailVerified()
+            ->old()
+            ->create();
 
-        $generalOrganizations = [
-            'San Pedro LGU', 'Local School', 'Community Organization',
-            'Religious Group', 'Business Chamber', 'NGO', 'Barangay Council',
-            null, null, null // Many won't have organizations
-        ];
+        UserRegistration::factory()
+            ->count(8)
+            ->fisherfolk()
+            ->approved()
+            ->completeProfile()
+            ->emailVerified()
+            ->old()
+            ->create();
 
-        for ($i = 0; $i < 20; $i++) {
-            $firstName = $faker->firstName();
-            $lastName = $faker->lastName();
-            $email = strtolower($firstName . '.' . $lastName . $faker->numberBetween(1, 99) . '@' . $faker->randomElement(['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com']));
-            
-            UserRegistration::create([
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'email' => $email,
-                'password' => 'password123',
-                'date_of_birth' => $faker->dateTimeBetween('-70 years', '-16 years'),
-                'gender' => $faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
-                'phone' => $faker->optional(0.9)->numerify('+639#########'),
-                'address' => $faker->optional(0.8)->address() . ', ' . $faker->randomElement([
-                    'San Pedro, Laguna',
-                    'Biñan, Laguna',
-                    'Calamba, Laguna',
-                    'Santa Rosa, Laguna',
-                    'Cabuyao, Laguna',
-                    'Manila',
-                    'Quezon City',
-                    'Makati'
-                ]),
-                'user_type' => 'general',
-                'occupation' => $faker->optional(0.85)->randomElement($generalOccupations),
-                'organization' => $faker->optional(0.4)->randomElement($generalOrganizations),
-                'emergency_contact_name' => $faker->optional(0.7)->name(),
-                'emergency_contact_phone' => $faker->optional(0.7)->numerify('+639#########'),
-                'status' => $faker->randomElement(['pending', 'approved', 'rejected']),
-                'email_verified_at' => $faker->optional(0.85)->dateTimeBetween('-30 days', 'now'),
-                'verification_token' => $faker->optional(0.15)->sha256(),
-                'terms_accepted' => true,
-                'privacy_accepted' => true,
-                'marketing_consent' => $faker->boolean(70),
-                'registration_ip' => $faker->ipv4(),
-                'user_agent' => $this->getRandomUserAgent($faker),
-                'referral_source' => $faker->randomElement([
-                    'direct', 'facebook', 'google', 'twitter', 'instagram', 
-                    'youtube', 'friend_referral', 'government_website'
-                ]),
-                'created_at' => $faker->dateTimeBetween('-4 months', 'now'),
-            ]);
-        }
+        UserRegistration::factory()
+            ->count(7)
+            ->approved()
+            ->completeProfile()
+            ->emailVerified()
+            ->old()
+            ->create();
     }
 
     /**
-     * Get random user agent string
+     * Create rejected users
      */
-    private function getRandomUserAgent($faker)
+    private function createRejectedUsers()
     {
-        $userAgents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:121.0) Gecko/20100101 Firefox/121.0',
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
-            'Mozilla/5.0 (iPad; CPU OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
-            'Mozilla/5.0 (Linux; Android 14; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
-        ];
+        $this->command->info('Creating rejected users...');
+        
+        UserRegistration::factory()
+            ->count(2)
+            ->farmer()
+            ->rejected()
+            ->completeProfile()
+            ->emailVerified()
+            ->create();
 
-        return $faker->randomElement($userAgents);
+        UserRegistration::factory()
+            ->count(2)
+            ->fisherfolk()
+            ->rejected()
+            ->completeProfile()
+            ->emailVerified()
+            ->create();
+
+        UserRegistration::factory()
+            ->count(1)
+            ->rejected()
+            ->completeProfile()
+            ->emailVerified()
+            ->create();
     }
 
     /**
-     * Create specific test cases
+     * Create specific test users for development and testing
      */
-    private function createTestCases()
+    private function createTestUsers()
     {
-        // Create a pending registration that needs approval
+        $this->command->info('Creating test users...');
+        
+        // Test User 1: Basic signup (unverified) - just username, email, password
         UserRegistration::create([
-            'first_name' => 'Test',
-            'last_name' => 'User',
-            'email' => 'test.user@example.com',
-            'password' => 'password123',
-            'date_of_birth' => '1990-01-01',
-            'gender' => 'male',
-            'phone' => '+639123456789',
-            'address' => '123 Test Street, San Pedro, Laguna',
-            'user_type' => 'farmer',
-            'occupation' => 'Rice Farmer',
-            'organization' => 'Test Farmers Association',
-            'emergency_contact_name' => 'Emergency Contact',
-            'emergency_contact_phone' => '+639987654321',
-            'status' => 'pending',
-            'email_verified_at' => now(),
+            'username' => 'juan_test',
+            'email' => 'juan.test@example.com',
+            'password' => Hash::make('password123'),
+            'status' => UserRegistration::STATUS_UNVERIFIED,
             'terms_accepted' => true,
             'privacy_accepted' => true,
-            'marketing_consent' => true,
             'registration_ip' => '127.0.0.1',
             'user_agent' => 'Test User Agent',
             'referral_source' => 'direct',
-            'created_at' => now()->subDays(1),
+            'created_at' => now()->subHours(2),
+        ]);
+
+        // Test User 2: Complete profile, pending approval
+        UserRegistration::create([
+            'username' => 'maria_santos',
+            'email' => 'maria.test@example.com',
+            'password' => Hash::make('password123'),
+            'status' => UserRegistration::STATUS_PENDING,
+            'terms_accepted' => true,
+            'privacy_accepted' => true,
+            // Profile completion fields
+            'first_name' => 'Maria',
+            'last_name' => 'Santos',
+            'middle_name' => 'Reyes',
+            'phone' => '+639123456789',
+            'complete_address' => '123 Seaside Street, Barangay Baybayin',
+            'barangay' => 'Barangay Baybayin',
+            'user_type' => 'fisherfolk',
+            'date_of_birth' => '1985-03-15',
+            'age' => 39,
+            'gender' => 'female',
+            'email_verified_at' => now()->subDays(1),
+            'registration_ip' => '127.0.0.1',
+            'user_agent' => 'Test User Agent',
+            'referral_source' => 'barangay_office',
+            'created_at' => now()->subDays(3),
+        ]);
+
+        // Test User 3: Approved user
+        UserRegistration::create([
+            'username' => 'carlos_rodriguez',
+            'email' => 'carlos.test@example.com',
+            'password' => Hash::make('password123'),
+            'status' => UserRegistration::STATUS_APPROVED,
+            'terms_accepted' => true,
+            'privacy_accepted' => true,
+            // Profile completion fields
+            'first_name' => 'Carlos',
+            'last_name' => 'Rodriguez',
+            'phone' => '+639555123456',
+            'complete_address' => '456 Main Street, Barangay Centro',
+            'barangay' => 'Barangay Centro',
+            'user_type' => 'farmer',
+            'date_of_birth' => '1990-07-20',
+            'age' => 34,
+            'gender' => 'male',
+            'email_verified_at' => now()->subDays(15),
+            'approved_at' => now()->subDays(5),
+            'registration_ip' => '127.0.0.1',
+            'user_agent' => 'Test User Agent',
+            'referral_source' => 'google',
+            'created_at' => now()->subDays(20),
+        ]);
+
+        // Test User 4: Rejected user
+        UserRegistration::create([
+            'username' => 'ana_garcia',
+            'email' => 'ana.test@example.com',
+            'password' => Hash::make('password123'),
+            'status' => UserRegistration::STATUS_REJECTED,
+            'terms_accepted' => true,
+            'privacy_accepted' => true,
+            // Profile completion fields
+            'first_name' => 'Ana',
+            'last_name' => 'Garcia',
+            'phone' => '+639777888999',
+            'complete_address' => '789 Farm Road, Barangay Rural',
+            'barangay' => 'Barangay Rural',
+            'user_type' => 'farmer',
+            'date_of_birth' => '1982-11-08',
+            'age' => 42,
+            'gender' => 'female',
+            'email_verified_at' => now()->subDays(10),
+            'rejected_at' => now()->subDays(8),
+            'rejection_reason' => 'Unable to verify identity documents. Please resubmit with clearer photos.',
+            'registration_ip' => '127.0.0.1',
+            'user_agent' => 'Test User Agent',
+            'referral_source' => 'friend_referral',
+            'created_at' => now()->subDays(12),
+        ]);
+
+        // Test User 5: Recently signed up, email not verified
+        UserRegistration::create([
+            'username' => 'elena_villanueva',
+            'email' => 'elena.test@example.com',
+            'password' => Hash::make('password123'),
+            'status' => UserRegistration::STATUS_UNVERIFIED,
+            'verification_token' => 'test-verification-token-12345',
+            'terms_accepted' => true,
+            'privacy_accepted' => true,
+            'registration_ip' => '127.0.0.1',
+            'user_agent' => 'Test User Agent',
+            'referral_source' => 'facebook',
+            'created_at' => now()->subMinutes(30),
         ]);
     }
 }

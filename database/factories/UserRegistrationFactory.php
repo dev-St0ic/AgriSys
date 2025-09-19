@@ -21,27 +21,84 @@ class UserRegistrationFactory extends Factory
      */
     public function definition(): array
     {
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        
         return [
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
+            // Basic required fields for signup
+            'username' => $this->faker->unique()->userName(),
             'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make('password123'), // Default password for testing
-            'phone' => $this->faker->optional()->phoneNumber(),
-            'address' => $this->faker->optional()->address(),
-            'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk', 'general']),
-            'status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
-            'verification_token' => $this->faker->optional()->sha256(),
-            'email_verified_at' => $this->faker->optional()->dateTimeBetween('-30 days', 'now'),
+            'status' => $this->faker->randomElement(['unverified', 'pending', 'approved', 'rejected']),
+            'terms_accepted' => true,
+            'privacy_accepted' => true,
+            
+            // Extended fields (filled during verification - nullable)
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'middle_name' => $this->faker->optional(0.3)->firstName(),
+            'name_extension' => $this->faker->optional(0.1)->randomElement(['Jr.', 'Sr.', 'III', 'IV']),
+            'phone' => $this->faker->optional(0.8)->numerify('+639#########'),
+            'complete_address' => $this->faker->optional(0.7)->address(),
+            'barangay' => $this->faker->optional(0.7)->randomElement([
+                'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
+                'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
+            ]),
+            'user_type' => $this->faker->optional(0.8)->randomElement(['farmer', 'fisherfolk']),
+            'date_of_birth' => $this->faker->optional(0.8)->dateTimeBetween('-70 years', '-18 years'),
+            'gender' => $this->faker->optional(0.9)->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
+            
+            // System fields
+            'verification_token' => $this->faker->optional(0.3)->sha256(),
+            'email_verified_at' => $this->faker->optional(0.7)->dateTimeBetween('-30 days', 'now'),
+            'registration_ip' => $this->faker->ipv4(),
+            'user_agent' => $this->getRandomUserAgent(),
+            'referral_source' => $this->faker->randomElement(['direct', 'facebook', 'google', 'friend_referral', 'barangay_office']),
+            'last_login_at' => $this->faker->optional(0.5)->dateTimeBetween('-7 days', 'now'),
         ];
     }
 
     /**
-     * Indicate that the registration is pending.
+     * Indicate that the registration is unverified (basic signup only).
+     */
+    public function unverified(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => UserRegistration::STATUS_UNVERIFIED,
+            'first_name' => null,
+            'last_name' => null,
+            'middle_name' => null,
+            'phone' => null,
+            'complete_address' => null,
+            'barangay' => null,
+            'user_type' => null,
+            'date_of_birth' => null,
+            'gender' => null,
+            'age' => null,
+            'approved_at' => null,
+            'approved_by' => null,
+            'rejection_reason' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the registration is pending (profile completed).
      */
     public function pending(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'pending',
+            'status' => UserRegistration::STATUS_PENDING,
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'phone' => '+63' . $this->faker->numberBetween(900000000, 999999999),
+            'complete_address' => $this->faker->address(),
+            'barangay' => $this->faker->randomElement([
+                'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
+                'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
+            ]),
+            'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
+            'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
+            'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
             'approved_at' => null,
             'approved_by' => null,
             'rejection_reason' => null,
@@ -54,7 +111,18 @@ class UserRegistrationFactory extends Factory
     public function approved(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'approved',
+            'status' => UserRegistration::STATUS_APPROVED,
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'phone' => '+63' . $this->faker->numberBetween(900000000, 999999999),
+            'complete_address' => $this->faker->address(),
+            'barangay' => $this->faker->randomElement([
+                'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
+                'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
+            ]),
+            'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
+            'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
+            'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
             'approved_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
             'approved_by' => null, // You can set this to an actual admin ID if needed
             'rejection_reason' => null,
@@ -67,10 +135,26 @@ class UserRegistrationFactory extends Factory
     public function rejected(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'rejected',
+            'status' => UserRegistration::STATUS_REJECTED,
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'phone' => '+63' . $this->faker->numberBetween(900000000, 999999999),
+            'complete_address' => $this->faker->address(),
+            'barangay' => $this->faker->randomElement([
+                'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
+                'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
+            ]),
+            'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
             'approved_at' => null,
-            'approved_by' => null, // You can set this to an actual admin ID if needed
-            'rejection_reason' => $this->faker->sentence(),
+            'approved_by' => null,
+            'rejected_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
+            'rejection_reason' => $this->faker->randomElement([
+                'Invalid or unreadable ID documents',
+                'Incomplete information provided',
+                'Unable to verify identity',
+                'Documents do not match personal information',
+                'Suspicious activity detected'
+            ]),
         ]);
     }
 
@@ -97,7 +181,7 @@ class UserRegistrationFactory extends Factory
     }
 
     /**
-     * Set specific user type.
+     * Set specific user type - Farmer.
      */
     public function farmer(): static
     {
@@ -106,6 +190,9 @@ class UserRegistrationFactory extends Factory
         ]);
     }
 
+    /**
+     * Set specific user type - Fisherfolk.
+     */
     public function fisherfolk(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -113,21 +200,42 @@ class UserRegistrationFactory extends Factory
         ]);
     }
 
-    public function general(): static
+    /**
+     * Create a registration with complete profile information.
+     */
+    public function completeProfile(): static
     {
         return $this->state(fn (array $attributes) => [
-            'user_type' => 'general',
+            'first_name' => $this->faker->firstName(),
+            'last_name' => $this->faker->lastName(),
+            'phone' => '+63' . $this->faker->numberBetween(900000000, 999999999),
+            'complete_address' => $this->faker->streetAddress() . ', ' . $this->faker->city(),
+            'barangay' => $this->faker->randomElement([
+                'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
+                'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
+            ]),
+            'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
+            'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
+            'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
         ]);
     }
 
     /**
-     * Create a registration with complete information.
+     * Create a registration with incomplete profile (basic signup only).
      */
-    public function complete(): static
+    public function incompleteProfile(): static
     {
         return $this->state(fn (array $attributes) => [
-            'phone' => $this->faker->phoneNumber(),
-            'address' => $this->faker->address(),
+            'first_name' => null,
+            'last_name' => null,
+            'middle_name' => null,
+            'phone' => null,
+            'complete_address' => null,
+            'barangay' => null,
+            'user_type' => null,
+            'date_of_birth' => null,
+            'gender' => null,
+            'age' => null,
         ]);
     }
 
@@ -151,5 +259,20 @@ class UserRegistrationFactory extends Factory
             'created_at' => $this->faker->dateTimeBetween('-6 months', '-1 month'),
             'updated_at' => $this->faker->dateTimeBetween('-6 months', '-1 month'),
         ]);
+    }
+
+    /**
+     * Get random user agent string for testing.
+     */
+    private function getRandomUserAgent(): string
+    {
+        $userAgents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
+            'Mozilla/5.0 (Linux; Android 14; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
+        ];
+
+        return $this->faker->randomElement($userAgents);
     }
 }

@@ -18,11 +18,9 @@ class UserRegistrationController extends Controller
 {
     /**
      * Display a listing of user registrations (Admin only)
-     * This is for the admin panel to manage all user registrations
      */
     public function index(Request $request)
     {
-        // Ensure only admins can access this
         if (!auth()->check() || !auth()->user()->isAdmin()) {
             abort(403, 'Access denied. Admin privileges required.');
         }
@@ -63,11 +61,10 @@ class UserRegistrationController extends Controller
         // Get statistics
         $stats = [
             'total' => UserRegistration::count(),
+            'unverified' => UserRegistration::unverified()->count(),
             'pending' => UserRegistration::pending()->count(),
             'approved' => UserRegistration::approved()->count(),
             'rejected' => UserRegistration::rejected()->count(),
-            'verified' => UserRegistration::emailVerified()->count(),
-            'unverified' => UserRegistration::emailUnverified()->count(),
             'recent' => UserRegistration::where('created_at', '>=', now()->subDays(7))->count(),
         ];
 
@@ -83,101 +80,110 @@ class UserRegistrationController extends Controller
     }
 
     /**
-     * PUBLIC REGISTRATION - This is for users registering from the frontend
+     * Check username availability
+     */
+    public function checkUsername(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|min:3|max:50'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Invalid username format'
+            ]);
+        }
+
+        $username = $request->username;
+        
+        // Check if username exists in user_registration table
+        $exists = UserRegistration::where('username', $username)->exists();
+        
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'Username already taken' : 'Username available'
+        ]);
+    }
+
+    /**
+     * SIMPLIFIED REGISTRATION - Username, Email, Password only
      */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            // Personal Information
-            'firstname' => 'required|string|max:100',
-            'lastname' => 'required|string|max:100',
+            'username' => 'required|string|min:3|max:50|regex:/^[a-zA-Z0-9_]+$/|unique:user_registration,username',
             'email' => 'required|string|email|max:255|unique:user_registration,email',
-            'date_of_birth' => 'nullable|date|before:today|after:1900-01-01',
-            'gender' => 'nullable|in:male,female,other,prefer_not_to_say',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            
-            // Professional Information
-            'user_type' => 'required|in:farmer,fisherfolk,general',
-            'occupation' => 'nullable|string|max:100',
-            'organization' => 'nullable|string|max:150',
-            
-            // Emergency Contact
-            'emergency_contact_name' => 'nullable|string|max:100',
-            'emergency_contact_phone' => 'nullable|string|max:20',
-            
-            // Account Security
             'password' => 'required|string|min:8|confirmed',
             'password_confirmation' => 'required',
-            
-            // Terms and Consent
             'terms_accepted' => 'required|accepted',
-            'privacy_accepted' => 'required|accepted',
-            'marketing_consent' => 'boolean',
         ], [
-            'firstname.required' => 'First name is required',
-            'lastname.required' => 'Last name is required',
+            'username.required' => 'Username is required',
+            'username.unique' => 'This username is already taken',
+            'username.min' => 'Username must be at least 3 characters',
+            'username.max' => 'Username cannot exceed 50 characters',
+            'username.regex' => 'Username can only contain letters, numbers, and underscores',
             'email.required' => 'Email address is required',
             'email.unique' => 'This email is already registered',
-            'user_type.required' => 'Please select your user type',
+            'email.email' => 'Please enter a valid email address',
             'password.min' => 'Password must be at least 8 characters',
             'password.confirmed' => 'Password confirmation does not match',
             'terms_accepted.accepted' => 'You must accept the Terms of Service',
-            'privacy_accepted.accepted' => 'You must accept the Privacy Policy',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
+                'message' => 'Please check the form for errors.',
                 'errors' => $validator->errors()
             ], 422);
         }
 
         try {
-            // Generate verification token
-            $verificationToken = Str::random(64);
-
-            // Get additional tracking data
-            $registrationData = $request->only([
-                'firstname', 'lastname', 'email', 'date_of_birth', 'gender',
-                'phone', 'address', 'user_type', 'occupation', 'organization',
-                'emergency_contact_name', 'emergency_contact_phone',
-                'terms_accepted', 'privacy_accepted', 'marketing_consent'
-            ]);
-
-            // Add system fields
-            $registrationData['password'] = $request->password; // Will be hashed by model
-            $registrationData['verification_token'] = $verificationToken;
-            $registrationData['status'] = 'pending';
-            $registrationData['registration_ip'] = $request->ip();
-            $registrationData['user_agent'] = $request->userAgent();
-            $registrationData['referral_source'] = $this->getReferralSource($request);
+            // Create user registration with minimal required info
+            // Password will be automatically hashed by the model mutator
+            $registrationData = [
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => $request->password, // Will be hashed by model mutator
+                'status' => 'unverified', // Start as unverified
+                'terms_accepted' => true,
+                'privacy_accepted' => true,
+                'registration_ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'referral_source' => $this->getReferralSource($request),
+            ];
 
             // Create user registration
             $registration = UserRegistration::create($registrationData);
 
-            // Send verification email
-            try {
-                $registration->notify(new EmailVerificationNotification($verificationToken));
-            } catch (\Exception $e) {
-                \Log::error('Failed to send verification email: ' . $e->getMessage());
-                // Don't fail the registration if email fails
-            }
+            // Log the creation for admin tracking
+            \Log::info('New user registration created', [
+                'id' => $registration->id,
+                'username' => $registration->username,
+                'email' => $registration->email,
+                'status' => $registration->status,
+                'ip' => $request->ip()
+            ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Registration successful! Please check your email to verify your account before it can be reviewed.',
+                'message' => 'Account created successfully! Your account has been added to our database.',
                 'data' => [
-                    'registration_id' => $registration->id,
+                    'user_id' => $registration->id,
+                    'username' => $registration->username,
                     'email' => $registration->email,
-                    'status' => $registration->status,
-                    'verification_required' => true
+                    'status' => $registration->status
                 ]
             ], 201);
 
         } catch (\Exception $e) {
-            \Log::error('Registration failed: ' . $e->getMessage());
+            \Log::error('Registration failed: ' . $e->getMessage(), [
+                'email' => $request->email,
+                'username' => $request->username,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             
             return response()->json([
                 'success' => false,
@@ -188,437 +194,255 @@ class UserRegistrationController extends Controller
     }
 
     /**
-     * Verify email with token
+     * Login for users (simplified for username-based auth)
      */
-    public function verifyEmail($token)
+    public function login(Request $request)
     {
-        $registration = UserRegistration::where('verification_token', $token)->first();
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string', // Changed from 'login' to 'username'
+            'password' => 'required|string',
+        ], [
+            'username.required' => 'Username or email is required',
+            'password.required' => 'Password is required'
+        ]);
 
-        if (!$registration) {
-            return redirect('/')->with('error', 'Invalid verification token.');
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide both username/email and password.',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        if ($registration->hasVerifiedEmail()) {
-            return redirect('/')->with('info', 'Email already verified. Your registration is pending admin approval.');
+        try {
+            $loginField = $request->username;
+            $password = $request->password;
+
+            // Try to find user in user_registration table (by username or email)
+            $userRegistration = UserRegistration::where('email', $loginField)
+                ->orWhere('username', $loginField)
+                ->first();
+
+            if ($userRegistration && Hash::check($password, $userRegistration->password)) {
+                // Check if user status allows login
+                if ($userRegistration->status === 'rejected') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Your account has been rejected. Please contact support for assistance.'
+                    ], 403);
+                }
+
+                // Create session for the user
+                $request->session()->put('user_id', $userRegistration->id);
+                $request->session()->put('user_email', $userRegistration->email);
+                $request->session()->put('user_username', $userRegistration->username);
+                $request->session()->put('user_name', $userRegistration->full_name ?? $userRegistration->username);
+                $request->session()->put('user_type', $userRegistration->user_type);
+                $request->session()->put('user_status', $userRegistration->status);
+
+                // Update last login
+                $userRegistration->update(['last_login_at' => now()]);
+
+                // Determine redirect and message based on user status
+                $redirectUrl = '/dashboard'; // Default user dashboard
+                
+                if ($userRegistration->status === 'unverified') {
+                    $message = 'Welcome! You can start using our services.';
+                } elseif ($userRegistration->status === 'pending') {
+                    $message = 'Welcome! Your account is pending verification.';
+                } elseif ($userRegistration->status === 'approved') {
+                    $message = 'Welcome back! Login successful.';
+                } else {
+                    $message = 'Login successful! Welcome.';
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'redirect' => $redirectUrl,
+                    'user' => [
+                        'id' => $userRegistration->id,
+                        'username' => $userRegistration->username,
+                        'name' => $userRegistration->full_name ?? $userRegistration->username,
+                        'email' => $userRegistration->email,
+                        'status' => $userRegistration->status,
+                        'user_type' => $userRegistration->user_type,
+                    ]
+                ]);
+            }
+
+            // If not found in registrations, try admin users table
+            $user = User::where('email', $loginField)->first();
+            
+            if ($user && Hash::check($password, $user->password)) {
+                Auth::login($user);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Admin login successful!',
+                    'redirect' => '/admin/users',
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => 'admin'
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid credentials. Please check your username/email and password.'
+            ], 401);
+
+        } catch (\Exception $e) {
+            \Log::error('Login failed: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Login failed. Please try again.',
+                'error' => config('app.debug') ? $e->getMessage() : 'Server error'
+            ], 500);
         }
-
-        $registration->markEmailAsVerified();
-
-        return redirect('/')->with('success', 'Email verified successfully! Your registration is now pending admin approval. You will be notified once approved.');
     }
 
     /**
-     * Show specific registration details (Admin only)
+     * Logout user
      */
-    public function show(UserRegistration $registration)
+    public function logout(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            abort(403, 'Access denied.');
+        // Clear all session data
+        $request->session()->flush();
+        
+        // If it's an admin user, logout from Laravel auth
+        if (Auth::check()) {
+            Auth::logout();
         }
         
-        return view('admin.registrations.show', compact('registration'));
+        return response()->json([
+            'success' => true,
+            'message' => 'Logged out successfully',
+            'redirect' => '/'
+        ]);
     }
 
     /**
-     * Get registration details as JSON (Admin only)
+     * Get registration details for admin view
      */
     public function getRegistration($id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+        $registration = UserRegistration::with('approvedBy')->find($id);
+        
+        if (!$registration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration not found'
+            ], 404);
         }
-
-        $registration = UserRegistration::with('approvedBy')->findOrFail($id);
-
+        
         return response()->json([
             'success' => true,
             'data' => [
                 'id' => $registration->id,
-                'first_name' => $registration->first_name,
-                'last_name' => $registration->last_name,
-                'full_name' => $registration->full_name,
+                'username' => $registration->username,
                 'email' => $registration->email,
-                'phone' => $registration->formatted_phone,
-                'date_of_birth' => $registration->date_of_birth?->format('F j, Y'),
-                'age' => $registration->age,
-                'gender' => ucfirst($registration->gender ?? 'Not specified'),
-                'address' => $registration->address ?? 'Not provided',
-                'user_type' => $registration->user_type_display,
-                'occupation' => $registration->occupation ?? 'Not specified',
-                'organization' => $registration->organization ?? 'Not specified',
-                'emergency_contact_name' => $registration->emergency_contact_name ?? 'Not provided',
-                'emergency_contact_phone' => $registration->emergency_contact_phone ?? 'Not provided',
+                'full_name' => $registration->full_name ?? $registration->username,
+                'phone' => $registration->phone,
+                'address' => $registration->complete_address,
+                'barangay' => $registration->barangay,
+                'user_type' => $registration->user_type,
                 'status' => $registration->status,
-                'status_color' => $registration->status_color,
+                'date_of_birth' => $registration->date_of_birth,
+                'gender' => $registration->gender,
+                'occupation' => $registration->occupation,
+                'organization' => $registration->organization,
+                'emergency_contact_name' => $registration->emergency_contact_name,
+                'emergency_contact_phone' => $registration->emergency_contact_phone,
                 'email_verified' => $registration->hasVerifiedEmail(),
-                'email_verified_at' => $registration->email_verified_at?->format('M j, Y \a\t g:i A'),
-                'terms_accepted' => $registration->terms_accepted,
-                'privacy_accepted' => $registration->privacy_accepted,
-                'marketing_consent' => $registration->marketing_consent,
+                'created_at' => $registration->created_at->format('M d, Y g:i A'),
                 'registration_ip' => $registration->registration_ip,
-                'user_agent' => $registration->user_agent,
                 'referral_source' => $registration->referral_source,
-                'created_at' => $registration->created_at->format('F j, Y \a\t g:i A'),
-                'approved_at' => $registration->approved_at?->format('F j, Y \a\t g:i A'),
-                'approved_by' => $registration->approvedBy?->name,
                 'rejection_reason' => $registration->rejection_reason,
+                'approved_at' => $registration->approved_at ? $registration->approved_at->format('M d, Y g:i A') : null,
+                'rejected_at' => $registration->rejected_at ? $registration->rejected_at->format('M d, Y g:i A') : null,
+                'approved_by' => $registration->approvedBy ? $registration->approvedBy->name : null,
             ]
         ]);
     }
 
     /**
-     * Approve a registration (Admin only)
+     * Approve registration
      */
-    public function approve(UserRegistration $registration)
+    public function approve(Request $request, $id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        if (!$registration->isPending()) {
+        $registration = UserRegistration::find($id);
+        
+        if (!$registration) {
             return response()->json([
                 'success' => false,
-                'message' => 'Only pending registrations can be approved.'
-            ], 400);
+                'message' => 'Registration not found'
+            ], 404);
         }
-
-        if (!$registration->hasVerifiedEmail()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User must verify their email before registration can be approved.'
-            ], 400);
-        }
-
-        try {
-            $registration->approve(auth()->id());
-
-            // Send approval notification
-            try {
-                $registration->notify(new RegistrationApprovedNotification());
-            } catch (\Exception $e) {
-                \Log::error('Failed to send approval email: ' . $e->getMessage());
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Registration approved successfully! User has been notified via email.',
-                'data' => [
-                    'status' => $registration->status,
-                    'approved_at' => $registration->approved_at->format('M j, Y \a\t g:i A'),
-                    'approved_by' => auth()->user()->name
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to approve registration: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to approve registration. Please try again.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Reject a registration (Admin only)
-     */
-    public function reject(Request $request, UserRegistration $registration)
-    {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'reason' => 'nullable|string|max:1000'
+        
+        $registration->update([
+            'status' => 'approved',
+            'approved_at' => now(),
+            'approved_by' => auth()->id(),
+            'rejection_reason' => null
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        if (!$registration->isPending()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Only pending registrations can be rejected.'
-            ], 400);
-        }
-
-        try {
-            $registration->reject($request->reason, auth()->id());
-
-            // Send rejection notification if requested
-            if ($request->get('send_notification', true)) {
-                try {
-                    $registration->notify(new RegistrationRejectedNotification($request->reason));
-                } catch (\Exception $e) {
-                    \Log::error('Failed to send rejection email: ' . $e->getMessage());
-                }
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Registration rejected successfully.',
-                'data' => [
-                    'status' => $registration->status,
-                    'rejection_reason' => $registration->rejection_reason,
-                    'rejected_by' => auth()->user()->name
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to reject registration: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to reject registration. Please try again.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Update registration information (Admin only)
-     */
-    public function update(Request $request, UserRegistration $registration)
-    {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'sometimes|required|string|max:100',
-            'last_name' => 'sometimes|required|string|max:100',
-            'email' => 'sometimes|required|email|unique:user_registration,email,' . $registration->id,
-            'phone' => 'sometimes|nullable|string|max:20',
-            'address' => 'sometimes|nullable|string|max:500',
-            'user_type' => 'sometimes|required|in:farmer,fisherfolk,general',
-            'occupation' => 'sometimes|nullable|string|max:100',
-            'organization' => 'sometimes|nullable|string|max:150',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $registration->update($request->only([
-                'first_name', 'last_name', 'email', 'phone', 'address',
-                'user_type', 'occupation', 'organization'
-            ]));
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Registration updated successfully.',
-                'data' => $registration->fresh()
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to update registration: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update registration. Please try again.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Delete a registration (Admin only)
-     */
-    public function destroy(UserRegistration $registration)
-    {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        try {
-            $registration->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Registration deleted successfully.'
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to delete registration: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete registration. Please try again.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Bulk approve registrations (Admin only)
-     */
-    public function bulkApprove(Request $request)
-    {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'registration_ids' => 'required|array|min:1',
-            'registration_ids.*' => 'exists:user_registration,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid registration IDs provided'
-            ], 422);
-        }
-
-        try {
-            $registrations = UserRegistration::whereIn('id', $request->registration_ids)
-                ->where('status', 'pending')
-                ->whereNotNull('email_verified_at')
-                ->get();
-
-            $approved = 0;
-            $failed = 0;
-
-            foreach ($registrations as $registration) {
-                try {
-                    $registration->approve(auth()->id());
-                    $registration->notify(new RegistrationApprovedNotification());
-                    $approved++;
-                } catch (\Exception $e) {
-                    \Log::error('Failed to approve registration ID ' . $registration->id . ': ' . $e->getMessage());
-                    $failed++;
-                }
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => "Bulk approval completed. {$approved} approved, {$failed} failed.",
-                'data' => [
-                    'approved' => $approved,
-                    'failed' => $failed
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Bulk approval failed: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Bulk approval failed. Please try again.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Export registrations data (Admin only)
-     */
-    public function export(Request $request)
-    {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            abort(403);
-        }
-
-        $query = UserRegistration::with('approvedBy');
-
-        // Apply same filters as index
-        if ($request->filled('status')) {
-            $query->byStatus($request->status);
-        }
-        if ($request->filled('user_type')) {
-            $query->where('user_type', $request->user_type);
-        }
-        if ($request->filled('search')) {
-            $query->search($request->search);
-        }
-
-        $registrations = $query->orderBy('created_at', 'desc')->get();
-
-        $filename = 'user_registrations_' . date('Y-m-d_H-i-s') . '.csv';
-
-        return response()->streamDownload(function() use ($registrations) {
-            $handle = fopen('php://output', 'w');
-
-            // CSV headers
-            fputcsv($handle, [
-                'ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Date of Birth', 'Gender',
-                'Address', 'User Type', 'Occupation', 'Organization', 'Emergency Contact Name',
-                'Emergency Contact Phone', 'Status', 'Email Verified', 'Terms Accepted',
-                'Privacy Accepted', 'Marketing Consent', 'Registration Date', 'Approved Date',
-                'Approved By', 'Rejection Reason', 'Registration IP', 'Referral Source'
-            ]);
-
-            // Data rows
-            foreach ($registrations as $reg) {
-                fputcsv($handle, [
-                    $reg->id,
-                    $reg->first_name,
-                    $reg->last_name,
-                    $reg->email,
-                    $reg->phone,
-                    $reg->date_of_birth?->format('Y-m-d'),
-                    $reg->gender,
-                    $reg->address,
-                    $reg->user_type,
-                    $reg->occupation,
-                    $reg->organization,
-                    $reg->emergency_contact_name,
-                    $reg->emergency_contact_phone,
-                    $reg->status,
-                    $reg->hasVerifiedEmail() ? 'Yes' : 'No',
-                    $reg->terms_accepted ? 'Yes' : 'No',
-                    $reg->privacy_accepted ? 'Yes' : 'No',
-                    $reg->marketing_consent ? 'Yes' : 'No',
-                    $reg->created_at->format('Y-m-d H:i:s'),
-                    $reg->approved_at?->format('Y-m-d H:i:s'),
-                    $reg->approvedBy?->name,
-                    $reg->rejection_reason,
-                    $reg->registration_ip,
-                    $reg->referral_source
-                ]);
-            }
-
-            fclose($handle);
-        }, $filename, [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
-    }
-
-    /**
-     * Get registration statistics (Admin only)
-     */
-    public function statistics()
-    {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $stats = [
-            'total' => UserRegistration::count(),
-            'pending' => UserRegistration::pending()->count(),
-            'approved' => UserRegistration::approved()->count(),
-            'rejected' => UserRegistration::rejected()->count(),
-            'verified' => UserRegistration::emailVerified()->count(),
-            'unverified' => UserRegistration::emailUnverified()->count(),
-            'recent' => UserRegistration::where('created_at', '>=', now()->subDays(7))->count(),
-            'this_month' => UserRegistration::whereMonth('created_at', now()->month)->count(),
-            'by_type' => [
-                'farmer' => UserRegistration::where('user_type', 'farmer')->count(),
-                'fisherfolk' => UserRegistration::where('user_type', 'fisherfolk')->count(),
-                'general' => UserRegistration::where('user_type', 'general')->count(),
-            ]
-        ];
-
+        
         return response()->json([
             'success' => true,
-            'data' => $stats
+            'message' => 'Registration approved successfully'
+        ]);
+    }
+
+    /**
+     * Reject registration
+     */
+    public function reject(Request $request, $id)
+    {
+        $registration = UserRegistration::find($id);
+        
+        if (!$registration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration not found'
+            ], 404);
+        }
+        
+        $registration->update([
+            'status' => 'rejected',
+            'rejected_at' => now(),
+            'approved_by' => auth()->id(),
+            'rejection_reason' => $request->reason ?? 'No reason provided'
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration rejected successfully'
+        ]);
+    }
+
+    /**
+     * Delete registration
+     */
+    public function destroy($id)
+    {
+        $registration = UserRegistration::find($id);
+        
+        if (!$registration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration not found'
+            ], 404);
+        }
+        
+        $registration->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration deleted successfully'
         ]);
     }
 
@@ -654,157 +478,5 @@ class UserRegistrationController extends Controller
         }
 
         return $host;
-    }
-
-    /**
-     * Bulk reject registrations (Admin only)
-     */
-    public function bulkReject(Request $request)
-    {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'registration_ids' => 'required|array|min:1',
-            'registration_ids.*' => 'exists:user_registration,id',
-            'reason' => 'nullable|string|max:1000'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid registration IDs provided'
-            ], 422);
-        }
-
-        try {
-            $registrations = UserRegistration::whereIn('id', $request->registration_ids)
-                ->where('status', 'pending')
-                ->get();
-
-            $rejected = 0;
-            $failed = 0;
-
-            foreach ($registrations as $registration) {
-                try {
-                    $registration->reject($request->reason, auth()->id());
-                    $registration->notify(new RegistrationRejectedNotification($request->reason));
-                    $rejected++;
-                } catch (\Exception $e) {
-                    \Log::error('Failed to reject registration ID ' . $registration->id . ': ' . $e->getMessage());
-                    $failed++;
-                }
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => "Bulk rejection completed. {$rejected} rejected, {$failed} failed.",
-                'data' => [
-                    'rejected' => $rejected,
-                    'failed' => $failed
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Bulk rejection failed: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Bulk rejection failed. Please try again.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Bulk delete registrations (Admin only)
-     */
-    public function bulkDelete(Request $request)
-    {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'registration_ids' => 'required|array|min:1',
-            'registration_ids.*' => 'exists:user_registration,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid registration IDs provided'
-            ], 422);
-        }
-
-        try {
-            $deleted = UserRegistration::whereIn('id', $request->registration_ids)->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => "Successfully deleted {$deleted} registrations.",
-                'data' => [
-                    'deleted' => $deleted
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Bulk deletion failed: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Bulk deletion failed. Please try again.'
-            ], 500);
-        }
-    }
-
-    /**
-     * Check registration status by email (Public - for users to check their own status)
-     */
-    public function checkStatus($email)
-    {
-        $registration = UserRegistration::where('email', $email)->first();
-
-        if (!$registration) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No registration found for this email address.'
-            ], 404);
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'email' => $registration->email,
-                'status' => $registration->status,
-                'email_verified' => $registration->hasVerifiedEmail(),
-                'created_at' => $registration->created_at->format('M j, Y'),
-                'message' => $this->getStatusMessage($registration)
-            ]
-        ]);
-    }
-
-    /**
-     * Get status message for user
-     */
-    private function getStatusMessage(UserRegistration $registration)
-    {
-        if (!$registration->hasVerifiedEmail()) {
-            return 'Please check your email and click the verification link to continue with your registration.';
-        }
-
-        switch ($registration->status) {
-            case 'pending':
-                return 'Your email has been verified and your registration is currently under review by our admin team.';
-            case 'approved':
-                return 'Congratulations! Your registration has been approved. You can now access our services.';
-            case 'rejected':
-                $reason = $registration->rejection_reason 
-                    ? ' Reason: ' . $registration->rejection_reason 
-                    : '';
-                return 'Unfortunately, your registration has been rejected.' . $reason . ' Please contact us if you have questions.';
-            default:
-                return 'Registration status unknown. Please contact support.';
-        }
     }
 }
