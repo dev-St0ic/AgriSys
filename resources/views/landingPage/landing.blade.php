@@ -83,11 +83,11 @@
                             </div>
                             
                             <div class="dropdown-menu">
-                                <a href="#" class="dropdown-item" onclick="scrollToMyApplications()">
+                                <a href="#" class="dropdown-item" onclick="showMyApplicationsModal()">
                                     <span class="dropdown-icon">📋</span>
                                     My Applications
                                 </a>
-                                <a href="#" class="dropdown-item" onclick="viewProfile()">
+                                <a href="#" class="dropdown-item" onclick="showProfileModal()">
                                     <span class="dropdown-icon">👤</span>
                                     View Profile
                                 </a>
@@ -116,45 +116,14 @@
             more info.</p>
     </section>
 
-    @if(isset($user))
-        <!-- User Welcome Section -->
-        <section class="user-welcome-section">
-            <h3>Welcome back, {{ $user['name'] ?? $user['username'] }}!</h3>
-            <p>Your account status: <strong>{{ ucfirst($user['status'] ?? 'Active') }}</strong></p>
-            <div class="user-quick-actions">
-                <button class="quick-action-btn" onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">
-                    <span>🌾</span> Browse Services
-                </button>
-                <button class="quick-action-btn" onclick="scrollToMyApplications()">
-                    <span>📋</span> My Applications
-                </button>
-                <button class="quick-action-btn" onclick="viewProfile()">
-                    <span>👤</span> View Profile
-                </button>
-            </div>
-        </section>
-        
-        <!-- My Applications Section -->
-        <section class="my-applications-section" id="my-applications">
-            <h3>My Applications</h3>
-            <div class="applications-grid" id="applications-grid">
-                <!-- Will be populated by JavaScript -->
-                <div class="application-card" style="text-align: center; grid-column: 1 / -1; color: #6b7280;">
-                    <h4>Loading Applications...</h4>
-                    <p>Please wait while we fetch your application history.</p>
-                </div>
-            </div>
-        </section>
-    @else
-        <!-- Guest Welcome Section -->
-        <section class="welcome" id="home">
-            <h2>Welcome to AgriSys</h2>
-            <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
-            <button class="btn-services"
-                onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore
-                Services</button>
-        </section>
-    @endif
+    <!-- Welcome Section (Same for both guest and logged-in users) -->
+    <section class="welcome" id="home">
+        <h2>Welcome to AgriSys</h2>
+        <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
+        <button class="btn-services"
+            onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore
+            Services</button>
+    </section>
 
     <!-- Services Section (Always visible) -->
     <section class="services" id="services">
@@ -255,7 +224,7 @@
         </div>
     </section>
 
-    <!-- Contact Modal - Add before closing </body> tag -->
+    <!-- Contact Modal -->
     <div id="contact-modal" class="contact-modal-overlay" style="display: none;">
         <div class="contact-modal-content">
             <div class="contact-modal-header">
@@ -302,6 +271,121 @@
             </div>
         </div>
     </div>
+
+    @if(isset($user))
+    <!-- USER PROFILE MODAL -->
+    <div id="profile-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content profile-modal">
+            <div class="modal-header">
+                <h3>My Profile</h3>
+                <span class="modal-close" onclick="closeProfileModal()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="profile-content">
+                    <!-- Profile Header -->
+                    <div class="profile-header">
+                        <div class="profile-avatar-large">
+                            {{ strtoupper(substr($user['name'] ?? $user['username'], 0, 1)) }}
+                        </div>
+                        <div class="profile-header-info">
+                            <h4>{{ $user['name'] ?? $user['username'] }}</h4>
+                            <p class="profile-email">{{ $user['email'] }}</p>
+                            <div class="profile-status-badge status-{{ strtolower($user['status'] ?? 'active') }}">
+                                {{ ucfirst($user['status'] ?? 'Active') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Information -->
+                    <div class="profile-info-grid">
+                        <div class="profile-info-card">
+                            <h5>Account Information</h5>
+                            <div class="info-row">
+                                <span class="info-label">Username:</span>
+                                <span class="info-value">{{ $user['username'] }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Email:</span>
+                                <span class="info-value">{{ $user['email'] }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Member Since:</span>
+                                <span class="info-value">{{ isset($user['created_at']) ? date('M Y', strtotime($user['created_at'])) : 'N/A' }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Account Status:</span>
+                                <span class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-info-card">
+                            <h5>Application Summary</h5>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ $user['total_applications'] ?? '0' }}</div>
+                                    <div class="stat-label">Total Applications</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ $user['approved_applications'] ?? '0' }}</div>
+                                    <div class="stat-label">Approved</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ $user['pending_applications'] ?? '0' }}</div>
+                                    <div class="stat-label">Pending</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Actions -->
+                    <div class="profile-actions">
+                        <button class="profile-action-btn primary" onclick="editProfile()">
+                            <span class="btn-icon">✏️</span>
+                            Edit Profile
+                        </button>
+                        <button class="profile-action-btn secondary" onclick="changePassword()">
+                            <span class="btn-icon">🔒</span>
+                            Change Password
+                        </button>
+                        <button class="profile-action-btn secondary" onclick="showMyApplicationsModal(); closeProfileModal();">
+                            <span class="btn-icon">📋</span>
+                            View Applications
+                        </button>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="recent-activity">
+                        <h5>Recent Activity</h5>
+                        <div class="activity-list" id="recent-activity-list">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MY APPLICATIONS MODAL -->
+    <div id="applications-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content applications-modal">
+            <div class="modal-header">
+                <h3>My Applications</h3>
+                <span class="modal-close" onclick="closeApplicationsModal()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="applications-grid" id="applications-modal-grid">
+                    <!-- Will be populated by JavaScript -->
+                    <div class="loading-state">
+                        <div class="loader"></div>
+                        <p>Loading your applications...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
     
     @if(!isset($user))
     <!-- AUTH MODALS (Only show for guests) -->

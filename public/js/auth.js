@@ -1,4 +1,4 @@
-// Enhanced Auth Modal Functions with User Profile Management
+// Enhanced Auth Modal Functions with Modal-Based User Management
 
 // ==============================================
 // AUTH MODAL FUNCTIONS
@@ -67,7 +67,7 @@ function showSignUpForm() {
 }
 
 // ==============================================
-// USER PROFILE FUNCTIONS
+// USER PROFILE DROPDOWN FUNCTIONS
 // ==============================================
 
 function toggleUserDropdown() {
@@ -77,24 +77,239 @@ function toggleUserDropdown() {
     }
 }
 
-function scrollToMyApplications() {
-    const element = document.getElementById('my-applications');
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+// ==============================================
+// PROFILE MODAL FUNCTIONS
+// ==============================================
+
+function showProfileModal() {
+    const modal = document.getElementById('profile-modal');
+    if (!modal) {
+        console.error('Profile modal not found');
+        return;
     }
-    // Close dropdown
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadProfileData();
+    
+    // Close user dropdown
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.remove('show');
     }
 }
 
-function viewProfile() {
-    showNotification('info', 'Profile feature will be available soon!');
+function closeProfileModal() {
+    const modal = document.getElementById('profile-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function loadProfileData() {
+    // Load recent activity (this would normally come from your backend)
+    const activityList = document.getElementById('recent-activity-list');
+    if (activityList && window.userData) {
+        // You can populate this with real data from your backend
+        const mockActivity = [
+            {
+                icon: '📝',
+                text: 'Submitted RSBSA Registration',
+                date: '2 days ago'
+            },
+            {
+                icon: '✅',
+                text: 'Seedling Request Approved',
+                date: '1 week ago'
+            },
+            {
+                icon: '👤',
+                text: 'Profile Updated',
+                date: '2 weeks ago'
+            }
+        ];
+
+        activityList.innerHTML = mockActivity.map(activity => `
+            <div class="activity-item">
+                <div class="activity-icon">${activity.icon}</div>
+                <div class="activity-content">
+                    <div class="activity-text">${activity.text}</div>
+                    <div class="activity-date">${activity.date}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function editProfile() {
+    showNotification('info', 'Profile editing feature coming soon!');
+    // You would implement profile editing functionality here
+}
+
+function changePassword() {
+    showNotification('info', 'Password change feature coming soon!');
+    // You would implement password change functionality here
+}
+
+// ==============================================
+// MODAL-BASED USER FUNCTIONS
+// ==============================================
+
+function showMyApplicationsModal() {
+    const modal = document.getElementById('applications-modal');
+    if (!modal) {
+        console.error('Applications modal not found');
+        return;
+    }
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    loadUserApplicationsInModal();
+    
+    // Close user dropdown
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.remove('show');
     }
+}
+
+function closeApplicationsModal() {
+    const modal = document.getElementById('applications-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function loadUserApplicationsInModal() {
+    const grid = document.getElementById('applications-modal-grid');
+    if (!grid) return;
+    
+    // Check if user is logged in
+    if (!window.userData) {
+        grid.innerHTML = `
+            <div class="empty-applications">
+                <h4>Please Log In</h4>
+                <p>You need to be logged in to view your applications.</p>
+                <button class="quick-action-btn" onclick="closeApplicationsModal(); openAuthModal('login');">
+                    <span>🔐</span> Log In
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    // Show loading state
+    grid.innerHTML = `
+        <div class="loading-state">
+            <div class="loader"></div>
+            <p>Loading your applications...</p>
+        </div>
+    `;
+    
+    // Try to fetch real data, fallback to mock data
+    fetch('/api/user/applications', {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.applications) {
+            renderApplicationsInModal(data.applications);
+        } else {
+            // Fallback to mock data for development
+            renderMockApplicationsInModal();
+        }
+    })
+    .catch(error => {
+        console.log('Loading mock applications for development');
+        renderMockApplicationsInModal();
+    });
+}
+
+function renderApplicationsInModal(applications) {
+    const grid = document.getElementById('applications-modal-grid');
+    if (!grid) return;
+    
+    if (applications.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-applications">
+                <h4>No Applications Yet</h4>
+                <p>You haven't submitted any applications yet. Browse our services to get started!</p>
+                <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
+                    <span>🌾</span> Browse Services
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = applications.map(app => `
+        <div class="application-card">
+            <h4>${app.type}</h4>
+            <p>${app.description || 'Application submitted successfully'}</p>
+            <div class="application-status status-${app.status.toLowerCase().replace(' ', '_')}">
+                ${app.status.charAt(0).toUpperCase() + app.status.slice(1).replace('_', ' ')}
+            </div>
+            <div class="application-date">
+                Submitted: ${formatApplicationDate(app.date)}
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderMockApplicationsInModal() {
+    const mockApplications = [
+        {
+            id: 1,
+            type: 'Seedlings Request',
+            date: '2025-01-15',
+            status: 'pending',
+            description: 'Request for vegetable seedlings - tomatoes, eggplant, and pepper varieties'
+        },
+        {
+            id: 2,
+            type: 'FishR Registration',
+            date: '2025-01-10',
+            status: 'approved',
+            description: 'Fisherfolk registration for coastal fishing activities'
+        },
+        {
+            id: 3,
+            type: 'Training Request',
+            date: '2025-01-08',
+            status: 'processing',
+            description: 'Agricultural training program on sustainable farming practices'
+        },
+        {
+            id: 4,
+            type: 'RSBSA Registration',
+            date: '2025-01-05',
+            status: 'approved',
+            description: 'Registry System for Basic Sectors in Agriculture enrollment'
+        },
+        {
+            id: 5,
+            type: 'BoatR Registration',
+            date: '2025-01-03',
+            status: 'rejected',
+            description: 'Fishing boat registration - requires additional documentation'
+        }
+    ];
+    
+    renderApplicationsInModal(mockApplications);
+}
+
+function formatApplicationDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
 }
 
 function accountSettings() {
@@ -660,104 +875,6 @@ function handleValidationErrors(errors) {
 }
 
 // ==============================================
-// APPLICATION MANAGEMENT FOR USERS
-// ==============================================
-
-function loadUserApplications() {
-    if (!window.userData) return;
-    
-    const grid = document.getElementById('applications-grid');
-    if (!grid) return;
-    
-    // Replace this with actual API call to your backend
-    fetch('/api/user/applications', {
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success && data.applications) {
-            renderApplications(data.applications);
-        } else {
-            // Fallback to mock data for development
-            renderMockApplications();
-        }
-    })
-    .catch(error => {
-        console.log('Loading mock applications for development');
-        renderMockApplications();
-    });
-}
-
-function renderApplications(applications) {
-    const grid = document.getElementById('applications-grid');
-    if (!grid) return;
-    
-    if (applications.length === 0) {
-        grid.innerHTML = `
-            <div class="application-card" style="text-align: center; grid-column: 1 / -1; color: #6b7280;">
-                <h4>No Applications Yet</h4>
-                <p>You haven't submitted any applications yet. Browse our services below to get started!</p>
-                <button class="quick-action-btn" onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">
-                    <span>🌾</span> Browse Services
-                </button>
-            </div>
-        `;
-        return;
-    }
-    
-    grid.innerHTML = applications.map(app => `
-        <div class="application-card">
-            <h4>${app.type}</h4>
-            <p>${app.description || 'Application submitted'}</p>
-            <div class="application-status status-${app.status}">
-                ${app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-            </div>
-            <small style="color: #6b7280;">Submitted: ${formatDate(app.date)}</small>
-        </div>
-    `).join('');
-}
-
-function renderMockApplications() {
-    const mockApplications = [
-        {
-            id: 1,
-            type: 'Seedlings Request',
-            date: '2025-01-15',
-            status: 'pending',
-            description: 'Vegetable seedlings for farming'
-        },
-        {
-            id: 2,
-            type: 'FishR Registration',
-            date: '2025-01-10',
-            status: 'approved',
-            description: 'Fisherfolk registration application'
-        },
-        {
-            id: 3,
-            type: 'Training Request',
-            date: '2025-01-08',
-            status: 'processing',
-            description: 'Agricultural training program'
-        }
-    ];
-    
-    renderApplications(mockApplications);
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
-
-// ==============================================
 // EVENT LISTENERS AND INITIALIZATION
 // ==============================================
 
@@ -799,12 +916,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Modal close functionality
-    const modal = document.getElementById('auth-modal');
-    if (modal) {
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) {
+    // Auth modal close functionality
+    const authModal = document.getElementById('auth-modal');
+    if (authModal) {
+        authModal.addEventListener('click', function(event) {
+            if (event.target === authModal) {
                 closeAuthModal();
+            }
+        });
+    }
+    
+    // Applications modal close functionality
+    const applicationsModal = document.getElementById('applications-modal');
+    if (applicationsModal) {
+        applicationsModal.addEventListener('click', function(event) {
+            if (event.target === applicationsModal) {
+                closeApplicationsModal();
+            }
+        });
+    }
+    
+    // Profile modal close functionality
+    const profileModal = document.getElementById('profile-modal');
+    if (profileModal) {
+        profileModal.addEventListener('click', function(event) {
+            if (event.target === profileModal) {
+                closeProfileModal();
             }
         });
     }
@@ -827,15 +964,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 closeAuthModal();
             }
             
+            const applicationsModal = document.getElementById('applications-modal');
+            if (applicationsModal && applicationsModal.style.display !== 'none') {
+                closeApplicationsModal();
+            }
+            
+            const profileModal = document.getElementById('profile-modal');
+            if (profileModal && profileModal.style.display !== 'none') {
+                closeProfileModal();
+            }
+            
             const dropdown = document.getElementById('user-dropdown');
             if (dropdown && dropdown.classList.contains('show')) {
                 dropdown.classList.remove('show');
             }
         }
     });
-    
-    // Load user applications if logged in
-    loadUserApplications();
 });
 
 // ==============================================
@@ -852,9 +996,14 @@ window.signInWithGoogle = signInWithGoogle;
 window.signUpWithGoogle = signUpWithGoogle;
 window.showForgotPassword = showForgotPassword;
 window.toggleUserDropdown = toggleUserDropdown;
-window.scrollToMyApplications = scrollToMyApplications;
-window.viewProfile = viewProfile;
+window.showMyApplicationsModal = showMyApplicationsModal;
+window.closeApplicationsModal = closeApplicationsModal;
+window.showProfileModal = showProfileModal;
+window.closeProfileModal = closeProfileModal;
+window.editProfile = editProfile;
+window.changePassword = changePassword;
 window.accountSettings = accountSettings;
 window.logoutUser = logoutUser;
+window.showNotification = showNotification;
 
-console.log('Enhanced Auth.js with User Profile Management loaded successfully');
+console.log('Enhanced Auth.js with Profile Modal Management loaded successfully');
