@@ -1,4 +1,4 @@
-// Enhanced Auth Modal Functions with Account Settings and Profile Verification
+// Enhanced Auth Modal Functions with Profile Verification and Status Management
 
 // ==============================================
 // AUTH MODAL FUNCTIONS
@@ -119,6 +119,67 @@ function resetButtonStates() {
     // Reset all auth buttons
     const buttons = document.querySelectorAll('.auth-submit-btn, .verification-submit-btn');
     buttons.forEach(resetButtonState);
+}
+
+// ==============================================
+// ENHANCED PROFILE BUTTON STATE MANAGEMENT
+// ==============================================
+
+/**
+ * Updates the profile verification button based on current user status
+ * Handles all status transitions including rejected → retry verification
+ */
+function refreshProfileVerifyButton() {
+    const verifyBtn = document.getElementById('verify-action-btn');
+    if (!verifyBtn || !window.userData) return;
+
+    const status = (window.userData.status || '').toLowerCase();
+    
+    // Remove all existing classes and states
+    verifyBtn.classList.remove('pending', 'verified', 'rejected');
+    verifyBtn.disabled = false;
+    verifyBtn.onclick = null; // Clear existing handler
+    
+    switch (status) {
+        case 'verified':
+        case 'approved':
+            // Verified state: green, disabled, with checkmark
+            verifyBtn.disabled = true;
+            verifyBtn.classList.add('verified');
+            verifyBtn.innerHTML = '<span class="btn-icon">✅</span> Verified';
+            break;
+            
+        case 'pending':
+        case 'pending_verification':
+            // Pending state: neutral colors, disabled, with clock
+            verifyBtn.disabled = true;
+            verifyBtn.classList.add('pending');
+            verifyBtn.innerHTML = '<span class="btn-icon">⏳</span> Pending Verification';
+            break;
+            
+        case 'rejected':
+            // Rejected state: can retry verification (orange/amber styling)
+            verifyBtn.disabled = false;
+            verifyBtn.classList.add('rejected');
+            verifyBtn.innerHTML = '<span class="btn-icon">🔄</span> Retry Verification';
+            verifyBtn.onclick = () => showVerificationModal();
+            break;
+            
+        case 'unverified':
+        case 'active':
+        case '':
+        case null:
+        case undefined:
+        default:
+            // Unverified/default state: can start verification
+            verifyBtn.disabled = false;
+            verifyBtn.classList.remove('pending', 'verified', 'rejected');
+            verifyBtn.innerHTML = '<span class="btn-icon">✅</span> Verify Now';
+            verifyBtn.onclick = () => showVerificationModal();
+            break;
+    }
+    
+    console.log(`Profile verify button updated for status: ${status}`);
 }
 
 // ==============================================
@@ -266,35 +327,120 @@ function previewImage(input, previewId) {
     }
 }
 
+// ==============================================
+// UPDATED VERIFICATION FORM HANDLER - ALIGNED WITH BACKEND
+// ==============================================
+
 function handleVerificationSubmit(event) {
     event.preventDefault();
     
     const form = event.target;
     const submitBtn = form.querySelector('.verification-submit-btn');
     
-    // Basic validation
-    const requiredFields = ['firstName', 'lastName', 'role', 'contactNumber', 'barangay', 'completeAddress', 'idFront', 'idBack', 'locationProof'];
+    // UPDATED: Validation to match backend requirements exactly
+    const requiredFields = [
+        { name: 'firstName', label: 'First Name' },
+        { name: 'lastName', label: 'Last Name' },
+        { name: 'role', label: 'Role' },
+        { name: 'contactNumber', label: 'Contact Number' },
+        { name: 'dateOfBirth', label: 'Date of Birth' }, // ADDED: Required by backend
+        { name: 'barangay', label: 'Barangay' },
+        { name: 'completeAddress', label: 'Complete Address' },
+        { name: 'idFront', label: 'ID Front', type: 'file' },
+        { name: 'idBack', label: 'ID Back', type: 'file' },
+        { name: 'locationProof', label: 'Location Proof', type: 'file' }
+    ];
+    
     let isValid = true;
     let missingFields = [];
     
-    requiredFields.forEach(fieldName => {
-        const field = form.querySelector(`[name="${fieldName}"]`);
-        if (!field || (field.type === 'file' ? !field.files.length : !field.value.trim())) {
-            isValid = false;
-            missingFields.push(fieldName.replace(/([A-Z])/g, ' $1').toLowerCase());
+    requiredFields.forEach(field => {
+        const input = form.querySelector(`[name="${field.name}"]`);
+        if (!input) {
+            console.error(`Field ${field.name} not found in form`);
+            return;
+        }
+        
+        if (field.type === 'file') {
+            if (!input.files || !input.files.length) {
+                isValid = false;
+                missingFields.push(field.label);
+            }
+        } else {
+            if (!input.value || !input.value.trim()) {
+                isValid = false;
+                missingFields.push(field.label);
+            }
         }
     });
     
+    // Additional validations
+    const dateOfBirth = form.querySelector('[name="dateOfBirth"]').value;
+    if (dateOfBirth) {
+        const birthDate = new Date(dateOfBirth);
+        const today = new Date();
+        const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+        
+        if (age < 18) {
+            isValid = false;
+            showNotification('error', 'You must be at least 18 years old to register.');
+            return false;
+        }
+        
+        if (age > 100) {
+            isValid = false;
+            showNotification('error', 'Please enter a valid date of birth.');
+            return false;
+        }
+    }
+    
+    const contactNumber = form.querySelector('[name="contactNumber"]').value;
+    if (contactNumber) {
+        // Philippine mobile number validation (09XXXXXXXXX or +639XXXXXXXXX)
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactNumber)) {
+            isValid = false;
+            showNotification('error', 'Please enter a valid Philippine mobile number (09XXXXXXXXX).');
+            return false;
+        }
+    }
+    
     if (!isValid) {
-        showNotification('error', `Please fill in all required fields: ${missingFields.join(', ')}`);
+        showNotification('error', `Please complete all required fields: ${missingFields.join(', ')}`);
         return false;
     }
     
     // Set button to loading state
     setButtonLoading(submitBtn, 'Submitting Verification...');
     
-    // Create FormData for file upload
-    const formData = new FormData(form);
+    // Create FormData for file upload - EXACTLY as backend expects
+    const formData = new FormData();
+    
+    // Add form fields with exact names expected by backend
+    formData.append('firstName', form.querySelector('[name="firstName"]').value.trim());
+    formData.append('lastName', form.querySelector('[name="lastName"]').value.trim());
+    formData.append('middleName', form.querySelector('[name="middleName"]').value.trim());
+    formData.append('extensionName', form.querySelector('[name="extensionName"]').value.trim());
+    formData.append('role', form.querySelector('[name="role"]').value);
+    formData.append('contactNumber', form.querySelector('[name="contactNumber"]').value.trim());
+    formData.append('dateOfBirth', form.querySelector('[name="dateOfBirth"]').value);
+    formData.append('barangay', form.querySelector('[name="barangay"]').value);
+    formData.append('completeAddress', form.querySelector('[name="completeAddress"]').value.trim());
+    
+    // Add file uploads - EXACT names expected by backend
+    const idFrontFile = form.querySelector('[name="idFront"]').files[0];
+    const idBackFile = form.querySelector('[name="idBack"]').files[0];
+    const locationProofFile = form.querySelector('[name="locationProof"]').files[0];
+    
+    if (idFrontFile) formData.append('idFront', idFrontFile);
+    if (idBackFile) formData.append('idBack', idBackFile);
+    if (locationProofFile) formData.append('locationProof', locationProofFile);
+    
+    // Debug logging
+    console.log('Submitting verification form with data:');
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]));
+    }
     
     // Submit to backend
     fetch('/auth/verify-profile', {
@@ -303,33 +449,57 @@ function handleVerificationSubmit(event) {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
+            // Note: Don't set Content-Type header for FormData, browser sets it automatically with boundary
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Server response:', data);
+        
         if (data.success) {
-            setButtonLoading(submitBtn, 'Verification Submitted!');
-            showNotification('success', data.message);
-            
+            // Update local user status so UI stays consistent
+            if (window.userData) {
+                window.userData.status = 'pending';
+            }
+
+            // Refresh the profile verify button to reflect new status
+            refreshProfileVerifyButton();
+
+            showNotification('success', data.message || 'Verification submitted successfully!');
+
+            // Start polling for approval
+            maybeStartVerificationPoll();
+
+            // Close modal shortly after showing confirmation
             setTimeout(() => {
                 closeVerificationModal();
-                resetButtonState(submitBtn);
-                // Refresh page to show updated user status
-                window.location.reload();
-            }, 2000);
-        } else {
-            showNotification('error', data.message || 'Verification submission failed');
-            resetButtonState(submitBtn);
-        }
-    })
+            }, 1000);
+         } else {
+             console.error('Verification failed:', data);
+             let errorMessage = data.message || 'Verification submission failed';
+             
+             // Handle validation errors
+             if (data.errors) {
+                 const errorMessages = Object.values(data.errors).flat();
+                 errorMessage = errorMessages.join(', ');
+             }
+             
+             showNotification('error', errorMessage);
+             resetButtonState(submitBtn);
+         }
+     })
     .catch(error => {
         console.error('Verification error:', error);
-        showNotification('error', 'An error occurred. Please try again.');
+        showNotification('error', 'Network error. Please check your connection and try again.');
         resetButtonState(submitBtn);
     });
     
     return false;
 }
+
 // ==============================================
 // MODAL-BASED USER FUNCTIONS
 // ==============================================
@@ -1082,9 +1252,110 @@ function handleValidationErrors(errors) {
 }
 
 // ==============================================
-// EVENT LISTENERS AND INITIALIZATION
+// VERIFICATION STATUS POLLING
 // ==============================================
 
+/*
+  Add robust verification-status poller.
+  - tries multiple endpoints
+  - accepts different JSON shapes (data.user, user, data)
+  - updates window.userData and calls refreshProfileVerifyButton()
+*/
+let verificationStatusPoll = {
+    intervalId: null,
+    intervalMs: 10000, // Poll every 10 seconds
+    async probeEndpoints() {
+        const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+        const headers = {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': tokenMeta ? tokenMeta.content : ''
+        };
+
+        // Try these endpoints in order — adjust if your backend exposes a different URL
+        const endpoints = ['/api/user/profile', '/auth/profile', '/api/profile'];
+
+        for (const url of endpoints) {
+            try {
+                const res = await fetch(url, { method: 'GET', headers });
+                if (!res.ok) {
+                    // if unauthorized/forbidden stop polling
+                    if (res.status === 401 || res.status === 403) return { stop: true };
+                    continue;
+                }
+                const json = await res.json();
+                // Support several shapes: { user: {...} }, { data: { user: {...} } }, or direct user object
+                const user = (json && (json.user || (json.data && json.data.user) || json.data || json)) || null;
+                return { user, url };
+            } catch (err) {
+                console.debug('Verification probe failed for', url, err);
+                continue;
+            }
+        }
+        return { user: null };
+    },
+    start() {
+        if (this.intervalId) return;
+        if (!window.userData) return;
+        const status = (window.userData.status || '').toLowerCase();
+        if (status !== 'pending' && status !== 'pending_verification') return;
+
+        this.intervalId = setInterval(async () => {
+            try {
+                const { user, url, stop } = await this.probeEndpoints();
+                if (stop) {
+                    this.stop();
+                    return;
+                }
+                if (!user) return;
+                const serverStatus = ((user.status || '') + '').toLowerCase();
+                const localStatus = (window.userData.status || '').toLowerCase();
+
+                if (serverStatus && serverStatus !== localStatus) {
+                    // merge user fields (do not overwrite everything in case UI expects other props)
+                    window.userData = Object.assign({}, window.userData, user);
+                    refreshProfileVerifyButton();
+
+                    if (serverStatus === 'verified' || serverStatus === 'approved') {
+                        showNotification('success', 'Your profile has been verified!');
+                        this.stop();
+                    } else if (serverStatus === 'rejected') {
+                        showNotification('error', 'Your verification was rejected. You can submit again with updated documents.');
+                        this.stop();
+                    }
+                }
+            } catch (err) {
+                console.error('Verification status poll error:', err);
+            }
+        }, this.intervalMs);
+
+        console.debug('Started verificationStatusPoll');
+    },
+    stop() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
+            console.debug('Stopped verificationStatusPoll');
+        }
+    }
+};
+
+function maybeStartVerificationPoll() {
+    try {
+        if (!window.userData) return;
+        const s = (window.userData.status || '').toLowerCase();
+        if (['pending', 'pending_verification'].includes(s)) {
+            verificationStatusPoll.start();
+        }
+    } catch (e) {
+        console.error('maybeStartVerificationPoll error', e);
+    }
+}
+
+// ==============================================
+// HOOKS AND LISTENERS
+// ==============================================
+
+// Hook: start polling on page load if status already pending
 document.addEventListener('DOMContentLoaded', function() {
     // Login form submission
     const loginForm = document.getElementById('login-form');
@@ -1230,6 +1501,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    
+    // ensure verify button matches current user status (useful when userData supplied to window)
+    refreshProfileVerifyButton();
+
+    // start polling if user is pending verification
+    maybeStartVerificationPoll();
 });
 
 // ==============================================
@@ -1258,5 +1535,6 @@ window.accountSettings = accountSettings;
 window.logoutUser = logoutUser;
 window.showNotification = showNotification;
 window.previewImage = previewImage;
+window.refreshProfileVerifyButton = refreshProfileVerifyButton;
 
-console.log('Enhanced Auth.js with Account Settings and Profile Verification loaded successfully');
+console.log('Enhanced Auth.js with Profile Verification and Status Management loaded successfully');

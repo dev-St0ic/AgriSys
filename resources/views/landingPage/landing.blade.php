@@ -284,6 +284,7 @@
             <div class="modal-body">
                 <div class="profile-content">
                     <!-- Profile Header -->
+                    @php $status = strtolower($user['status'] ?? 'active'); @endphp
                     <div class="profile-header">
                         <div class="profile-avatar-large">
                             {{ strtoupper(substr($user['name'] ?? $user['username'], 0, 1)) }}
@@ -291,7 +292,8 @@
                         <div class="profile-header-info">
                             <h4>{{ $user['name'] ?? $user['username'] }}</h4>
                             <p class="profile-email">{{ $user['email'] }}</p>
-                            <div class="profile-status-badge status-{{ strtolower($user['status'] ?? 'active') }}">
+                            <div class="profile-status-badge status-{{ $status }}">
+
                                 {{ ucfirst($user['status'] ?? 'Active') }}
                             </div>
                         </div>
@@ -340,23 +342,50 @@
 
                     <!-- Profile Actions -->
                     <div class="profile-actions">
-                        <button class="profile-action-btn primary" onclick="showVerificationModal()">
-                            <span class="btn-icon">✅</span>
-                            Verify Now
-                        </button>
-                        <button class="profile-action-btn secondary" onclick="editProfile()">
-                            <span class="btn-icon">✏️</span>
-                            Edit Profile
-                        </button>
-                        <button class="profile-action-btn secondary" onclick="changePassword()">
-                            <span class="btn-icon">🔒</span>
-                            Change Password
-                        </button>
-                        <button class="profile-action-btn secondary" onclick="showMyApplicationsModal(); closeProfileModal();">
-                            <span class="btn-icon">📋</span>
-                            View Applications
-                        </button>
-                    </div>
+                        {{-- Server-rendered verification button to match backend status --}}
+                        @php
+                            // Normalize status for rendering
+                            $s = $status;
+                        @endphp
+
+                        @if(in_array($s, ['verified', 'approved']))
+                            <button class="profile-action-btn verified" id="verify-action-btn" disabled>
+                                <span class="btn-icon">✅</span>
+                                Verified
+                            </button>
+
+                        @elseif(in_array($s, ['pending', 'pending_verification']))
+                            <button class="profile-action-btn pending" id="verify-action-btn" disabled>
+                                <span class="btn-icon">⏳</span>
+                                Pending Verification
+                            </button>
+
+                        @elseif($s === 'rejected')
+                            <button class="profile-action-btn rejected" id="verify-action-btn" onclick="showVerificationModal()">
+                                <span class="btn-icon">🔄</span>
+                                Retry Verification
+                            </button>
+
+                        @else
+                            <button class="profile-action-btn primary" id="verify-action-btn" onclick="showVerificationModal()">
+                                <span class="btn-icon">✅</span>
+                                Verify Now
+                            </button>
+                        @endif
+
+                         <button class="profile-action-btn secondary" onclick="editProfile()">
+                             <span class="btn-icon">✏️</span>
+                             Edit Profile
+                         </button>
+                         <button class="profile-action-btn secondary" onclick="changePassword()">
+                             <span class="btn-icon">🔒</span>
+                             Change Password
+                         </button>
+                         <button class="profile-action-btn secondary" onclick="showMyApplicationsModal(); closeProfileModal();">
+                             <span class="btn-icon">📋</span>
+                             View Applications
+                         </button>
+                     </div>
 
                     <!-- Recent Activity -->
                     <div class="recent-activity">
@@ -390,7 +419,7 @@
         </div>
     </div>
 
-    <!-- PROFILE VERIFICATION MODAL -->
+    <!-- PROFILE VERIFICATION MODAL - UPDATED TO MATCH BACKEND -->
     <div id="verification-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content verification-modal">
             <div class="modal-header">
@@ -440,23 +469,29 @@
                                 </div>
                             </div>
 
+                            <!-- ADDED: Date of Birth field (REQUIRED by backend) -->
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="role">Role *</label>
-                                    <select id="role" name="role" required>
-                                        <option value="" disabled selected>Select your role</option>
-                                        <option value="farmer">Farmer</option>
-                                        <option value="fisherfolk">Fisherfolk</option>
-                                        <option value="general">General Public</option>
-                                        <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
-                                        <option value="cooperative-member">Cooperative Member</option>
-                                        <option value="government-employee">Government Employee</option>
-                                    </select>
+                                    <label for="dateOfBirth">Date of Birth *</label>
+                                    <input type="date" id="dateOfBirth" name="dateOfBirth" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="contactNumber">Contact Number *</label>
-                                    <input type="tel" id="contactNumber" name="contactNumber" required placeholder="09XXXXXXXXX"  pattern="[0-9]{11}">
+                                    <input type="tel" id="contactNumber" name="contactNumber" required placeholder="09XXXXXXXXX" pattern="[0-9]{11}">
                                 </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="role">Role *</label>
+                                <select id="role" name="role" required>
+                                    <option value="" disabled selected>Select your role</option>
+                                    <option value="farmer">Farmer</option>
+                                    <option value="fisherfolk">Fisherfolk</option>
+                                    <option value="general">General Public</option>
+                                    <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
+                                    <option value="cooperative-member">Cooperative Member</option>
+                                    <option value="government-employee">Government Employee</option>
+                                </select>
                             </div>
                         </div>
 

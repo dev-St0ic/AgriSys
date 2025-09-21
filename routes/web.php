@@ -336,9 +336,100 @@ if (config('app.debug')) {
     })->name('debug.test-boatr');
 }
 
+// /*
+// |--------------------------------------------------------------------------
+// | Admin Routes (for managing user registrations)
+// |--------------------------------------------------------------------------
+// */
+// Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
+    
+//     // Main user management interface
+//     Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
+    
+//     // Individual registration management
+//     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
+//     Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
+    
+//     // Status management
+//     Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
+//     Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
+    
+//     // Statistics and export
+//     Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
+//     Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
+
+//     //view document
+//     Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'viewDocument'])->name('registrations.document');
+// });
+
+
+// // Register middleware alias for newer Laravel versions
+// Route::aliasMiddleware('user.session', UserSession::class);
+
+// /*
+// |--------------------------------------------------------------------------
+// | Main Landing Page Route
+// |--------------------------------------------------------------------------
+// */
+// Route::get('/', function () {
+//     $user = session('user', null);
+//     return view('landingPage.landing', compact('user'));
+// })->name('landing.page');
+
+// /*
+// |--------------------------------------------------------------------------
+// | Authentication Routes
+// |--------------------------------------------------------------------------
+// // */
+// // Route::post('/register', [UserRegistrationController::class, 'register'])->name('register');
+// // Route::post('/login', [UserRegistrationController::class, 'login'])->name('login');
+// // Route::post('/logout', [UserRegistrationController::class, 'logout'])->name('logout');
+// // Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('check.username');
+
+// // // Auth prefixed routes (for your JavaScript calls)
+// Route::prefix('auth')->group(function () {
+//     Route::post('/register', [UserRegistrationController::class, 'register'])->name('auth.register');
+//     Route::post('/login', [UserRegistrationController::class, 'login'])->name('auth.login');
+//     Route::post('/logout', [UserRegistrationController::class, 'logout'])->name('auth.logout');
+//     Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('auth.check.username');
+//     Route::post('/verify-profile', [UserRegistrationController::class, 'submitVerification'])->name('auth.verify.profile');
+// });
+
+// /* 
+// |--------------------------------------------------------------------------
+// | User Dashboard Routes (Protected by UserSession middleware)
+// |--------------------------------------------------------------------------
+// */
+
+// Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
+//     // Main user dashboard
+//     Route::get('/dashboard', function () {
+//         $user = session('user', null);
+        
+//         if (!$user) {
+//             return redirect('/')->with('error', 'Please log in to access this page.');
+//         }
+        
+//         return view('landingPage.landing', compact('user'));
+//     })->name('user.dashboard');
+    
+//     // User profile routes
+//     Route::get('/profile', function () {
+//         $user = session('user', null);
+//         return view('user.profile', compact('user'));
+//     })->name('user.profile');
+    
+//     // User applications history
+//     Route::get('/my-applications', function () {
+//         $user = session('user', null);
+//         return view('user.applications', compact('user'));
+//     })->name('user.applications');
+// });
+
+
 /*
 |--------------------------------------------------------------------------
-| Admin Routes (for managing user registrations)
+| Admin Routes (Enhanced for managing user registrations)
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
@@ -350,18 +441,24 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
     Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
     
-    // Status management
+    // Enhanced status management with auto-refresh
     Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
     Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
+    Route::post('/registrations/{id}/update-status', [UserRegistrationController::class, 'updateStatus'])->name('registrations.update-status');
+    
+    // Enhanced document viewing - supports images and files
+    Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'viewDocument'])
+        ->name('registrations.document')
+        ->where('type', 'location|id_front|id_back');
     
     // Statistics and export
     Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
     Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
-
-    //view document
-    Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'viewDocument'])->name('registrations.document');
+    
+    // Bulk operations (optional future enhancement)
+    Route::post('/registrations/bulk-approve', [UserRegistrationController::class, 'bulkApprove'])->name('registrations.bulk-approve');
+    Route::post('/registrations/bulk-reject', [UserRegistrationController::class, 'bulkReject'])->name('registrations.bulk-reject');
 });
-
 
 // Register middleware alias for newer Laravel versions
 Route::aliasMiddleware('user.session', UserSession::class);
@@ -378,21 +475,31 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Authentication Routes
+| Authentication Routes (Enhanced for user registration system)
 |--------------------------------------------------------------------------
-// */
-// Route::post('/register', [UserRegistrationController::class, 'register'])->name('register');
-// Route::post('/login', [UserRegistrationController::class, 'login'])->name('login');
-// Route::post('/logout', [UserRegistrationController::class, 'logout'])->name('logout');
-// Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('check.username');
-
-// // Auth prefixed routes (for your JavaScript calls)
+*/
 Route::prefix('auth')->group(function () {
+    // Basic authentication
     Route::post('/register', [UserRegistrationController::class, 'register'])->name('auth.register');
     Route::post('/login', [UserRegistrationController::class, 'login'])->name('auth.login');
     Route::post('/logout', [UserRegistrationController::class, 'logout'])->name('auth.logout');
+    
+    // Username availability checking
     Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('auth.check.username');
-    Route::post('/verify-profile', [UserRegistrationController::class, 'submitVerification'])->name('auth.verify.profile');
+    
+    // UPDATED: Enhanced profile verification with file uploads - FIXED MIDDLEWARE AND ROUTE
+    Route::post('/verify-profile', [UserRegistrationController::class, 'submitVerification'])
+        ->middleware('web') // Use web middleware for session and CSRF protection
+        ->name('auth.verify.profile');
+    
+    // Email verification routes (optional future enhancement)
+    Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('auth.verify.email');
+    Route::post('/resend-verification', [UserRegistrationController::class, 'resendVerification'])->name('auth.resend.verification');
+
+    // Add these to your routes file
+Route::post('/admin/users/{id}/ban', [UserRegistrationController::class, 'banUser']);
+Route::post('/admin/users/{id}/unban', [UserRegistrationController::class, 'unbanUser']);
+Route::post('/admin/users/bulk-ban', [UserRegistrationController::class, 'bulkBan']);
 });
 
 /* 
@@ -400,7 +507,6 @@ Route::prefix('auth')->group(function () {
 | User Dashboard Routes (Protected by UserSession middleware)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
     // Main user dashboard
     Route::get('/dashboard', function () {
@@ -424,7 +530,89 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
         $user = session('user', null);
         return view('user.applications', compact('user'));
     })->name('user.applications');
+    
+    // API endpoints for user data
+    Route::prefix('api/user')->group(function () {
+        Route::get('/profile', [UserRegistrationController::class, 'getUserProfile'])->name('api.user.profile');
+        Route::get('/applications', [UserRegistrationController::class, 'getUserApplications'])->name('api.user.applications');
+        Route::post('/update-profile', [UserRegistrationController::class, 'updateUserProfile'])->name('api.user.update-profile');
+    });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Public API Routes (for AJAX calls)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('api')->group(function () {
+    // Public information (no authentication required)
+    Route::get('/registration-stats', [UserRegistrationController::class, 'getPublicStats'])->name('api.registration.stats');
+    
+    // Check system status
+    Route::get('/system-status', function () {
+        return response()->json([
+            'success' => true,
+            'status' => 'operational',
+            'timestamp' => now()->toISOString(),
+            'database' => 'connected'
+        ]);
+    })->name('api.system.status');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Error Handling Routes
+|--------------------------------------------------------------------------
+*/
+Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});
+
+// Handle specific error codes
+Route::get('/403', function () {
+    return response()->view('errors.403', [], 403);
+})->name('error.403');
+
+Route::get('/500', function () {
+    return response()->view('errors.500', [], 500);
+})->name('error.500');
+
+/*
+|--------------------------------------------------------------------------
+| Development/Testing Routes (Remove in production)
+|--------------------------------------------------------------------------
+*/
+if (app()->environment('local', 'testing')) {
+    Route::prefix('dev')->group(function () {
+        // Test routes for development
+        Route::get('/test-registration', function () {
+            return view('dev.test-registration');
+        });
+        
+        Route::get('/test-admin', function () {
+            return view('dev.test-admin');
+        });
+        
+        // Clear session for testing
+        Route::get('/clear-session', function () {
+            session()->flush();
+            return redirect('/')->with('success', 'Session cleared for testing');
+        });
+        
+        // ADDED: Test verification form (for development only)
+        Route::get('/test-verification', function () {
+            // Mock user session for testing
+            session(['user' => [
+                'id' => 1,
+                'username' => 'testuser',
+                'email' => 'test@example.com',
+                'status' => 'unverified'
+            ]]);
+            
+            return view('landingPage.landing')->with('user', session('user'));
+        });
+    });
+}
 // ==============================================
 // FALLBACK ROUTE
 // ==============================================

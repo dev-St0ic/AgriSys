@@ -156,9 +156,6 @@
                             <option value="general" {{ request('user_type') == 'general' ? 'selected' : '' }}>
                                 General Public
                             </option>
-                            <option value="not_selected" {{ request('user_type') == 'not_selected' ? 'selected' : '' }}>
-                                Not Selected Yet
-                            </option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -317,7 +314,9 @@
                                 <div class="d-flex flex-wrap gap-1">
                                     <!-- Location Document -->
                                     @if($registration->location_document_path)
-                                        <span class="badge bg-success fs-6" title="Location Document Uploaded">
+                                        <span class="badge bg-success fs-6 cursor-pointer" 
+                                              title="Location Document Uploaded - Click to View"
+                                              onclick="viewDocumentDirect({{ $registration->id }}, 'location')">
                                             <i class="fas fa-map-marker-alt"></i>
                                         </span>
                                     @else
@@ -328,7 +327,9 @@
                                     
                                     <!-- ID Front -->
                                     @if($registration->id_front_path)
-                                        <span class="badge bg-success fs-6" title="ID Front Uploaded">
+                                        <span class="badge bg-success fs-6 cursor-pointer" 
+                                              title="ID Front Uploaded - Click to View"
+                                              onclick="viewDocumentDirect({{ $registration->id }}, 'id_front')">
                                             <i class="fas fa-id-card"></i>
                                         </span>
                                     @else
@@ -339,7 +340,9 @@
                                     
                                     <!-- ID Back -->
                                     @if($registration->id_back_path)
-                                        <span class="badge bg-success fs-6" title="ID Back Uploaded">
+                                        <span class="badge bg-success fs-6 cursor-pointer" 
+                                              title="ID Back Uploaded - Click to View"
+                                              onclick="viewDocumentDirect({{ $registration->id }}, 'id_back')">
                                             <i class="fas fa-id-card-alt"></i>
                                         </span>
                                     @else
@@ -509,21 +512,21 @@
         </div>
     </div>
 
-    <!-- Registration Details Modal -->
+    <!-- Enhanced Registration Details Modal -->
     <div class="modal fade" id="registrationModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">
-                        <i class="fas fa-user me-2"></i>Registration Details
+                        <i class="fas fa-user me-2"></i>Complete Registration Details
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="registrationDetails">
                     <!-- Content will be loaded here -->
                 </div>
                 <div class="modal-footer">
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 flex-wrap">
                         <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('location')" id="viewLocationDoc">
                             <i class="fas fa-map-marker-alt me-2"></i>View Location Document
                         </button>
@@ -533,6 +536,12 @@
                         <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('id_back')" id="viewIdBack">
                             <i class="fas fa-id-card-alt me-2"></i>View ID Back
                         </button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="quickUpdateStatus('approved')" id="quickApprove">
+                            <i class="fas fa-check me-2"></i>Quick Approve
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="quickUpdateStatus('rejected')" id="quickReject">
+                            <i class="fas fa-times me-2"></i>Quick Reject
+                        </button>
                     </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -540,23 +549,31 @@
         </div>
     </div>
 
-    <!-- Document Viewer Modal -->
+    <!-- Enhanced Document Viewer Modal -->
     <div class="modal fade" id="documentModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-info text-white">
                     <h5 class="modal-title" id="documentModalTitle">
                         <i class="fas fa-file-image me-2"></i>Document View
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center" id="documentModalBody">
                     <!-- Document content will be loaded here -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="downloadDocument()">
-                        <i class="fas fa-download me-2"></i>Download
-                    </button>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" onclick="downloadDocument()">
+                            <i class="fas fa-download me-2"></i>Download
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="openInNewTab()">
+                            <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                        </button>
+                        <button type="button" class="btn btn-info" onclick="zoomDocument()">
+                            <i class="fas fa-search-plus me-2"></i>Zoom
+                        </button>
+                    </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -695,6 +712,16 @@
             font-size: 0.75em;
         }
 
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .cursor-pointer:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
+            transition: all 0.2s ease;
+        }
+
         /* Enhanced visual feedback for changed fields */
         .form-changed {
             border-left: 3px solid #ffc107 !important;
@@ -728,13 +755,23 @@
             opacity: 1;
         }
 
-        /* Document viewer styles */
+        /* Enhanced document viewer styles */
         .document-image {
             max-width: 100%;
             max-height: 70vh;
             object-fit: contain;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .document-image:hover {
+            transform: scale(1.02);
+        }
+
+        .document-image.zoomed {
+            transform: scale(1.5);
+            cursor: zoom-out;
         }
 
         .document-placeholder {
@@ -744,6 +781,29 @@
             padding: 2rem;
             text-align: center;
             color: #6c757d;
+        }
+
+        /* Loading states */
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Enhanced status badges */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         /* Custom Pagination Styles */
@@ -788,12 +848,33 @@
         .pagination .page-item:last-child .page-link {
             font-weight: 600;
         }
+
+        /* Enhanced alert styles */
+        .alert {
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            border-left-color: #28a745;
+        }
+
+        .alert-danger {
+            border-left-color: #dc3545;
+        }
+
+        .alert-warning {
+            border-left-color: #ffc107;
+        }
+
+        .alert-info {
+            border-left-color: #17a2b8;
+        }
     </style>
 @endsection
 
 @section('scripts')
     <script>
-        // Add CSRF token to all AJAX requests
+        // Enhanced Admin User Management JavaScript with Document Viewing and Auto-refresh
 
 // Add CSRF token to all AJAX requests
 $.ajaxSetup({
@@ -805,6 +886,8 @@ $.ajaxSetup({
 let searchTimeout;
 let currentRegistrationId = null;
 let currentDocumentUrl = null;
+let currentDocumentInfo = null;
+let isDocumentZoomed = false;
 
 // Auto search functionality
 function autoSearch() {
@@ -835,25 +918,20 @@ function getStatusText(status) {
     }
 }
 
-// FIXED: View registration details function
+// Enhanced view registration details function
 function viewRegistration(id) {
     currentRegistrationId = id;
     
     console.log('Viewing registration:', id);
     
     // Show loading state
-    document.getElementById('registrationDetails').innerHTML = `
-        <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>`;
+    showLoadingInModal('registrationDetails');
 
     // Show modal while loading
     const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
     modal.show();
 
-    // FIXED: Use the correct route
+    // Fetch registration details
     fetch(`/admin/registrations/${id}/details`)
         .then(response => {
             if (!response.ok) {
@@ -871,29 +949,29 @@ function viewRegistration(id) {
             const data = response.data;
             renderRegistrationDetails(data);
             updateDocumentButtons(data);
+            updateQuickActionButtons(data);
         })
         .catch(error => {
             console.error('Error loading registration:', error);
-            document.getElementById('registrationDetails').innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    Error loading registration details: ${error.message}
-                    <br><small>Please check the console for more details.</small>
-                </div>`;
+            showErrorInModal('registrationDetails', 'Error loading registration details', error.message);
         });
 }
 
-// FIXED: Render registration details
+// Enhanced render registration details
 function renderRegistrationDetails(data) {
     const remarksHtml = data.rejection_reason ? `
-        <div class="col-12 mt-3">
-            <h6 class="border-bottom pb-2">Admin Remarks</h6>
-            <div class="alert alert-info">
-                <p class="mb-1">${data.rejection_reason}</p>
-                <small class="text-muted">
-                    ${data.approved_at || data.rejected_at ? `Updated on ${data.approved_at || data.rejected_at}` : ''}
-                    ${data.approved_by ? ` by ${data.approved_by}` : ''}
-                </small>
+        <div class="col-12 mt-4">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Admin Remarks</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">${data.rejection_reason}</p>
+                    <small class="text-muted">
+                        ${data.approved_at || data.rejected_at ? `Updated on ${data.approved_at || data.rejected_at}` : ''}
+                        ${data.approved_by ? ` by ${data.approved_by}` : ''}
+                    </small>
+                </div>
             </div>
         </div>` : '';
 
@@ -901,107 +979,194 @@ function renderRegistrationDetails(data) {
     
     const basicSignupAlert = isBasicSignup ? `
         <div class="col-12 mb-3">
-            <div class="alert alert-warning">
-                <i class="fas fa-info-circle me-2"></i>
-                <strong>Basic Signup User:</strong> This user has only provided username, email, and password. 
-                They need to complete their profile to access full services.
+            <div class="alert alert-warning border-warning">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle me-3 fa-lg"></i>
+                    <div>
+                        <strong>Basic Signup User:</strong> This user has only provided username, email, and password. 
+                        They need to complete their profile verification to access full services.
+                    </div>
+                </div>
             </div>
         </div>` : '';
 
+    const statusBadgeColor = getStatusBadgeColor(data.status);
+    const emailVerifiedBadge = data.email_verified ? 
+        '<span class="badge bg-success"><i class="fas fa-check"></i> Verified</span>' : 
+        '<span class="badge bg-secondary"><i class="fas fa-times"></i> Unverified</span>';
+
     document.getElementById('registrationDetails').innerHTML = `
-        <div class="row g-3">
+        <div class="row g-4">
             ${basicSignupAlert}
+            
+            <!-- Personal Information Card -->
             <div class="col-md-6">
-                <h6 class="border-bottom pb-2">Account Information</h6>
-                <p><strong>Username:</strong> ${data.username || 'N/A'}</p>
-                <p><strong>First Name:</strong> ${data.first_name || '<span class="text-muted">Not provided</span>'}</p>
-                <p><strong>Middle Name:</strong> ${data.middle_name || '<span class="text-muted">Not provided</span>'}</p>
-                <p><strong>Last Name:</strong> ${data.last_name || '<span class="text-muted">Not provided</span>'}</p>
-                <p><strong>Name Extension:</strong> ${data.name_extension || '<span class="text-muted">Not provided</span>'}</p>
-                <p><strong>Email:</strong> ${data.email}</p>
-                <p><strong>Contact Number:</strong> ${data.contact_number || '<span class="text-muted">Not provided</span>'}</p>
-                <p><strong>Date of Birth:</strong> ${data.date_of_birth || '<span class="text-muted">Not provided</span>'}</p>
-                <p><strong>Gender:</strong> ${data.gender || '<span class="text-muted">Not specified</span>'}</p>
-            </div>
-            <div class="col-md-6">
-                <h6 class="border-bottom pb-2">Registration Status</h6>
-                <p><strong>User Type:</strong> ${data.user_type || '<span class="text-warning">Not selected yet</span>'}</p>
-                <p><strong>Current Status:</strong>
-                    <span class="badge bg-${data.status === 'unverified' ? 'warning' : (data.status === 'pending' ? 'info' : (data.status === 'approved' ? 'success' : 'danger'))}">${getStatusText(data.status)}</span>
-                </p>
-                <p><strong>Email Verified:</strong> ${data.email_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>'}</p>
-                <p><strong>Registration Date:</strong> ${data.created_at}</p>
-                <p><strong>Last Login:</strong> ${data.last_login_at || '<span class="text-muted">Never</span>'}</p>
-            </div>
-            <div class="col-md-6">
-                <h6 class="border-bottom pb-2">Address Information</h6>
-                <p><strong>Complete Address:</strong> ${data.complete_address || '<span class="text-muted">Not provided</span>'}</p>
-                <p><strong>Barangay:</strong> ${data.barangay || '<span class="text-muted">Not provided</span>'}</p>
-            </div>
-            <div class="col-md-6">
-                <h6 class="border-bottom pb-2">Additional Information</h6>
-                <p><strong>Occupation:</strong> ${data.occupation || '<span class="text-muted">Not specified</span>'}</p>
-                <p><strong>Organization:</strong> ${data.organization || '<span class="text-muted">Not specified</span>'}</p>
-                <p><strong>Emergency Contact:</strong> ${data.emergency_contact_name || '<span class="text-muted">Not provided</span>'}</p>
-                <p><strong>Emergency Phone:</strong> ${data.emergency_contact_phone || '<span class="text-muted">Not provided</span>'}</p>
-            </div>
-            <div class="col-md-12">
-                <h6 class="border-bottom pb-2">Document Status</h6>
-                <div class="row">
-                    <div class="col-md-4 text-center">
-                        <div class="card ${data.location_document_path || data.place_document_path ? 'border-success' : 'border-secondary'}">
-                            <div class="card-body">
-                                <i class="fas fa-map-marker-alt fa-2x ${data.location_document_path || data.place_document_path ? 'text-success' : 'text-secondary'} mb-2"></i>
-                                <h6>Location Document</h6>
-                                <span class="badge ${data.location_document_path || data.place_document_path ? 'bg-success' : 'bg-secondary'}">${data.location_document_path || data.place_document_path ? 'Uploaded' : 'Not Uploaded'}</span>
-                            </div>
+                <div class="card h-100 border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12"><strong>Username:</strong> <span class="text-primary">${data.username || 'N/A'}</span></div>
+                            <div class="col-12"><strong>First Name:</strong> ${data.first_name || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Middle Name:</strong> ${data.middle_name || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Last Name:</strong> ${data.last_name || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Name Extension:</strong> ${data.name_extension || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Date of Birth:</strong> ${data.date_of_birth || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Age:</strong> ${data.age || '<span class="text-muted">Not calculated</span>'}</div>
+                            <div class="col-12"><strong>Gender:</strong> ${data.gender || '<span class="text-muted">Not specified</span>'}</div>
                         </div>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <div class="card ${data.id_front_path ? 'border-success' : 'border-secondary'}">
-                            <div class="card-body">
-                                <i class="fas fa-id-card fa-2x ${data.id_front_path ? 'text-success' : 'text-secondary'} mb-2"></i>
-                                <h6>ID Front</h6>
-                                <span class="badge ${data.id_front_path ? 'bg-success' : 'bg-secondary'}">${data.id_front_path ? 'Uploaded' : 'Not Uploaded'}</span>
-                            </div>
+                </div>
+            </div>
+            
+            <!-- Contact & Status Card -->
+            <div class="col-md-6">
+                <div class="card h-100 border-info">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-address-card me-2"></i>Contact & Status</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12"><strong>Email:</strong> <a href="mailto:${data.email}" class="text-decoration-none">${data.email}</a></div>
+                            <div class="col-12"><strong>Contact Number:</strong> ${data.contact_number ? `<a href="tel:${data.contact_number}" class="text-decoration-none">${data.contact_number}</a>` : '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>User Type:</strong> ${data.user_type ? `<span class="badge bg-secondary">${data.user_type}</span>` : '<span class="badge bg-warning">Not selected yet</span>'}</div>
+                            <div class="col-12"><strong>Current Status:</strong> <span class="badge bg-${statusBadgeColor}">${getStatusText(data.status)}</span></div>
+                            <div class="col-12"><strong>Email Verified:</strong> ${emailVerifiedBadge}</div>
+                            <div class="col-12"><strong>Registration Date:</strong> ${data.created_at}</div>
+                            <div class="col-12"><strong>Last Login:</strong> ${data.last_login_at || '<span class="text-muted">Never</span>'}</div>
                         </div>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <div class="card ${data.id_back_path ? 'border-success' : 'border-secondary'}">
-                            <div class="card-body">
-                                <i class="fas fa-id-card-alt fa-2x ${data.id_back_path ? 'text-success' : 'text-secondary'} mb-2"></i>
-                                <h6>ID Back</h6>
-                                <span class="badge ${data.id_back_path ? 'bg-success' : 'bg-secondary'}">${data.id_back_path ? 'Uploaded' : 'Not Uploaded'}</span>
+                </div>
+            </div>
+            
+            <!-- Address Information Card -->
+            <div class="col-md-6">
+                <div class="card h-100 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Address Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12"><strong>Complete Address:</strong> ${data.complete_address || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Barangay:</strong> ${data.barangay || '<span class="text-muted">Not provided</span>'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Information Card -->
+            <div class="col-md-6">
+                <div class="card h-100 border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12"><strong>Occupation:</strong> ${data.occupation || '<span class="text-muted">Not specified</span>'}</div>
+                            <div class="col-12"><strong>Organization:</strong> ${data.organization || '<span class="text-muted">Not specified</span>'}</div>
+                            <div class="col-12"><strong>Emergency Contact:</strong> ${data.emergency_contact_name || '<span class="text-muted">Not provided</span>'}</div>
+                            <div class="col-12"><strong>Emergency Phone:</strong> ${data.emergency_contact_phone ? `<a href="tel:${data.emergency_contact_phone}" class="text-decoration-none">${data.emergency_contact_phone}</a>` : '<span class="text-muted">Not provided</span>'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Document Status Card -->
+            <div class="col-12">
+                <div class="card border-secondary">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Document Status</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="text-center p-3 border rounded ${data.location_document_path ? 'border-success bg-light' : 'border-secondary'}">
+                                    <i class="fas fa-map-marker-alt fa-3x ${data.location_document_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                    <h6>Location Proof Document</h6>
+                                    <span class="badge ${data.location_document_path ? 'bg-success' : 'bg-secondary'} mb-2">
+                                        ${data.location_document_path ? 'Uploaded' : 'Not Uploaded'}
+                                    </span>
+                                    ${data.location_document_path ? `<br><button class="btn btn-sm btn-outline-info" onclick="viewDocument('location')"><i class="fas fa-eye"></i> View</button>` : ''}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3 border rounded ${data.id_front_path ? 'border-success bg-light' : 'border-secondary'}">
+                                    <i class="fas fa-id-card fa-3x ${data.id_front_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                    <h6>Government ID - Front</h6>
+                                    <span class="badge ${data.id_front_path ? 'bg-success' : 'bg-secondary'} mb-2">
+                                        ${data.id_front_path ? 'Uploaded' : 'Not Uploaded'}
+                                    </span>
+                                    ${data.id_front_path ? `<br><button class="btn btn-sm btn-outline-info" onclick="viewDocument('id_front')"><i class="fas fa-eye"></i> View</button>` : ''}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3 border rounded ${data.id_back_path ? 'border-success bg-light' : 'border-secondary'}">
+                                    <i class="fas fa-id-card-alt fa-3x ${data.id_back_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                    <h6>Government ID - Back</h6>
+                                    <span class="badge ${data.id_back_path ? 'bg-success' : 'bg-secondary'} mb-2">
+                                        ${data.id_back_path ? 'Uploaded' : 'Not Uploaded'}
+                                    </span>
+                                    ${data.id_back_path ? `<br><button class="btn btn-sm btn-outline-info" onclick="viewDocument('id_back')"><i class="fas fa-eye"></i> View</button>` : ''}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-12">
-                <h6 class="border-bottom pb-2">Technical Information</h6>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Registration IP:</strong> <code>${data.registration_ip || 'N/A'}</code></p>
-                        <p><strong>Referral Source:</strong> ${data.referral_source || 'Direct'}</p>
+            
+            <!-- Technical Information Card -->
+            <div class="col-12">
+                <div class="card border-dark">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Technical Information</h6>
                     </div>
-                    <div class="col-md-6">
-                        <p><strong>Terms Accepted:</strong> ${data.terms_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
-                        <p><strong>Privacy Accepted:</strong> ${data.privacy_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <p><strong>Registration IP:</strong><br><code>${data.registration_ip || 'N/A'}</code></p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><strong>Referral Source:</strong><br>${data.referral_source || 'Direct'}</p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><strong>Terms Accepted:</strong><br>${data.terms_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
+                            </div>
+                            <div class="col-md-3">
+                                <p><strong>Privacy Accepted:</strong><br>${data.privacy_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            
             ${remarksHtml}
         </div>`;
 }
 
-// FIXED: Update document viewer buttons based on available documents
+// Helper function to get status badge color
+function getStatusBadgeColor(status) {
+    switch (status) {
+        case 'unverified':
+            return 'warning';
+        case 'pending':
+            return 'info';
+        case 'approved':
+            return 'success';
+        case 'rejected':
+            return 'danger';
+        default:
+            return 'secondary';
+    }
+}
+
+// Update document viewer buttons based on available documents
 function updateDocumentButtons(data) {
     const locationBtn = document.getElementById('viewLocationDoc');
     const idFrontBtn = document.getElementById('viewIdFront');
     const idBackBtn = document.getElementById('viewIdBack');
 
-    // Check both possible field names for location document
-    const hasLocationDoc = data.location_document_path || data.place_document_path;
+    const hasLocationDoc = data.location_document_path;
     
     if (locationBtn) {
         locationBtn.style.display = hasLocationDoc ? 'inline-block' : 'none';
@@ -1019,10 +1184,30 @@ function updateDocumentButtons(data) {
     }
 }
 
-// FIXED: View document function
+// Update quick action buttons
+function updateQuickActionButtons(data) {
+    const quickApprove = document.getElementById('quickApprove');
+    const quickReject = document.getElementById('quickReject');
+    
+    if (quickApprove) {
+        quickApprove.style.display = data.status !== 'approved' ? 'inline-block' : 'none';
+    }
+    
+    if (quickReject) {
+        quickReject.style.display = data.status !== 'rejected' ? 'inline-block' : 'none';
+    }
+}
+
+// Enhanced view document function with direct access
+function viewDocumentDirect(registrationId, documentType) {
+    currentRegistrationId = registrationId;
+    viewDocument(documentType);
+}
+
+// Enhanced view document function
 function viewDocument(documentType) {
     if (!currentRegistrationId) {
-        alert('Registration ID not found');
+        showAlert('error', 'Registration ID not found');
         return;
     }
 
@@ -1047,17 +1232,18 @@ function viewDocument(documentType) {
     if (modalBody) {
         modalBody.innerHTML = `
             <div class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-2">Loading document...</p>
+                <div class="loading-spinner"></div>
+                <p class="mt-3">Loading document...</p>
             </div>`;
     }
 
     // Show modal
     documentModal.show();
 
-    // FIXED: Fetch document with correct route
+    // Reset zoom state
+    isDocumentZoomed = false;
+
+    // Fetch document
     fetch(`/admin/registrations/${currentRegistrationId}/document/${documentType}`)
         .then(response => {
             console.log('Document response status:', response.status);
@@ -1071,24 +1257,44 @@ function viewDocument(documentType) {
             
             if (data.success && data.document_url) {
                 currentDocumentUrl = data.document_url;
+                currentDocumentInfo = data.file_info;
                 
                 if (modalBody) {
-                    modalBody.innerHTML = `
-                        <div class="document-container">
-                            <img src="${data.document_url}" 
-                                 alt="${titles[documentType]}" 
-                                 class="document-image"
-                                 style="max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                            <div class="document-placeholder" style="display: none; background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 2rem; text-align: center; color: #6c757d;">
-                                <i class="fas fa-file-image fa-3x mb-3"></i>
-                                <p>Unable to load image preview</p>
-                                <p class="text-muted">The document may be in a format that cannot be displayed inline.</p>
-                                <a href="${data.document_url}" target="_blank" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
-                                </a>
+                    const isImage = data.file_info && data.file_info.is_image;
+                    
+                    if (isImage) {
+                        modalBody.innerHTML = `
+                            <div class="document-container">
+                                <img src="${data.document_url}" 
+                                     alt="${titles[documentType]}" 
+                                     class="document-image"
+                                     id="documentImage"
+                                     onclick="toggleZoom()"
+                                     style="cursor: zoom-in;"
+                                     onerror="showImageError(this)">
                             </div>
-                        </div>`;
+                            <div class="mt-3 text-muted">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    ${data.file_info.name} • ${formatFileSize(data.file_info.size)} • Click to zoom
+                                </small>
+                            </div>`;
+                    } else {
+                        modalBody.innerHTML = `
+                            <div class="document-placeholder">
+                                <i class="fas fa-file fa-4x mb-3 text-primary"></i>
+                                <h5>File Preview Not Available</h5>
+                                <p>This file type cannot be displayed inline.</p>
+                                <div class="mt-3">
+                                    <p><strong>File:</strong> ${data.file_info.name}</p>
+                                    <p><strong>Size:</strong> ${formatFileSize(data.file_info.size)}</p>
+                                    <p><strong>Type:</strong> ${data.file_info.mime_type}</p>
+                                </div>
+                                <button class="btn btn-primary" onclick="openInNewTab()">
+                                    <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                                </button>
+                            </div>`;
+                    }
                 }
             } else {
                 throw new Error(data.message || 'Document not available');
@@ -1098,30 +1304,152 @@ function viewDocument(documentType) {
             console.error('Error loading document:', error);
             if (modalBody) {
                 modalBody.innerHTML = `
-                    <div class="document-placeholder" style="background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 2rem; text-align: center; color: #6c757d;">
-                        <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
-                        <p>Document could not be loaded</p>
+                    <div class="document-placeholder">
+                        <i class="fas fa-exclamation-triangle fa-4x mb-3 text-warning"></i>
+                        <h5>Document Could Not Be Loaded</h5>
                         <p class="text-muted">${error.message}</p>
                         <small class="text-muted">Please check the console for more details.</small>
                     </div>`;
             }
             currentDocumentUrl = null;
+            currentDocumentInfo = null;
         });
 }
 
-// FIXED: Download document function
+// Show image error
+function showImageError(img) {
+    const container = img.parentElement;
+    container.innerHTML = `
+        <div class="document-placeholder">
+            <i class="fas fa-image fa-4x mb-3 text-muted"></i>
+            <h5>Image Could Not Be Loaded</h5>
+            <p>The image file may be corrupted or in an unsupported format.</p>
+            <button class="btn btn-primary" onclick="openInNewTab()">
+                <i class="fas fa-external-link-alt me-1"></i>Try Opening in New Tab
+            </button>
+        </div>`;
+}
+
+// Format file size
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Toggle document zoom
+function toggleZoom() {
+    const img = document.getElementById('documentImage');
+    if (!img) return;
+    
+    isDocumentZoomed = !isDocumentZoomed;
+    
+    if (isDocumentZoomed) {
+        img.classList.add('zoomed');
+        img.style.cursor = 'zoom-out';
+    } else {
+        img.classList.remove('zoomed');
+        img.style.cursor = 'zoom-in';
+    }
+}
+
+// Zoom document function
+function zoomDocument() {
+    toggleZoom();
+}
+
+// Download document function
 function downloadDocument() {
     if (currentDocumentUrl) {
         const link = document.createElement('a');
         link.href = currentDocumentUrl;
-        link.download = '';
+        if (currentDocumentInfo && currentDocumentInfo.name) {
+            link.download = currentDocumentInfo.name;
+        }
         link.target = '_blank';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        showAlert('success', 'Download started');
     } else {
-        alert('No document available for download');
+        showAlert('error', 'No document available for download');
     }
+}
+
+// Open document in new tab
+function openInNewTab() {
+    if (currentDocumentUrl) {
+        window.open(currentDocumentUrl, '_blank');
+    } else {
+        showAlert('error', 'No document available to open');
+    }
+}
+
+// Quick status update functions
+function quickUpdateStatus(newStatus) {
+    if (!currentRegistrationId) {
+        showAlert('error', 'No registration selected');
+        return;
+    }
+    
+    const statusText = getStatusText(newStatus);
+    const confirmMessage = `Are you sure you want to ${newStatus} this registration?`;
+    
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    // Close the registration modal first
+    const registrationModal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
+    if (registrationModal) {
+        registrationModal.hide();
+    }
+    
+    // Perform the status update
+    updateRegistrationStatusDirect(currentRegistrationId, newStatus);
+}
+
+// Direct status update
+function updateRegistrationStatusDirect(id, status, remarks = '') {
+    const endpoint = `/admin/registrations/${id}/update-status`;
+    const requestData = {
+        status: status,
+        remarks: remarks
+    };
+
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(response => {
+        if (response.success) {
+            showAlert('success', response.message);
+            
+            // Auto-refresh the page after a short delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error(response.message || 'Error updating status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('error', 'Error updating registration status: ' + error.message);
+    });
 }
 
 // Show update modal function
@@ -1148,15 +1476,13 @@ function showUpdateModal(id, currentStatus) {
             document.getElementById('updateRegContact').textContent = data.contact_number || 'Not provided';
 
             const currentStatusElement = document.getElementById('updateRegCurrentStatus');
-            const statusColor = data.status === 'unverified' ? 'warning' : 
-                              (data.status === 'pending' ? 'info' : 
-                              (data.status === 'approved' ? 'success' : 'danger'));
+            const statusColor = getStatusBadgeColor(data.status);
             currentStatusElement.innerHTML = `
                 <span class="badge bg-${statusColor}">${getStatusText(data.status)}</span>`;
 
             const documentsElement = document.getElementById('updateRegDocuments');
             let documentStatus = [];
-            if (data.location_document_path || data.place_document_path) documentStatus.push('<span class="badge bg-success fs-6">Location</span>');
+            if (data.location_document_path) documentStatus.push('<span class="badge bg-success fs-6">Location</span>');
             if (data.id_front_path) documentStatus.push('<span class="badge bg-success fs-6">ID Front</span>');
             if (data.id_back_path) documentStatus.push('<span class="badge bg-success fs-6">ID Back</span>');
             documentsElement.innerHTML = documentStatus.length > 0 ? documentStatus.join(' ') : '<span class="text-muted">None uploaded</span>';
@@ -1186,7 +1512,7 @@ function showUpdateModal(id, currentStatus) {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error loading registration details: ' + error.message);
+            showAlert('error', 'Error loading registration details: ' + error.message);
         });
 }
 
@@ -1197,7 +1523,7 @@ function updateRegistrationStatus() {
     const remarks = document.getElementById('remarks').value;
 
     if (!newStatus) {
-        alert('Please select a status');
+        showAlert('error', 'Please select a status');
         return;
     }
 
@@ -1205,7 +1531,7 @@ function updateRegistrationStatus() {
     const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
 
     if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-        alert('No changes detected. Please modify the status or remarks before updating.');
+        showAlert('warning', 'No changes detected. Please modify the status or remarks before updating.');
         return;
     }
 
@@ -1236,24 +1562,11 @@ function updateRegistrationStatus() {
     updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
     updateButton.disabled = true;
 
-    let endpoint = '';
-    let requestData = {};
-
-    if (newStatus === 'approved') {
-        endpoint = `/admin/registrations/${id}/approve`;
-    } else if (newStatus === 'rejected') {
-        endpoint = `/admin/registrations/${id}/reject`;
-        requestData = {
-            reason: remarks,
-            send_notification: true
-        };
-    } else {
-        endpoint = `/admin/registrations/${id}/update-status`;
-        requestData = {
-            status: newStatus,
-            remarks: remarks
-        };
-    }
+    const endpoint = `/admin/registrations/${id}/update-status`;
+    const requestData = {
+        status: newStatus,
+        remarks: remarks
+    };
 
     fetch(endpoint, {
         method: 'POST',
@@ -1275,6 +1588,8 @@ function updateRegistrationStatus() {
             const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
             modal.hide();
             showAlert('success', response.message);
+            
+            // Auto-refresh the page
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
@@ -1284,7 +1599,7 @@ function updateRegistrationStatus() {
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('danger', 'Error updating registration status: ' + error.message);
+        showAlert('error', 'Error updating registration status: ' + error.message);
     })
     .finally(() => {
         updateButton.innerHTML = originalText;
@@ -1314,27 +1629,37 @@ function deleteRegistration(id) {
             });
             refreshStats();
         } else {
-            showAlert('danger', data.message);
+            showAlert('error', data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showAlert('danger', 'An error occurred while deleting the registration.');
+        showAlert('error', 'An error occurred while deleting the registration.');
     });
 }
 
-// Show alert messages
+// Enhanced alert system
 function showAlert(type, message) {
+    // Remove existing alerts
+    $('.alert').remove();
+    
+    const alertClass = type === 'error' ? 'danger' : type;
+    const iconClass = {
+        'success': 'fas fa-check-circle',
+        'danger': 'fas fa-exclamation-circle',
+        'warning': 'fas fa-exclamation-triangle',
+        'info': 'fas fa-info-circle'
+    }[alertClass] || 'fas fa-info-circle';
+    
     const alertHtml = `
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+        <div class="alert alert-${alertClass} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            <i class="${iconClass} me-2"></i>
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     `;
     
-    $('.alert').remove();
-    $('.container-fluid').prepend(alertHtml);
+    $('body').append(alertHtml);
     
     if (type === 'success') {
         setTimeout(() => {
@@ -1382,6 +1707,7 @@ function exportRegistrations() {
     setTimeout(() => {
         exportBtn.innerHTML = originalText;
         exportBtn.disabled = false;
+        showAlert('success', 'Export started successfully');
     }, 2000);
 }
 
@@ -1420,7 +1746,7 @@ function applyCustomDateRange() {
     const toDate = document.getElementById('modal_date_to').value;
 
     if (fromDate && toDate && fromDate > toDate) {
-        alert('From date cannot be later than to date');
+        showAlert('error', 'From date cannot be later than to date');
         return;
     }
 
@@ -1471,6 +1797,35 @@ function checkForChanges() {
     }
 }
 
+// Helper functions for loading states
+function showLoadingInModal(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <div class="loading-spinner"></div>
+                <p class="mt-3 text-muted">Loading information...</p>
+            </div>`;
+    }
+}
+
+function showErrorInModal(containerId, title, message) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = `
+            <div class="alert alert-danger">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-circle me-3 fa-2x"></i>
+                    <div>
+                        <h5 class="mb-1">${title}</h5>
+                        <p class="mb-0">${message}</p>
+                        <small class="text-muted">Please check the console for more details.</small>
+                    </div>
+                </div>
+            </div>`;
+    }
+}
+
 // Add event listeners when document is ready
 document.addEventListener('DOMContentLoaded', function() {
     const statusSelect = document.getElementById('newStatus');
@@ -1484,14 +1839,37 @@ document.addEventListener('DOMContentLoaded', function() {
         remarksTextarea.addEventListener('input', checkForChanges);
     }
 
+    // Initialize tooltips
     if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
     }
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // ESC to close modals
+        if (e.key === 'Escape') {
+            const modals = document.querySelectorAll('.modal.show');
+            modals.forEach(modal => {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                if (bsModal) bsModal.hide();
+            });
+        }
+        
+        // Ctrl+F to focus search
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
+        }
+    });
 });
 
-console.log('Fixed Admin User Management JavaScript loaded successfully');
+console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
     </script>
 @endsection

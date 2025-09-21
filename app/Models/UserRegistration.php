@@ -27,7 +27,7 @@ class UserRegistration extends Model
         'middle_name',
         'last_name',
         'name_extension',
-        'phone',
+        'contact_number', // UPDATED: contact_number instead of phone
         'complete_address',
         'barangay',
         'user_type',
@@ -36,7 +36,7 @@ class UserRegistration extends Model
         'gender',
         
         // Document paths
-        'place_document_path',
+        'location_document_path', // UPDATED: location_document_path instead of place_document_path
         'id_front_path',
         'id_back_path',
         
@@ -103,7 +103,7 @@ class UserRegistration extends Model
     {
         return !empty($this->first_name) 
             && !empty($this->last_name)
-            && !empty($this->phone)
+            && !empty($this->contact_number) // UPDATED: contact_number instead of phone
             && !empty($this->complete_address)
             && !empty($this->barangay)
             && !empty($this->user_type)
@@ -159,7 +159,7 @@ class UserRegistration extends Model
               ->orWhere('email', 'LIKE', "%{$search}%")
               ->orWhere('first_name', 'LIKE', "%{$search}%")
               ->orWhere('last_name', 'LIKE', "%{$search}%")
-              ->orWhere('phone', 'LIKE', "%{$search}%");
+              ->orWhere('contact_number', 'LIKE', "%{$search}%"); // UPDATED: contact_number instead of phone
         });
     }
 

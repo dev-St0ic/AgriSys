@@ -202,7 +202,7 @@ class UserRegistrationSeeder extends Seeder
             'first_name' => 'Maria',
             'last_name' => 'Santos',
             'middle_name' => 'Reyes',
-            'phone' => '+639123456789',
+            'contact_number' => '+639123456789', // UPDATED: contact_number instead of phone
             'complete_address' => '123 Seaside Street, Barangay Baybayin',
             'barangay' => 'Barangay Baybayin',
             'user_type' => 'fisherfolk',
@@ -227,7 +227,7 @@ class UserRegistrationSeeder extends Seeder
             // Profile completion fields
             'first_name' => 'Carlos',
             'last_name' => 'Rodriguez',
-            'phone' => '+639555123456',
+            'contact_number' => '+639555123456', // UPDATED: contact_number instead of phone
             'complete_address' => '456 Main Street, Barangay Centro',
             'barangay' => 'Barangay Centro',
             'user_type' => 'farmer',
@@ -253,7 +253,7 @@ class UserRegistrationSeeder extends Seeder
             // Profile completion fields
             'first_name' => 'Ana',
             'last_name' => 'Garcia',
-            'phone' => '+639777888999',
+            'contact_number' => '+639777888999', // UPDATED: contact_number instead of phone
             'complete_address' => '789 Farm Road, Barangay Rural',
             'barangay' => 'Barangay Rural',
             'user_type' => 'farmer',

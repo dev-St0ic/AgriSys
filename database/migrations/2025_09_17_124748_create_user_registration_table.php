@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('middle_name', 100)->nullable();
             $table->string('last_name', 100)->nullable();
             $table->string('name_extension', 20)->nullable(); // Jr., Sr., III, etc.
-            $table->string('phone', 20)->nullable();
+            $table->string('contact_number', 20)->nullable(); // UPDATED: contact_number instead of phone
             $table->text('complete_address')->nullable();
             $table->string('barangay', 100)->nullable();
             $table->enum('user_type', ['farmer', 'fisherfolk', 'general'])->nullable();
@@ -42,7 +42,7 @@ return new class extends Migration
             $table->string('emergency_contact_phone', 20)->nullable();
             
             // ===== DOCUMENT PATHS (UPLOADED DURING VERIFICATION - NULLABLE) =====
-            $table->string('place_document_path')->nullable();
+            $table->string('location_document_path')->nullable(); // UPDATED: location_document_path instead of place_document_path
             $table->string('id_front_path')->nullable();
             $table->string('id_back_path')->nullable();
             
@@ -91,7 +91,7 @@ return new class extends Migration
             // Admin Search & Text Queries (For search functionality)
             $table->index(['first_name'], 'idx_first_name_search'); // Name searches
             $table->index(['last_name'], 'idx_last_name_search'); // Name searches  
-            $table->index(['phone'], 'idx_phone_search'); // Phone searches
+            $table->index(['contact_number'], 'idx_contact_number_search'); // UPDATED: contact_number index
             $table->index(['barangay'], 'idx_barangay_location'); // Location filtering
             
             // Admin Approval Workflow

@@ -38,7 +38,7 @@ class UserRegistrationFactory extends Factory
             'last_name' => $lastName,
             'middle_name' => $this->faker->optional(0.3)->firstName(),
             'name_extension' => $this->faker->optional(0.1)->randomElement(['Jr.', 'Sr.', 'III', 'IV']),
-            'phone' => $this->faker->optional(0.8)->numerify('+639#########'),
+            'contact_number' => $this->faker->optional(0.8)->numerify('+639#########'), // UPDATED: contact_number instead of phone
             'complete_address' => $this->faker->optional(0.7)->address(),
             'barangay' => $this->faker->optional(0.7)->randomElement([
                 'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
@@ -68,7 +68,7 @@ class UserRegistrationFactory extends Factory
             'first_name' => null,
             'last_name' => null,
             'middle_name' => null,
-            'phone' => null,
+            'contact_number' => null, // UPDATED: contact_number instead of phone
             'complete_address' => null,
             'barangay' => null,
             'user_type' => null,
@@ -90,7 +90,7 @@ class UserRegistrationFactory extends Factory
             'status' => UserRegistration::STATUS_PENDING,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'phone' => '+63' . $this->faker->numberBetween(900000000, 999999999),
+            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
             'complete_address' => $this->faker->address(),
             'barangay' => $this->faker->randomElement([
                 'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
@@ -114,7 +114,7 @@ class UserRegistrationFactory extends Factory
             'status' => UserRegistration::STATUS_APPROVED,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'phone' => '+63' . $this->faker->numberBetween(900000000, 999999999),
+            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
             'complete_address' => $this->faker->address(),
             'barangay' => $this->faker->randomElement([
                 'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
@@ -138,7 +138,7 @@ class UserRegistrationFactory extends Factory
             'status' => UserRegistration::STATUS_REJECTED,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'phone' => '+63' . $this->faker->numberBetween(900000000, 999999999),
+            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
             'complete_address' => $this->faker->address(),
             'barangay' => $this->faker->randomElement([
                 'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
@@ -208,7 +208,7 @@ class UserRegistrationFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'phone' => '+63' . $this->faker->numberBetween(900000000, 999999999),
+            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
             'complete_address' => $this->faker->streetAddress() . ', ' . $this->faker->city(),
             'barangay' => $this->faker->randomElement([
                 'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
@@ -229,7 +229,7 @@ class UserRegistrationFactory extends Factory
             'first_name' => null,
             'last_name' => null,
             'middle_name' => null,
-            'phone' => null,
+            'contact_number' => null, // UPDATED: contact_number instead of phone
             'complete_address' => null,
             'barangay' => null,
             'user_type' => null,

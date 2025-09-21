@@ -1,3 +1,327 @@
+/* Enhanced Button States for Profile Verification */
+.profile-action-btn.pending,
+.verification-submit-btn.pending {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.9;
+    filter: grayscale(8%);
+    box-shadow: none;
+    background: linear-gradient(135deg, #f3f4f6, #e9ecef) !important;
+    color: #6b7280 !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.profile-action-btn.pending:hover,
+.verification-submit-btn.pending:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.profile-action-btn.verified,
+.profile-action-btn.verified[disabled] {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.18) !important;
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
+.profile-action-btn.verified:hover {
+    transform: none !important;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.18) !important;
+}
+
+.profile-action-btn.rejected {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #ffffff !important;
+    border: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+
+.profile-action-btn.rejected:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* Unverified/Default state - clean primary button styling */
+.profile-action-btn:not(.pending):not(.verified):not(.rejected) {
+    background: linear-gradient(135deg, #0A6953, #2d6a4f);
+    color: white;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.profile-action-btn:not(.pending):not(.verified):not(.rejected):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(10, 105, 83, 0.3);
+}
+
+/* Ensure disabled buttons display consistently */
+.profile-action-btn[disabled],
+.verification-submit-btn[disabled] {
+    opacity: 0.95;
+    cursor: default;
+}
+
+/* Status Badge Colors */
+.status-unverified {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-verified {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-pending_verification {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-rejected {
+    background: #fed7aa;
+    color: #c2410c;
+}
+
+/* Profile Action Button Base Styles */
+.profile-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+    flex: 1;
+    min-width: 140px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    justify-content: center;
+}
+
+.profile-action-btn.primary {
+    background: linear-gradient(135deg, #0A6953, #2d6a4f);
+    color: white;
+}
+
+.profile-action-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(10, 105, 83, 0.3);
+}
+
+.profile-action-btn.secondary {
+    background: #f8f9fa;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+}
+
+.profile-action-btn.secondary:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+}
+
+/* Button Icon Styling */
+.btn-icon {
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Application Status Classes for Cards */
+.application-status {
+    padding: 6px 16px;
+    border-radius: 25px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+    margin: 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fbbf24;
+}
+
+.status-approved {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #10b981;
+}
+
+.status-processing {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #3b82f6;
+}
+
+.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #ef4444;
+}
+
+/* Profile Actions Container */
+.profile-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+/* Enhanced Notification Styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    padding: 18px 24px;
+    z-index: 10001;
+    transform: translateX(400px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-left: 4px solid;
+    min-width: 320px;
+    max-width: 450px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification-success {
+    border-left-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.notification-error {
+    border-left-color: #ef4444;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.notification-info {
+    border-left-color: #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification-message {
+    font-weight: 500;
+    color: #1f2937;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .profile-action-btn {
+        min-width: auto;
+        justify-content: center;
+        flex: none;
+    }
+
+    .notification {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+        transform: translateY(-100px);
+    }
+
+    .notification.show {
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-action-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    .btn-icon {
+        font-size: 14px;
+    }
+}
+
+/* Focus States for Accessibility */
+.profile-action-btn:focus {
+    outline: 2px solid #0A6953;
+    outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .profile-action-btn {
+        border-width: 3px;
+    }
+    
+    .status-pending,
+    .status-approved,
+    .status-processing,
+    .status-rejected {
+        border-width: 2px;
+    }
+    
+    .notification {
+        border-left-width: 6px;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .profile-action-btn,
+    .notification {
+        transition: none;
+    }
+    
+    .profile-action-btn:hover {
+        transform: none;
+    }
+}
+
 /* Auth Modal Overlay */
 .auth-modal-overlay {
     position: fixed;
@@ -469,7 +793,7 @@
 }
 
 .auth-error::before {
-    content: "⚠️";
+    content: "⚠";
 }
 
 .auth-success {
@@ -642,37 +966,6 @@
     height: 1px;
     background: #e5e7eb;
     margin: 8px 0;
-}
-
-/* Status Badge Colors */
-.status-unverified {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-verified {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-approved {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.status-active {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.status-inactive {
-    background: #fee2e2;
-    color: #991b1b;
 }
 
 /* ==============================================
@@ -886,51 +1179,6 @@
     letter-spacing: 0.5px;
 }
 
-.profile-actions {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-}
-
-.profile-action-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    border: none;
-    flex: 1;
-    min-width: 140px;
-}
-
-.profile-action-btn.primary {
-    background: linear-gradient(135deg, #0A6953, #2d6a4f);
-    color: white;
-}
-
-.profile-action-btn.primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(10, 105, 83, 0.3);
-}
-
-.profile-action-btn.secondary {
-    background: #f8f9fa;
-    color: #374151;
-    border: 2px solid #e5e7eb;
-}
-
-.profile-action-btn.secondary:hover {
-    background: #f3f4f6;
-    border-color: #d1d5db;
-    transform: translateY(-1px);
-}
-
 .recent-activity h5 {
     margin: 0 0 20px 0;
     color: #0A6953;
@@ -1026,41 +1274,6 @@
     color: #6b7280;
     margin-bottom: 15px;
     line-height: 1.5;
-}
-
-.application-status {
-    padding: 6px 16px;
-    border-radius: 25px;
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-block;
-    margin: 10px 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fbbf24;
-}
-
-.status-approved {
-    background: #d1fae5;
-    color: #065f46;
-    border: 1px solid #10b981;
-}
-
-.status-processing {
-    background: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #3b82f6;
-}
-
-.status-rejected {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #ef4444;
 }
 
 .application-date {
@@ -1170,310 +1383,6 @@
     font-size: 12px;
     color: #6b7280;
     margin-top: 4px;
-}
-
-/* Notification Styles */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    padding: 18px 24px;
-    z-index: 10001;
-    transform: translateX(400px);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border-left: 4px solid;
-    min-width: 320px;
-    max-width: 450px;
-}
-
-.notification.show {
-    transform: translateX(0);
-}
-
-.notification-success {
-    border-left-color: #10b981;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-}
-
-.notification-error {
-    border-left-color: #ef4444;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-}
-
-.notification-info {
-    border-left-color: #3b82f6;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-}
-
-.notification-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.notification-message {
-    font-weight: 500;
-    color: #1f2937;
-    font-size: 15px;
-    line-height: 1.4;
-}
-
-/* ==============================================
-   RESPONSIVE DESIGN
-   ============================================== */
-
-@media (max-width: 768px) {
-    .auth-modal-content,
-    .modal-content {
-        width: 95%;
-        margin: 20px;
-        border-radius: 16px;
-        max-height: 90vh;
-    }
-    
-    .auth-modal-body,
-    .modal-body {
-        padding: 20px;
-    }
-    
-    .auth-modal-header,
-    .modal-header {
-        padding: 20px;
-        border-radius: 16px 16px 0 0;
-    }
-    
-    .auth-modal-header h3,
-    .modal-header h3 {
-        font-size: 20px;
-    }
-    
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-    
-    .user-profile {
-        gap: 8px;
-    }
-    
-    .user-info {
-        display: none;
-    }
-    
-    .user-dropdown {
-        min-width: 260px;
-        right: -10px;
-    }
-    
-    .applications-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .application-card {
-        padding: 16px;
-    }
-    
-    .empty-applications {
-        padding: 40px 20px;
-    }
-    
-    .notification {
-        right: 10px;
-        left: 10px;
-        min-width: auto;
-        max-width: none;
-        transform: translateY(-100px);
-    }
-    
-    .notification.show {
-        transform: translateY(0);
-    }
-    
-    /* Profile Modal Mobile */
-    .modal-content.profile-modal {
-        width: 95%;
-        margin: 10px;
-        max-height: 95vh;
-    }
-
-    .profile-header {
-        flex-direction: column;
-        text-align: center;
-        padding: 20px;
-    }
-
-    .profile-avatar-large {
-        width: 60px;
-        height: 60px;
-        font-size: 24px;
-    }
-
-    .profile-info-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .profile-actions {
-        flex-direction: column;
-    }
-
-    .profile-action-btn {
-        min-width: auto;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .form-group input,
-    .form-group select {
-        font-size: 16px;
-        padding: 12px 14px;
-    }
-    
-    .step-header {
-        font-size: 20px;
-    }
-    
-    .step-description {
-        font-size: 13px;
-    }
-    
-    .google-signin-btn {
-        font-size: 15px;
-        padding: 12px;
-    }
-    
-    .auth-modal-content,
-    .modal-content {
-        max-height: 95vh;
-        margin: 10px;
-    }
-    
-    .user-avatar {
-        width: 35px;
-        height: 35px;
-        font-size: 14px;
-    }
-    
-    .dropdown-header {
-        padding: 15px;
-    }
-    
-    .dropdown-avatar {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-    
-    .dropdown-name {
-        font-size: 14px;
-    }
-    
-    .dropdown-email {
-        font-size: 12px;
-    }
-    
-    .application-card h4 {
-        font-size: 16px;
-    }
-    
-    .empty-applications h4 {
-        font-size: 18px;
-    }
-    
-    .empty-applications p {
-        font-size: 14px;
-    }
-    
-    .empty-applications .quick-action-btn {
-        padding: 12px 20px;
-        font-size: 14px;
-    }
-    
-    /* Profile Modal Mobile Small */
-    .profile-header {
-        padding: 15px;
-    }
-
-    .profile-info-card {
-        padding: 15px;
-    }
-
-    .info-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
-
-    .stats-grid {
-        gap: 8px;
-    }
-
-    .stat-item {
-        padding: 10px;
-    }
-
-    .stat-number {
-        font-size: 20px;
-    }
-}
-
-/* Focus States for Accessibility */
-.auth-submit-btn:focus,
-.google-signin-btn:focus,
-.quick-action-btn:focus,
-.dropdown-item:focus,
-.profile-action-btn:focus {
-    outline: 2px solid #0A6953;
-    outline-offset: 2px;
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-    .application-card,
-    .profile-info-card,
-    .activity-item {
-        border-width: 3px;
-    }
-    
-    .status-pending,
-    .status-approved,
-    .status-processing,
-    .status-rejected {
-        border-width: 2px;
-    }
-    
-    .notification {
-        border-left-width: 6px;
-    }
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-    .auth-modal-overlay,
-    .modal-overlay,
-    .notification,
-    .application-card,
-    .loader,
-    .profile-action-btn,
-    .user-avatar {
-        animation: none;
-        transition: none;
-    }
-    
-    .auth-modal-content,
-    .modal-content {
-        animation: none;
-    }
 }
 
 /* ==============================================
@@ -1606,7 +1515,7 @@
 }
 
 /* Form Text Helper */
-.form-text {
+.verification-section .form-text {
     font-size: 12px;
     color: #6b7280;
     margin-top: 8px;
@@ -1793,165 +1702,286 @@
 }
 
 /* ==============================================
-   RESPONSIVE DESIGN FOR VERIFICATION MODAL
+   RESPONSIVE DESIGN
    ============================================== */
 
 @media (max-width: 768px) {
-    .modal-content.verification-modal {
+    .auth-modal-content,
+    .modal-content {
+        width: 95%;
+        margin: 20px;
+        border-radius: 16px;
+        max-height: 90vh;
+    }
+    
+    .auth-modal-body,
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .auth-modal-header,
+    .modal-header {
+        padding: 20px;
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .auth-modal-header h3,
+    .modal-header h3 {
+        font-size: 20px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .user-profile {
+        gap: 8px;
+    }
+    
+    .user-info {
+        display: none;
+    }
+    
+    .user-dropdown {
+        min-width: 260px;
+        right: -10px;
+    }
+    
+    .applications-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .application-card {
+        padding: 16px;
+    }
+    
+    .empty-applications {
+        padding: 40px 20px;
+    }
+    
+    .notification {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+        transform: translateY(-100px);
+    }
+    
+    .notification.show {
+        transform: translateY(0);
+    }
+    
+    /* Profile Modal Mobile */
+    .modal-content.profile-modal {
         width: 95%;
         margin: 10px;
         max-height: 95vh;
     }
 
-    .verification-header {
-        padding: 15px;
-        margin-bottom: 20px;
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
     }
 
-    .verification-header h4 {
-        font-size: 20px;
+    .profile-avatar-large {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
     }
 
-    .verification-section {
-        padding: 20px 15px;
-        margin-bottom: 25px;
-    }
-
-    .verification-section h5 {
-        font-size: 16px;
-    }
-
-    .verification-section .form-row {
+    .profile-info-grid {
         grid-template-columns: 1fr;
         gap: 15px;
     }
 
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .profile-action-btn {
+        min-width: auto;
+        justify-content: center;
+    }
+
+    /* Verification Modal Mobile */
+    .verification-section .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .verification-section .form-row .form-group {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-group input,
+    .form-group select {
+        font-size: 16px;
+        padding: 12px 14px;
+    }
+    
+    .step-header {
+        font-size: 20px;
+    }
+    
+    .step-description {
+        font-size: 13px;
+    }
+    
+    .google-signin-btn {
+        font-size: 15px;
+        padding: 12px;
+    }
+    
+    .auth-modal-content,
+    .modal-content {
+        max-height: 95vh;
+        margin: 10px;
+    }
+    
+    .user-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+    
+    .dropdown-header {
+        padding: 15px;
+    }
+    
+    .dropdown-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .dropdown-name {
+        font-size: 14px;
+    }
+    
+    .dropdown-email {
+        font-size: 12px;
+    }
+    
+    .application-card h4 {
+        font-size: 16px;
+    }
+    
+    .empty-applications h4 {
+        font-size: 18px;
+    }
+    
+    .empty-applications p {
+        font-size: 14px;
+    }
+    
+    .empty-applications .quick-action-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    /* Profile Modal Mobile Small */
+    .profile-header {
+        padding: 15px;
+    }
+
+    .profile-info-card {
+        padding: 15px;
+    }
+
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .stats-grid {
+        gap: 8px;
+    }
+
+    .stat-item {
+        padding: 10px;
+    }
+
+    .stat-number {
+        font-size: 20px;
+    }
+
+    /* Verification Modal Mobile Small */
+    .verification-section {
+        padding: 20px;
+    }
+
+    .verification-header {
+        padding: 15px;
+    }
+
     .file-upload-area {
-        padding: 20px 15px;
+        padding: 20px;
     }
 
     .upload-icon {
         font-size: 2rem;
     }
-
-    .upload-text {
-        font-size: 14px;
-    }
-
-    .verification-notice {
-        padding: 15px;
-        gap: 10px;
-    }
-
-    .notice-icon {
-        font-size: 20px;
-    }
-
-    .notice-content h6 {
-        font-size: 14px;
-    }
-
-    .notice-content p {
-        font-size: 13px;
-    }
-
-    .verification-submit-btn {
-        padding: 14px;
-        font-size: 15px;
-    }
 }
 
-@media (max-width: 480px) {
-    .verification-section .form-group input,
-    .verification-section .form-group select,
-    .verification-section .form-group textarea {
-        font-size: 16px; /* Prevents zoom on iOS */
-        padding: 12px 14px;
-    }
-
-    .file-upload-area {
-        padding: 15px 10px;
-    }
-
-    .upload-icon {
-        font-size: 1.8rem;
-        margin-bottom: 8px;
-    }
-
-    .upload-text {
-        font-size: 13px;
-    }
-
-    .upload-subtext {
-        font-size: 11px;
-    }
-
-    .form-text {
-        font-size: 11px;
-        padding: 6px 10px;
-    }
-}
-
-/* ==============================================
-   ACCESSIBILITY IMPROVEMENTS
-   ============================================== */
-
-/* Focus states for file upload areas */
-.file-upload-area:focus-within {
+/* Focus States for Accessibility */
+.auth-submit-btn:focus,
+.google-signin-btn:focus,
+.quick-action-btn:focus,
+.dropdown-item:focus,
+.profile-action-btn:focus,
+.verification-submit-btn:focus {
     outline: 2px solid #0A6953;
     outline-offset: 2px;
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
+    .application-card,
+    .profile-info-card,
+    .activity-item,
     .verification-section {
-        border: 2px solid #000;
+        border-width: 3px;
     }
-
-    .file-upload-area {
-        border: 3px solid #000;
+    
+    .status-pending,
+    .status-approved,
+    .status-processing,
+    .status-rejected {
+        border-width: 2px;
     }
-
-    .verification-notice {
-        border: 2px solid #92400e;
+    
+    .notification {
+        border-left-width: 6px;
     }
 }
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-    .file-upload-area,
+    .auth-modal-overlay,
+    .modal-overlay,
+    .notification,
+    .application-card,
+    .loader,
+    .profile-action-btn,
+    .user-avatar,
     .verification-submit-btn {
+        animation: none;
         transition: none;
     }
-
-    .file-upload-area:hover {
-        transform: none;
-    }
-
-    .verification-submit-btn:hover {
-        transform: none;
-    }
-}
-
-/* Print styles */
-@media print {
-    .verification-modal {
-        position: static;
-        background: white;
-        box-shadow: none;
-    }
-
-    .modal-header {
-        background: #f8f9fa;
-        color: #000;
-    }
-
-    .file-upload-area {
-        border: 2px solid #000;
-        background: #f8f9fa;
-    }
-
-    .verification-submit-btn {
-        display: none;
+    
+    .auth-modal-content,
+    .modal-content {
+        animation: none;
     }
 }
