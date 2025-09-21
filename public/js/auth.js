@@ -1,4 +1,4 @@
-// Enhanced Auth Modal Functions with Modal-Based User Management
+// Enhanced Auth Modal Functions with Account Settings and Profile Verification
 
 // ==============================================
 // AUTH MODAL FUNCTIONS
@@ -31,6 +31,7 @@ function closeAuthModal() {
     
     hideAuthMessages();
     clearValidationErrors();
+    resetButtonStates();
     document.body.style.overflow = 'auto';
     showLogInForm();
 }
@@ -46,6 +47,7 @@ function showLogInForm() {
     
     hideAuthMessages();
     clearValidationErrors();
+    resetButtonStates();
 }
 
 function showSignUpForm() {
@@ -59,11 +61,64 @@ function showSignUpForm() {
     
     hideAuthMessages();
     clearValidationErrors();
+    resetButtonStates();
     
     setTimeout(() => {
         const firstInput = signupForm.querySelector('input');
         if (firstInput) firstInput.focus();
     }, 100);
+}
+
+// ==============================================
+// BUTTON STATE MANAGEMENT
+// ==============================================
+
+function setButtonLoading(button, loadingText) {
+    if (!button) return;
+    
+    const btnText = button.querySelector('.btn-text');
+    const btnLoader = button.querySelector('.btn-loader');
+    
+    // Store original text if not already stored
+    if (!button.dataset.originalText) {
+        button.dataset.originalText = btnText ? btnText.textContent : button.textContent;
+    }
+    
+    button.classList.add('loading');
+    button.disabled = true;
+    
+    if (btnText && btnLoader) {
+        btnText.textContent = loadingText;
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none'; // Remove spinner, just show text
+    } else {
+        button.textContent = loadingText;
+    }
+}
+
+function resetButtonState(button) {
+    if (!button) return;
+    
+    const btnText = button.querySelector('.btn-text');
+    const btnLoader = button.querySelector('.btn-loader');
+    const originalText = button.dataset.originalText;
+    
+    button.classList.remove('loading');
+    button.disabled = false;
+    
+    if (btnText && btnLoader) {
+        btnText.textContent = originalText || 'Submit';
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+    } else {
+        button.textContent = originalText || 'Submit';
+    }
+}
+
+function resetButtonStates() {
+    // Reset all auth buttons
+    const buttons = document.querySelectorAll('.auth-submit-btn, .verification-submit-btn');
+    buttons.forEach(resetButtonState);
 }
 
 // ==============================================
@@ -144,14 +199,137 @@ function loadProfileData() {
 
 function editProfile() {
     showNotification('info', 'Profile editing feature coming soon!');
-    // You would implement profile editing functionality here
 }
 
 function changePassword() {
     showNotification('info', 'Password change feature coming soon!');
-    // You would implement password change functionality here
 }
 
+// ==============================================
+// PROFILE VERIFICATION MODAL FUNCTIONS
+// ==============================================
+
+function showVerificationModal() {
+    const modal = document.getElementById('verification-modal');
+    if (!modal) {
+        console.error('Verification modal not found');
+        return;
+    }
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // Close profile modal if open
+    closeProfileModal();
+}
+
+function closeVerificationModal() {
+    const modal = document.getElementById('verification-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Reset form
+    const form = document.getElementById('verification-form');
+    if (form) {
+        form.reset();
+    }
+    
+    // Clear preview images
+    clearImagePreviews();
+    resetButtonStates();
+}
+
+function clearImagePreviews() {
+    const previews = document.querySelectorAll('.image-preview');
+    previews.forEach(preview => {
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+    });
+}
+
+function previewImage(input, previewId) {
+    const preview = document.getElementById(previewId);
+    const file = input.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+    }
+}
+
+function handleVerificationSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const submitBtn = form.querySelector('.verification-submit-btn');
+    
+    // Basic validation
+    const requiredFields = ['firstName', 'lastName', 'role', 'contactNumber', 'barangay', 'completeAddress', 'idFront', 'idBack', 'locationProof'];
+    let isValid = true;
+    let missingFields = [];
+    
+    requiredFields.forEach(fieldName => {
+        const field = form.querySelector(`[name="${fieldName}"]`);
+        if (!field || (field.type === 'file' ? !field.files.length : !field.value.trim())) {
+            isValid = false;
+            missingFields.push(fieldName.replace(/([A-Z])/g, ' $1').toLowerCase());
+        }
+    });
+    
+    if (!isValid) {
+        showNotification('error', `Please fill in all required fields: ${missingFields.join(', ')}`);
+        return false;
+    }
+    
+    // Set button to loading state
+    setButtonLoading(submitBtn, 'Submitting Verification...');
+    
+    // Create FormData for file upload
+    const formData = new FormData(form);
+    
+    // Submit to backend
+    fetch('/auth/verify-profile', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            setButtonLoading(submitBtn, 'Verification Submitted!');
+            showNotification('success', data.message);
+            
+            setTimeout(() => {
+                closeVerificationModal();
+                resetButtonState(submitBtn);
+                // Refresh page to show updated user status
+                window.location.reload();
+            }, 2000);
+        } else {
+            showNotification('error', data.message || 'Verification submission failed');
+            resetButtonState(submitBtn);
+        }
+    })
+    .catch(error => {
+        console.error('Verification error:', error);
+        showNotification('error', 'An error occurred. Please try again.');
+        resetButtonState(submitBtn);
+    });
+    
+    return false;
+}
 // ==============================================
 // MODAL-BASED USER FUNCTIONS
 // ==============================================
@@ -313,7 +491,10 @@ function formatApplicationDate(dateString) {
 }
 
 function accountSettings() {
-    showNotification('info', 'Account settings will be available soon!');
+    // Open account settings in new tab
+    window.open('/account/settings', '_blank');
+    
+    // Close dropdown
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
         dropdown.classList.remove('show');
@@ -529,6 +710,50 @@ function checkPasswordMatch(password, confirmPassword) {
 }
 
 // ==============================================
+// FORM RESET FUNCTION
+// ==============================================
+
+function resetSignupForm() {
+    const form = document.getElementById('signup-form-submit');
+    if (form) {
+        form.reset();
+    }
+    
+    // Clear all validation states
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.classList.remove('is-valid', 'is-invalid', 'valid', 'error');
+        input.style.borderColor = '';
+    });
+    
+    // Clear username status
+    const usernameStatus = document.querySelector('.username-status');
+    if (usernameStatus) {
+        usernameStatus.innerHTML = '';
+    }
+    
+    // Clear password strength
+    const strengthBar = document.querySelector('.strength-fill');
+    const strengthText = document.querySelector('.strength-text');
+    if (strengthBar) {
+        strengthBar.className = 'strength-fill';
+    }
+    if (strengthText) {
+        strengthText.textContent = 'Password strength';
+    }
+    
+    // Clear password match
+    const matchStatus = document.querySelector('.password-match-status');
+    if (matchStatus) {
+        matchStatus.innerHTML = '';
+    }
+    
+    // Clear any field errors
+    const fieldErrors = document.querySelectorAll('.field-error');
+    fieldErrors.forEach(error => error.remove());
+}
+
+// ==============================================
 // UTILITY FUNCTIONS
 // ==============================================
 
@@ -706,13 +931,9 @@ function handleLoginSubmit(event) {
     
     const form = event.target;
     const submitBtn = form.querySelector('.auth-submit-btn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const btnLoader = submitBtn.querySelector('.btn-loader');
     
-    // Show loading state
-    submitBtn.classList.add('loading');
-    btnText.style.display = 'none';
-    btnLoader.style.display = 'inline-block';
+    // Set button to loading state with text
+    setButtonLoading(submitBtn, 'Signing In...');
     
     const formData = new FormData(form);
     
@@ -726,6 +947,7 @@ function handleLoginSubmit(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            setButtonLoading(submitBtn, 'Success! Redirecting...');
             showAuthSuccess('Login successful! Redirecting...');
             setTimeout(() => {
                 window.location.href = data.redirect || '/';
@@ -739,10 +961,10 @@ function handleLoginSubmit(event) {
         showAuthError('An error occurred. Please try again.');
     })
     .finally(() => {
-        // Reset loading state
-        submitBtn.classList.remove('loading');
-        btnText.style.display = 'inline';
-        btnLoader.style.display = 'none';
+        // Reset button state after delay if not successful
+        if (!document.querySelector('#auth-success-message[style*="flex"]')) {
+            setTimeout(() => resetButtonState(submitBtn), 1000);
+        }
     });
     
     return false;
@@ -757,15 +979,9 @@ function handleSignupSubmit(event) {
     
     const form = event.target;
     const submitBtn = form.querySelector('.auth-submit-btn');
-    const btnText = submitBtn.querySelector('.btn-text');
-    const btnLoader = submitBtn.querySelector('.btn-loader');
     
-    // Show loading state
-    submitBtn.classList.add('loading');
-    btnText.textContent = 'Creating...';
-    btnText.style.display = 'inline';
-    btnLoader.style.display = 'inline-block';
-    submitBtn.disabled = true;
+    // Set button to loading state
+    setButtonLoading(submitBtn, 'Creating Account...');
     
     const formData = {
         username: document.getElementById('signup-username').value.trim(),
@@ -775,67 +991,58 @@ function handleSignupSubmit(event) {
         terms_accepted: document.getElementById('agree-terms').checked
     };
     
-    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    // Debug: Log what we're sending
+    console.log('Sending data:', formData);
     
     fetch('/auth/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken ? csrfToken.content : '',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
         },
         body: JSON.stringify(formData)
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        console.log('Response status:', response.status);
         return response.json();
     })
     .then(data => {
+        console.log('Server response:', data);
+        
         if (data.success) {
+            // Update button text to success
+            setButtonLoading(submitBtn, 'Account Created!');
+            
+            // Show success message
+            showAuthSuccess('Account created successfully! Redirecting to login...');
             showNotification('success', 'Account created successfully!');
-            showAuthSuccess('Account created! You can now log in with your credentials.');
             
-            form.reset();
-            
-            const usernameStatus = document.querySelector('.username-status');
-            if (usernameStatus) {
-                usernameStatus.innerHTML = '';
-            }
-            
+            // Reset form after short delay
             setTimeout(() => {
-                showLogInForm();
+                resetSignupForm();
                 hideAuthMessages();
                 
-                const loginUsernameField = document.getElementById('username');
-                if (loginUsernameField) {
-                    loginUsernameField.value = formData.username;
-                }
-                
-                showNotification('success', 'You can now log in with your new account!');
-            }, 2000);
+                // Auto-redirect to login form after 2 seconds
+                setTimeout(() => {
+                    showLogInForm();
+                }, 2000);
+            }, 1000);
             
         } else {
-            showNotification('error', data.message || 'Registration failed. Please try again.');
-            showAuthError(data.message || 'Registration failed. Please try again.');
-            
+            console.log('Validation errors:', data.errors);
+            showAuthError(data.message || 'Registration failed');
             if (data.errors) {
                 handleValidationErrors(data.errors);
             }
+            // Reset button state after error
+            setTimeout(() => resetButtonState(submitBtn), 1000);
         }
     })
     .catch(error => {
         console.error('Signup error:', error);
-        const errorMessage = 'An error occurred. Please check your connection and try again.';
-        showNotification('error', errorMessage);
-        showAuthError(errorMessage);
-    })
-    .finally(() => {
-        submitBtn.classList.remove('loading');
-        btnText.textContent = 'SIGN UP';
-        btnLoader.style.display = 'none';
-        submitBtn.disabled = false;
+        showAuthError('An error occurred. Please try again.');
+        setTimeout(() => resetButtonState(submitBtn), 1000);
     });
     
     return false;
@@ -891,6 +1098,12 @@ document.addEventListener('DOMContentLoaded', function() {
         signupForm.addEventListener('submit', handleSignupSubmit);
     }
     
+    // Verification form submission
+    const verificationForm = document.getElementById('verification-form');
+    if (verificationForm) {
+        verificationForm.addEventListener('submit', handleVerificationSubmit);
+    }
+    
     // Username availability checker
     const usernameInput = document.getElementById('signup-username');
     if (usernameInput) {
@@ -913,6 +1126,28 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmPasswordInput.addEventListener('input', function() {
             const password = document.getElementById('signup-password').value;
             checkPasswordMatch(password, this.value);
+        });
+    }
+    
+    // File input change handlers for image preview
+    const idFrontInput = document.getElementById('idFront');
+    if (idFrontInput) {
+        idFrontInput.addEventListener('change', function() {
+            previewImage(this, 'idFrontPreview');
+        });
+    }
+    
+    const idBackInput = document.getElementById('idBack');
+    if (idBackInput) {
+        idBackInput.addEventListener('change', function() {
+            previewImage(this, 'idBackPreview');
+        });
+    }
+    
+    const locationProofInput = document.getElementById('locationProof');
+    if (locationProofInput) {
+        locationProofInput.addEventListener('change', function() {
+            previewImage(this, 'locationProofPreview');
         });
     }
     
@@ -946,6 +1181,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Verification modal close functionality
+    const verificationModal = document.getElementById('verification-modal');
+    if (verificationModal) {
+        verificationModal.addEventListener('click', function(event) {
+            if (event.target === verificationModal) {
+                closeVerificationModal();
+            }
+        });
+    }
+    
     // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
         const dropdown = document.getElementById('user-dropdown');
@@ -974,6 +1219,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 closeProfileModal();
             }
             
+            const verificationModal = document.getElementById('verification-modal');
+            if (verificationModal && verificationModal.style.display !== 'none') {
+                closeVerificationModal();
+            }
+            
             const dropdown = document.getElementById('user-dropdown');
             if (dropdown && dropdown.classList.contains('show')) {
                 dropdown.classList.remove('show');
@@ -1000,10 +1250,13 @@ window.showMyApplicationsModal = showMyApplicationsModal;
 window.closeApplicationsModal = closeApplicationsModal;
 window.showProfileModal = showProfileModal;
 window.closeProfileModal = closeProfileModal;
+window.showVerificationModal = showVerificationModal;
+window.closeVerificationModal = closeVerificationModal;
 window.editProfile = editProfile;
 window.changePassword = changePassword;
 window.accountSettings = accountSettings;
 window.logoutUser = logoutUser;
 window.showNotification = showNotification;
+window.previewImage = previewImage;
 
-console.log('Enhanced Auth.js with Profile Modal Management loaded successfully');
+console.log('Enhanced Auth.js with Account Settings and Profile Verification loaded successfully');

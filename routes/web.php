@@ -357,6 +357,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Statistics and export
     Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
     Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
+
+    //view document
+    Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'viewDocument'])->name('registrations.document');
 });
 
 
@@ -389,6 +392,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [UserRegistrationController::class, 'login'])->name('auth.login');
     Route::post('/logout', [UserRegistrationController::class, 'logout'])->name('auth.logout');
     Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('auth.check.username');
+    Route::post('/verify-profile', [UserRegistrationController::class, 'submitVerification'])->name('auth.verify.profile');
 });
 
 /* 

@@ -794,694 +794,704 @@
 @section('scripts')
     <script>
         // Add CSRF token to all AJAX requests
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
 
-        let searchTimeout;
-        let currentRegistrationId = null;
-        let currentDocumentUrl = null;
+// Add CSRF token to all AJAX requests
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
 
-        // Auto search functionality
-        function autoSearch() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                document.getElementById('filterForm').submit();
-            }, 500); // Wait 500ms after user stops typing
-        }
+let searchTimeout;
+let currentRegistrationId = null;
+let currentDocumentUrl = null;
 
-        // Submit filter form when dropdowns change
-        function submitFilterForm() {
-            document.getElementById('filterForm').submit();
-        }
+// Auto search functionality
+function autoSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        document.getElementById('filterForm').submit();
+    }, 500);
+}
 
-        // Helper function to get status display text
-        function getStatusText(status) {
-            switch (status) {
-                case 'unverified':
-                    return 'Unverified (Basic Signup)';
-                case 'pending':
-                    return 'Pending Review';
-                case 'approved':
-                    return 'Approved';
-                case 'rejected':
-                    return 'Rejected';
-                default:
-                    return status;
-            }
-        }
+// Submit filter form when dropdowns change
+function submitFilterForm() {
+    document.getElementById('filterForm').submit();
+}
 
-        // Show update modal function
-        function showUpdateModal(id, currentStatus) {
-            // Show loading state in modal
-            document.getElementById('updateRegId').innerHTML = `
-            <div class="spinner-border spinner-border-sm text-primary" role="status">
+// Helper function to get status display text
+function getStatusText(status) {
+    switch (status) {
+        case 'unverified':
+            return 'Unverified (Basic Signup)';
+        case 'pending':
+            return 'Pending Review';
+        case 'approved':
+            return 'Approved';
+        case 'rejected':
+            return 'Rejected';
+        default:
+            return status;
+    }
+}
+
+// FIXED: View registration details function
+function viewRegistration(id) {
+    currentRegistrationId = id;
+    
+    console.log('Viewing registration:', id);
+    
+    // Show loading state
+    document.getElementById('registrationDetails').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
-            </div>`;
+            </div>
+        </div>`;
 
-            // First fetch the registration details
-            fetch(`/admin/registrations/${id}/details`)
-                .then(response => response.json())
-                .then(response => {
-                    if (!response.success) {
-                        throw new Error('Failed to load registration details');
-                    }
+    // Show modal while loading
+    const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+    modal.show();
 
-                    const data = response.data;
-
-                    // Populate the hidden field
-                    document.getElementById('updateRegistrationId').value = id;
-
-                    // Populate registration info display
-                    document.getElementById('updateRegId').textContent = data.id;
-                    document.getElementById('updateRegUsername').textContent = data.username || 'N/A';
-                    document.getElementById('updateRegName').textContent = data.full_name || 'Not provided (Basic signup only)';
-                    document.getElementById('updateRegEmail').textContent = data.email;
-                    document.getElementById('updateRegType').textContent = data.user_type || 'Not selected';
-                    document.getElementById('updateRegContact').textContent = data.contact_number || 'Not provided';
-
-                    // Show current status with badge styling
-                    const currentStatusElement = document.getElementById('updateRegCurrentStatus');
-                    const statusColor = data.status === 'unverified' ? 'warning' : 
-                                      (data.status === 'pending' ? 'info' : 
-                                      (data.status === 'approved' ? 'success' : 'danger'));
-                    currentStatusElement.innerHTML = `
-                    <span class="badge bg-${statusColor}">${getStatusText(data.status)}</span>`;
-
-                    // Show document status
-                    const documentsElement = document.getElementById('updateRegDocuments');
-                    let documentStatus = [];
-                    if (data.location_document_path) documentStatus.push('<span class="badge bg-success fs-6">Location</span>');
-                    if (data.id_front_path) documentStatus.push('<span class="badge bg-success fs-6">ID Front</span>');
-                    if (data.id_back_path) documentStatus.push('<span class="badge bg-success fs-6">ID Back</span>');
-                    documentsElement.innerHTML = documentStatus.length > 0 ? documentStatus.join(' ') : '<span class="text-muted">None uploaded</span>';
-
-                    // Set form values and store original values for comparison
-                    const statusSelect = document.getElementById('newStatus');
-                    const remarksTextarea = document.getElementById('remarks');
-
-                    statusSelect.value = data.status;
-                    statusSelect.dataset.originalStatus = data.status;
-
-                    remarksTextarea.value = data.rejection_reason || '';
-                    remarksTextarea.dataset.originalRemarks = data.rejection_reason || '';
-
-                    // Remove any previous change indicators
-                    statusSelect.classList.remove('form-changed');
-                    remarksTextarea.classList.remove('form-changed');
-                    statusSelect.parentElement.classList.remove('change-indicator', 'changed');
-                    remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
-
-                    // Add change indicator classes
-                    statusSelect.parentElement.classList.add('change-indicator');
-                    remarksTextarea.parentElement.classList.add('change-indicator');
-
-                    // Reset update button state
-                    const updateButton = document.querySelector('#updateModal .btn-primary');
-                    updateButton.classList.remove('no-changes');
-
-                    // Show the modal
-                    const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-                    modal.show();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error loading registration details: ' + error.message);
-                });
-        }
-
-        // Update registration status function
-        function updateRegistrationStatus() {
-            const id = document.getElementById('updateRegistrationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
-
-            if (!newStatus) {
-                alert('Please select a status');
-                return;
+    // FIXED: Use the correct route
+    fetch(`/admin/registrations/${id}/details`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-
-            // Get the original values to compare changes
-            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
-
-            // Check if nothing has changed
-            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                alert('No changes detected. Please modify the status or remarks before updating.');
-                return;
-            }
-
-            // Show confirmation dialog with changes summary
-            let changesSummary = [];
-            if (newStatus !== originalStatus) {
-                const originalStatusText = getStatusText(originalStatus);
-                const newStatusText = getStatusText(newStatus);
-                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-            }
-            if (remarks.trim() !== originalRemarks.trim()) {
-                if (originalRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Added new remarks');
-                } else if (remarks.trim() === '') {
-                    changesSummary.push('Remarks: Removed existing remarks');
-                } else {
-                    changesSummary.push('Remarks: Modified');
-                }
-            }
-
-            const confirmMessage = `Are you sure you want to update this registration with the following changes?\n\n${changesSummary.join('\n')}`;
-
-            if (!confirm(confirmMessage)) {
-                return;
-            }
-
-            // Show loading state
-            const updateButton = document.querySelector('#updateModal .btn-primary');
-            const originalText = updateButton.innerHTML;
-            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
-            updateButton.disabled = true;
-
-            // Determine the endpoint based on the new status
-            let endpoint = '';
-            let requestData = {};
-
-            if (newStatus === 'approved') {
-                endpoint = `/admin/registrations/${id}/approve`;
-            } else if (newStatus === 'rejected') {
-                endpoint = `/admin/registrations/${id}/reject`;
-                requestData = {
-                    reason: remarks,
-                    send_notification: true
-                };
-            } else {
-                // For unverified, pending status or other updates
-                endpoint = `/admin/registrations/${id}/update-status`;
-                requestData = {
-                    status: newStatus,
-                    remarks: remarks
-                };
-            }
-
-            fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(requestData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(response => {
-                if (response.success) {
-                    // Show success message and reload page
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                    modal.hide();
-                    showAlert('success', response.message);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    throw new Error(response.message || 'Error updating status');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'Error updating registration status: ' + error.message);
-            })
-            .finally(() => {
-                // Reset button state
-                updateButton.innerHTML = originalText;
-                updateButton.disabled = false;
-            });
-        }
-
-        // View registration details function
-        function viewRegistration(id) {
-            currentRegistrationId = id;
+            return response.json();
+        })
+        .then(response => {
+            console.log('Registration details received:', response);
             
-            // Show loading state
-            document.getElementById('registrationDetails').innerHTML = `
-            <div class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>`;
-
-            // Show modal while loading
-            const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
-            modal.show();
-
-            // Fetch registration details
-            fetch(`/admin/registrations/${id}/details`)
-                .then(response => response.json())
-                .then(response => {
-                    if (!response.success) {
-                        throw new Error('Failed to load registration details');
-                    }
-
-                    const data = response.data;
-
-                    // Format the details HTML
-                    const remarksHtml = data.rejection_reason ? `
-                    <div class="col-12 mt-3">
-                        <h6 class="border-bottom pb-2">Admin Remarks</h6>
-                        <div class="alert alert-info">
-                            <p class="mb-1">${data.rejection_reason}</p>
-                            <small class="text-muted">
-                                ${data.approved_at || data.rejected_at ? `Updated on ${data.approved_at || data.rejected_at}` : ''}
-                                ${data.approved_by ? ` by ${data.approved_by}` : ''}
-                            </small>
-                        </div>
-                    </div>` : '';
-
-                    // Check if this is a basic signup user
-                    const isBasicSignup = !data.first_name && !data.last_name && !data.contact_number;
-                    
-                    const basicSignupAlert = isBasicSignup ? `
-                    <div class="col-12 mb-3">
-                        <div class="alert alert-warning">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Basic Signup User:</strong> This user has only provided username, email, and password. 
-                            They need to complete their profile to access full services.
-                        </div>
-                    </div>` : '';
-
-                    // Update modal content
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="row g-3">
-                        ${basicSignupAlert}
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Account Information</h6>
-                            <p><strong>Username:</strong> ${data.username || 'N/A'}</p>
-                            <p><strong>First Name:</strong> ${data.first_name || '<span class="text-muted">Not provided</span>'}</p>
-                            <p><strong>Middle Name:</strong> ${data.middle_name || '<span class="text-muted">Not provided</span>'}</p>
-                            <p><strong>Last Name:</strong> ${data.last_name || '<span class="text-muted">Not provided</span>'}</p>
-                            <p><strong>Name Extension:</strong> ${data.name_extension || '<span class="text-muted">Not provided</span>'}</p>
-                            <p><strong>Email:</strong> ${data.email}</p>
-                            <p><strong>Contact Number:</strong> ${data.contact_number || '<span class="text-muted">Not provided</span>'}</p>
-                            <p><strong>Date of Birth:</strong> ${data.date_of_birth || '<span class="text-muted">Not provided</span>'}</p>
-                            <p><strong>Gender:</strong> ${data.gender || '<span class="text-muted">Not specified</span>'}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Registration Status</h6>
-                            <p><strong>User Type:</strong> ${data.user_type || '<span class="text-warning">Not selected yet</span>'}</p>
-                            <p><strong>Current Status:</strong>
-                                <span class="badge bg-${data.status === 'unverified' ? 'warning' : (data.status === 'pending' ? 'info' : (data.status === 'approved' ? 'success' : 'danger'))}">${getStatusText(data.status)}</span>
-                            </p>
-                            <p><strong>Email Verified:</strong> ${data.email_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>'}</p>
-                            <p><strong>Registration Date:</strong> ${data.created_at}</p>
-                            <p><strong>Last Login:</strong> ${data.last_login_at || '<span class="text-muted">Never</span>'}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Address Information</h6>
-                            <p><strong>Complete Address:</strong> ${data.complete_address || '<span class="text-muted">Not provided</span>'}</p>
-                            <p><strong>Barangay:</strong> ${data.barangay || '<span class="text-muted">Not provided</span>'}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Additional Information</h6>
-                            <p><strong>Occupation:</strong> ${data.occupation || '<span class="text-muted">Not specified</span>'}</p>
-                            <p><strong>Organization:</strong> ${data.organization || '<span class="text-muted">Not specified</span>'}</p>
-                            <p><strong>Emergency Contact:</strong> ${data.emergency_contact_name || '<span class="text-muted">Not provided</span>'}</p>
-                            <p><strong>Emergency Phone:</strong> ${data.emergency_contact_phone || '<span class="text-muted">Not provided</span>'}</p>
-                        </div>
-                        <div class="col-md-12">
-                            <h6 class="border-bottom pb-2">Document Status</h6>
-                            <div class="row">
-                                <div class="col-md-4 text-center">
-                                    <div class="card ${data.location_document_path ? 'border-success' : 'border-secondary'}">
-                                        <div class="card-body">
-                                            <i class="fas fa-map-marker-alt fa-2x ${data.location_document_path ? 'text-success' : 'text-secondary'} mb-2"></i>
-                                            <h6>Location Document</h6>
-                                            <span class="badge ${data.location_document_path ? 'bg-success' : 'bg-secondary'}">${data.location_document_path ? 'Uploaded' : 'Not Uploaded'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-center">
-                                    <div class="card ${data.id_front_path ? 'border-success' : 'border-secondary'}">
-                                        <div class="card-body">
-                                            <i class="fas fa-id-card fa-2x ${data.id_front_path ? 'text-success' : 'text-secondary'} mb-2"></i>
-                                            <h6>ID Front</h6>
-                                            <span class="badge ${data.id_front_path ? 'bg-success' : 'bg-secondary'}">${data.id_front_path ? 'Uploaded' : 'Not Uploaded'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 text-center">
-                                    <div class="card ${data.id_back_path ? 'border-success' : 'border-secondary'}">
-                                        <div class="card-body">
-                                            <i class="fas fa-id-card-alt fa-2x ${data.id_back_path ? 'text-success' : 'text-secondary'} mb-2"></i>
-                                            <h6>ID Back</h6>
-                                            <span class="badge ${data.id_back_path ? 'bg-success' : 'bg-secondary'}">${data.id_back_path ? 'Uploaded' : 'Not Uploaded'}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <h6 class="border-bottom pb-2">Technical Information</h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Registration IP:</strong> <code>${data.registration_ip || 'N/A'}</code></p>
-                                    <p><strong>Referral Source:</strong> ${data.referral_source || 'Direct'}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Terms Accepted:</strong> ${data.terms_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
-                                    <p><strong>Privacy Accepted:</strong> ${data.privacy_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
-                                </div>
-                            </div>
-                        </div>
-                        ${remarksHtml}
-                    </div>`;
-
-                    // Update document viewer buttons visibility
-                    updateDocumentButtons(data);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('registrationDetails').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        ${error.message || 'Error loading registration details. Please try again.'}
-                    </div>`;
-                });
-        }
-
-        // Update document viewer buttons based on available documents
-        function updateDocumentButtons(data) {
-            const locationBtn = document.getElementById('viewLocationDoc');
-            const idFrontBtn = document.getElementById('viewIdFront');
-            const idBackBtn = document.getElementById('viewIdBack');
-
-            locationBtn.style.display = data.location_document_path ? 'inline-block' : 'none';
-            idFrontBtn.style.display = data.id_front_path ? 'inline-block' : 'none';
-            idBackBtn.style.display = data.id_back_path ? 'inline-block' : 'none';
-        }
-
-        // View document function
-        function viewDocument(documentType) {
-            if (!currentRegistrationId) {
-                alert('Registration ID not found');
-                return;
+            if (!response.success) {
+                throw new Error(response.message || 'Failed to load registration details');
             }
 
-            const documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
-            const modalTitle = document.getElementById('documentModalTitle');
-            const modalBody = document.getElementById('documentModalBody');
+            const data = response.data;
+            renderRegistrationDetails(data);
+            updateDocumentButtons(data);
+        })
+        .catch(error => {
+            console.error('Error loading registration:', error);
+            document.getElementById('registrationDetails').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Error loading registration details: ${error.message}
+                    <br><small>Please check the console for more details.</small>
+                </div>`;
+        });
+}
 
-            // Set modal title
-            const titles = {
-                'location': 'Location Document',
-                'id_front': 'Government ID - Front',
-                'id_back': 'Government ID - Back'
-            };
-            modalTitle.innerHTML = `<i class="fas fa-file-image me-2"></i>${titles[documentType]}`;
+// FIXED: Render registration details
+function renderRegistrationDetails(data) {
+    const remarksHtml = data.rejection_reason ? `
+        <div class="col-12 mt-3">
+            <h6 class="border-bottom pb-2">Admin Remarks</h6>
+            <div class="alert alert-info">
+                <p class="mb-1">${data.rejection_reason}</p>
+                <small class="text-muted">
+                    ${data.approved_at || data.rejected_at ? `Updated on ${data.approved_at || data.rejected_at}` : ''}
+                    ${data.approved_by ? ` by ${data.approved_by}` : ''}
+                </small>
+            </div>
+        </div>` : '';
 
-            // Show loading
-            modalBody.innerHTML = `
+    const isBasicSignup = !data.first_name && !data.last_name && !data.contact_number;
+    
+    const basicSignupAlert = isBasicSignup ? `
+        <div class="col-12 mb-3">
+            <div class="alert alert-warning">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Basic Signup User:</strong> This user has only provided username, email, and password. 
+                They need to complete their profile to access full services.
+            </div>
+        </div>` : '';
+
+    document.getElementById('registrationDetails').innerHTML = `
+        <div class="row g-3">
+            ${basicSignupAlert}
+            <div class="col-md-6">
+                <h6 class="border-bottom pb-2">Account Information</h6>
+                <p><strong>Username:</strong> ${data.username || 'N/A'}</p>
+                <p><strong>First Name:</strong> ${data.first_name || '<span class="text-muted">Not provided</span>'}</p>
+                <p><strong>Middle Name:</strong> ${data.middle_name || '<span class="text-muted">Not provided</span>'}</p>
+                <p><strong>Last Name:</strong> ${data.last_name || '<span class="text-muted">Not provided</span>'}</p>
+                <p><strong>Name Extension:</strong> ${data.name_extension || '<span class="text-muted">Not provided</span>'}</p>
+                <p><strong>Email:</strong> ${data.email}</p>
+                <p><strong>Contact Number:</strong> ${data.contact_number || '<span class="text-muted">Not provided</span>'}</p>
+                <p><strong>Date of Birth:</strong> ${data.date_of_birth || '<span class="text-muted">Not provided</span>'}</p>
+                <p><strong>Gender:</strong> ${data.gender || '<span class="text-muted">Not specified</span>'}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="border-bottom pb-2">Registration Status</h6>
+                <p><strong>User Type:</strong> ${data.user_type || '<span class="text-warning">Not selected yet</span>'}</p>
+                <p><strong>Current Status:</strong>
+                    <span class="badge bg-${data.status === 'unverified' ? 'warning' : (data.status === 'pending' ? 'info' : (data.status === 'approved' ? 'success' : 'danger'))}">${getStatusText(data.status)}</span>
+                </p>
+                <p><strong>Email Verified:</strong> ${data.email_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>'}</p>
+                <p><strong>Registration Date:</strong> ${data.created_at}</p>
+                <p><strong>Last Login:</strong> ${data.last_login_at || '<span class="text-muted">Never</span>'}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="border-bottom pb-2">Address Information</h6>
+                <p><strong>Complete Address:</strong> ${data.complete_address || '<span class="text-muted">Not provided</span>'}</p>
+                <p><strong>Barangay:</strong> ${data.barangay || '<span class="text-muted">Not provided</span>'}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="border-bottom pb-2">Additional Information</h6>
+                <p><strong>Occupation:</strong> ${data.occupation || '<span class="text-muted">Not specified</span>'}</p>
+                <p><strong>Organization:</strong> ${data.organization || '<span class="text-muted">Not specified</span>'}</p>
+                <p><strong>Emergency Contact:</strong> ${data.emergency_contact_name || '<span class="text-muted">Not provided</span>'}</p>
+                <p><strong>Emergency Phone:</strong> ${data.emergency_contact_phone || '<span class="text-muted">Not provided</span>'}</p>
+            </div>
+            <div class="col-md-12">
+                <h6 class="border-bottom pb-2">Document Status</h6>
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <div class="card ${data.location_document_path || data.place_document_path ? 'border-success' : 'border-secondary'}">
+                            <div class="card-body">
+                                <i class="fas fa-map-marker-alt fa-2x ${data.location_document_path || data.place_document_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                <h6>Location Document</h6>
+                                <span class="badge ${data.location_document_path || data.place_document_path ? 'bg-success' : 'bg-secondary'}">${data.location_document_path || data.place_document_path ? 'Uploaded' : 'Not Uploaded'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="card ${data.id_front_path ? 'border-success' : 'border-secondary'}">
+                            <div class="card-body">
+                                <i class="fas fa-id-card fa-2x ${data.id_front_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                <h6>ID Front</h6>
+                                <span class="badge ${data.id_front_path ? 'bg-success' : 'bg-secondary'}">${data.id_front_path ? 'Uploaded' : 'Not Uploaded'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="card ${data.id_back_path ? 'border-success' : 'border-secondary'}">
+                            <div class="card-body">
+                                <i class="fas fa-id-card-alt fa-2x ${data.id_back_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                <h6>ID Back</h6>
+                                <span class="badge ${data.id_back_path ? 'bg-success' : 'bg-secondary'}">${data.id_back_path ? 'Uploaded' : 'Not Uploaded'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <h6 class="border-bottom pb-2">Technical Information</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Registration IP:</strong> <code>${data.registration_ip || 'N/A'}</code></p>
+                        <p><strong>Referral Source:</strong> ${data.referral_source || 'Direct'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Terms Accepted:</strong> ${data.terms_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
+                        <p><strong>Privacy Accepted:</strong> ${data.privacy_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
+                    </div>
+                </div>
+            </div>
+            ${remarksHtml}
+        </div>`;
+}
+
+// FIXED: Update document viewer buttons based on available documents
+function updateDocumentButtons(data) {
+    const locationBtn = document.getElementById('viewLocationDoc');
+    const idFrontBtn = document.getElementById('viewIdFront');
+    const idBackBtn = document.getElementById('viewIdBack');
+
+    // Check both possible field names for location document
+    const hasLocationDoc = data.location_document_path || data.place_document_path;
+    
+    if (locationBtn) {
+        locationBtn.style.display = hasLocationDoc ? 'inline-block' : 'none';
+        locationBtn.disabled = !hasLocationDoc;
+    }
+    
+    if (idFrontBtn) {
+        idFrontBtn.style.display = data.id_front_path ? 'inline-block' : 'none';
+        idFrontBtn.disabled = !data.id_front_path;
+    }
+    
+    if (idBackBtn) {
+        idBackBtn.style.display = data.id_back_path ? 'inline-block' : 'none';
+        idBackBtn.disabled = !data.id_back_path;
+    }
+}
+
+// FIXED: View document function
+function viewDocument(documentType) {
+    if (!currentRegistrationId) {
+        alert('Registration ID not found');
+        return;
+    }
+
+    console.log('Viewing document:', documentType, 'for registration:', currentRegistrationId);
+
+    const documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
+    const modalTitle = document.getElementById('documentModalTitle');
+    const modalBody = document.getElementById('documentModalBody');
+
+    // Set modal title
+    const titles = {
+        'location': 'Location/Role Proof Document',
+        'id_front': 'Government ID - Front',
+        'id_back': 'Government ID - Back'
+    };
+    
+    if (modalTitle) {
+        modalTitle.innerHTML = `<i class="fas fa-file-image me-2"></i>${titles[documentType]}`;
+    }
+
+    // Show loading
+    if (modalBody) {
+        modalBody.innerHTML = `
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
                 <p class="mt-2">Loading document...</p>
             </div>`;
+    }
 
-            // Show modal
-            documentModal.show();
+    // Show modal
+    documentModal.show();
 
-            // Fetch document
-            fetch(`/admin/registrations/${currentRegistrationId}/document/${documentType}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Document not found or could not be loaded');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success && data.document_url) {
-                        currentDocumentUrl = data.document_url;
-                        modalBody.innerHTML = `
-                        <img src="${data.document_url}" 
-                             alt="${titles[documentType]}" 
-                             class="document-image"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <div class="document-placeholder" style="display: none;">
-                            <i class="fas fa-file-image fa-3x mb-3"></i>
-                            <p>Unable to load image preview</p>
-                            <p class="text-muted">The document may be in a format that cannot be displayed inline.</p>
-                        </div>`;
-                    } else {
-                        throw new Error(data.message || 'Document not available');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading document:', error);
+    // FIXED: Fetch document with correct route
+    fetch(`/admin/registrations/${currentRegistrationId}/document/${documentType}`)
+        .then(response => {
+            console.log('Document response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Document response:', data);
+            
+            if (data.success && data.document_url) {
+                currentDocumentUrl = data.document_url;
+                
+                if (modalBody) {
                     modalBody.innerHTML = `
-                    <div class="document-placeholder">
+                        <div class="document-container">
+                            <img src="${data.document_url}" 
+                                 alt="${titles[documentType]}" 
+                                 class="document-image"
+                                 style="max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="document-placeholder" style="display: none; background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 2rem; text-align: center; color: #6c757d;">
+                                <i class="fas fa-file-image fa-3x mb-3"></i>
+                                <p>Unable to load image preview</p>
+                                <p class="text-muted">The document may be in a format that cannot be displayed inline.</p>
+                                <a href="${data.document_url}" target="_blank" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                                </a>
+                            </div>
+                        </div>`;
+                }
+            } else {
+                throw new Error(data.message || 'Document not available');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading document:', error);
+            if (modalBody) {
+                modalBody.innerHTML = `
+                    <div class="document-placeholder" style="background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px; padding: 2rem; text-align: center; color: #6c757d;">
                         <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
                         <p>Document could not be loaded</p>
                         <p class="text-muted">${error.message}</p>
+                        <small class="text-muted">Please check the console for more details.</small>
                     </div>`;
-                    currentDocumentUrl = null;
-                });
-        }
-
-        // Download document function
-        function downloadDocument() {
-            if (currentDocumentUrl) {
-                const link = document.createElement('a');
-                link.href = currentDocumentUrl;
-                link.download = '';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                alert('No document available for download');
             }
-        }
-
-        // Delete registration
-        function deleteRegistration(id) {
-            if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
-                return;
-            }
-            
-            fetch(`/admin/registrations/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', data.message);
-                    // Remove the row from table
-                    $(`tr[data-id="${id}"]`).fadeOut(300, function() {
-                        $(this).remove();
-                    });
-                    // Refresh stats
-                    refreshStats();
-                } else {
-                    showAlert('danger', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'An error occurred while deleting the registration.');
-            });
-        }
-
-        // Export registrations function
-        function exportRegistrations() {
-            // Get current filter parameters
-            const params = new URLSearchParams(window.location.search);
-            
-            // Show loading state
-            const exportBtn = document.querySelector('[onclick="exportRegistrations()"]');
-            const originalText = exportBtn.innerHTML;
-            exportBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Exporting...';
-            exportBtn.disabled = true;
-
-            // Create export URL with current filters
-            const exportUrl = '/admin/registrations/export?' + params.toString();
-            
-            // Create temporary link and trigger download
-            const link = document.createElement('a');
-            link.href = exportUrl;
-            link.download = `registrations_${new Date().toISOString().split('T')[0]}.xlsx`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // Reset button after delay
-            setTimeout(() => {
-                exportBtn.innerHTML = originalText;
-                exportBtn.disabled = false;
-            }, 2000);
-        }
-
-        // Refresh statistics
-        function refreshStats() {
-            fetch('/admin/registrations/statistics')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const stats = data.data;
-                        $('#total-count').text(stats.total);
-                        $('#unverified-count').text(stats.unverified);
-                        $('#pending-count').text(stats.pending);
-                        $('#approved-count').text(stats.approved);
-                        $('#rejected-count').text(stats.rejected);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error refreshing stats:', error);
-                });
-        }
-
-        // Show alert messages
-        function showAlert(type, message) {
-            const alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-            
-            // Remove existing alerts
-            $('.alert').remove();
-            
-            // Add new alert at the top of the container
-            $('.container-fluid').prepend(alertHtml);
-            
-            // Auto-hide success alerts after 5 seconds
-            if (type === 'success') {
-                setTimeout(() => {
-                    $('.alert-success').fadeOut();
-                }, 5000);
-            }
-        }
-
-        // Function to check for changes and provide visual feedback
-        function checkForChanges() {
-            const statusSelect = document.getElementById('newStatus');
-            const remarksTextarea = document.getElementById('remarks');
-
-            if (!statusSelect.dataset.originalStatus) return;
-
-            const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
-            const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
-
-            // Visual feedback for status field
-            statusSelect.classList.toggle('form-changed', statusChanged);
-            statusSelect.parentElement.classList.toggle('changed', statusChanged);
-
-            // Visual feedback for remarks field
-            remarksTextarea.classList.toggle('form-changed', remarksChanged);
-            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
-
-            // Update button state
-            const updateButton = document.querySelector('#updateModal .btn-primary');
-            updateButton.classList.toggle('no-changes', !statusChanged && !remarksChanged);
-
-            // Update button text based on changes
-            if (!statusChanged && !remarksChanged) {
-                updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>No Changes';
-            } else {
-                updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
-            }
-        }
-
-        // Date filter functions
-        function setDateRangeModal(preset) {
-            const now = new Date();
-            let fromDate, toDate;
-
-            switch (preset) {
-                case 'today':
-                    fromDate = toDate = now.toISOString().split('T')[0];
-                    break;
-                case 'week':
-                    const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-                    fromDate = startOfWeek.toISOString().split('T')[0];
-                    toDate = new Date().toISOString().split('T')[0];
-                    break;
-                case 'month':
-                    fromDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-                    toDate = new Date().toISOString().split('T')[0];
-                    break;
-                case 'year':
-                    fromDate = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
-                    toDate = new Date().toISOString().split('T')[0];
-                    break;
-            }
-
-            document.getElementById('modal_date_from').value = fromDate;
-            document.getElementById('modal_date_to').value = toDate;
-            
-            applyCustomDateRange();
-        }
-
-        function applyCustomDateRange() {
-            const fromDate = document.getElementById('modal_date_from').value;
-            const toDate = document.getElementById('modal_date_to').value;
-
-            if (fromDate && toDate && fromDate > toDate) {
-                alert('From date cannot be later than to date');
-                return;
-            }
-
-            document.getElementById('date_from').value = fromDate;
-            document.getElementById('date_to').value = toDate;
-
-            // Close modal and submit form
-            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
-            modal.hide();
-            
-            document.getElementById('filterForm').submit();
-        }
-
-        function clearDateRangeModal() {
-            document.getElementById('modal_date_from').value = '';
-            document.getElementById('modal_date_to').value = '';
-            document.getElementById('date_from').value = '';
-            document.getElementById('date_to').value = '';
-
-            // Close modal and submit form
-            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
-            modal.hide();
-            
-            document.getElementById('filterForm').submit();
-        }
-
-        // Add event listeners when document is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            const statusSelect = document.getElementById('newStatus');
-            const remarksTextarea = document.getElementById('remarks');
-
-            if (statusSelect) {
-                statusSelect.addEventListener('change', checkForChanges);
-            }
-
-            if (remarksTextarea) {
-                remarksTextarea.addEventListener('input', checkForChanges);
-            }
-
-            // Initialize tooltips if Bootstrap tooltips are available
-            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-            }
+            currentDocumentUrl = null;
         });
+}
+
+// FIXED: Download document function
+function downloadDocument() {
+    if (currentDocumentUrl) {
+        const link = document.createElement('a');
+        link.href = currentDocumentUrl;
+        link.download = '';
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        alert('No document available for download');
+    }
+}
+
+// Show update modal function
+function showUpdateModal(id, currentStatus) {
+    document.getElementById('updateRegId').innerHTML = `
+        <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>`;
+
+    fetch(`/admin/registrations/${id}/details`)
+        .then(response => response.json())
+        .then(response => {
+            if (!response.success) {
+                throw new Error('Failed to load registration details');
+            }
+
+            const data = response.data;
+            document.getElementById('updateRegistrationId').value = id;
+            document.getElementById('updateRegId').textContent = data.id;
+            document.getElementById('updateRegUsername').textContent = data.username || 'N/A';
+            document.getElementById('updateRegName').textContent = data.full_name || 'Not provided (Basic signup only)';
+            document.getElementById('updateRegEmail').textContent = data.email;
+            document.getElementById('updateRegType').textContent = data.user_type || 'Not selected';
+            document.getElementById('updateRegContact').textContent = data.contact_number || 'Not provided';
+
+            const currentStatusElement = document.getElementById('updateRegCurrentStatus');
+            const statusColor = data.status === 'unverified' ? 'warning' : 
+                              (data.status === 'pending' ? 'info' : 
+                              (data.status === 'approved' ? 'success' : 'danger'));
+            currentStatusElement.innerHTML = `
+                <span class="badge bg-${statusColor}">${getStatusText(data.status)}</span>`;
+
+            const documentsElement = document.getElementById('updateRegDocuments');
+            let documentStatus = [];
+            if (data.location_document_path || data.place_document_path) documentStatus.push('<span class="badge bg-success fs-6">Location</span>');
+            if (data.id_front_path) documentStatus.push('<span class="badge bg-success fs-6">ID Front</span>');
+            if (data.id_back_path) documentStatus.push('<span class="badge bg-success fs-6">ID Back</span>');
+            documentsElement.innerHTML = documentStatus.length > 0 ? documentStatus.join(' ') : '<span class="text-muted">None uploaded</span>';
+
+            const statusSelect = document.getElementById('newStatus');
+            const remarksTextarea = document.getElementById('remarks');
+
+            statusSelect.value = data.status;
+            statusSelect.dataset.originalStatus = data.status;
+
+            remarksTextarea.value = data.rejection_reason || '';
+            remarksTextarea.dataset.originalRemarks = data.rejection_reason || '';
+
+            statusSelect.classList.remove('form-changed');
+            remarksTextarea.classList.remove('form-changed');
+            statusSelect.parentElement.classList.remove('change-indicator', 'changed');
+            remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
+
+            statusSelect.parentElement.classList.add('change-indicator');
+            remarksTextarea.parentElement.classList.add('change-indicator');
+
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+            updateButton.classList.remove('no-changes');
+
+            const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error loading registration details: ' + error.message);
+        });
+}
+
+// Update registration status function
+function updateRegistrationStatus() {
+    const id = document.getElementById('updateRegistrationId').value;
+    const newStatus = document.getElementById('newStatus').value;
+    const remarks = document.getElementById('remarks').value;
+
+    if (!newStatus) {
+        alert('Please select a status');
+        return;
+    }
+
+    const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
+    const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+
+    if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
+        alert('No changes detected. Please modify the status or remarks before updating.');
+        return;
+    }
+
+    let changesSummary = [];
+    if (newStatus !== originalStatus) {
+        const originalStatusText = getStatusText(originalStatus);
+        const newStatusText = getStatusText(newStatus);
+        changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+    }
+    if (remarks.trim() !== originalRemarks.trim()) {
+        if (originalRemarks.trim() === '') {
+            changesSummary.push('Remarks: Added new remarks');
+        } else if (remarks.trim() === '') {
+            changesSummary.push('Remarks: Removed existing remarks');
+        } else {
+            changesSummary.push('Remarks: Modified');
+        }
+    }
+
+    const confirmMessage = `Are you sure you want to update this registration with the following changes?\n\n${changesSummary.join('\n')}`;
+
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+
+    const updateButton = document.querySelector('#updateModal .btn-primary');
+    const originalText = updateButton.innerHTML;
+    updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+    updateButton.disabled = true;
+
+    let endpoint = '';
+    let requestData = {};
+
+    if (newStatus === 'approved') {
+        endpoint = `/admin/registrations/${id}/approve`;
+    } else if (newStatus === 'rejected') {
+        endpoint = `/admin/registrations/${id}/reject`;
+        requestData = {
+            reason: remarks,
+            send_notification: true
+        };
+    } else {
+        endpoint = `/admin/registrations/${id}/update-status`;
+        requestData = {
+            status: newStatus,
+            remarks: remarks
+        };
+    }
+
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(response => {
+        if (response.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+            modal.hide();
+            showAlert('success', response.message);
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error(response.message || 'Error updating status');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', 'Error updating registration status: ' + error.message);
+    })
+    .finally(() => {
+        updateButton.innerHTML = originalText;
+        updateButton.disabled = false;
+    });
+}
+
+// Delete registration
+function deleteRegistration(id) {
+    if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+        return;
+    }
+    
+    fetch(`/admin/registrations/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+            $(`tr[data-id="${id}"]`).fadeOut(300, function() {
+                $(this).remove();
+            });
+            refreshStats();
+        } else {
+            showAlert('danger', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', 'An error occurred while deleting the registration.');
+    });
+}
+
+// Show alert messages
+function showAlert(type, message) {
+    const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    
+    $('.alert').remove();
+    $('.container-fluid').prepend(alertHtml);
+    
+    if (type === 'success') {
+        setTimeout(() => {
+            $('.alert-success').fadeOut();
+        }, 5000);
+    }
+}
+
+// Refresh statistics
+function refreshStats() {
+    fetch('/admin/registrations/statistics')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.data;
+                $('#total-count').text(stats.total);
+                $('#unverified-count').text(stats.unverified);
+                $('#pending-count').text(stats.pending);
+                $('#approved-count').text(stats.approved);
+                $('#rejected-count').text(stats.rejected);
+            }
+        })
+        .catch(error => {
+            console.error('Error refreshing stats:', error);
+        });
+}
+
+// Export registrations function
+function exportRegistrations() {
+    const params = new URLSearchParams(window.location.search);
+    const exportBtn = document.querySelector('[onclick="exportRegistrations()"]');
+    const originalText = exportBtn.innerHTML;
+    exportBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Exporting...';
+    exportBtn.disabled = true;
+
+    const exportUrl = '/admin/registrations/export?' + params.toString();
+    
+    const link = document.createElement('a');
+    link.href = exportUrl;
+    link.download = `registrations_${new Date().toISOString().split('T')[0]}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => {
+        exportBtn.innerHTML = originalText;
+        exportBtn.disabled = false;
+    }, 2000);
+}
+
+// Date filter functions
+function setDateRangeModal(preset) {
+    const now = new Date();
+    let fromDate, toDate;
+
+    switch (preset) {
+        case 'today':
+            fromDate = toDate = now.toISOString().split('T')[0];
+            break;
+        case 'week':
+            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+            fromDate = startOfWeek.toISOString().split('T')[0];
+            toDate = new Date().toISOString().split('T')[0];
+            break;
+        case 'month':
+            fromDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+            toDate = new Date().toISOString().split('T')[0];
+            break;
+        case 'year':
+            fromDate = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
+            toDate = new Date().toISOString().split('T')[0];
+            break;
+    }
+
+    document.getElementById('modal_date_from').value = fromDate;
+    document.getElementById('modal_date_to').value = toDate;
+    
+    applyCustomDateRange();
+}
+
+function applyCustomDateRange() {
+    const fromDate = document.getElementById('modal_date_from').value;
+    const toDate = document.getElementById('modal_date_to').value;
+
+    if (fromDate && toDate && fromDate > toDate) {
+        alert('From date cannot be later than to date');
+        return;
+    }
+
+    document.getElementById('date_from').value = fromDate;
+    document.getElementById('date_to').value = toDate;
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+    modal.hide();
+    
+    document.getElementById('filterForm').submit();
+}
+
+function clearDateRangeModal() {
+    document.getElementById('modal_date_from').value = '';
+    document.getElementById('modal_date_to').value = '';
+    document.getElementById('date_from').value = '';
+    document.getElementById('date_to').value = '';
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+    modal.hide();
+    
+    document.getElementById('filterForm').submit();
+}
+
+// Function to check for changes and provide visual feedback
+function checkForChanges() {
+    const statusSelect = document.getElementById('newStatus');
+    const remarksTextarea = document.getElementById('remarks');
+
+    if (!statusSelect.dataset.originalStatus) return;
+
+    const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+    const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+
+    statusSelect.classList.toggle('form-changed', statusChanged);
+    statusSelect.parentElement.classList.toggle('changed', statusChanged);
+
+    remarksTextarea.classList.toggle('form-changed', remarksChanged);
+    remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+
+    const updateButton = document.querySelector('#updateModal .btn-primary');
+    updateButton.classList.toggle('no-changes', !statusChanged && !remarksChanged);
+
+    if (!statusChanged && !remarksChanged) {
+        updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>No Changes';
+    } else {
+        updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+    }
+}
+
+// Add event listeners when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('newStatus');
+    const remarksTextarea = document.getElementById('remarks');
+
+    if (statusSelect) {
+        statusSelect.addEventListener('change', checkForChanges);
+    }
+
+    if (remarksTextarea) {
+        remarksTextarea.addEventListener('input', checkForChanges);
+    }
+
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+});
+
+console.log('Fixed Admin User Management JavaScript loaded successfully');
     </script>
 @endsection

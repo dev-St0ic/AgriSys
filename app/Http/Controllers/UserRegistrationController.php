@@ -111,12 +111,15 @@ class UserRegistrationController extends Controller
      */
     public function register(Request $request)
     {
+        // Debug: Log incoming data
+        \Log::info('Registration attempt:', $request->all());
+        
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|min:3|max:50|regex:/^[a-zA-Z0-9_]+$/|unique:user_registration,username',
             'email' => 'required|string|email|max:255|unique:user_registration,email',
             'password' => 'required|string|min:8|confirmed',
             'password_confirmation' => 'required',
-            'terms_accepted' => 'required|accepted',
+            'terms_accepted' => 'required|boolean',
         ], [
             'username.required' => 'Username is required',
             'username.unique' => 'This username is already taken',
@@ -128,10 +131,13 @@ class UserRegistrationController extends Controller
             'email.email' => 'Please enter a valid email address',
             'password.min' => 'Password must be at least 8 characters',
             'password.confirmed' => 'Password confirmation does not match',
-            'terms_accepted.accepted' => 'You must accept the Terms of Service',
+            'terms_accepted.required' => 'You must accept the Terms of Service',
         ]);
 
         if ($validator->fails()) {
+            // Debug: Log validation errors
+            \Log::error('Validation failed:', $validator->errors()->toArray());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Please check the form for errors.',
@@ -140,24 +146,21 @@ class UserRegistrationController extends Controller
         }
 
         try {
-            // Create user registration with minimal required info
-            // Password will be automatically hashed by the model mutator
+            // Create user registration
             $registrationData = [
                 'username' => $request->username,
                 'email' => $request->email,
                 'password' => $request->password, // Will be hashed by model mutator
-                'status' => 'unverified', // Start as unverified
-                'terms_accepted' => true,
+                'status' => 'unverified',
+                'terms_accepted' => (bool)$request->terms_accepted,
                 'privacy_accepted' => true,
                 'registration_ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'referral_source' => $this->getReferralSource($request),
             ];
 
-            // Create user registration
             $registration = UserRegistration::create($registrationData);
 
-            // Log the creation for admin tracking
             \Log::info('New user registration created', [
                 'id' => $registration->id,
                 'username' => $registration->username,
@@ -345,51 +348,6 @@ class UserRegistrationController extends Controller
             'redirect' => '/'
         ]);
     }
-
-    /**
-     * Get registration details for admin view
-     */
-    public function getRegistration($id)
-    {
-        $registration = UserRegistration::with('approvedBy')->find($id);
-        
-        if (!$registration) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Registration not found'
-            ], 404);
-        }
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'id' => $registration->id,
-                'username' => $registration->username,
-                'email' => $registration->email,
-                'full_name' => $registration->full_name ?? $registration->username,
-                'phone' => $registration->phone,
-                'address' => $registration->complete_address,
-                'barangay' => $registration->barangay,
-                'user_type' => $registration->user_type,
-                'status' => $registration->status,
-                'date_of_birth' => $registration->date_of_birth,
-                'gender' => $registration->gender,
-                'occupation' => $registration->occupation,
-                'organization' => $registration->organization,
-                'emergency_contact_name' => $registration->emergency_contact_name,
-                'emergency_contact_phone' => $registration->emergency_contact_phone,
-                'email_verified' => $registration->hasVerifiedEmail(),
-                'created_at' => $registration->created_at->format('M d, Y g:i A'),
-                'registration_ip' => $registration->registration_ip,
-                'referral_source' => $registration->referral_source,
-                'rejection_reason' => $registration->rejection_reason,
-                'approved_at' => $registration->approved_at ? $registration->approved_at->format('M d, Y g:i A') : null,
-                'rejected_at' => $registration->rejected_at ? $registration->rejected_at->format('M d, Y g:i A') : null,
-                'approved_by' => $registration->approvedBy ? $registration->approvedBy->name : null,
-            ]
-        ]);
-    }
-
     /**
      * Approve registration
      */
@@ -499,4 +457,386 @@ class UserRegistrationController extends Controller
 
         return $host;
     }
+
+        /**
+     * Submit profile verification
+     */
+    public function submitVerification(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'firstName' => 'required|string|max:100',
+            'lastName' => 'required|string|max:100',
+            'middleName' => 'nullable|string|max:100',
+            'extensionName' => 'nullable|string|max:20',
+            'role' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
+            'contactNumber' => 'required|string|max:20',
+            'barangay' => 'required|string|max:100',
+            'completeAddress' => 'required|string',
+            'idFront' => 'required|file|image|max:5120', // 5MB max
+            'idBack' => 'required|file|image|max:5120',
+            'locationProof' => 'required|file|image|max:5120',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please check all required fields.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $userId = session('user.id');
+            if (!$userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please log in to submit verification.'
+                ], 401);
+            }
+
+            $userRegistration = UserRegistration::find($userId);
+            if (!$userRegistration) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found.'
+                ], 404);
+            }
+
+            // Handle file uploads
+            $idFrontPath = null;
+            $idBackPath = null;
+            $locationProofPath = null;
+
+            if ($request->hasFile('idFront')) {
+                $idFrontPath = $request->file('idFront')->store('verification/id_front', 'public');
+            }
+
+            if ($request->hasFile('idBack')) {
+                $idBackPath = $request->file('idBack')->store('verification/id_back', 'public');
+            }
+
+            if ($request->hasFile('locationProof')) {
+                $locationProofPath = $request->file('locationProof')->store('verification/location_proof', 'public');
+            }
+
+            // Update user registration with verification data
+            $userRegistration->update([
+                'first_name' => $request->firstName,
+                'middle_name' => $request->middleName,
+                'last_name' => $request->lastName,
+                'name_extension' => $request->extensionName,
+                'user_type' => $request->role,
+                'phone' => $request->contactNumber,
+                'barangay' => $request->barangay,
+                'complete_address' => $request->completeAddress,
+                'id_front_path' => $idFrontPath,
+                'id_back_path' => $idBackPath,
+                'place_document_path' => $locationProofPath,
+                'status' => 'pending', // Change status to pending review
+            ]);
+
+            // Update session data
+            $request->session()->put('user', [
+                'id' => $userRegistration->id,
+                'username' => $userRegistration->username,
+                'email' => $userRegistration->email,
+                'name' => $userRegistration->full_name,
+                'user_type' => $userRegistration->user_type,
+                'status' => 'pending'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Verification submitted successfully! Your account will be reviewed within 2-3 business days.',
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Verification submission failed: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Verification submission failed. Please try again.',
+                'error' => config('app.debug') ? $e->getMessage() : 'Server error'
+            ], 500);
+        }
+    }
+
+/**
+ * Get registration details for admin view (FIXED)
+ */
+public function getRegistration($id)
+{
+    if (!auth()->check() || !auth()->user()->isAdmin()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Access denied. Admin privileges required.'
+        ], 403);
+    }
+
+    $registration = UserRegistration::with('approvedBy')->find($id);
+    
+    if (!$registration) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration not found'
+        ], 404);
+    }
+    
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'id' => $registration->id,
+            'username' => $registration->username,
+            'email' => $registration->email,
+            'first_name' => $registration->first_name,        
+            'middle_name' => $registration->middle_name,      
+            'last_name' => $registration->last_name,          
+            'name_extension' => $registration->name_extension, 
+            'full_name' => $registration->full_name ?? $registration->username,
+            'phone' => $registration->phone,
+            'contact_number' => $registration->phone,         
+            'complete_address' => $registration->complete_address,
+            'barangay' => $registration->barangay,
+            'user_type' => $registration->user_type,
+            'status' => $registration->status,
+            'date_of_birth' => $registration->date_of_birth ? $registration->date_of_birth->format('M d, Y') : null,
+            'gender' => $registration->gender,
+            'occupation' => $registration->occupation,
+            'organization' => $registration->organization,
+            'emergency_contact_name' => $registration->emergency_contact_name,
+            'emergency_contact_phone' => $registration->emergency_contact_phone,
+            
+            // Document paths - FIXED to handle both field names
+            'place_document_path' => $registration->place_document_path,
+            'location_document_path' => $registration->place_document_path, // Alias for consistency
+            'id_front_path' => $registration->id_front_path,
+            'id_back_path' => $registration->id_back_path,
+            
+            'email_verified' => $registration->hasVerifiedEmail(),
+            'terms_accepted' => $registration->terms_accepted,
+            'privacy_accepted' => $registration->privacy_accepted,
+            'created_at' => $registration->created_at->format('M d, Y g:i A'),
+            'last_login_at' => $registration->last_login_at ? $registration->last_login_at->format('M d, Y g:i A') : null,
+            'registration_ip' => $registration->registration_ip,
+            'referral_source' => $registration->referral_source,
+            'rejection_reason' => $registration->rejection_reason,
+            'approved_at' => $registration->approved_at ? $registration->approved_at->format('M d, Y g:i A') : null,
+            'rejected_at' => $registration->rejected_at ? $registration->rejected_at->format('M d, Y g:i A') : null,
+            'approved_by' => $registration->approvedBy ? $registration->approvedBy->name : null,
+        ]
+    ]);
+}
+
+/**
+ * View uploaded document (FIXED)
+ */
+public function viewDocument($id, $type)
+{
+    // Check admin authentication
+    if (!auth()->check() || !auth()->user()->isAdmin()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Access denied. Admin privileges required.'
+        ], 403);
+    }
+
+    $registration = UserRegistration::find($id);
+    
+    if (!$registration) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration not found'
+        ], 404);
+    }
+
+    $documentPath = null;
+    
+    switch ($type) {
+        case 'location':
+            $documentPath = $registration->place_document_path;
+            break;
+        case 'id_front':
+            $documentPath = $registration->id_front_path;
+            break;
+        case 'id_back':
+            $documentPath = $registration->id_back_path;
+            break;
+        default:
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid document type. Allowed types: location, id_front, id_back'
+            ], 400);
+    }
+
+    if (!$documentPath) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Document not found for this registration'
+        ], 404);
+    }
+
+    // Check if file exists in storage
+    if (!\Storage::disk('public')->exists($documentPath)) {
+        \Log::error("Document file not found in storage", [
+            'registration_id' => $id,
+            'document_type' => $type,
+            'document_path' => $documentPath,
+            'storage_path' => storage_path('app/public/' . $documentPath)
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Document file not found on server. Path: ' . $documentPath
+        ], 404);
+    }
+
+    try {
+        // Generate the public URL for the document
+        $documentUrl = \Storage::disk('public')->url($documentPath);
+        
+        // Log successful document access
+        \Log::info("Document accessed successfully", [
+            'registration_id' => $id,
+            'document_type' => $type,
+            'document_path' => $documentPath,
+            'document_url' => $documentUrl,
+            'admin_user' => auth()->user()->email
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'document_url' => $documentUrl,
+            'document_path' => $documentPath,
+            'document_type' => $type,
+            'file_exists' => true
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error("Error generating document URL", [
+            'registration_id' => $id,
+            'document_type' => $type,
+            'document_path' => $documentPath,
+            'error' => $e->getMessage()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Error accessing document: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * Update registration status (FIXED - Add this method if missing)
+ */
+public function updateStatus(Request $request, $id)
+{
+    if (!auth()->check() || !auth()->user()->isAdmin()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Access denied. Admin privileges required.'
+        ], 403);
+    }
+
+    $registration = UserRegistration::find($id);
+    
+    if (!$registration) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration not found'
+        ], 404);
+    }
+
+    $validator = \Validator::make($request->all(), [
+        'status' => 'required|in:unverified,pending,approved,rejected',
+        'remarks' => 'nullable|string|max:1000'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $updateData = [
+            'status' => $request->status,
+            'approved_by' => auth()->id(),
+        ];
+
+        if ($request->status === 'approved') {
+            $updateData['approved_at'] = now();
+            $updateData['rejected_at'] = null;
+            $updateData['rejection_reason'] = null;
+        } elseif ($request->status === 'rejected') {
+            $updateData['rejected_at'] = now();
+            $updateData['approved_at'] = null;
+            $updateData['rejection_reason'] = $request->remarks;
+        } else {
+            $updateData['rejection_reason'] = $request->remarks;
+        }
+
+        $registration->update($updateData);
+
+        \Log::info('Registration status updated', [
+            'registration_id' => $id,
+            'old_status' => $registration->getOriginal('status'),
+            'new_status' => $request->status,
+            'admin_user' => auth()->user()->email,
+            'remarks' => $request->remarks
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration status updated successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Failed to update registration status', [
+            'registration_id' => $id,
+            'error' => $e->getMessage(),
+            'admin_user' => auth()->user()->email
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update registration status'
+        ], 500);
+    }
+}
+
+/**
+ * Get statistics for admin dashboard (Add this if missing)
+ */
+public function getStatistics()
+{
+    if (!auth()->check() || !auth()->user()->isAdmin()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Access denied'
+        ], 403);
+    }
+
+    $stats = [
+        'total' => UserRegistration::count(),
+        'unverified' => UserRegistration::where('status', 'unverified')->count(),
+        'pending' => UserRegistration::where('status', 'pending')->count(),
+        'approved' => UserRegistration::where('status', 'approved')->count(),
+        'rejected' => UserRegistration::where('status', 'rejected')->count(),
+        'recent' => UserRegistration::where('created_at', '>=', now()->subDays(7))->count(),
+        'email_verified' => UserRegistration::whereNotNull('email_verified_at')->count(),
+        'with_documents' => UserRegistration::whereNotNull('place_document_path')
+            ->orWhereNotNull('id_front_path')
+            ->orWhereNotNull('id_back_path')
+            ->count(),
+    ];
+
+    return response()->json([
+        'success' => true,
+        'data' => $stats
+    ]);
+}
+
 }
