@@ -401,6 +401,13 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.registrations.index') }}" data-tooltip="User Registrations">
+                                        <i class="fas fa-user-edit"></i>
+                                        <span class="nav-link-text">User Registration</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.rsbsa.*') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.rsbsa.applications') }}" data-tooltip="RSBSA Applications">
                                         <i class="fas fa-file-alt"></i>
