@@ -169,6 +169,15 @@
     content: "❌ ";
 }
 
+/* --- Training Messages Container --- */
+.training-messages {
+    margin-bottom: 20px;
+}
+
+.training-message-content {
+    font-weight: 500;
+}
+
 /* --- Training Form Buttons --- */
 .training-form-actions {
     display: flex;
@@ -222,31 +231,31 @@
         padding: 30px 20px;
         margin: 20px 10px;
     }
-    
+
     .training-form-row {
         flex-direction: column;
     }
-    
+
     .training-form-row .training-form-group {
         min-width: 100%;
     }
-    
+
     .training-form-actions {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .training-btn-secondary,
     .training-btn-primary {
         width: 100%;
         margin-bottom: 10px;
     }
-    
+
     .training-form-tabs {
         flex-direction: column;
         gap: 5px;
     }
-    
+
     .training-tab-btn {
         text-align: center;
     }
@@ -256,11 +265,11 @@
     .training-form-header h2 {
         font-size: 24px;
     }
-    
+
     .training-program {
         padding: 15px;
     }
-    
+
     .training-program h4 {
         font-size: 1.1rem;
     }

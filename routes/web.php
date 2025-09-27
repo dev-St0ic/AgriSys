@@ -54,7 +54,7 @@ Route::get('/services', function () {
 })->name('services');
 
 Route::get('/services/{service}', function ($service) {
-    $validServices = ['rsbsa', 'seedlings', 'fishr', 'boatr'];
+    $validServices = ['rsbsa', 'seedlings', 'fishr', 'boatr', 'training'];
     if (in_array($service, $validServices)) {
         return view('landingPage.landing');
     }
@@ -67,7 +67,7 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         $valid = \App\Models\FishrApplication::where('registration_number', $number)
             ->where('status', 'approved')
             ->exists();
-        
+
         return response()->json([
             'valid' => $valid,
             'message' => $valid ? 'Valid FishR registration' : 'Invalid or non-approved FishR registration'
@@ -87,7 +87,7 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 Route::middleware('admin')->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
-    
+
     // ==============================================
     // RSBSA APPLICATIONS MANAGEMENT
     // ==============================================
@@ -99,7 +99,7 @@ Route::middleware('admin')->group(function () {
         Route::get('/{id}/download', [RsbsaController::class, 'downloadDocument'])->name('download-document');
         Route::get('/export', [RsbsaController::class, 'export'])->name('export');
     });
-    
+
     // ==============================================
     // FISHR REGISTRATIONS MANAGEMENT
     // ==============================================
@@ -113,87 +113,87 @@ Route::middleware('admin')->group(function () {
         Route::post('/{id}/assign-fishr-number', [FishRController::class, 'assignFishRNumber'])
             ->name('assign-fishr-number');
     });
-    
+
     // ==============================================
     // BOATR REGISTRATIONS MANAGEMENT - COMPLETE AND FIXED
     // ==============================================
     Route::prefix('admin/boatr')->name('admin.boatr.')->group(function () {
         // Main listing page
         Route::get('/requests', [BoatRController::class, 'index'])->name('requests');
-        
+
         // Individual application routes
         Route::get('/requests/{id}', [BoatRController::class, 'show'])->name('show');
         Route::patch('/requests/{id}/status', [BoatRController::class, 'updateStatus'])->name('update-status');
         Route::post('/requests/{id}/complete-inspection', [BoatRController::class, 'completeInspection'])->name('complete-inspection');
         Route::delete('/requests/{id}', [BoatRController::class, 'destroy'])->name('destroy');
-        
+
         // Document viewing routes - FIXED AND COMPLETE
         Route::get('/requests/{id}/view-document', [BoatRController::class, 'viewDocument'])->name('view-document');
         Route::post('/requests/{id}/document-preview', [BoatRController::class, 'documentPreview'])->name('document-preview');
         Route::get('/requests/{id}/download-document', [BoatRController::class, 'downloadDocument'])->name('download-document');
-        
+
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
     });
 
     // ==============================================
-    // TRAINING REGISTRATIONS MANAGEMENT 
+    // TRAINING REGISTRATIONS MANAGEMENT
     // ==============================================
     Route::prefix('admin/training')->name('admin.training.')->group(function () {
-        
+
         // Training Applications Management
         Route::get('/requests', [TrainingController::class, 'index'])->name('requests');
         Route::get('/requests/{id}', [TrainingController::class, 'show'])->name('requests.show');
         Route::patch('/requests/{id}/status', [TrainingController::class, 'updateStatus'])->name('requests.update-status');
         Route::delete('/requests/{id}', [TrainingController::class, 'destroy'])->name('requests.destroy');
-        
-        
+
+
     });
 
     // ==============================================
     // SEEDLING REQUESTS MANAGEMENT
     // ==============================================
     Route::prefix('admin/seedling-requests')->name('admin.seedlings.')->group(function () {
-        
+
         // Main CRUD routes
         Route::get('/', [SeedlingRequestController::class, 'index'])->name('requests');
         Route::get('/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
-        
+
         // Legacy status update (for overall status - maintains backward compatibility)
         Route::patch('/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
-        
+
         // NEW: Category-specific status updates
         Route::patch('/{seedlingRequest}/category-status', [SeedlingRequestController::class, 'updateCategoryStatus'])
             ->name('update-category-status');
-        
+
         // NEW: Bulk update multiple categories at once
         Route::patch('/{seedlingRequest}/bulk-categories', [SeedlingRequestController::class, 'bulkUpdateCategories'])
             ->name('bulk-update-categories');
-        
+
         // AJAX routes for real-time inventory checking
         Route::get('/{seedlingRequest}/inventory', [SeedlingRequestController::class, 'getInventoryStatus'])
             ->name('inventory-status');
-            
+
         Route::get('/{seedlingRequest}/inventory/{category}', [SeedlingRequestController::class, 'getCategoryInventoryStatus'])
             ->name('category-inventory-status');
-        
+
         // Export functionality
         Route::get('/export', [SeedlingRequestController::class, 'export'])->name('export');
-        
+
         // Delete functionality
         Route::delete('/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
-        
+
         // Optional: Category-specific reports
         Route::get('/reports/category-summary', [SeedlingRequestController::class, 'categorySummaryReport'])
             ->name('category-summary');
-            
+
         // Optional: Individual category reports
         Route::get('/reports/vegetables', [SeedlingRequestController::class, 'vegetablesReport'])
             ->name('vegetables-report');
-            
+
         Route::get('/reports/fruits', [SeedlingRequestController::class, 'fruitsReport'])
             ->name('fruits-report');
-            
+
         Route::get('/reports/fertilizers', [SeedlingRequestController::class, 'fertilizersReport'])
             ->name('fertilizers-report');
     });
@@ -210,7 +210,7 @@ Route::middleware('admin')->group(function () {
          // RSBSA ANALYTICS - NEW SECTION
     Route::get('/rsbsa', [RsbsaAnalyticsController::class, 'index'])->name('rsbsa');
     Route::get('/rsbsa/export', [RsbsaAnalyticsController::class, 'export'])->name('rsbsa.export');
-        
+
     // FISHR ANALYTICS - NEW SECTION
     Route::get('/fishr', [FishrAnalyticsController::class, 'index'])->name('fishr');
     Route::get('/fishr/export', [FishrAnalyticsController::class, 'export'])->name('fishr.export');
@@ -228,8 +228,8 @@ Route::middleware('admin')->group(function () {
     Route::get('/inventory/export', [InventoryAnalyticsController::class, 'export'])->name('inventory.export');
     });
 
-    
-    
+
+
     // ==============================================
     // INVENTORY MANAGEMENT
     // ==============================================
@@ -238,29 +238,29 @@ Route::middleware('admin')->group(function () {
         Route::post('inventory/{inventory}/adjust-stock', [InventoryController::class, 'adjustStock'])
             ->name('inventory.adjust-stock');
     });
-    
+
     // ==============================================
     // ADMIN MANAGEMENT (SuperAdmin only)
     // ==============================================
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('admins', AdminController::class);
     });
-    
+
     // ==============================================
     // REPORTS AND ANALYTICS
     // ==============================================
     Route::get('/admin/reports/rsbsa', function () {
         return view('admin.reports.rsbsa');
     })->name('admin.reports.rsbsa');
-    
+
     Route::get('/admin/reports/fishr', function () {
         return view('admin.reports.fishr');
     })->name('admin.reports.fishr');
-    
+
     Route::get('/admin/reports/boatr', function () {
         return view('admin.reports.boatr');
     })->name('admin.reports.boatr');
-    
+
     Route::get('/admin/reports/seedlings', function () {
         return view('admin.reports.seedlings');
     })->name('admin.reports.seedlings');
@@ -277,7 +277,7 @@ Route::middleware('admin')->prefix('api/admin')->group(function () {
         Route::patch('/applications/{id}/status', [RsbsaController::class, 'updateStatus'])->name('applications.update-status');
         Route::delete('/applications/{id}', [RsbsaController::class, 'destroy'])->name('applications.destroy');
     });
-    
+
     // FishR API routes
     Route::prefix('fishr')->name('api.admin.fishr.')->group(function () {
         Route::get('/registrations', [FishRController::class, 'index'])->name('registrations');
@@ -285,7 +285,7 @@ Route::middleware('admin')->prefix('api/admin')->group(function () {
         Route::patch('/registrations/{id}/status', [FishRController::class, 'updateStatus'])->name('registrations.update-status');
         Route::delete('/registrations/{id}', [FishRController::class, 'destroy'])->name('registrations.destroy');
     });
-    
+
     // BoatR API routes
     Route::prefix('boatr')->name('api.admin.boatr.')->group(function () {
         Route::get('/applications', [BoatRController::class, 'index'])->name('applications');
@@ -308,10 +308,10 @@ if (config('app.debug')) {
                 'controller' => $route->getActionName(),
             ];
         });
-        
+
         return response()->json($routes->toArray());
     })->name('debug.routes');
-    
+
     // Test RSBSA submission route
     Route::get('/debug/test-rsbsa', function () {
         return response()->json([
@@ -322,7 +322,7 @@ if (config('app.debug')) {
             'csrf_token' => csrf_token()
         ]);
     })->name('debug.test-rsbsa');
-    
+
     // Test BoatR submission route
     Route::get('/debug/test-boatr', function () {
         return response()->json([
@@ -342,18 +342,18 @@ if (config('app.debug')) {
 // |--------------------------------------------------------------------------
 // */
 // Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
-    
+
 //     // Main user management interface
 //     Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
-    
+
 //     // Individual registration management
 //     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
 //     Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
-    
+
 //     // Status management
 //     Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
 //     Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
-    
+
 //     // Statistics and export
 //     Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
 //     Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
@@ -395,7 +395,7 @@ if (config('app.debug')) {
 //     Route::post('/verify-profile', [UserRegistrationController::class, 'submitVerification'])->name('auth.verify.profile');
 // });
 
-// /* 
+// /*
 // |--------------------------------------------------------------------------
 // | User Dashboard Routes (Protected by UserSession middleware)
 // |--------------------------------------------------------------------------
@@ -405,20 +405,20 @@ if (config('app.debug')) {
 //     // Main user dashboard
 //     Route::get('/dashboard', function () {
 //         $user = session('user', null);
-        
+
 //         if (!$user) {
 //             return redirect('/')->with('error', 'Please log in to access this page.');
 //         }
-        
+
 //         return view('landingPage.landing', compact('user'));
 //     })->name('user.dashboard');
-    
+
 //     // User profile routes
 //     Route::get('/profile', function () {
 //         $user = session('user', null);
 //         return view('user.profile', compact('user'));
 //     })->name('user.profile');
-    
+
 //     // User applications history
 //     Route::get('/my-applications', function () {
 //         $user = session('user', null);
@@ -433,28 +433,38 @@ if (config('app.debug')) {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(function () {
-    
+
     // Main user management interface
     Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
-    
+
+    // Debug route to test authentication
+    Route::get('/debug/auth', function () {
+        return response()->json([
+            'success' => true,
+            'message' => 'Authentication working',
+            'user' => auth()->user(),
+            'timestamp' => now()->toISOString()
+        ]);
+    })->name('debug.auth');
+
     // Individual registration management
     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
     Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
-    
+
     // Enhanced status management with auto-refresh
     Route::post('/registrations/{id}/approve', [UserRegistrationController::class, 'approve'])->name('registrations.approve');
     Route::post('/registrations/{id}/reject', [UserRegistrationController::class, 'reject'])->name('registrations.reject');
     Route::post('/registrations/{id}/update-status', [UserRegistrationController::class, 'updateStatus'])->name('registrations.update-status');
-    
+
     // Enhanced document viewing - supports images and files
     Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'viewDocument'])
         ->name('registrations.document')
         ->where('type', 'location|id_front|id_back');
-    
+
     // Statistics and export
     Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
     Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
-    
+
     // Bulk operations (optional future enhancement)
     Route::post('/registrations/bulk-approve', [UserRegistrationController::class, 'bulkApprove'])->name('registrations.bulk-approve');
     Route::post('/registrations/bulk-reject', [UserRegistrationController::class, 'bulkReject'])->name('registrations.bulk-reject');
@@ -483,15 +493,15 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [UserRegistrationController::class, 'register'])->name('auth.register');
     Route::post('/login', [UserRegistrationController::class, 'login'])->name('auth.login');
     Route::post('/logout', [UserRegistrationController::class, 'logout'])->name('auth.logout');
-    
+
     // Username availability checking
     Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('auth.check.username');
-    
+
     // UPDATED: Enhanced profile verification with file uploads - FIXED MIDDLEWARE AND ROUTE
     Route::post('/verify-profile', [UserRegistrationController::class, 'submitVerification'])
         ->middleware('web') // Use web middleware for session and CSRF protection
         ->name('auth.verify.profile');
-    
+
     // Email verification routes (optional future enhancement)
     Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('auth.verify.email');
     Route::post('/resend-verification', [UserRegistrationController::class, 'resendVerification'])->name('auth.resend.verification');
@@ -502,7 +512,7 @@ Route::post('/admin/users/{id}/unban', [UserRegistrationController::class, 'unba
 Route::post('/admin/users/bulk-ban', [UserRegistrationController::class, 'bulkBan']);
 });
 
-/* 
+/*
 |--------------------------------------------------------------------------
 | User Dashboard Routes (Protected by UserSession middleware)
 |--------------------------------------------------------------------------
@@ -511,26 +521,26 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
     // Main user dashboard
     Route::get('/dashboard', function () {
         $user = session('user', null);
-        
+
         if (!$user) {
             return redirect('/')->with('error', 'Please log in to access this page.');
         }
-        
+
         return view('landingPage.landing', compact('user'));
     })->name('user.dashboard');
-    
+
     // User profile routes
     Route::get('/profile', function () {
         $user = session('user', null);
         return view('user.profile', compact('user'));
     })->name('user.profile');
-    
+
     // User applications history
     Route::get('/my-applications', function () {
         $user = session('user', null);
         return view('user.applications', compact('user'));
     })->name('user.applications');
-    
+
     // API endpoints for user data
     Route::prefix('api/user')->group(function () {
         Route::get('/profile', [UserRegistrationController::class, 'getUserProfile'])->name('api.user.profile');
@@ -547,7 +557,7 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
 Route::prefix('api')->group(function () {
     // Public information (no authentication required)
     Route::get('/registration-stats', [UserRegistrationController::class, 'getPublicStats'])->name('api.registration.stats');
-    
+
     // Check system status
     Route::get('/system-status', function () {
         return response()->json([
@@ -588,17 +598,17 @@ if (app()->environment('local', 'testing')) {
         Route::get('/test-registration', function () {
             return view('dev.test-registration');
         });
-        
+
         Route::get('/test-admin', function () {
             return view('dev.test-admin');
         });
-        
+
         // Clear session for testing
         Route::get('/clear-session', function () {
             session()->flush();
             return redirect('/')->with('success', 'Session cleared for testing');
         });
-        
+
         // ADDED: Test verification form (for development only)
         Route::get('/test-verification', function () {
             // Mock user session for testing
@@ -608,7 +618,7 @@ if (app()->environment('local', 'testing')) {
                 'email' => 'test@example.com',
                 'status' => 'unverified'
             ]]);
-            
+
             return view('landingPage.landing')->with('user', session('user'));
         });
     });
