@@ -228,11 +228,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (trainingForm) {
         trainingForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            console.log('Training form submission started');
 
             // Basic validation
             if (!validateTrainingForm()) {
+                console.log('Form validation failed');
                 return false;
             }
+
+            console.log('Form validation passed');
 
             // Show loading state
             const submitBtn = trainingForm.querySelector('button[type="submit"]');
@@ -240,19 +244,59 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.textContent = 'Submitting...';
             submitBtn.disabled = true;
 
-            // Simulate form submission (frontend only)
-            setTimeout(() => {
-                trainingForm.reset();
+            // Create FormData object
+            const formData = new FormData(trainingForm);
+            console.log('FormData created, submitting to /apply/training');
 
+            // Submit form via AJAX
+            fetch('/apply/training', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                                   document.querySelector('input[name="_token"]')?.value
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    showTrainingMessage(data.message, 'success');
+
+                    // Reset form
+                    trainingForm.reset();
+
+                    // Close form after delay
+                    setTimeout(() => {
+                        closeFormTraining();
+                    }, 3000);
+                } else {
+                    // Show error message
+                    showTrainingMessage(data.message || 'An error occurred while submitting your application.', 'error');
+
+                    // Handle validation errors
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            showFieldError(field, data.errors[field][0]);
+                        });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting training application:', error);
+                showTrainingMessage('An error occurred while submitting your application. Please try again.', 'error');
+            })
+            .finally(() => {
                 // Reset button state
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
-
-                // Close form and return to landing after success
-                setTimeout(() => {
-                    closeFormTraining();
-                }, 2000);
-            }, 1500);
+            });
         });
     }
 
@@ -276,6 +320,8 @@ function validateTrainingForm() {
     const form = document.getElementById('training-request-form');
     let isValid = true;
 
+    console.log('Starting form validation...');
+
     // Clear previous error messages
     clearTrainingErrors();
 
@@ -283,25 +329,32 @@ function validateTrainingForm() {
     const requiredFields = [
         { id: 'training_first_name', name: 'First Name' },
         { id: 'training_last_name', name: 'Last Name' },
-        { id: 'training_mobile_number', name: 'Mobile Number' },
+        { id: 'training_contact_number', name: 'Contact Number' },
         { id: 'training_email', name: 'Email Address' },
+        { id: 'training_barangay', name: 'Barangay' },
         { id: 'training_type', name: 'Training Program' }
     ];
 
     requiredFields.forEach(field => {
         const element = document.getElementById(field.id);
-        if (!element || !element.value.trim()) {
+        if (!element) {
+            console.warn(`Field with ID '${field.id}' not found`);
+            isValid = false;
+        } else if (!element.value.trim()) {
+            console.log(`Field '${field.name}' is empty`);
             showFieldError(field.id, `${field.name} is required`);
             isValid = false;
+        } else {
+            console.log(`Field '${field.name}' validated successfully`);
         }
     });
 
-    // Validate mobile number format
-    const mobileNumberElement = document.getElementById('training_mobile_number');
-    if (mobileNumberElement) {
-        const mobileNumber = mobileNumberElement.value.trim();
-        if (mobileNumber && !validateMobileNumber(mobileNumber)) {
-            showFieldError('training_mobile_number', 'Please enter a valid 11-digit mobile number');
+    // Validate contact number format
+    const contactNumberElement = document.getElementById('training_contact_number');
+    if (contactNumberElement) {
+        const contactNumber = contactNumberElement.value.trim();
+        if (contactNumber && !validateMobileNumber(contactNumber)) {
+            showFieldError('training_contact_number', 'Please enter a valid 11-digit contact number');
             isValid = false;
         }
     }
@@ -324,6 +377,7 @@ function validateTrainingForm() {
         }
     }
 
+    console.log('Form validation result:', isValid);
     return isValid;
 }
 
@@ -365,7 +419,7 @@ function showFieldError(fieldId, message) {
     const field = document.getElementById(fieldId);
     if (!field) return;
 
-    const formGroup = field.closest('.form-group');
+    const formGroup = field.closest('.training-form-group');
     if (!formGroup) return;
 
     // Remove existing error
@@ -390,17 +444,52 @@ function showFieldError(fieldId, message) {
 
 function clearTrainingErrors() {
     // Clear all error messages
-    const errorTexts = document.querySelectorAll('#training-form .error-text');
+    const errorTexts = document.querySelectorAll('#training-request-form .error-text');
     errorTexts.forEach(error => error.remove());
 
     // Clear error styling
-    const errorFields = document.querySelectorAll('#training-form .error');
+    const errorFields = document.querySelectorAll('#training-request-form .error');
     errorFields.forEach(field => field.classList.remove('error'));
 
     // Hide message containers
     const messagesContainer = document.getElementById('training-messages');
     if (messagesContainer) {
         messagesContainer.style.display = 'none';
+    }
+}
+
+function showTrainingMessage(message, type = 'info') {
+    const messagesContainer = document.getElementById('training-messages');
+    const messageContent = document.getElementById('training-message-content');
+
+    if (!messagesContainer || !messageContent) {
+        console.warn('Training message containers not found');
+        return;
+    }
+
+    // Clear existing classes
+    messagesContainer.className = 'training-messages';
+
+    // Add type-specific class
+    if (type === 'success') {
+        messagesContainer.classList.add('training-alert-success');
+    } else if (type === 'error') {
+        messagesContainer.classList.add('training-alert-danger');
+    } else {
+        messagesContainer.classList.add('training-alert-info');
+    }
+
+    // Set message content
+    messageContent.textContent = message;
+
+    // Show the message
+    messagesContainer.style.display = 'block';
+
+    // Auto-hide after 5 seconds for success messages
+    if (type === 'success') {
+        setTimeout(() => {
+            messagesContainer.style.display = 'none';
+        }, 5000);
     }
 }
 

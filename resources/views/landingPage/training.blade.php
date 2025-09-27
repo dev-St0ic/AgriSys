@@ -5,6 +5,11 @@
         <p>Apply for agricultural training programs offered by the City Agriculture Office of San Pedro.</p>
     </div>
 
+    <!-- Message container for success/error messages -->
+    <div id="training-messages" class="training-messages" style="display: none;">
+        <div id="training-message-content" class="training-message-content"></div>
+    </div>
+
     <div class="training-form-tabs">
         <button class="training-tab-btn active" onclick="showTrainingTab('training-form-tab', event)">Application
             Form</button>
@@ -14,7 +19,8 @@
     </div>
 
     <div class="training-tab-content" id="training-form-tab" style="display: block;">
-        <form id="training-request-form" enctype="multipart/form-data">
+        <form id="training-request-form" action="{{ route('apply.training') }}" method="POST"
+            enctype="multipart/form-data">
             @csrf
 
             <div class="training-form-group">
@@ -93,7 +99,8 @@
 
             <div class="training-form-group">
                 <label for="training_documents">Supporting Documents (PDF, JPG, PNG - Max 5MB each)</label>
-                <input type="file" id="training_documents" name="documents[]" multiple accept=".pdf,.jpg,.jpeg,.png">
+                <input type="file" id="training_documents" name="documents[]" multiple
+                    accept=".pdf,.jpg,.jpeg,.png">
                 <small>Please upload relevant documents such as ID, certificates, or other supporting files.</small>
             </div>
 
