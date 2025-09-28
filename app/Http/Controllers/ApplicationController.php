@@ -156,7 +156,7 @@ class ApplicationController extends Controller
     }
 
     /**
-     * Submit a new seedling request
+     * Submit a new seedling request - Updated for 6 categories
      */
     public function submitSeedlings(Request $request)
     {
@@ -206,7 +206,7 @@ class ApplicationController extends Controller
             // Generate unique request number
             $requestNumber = $this->generateUniqueRequestNumber();
 
-            // Create the seedling request
+            // Create the seedling request - Updated for all 6 categories
             $seedlingRequest = SeedlingRequest::create([
                 'request_number' => $requestNumber,
                 'first_name' => $validated['first_name'],
@@ -217,8 +217,13 @@ class ApplicationController extends Controller
                 'address' => $validated['address'],
                 'barangay' => $validated['barangay'],
                 'seedling_type' => $this->formatSeedlingTypes($selectedSeedlings),
-                'vegetables' => $selectedSeedlings['vegetables'] ?? [],
+                // All 6 categories
+                'seeds' => $selectedSeedlings['seeds'] ?? [],
+                'seedlings' => $selectedSeedlings['seedlings'] ?? [],
+                'vegetables' => $selectedSeedlings['vegetables'] ?? [], // Legacy support
                 'fruits' => $selectedSeedlings['fruits'] ?? [],
+                'ornamentals' => $selectedSeedlings['ornamentals'] ?? [],
+                'fingerlings' => $selectedSeedlings['fingerlings'] ?? [],
                 'fertilizers' => $selectedSeedlings['fertilizers'] ?? [],
                 'requested_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
                 'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
@@ -841,22 +846,49 @@ public function submitRsbsa(Request $request)
     }
 
     /**
-     * Format seedling types for display
+     * Format seedling types for display - Updated for all 6 categories
      */
     private function formatSeedlingTypes($selectedSeedlings): string
     {
         $types = [];
 
+        // Seeds
+        if (!empty($selectedSeedlings['seeds'])) {
+            $seedNames = collect($selectedSeedlings['seeds'])->pluck('name')->toArray();
+            $types[] = 'Seeds: ' . implode(', ', $seedNames);
+        }
+
+        // Seedlings (new category)
+        if (!empty($selectedSeedlings['seedlings'])) {
+            $seedlingNames = collect($selectedSeedlings['seedlings'])->pluck('name')->toArray();
+            $types[] = 'Seedlings: ' . implode(', ', $seedlingNames);
+        }
+
+        // Vegetables (legacy support)
         if (!empty($selectedSeedlings['vegetables'])) {
             $vegNames = collect($selectedSeedlings['vegetables'])->pluck('name')->toArray();
             $types[] = 'Vegetables: ' . implode(', ', $vegNames);
         }
 
+        // Fruits
         if (!empty($selectedSeedlings['fruits'])) {
             $fruitNames = collect($selectedSeedlings['fruits'])->pluck('name')->toArray();
             $types[] = 'Fruits: ' . implode(', ', $fruitNames);
         }
 
+        // Ornamentals
+        if (!empty($selectedSeedlings['ornamentals'])) {
+            $ornamentalNames = collect($selectedSeedlings['ornamentals'])->pluck('name')->toArray();
+            $types[] = 'Ornamentals: ' . implode(', ', $ornamentalNames);
+        }
+
+        // Fingerlings
+        if (!empty($selectedSeedlings['fingerlings'])) {
+            $fingerlingNames = collect($selectedSeedlings['fingerlings'])->pluck('name')->toArray();
+            $types[] = 'Fingerlings: ' . implode(', ', $fingerlingNames);
+        }
+
+        // Fertilizers
         if (!empty($selectedSeedlings['fertilizers'])) {
             $fertNames = collect($selectedSeedlings['fertilizers'])->pluck('name')->toArray();
             $types[] = 'Fertilizers: ' . implode(', ', $fertNames);

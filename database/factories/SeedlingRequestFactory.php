@@ -12,49 +12,59 @@ use Illuminate\Support\Str;
  */
 class SeedlingRequestFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = SeedlingRequest::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
-        // Updated to match current inventory items from FormBasedInventorySeeder
-        $vegetables = [
-            ['name' => 'Sampaguita', 'quantity' => $this->faker->numberBetween(1, 20)],
-            ['name' => 'Siling Haba', 'quantity' => $this->faker->numberBetween(1, 15)],
-            ['name' => 'Siling Labuyo', 'quantity' => $this->faker->numberBetween(1, 12)],
-            ['name' => 'Eggplant', 'quantity' => $this->faker->numberBetween(1, 18)],
-            ['name' => 'Kamatis', 'quantity' => $this->faker->numberBetween(1, 25)],
-            ['name' => 'Okra', 'quantity' => $this->faker->numberBetween(1, 15)],
-            ['name' => 'Kalabasa', 'quantity' => $this->faker->numberBetween(1, 12)],
-            ['name' => 'Upo', 'quantity' => $this->faker->numberBetween(1, 10)],
-            ['name' => 'Pipino', 'quantity' => $this->faker->numberBetween(1, 16)],
-            ['name' => 'Kangkong', 'quantity' => $this->faker->numberBetween(1, 30)], // Added for variety
+        // 6 Categories based on your HTML form
+        $seeds = [
+            ['name' => 'Emerald Bitter Gourd Seeds', 'quantity' => $this->faker->numberBetween(1, 10)],
+            ['name' => 'Golden Harvest Rice Seeds', 'quantity' => $this->faker->numberBetween(1, 15)],
+            ['name' => 'Green Gem String Bean Seeds', 'quantity' => $this->faker->numberBetween(1, 12)],
+            ['name' => 'Okra Seeds', 'quantity' => $this->faker->numberBetween(1, 8)],
+            ['name' => 'Pioneer Hybrid Corn Seeds', 'quantity' => $this->faker->numberBetween(1, 10)],
+            ['name' => 'Red Ruby Tomato Seeds', 'quantity' => $this->faker->numberBetween(1, 15)],
+            ['name' => 'Sunshine Carrot Seeds', 'quantity' => $this->faker->numberBetween(1, 20)],
+            ['name' => 'Yellow Pearl Squash Seeds', 'quantity' => $this->faker->numberBetween(1, 8)],
+        ];
+
+        $seedlings = [
+            ['name' => 'Avocado Seedling', 'quantity' => $this->faker->numberBetween(1, 5)],
+            ['name' => 'Calamansi Seedling', 'quantity' => $this->faker->numberBetween(1, 8)],
+            ['name' => 'Guava Seedling', 'quantity' => $this->faker->numberBetween(1, 6)],
+            ['name' => 'Guyabano Seedling', 'quantity' => $this->faker->numberBetween(1, 4)],
+            ['name' => 'Mango Seedling', 'quantity' => $this->faker->numberBetween(1, 3)],
+            ['name' => 'Papaya Seedling', 'quantity' => $this->faker->numberBetween(1, 5)],
+            ['name' => 'Santol Seedling', 'quantity' => $this->faker->numberBetween(1, 4)],
         ];
 
         $fruits = [
-            ['name' => 'Kalamansi', 'quantity' => $this->faker->numberBetween(1, 8)],
-            ['name' => 'Avocado', 'quantity' => $this->faker->numberBetween(1, 3)],
-            ['name' => 'Papaya', 'quantity' => $this->faker->numberBetween(1, 4)],
-            ['name' => 'Guava', 'quantity' => $this->faker->numberBetween(1, 5)],
-            ['name' => 'Guyabano', 'quantity' => $this->faker->numberBetween(1, 4)],
-            ['name' => 'Lanzones', 'quantity' => $this->faker->numberBetween(1, 5)],
-            ['name' => 'Mangga', 'quantity' => $this->faker->numberBetween(1, 6)],
-            ['name' => 'Rambutan', 'quantity' => $this->faker->numberBetween(1, 4)], // Added for variety
+            ['name' => 'Dwarf Coconut Tree', 'quantity' => $this->faker->numberBetween(1, 3)],
+            ['name' => 'Lakatan Banana Tree', 'quantity' => $this->faker->numberBetween(1, 4)],
+            ['name' => 'Rambutan Tree', 'quantity' => $this->faker->numberBetween(1, 2)],
+            ['name' => 'Star Apple Tree', 'quantity' => $this->faker->numberBetween(1, 3)],
+        ];
+
+        $ornamentals = [
+            ['name' => 'Anthurium', 'quantity' => $this->faker->numberBetween(1, 10)],
+            ['name' => 'Bougainvillea', 'quantity' => $this->faker->numberBetween(1, 8)],
+            ['name' => 'Fortune Plant', 'quantity' => $this->faker->numberBetween(1, 12)],
+            ['name' => 'Gumamela (Hibiscus)', 'quantity' => $this->faker->numberBetween(1, 6)],
+            ['name' => 'Sansevieria (Snake Plant)', 'quantity' => $this->faker->numberBetween(1, 15)],
+        ];
+
+        $fingerlings = [
+            ['name' => 'Catfish Fingerling', 'quantity' => $this->faker->numberBetween(50, 200)],
+            ['name' => 'Milkfish (Bangus) Fingerling', 'quantity' => $this->faker->numberBetween(100, 300)],
+            ['name' => 'Tilapia Fingerlings', 'quantity' => $this->faker->numberBetween(100, 500)],
         ];
 
         $fertilizers = [
-            ['name' => 'Pre-processed Chicken Manure', 'quantity' => $this->faker->numberBetween(1, 8)],
-            ['name' => 'Humic Acid', 'quantity' => $this->faker->numberBetween(1, 5)],
-            ['name' => 'Vermicast', 'quantity' => $this->faker->numberBetween(1, 12)],
+            ['name' => 'Ammonium Sulfate (21-0-0)', 'quantity' => $this->faker->numberBetween(1, 5)],
+            ['name' => 'Humic Acid', 'quantity' => $this->faker->numberBetween(1, 8)],
+            ['name' => 'Pre-processed Chicken Manure', 'quantity' => $this->faker->numberBetween(1, 10)],
+            ['name' => 'Urea (46-0-0)', 'quantity' => $this->faker->numberBetween(1, 6)],
+            ['name' => 'Vermicast Fertilizer', 'quantity' => $this->faker->numberBetween(1, 12)],
         ];
 
         $barangays = [
@@ -66,29 +76,33 @@ class SeedlingRequestFactory extends Factory
             'United Bayanihan', 'United Better Living'
         ];
 
-        // Randomly select some items
-        $selectedVegetables = $this->faker->randomElements($vegetables, $this->faker->numberBetween(0, 3));
+        // Randomly select items
+        $selectedSeeds = $this->faker->randomElements($seeds, $this->faker->numberBetween(0, 3));
+        $selectedSeedlings = $this->faker->randomElements($seedlings, $this->faker->numberBetween(0, 3));
         $selectedFruits = $this->faker->randomElements($fruits, $this->faker->numberBetween(0, 2));
+        $selectedOrnamentals = $this->faker->randomElements($ornamentals, $this->faker->numberBetween(0, 2));
+        $selectedFingerlings = $this->faker->randomElements($fingerlings, $this->faker->numberBetween(0, 1));
         $selectedFertilizers = $this->faker->randomElements($fertilizers, $this->faker->numberBetween(0, 2));
 
-        // Calculate total quantity
-        $totalQuantity = collect($selectedVegetables)->sum('quantity') +
+        // Calculate total
+        $totalQuantity = collect($selectedSeeds)->sum('quantity') +
+                        collect($selectedSeedlings)->sum('quantity') +
                         collect($selectedFruits)->sum('quantity') +
+                        collect($selectedOrnamentals)->sum('quantity') +
+                        collect($selectedFingerlings)->sum('quantity') +
                         collect($selectedFertilizers)->sum('quantity');
 
         $firstName = $this->faker->firstName;
         $lastName = $this->faker->lastName;
 
-        // Generate status for categories
+        // Generate statuses
         $statuses = ['approved', 'rejected', 'under_review', 'partially_approved'];
-        $vegetablesStatus = !empty($selectedVegetables) ? $this->faker->randomElement($statuses) : null;
+        $seedsStatus = !empty($selectedSeeds) ? $this->faker->randomElement($statuses) : null;
+        $seedlingsStatus = !empty($selectedSeedlings) ? $this->faker->randomElement($statuses) : null;
         $fruitsStatus = !empty($selectedFruits) ? $this->faker->randomElement($statuses) : null;
+        $ornamentalsStatus = !empty($selectedOrnamentals) ? $this->faker->randomElement($statuses) : null;
+        $fingerlingsStatus = !empty($selectedFingerlings) ? $this->faker->randomElement($statuses) : null;
         $fertilizersStatus = !empty($selectedFertilizers) ? $this->faker->randomElement($statuses) : null;
-
-        // Generate approved items for approved categories
-        $vegetablesApprovedItems = $vegetablesStatus === 'approved' ? $selectedVegetables : null;
-        $fruitsApprovedItems = $fruitsStatus === 'approved' ? $selectedFruits : null;
-        $fertilizersApprovedItems = $fertilizersStatus === 'approved' ? $selectedFertilizers : null;
 
         return [
             'request_number' => 'SEED-' . strtoupper(Str::random(8)),
@@ -102,17 +116,21 @@ class SeedlingRequestFactory extends Factory
             'barangay' => $this->faker->randomElement($barangays),
             'planting_location' => $this->faker->optional(0.8)->address,
             'purpose' => $this->faker->optional(0.9)->randomElement([
-                'Backyard gardening',
-                'Community garden project',
-                'School garden',
-                'Livelihood project',
-                'Food security',
-                'Educational purposes'
+                'Backyard gardening', 'Community garden project', 'School garden',
+                'Livelihood project', 'Food security', 'Educational purposes',
+                'Urban farming', 'Aquaponics project', 'Landscape beautification', 'Fish farming'
             ]),
-            'seedling_type' => $this->formatSeedlingTypes($selectedVegetables, $selectedFruits, $selectedFertilizers),
-            'vegetables' => $selectedVegetables,
+            'seedling_type' => $this->formatSeedlingTypes($selectedSeeds, $selectedSeedlings, $selectedFruits, $selectedOrnamentals, $selectedFingerlings, $selectedFertilizers),
+            
+            // 6 Categories
+            'seeds' => $selectedSeeds,
+            'seedlings' => $selectedSeedlings,
             'fruits' => $selectedFruits,
+            'ornamentals' => $selectedOrnamentals,
+            'fingerlings' => $selectedFingerlings,
             'fertilizers' => $selectedFertilizers,
+            'vegetables' => $selectedSeedlings, // Legacy mapping
+            
             'requested_quantity' => $totalQuantity,
             'total_quantity' => $totalQuantity,
             'preferred_delivery_date' => $this->faker->optional(0.8)->dateTimeBetween('now', '+30 days'),
@@ -120,16 +138,24 @@ class SeedlingRequestFactory extends Factory
 
             // Status fields
             'status' => $this->faker->randomElement(['approved', 'rejected', 'under_review', 'partially_approved']),
-            'vegetables_status' => $vegetablesStatus,
+            'seeds_status' => $seedsStatus,
+            'seedlings_status' => $seedlingsStatus,
             'fruits_status' => $fruitsStatus,
+            'ornamentals_status' => $ornamentalsStatus,
+            'fingerlings_status' => $fingerlingsStatus,
             'fertilizers_status' => $fertilizersStatus,
+            'vegetables_status' => $seedlingsStatus, // Legacy
 
             // Approved items
-            'vegetables_approved_items' => $vegetablesApprovedItems,
-            'fruits_approved_items' => $fruitsApprovedItems,
-            'fertilizers_approved_items' => $fertilizersApprovedItems,
+            'seeds_approved_items' => $seedsStatus === 'approved' ? $selectedSeeds : null,
+            'seedlings_approved_items' => $seedlingsStatus === 'approved' ? $selectedSeedlings : null,
+            'fruits_approved_items' => $fruitsStatus === 'approved' ? $selectedFruits : null,
+            'ornamentals_approved_items' => $ornamentalsStatus === 'approved' ? $selectedOrnamentals : null,
+            'fingerlings_approved_items' => $fingerlingsStatus === 'approved' ? $selectedFingerlings : null,
+            'fertilizers_approved_items' => $fertilizersStatus === 'approved' ? $selectedFertilizers : null,
+            'vegetables_approved_items' => $seedlingsStatus === 'approved' ? $selectedSeedlings : null, // Legacy
 
-            // Review information
+            // Review info
             'reviewed_by' => $this->faker->optional(0.6)->randomElement(User::pluck('id')->toArray() ?: [1]),
             'reviewed_at' => $this->faker->optional(0.6)->dateTimeBetween('-30 days', 'now'),
             'remarks' => $this->faker->optional(0.4)->sentence(10),
@@ -139,45 +165,31 @@ class SeedlingRequestFactory extends Factory
         ];
     }
 
-    /**
-     * Format seedling types for display
-     */
-    private function formatSeedlingTypes($vegetables, $fruits, $fertilizers): string
+    private function formatSeedlingTypes($seeds, $seedlings, $fruits, $ornamentals, $fingerlings, $fertilizers): string
     {
         $types = [];
-
-        if (!empty($vegetables)) {
-            $vegNames = collect($vegetables)->pluck('name')->toArray();
-            $types[] = 'Vegetables: ' . implode(', ', $vegNames);
-        }
-
-        if (!empty($fruits)) {
-            $fruitNames = collect($fruits)->pluck('name')->toArray();
-            $types[] = 'Fruits: ' . implode(', ', $fruitNames);
-        }
-
-        if (!empty($fertilizers)) {
-            $fertNames = collect($fertilizers)->pluck('name')->toArray();
-            $types[] = 'Fertilizers: ' . implode(', ', $fertNames);
-        }
-
+        if (!empty($seeds)) $types[] = 'Seeds: ' . collect($seeds)->pluck('name')->implode(', ');
+        if (!empty($seedlings)) $types[] = 'Seedlings: ' . collect($seedlings)->pluck('name')->implode(', ');
+        if (!empty($fruits)) $types[] = 'Fruit Trees: ' . collect($fruits)->pluck('name')->implode(', ');
+        if (!empty($ornamentals)) $types[] = 'Ornamentals: ' . collect($ornamentals)->pluck('name')->implode(', ');
+        if (!empty($fingerlings)) $types[] = 'Fingerlings: ' . collect($fingerlings)->pluck('name')->implode(', ');
+        if (!empty($fertilizers)) $types[] = 'Fertilizers: ' . collect($fertilizers)->pluck('name')->implode(', ');
         return implode(' | ', $types);
     }
 
-    /**
-     * Create a fully approved request
-     */
+    // Factory states
     public function approved(): static
     {
         return $this->state(function (array $attributes) {
             return [
                 'status' => 'approved',
-                'vegetables_status' => !empty($attributes['vegetables']) ? 'approved' : null,
+                'seeds_status' => !empty($attributes['seeds']) ? 'approved' : null,
+                'seedlings_status' => !empty($attributes['seedlings']) ? 'approved' : null,
                 'fruits_status' => !empty($attributes['fruits']) ? 'approved' : null,
+                'ornamentals_status' => !empty($attributes['ornamentals']) ? 'approved' : null,
+                'fingerlings_status' => !empty($attributes['fingerlings']) ? 'approved' : null,
                 'fertilizers_status' => !empty($attributes['fertilizers']) ? 'approved' : null,
-                'vegetables_approved_items' => $attributes['vegetables'] ?? null,
-                'fruits_approved_items' => $attributes['fruits'] ?? null,
-                'fertilizers_approved_items' => $attributes['fertilizers'] ?? null,
+                'vegetables_status' => !empty($attributes['seedlings']) ? 'approved' : null,
                 'approved_quantity' => $attributes['total_quantity'],
                 'approved_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
                 'reviewed_by' => User::inRandomOrder()->first()?->id ?? 1,
@@ -187,20 +199,18 @@ class SeedlingRequestFactory extends Factory
         });
     }
 
-    /**
-     * Create a rejected request
-     */
     public function rejected(): static
     {
         return $this->state(function (array $attributes) {
             return [
                 'status' => 'rejected',
-                'vegetables_status' => !empty($attributes['vegetables']) ? 'rejected' : null,
+                'seeds_status' => !empty($attributes['seeds']) ? 'rejected' : null,
+                'seedlings_status' => !empty($attributes['seedlings']) ? 'rejected' : null,
                 'fruits_status' => !empty($attributes['fruits']) ? 'rejected' : null,
+                'ornamentals_status' => !empty($attributes['ornamentals']) ? 'rejected' : null,
+                'fingerlings_status' => !empty($attributes['fingerlings']) ? 'rejected' : null,
                 'fertilizers_status' => !empty($attributes['fertilizers']) ? 'rejected' : null,
-                'vegetables_approved_items' => null,
-                'fruits_approved_items' => null,
-                'fertilizers_approved_items' => null,
+                'vegetables_status' => !empty($attributes['seedlings']) ? 'rejected' : null,
                 'rejected_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
                 'reviewed_by' => User::inRandomOrder()->first()?->id ?? 1,
                 'reviewed_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
@@ -216,22 +226,19 @@ class SeedlingRequestFactory extends Factory
         });
     }
 
-    /**
-     * Create a partially approved request
-     */
     public function partiallyApproved(): static
     {
         return $this->state(function (array $attributes) {
             $statuses = ['approved', 'rejected'];
-
             return [
                 'status' => 'partially_approved',
-                'vegetables_status' => !empty($attributes['vegetables']) ? $this->faker->randomElement($statuses) : null,
+                'seeds_status' => !empty($attributes['seeds']) ? $this->faker->randomElement($statuses) : null,
+                'seedlings_status' => !empty($attributes['seedlings']) ? $this->faker->randomElement($statuses) : null,
                 'fruits_status' => !empty($attributes['fruits']) ? $this->faker->randomElement($statuses) : null,
+                'ornamentals_status' => !empty($attributes['ornamentals']) ? $this->faker->randomElement($statuses) : null,
+                'fingerlings_status' => !empty($attributes['fingerlings']) ? $this->faker->randomElement($statuses) : null,
                 'fertilizers_status' => !empty($attributes['fertilizers']) ? $this->faker->randomElement($statuses) : null,
-                'vegetables_approved_items' => !empty($attributes['vegetables']) && $this->faker->boolean() ? $attributes['vegetables'] : null,
-                'fruits_approved_items' => !empty($attributes['fruits']) && $this->faker->boolean() ? $attributes['fruits'] : null,
-                'fertilizers_approved_items' => !empty($attributes['fertilizers']) && $this->faker->boolean() ? $attributes['fertilizers'] : null,
+                'vegetables_status' => !empty($attributes['seedlings']) ? $this->faker->randomElement($statuses) : null,
                 'reviewed_by' => User::inRandomOrder()->first()?->id ?? 1,
                 'reviewed_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
                 'remarks' => 'Some items approved, others rejected due to stock limitations.',
@@ -239,33 +246,26 @@ class SeedlingRequestFactory extends Factory
         });
     }
 
-    /**
-     * Create a pending/under review request
-     */
     public function pending(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'status' => 'under_review',
-                'vegetables_status' => null,
-                'fruits_status' => null,
-                'fertilizers_status' => null,
-                'vegetables_approved_items' => null,
-                'fruits_approved_items' => null,
-                'fertilizers_approved_items' => null,
-                'reviewed_by' => null,
-                'reviewed_at' => null,
-                'remarks' => null,
-            ];
-        });
+        return $this->state([
+            'status' => 'under_review',
+            'seeds_status' => null,
+            'seedlings_status' => null,
+            'fruits_status' => null,
+            'ornamentals_status' => null,
+            'fingerlings_status' => null,
+            'fertilizers_status' => null,
+            'vegetables_status' => null,
+            'reviewed_by' => null,
+            'reviewed_at' => null,
+            'remarks' => null,
+        ]);
     }
 
-    /**
-     * Create a large quantity request (100+ items)
-     */
     public function largeOrder(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state([
             'total_quantity' => $this->faker->numberBetween(100, 500),
             'requested_quantity' => $this->faker->numberBetween(100, 500),
             'document_path' => 'seedling_documents/' . $this->faker->uuid . '.pdf',
@@ -273,13 +273,70 @@ class SeedlingRequestFactory extends Factory
         ]);
     }
 
-    /**
-     * Create request with documents
-     */
     public function withDocuments(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state([
             'document_path' => 'seedling_documents/' . $this->faker->uuid . '.pdf',
+        ]);
+    }
+
+    public function seedsOnly(): static
+    {
+        $seeds = [
+            ['name' => 'Red Ruby Tomato Seeds', 'quantity' => 15],
+            ['name' => 'Green Gem String Bean Seeds', 'quantity' => 12],
+            ['name' => 'Sunshine Carrot Seeds', 'quantity' => 20],
+        ];
+
+        return $this->state([
+            'seeds' => $seeds,
+            'seedlings' => [],
+            'fruits' => [],
+            'ornamentals' => [],
+            'fingerlings' => [],
+            'fertilizers' => [],
+            'vegetables' => [],
+            'total_quantity' => collect($seeds)->sum('quantity'),
+            'requested_quantity' => collect($seeds)->sum('quantity'),
+        ]);
+    }
+
+    public function fingerlingsOnly(): static
+    {
+        $fingerlings = [['name' => 'Tilapia Fingerlings', 'quantity' => 300]];
+        return $this->state([
+            'seeds' => [],
+            'seedlings' => [],
+            'fruits' => [],
+            'ornamentals' => [],
+            'fingerlings' => $fingerlings,
+            'fertilizers' => [],
+            'vegetables' => [],
+            'total_quantity' => 300,
+            'requested_quantity' => 300,
+            'purpose' => 'Fish farming project',
+        ]);
+    }
+
+    public function ornamentalsOnly(): static
+    {
+        $ornamentals = [
+            ['name' => 'Bougainvillea', 'quantity' => 8],
+            ['name' => 'Anthurium', 'quantity' => 10],
+            ['name' => 'Gumamela (Hibiscus)', 'quantity' => 6],
+        ];
+
+        return $this->state([
+            'seeds' => [],
+            'seedlings' => [],
+            'fruits' => [],
+            'ornamentals' => $ornamentals,
+            'fingerlings' => [],
+            'fertilizers' => [],
+            'vegetables' => [],
+            'total_quantity' => collect($ornamentals)->sum('quantity'),
+            'requested_quantity' => collect($ornamentals)->sum('quantity'),
+            'purpose' => 'Landscape beautification',
         ]);
     }
 }
