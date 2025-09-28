@@ -147,6 +147,7 @@ header {
     background-color: transparent;
     color: #2d6a4f;
     border: 2px solid #2d6a4f;
+    box-shadow: 0 0 0 1px #cde0d8;
 }
 
 .btn-signup:hover {
@@ -417,7 +418,7 @@ header {
 .services-grid {
     max-width: 1400px;
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     margin: 0 auto;
     gap: 40px;
     align-items: center;

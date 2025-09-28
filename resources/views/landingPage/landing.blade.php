@@ -104,7 +104,8 @@
                         </div>
                     </div>
                 @else
-                    <!-- Login Button (for guests) -->
+                    <!-- Login and Sign Up Button (for guests) -->
+                     <button type="button" class="btn btn-signup" onclick="openAuthModal('signup')">Sign Up</button>
                     <button type="button" class="btn btn-login" onclick="openAuthModal('login')">Log in</button>
                 @endif
             </div>
