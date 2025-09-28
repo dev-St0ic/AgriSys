@@ -204,7 +204,7 @@
                                     @php
                                         $categoryFilter = request('category');
                                         $showSeeds = !$categoryFilter || $categoryFilter == 'seeds';
-                                        $showSeedlings = !$categoryFilter || $categoryFilter == 'seedlings' || $categoryFilter == 'vegetables';
+                                        $showSeedlings = !$categoryFilter || $categoryFilter == 'seedlings'; 
                                         $showFruits = !$categoryFilter || $categoryFilter == 'fruits';
                                         $showOrnamentals = !$categoryFilter || $categoryFilter == 'ornamentals';
                                         $showFingerlings = !$categoryFilter || $categoryFilter == 'fingerlings';
@@ -253,10 +253,11 @@
 
                                         @php
                                             $renderCategoryColumn = function($categoryName, $categoryField) use ($request) {
-                                                $items = $request->{$categoryField} ?? [];
+                                                // Use the model's safe method to get items
+                                                $items = $request->getCategoryItems($categoryField);
                                                 $status = $request->{$categoryField . '_status'} ?? 'under_review';
-                                                $approvedItems = $request->{$categoryField . '_approved_items'} ?? [];
-                                                $rejectedItems = $request->{$categoryField . '_rejected_items'} ?? [];
+                                                $approvedItems = $request->getCategoryItems($categoryField . '_approved_items');
+                                                $rejectedItems = $request->getCategoryItems($categoryField . '_rejected_items');
 
                                                 if (empty($items)) {
                                                     return '<span class="text-muted">No Request</span>';
@@ -270,7 +271,7 @@
                                                     $html .= '<div class="mb-1"><span class="text-success fw-medium">✓ Approved:</span></div>';
                                                     $html .= '<div class="d-flex flex-wrap gap-1">';
                                                     foreach ($approvedItems as $item) {
-                                                        $itemName = is_array($item) ? $item['name'] : $item;
+                                                        $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
                                                         $itemQty = is_array($item) && isset($item['quantity']) ? " ({$item['quantity']} pcs)" : '';
                                                         $html .= '<span class="badge bg-success text-white fw-normal fs-6">';
                                                         $html .= '<i class="fas fa-check-circle me-1"></i>' . $itemName . $itemQty;
@@ -285,7 +286,7 @@
                                                     $html .= '<div class="mb-1"><span class="text-danger fw-medium">✗ Rejected:</span></div>';
                                                     $html .= '<div class="d-flex flex-wrap gap-1">';
                                                     foreach ($rejectedItems as $item) {
-                                                        $itemName = is_array($item) ? $item['name'] : $item;
+                                                        $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
                                                         $itemQty = is_array($item) && isset($item['quantity']) ? " ({$item['quantity']} pcs)" : '';
                                                         $html .= '<span class="badge bg-danger text-white fw-normal fs-6">';
                                                         $html .= '<i class="fas fa-times-circle me-1"></i>' . $itemName . $itemQty;
@@ -296,12 +297,12 @@
 
                                                 // Pending items
                                                 $pendingItems = collect($items)->filter(function ($item) use ($approvedItems, $rejectedItems) {
-                                                    $itemName = is_array($item) ? $item['name'] : $item;
+                                                    $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
                                                     $isApproved = collect($approvedItems)->contains(function ($approvedItem) use ($itemName) {
-                                                        return (is_array($approvedItem) ? $approvedItem['name'] : $approvedItem) === $itemName;
+                                                        return (is_array($approvedItem) ? ($approvedItem['name'] ?? '') : (string)$approvedItem) === $itemName;
                                                     });
                                                     $isRejected = collect($rejectedItems)->contains(function ($rejectedItem) use ($itemName) {
-                                                        return (is_array($rejectedItem) ? $rejectedItem['name'] : $rejectedItem) === $itemName;
+                                                        return (is_array($rejectedItem) ? ($rejectedItem['name'] ?? '') : (string)$rejectedItem) === $itemName;
                                                     });
                                                     return !$isApproved && !$isRejected;
                                                 });
@@ -311,7 +312,7 @@
                                                     $html .= '<div class="mb-1"><span class="text-warning fw-medium">⏳ Pending:</span></div>';
                                                     $html .= '<div class="d-flex flex-wrap gap-1">';
                                                     foreach ($pendingItems as $item) {
-                                                        $itemName = is_array($item) ? $item['name'] : $item;
+                                                        $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
                                                         $itemQty = is_array($item) && isset($item['quantity']) ? " ({$item['quantity']} pcs)" : '';
                                                         $html .= '<span class="badge bg-warning text-white fw-normal fs-6">';
                                                         $html .= '<i class="fas fa-clock me-1"></i>' . $itemName . $itemQty;
@@ -333,14 +334,7 @@
 
                                         @if($showSeedlings)
                                             <td class="px-3 py-3 border-end">
-                                                @php
-                                                    // Handle both new seedlings field and legacy vegetables field
-                                                    $seedlingItems = $request->seedlings ?? $request->vegetables ?? [];
-                                                    $seedlingStatus = $request->seedlings_status ?? $request->vegetables_status ?? 'under_review';
-                                                    $seedlingApproved = $request->seedlings_approved_items ?? $request->vegetables_approved_items ?? [];
-                                                    $seedlingRejected = $request->seedlings_rejected_items ?? $request->vegetables_rejected_items ?? [];
-                                                @endphp
-                                                {!! $renderCategoryColumn('Seedlings', !empty($request->seedlings) ? 'seedlings' : 'vegetables') !!}
+                                                {!! $renderCategoryColumn('Seedlings', 'seedlings') !!}
                                             </td>
                                         @endif
 
@@ -454,7 +448,6 @@
                                                         $viewModalCategories = [
                                                             'seeds' => ['🌾 Seeds', 'seeds'],
                                                             'seedlings' => ['🌱 Seedlings', 'seedlings'],
-                                                            'vegetables' => ['🌱 Vegetables (Legacy)', 'vegetables'],
                                                             'fruits' => ['🍎 Fruits', 'fruits'],
                                                             'ornamentals' => ['🌺 Ornamentals', 'ornamentals'],
                                                             'fingerlings' => ['🐟 Fingerlings', 'fingerlings'],
@@ -463,7 +456,7 @@
                                                     @endphp
 
                                                     @foreach($viewModalCategories as $categoryKey => [$categoryLabel, $categoryField])
-                                                        @if(!empty($request->{$categoryField}) && count($request->{$categoryField}) > 0)
+                                                        @if($request->hasItemsInCategory($categoryField))
                                                             @php
                                                                 $categoryStatus = $request->{$categoryField . '_status'} ?? 'under_review';
                                                                 try {
@@ -546,7 +539,6 @@
                                                             $updateModalCategories = [
                                                                 'seeds' => ['🌾 Seeds', 'success', 'fas fa-seedling'],
                                                                 'seedlings' => ['🌱 Seedlings', 'success', 'fas fa-leaf'],
-                                                                'vegetables' => ['🌱 Vegetables (Legacy)', 'success', 'fas fa-leaf'],
                                                                 'fruits' => ['🍎 Fruits', 'info', 'fas fa-apple-alt'],
                                                                 'ornamentals' => ['🌺 Ornamentals', 'primary', 'fas fa-flower'],
                                                                 'fingerlings' => ['🐟 Fingerlings', 'warning', 'fas fa-fish'],
@@ -555,7 +547,7 @@
                                                         @endphp
 
                                                         @foreach($updateModalCategories as $categoryKey => [$categoryLabel, $categoryColor, $categoryIcon])
-                                                            @if(!empty($request->{$categoryKey}) && count($request->{$categoryKey}) > 0)
+                                                            @if($request->hasItemsInCategory($categoryKey))
                                                                 @php
                                                                     try {
                                                                         $categoryCheck = $request->checkCategoryInventoryAvailability($categoryKey);
@@ -584,80 +576,87 @@
                                                                     <input type="hidden" name="categories[]" value="{{ $categoryKey }}">
 
                                                                     <!-- Individual Item Controls -->
-                                                                    @foreach ($request->{$categoryKey} as $index => $item)
-                                                                        @php
-                                                                            $itemName = is_array($item) ? $item['name'] : $item;
-                                                                            $itemQuantity = is_array($item) ? $item['quantity'] ?? 1 : 1;
+                                                                    @php
+                                                                        // Get items safely using the model method
+                                                                        $categoryItems = $request->getCategoryItems($categoryKey);
+                                                                    @endphp
+                                                                    
+                                                                    @if(!empty($categoryItems) && is_array($categoryItems))
+                                                                        @foreach ($categoryItems as $index => $item)
+                                                                            @php
+                                                                                $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+                                                                                $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
 
-                                                                            // Check if item is approved/rejected
-                                                                            $approvedItems = $request->{$categoryKey . '_approved_items'} ?? [];
-                                                                            $rejectedItems = $request->{$categoryKey . '_rejected_items'} ?? [];
+                                                                                // Check if item is approved/rejected
+                                                                                $approvedItems = $request->getCategoryItems($categoryKey . '_approved_items');
+                                                                                $rejectedItems = $request->getCategoryItems($categoryKey . '_rejected_items');
 
-                                                                            $isApproved = collect($approvedItems)->contains(function ($approvedItem) use ($itemName) {
-                                                                                return (is_array($approvedItem) ? $approvedItem['name'] : $approvedItem) === $itemName;
-                                                                            });
+                                                                                $isApproved = collect($approvedItems)->contains(function ($approvedItem) use ($itemName) {
+                                                                                    return (is_array($approvedItem) ? ($approvedItem['name'] ?? '') : (string)$approvedItem) === $itemName;
+                                                                                });
 
-                                                                            $isRejected = collect($rejectedItems)->contains(function ($rejectedItem) use ($itemName) {
-                                                                                return (is_array($rejectedItem) ? $rejectedItem['name'] : $rejectedItem) === $itemName;
-                                                                            });
+                                                                                $isRejected = collect($rejectedItems)->contains(function ($rejectedItem) use ($itemName) {
+                                                                                    return (is_array($rejectedItem) ? ($rejectedItem['name'] ?? '') : (string)$rejectedItem) === $itemName;
+                                                                                });
 
-                                                                            $currentStatus = $isApproved ? 'approved' : ($isRejected ? 'rejected' : 'pending');
+                                                                                $currentStatus = $isApproved ? 'approved' : ($isRejected ? 'rejected' : 'pending');
 
-                                                                            // Check stock availability for this specific item
-                                                                            $hasStock = collect($categoryCheck['unavailable_items'])->doesntContain('name', $itemName);
+                                                                                // Check stock availability for this specific item
+                                                                                $hasStock = collect($categoryCheck['unavailable_items'])->doesntContain('name', $itemName);
 
-                                                                            // Get available stock for this item
-                                                                            $availableStock = 0;
-                                                                            $allItems = array_merge($categoryCheck['available_items'] ?? [], $categoryCheck['unavailable_items'] ?? []);
-                                                                            foreach ($allItems as $stockItem) {
-                                                                                if ($stockItem['name'] === $itemName) {
-                                                                                    $availableStock = $stockItem['available'];
-                                                                                    break;
+                                                                                // Get available stock for this item
+                                                                                $availableStock = 0;
+                                                                                $allItems = array_merge($categoryCheck['available_items'] ?? [], $categoryCheck['unavailable_items'] ?? []);
+                                                                                foreach ($allItems as $stockItem) {
+                                                                                    if ($stockItem['name'] === $itemName) {
+                                                                                        $availableStock = $stockItem['available'];
+                                                                                        break;
+                                                                                    }
                                                                                 }
-                                                                            }
-                                                                        @endphp
+                                                                            @endphp
 
-                                                                        <div class="item-card d-flex align-items-center justify-content-between mb-3 p-3 {{ $currentStatus === 'approved' ? 'bg-success bg-opacity-10 border border-success' : ($currentStatus === 'rejected' ? 'bg-danger bg-opacity-10 border border-danger' : 'bg-white border') }} rounded-3 shadow-sm">
-                                                                            <div class="flex-grow-1">
-                                                                                <div class="d-flex align-items-center mb-2">
-                                                                                    <span class="fw-medium text-dark">{{ $itemName }}</span>
-                                                                                    <span class="badge badge-icon bg-light text-muted ms-2">{{ $itemQuantity }} pcs</span>
+                                                                            <div class="item-card d-flex align-items-center justify-content-between mb-3 p-3 {{ $currentStatus === 'approved' ? 'bg-success bg-opacity-10 border border-success' : ($currentStatus === 'rejected' ? 'bg-danger bg-opacity-10 border border-danger' : 'bg-white border') }} rounded-3 shadow-sm">
+                                                                                <div class="flex-grow-1">
+                                                                                    <div class="d-flex align-items-center mb-2">
+                                                                                        <span class="fw-medium text-dark">{{ $itemName }}</span>
+                                                                                        <span class="badge badge-icon bg-light text-muted ms-2">{{ $itemQuantity }} pcs</span>
+                                                                                    </div>
+                                                                                    <div class="d-flex align-items-center gap-2">
+                                                                                        <small class="text-muted">Requested:</small>
+                                                                                        <small class="fw-medium">{{ $itemQuantity }} pcs</small>
+                                                                                        <span class="text-muted">•</span>
+                                                                                        <small class="stock-{{ $availableStock >= $itemQuantity ? 'sufficient' : 'insufficient' }}">
+                                                                                            <i class="fas fa-box me-1"></i>Stock:
+                                                                                            <span class="fw-bold">{{ $availableStock }} pcs</span>
+                                                                                            @if ($availableStock >= $itemQuantity)
+                                                                                                <i class="fas fa-check text-success ms-1"></i>
+                                                                                            @else
+                                                                                                <i class="fas fa-exclamation-triangle text-warning ms-1"></i>
+                                                                                            @endif
+                                                                                        </small>
+                                                                                    </div>
+                                                                                    @if (!$hasStock)
+                                                                                        <span class="badge bg-warning text-dark mt-2">
+                                                                                            <i class="fas fa-exclamation-triangle me-1"></i>Insufficient Stock
+                                                                                        </span>
+                                                                                    @endif
                                                                                 </div>
-                                                                                <div class="d-flex align-items-center gap-2">
-                                                                                    <small class="text-muted">Requested:</small>
-                                                                                    <small class="fw-medium">{{ $itemQuantity }} pcs</small>
-                                                                                    <span class="text-muted">•</span>
-                                                                                    <small class="stock-{{ $availableStock >= $itemQuantity ? 'sufficient' : 'insufficient' }}">
-                                                                                        <i class="fas fa-box me-1"></i>Stock:
-                                                                                        <span class="fw-bold">{{ $availableStock }} pcs</span>
-                                                                                        @if ($availableStock >= $itemQuantity)
-                                                                                            <i class="fas fa-check text-success ms-1"></i>
-                                                                                        @else
-                                                                                            <i class="fas fa-exclamation-triangle text-warning ms-1"></i>
-                                                                                        @endif
-                                                                                    </small>
+                                                                                <div class="ms-3">
+                                                                                    <select name="item_statuses[{{ $categoryKey }}][{{ $itemName }}]" class="form-select form-select-sm border-light" style="min-width: 130px;">
+                                                                                        <option value="pending" {{ $currentStatus === 'pending' ? 'selected' : '' }}>
+                                                                                            <i class="fas fa-clock"></i> Pending
+                                                                                        </option>
+                                                                                        <option value="approved" {{ $currentStatus === 'approved' ? 'selected' : '' }} {{ !$hasStock ? 'disabled' : '' }}>
+                                                                                            <i class="fas fa-check"></i> Approved{{ !$hasStock ? ' (No Stock)' : '' }}
+                                                                                        </option>
+                                                                                        <option value="rejected" {{ $currentStatus === 'rejected' ? 'selected' : '' }}>
+                                                                                            <i class="fas fa-times"></i> Rejected
+                                                                                        </option>
+                                                                                    </select>
                                                                                 </div>
-                                                                                @if (!$hasStock)
-                                                                                    <span class="badge bg-warning text-dark mt-2">
-                                                                                        <i class="fas fa-exclamation-triangle me-1"></i>Insufficient Stock
-                                                                                    </span>
-                                                                                @endif
                                                                             </div>
-                                                                            <div class="ms-3">
-                                                                                <select name="item_statuses[{{ $categoryKey }}][{{ $itemName }}]" class="form-select form-select-sm border-light" style="min-width: 130px;">
-                                                                                    <option value="pending" {{ $currentStatus === 'pending' ? 'selected' : '' }}>
-                                                                                        <i class="fas fa-clock"></i> Pending
-                                                                                    </option>
-                                                                                    <option value="approved" {{ $currentStatus === 'approved' ? 'selected' : '' }} {{ !$hasStock ? 'disabled' : '' }}>
-                                                                                        <i class="fas fa-check"></i> Approved{{ !$hasStock ? ' (No Stock)' : '' }}
-                                                                                    </option>
-                                                                                    <option value="rejected" {{ $currentStatus === 'rejected' ? 'selected' : '' }}>
-                                                                                        <i class="fas fa-times"></i> Rejected
-                                                                                    </option>
-                                                                                </select>
-                                                                            </div>
-                                                                        </div>
-                                                                    @endforeach
+                                                                        @endforeach
+                                                                    @endif
 
                                                                     @if (!$categoryCheck['can_fulfill'])
                                                                         <div class="alert alert-warning mt-2 alert-sm">

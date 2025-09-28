@@ -220,7 +220,6 @@ class ApplicationController extends Controller
                 // All 6 categories
                 'seeds' => $selectedSeedlings['seeds'] ?? [],
                 'seedlings' => $selectedSeedlings['seedlings'] ?? [],
-                'vegetables' => $selectedSeedlings['vegetables'] ?? [], // Legacy support
                 'fruits' => $selectedSeedlings['fruits'] ?? [],
                 'ornamentals' => $selectedSeedlings['ornamentals'] ?? [],
                 'fingerlings' => $selectedSeedlings['fingerlings'] ?? [],
@@ -862,12 +861,6 @@ public function submitRsbsa(Request $request)
         if (!empty($selectedSeedlings['seedlings'])) {
             $seedlingNames = collect($selectedSeedlings['seedlings'])->pluck('name')->toArray();
             $types[] = 'Seedlings: ' . implode(', ', $seedlingNames);
-        }
-
-        // Vegetables (legacy support)
-        if (!empty($selectedSeedlings['vegetables'])) {
-            $vegNames = collect($selectedSeedlings['vegetables'])->pluck('name')->toArray();
-            $types[] = 'Vegetables: ' . implode(', ', $vegNames);
         }
 
         // Fruits

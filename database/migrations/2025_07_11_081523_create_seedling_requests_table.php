@@ -3,76 +3,128 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     /**
      * Run the migrations.
-     * This migration adds the new 6-category fields to existing seedling_requests table
+     * Creates the complete seedling_requests table with all 6 categories and fixes existing data
      */
     public function up(): void
     {
-        Schema::table('seedling_requests', function (Blueprint $table) {
-            // Add new category fields (if they don't exist)
-            if (!Schema::hasColumn('seedling_requests', 'seeds')) {
-                $table->json('seeds')->nullable()->after('seedling_type');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'seedlings')) {
-                $table->json('seedlings')->nullable()->after('seeds');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'ornamentals')) {
-                $table->json('ornamentals')->nullable()->after('fruits');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'fingerlings')) {
-                $table->json('fingerlings')->nullable()->after('ornamentals');
-            }
-
-            // Add new status fields
-            if (!Schema::hasColumn('seedling_requests', 'seeds_status')) {
-                $table->string('seeds_status')->nullable()->after('status');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'seedlings_status')) {
-                $table->string('seedlings_status')->nullable()->after('seeds_status');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'ornamentals_status')) {
-                $table->string('ornamentals_status')->nullable()->after('fruits_status');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'fingerlings_status')) {
-                $table->string('fingerlings_status')->nullable()->after('ornamentals_status');
-            }
-
-            // Add new approved items fields
-            if (!Schema::hasColumn('seedling_requests', 'seeds_approved_items')) {
-                $table->json('seeds_approved_items')->nullable()->after('fertilizers_status');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'seedlings_approved_items')) {
-                $table->json('seedlings_approved_items')->nullable()->after('seeds_approved_items');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'ornamentals_approved_items')) {
-                $table->json('ornamentals_approved_items')->nullable()->after('fruits_approved_items');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'fingerlings_approved_items')) {
-                $table->json('fingerlings_approved_items')->nullable()->after('ornamentals_approved_items');
-            }
-
-            // Add new rejected items fields
-            if (!Schema::hasColumn('seedling_requests', 'seeds_rejected_items')) {
-                $table->json('seeds_rejected_items')->nullable()->after('fertilizers_approved_items');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'seedlings_rejected_items')) {
-                $table->json('seedlings_rejected_items')->nullable()->after('seeds_rejected_items');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'ornamentals_rejected_items')) {
-                $table->json('ornamentals_rejected_items')->nullable()->after('fruits_rejected_items');
-            }
-            if (!Schema::hasColumn('seedling_requests', 'fingerlings_rejected_items')) {
-                $table->json('fingerlings_rejected_items')->nullable()->after('ornamentals_rejected_items');
-            }
-
-            // Update indexes
-            $table->index(['seeds_status', 'seedlings_status'], 'seedling_requests_new_status_1');
-            $table->index(['ornamentals_status', 'fingerlings_status'], 'seedling_requests_new_status_2');
+        Schema::create('seedling_requests', function (Blueprint $table) {
+            $table->id();
+            
+            // Basic request info
+            $table->string('request_number')->unique();
+            $table->string('first_name');
+            $table->string('middle_name')->nullable();
+            $table->string('last_name');
+            $table->string('extension_name')->nullable();
+            $table->string('contact_number');
+            $table->string('email')->nullable();
+            $table->text('address');
+            $table->string('barangay');
+            $table->text('planting_location')->nullable();
+            $table->text('purpose')->nullable();
+            $table->text('seedling_type')->nullable();
+            
+            // 6 Categories - JSON fields for items with proper defaults
+            $table->json('seeds')->nullable()->default(null);
+            $table->json('seedlings')->nullable()->default(null);
+            $table->json('fruits')->nullable()->default(null);
+            $table->json('ornamentals')->nullable()->default(null);
+            $table->json('fingerlings')->nullable()->default(null);
+            $table->json('fertilizers')->nullable()->default(null);
+            
+            // Quantities
+            $table->integer('requested_quantity')->default(0);
+            $table->integer('total_quantity')->default(0);
+            $table->integer('approved_quantity')->nullable();
+            
+            // Dates
+            $table->date('preferred_delivery_date')->nullable();
+            
+            // Document
+            $table->string('document_path')->nullable();
+            
+            // Overall status
+            $table->string('status')->default('under_review');
+            
+            // Category-specific status fields
+            $table->string('seeds_status')->nullable();
+            $table->string('seedlings_status')->nullable();
+            $table->string('fruits_status')->nullable();
+            $table->string('ornamentals_status')->nullable();
+            $table->string('fingerlings_status')->nullable();
+            $table->string('fertilizers_status')->nullable();
+            
+            // Approved items for each category
+            $table->json('seeds_approved_items')->nullable()->default(null);
+            $table->json('seedlings_approved_items')->nullable()->default(null);
+            $table->json('fruits_approved_items')->nullable()->default(null);
+            $table->json('ornamentals_approved_items')->nullable()->default(null);
+            $table->json('fingerlings_approved_items')->nullable()->default(null);
+            $table->json('fertilizers_approved_items')->nullable()->default(null);
+            
+            // Rejected items for each category
+            $table->json('seeds_rejected_items')->nullable()->default(null);
+            $table->json('seedlings_rejected_items')->nullable()->default(null);
+            $table->json('fruits_rejected_items')->nullable()->default(null);
+            $table->json('ornamentals_rejected_items')->nullable()->default(null);
+            $table->json('fingerlings_rejected_items')->nullable()->default(null);
+            $table->json('fertilizers_rejected_items')->nullable()->default(null);
+            
+            // Review information
+            $table->foreignId('reviewed_by')->nullable()->constrained('users');
+            $table->timestamp('reviewed_at')->nullable();
+            $table->text('remarks')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->timestamp('rejected_at')->nullable();
+            
+            $table->timestamps();
+            
+            // Indexes for better performance
+            $table->index('status');
+            $table->index('barangay');
+            $table->index('created_at');
+            $table->index(['seeds_status', 'seedlings_status']);
+            $table->index(['fruits_status', 'ornamentals_status']);
+            $table->index(['fingerlings_status', 'fertilizers_status']);
         });
+
+        // Fix existing data if this is a modification of existing table
+        $this->fixExistingData();
+    }
+
+    /**
+     * Fix existing data to ensure proper JSON format
+     */
+    private function fixExistingData(): void
+    {
+        // Only run if we're updating an existing table
+        if (!Schema::hasTable('seedling_requests')) {
+            return;
+        }
+
+        $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+        $itemTypes = ['', '_approved_items', '_rejected_items'];
+
+        foreach ($categories as $category) {
+            foreach ($itemTypes as $type) {
+                $columnName = $category . $type;
+                
+                // Fix NULL values that might be stored as strings
+                DB::statement("UPDATE seedling_requests SET `{$columnName}` = NULL WHERE `{$columnName}` IN ('', 'null', '[]')");
+                
+                // Fix malformed JSON
+                DB::statement("UPDATE seedling_requests SET `{$columnName}` = NULL WHERE `{$columnName}` IS NOT NULL AND JSON_VALID(`{$columnName}`) = 0");
+                
+                // Ensure empty arrays are stored as NULL for consistency
+                DB::statement("UPDATE seedling_requests SET `{$columnName}` = NULL WHERE `{$columnName}` = '[]'");
+            }
+        }
     }
 
     /**
@@ -80,30 +132,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('seedling_requests', function (Blueprint $table) {
-            // Drop indexes first
-            $table->dropIndex('seedling_requests_new_status_1');
-            $table->dropIndex('seedling_requests_new_status_2');
-
-            // Drop new category columns
-            $table->dropColumn([
-                'seeds',
-                'seedlings',
-                'ornamentals', 
-                'fingerlings',
-                'seeds_status',
-                'seedlings_status',
-                'ornamentals_status',
-                'fingerlings_status',
-                'seeds_approved_items',
-                'seedlings_approved_items',
-                'ornamentals_approved_items',
-                'fingerlings_approved_items',
-                'seeds_rejected_items',
-                'seedlings_rejected_items',
-                'ornamentals_rejected_items',
-                'fingerlings_rejected_items'
-            ]);
-        });
+        Schema::dropIfExists('seedling_requests');
     }
 };

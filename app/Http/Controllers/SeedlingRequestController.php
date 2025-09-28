@@ -13,6 +13,9 @@ class SeedlingRequestController extends Controller
     /**
      * Display all seedling requests with filtering and statistics
      */
+
+    private $validCategories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+    
     public function index(Request $request)
     {
         $query = SeedlingRequest::orderBy('created_at', 'desc');
@@ -39,12 +42,6 @@ class SeedlingRequestController extends Controller
                         break;
                     case 'seedlings':
                         $q->whereNotNull('seedlings')->where('seedlings', '!=', '[]');
-                        break;
-                    case 'vegetables': // Legacy support
-                        $q->whereNotNull('vegetables')->where('vegetables', '!=', '[]')
-                          ->orWhere(function($subQ) {
-                              $subQ->whereNotNull('seedlings')->where('seedlings', '!=', '[]');
-                          });
                         break;
                     case 'fruits':
                         $q->whereNotNull('fruits')->where('fruits', '!=', '[]');
@@ -120,7 +117,6 @@ class SeedlingRequestController extends Controller
         $categories = [
             'seeds' => 'Seeds',
             'seedlings' => 'Seedlings', 
-            'vegetables' => 'Vegetables (Legacy)',
             'fruits' => 'Fruits',
             'ornamentals' => 'Ornamentals',
             'fingerlings' => 'Fingerlings',
@@ -167,12 +163,6 @@ class SeedlingRequestController extends Controller
                         break;
                     case 'seedlings':
                         $q->whereNotNull('seedlings')->where('seedlings', '!=', '[]');
-                        break;
-                    case 'vegetables':
-                        $q->whereNotNull('vegetables')->where('vegetables', '!=', '[]')
-                          ->orWhere(function($subQ) {
-                              $subQ->whereNotNull('seedlings')->where('seedlings', '!=', '[]');
-                          });
                         break;
                     case 'fruits':
                         $q->whereNotNull('fruits')->where('fruits', '!=', '[]');
@@ -237,11 +227,6 @@ class SeedlingRequestController extends Controller
                         $seedlingRequest->updateCategoryStatus($category, 'approved', $seedlingRequest->{$category});
                     }
                 }
-                
-                // Handle legacy vegetables field
-                if (!empty($seedlingRequest->vegetables)) {
-                    $seedlingRequest->updateCategoryStatus('vegetables', 'approved', $seedlingRequest->vegetables);
-                }
             } elseif ($newStatus === 'rejected') {
                 // Reject all categories
                 $categories = SeedlingRequest::$categories;
@@ -251,10 +236,6 @@ class SeedlingRequestController extends Controller
                     }
                 }
                 
-                // Handle legacy vegetables field
-                if (!empty($seedlingRequest->vegetables)) {
-                    $seedlingRequest->updateCategoryStatus('vegetables', 'rejected');
-                }
             }
 
             $seedlingRequest->update([
@@ -301,7 +282,6 @@ class SeedlingRequestController extends Controller
      */
     public function updateCategoryStatus(Request $request, SeedlingRequest $seedlingRequest)
     {
-        $validCategories = array_merge(SeedlingRequest::$categories, ['vegetables']); // Include legacy
         
         $request->validate([
             'category' => 'required|in:' . implode(',', $validCategories),
@@ -352,8 +332,7 @@ class SeedlingRequestController extends Controller
      */
     public function bulkUpdateCategories(Request $request, SeedlingRequest $seedlingRequest)
     {
-        $validCategories = array_merge(SeedlingRequest::$categories, ['vegetables']); // Include legacy
-        
+       
         $request->validate([
             'categories' => 'required|array',
             'categories.*' => 'required|in:' . implode(',', $validCategories),
@@ -500,7 +479,6 @@ class SeedlingRequestController extends Controller
         return match($category) {
             'seeds' => 'seed',
             'seedlings' => 'seedling',
-            'vegetables' => 'seedling', // Legacy mapping
             'fruits' => 'fruit',
             'ornamentals' => 'ornamental',
             'fingerlings' => 'fingerling',
@@ -527,7 +505,6 @@ class SeedlingRequestController extends Controller
      */
     public function getCategoryInventoryStatus(SeedlingRequest $seedlingRequest, $category)
     {
-        $validCategories = array_merge(SeedlingRequest::$categories, ['vegetables']);
         
         if (!in_array($category, $validCategories)) {
             return response()->json([
