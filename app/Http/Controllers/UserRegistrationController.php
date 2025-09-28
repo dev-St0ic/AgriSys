@@ -641,7 +641,7 @@ class UserRegistrationController extends Controller
     }
 
     /**
-     * View uploaded document
+     * FIXED: View uploaded document with proper file handling and security checks
      */
     public function viewDocument($id, $type)
     {
@@ -663,6 +663,121 @@ class UserRegistrationController extends Controller
         }
 
         $documentPath = null;
+        $documentName = '';
+        
+        switch ($type) {
+            case 'location':
+                $documentPath = $registration->location_document_path;
+                $documentName = 'Location Proof Document';
+                break;
+            case 'id_front':
+                $documentPath = $registration->id_front_path;
+                $documentName = 'Government ID - Front';
+                break;
+            case 'id_back':
+                $documentPath = $registration->id_back_path;
+                $documentName = 'Government ID - Back';
+                break;
+            default:
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid document type. Allowed types: location, id_front, id_back'
+                ], 400);
+        }
+
+        if (!$documentPath) {
+            return response()->json([
+                'success' => false,
+                'message' => "No {$documentName} found for this registration"
+            ], 404);
+        }
+
+        try {
+            // Check if file exists in storage
+            if (!\Storage::disk('public')->exists($documentPath)) {
+                \Log::error("Document file not found in storage", [
+                    'registration_id' => $id,
+                    'document_type' => $type,
+                    'document_path' => $documentPath,
+                    'storage_path' => storage_path('app/public/' . $documentPath)
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Document file not found on server'
+                ], 404);
+            }
+
+            // Get file info
+            $filePath = storage_path('app/public/' . $documentPath);
+            $fileSize = filesize($filePath);
+            $mimeType = mime_content_type($filePath);
+            $fileName = basename($documentPath);
+            
+            // Generate the public URL for the document
+            $documentUrl = asset('storage/' . $documentPath);
+            
+            // Check if it's an image
+            $isImage = str_starts_with($mimeType, 'image/');
+            
+            // Log successful document access
+            \Log::info("Document accessed successfully", [
+                'registration_id' => $id,
+                'document_type' => $type,
+                'document_path' => $documentPath,
+                'document_url' => $documentUrl,
+                'file_size' => $fileSize,
+                'mime_type' => $mimeType,
+                'admin_user' => auth()->user()->email
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'document_url' => $documentUrl,
+                'document_path' => $documentPath,
+                'document_type' => $type,
+                'file_info' => [
+                    'name' => $fileName,
+                    'size' => $fileSize,
+                    'mime_type' => $mimeType,
+                    'is_image' => $isImage
+                ],
+                'file_exists' => true
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error("Error generating document URL", [
+                'registration_id' => $id,
+                'document_type' => $type,
+                'document_path' => $documentPath,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error accessing document: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * ALTERNATIVE: Direct file serving (if public URL doesn't work)
+     */
+    public function serveDocument($id, $type)
+    {
+        // Check admin authentication
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Access denied. Admin privileges required.');
+        }
+
+        $registration = UserRegistration::find($id);
+        
+        if (!$registration) {
+            abort(404, 'Registration not found');
+        }
+
+        $documentPath = null;
         
         switch ($type) {
             case 'location':
@@ -675,68 +790,20 @@ class UserRegistrationController extends Controller
                 $documentPath = $registration->id_back_path;
                 break;
             default:
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid document type. Allowed types: location, id_front, id_back'
-                ], 400);
+                abort(400, 'Invalid document type');
         }
 
-        if (!$documentPath) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Document not found for this registration'
-            ], 404);
+        if (!$documentPath || !\Storage::disk('public')->exists($documentPath)) {
+            abort(404, 'Document not found');
         }
 
-        // Check if file exists in storage
-        if (!\Storage::disk('public')->exists($documentPath)) {
-            \Log::error("Document file not found in storage", [
-                'registration_id' => $id,
-                'document_type' => $type,
-                'document_path' => $documentPath,
-                'storage_path' => storage_path('app/public/' . $documentPath)
-            ]);
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Document file not found on server. Path: ' . $documentPath
-            ], 404);
-        }
-
-        try {
-            // Generate the public URL for the document
-            $documentUrl = \Storage::disk('public')->url($documentPath);
-            
-            // Log successful document access
-            \Log::info("Document accessed successfully", [
-                'registration_id' => $id,
-                'document_type' => $type,
-                'document_path' => $documentPath,
-                'document_url' => $documentUrl,
-                'admin_user' => auth()->user()->email
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'document_url' => $documentUrl,
-                'document_path' => $documentPath,
-                'document_type' => $type,
-                'file_exists' => true
-            ]);
-            
-        } catch (\Exception $e) {
-            \Log::error("Error generating document URL", [
-                'registration_id' => $id,
-                'document_type' => $type,
-                'document_path' => $documentPath,
-                'error' => $e->getMessage()
-            ]);
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Error accessing document: ' . $e->getMessage()
-            ], 500);
-        }
+        $filePath = \Storage::disk('public')->path($documentPath);
+        $mimeType = mime_content_type($filePath);
+        
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . basename($documentPath) . '"'
+        ]);
     }
 
     /**
