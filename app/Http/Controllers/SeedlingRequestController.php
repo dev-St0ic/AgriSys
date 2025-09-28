@@ -13,6 +13,9 @@ class SeedlingRequestController extends Controller
     /**
      * Display all seedling requests with filtering and statistics
      */
+
+    private $validCategories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+    
     public function index(Request $request)
     {
         $query = SeedlingRequest::orderBy('created_at', 'desc');
@@ -29,16 +32,25 @@ class SeedlingRequestController extends Controller
             });
         }
 
-        // Apply other filters first
+        // Apply category filter for all 6 categories
         if ($request->has('category') && !empty($request->category)) {
             $category = $request->category;
             $query->where(function($q) use ($category) {
                 switch($category) {
-                    case 'vegetables':
-                        $q->whereNotNull('vegetables')->where('vegetables', '!=', '[]');
+                    case 'seeds':
+                        $q->whereNotNull('seeds')->where('seeds', '!=', '[]');
+                        break;
+                    case 'seedlings':
+                        $q->whereNotNull('seedlings')->where('seedlings', '!=', '[]');
                         break;
                     case 'fruits':
                         $q->whereNotNull('fruits')->where('fruits', '!=', '[]');
+                        break;
+                    case 'ornamentals':
+                        $q->whereNotNull('ornamentals')->where('ornamentals', '!=', '[]');
+                        break;
+                    case 'fingerlings':
+                        $q->whereNotNull('fingerlings')->where('fingerlings', '!=', '[]');
                         break;
                     case 'fertilizers':
                         $q->whereNotNull('fertilizers')->where('fertilizers', '!=', '[]');
@@ -88,10 +100,49 @@ class SeedlingRequestController extends Controller
             ]
         );
 
-        // Create a base query for statistics (apply same filters except status)
+        // Create statistics using the same filtering logic
+        $statsResults = $this->getStatsResults($request);
+
+        // Calculate statistics using overall_status accessor
+        $totalRequests = $statsResults->count();
+        $underReviewCount = $statsResults->filter(fn($r) => $r->overall_status === 'under_review')->count();
+        $approvedCount = $statsResults->filter(fn($r) => $r->overall_status === 'approved')->count();
+        $partiallyApprovedCount = $statsResults->filter(fn($r) => $r->overall_status === 'partially_approved')->count();
+        $rejectedCount = $statsResults->filter(fn($r) => $r->overall_status === 'rejected')->count();
+
+        // Get unique barangays for filter dropdown
+        $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
+
+        // Get available categories for filter dropdown (including all 6 + legacy)
+        $categories = [
+            'seeds' => 'Seeds',
+            'seedlings' => 'Seedlings', 
+            'fruits' => 'Fruits',
+            'ornamentals' => 'Ornamentals',
+            'fingerlings' => 'Fingerlings',
+            'fertilizers' => 'Fertilizers'
+        ];
+
+        return view('admin.seedlings.index', compact(
+            'requests',
+            'totalRequests',
+            'underReviewCount',
+            'approvedCount',
+            'partiallyApprovedCount',
+            'rejectedCount',
+            'barangays',
+            'categories'
+        ));
+    }
+
+    /**
+     * Helper method to get statistics results with same filtering
+     */
+    private function getStatsResults(Request $request)
+    {
         $statsQuery = SeedlingRequest::orderBy('created_at', 'desc');
 
-        // Apply the same filters to statistics (except status filter)
+        // Apply the same filters (except status filter)
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $statsQuery->where(function($q) use ($search) {
@@ -107,11 +158,20 @@ class SeedlingRequestController extends Controller
             $category = $request->category;
             $statsQuery->where(function($q) use ($category) {
                 switch($category) {
-                    case 'vegetables':
-                        $q->whereNotNull('vegetables')->where('vegetables', '!=', '[]');
+                    case 'seeds':
+                        $q->whereNotNull('seeds')->where('seeds', '!=', '[]');
+                        break;
+                    case 'seedlings':
+                        $q->whereNotNull('seedlings')->where('seedlings', '!=', '[]');
                         break;
                     case 'fruits':
                         $q->whereNotNull('fruits')->where('fruits', '!=', '[]');
+                        break;
+                    case 'ornamentals':
+                        $q->whereNotNull('ornamentals')->where('ornamentals', '!=', '[]');
+                        break;
+                    case 'fingerlings':
+                        $q->whereNotNull('fingerlings')->where('fingerlings', '!=', '[]');
                         break;
                     case 'fertilizers':
                         $q->whereNotNull('fertilizers')->where('fertilizers', '!=', '[]');
@@ -132,28 +192,7 @@ class SeedlingRequestController extends Controller
             $statsQuery->whereDate('created_at', '<=', $request->date_to);
         }
 
-        // Get all filtered results for statistics calculation
-        $statsResults = $statsQuery->get();
-
-        // Calculate statistics using overall_status accessor
-        $totalRequests = $statsResults->count();
-        $underReviewCount = $statsResults->filter(fn($r) => $r->overall_status === 'under_review')->count();
-        $approvedCount = $statsResults->filter(fn($r) => $r->overall_status === 'approved')->count();
-        $partiallyApprovedCount = $statsResults->filter(fn($r) => $r->overall_status === 'partially_approved')->count();
-        $rejectedCount = $statsResults->filter(fn($r) => $r->overall_status === 'rejected')->count();
-
-        // Get unique barangays for filter dropdown
-        $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
-
-        return view('admin.seedlings.index', compact(
-            'requests',
-            'totalRequests',
-            'underReviewCount',
-            'approvedCount',
-            'partiallyApprovedCount',
-            'rejectedCount',
-            'barangays'
-        ));
+        return $statsQuery->get();
     }
 
     /**
@@ -181,8 +220,8 @@ class SeedlingRequestController extends Controller
             \DB::beginTransaction();
 
             if ($newStatus === 'approved') {
-                // Approve all categories that have items
-                $categories = ['vegetables', 'fruits', 'fertilizers'];
+                // Approve all categories that have items (all 6 categories)
+                $categories = SeedlingRequest::$categories;
                 foreach ($categories as $category) {
                     if (!empty($seedlingRequest->{$category})) {
                         $seedlingRequest->updateCategoryStatus($category, 'approved', $seedlingRequest->{$category});
@@ -190,12 +229,13 @@ class SeedlingRequestController extends Controller
                 }
             } elseif ($newStatus === 'rejected') {
                 // Reject all categories
-                $categories = ['vegetables', 'fruits', 'fertilizers'];
+                $categories = SeedlingRequest::$categories;
                 foreach ($categories as $category) {
                     if (!empty($seedlingRequest->{$category})) {
                         $seedlingRequest->updateCategoryStatus($category, 'rejected');
                     }
                 }
+                
             }
 
             $seedlingRequest->update([
@@ -238,12 +278,13 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Update category-specific status
+     * Update category-specific status for all 6 categories
      */
     public function updateCategoryStatus(Request $request, SeedlingRequest $seedlingRequest)
     {
+        
         $request->validate([
-            'category' => 'required|in:vegetables,fruits,fertilizers',
+            'category' => 'required|in:' . implode(',', $validCategories),
             'status' => 'required|in:approved,rejected,under_review',
             'remarks' => 'nullable|string|max:500',
         ]);
@@ -287,13 +328,14 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Bulk update categories with individual item status control
+     * Bulk update categories with individual item status control for all 6 categories
      */
     public function bulkUpdateCategories(Request $request, SeedlingRequest $seedlingRequest)
     {
+       
         $request->validate([
             'categories' => 'required|array',
-            'categories.*' => 'required|in:vegetables,fruits,fertilizers',
+            'categories.*' => 'required|in:' . implode(',', $validCategories),
             'item_statuses' => 'required|array',
             'remarks' => 'nullable|string|max:500',
         ]);
@@ -332,7 +374,7 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Update category with individual item statuses
+     * Update category with individual item statuses for all 6 categories
      */
     private function updateCategoryWithIndividualItemStatuses($seedlingRequest, $category, $itemStatuses)
     {
@@ -354,14 +396,19 @@ class SeedlingRequestController extends Controller
         // Determine overall category status
         $categoryStatus = $this->determineCategoryStatusFromStatuses($itemStatuses, $requestedItems);
 
-        // Update the seedling request
-        $seedlingRequest->update([
+        // Update the seedling request with proper field names
+        $updateData = [
             "{$category}_status" => $categoryStatus,
             "{$category}_approved_items" => $approvedItems,
             "{$category}_rejected_items" => $rejectedItems,
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
-        ]);
+        ];
+
+        $seedlingRequest->update($updateData);
+
+        // Update overall status based on all category statuses
+        $seedlingRequest->update(['status' => $seedlingRequest->overall_status]);
 
         // Update inventory if items are approved
         if (!empty($approvedItems)) {
@@ -401,7 +448,7 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Update inventory for approved items
+     * Update inventory for approved items (enhanced for all 6 categories)
      */
     private function updateInventoryForApprovedItems($approvedItems, $category)
     {
@@ -409,18 +456,39 @@ class SeedlingRequestController extends Controller
             $itemName = is_array($item) ? $item['name'] : $item;
             $quantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
 
+            // Map category to inventory category
+            $inventoryCategory = $this->mapCategoryForInventory($category);
+
             $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$itemName}%")
-                ->where('category', $category === 'fertilizers' ? 'fertilizer' : substr($category, 0, -1))
+                ->where('category', $inventoryCategory)
+                ->where('is_active', true)
                 ->first();
 
             if ($inventory && $inventory->current_stock >= $quantity) {
                 $inventory->decrement('current_stock', $quantity);
+                $inventory->update(['updated_by' => auth()->id()]);
             }
         }
     }
 
     /**
-     * Get inventory status for AJAX requests
+     * Map seedling category to inventory category
+     */
+    private function mapCategoryForInventory($category)
+    {
+        return match($category) {
+            'seeds' => 'seed',
+            'seedlings' => 'seedling',
+            'fruits' => 'fruit',
+            'ornamentals' => 'ornamental',
+            'fingerlings' => 'fingerling',
+            'fertilizers' => 'fertilizer',
+            default => $category
+        };
+    }
+
+    /**
+     * Get inventory status for AJAX requests (enhanced for all 6 categories)
      */
     public function getInventoryStatus(SeedlingRequest $seedlingRequest)
     {
@@ -433,11 +501,12 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Get category inventory status for AJAX requests
+     * Get category inventory status for AJAX requests (enhanced for all 6 categories)
      */
     public function getCategoryInventoryStatus(SeedlingRequest $seedlingRequest, $category)
     {
-        if (!in_array($category, ['vegetables', 'fruits', 'fertilizers'])) {
+        
+        if (!in_array($category, $validCategories)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid category'
@@ -449,6 +518,45 @@ class SeedlingRequestController extends Controller
         return response()->json([
             'success' => true,
             'data' => $inventoryStatus
+        ]);
+    }
+
+    /**
+     * Get category statistics for dashboard/reports
+     */
+    public function getCategoryStats(Request $request)
+    {
+        $query = SeedlingRequest::query();
+
+        // Apply date filters if provided
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $requests = $query->get();
+
+        $stats = [];
+        foreach (SeedlingRequest::$categories as $category) {
+            $categoryRequests = $requests->filter(function($request) use ($category) {
+                return !empty($request->{$category});
+            });
+
+            $stats[$category] = [
+                'total_requests' => $categoryRequests->count(),
+                'approved' => $categoryRequests->filter(fn($r) => $r->{$category . '_status'} === 'approved')->count(),
+                'rejected' => $categoryRequests->filter(fn($r) => $r->{$category . '_status'} === 'rejected')->count(),
+                'partially_approved' => $categoryRequests->filter(fn($r) => $r->{$category . '_status'} === 'partially_approved')->count(),
+                'under_review' => $categoryRequests->filter(fn($r) => $r->{$category . '_status'} === 'under_review' || is_null($r->{$category . '_status'}))->count(),
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $stats
         ]);
     }
 }

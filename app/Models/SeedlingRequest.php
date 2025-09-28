@@ -24,23 +24,45 @@ class SeedlingRequest extends Model
         'planting_location',
         'purpose',
         'seedling_type',
-        'vegetables',
+        
+        // 6 Categories
+        'seeds',
+        'seedlings',
         'fruits',
+        'ornamentals',
+        'fingerlings',
         'fertilizers',
+        
         'requested_quantity',
         'total_quantity',
         'preferred_delivery_date',
         'document_path',
         'status',
-        'vegetables_status',
+        
+        // Category Status Fields
+        'seeds_status',
+        'seedlings_status',
         'fruits_status',
+        'ornamentals_status',
+        'fingerlings_status',
         'fertilizers_status',
-        'vegetables_approved_items',
+        
+        // Approved Items
+        'seeds_approved_items',
+        'seedlings_approved_items',
         'fruits_approved_items',
+        'ornamentals_approved_items',
+        'fingerlings_approved_items',
         'fertilizers_approved_items',
-        'vegetables_rejected_items',
+        
+        // Rejected Items
+        'seeds_rejected_items',
+        'seedlings_rejected_items',
         'fruits_rejected_items',
+        'ornamentals_rejected_items',
+        'fingerlings_rejected_items',
         'fertilizers_rejected_items',
+        
         'reviewed_by',
         'reviewed_at',
         'remarks',
@@ -57,16 +79,87 @@ class SeedlingRequest extends Model
         'requested_quantity' => 'integer',
         'approved_quantity' => 'integer',
         'total_quantity' => 'integer',
-        'vegetables' => 'array',
+        
+        // 6 Categories - Cast to array instead of json for better handling
+        'seeds' => 'array',
+        'seedlings' => 'array',
         'fruits' => 'array',
+        'ornamentals' => 'array',
+        'fingerlings' => 'array',
         'fertilizers' => 'array',
-        'vegetables_approved_items' => 'array',
+        
+        // Approved Items - Cast to array instead of json
+        'seeds_approved_items' => 'array',
+        'seedlings_approved_items' => 'array',
         'fruits_approved_items' => 'array',
+        'ornamentals_approved_items' => 'array',
+        'fingerlings_approved_items' => 'array',
         'fertilizers_approved_items' => 'array',
-        'vegetables_rejected_items' => 'array',
+        
+        // Rejected Items - Cast to array instead of json
+        'seeds_rejected_items' => 'array',
+        'seedlings_rejected_items' => 'array',
         'fruits_rejected_items' => 'array',
+        'ornamentals_rejected_items' => 'array',
+        'fingerlings_rejected_items' => 'array',
         'fertilizers_rejected_items' => 'array'
     ];
+
+    // Define the categories array for easy iteration
+    public static $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+
+    /**
+     * Helper method to check if a category has items (safe version)
+     */
+    public function hasItemsInCategory($categoryField): bool
+    {
+        $items = $this->getCategoryItems($categoryField);
+        return !empty($items) && count($items) > 0;
+    }
+
+    /**
+     * Safely get category items as array
+     */
+    public function getCategoryItems($categoryField): array
+    {
+        $items = $this->{$categoryField};
+        
+        // If null or empty
+        if (empty($items)) {
+            return [];
+        }
+        
+        // If already an array, return it
+        if (is_array($items)) {
+            return $items;
+        }
+        
+        // If it's a string (shouldn't happen with proper casts, but safety first)
+        if (is_string($items)) {
+            // Handle empty JSON strings
+            if ($items === '[]' || $items === 'null' || $items === '') {
+                return [];
+            }
+            
+            try {
+                $decoded = json_decode($items, true);
+                return is_array($decoded) ? $decoded : [];
+            } catch (\Exception $e) {
+                \Log::warning("Failed to decode JSON for {$categoryField}: " . $e->getMessage());
+                return [];
+            }
+        }
+        
+        return [];
+    }
+
+    /**
+     * Get category items count safely
+     */
+    public function getCategoryItemsCount($categoryField): int
+    {
+        return count($this->getCategoryItems($categoryField));
+    }
 
     public function getFullNameAttribute(): string
     {
@@ -90,8 +183,11 @@ class SeedlingRequest extends Model
     public function getOverallStatusAttribute(): string
     {
         $statuses = array_filter([
-            $this->vegetables_status,
+            $this->seeds_status,
+            $this->seedlings_status,
             $this->fruits_status,
+            $this->ornamentals_status,
+            $this->fingerlings_status,
             $this->fertilizers_status
         ]);
 
@@ -113,40 +209,50 @@ class SeedlingRequest extends Model
     }
 
     /**
-     * Check inventory availability by category
+     * Check inventory availability by category (enhanced with safe item access)
      */
     public function checkCategoryInventoryAvailability(string $category): array
     {
+        if (!in_array($category, self::$categories)) {
+            throw new \InvalidArgumentException("Invalid category: {$category}");
+        }
+
         $availableItems = [];
         $unavailableItems = [];
         $canFulfill = true;
-        $items = $this->{$category} ?? [];
+        $items = $this->getCategoryItems($category); // Use safe method
 
         if (!empty($items)) {
             foreach ($items as $item) {
-                $inventory = Inventory::where('item_name', $item['name'])
-                    ->where('category', $category)
+                // Handle both array and string item formats
+                $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+                $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+                
+                if (empty($itemName)) continue;
+
+                $inventory = Inventory::where('item_name', 'LIKE', "%{$itemName}%")
+                    ->where('category', $this->mapCategoryForInventory($category))
                     ->where('is_active', true)
                     ->first();
 
                 if (!$inventory) {
                     $unavailableItems[] = [
-                        'name' => $item['name'],
-                        'needed' => $item['quantity'],
+                        'name' => $itemName,
+                        'needed' => $itemQuantity,
                         'available' => 0
                     ];
                     $canFulfill = false;
-                } elseif ($inventory->current_stock < $item['quantity']) {
+                } elseif ($inventory->current_stock < $itemQuantity) {
                     $unavailableItems[] = [
-                        'name' => $item['name'],
-                        'needed' => $item['quantity'],
+                        'name' => $itemName,
+                        'needed' => $itemQuantity,
                         'available' => $inventory->current_stock
                     ];
                     $canFulfill = false;
                 } else {
                     $availableItems[] = [
-                        'name' => $item['name'],
-                        'needed' => $item['quantity'],
+                        'name' => $itemName,
+                        'needed' => $itemQuantity,
                         'available' => $inventory->current_stock
                     ];
                 }
@@ -162,17 +268,32 @@ class SeedlingRequest extends Model
     }
 
     /**
+     * Map category names to inventory category names if needed
+     */
+    private function mapCategoryForInventory(string $category): string
+    {
+        return match($category) {
+            'seeds' => 'seed',
+            'seedlings' => 'seedling', 
+            'fruits' => 'fruit',
+            'ornamentals' => 'ornamental',
+            'fingerlings' => 'fingerling',
+            'fertilizers' => 'fertilizer',
+            default => $category
+        };
+    }
+
+    /**
      * Check inventory availability for all categories
      */
     public function checkInventoryAvailability(): array
     {
-        $categories = ['vegetables', 'fruits', 'fertilizers'];
         $results = [];
         $overallCanFulfill = true;
         $allAvailable = [];
         $allUnavailable = [];
 
-        foreach ($categories as $category) {
+        foreach (self::$categories as $category) {
             $result = $this->checkCategoryInventoryAvailability($category);
             $results[$category] = $result;
 
@@ -193,27 +314,36 @@ class SeedlingRequest extends Model
     }
 
     /**
-     * Deduct inventory for a specific category
+     * Deduct inventory for a specific category (enhanced with safe item access)
      */
     public function deductCategoryFromInventory(string $category): bool
     {
+        if (!in_array($category, self::$categories)) {
+            throw new \InvalidArgumentException("Invalid category: {$category}");
+        }
+
         \DB::beginTransaction();
 
         try {
-            $items = $this->{$category} ?? [];
+            $items = $this->getCategoryItems($category); // Use safe method
 
             if (!empty($items)) {
                 foreach ($items as $item) {
-                    $inventory = Inventory::where('item_name', $item['name'])
-                        ->where('category', $category)
+                    $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+                    $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+                    
+                    if (empty($itemName)) continue;
+
+                    $inventory = Inventory::where('item_name', 'LIKE', "%{$itemName}%")
+                        ->where('category', $this->mapCategoryForInventory($category))
                         ->where('is_active', true)
                         ->first();
 
-                    if ($inventory && $inventory->current_stock >= $item['quantity']) {
-                        $inventory->decrement('current_stock', $item['quantity']);
+                    if ($inventory && $inventory->current_stock >= $itemQuantity) {
+                        $inventory->decrement('current_stock', $itemQuantity);
                         $inventory->update(['updated_by' => auth()->id()]);
                     } else {
-                        throw new \Exception("Insufficient stock for {$item['name']} in {$category}");
+                        throw new \Exception("Insufficient stock for {$itemName} in {$category}");
                     }
                 }
             }
@@ -233,6 +363,10 @@ class SeedlingRequest extends Model
      */
     public function restoreCategoryToInventory(string $category): bool
     {
+        if (!in_array($category, self::$categories)) {
+            throw new \InvalidArgumentException("Invalid category: {$category}");
+        }
+
         \DB::beginTransaction();
 
         try {
@@ -243,17 +377,22 @@ class SeedlingRequest extends Model
                 return true; // Nothing to restore
             }
 
-            $items = $this->{$category} ?? [];
+            $items = $this->getCategoryItems($category); // Use safe method
 
             if (!empty($items)) {
                 foreach ($items as $item) {
-                    $inventory = Inventory::where('item_name', $item['name'])
-                        ->where('category', $category)
+                    $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+                    $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+                    
+                    if (empty($itemName)) continue;
+
+                    $inventory = Inventory::where('item_name', 'LIKE', "%{$itemName}%")
+                        ->where('category', $this->mapCategoryForInventory($category))
                         ->where('is_active', true)
                         ->first();
 
                     if ($inventory) {
-                        $inventory->increment('current_stock', $item['quantity']);
+                        $inventory->increment('current_stock', $itemQuantity);
                         $inventory->update(['updated_by' => auth()->id()]);
                     }
                 }
@@ -274,6 +413,10 @@ class SeedlingRequest extends Model
      */
     public function updateCategoryStatus(string $category, string $status, array $approvedItems = []): bool
     {
+        if (!in_array($category, self::$categories)) {
+            throw new \InvalidArgumentException("Invalid category: {$category}");
+        }
+
         $oldStatus = $this->{$category . '_status'};
 
         // If approving, check inventory first
@@ -310,11 +453,15 @@ class SeedlingRequest extends Model
     }
 
     /**
-     * Get formatted items for a category with approval status
+     * Get formatted items for a category with approval status (enhanced with safe item access)
      */
     public function getFormattedCategoryItems(string $category): string
     {
-        $items = $this->{$category} ?? [];
+        if (!in_array($category, self::$categories)) {
+            return '';
+        }
+
+        $items = $this->getCategoryItems($category); // Use safe method
         $status = $this->{$category . '_status'} ?? 'under_review';
 
         if (empty($items)) {
@@ -322,8 +469,10 @@ class SeedlingRequest extends Model
         }
 
         $formatted = collect($items)->map(function($item) {
-            return $item['name'] . ' (' . $item['quantity'] . ' pcs)';
-        })->implode(', ');
+            $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+            $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+            return $itemName . ' (' . $itemQuantity . ' pcs)';
+        })->filter()->implode(', '); // filter() removes empty items
 
         $statusBadge = match($status) {
             'approved' => '<span class="badge bg-success ms-2">Approved</span>',
@@ -335,9 +484,15 @@ class SeedlingRequest extends Model
         return $formatted . ' ' . $statusBadge;
     }
 
-    public function getFormattedVegetablesWithStatusAttribute(): string
+    // Dynamic attribute accessors for all 6 categories
+    public function getFormattedSeedsWithStatusAttribute(): string
     {
-        return $this->getFormattedCategoryItems('vegetables');
+        return $this->getFormattedCategoryItems('seeds');
+    }
+
+    public function getFormattedSeedlingsWithStatusAttribute(): string
+    {
+        return $this->getFormattedCategoryItems('seedlings');
     }
 
     public function getFormattedFruitsWithStatusAttribute(): string
@@ -345,46 +500,89 @@ class SeedlingRequest extends Model
         return $this->getFormattedCategoryItems('fruits');
     }
 
+    public function getFormattedOrnamentalsWithStatusAttribute(): string
+    {
+        return $this->getFormattedCategoryItems('ornamentals');
+    }
+
+    public function getFormattedFingerlingsWithStatusAttribute(): string
+    {
+        return $this->getFormattedCategoryItems('fingerlings');
+    }
+
     public function getFormattedFertilizersWithStatusAttribute(): string
     {
         return $this->getFormattedCategoryItems('fertilizers');
     }
 
-    // Keep existing methods for backward compatibility
-    public function getFormattedVegetablesAttribute(): string
+    // Basic formatted methods without status badges (enhanced with safe item access)
+    public function getFormattedSeedsAttribute(): string
     {
-        if (empty($this->vegetables)) {
-            return '';
-        }
+        $items = $this->getCategoryItems('seeds');
+        if (empty($items)) return '';
+        return collect($items)->map(function($item) {
+            $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+            $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+            return $itemName . ' (' . $itemQuantity . ' pcs)';
+        })->filter()->implode(', ');
+    }
 
-        return collect($this->vegetables)->map(function($item) {
-            return $item['name'] . ' (' . $item['quantity'] . ' pcs)';
-        })->implode(', ');
+    public function getFormattedSeedlingsAttribute(): string
+    {
+        $items = $this->getCategoryItems('seedlings');
+        if (empty($items)) return '';
+        return collect($items)->map(function($item) {
+            $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+            $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+            return $itemName . ' (' . $itemQuantity . ' pcs)';
+        })->filter()->implode(', ');
     }
 
     public function getFormattedFruitsAttribute(): string
     {
-        if (empty($this->fruits)) {
-            return '';
-        }
+        $items = $this->getCategoryItems('fruits');
+        if (empty($items)) return '';
+        return collect($items)->map(function($item) {
+            $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+            $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+            return $itemName . ' (' . $itemQuantity . ' pcs)';
+        })->filter()->implode(', ');
+    }
 
-        return collect($this->fruits)->map(function($item) {
-            return $item['name'] . ' (' . $item['quantity'] . ' pcs)';
-        })->implode(', ');
+    public function getFormattedOrnamentalsAttribute(): string
+    {
+        $items = $this->getCategoryItems('ornamentals');
+        if (empty($items)) return '';
+        return collect($items)->map(function($item) {
+            $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+            $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+            return $itemName . ' (' . $itemQuantity . ' pcs)';
+        })->filter()->implode(', ');
+    }
+
+    public function getFormattedFingerlingsAttribute(): string
+    {
+        $items = $this->getCategoryItems('fingerlings');
+        if (empty($items)) return '';
+        return collect($items)->map(function($item) {
+            $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+            $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+            return $itemName . ' (' . $itemQuantity . ' pcs)';
+        })->filter()->implode(', ');
     }
 
     public function getFormattedFertilizersAttribute(): string
     {
-        if (empty($this->fertilizers)) {
-            return '';
-        }
-
-        return collect($this->fertilizers)->map(function($item) {
-            return $item['name'] . ' (' . $item['quantity'] . ' pcs)';
-        })->implode(', ');
+        $items = $this->getCategoryItems('fertilizers');
+        if (empty($items)) return '';
+        return collect($items)->map(function($item) {
+            $itemName = is_array($item) ? ($item['name'] ?? '') : (string)$item;
+            $itemQuantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+            return $itemName . ' (' . $itemQuantity . ' pcs)';
+        })->filter()->implode(', ');
     }
 
-    // Keep other existing methods...
+    // Document methods
     public function hasDocuments(): bool
     {
         return !empty($this->document_path) && Storage::disk('public')->exists($this->document_path);
@@ -395,7 +593,12 @@ class SeedlingRequest extends Model
         if ($this->hasDocuments()) {
             return Storage::disk('public')->url($this->document_path);
         }
-
         return null;
+    }
+
+    // Relationship with User
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }

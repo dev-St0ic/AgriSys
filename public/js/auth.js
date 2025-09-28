@@ -14,6 +14,12 @@ function openAuthModal(type = 'login') {
     modal.style.display = 'flex';
     showLogInForm();
     document.body.style.overflow = 'hidden';
+
+      if (type === 'signup') {
+        showSignUpForm();
+    } else {
+        showLogInForm();
+    }
 }
 
 function closeAuthModal() {

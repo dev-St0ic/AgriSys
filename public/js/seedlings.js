@@ -1,5 +1,5 @@
 // ==============================================
-// SEEDLINGS MODULE - Extracted from landing.js
+// SEEDLINGS MODULE - Updated for 6 Categories
 // ==============================================
 
 // Global variable to store user selections
@@ -9,9 +9,13 @@ window._seedlingsChoices = null;
 // MAIN NAVIGATION FUNCTIONS
 // ==============================================
 
-//Opens the seedlings choice form (first step)
+// Opens the seedlings choice form (first step)
 function openFormSeedlings(event) {
     event.preventDefault();
+
+    // Perform reset before opening form
+    performCompleteReset();
+
     hideAllMainSections();
     hideAllForms();
 
@@ -31,17 +35,18 @@ function openFormSeedlings(event) {
     history.pushState(null, '', '/services/seedlings');
 }
 
-//Closes seedlings forms and returns to main services
-
+// Closes seedlings forms and returns to main services
 function closeFormSeedlings() {
+    // Perform complete reset when closing
+    performCompleteReset();
+
     hideAllForms();
     showAllMainSections();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     history.pushState(null, '', '/services');
 }
 
-//Goes back to seedlings choice from application form
-
+// Goes back to seedlings choice from application form
 function backToSeedlingsChoice() {
     hideAllForms();
     const choice = document.getElementById('seedlings-choice');
@@ -68,8 +73,7 @@ function backToSeedlingsChoice() {
 // SELECTION MANAGEMENT
 // ==============================================
 
-//Toggles quantity input field visibility when checkbox is selected
-
+// Toggles quantity input field visibility when checkbox is selected
 function toggleQuantity(checkbox, quantityId) {
     const quantityDiv = document.getElementById(quantityId);
     if (quantityDiv) {
@@ -77,8 +81,7 @@ function toggleQuantity(checkbox, quantityId) {
     }
 }
 
-//Processes user selections and proceeds to application form
-
+// Processes user selections and proceeds to application form
 function proceedToSeedlingsForm() {
     const form = document.getElementById('seedlings-choice-form');
     if (!form) {
@@ -91,7 +94,7 @@ function proceedToSeedlingsForm() {
 
     // Validate selections
     if (!validateSelections(selections)) {
-        alert('Please select at least one: Vegetable Seedling, Fruit-bearing Seedling, or Organic Fertilizer.');
+        alert('Please select at least one item from any category.');
         return;
     }
 
@@ -109,16 +112,25 @@ function proceedToSeedlingsForm() {
     showApplicationForm();
 }
 
-//Collects all user selections with quantities
+// Collects all user selections with quantities for all 6 categories
 function collectUserSelections(form) {
-    const vegetables = [];
+    const seeds = [];
+    const seedlings = []; // Changed from vegetables to match HTML
     const fruits = [];
+    const ornamentals = [];
+    const fingerlings = [];
     const fertilizers = [];
 
-    // Collect vegetables
-    form.querySelectorAll('input[name="vegetables"]:checked').forEach(cb => {
+    // Collect seeds
+    form.querySelectorAll('input[name="seeds"]:checked').forEach(cb => {
         const quantity = getQuantityForItem(form, cb.value);
-        vegetables.push({ name: cb.value, quantity });
+        seeds.push({ name: cb.value, quantity });
+    });
+
+    // Collect seedlings (changed from vegetables)
+    form.querySelectorAll('input[name="seedlings"]:checked').forEach(cb => {
+        const quantity = getQuantityForItem(form, cb.value);
+        seedlings.push({ name: cb.value, quantity });
     });
 
     // Collect fruits
@@ -127,54 +139,124 @@ function collectUserSelections(form) {
         fruits.push({ name: cb.value, quantity });
     });
 
+    // Collect ornamentals
+    form.querySelectorAll('input[name="ornamentals"]:checked').forEach(cb => {
+        const quantity = getQuantityForItem(form, cb.value);
+        ornamentals.push({ name: cb.value, quantity });
+    });
+
+    // Collect fingerlings
+    form.querySelectorAll('input[name="fingerlings"]:checked').forEach(cb => {
+        const quantity = getQuantityForItem(form, cb.value);
+        fingerlings.push({ name: cb.value, quantity });
+    });
+
     // Collect fertilizers
     form.querySelectorAll('input[name="fertilizers"]:checked').forEach(cb => {
         const quantity = getQuantityForItem(form, cb.value);
         fertilizers.push({ name: cb.value, quantity });
     });
 
-    return { vegetables, fruits, fertilizers };
+    return { seeds, seedlings, fruits, ornamentals, fingerlings, fertilizers };
 }
 
-//Gets quantity for a specific item
+// Gets quantity for a specific item
 function getQuantityForItem(form, itemName) {
-    const quantityInput = form.querySelector(`input[name="${itemName.replace(/ /g, '_')}_quantity"]`);
+    // Create a mapping for complex item names to their quantity field names
+    const quantityFieldMap = {
+        'Emerald Bitter Gourd Seeds': 'emerald_bitter_gourd_seeds_quantity',
+        'Golden Harvest Rice Seeds': 'golden_harvest_rice_seeds_quantity',
+        'Green Gem String Bean Seeds': 'green_gem_string_bean_seeds_quantity',
+        'Okra Seeds': 'okra_seeds_quantity',
+        'Pioneer Hybrid Corn Seeds': 'pioneer_hybrid_corn_seeds_quantity',
+        'Red Ruby Tomato Seeds': 'red_ruby_tomato_seeds_quantity',
+        'Sunshine Carrot Seeds': 'sunshine_carrot_seeds_quantity',
+        'Yellow Pearl Squash Seeds': 'yellow_pearl_squash_seeds_quantity',
+        'Avocado Seedling': 'avocado_seedling_quantity',
+        'Calamansi Seedling': 'calamansi_seedling_quantity',
+        'Guava Seedling': 'guava_seedling_quantity',
+        'Guyabano Seedling': 'guyabano_seedling_quantity',
+        'Mango Seedling': 'mango_seedling_quantity',
+        'Papaya Seedling': 'papaya_seedling_quantity',
+        'Santol Seedling': 'santol_seedling_quantity',
+        'Dwarf Coconut Tree': 'dwarf_coconut_tree_quantity',
+        'Lakatan Banana Tree': 'lakatan_banana_tree_quantity',
+        'Rambutan Tree': 'rambutan_tree_quantity',
+        'Star Apple Tree': 'star_apple_tree_quantity',
+        'Anthurium': 'anthurium_quantity',
+        'Bougainvillea': 'bougainvillea_quantity',
+        'Fortune Plant': 'fortune_plant_quantity',
+        'Gumamela (Hibiscus)': 'gumamela_quantity',
+        'Sansevieria (Snake Plant)': 'sansevieria_quantity',
+        'Catfish Fingerling': 'catfish_fingerling_quantity',
+        'Milkfish (Bangus) Fingerling': 'milkfish_fingerling_quantity',
+        'Tilapia Fingerlings': 'tilapia_fingerlings_quantity',
+        'Ammonium Sulfate (21-0-0)': 'ammonium_sulfate_quantity',
+        'Humic Acid': 'humic_acid_quantity',
+        'Pre-processed Chicken Manure': 'pre_processed_chicken_manure_quantity',
+        'Urea (46-0-0)': 'urea_quantity',
+        'Vermicast Fertilizer': 'vermicast_fertilizer_quantity'
+    };
+
+    // Use the mapped field name if available, otherwise create one from the item name
+    const fieldName = quantityFieldMap[itemName] || itemName.replace(/[\s\(\)\-]/g, '_').toLowerCase() + '_quantity';
+    const quantityInput = form.querySelector(`input[name="${fieldName}"]`);
     return quantityInput ? parseInt(quantityInput.value) || 1 : 1;
 }
 
-//Validates that at least one item is selected
+// Validates that at least one item is selected
 function validateSelections(selections) {
-    return selections.vegetables.length > 0 ||
+    return selections.seeds.length > 0 ||
+           selections.seedlings.length > 0 ||
            selections.fruits.length > 0 ||
+           selections.ornamentals.length > 0 ||
+           selections.fingerlings.length > 0 ||
            selections.fertilizers.length > 0;
 }
 
-//Calculates total quantity across all selections
-
+// Calculates total quantity across all selections
 function calculateTotalQuantity(selections) {
-    return [...selections.vegetables, ...selections.fruits, ...selections.fertilizers]
+    return [...selections.seeds, ...selections.seedlings, ...selections.fruits, 
+            ...selections.ornamentals, ...selections.fingerlings, ...selections.fertilizers]
         .reduce((sum, item) => sum + item.quantity, 0);
 }
 
-//Shows summary alert to user
-
+// Shows summary alert to user
 function showSelectionSummary(selections) {
     let summary = 'You have chosen:\n\n';
 
-    if (selections.vegetables.length) {
-        summary += '🌱 Vegetable Seedlings:\n';
-        selections.vegetables.forEach(v => summary += `  • ${v.name}: ${v.quantity} pcs\n`);
+    if (selections.seeds.length) {
+        summary += '🌾 Seeds:\n';
+        selections.seeds.forEach(s => summary += `  • ${s.name}: ${s.quantity} pcs\n`);
+        summary += '\n';
+    }
+
+    if (selections.seedlings.length) {
+        summary += '🌱 Seedlings:\n';
+        selections.seedlings.forEach(v => summary += `  • ${v.name}: ${v.quantity} pcs\n`);
         summary += '\n';
     }
 
     if (selections.fruits.length) {
-        summary += '🍎 Fruit-bearing Seedlings:\n';
+        summary += '🍎 Fruit-bearing Trees:\n';
         selections.fruits.forEach(f => summary += `  • ${f.name}: ${f.quantity} pcs\n`);
         summary += '\n';
     }
 
+    if (selections.ornamentals.length) {
+        summary += '🌺 Ornamentals:\n';
+        selections.ornamentals.forEach(o => summary += `  • ${o.name}: ${o.quantity} pcs\n`);
+        summary += '\n';
+    }
+
+    if (selections.fingerlings.length) {
+        summary += '🐟 Fingerlings:\n';
+        selections.fingerlings.forEach(f => summary += `  • ${f.name}: ${f.quantity} pcs\n`);
+        summary += '\n';
+    }
+
     if (selections.fertilizers.length) {
-        summary += '🌿 Organic Fertilizers:\n';
+        summary += '🌿 Fertilizers:\n';
         selections.fertilizers.forEach(fert => summary += `  • ${fert.name}: ${fert.quantity} pcs\n`);
         summary += '\n';
     }
@@ -183,8 +265,7 @@ function showSelectionSummary(selections) {
     alert(summary);
 }
 
-//Shows the application form with proper setup
-
+// Shows the application form with proper setup
 function showApplicationForm() {
     hideAllForms();
 
@@ -203,7 +284,7 @@ function showApplicationForm() {
         }
 
         // Activate first tab
-        activateApplicationTab('seedlings-form');
+        showSeedlingsTab('seedlings-form-tab', null);
     }
 
     // Scroll to the application form smoothly
@@ -232,8 +313,7 @@ function showSeedlingsTab(tabId, event) {
     }
 
     // Get the parent section containing all tabs
-    const parentSection = event.target.closest('.seedlings-application-section') ||
-                         event.target.closest('#seedlings-form');
+    const parentSection = document.getElementById('seedlings-form');
     if (!parentSection) {
         console.error('Parent section not found for Seedlings tab switching');
         return;
@@ -250,6 +330,12 @@ function showSeedlingsTab(tabId, event) {
     // Add active class to clicked button
     if (event && event.target) {
         event.target.classList.add('active');
+    } else {
+        // If no event (programmatic call), activate the first button
+        const firstButton = parentSection.querySelector('.seedlings-tab-btn');
+        if (firstButton) {
+            firstButton.classList.add('active');
+        }
     }
 
     // Show the selected tab content
@@ -273,8 +359,7 @@ function showSeedlingsTab(tabId, event) {
 // SUPPORTING DOCUMENTS LOGIC
 // ==============================================
 
-//Shows/hides supporting documents field based on quantity
-
+// Shows/hides supporting documents field based on quantity
 function toggleSupportingDocuments(totalQuantity) {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
@@ -300,27 +385,36 @@ function toggleSupportingDocuments(totalQuantity) {
 // SUMMARY DISPLAY
 // ==============================================
 
-//Populates the summary section in the application form
-
+// Populates the summary section in the application form
 function populateSeedlingsSummary() {
     const summaryContainer = document.getElementById('seedlings-summary');
     if (!summaryContainer || !window._seedlingsChoices) return;
 
     let summaryHTML = '<h3 style="color: #40916c; margin-bottom: 15px;">📋 Your Selected Items:</h3>';
 
-    // Add vegetables section
-    if (window._seedlingsChoices.vegetables.length > 0) {
-        summaryHTML += buildSummarySection('🌱 Vegetable Seedlings:', window._seedlingsChoices.vegetables);
+    // Add all 6 categories
+    if (window._seedlingsChoices.seeds.length > 0) {
+        summaryHTML += buildSummarySection('🌾 Seeds:', window._seedlingsChoices.seeds);
     }
 
-    // Add fruits section
+    if (window._seedlingsChoices.seedlings.length > 0) {
+        summaryHTML += buildSummarySection('🌱 Seedlings:', window._seedlingsChoices.seedlings);
+    }
+
     if (window._seedlingsChoices.fruits.length > 0) {
-        summaryHTML += buildSummarySection('🍎 Fruit-bearing Seedlings:', window._seedlingsChoices.fruits);
+        summaryHTML += buildSummarySection('🍎 Fruit-bearing Trees:', window._seedlingsChoices.fruits);
     }
 
-    // Add fertilizers section
+    if (window._seedlingsChoices.ornamentals.length > 0) {
+        summaryHTML += buildSummarySection('🌺 Ornamentals:', window._seedlingsChoices.ornamentals);
+    }
+
+    if (window._seedlingsChoices.fingerlings.length > 0) {
+        summaryHTML += buildSummarySection('🐟 Fingerlings:', window._seedlingsChoices.fingerlings);
+    }
+
     if (window._seedlingsChoices.fertilizers.length > 0) {
-        summaryHTML += buildSummarySection('🌿 Organic Fertilizers:', window._seedlingsChoices.fertilizers);
+        summaryHTML += buildSummarySection('🌿 Fertilizers:', window._seedlingsChoices.fertilizers);
     }
 
     // Add total quantity display
@@ -329,8 +423,7 @@ function populateSeedlingsSummary() {
     summaryContainer.innerHTML = summaryHTML;
 }
 
-//Builds HTML for a summary section
-
+// Builds HTML for a summary section
 function buildSummarySection(title, items) {
     let html = `<div style="margin-bottom: 15px;"><strong style="color: #2d6a4f;">${title}</strong>`;
     html += '<ul style="margin: 8px 0; padding-left: 20px;">';
@@ -343,8 +436,7 @@ function buildSummarySection(title, items) {
     return html;
 }
 
-//Builds the total quantity section
-
+// Builds the total quantity section
 function buildTotalQuantitySection() {
     let html = '<div style="margin-top: 20px; padding: 15px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #40916c;">';
     html += `<strong style="color: #2d6a4f;">Total Quantity: <span style="color: #40916c; font-size: 1.2em;">${window._seedlingsChoices.totalQuantity} pcs</span></strong>`;
@@ -357,25 +449,22 @@ function buildTotalQuantitySection() {
 // ==============================================
 
 // Restores previous selections when going back
-
 function restorePreviousSelections() {
     if (!window._seedlingsChoices) return;
 
     const form = document.getElementById('seedlings-choice-form');
     if (!form) return;
 
-    // Restore vegetables
-    restoreItemSelections(form, 'vegetables', window._seedlingsChoices.vegetables);
-
-    // Restore fruits
+    // Restore all 6 categories
+    restoreItemSelections(form, 'seeds', window._seedlingsChoices.seeds);
+    restoreItemSelections(form, 'seedlings', window._seedlingsChoices.seedlings);
     restoreItemSelections(form, 'fruits', window._seedlingsChoices.fruits);
-
-    // Restore fertilizers
+    restoreItemSelections(form, 'ornamentals', window._seedlingsChoices.ornamentals);
+    restoreItemSelections(form, 'fingerlings', window._seedlingsChoices.fingerlings);
     restoreItemSelections(form, 'fertilizers', window._seedlingsChoices.fertilizers);
 }
 
-//Restores selections for a specific item type
-
+// Restores selections for a specific item type
 function restoreItemSelections(form, itemType, items) {
     items.forEach(item => {
         const checkbox = form.querySelector(`input[name="${itemType}"][value="${item.name}"]`);
@@ -383,20 +472,95 @@ function restoreItemSelections(form, itemType, items) {
             checkbox.checked = true;
 
             // Show quantity field and restore value
-            const quantityId = item.name.replace(/ /g, '-') + '-qty';
+            const quantityId = getQuantityIdForItem(item.name);
             toggleQuantity(checkbox, quantityId);
 
-            const quantityInput = form.querySelector(`input[name="${item.name.replace(/ /g, '_')}_quantity"]`);
+            const quantityFieldName = getQuantityFieldName(item.name);
+            const quantityInput = form.querySelector(`input[name="${quantityFieldName}"]`);
             if (quantityInput) quantityInput.value = item.quantity;
         }
     });
 }
 
-// ==============================================
-// FORM SUBMISSION
-// ==============================================
+// Helper function to get quantity ID for an item
+function getQuantityIdForItem(itemName) {
+    const quantityIdMap = {
+        'Emerald Bitter Gourd Seeds': 'emerald-bitter-gourd-seeds-qty',
+        'Golden Harvest Rice Seeds': 'golden-harvest-rice-seeds-qty',
+        'Green Gem String Bean Seeds': 'green-gem-string-bean-seeds-qty',
+        'Okra Seeds': 'okra-seeds-qty',
+        'Pioneer Hybrid Corn Seeds': 'pioneer-hybrid-corn-seeds-qty',
+        'Red Ruby Tomato Seeds': 'red-ruby-tomato-seeds-qty',
+        'Sunshine Carrot Seeds': 'sunshine-carrot-seeds-qty',
+        'Yellow Pearl Squash Seeds': 'yellow-pearl-squash-seeds-qty',
+        'Avocado Seedling': 'avocado-seedling-qty',
+        'Calamansi Seedling': 'calamansi-seedling-qty',
+        'Guava Seedling': 'guava-seedling-qty',
+        'Guyabano Seedling': 'guyabano-seedling-qty',
+        'Mango Seedling': 'mango-seedling-qty',
+        'Papaya Seedling': 'papaya-seedling-qty',
+        'Santol Seedling': 'santol-seedling-qty',
+        'Dwarf Coconut Tree': 'dwarf-coconut-tree-qty',
+        'Lakatan Banana Tree': 'lakatan-banana-tree-qty',
+        'Rambutan Tree': 'rambutan-tree-qty',
+        'Star Apple Tree': 'star-apple-tree-qty',
+        'Anthurium': 'anthurium-qty',
+        'Bougainvillea': 'bougainvillea-qty',
+        'Fortune Plant': 'fortune-plant-qty',
+        'Gumamela (Hibiscus)': 'gumamela-qty',
+        'Sansevieria (Snake Plant)': 'sansevieria-qty',
+        'Catfish Fingerling': 'catfish-fingerling-qty',
+        'Milkfish (Bangus) Fingerling': 'milkfish-fingerling-qty',
+        'Tilapia Fingerlings': 'tilapia-fingerlings-qty',
+        'Ammonium Sulfate (21-0-0)': 'ammonium-sulfate-qty',
+        'Humic Acid': 'humic-acid-qty',
+        'Pre-processed Chicken Manure': 'pre-processed-chicken-manure-qty',
+        'Urea (46-0-0)': 'urea-qty',
+        'Vermicast Fertilizer': 'vermicast-fertilizer-qty'
+    };
 
-//Handles seedlings request form submission
+    return quantityIdMap[itemName] || itemName.replace(/[\s\(\)\-]/g, '-').toLowerCase() + '-qty';
+}
+
+// Helper function to get quantity field name for an item
+function getQuantityFieldName(itemName) {
+    const quantityFieldMap = {
+        'Emerald Bitter Gourd Seeds': 'emerald_bitter_gourd_seeds_quantity',
+        'Golden Harvest Rice Seeds': 'golden_harvest_rice_seeds_quantity',
+        'Green Gem String Bean Seeds': 'green_gem_string_bean_seeds_quantity',
+        'Okra Seeds': 'okra_seeds_quantity',
+        'Pioneer Hybrid Corn Seeds': 'pioneer_hybrid_corn_seeds_quantity',
+        'Red Ruby Tomato Seeds': 'red_ruby_tomato_seeds_quantity',
+        'Sunshine Carrot Seeds': 'sunshine_carrot_seeds_quantity',
+        'Yellow Pearl Squash Seeds': 'yellow_pearl_squash_seeds_quantity',
+        'Avocado Seedling': 'avocado_seedling_quantity',
+        'Calamansi Seedling': 'calamansi_seedling_quantity',
+        'Guava Seedling': 'guava_seedling_quantity',
+        'Guyabano Seedling': 'guyabano_seedling_quantity',
+        'Mango Seedling': 'mango_seedling_quantity',
+        'Papaya Seedling': 'papaya_seedling_quantity',
+        'Santol Seedling': 'santol_seedling_quantity',
+        'Dwarf Coconut Tree': 'dwarf_coconut_tree_quantity',
+        'Lakatan Banana Tree': 'lakatan_banana_tree_quantity',
+        'Rambutan Tree': 'rambutan_tree_quantity',
+        'Star Apple Tree': 'star_apple_tree_quantity',
+        'Anthurium': 'anthurium_quantity',
+        'Bougainvillea': 'bougainvillea_quantity',
+        'Fortune Plant': 'fortune_plant_quantity',
+        'Gumamela (Hibiscus)': 'gumamela_quantity',
+        'Sansevieria (Snake Plant)': 'sansevieria_quantity',
+        'Catfish Fingerling': 'catfish_fingerling_quantity',
+        'Milkfish (Bangus) Fingerling': 'milkfish_fingerling_quantity',
+        'Tilapia Fingerlings': 'tilapia_fingerlings_quantity',
+        'Ammonium Sulfate (21-0-0)': 'ammonium_sulfate_quantity',
+        'Humic Acid': 'humic_acid_quantity',
+        'Pre-processed Chicken Manure': 'pre_processed_chicken_manure_quantity',
+        'Urea (46-0-0)': 'urea_quantity',
+        'Vermicast Fertilizer': 'vermicast_fertilizer_quantity'
+    };
+
+    return quantityFieldMap[itemName] || itemName.replace(/[\s\(\)\-]/g, '_').toLowerCase() + '_quantity';
+}
 
 // ==============================================
 // ENHANCED FORM SUBMISSION WITH COMPLETE RESET
@@ -464,6 +628,7 @@ function submitSeedlingsRequest(event) {
         submitBtn.disabled = false;
     });
 }
+
 // ==============================================
 // COMPLETE RESET FUNCTION
 // ==============================================
@@ -522,7 +687,7 @@ function resetChoiceForm() {
 
     // Reset all quantity inputs and hide quantity fields
     choiceForm.querySelectorAll('input[type="number"]').forEach(input => {
-        input.value = '';
+        input.value = '1'; // Reset to default value
     });
 
     // Hide all quantity divs
@@ -575,7 +740,7 @@ function resetFileInputs() {
     document.querySelectorAll('#seedlings-form input[type="file"], #seedlings-choice input[type="file"]').forEach(fileInput => {
         fileInput.value = '';
 
-        // If there's a custom file display, reset it too
+        // If there's a custom file display, reset it
         const fileDisplay = fileInput.parentElement.querySelector('.file-display');
         if (fileDisplay) {
             fileDisplay.innerHTML = '';
@@ -583,23 +748,6 @@ function resetFileInputs() {
     });
 }
 
-// ==============================================
-// ENHANCED CLOSE FUNCTION
-// ==============================================
-
-// Enhanced close function that also performs reset
-function closeFormSeedlings() {
-    // Perform complete reset when closing
-    performCompleteReset();
-
-    // Hide all forms and show main sections
-    hideAllForms();
-    showAllMainSections();
-
-    // Scroll to top and update URL
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    history.pushState(null, '', '/services');
-}
 // ==============================================
 // BROWSER REFRESH/NAVIGATION RESET
 // ==============================================
@@ -632,42 +780,6 @@ function manualReset() {
     console.log('Manual reset performed');
 }
 
-// Reset when starting a new application
-function openFormSeedlings(event) {
-    event.preventDefault();
-
-    // Perform reset before opening form
-    performCompleteReset();
-
-    hideAllMainSections();
-    hideAllForms();
-
-    const choice = document.getElementById('seedlings-choice');
-    if (choice) choice.style.display = 'block';
-
-    // Scroll to the seedlings choice form smoothly
-    setTimeout(() => {
-        const choice = document.getElementById('seedlings-choice');
-        if (choice) {
-            choice.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }, 100); // Small delay to ensure form is visible
-    history.pushState(null, '', '/services/seedlings');
-}
-
-// Make sure the form calls this function
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('seedlings-request-form');
-    if (form) {
-        form.addEventListener('submit', submitSeedlingsRequest);
-    }
-});
-
-
-
 // Gathers all form data
 function gatherFormData(form) {
     return {
@@ -675,44 +787,43 @@ function gatherFormData(form) {
         middleName: form.middle_name?.value || '',
         lastName: form.last_name?.value || '',
         mobile: form.mobile?.value || '',
+        email: form.email?.value || '',
         barangay: form.barangay?.value || '',
         address: form.address?.value || '',
         selections: window._seedlingsChoices
     };
 }
 
-//Shows final summary before submission
-
+// Shows final summary before submission
 function showFinalSummary(formData) {
     const { selections } = formData;
     let summary = 'You have chosen:\n';
 
-    if (selections.vegetables.length) {
-        summary += '- Vegetable Seedlings: ' + selections.vegetables.map(v => `${v.name} (${v.quantity})`).join(', ') + '\n';
+    if (selections.seeds.length) {
+        summary += '- Seeds: ' + selections.seeds.map(s => `${s.name} (${s.quantity})`).join(', ') + '\n';
+    }
+    if (selections.seedlings.length) {
+        summary += '- Seedlings: ' + selections.seedlings.map(v => `${v.name} (${v.quantity})`).join(', ') + '\n';
     }
     if (selections.fruits.length) {
-        summary += '- Fruit-bearing Seedlings: ' + selections.fruits.map(f => `${f.name} (${f.quantity})`).join(', ') + '\n';
+        summary += '- Fruit-bearing Trees: ' + selections.fruits.map(f => `${f.name} (${f.quantity})`).join(', ') + '\n';
+    }
+    if (selections.ornamentals.length) {
+        summary += '- Ornamentals: ' + selections.ornamentals.map(o => `${o.name} (${o.quantity})`).join(', ') + '\n';
+    }
+    if (selections.fingerlings.length) {
+        summary += '- Fingerlings: ' + selections.fingerlings.map(f => `${f.name} (${f.quantity})`).join(', ') + '\n';
     }
     if (selections.fertilizers.length) {
-        summary += '- Organic Fertilizers: ' + selections.fertilizers.map(fert => `${fert.name} (${fert.quantity})`).join(', ') + '\n';
+        summary += '- Fertilizers: ' + selections.fertilizers.map(fert => `${fert.name} (${fert.quantity})`).join(', ') + '\n';
     }
 
     summary += '\nApplicant Details:\n';
     summary += `Name: ${formData.firstName} ${formData.middleName} ${formData.lastName}\n`;
-    summary += `Mobile: ${formData.mobile}\nBarangay: ${formData.barangay}\nAddress: ${formData.address}`;
+    summary += `Mobile: ${formData.mobile}\nEmail: ${formData.email}\nBarangay: ${formData.barangay}\nAddress: ${formData.address}`;
 
     alert(summary);
 }
-
-// ==============================================
-// UTILITY FUNCTIONS (these should be imported from landing.js)
-// ==============================================
-
-// Note: These functions should remain in landing.js and be accessible globally
-// - hideAllMainSections()
-// - showAllMainSections()
-// - hideAllForms()
-// - activateApplicationTab(formId)
 
 // ==============================================
 // GLOBAL FUNCTIONS FOR COMPATIBILITY
@@ -724,5 +835,8 @@ window.closeFormSeedlings = closeFormSeedlings;
 window.proceedToSeedlingsForm = proceedToSeedlingsForm;
 window.showSeedlingsTab = showSeedlingsTab;
 window.backToSeedlingsChoice = backToSeedlingsChoice;
+window.toggleQuantity = toggleQuantity;
+window.submitSeedlingsRequest = submitSeedlingsRequest;
+window.manualReset = manualReset;
 
-console.log('Seedlings module loaded successfully');
+console.log('Seedlings module loaded successfully - 6 categories supported with complete functionality');
