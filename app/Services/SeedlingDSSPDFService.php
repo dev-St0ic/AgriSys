@@ -176,6 +176,22 @@ class SeedlingDSSPDFService
      */
     private function processAnalyticsForReport(array $data): array
     {
+        // Default categories configuration
+        $defaultCategories = [
+            'seeds' => ['requests' => 0, 'total_items' => 0],
+            'seedlings' => ['requests' => 0, 'total_items' => 0],
+            'fruits' => ['requests' => 0, 'total_items' => 0],
+            'ornamentals' => ['requests' => 0, 'total_items' => 0],
+            'fingerlings' => ['requests' => 0, 'total_items' => 0],
+            'fertilizers' => ['requests' => 0, 'total_items' => 0]
+        ];
+
+        // Merge provided category analysis with defaults
+        $categoryAnalysis = array_merge(
+            $defaultCategories,
+            is_array($data['categoryAnalysis'] ?? []) ? $data['categoryAnalysis'] : []
+        );
+
         return [
             'top_barangays' => $this->sanitizeBarangayData($data['barangayAnalysis'] ?? []),
             'bottom_barangays' => $this->sanitizeBarangayData(
@@ -186,7 +202,7 @@ class SeedlingDSSPDFService
             'top_items' => $this->sanitizeItemData($data['topItems'] ?? []),
             'least_items' => $this->sanitizeItemData($data['leastRequestedItems'] ?? []),
             'monthly_trends' => is_array($data['monthlyTrends'] ?? []) ? $data['monthlyTrends'] : [],
-            'category_analysis' => is_array($data['categoryAnalysis'] ?? []) ? $data['categoryAnalysis'] : [],
+            'category_analysis' => $categoryAnalysis,
             'status_analysis' => is_array($data['statusAnalysis'] ?? []) ? $data['statusAnalysis'] : [],
             'processing_time' => is_array($data['processingTimeAnalysis'] ?? []) ? $data['processingTimeAnalysis'] : []
         ];
@@ -238,10 +254,19 @@ class SeedlingDSSPDFService
             return [];
         }
 
-        return array_map(function ($item) {
+        $validCategories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+
+        return array_map(function ($item) use ($validCategories) {
+            $category = is_string($item['category'] ?? '') ? strtolower($item['category']) : 'uncategorized';
+            
+            // Ensure category is valid
+            if (!in_array($category, $validCategories)) {
+                $category = 'uncategorized';
+            }
+
             return [
                 'name' => is_string($item['name'] ?? '') ? $item['name'] : 'Unknown Item',
-                'category' => is_string($item['category'] ?? '') ? $item['category'] : 'uncategorized',
+                'category' => $category,
                 'total_quantity' => (int) ($item['total_quantity'] ?? 0),
                 'request_count' => (int) ($item['request_count'] ?? 0),
             ];
@@ -374,13 +399,27 @@ class SeedlingDSSPDFService
      */
     private function prepareChartsData(array $data): array
     {
+        $categoryAnalysis = is_array($data['categoryAnalysis'] ?? []) ? $data['categoryAnalysis'] : [];
+        
+        // Ensure all categories are represented
+        $defaultCategories = [
+            'seeds' => ['requests' => 0, 'total_items' => 0],
+            'seedlings' => ['requests' => 0, 'total_items' => 0],
+            'fruits' => ['requests' => 0, 'total_items' => 0],
+            'ornamentals' => ['requests' => 0, 'total_items' => 0],
+            'fingerlings' => ['requests' => 0, 'total_items' => 0],
+            'fertilizers' => ['requests' => 0, 'total_items' => 0]
+        ];
+
+        $categoryDistribution = array_merge($defaultCategories, $categoryAnalysis);
+
         return [
             'approval_rate_chart' => [
                 'approved' => (int) ($data['overview']['approved_requests'] ?? 0),
                 'rejected' => (int) (($data['overview']['total_requests'] ?? 0) - ($data['overview']['approved_requests'] ?? 0)),
                 'approval_percentage' => (float) ($data['overview']['approval_rate'] ?? 0)
             ],
-            'category_distribution' => is_array($data['categoryAnalysis'] ?? []) ? $data['categoryAnalysis'] : [],
+            'category_distribution' => $categoryDistribution,
             'monthly_performance' => is_array($data['monthlyTrends'] ?? []) ? $data['monthlyTrends'] : []
         ];
     }

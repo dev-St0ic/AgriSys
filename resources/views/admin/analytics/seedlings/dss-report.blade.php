@@ -600,18 +600,18 @@
                 </div>
                 <div class="insight-paragraph">
                     <strong>Geographic Performance Variance:</strong> Barangay-level analysis reveals significant
-                    performance disparities, with top-performing {{ $barangayAnalysis->first()->barangay ?? 'areas' }}
-                    generating {{ $barangayAnalysis->first()->total_requests ?? 'substantial' }} requests while
+                    performance disparities, with top-performing {{ $firstBarangay->barangay ?? 'areas' }}
+                    generating {{ $firstBarangay->total_requests ?? '0' }} requests while
                     underperforming regions show limited engagement. This variance indicates the need for targeted
                     outreach strategies, capacity building interventions, and equitable resource distribution
                     mechanisms.
                 </div>
                 <div class="insight-paragraph">
                     <strong>Demand Pattern Intelligence:</strong> Category distribution analysis shows
-                    {{ $topItems->first()['name'] ?? 'high-demand varieties' }} dominating requests with
-                    {{ number_format($topItems->first()['total_quantity'] ?? 0) }} units, while
-                    {{ $leastRequestedItems->first()['name'] ?? 'specialized varieties' }} showing minimal uptake at
-                    {{ number_format($leastRequestedItems->first()['total_quantity'] ?? 0) }} units. This disparity
+                    {{ $firstTopItem['name'] ?? 'high-demand varieties' }} dominating requests with
+                    {{ number_format($firstTopItem['total_quantity'] ?? 0) }} units, while
+                    {{ $firstLeastItem['name'] ?? 'specialized varieties' }} showing minimal uptake at
+                    {{ number_format($firstLeastItem['total_quantity'] ?? 0) }} units. This disparity
                     suggests opportunities for farmer education, variety diversification, and market-driven procurement
                     optimization.
                 </div>
@@ -703,7 +703,7 @@
                 <div class="recommendation-item priority-medium">
                     <strong>Strategic Priority 3:</strong> Establish comprehensive farmer education and outreach
                     programs targeting underperforming barangays to achieve equitable geographic distribution. Focus on
-                    {{ $barangayAnalysis->slice(-3)->pluck('barangay')->implode(', ') }}.
+                    {{ $barangayAnalysis->slice(-3)->pluck('barangay')->filter()->implode(', ') ?? 'target areas' }}.
                 </div>
                 <div class="recommendation-item priority-medium">
                     <strong>Strategic Priority 4:</strong> Develop digital application platform with real-time tracking

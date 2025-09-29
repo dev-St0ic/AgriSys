@@ -1,5 +1,17 @@
 {{-- resources/views/admin/analytics/seedlings.blade.php --}}
 
+
+@php
+    $overview = $overview ?? [];
+    $topItems = $topItems ?? [];
+    $leastRequestedItems = $leastRequestedItems ?? [];
+    $barangayAnalysis = $barangayAnalysis ?? collect();
+    $categoryAnalysis = $categoryAnalysis ?? [];
+    $monthlyTrends = $monthlyTrends ?? [];
+    $statusAnalysis = $statusAnalysis ?? ['counts' => []];
+    $processingTimeAnalysis = $processingTimeAnalysis ?? [];
+@endphp
+
 @extends('layouts.app')
 
 @section('title', 'Analytics - AgriSys Admin')
@@ -169,6 +181,11 @@
                                 <i class="fas fa-fire fa-2x text-danger"></i>
                             </div>
                             <h5 class="text-dark mb-2">Most Requested</h5>
+                            @php
+                                $firstTopItem = is_object($topItems) && $topItems->count() > 0 
+                                    ? $topItems->first() 
+                                    : ($topItems[0] ?? null);
+                            @endphp
                             <h4 class="text-primary mb-2">{{ $topItems->first()['name'] ?? 'N/A' }}</h4>
                             <p class="text-muted small mb-0">
                                 {{ number_format($topItems->first()['total_quantity'] ?? 0) }} units requested
@@ -612,166 +629,326 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js">
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let chartInstances = {};
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
-            // Chart.js defaults for clean appearance
-            Chart.defaults.color = '#666';
-            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-            Chart.defaults.plugins.legend.display = true;
-            Chart.defaults.plugins.tooltip.enabled = true;
-            Chart.defaults.plugins.tooltip.backgroundColor = '#fff';
-            Chart.defaults.plugins.tooltip.titleColor = '#333';
-            Chart.defaults.plugins.tooltip.bodyColor = '#333';
-            Chart.defaults.plugins.tooltip.borderColor = '#ddd';
-            Chart.defaults.plugins.tooltip.borderWidth = 1;
+<script>
+// Data safety - use server-side processing
+window.chartData = {
+    barangayData: @json($barangayAnalysis->take(10) ?? []),
+    topItems: @json($topItems ?? []),
+    categoryAnalysis: @json($categoryAnalysis ?? []),
+    monthlyTrends: @json($monthlyTrends ?? []),
+    statusAnalysis: @json($statusAnalysis ?? ['counts' => []])
+};
+</script>
+<script>
+    
+document.addEventListener('DOMContentLoaded', function() {
 
-            // Enhanced color palette with gradients
-            const colors = {
-                primary: '#007bff',
-                primaryGradient: ['#007bff', '#0056b3'],
-                success: '#28a745',
-                successGradient: ['#28a745', '#1e7e34'],
-                warning: '#ffc107',
-                warningGradient: ['#ffc107', '#e0a800'],
-                danger: '#dc3545',
-                dangerGradient: ['#dc3545', '#c82333'],
-                info: '#17a2b8',
-                infoGradient: ['#17a2b8', '#138496'],
-                secondary: '#6c757d',
-                secondaryGradient: ['#6c757d', '#545b62'],
-                purple: '#6f42c1',
-                purpleGradient: ['#6f42c1', '#59359a'],
-                orange: '#fd7e14',
-                orangeGradient: ['#fd7e14', '#e8650e'],
-                teal: '#20c997',
-                tealGradient: ['#20c997', '#1aa179']
-            };
+    // Lazy load charts to improve page load
+    // Add a small delay to prevent blocking
+    setTimeout(initializeCharts, 100);
 
-            // Enhanced Chart.js defaults
-            Chart.defaults.color = '#495057';
-            Chart.defaults.font.family = "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-            Chart.defaults.font.size = 12;
-            Chart.defaults.plugins.legend.display = true;
-            Chart.defaults.plugins.tooltip.enabled = true;
-            Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-            Chart.defaults.plugins.tooltip.titleColor = '#fff';
-            Chart.defaults.plugins.tooltip.bodyColor = '#fff';
-            Chart.defaults.plugins.tooltip.borderColor = 'rgba(255, 255, 255, 0.1)';
-            Chart.defaults.plugins.tooltip.borderWidth = 1;
-            Chart.defaults.plugins.tooltip.cornerRadius = 8;
-            Chart.defaults.plugins.tooltip.displayColors = true;
-            Chart.defaults.plugins.tooltip.padding = 12;
+    // Data safety checks
+    const safeBarangayData = @json(is_object($barangayAnalysis) ? $barangayAnalysis->take(10)->toArray() : []);
+    const safeTopItems = @json(isset($topItems) ? array_slice($topItems->toArray(), 0, 10) : []);
+    const safeCategoryAnalysis = @json($categoryAnalysis ?? []);
+    const safeMonthlyTrends = @json($monthlyTrends ?? []);
+    const safeStatusAnalysis = @json($statusAnalysis ?? ['counts' => []]);
 
-            // Animation configuration
-            const animationConfig = {
-                duration: 1500,
-                easing: 'easeOutQuart'
-            };
+    let chartInstances = {};
 
-            // Initialize all charts for seedlings
-            initializeStatusPieChart();
-            initializeTrendsChart();
-            initializeBarangayChart();
-            initializeCategoryChart();
-            initializeTopItemsChart();
-            initializeLeastItemsChart();
-            initializeProcessingTimeChart();
-            initializeSeasonalChart();
+    // Update chart initializations to use safe data
+    function initializeBarangayChart() {
+        const ctx = document.getElementById('barangayChart');
+        if (!ctx) return;
 
-            function initializeStatusPieChart() {
-                const ctx = document.getElementById('statusPieChart');
-                if (!ctx) return;
+        const barangayData = safeBarangayData.map(b => b.total_requests ?? 0);
+        const barangayLabels = safeBarangayData.map(b => b.barangay ?? 'Unknown');
 
-                const data = [{{ implode(',', $statusAnalysis['counts']) }}];
-                const labels = [
-                    @foreach ($statusAnalysis['counts'] as $status => $count)
-                        '{{ ucfirst(str_replace('_', ' ', $status)) }}',
-                    @endforeach
-                ];
+        // Create different colors for each bar
+        const barColors = barangayData.map((value, index) => {
+            const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+            const colorKeys = ['primary', 'success', 'info', 'warning', 'purple', 'teal', 'orange',
+                'secondary'
+            ];
+            const colorKey = colorKeys[index % colorKeys.length];
+            gradient.addColorStop(0, colors[colorKey]);
+            gradient.addColorStop(1, colors[colorKey + 'Gradient'][1]);
+            return gradient;
+        });
 
-                // Create gradient backgrounds
-                const gradients = labels.map((label, index) => {
-                    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
-                    if (index === 0) {
-                        gradient.addColorStop(0, colors.success);
-                        gradient.addColorStop(1, colors.successGradient[1]);
-                    } else if (index === 1) {
-                        gradient.addColorStop(0, colors.danger);
-                        gradient.addColorStop(1, colors.dangerGradient[1]);
-                    } else {
-                        gradient.addColorStop(0, colors.warning);
-                        gradient.addColorStop(1, colors.warningGradient[1]);
+        chartInstances.barangayChart = new Chart(ctx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: barangayLabels,
+                datasets: [{
+                    label: 'Total Requests',
+                    data: barangayData,
+                    backgroundColor: barColors,
+                    borderColor: 'rgba(255, 255, 255, 0.8)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    hoverBackgroundColor: barColors.map(color => color),
+                    hoverBorderColor: '#fff',
+                    hoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    ...animationConfig,
+                    delay: (context) => {
+                        return context.type === 'data' && context.mode === 'default' ? context
+                            .dataIndex * 200 : 0;
                     }
-                    return gradient;
-                });
-
-                chartInstances.statusPieChart = new Chart(ctx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: data,
-                            backgroundColor: gradients,
-                            borderWidth: 3,
-                            borderColor: '#fff',
-                            hoverBorderWidth: 5,
-                            hoverBorderColor: '#fff',
-                            hoverOffset: 15
-                        }]
+                },
+                plugins: {
+                    legend: {
+                        display: false
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '60%',
-                        animation: {
-                            ...animationConfig,
-                            animateRotate: true,
-                            animateScale: true
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 25,
-                                    usePointStyle: true,
-                                    pointStyle: 'circle',
-                                    font: {
-                                        size: 13,
-                                        weight: '500'
-                                    },
-                                    generateLabels: function(chart) {
-                                        const data = chart.data;
-                                        if (data.labels.length && data.datasets.length) {
-                                            return data.labels.map((label, i) => {
-                                                const dataset = data.datasets[0];
-                                                const value = dataset.data[i];
-                                                const total = dataset.data.reduce((a, b) => a +
-                                                    b, 0);
-                                                const percentage = total > 0 ? ((value /
-                                                    total) * 100).toFixed(1) : '0.0';
-                                                return {
-                                                    text: `${label}: ${value} (${percentage}%)`,
-                                                    fillStyle: dataset.backgroundColor[i],
-                                                    pointStyle: 'circle'
-                                                };
-                                            });
-                                        }
-                                        return [];
-                                    }
-                                }
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return `Barangay: ${context[0].label}`;
                             },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((context.raw / total) * 100)
-                                            .toFixed(1) : '0.0';
-                                        return `${context.label}: ${context.raw} (${percentage}%)`;
-                                    }
+                            label: function(context) {
+                                return `Total Requests: ${context.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                            maxRotation: 45,
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(108, 117, 125, 0.1)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            },
+                            callback: function(value) {
+                                return Number.isInteger(value) ? value : '';
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: true,
+                    mode: 'index'
+                }
+            }
+        });
+    }
+
+    function initializeCategoryChart() {
+        const ctx = document.getElementById('categoryChart');
+        if (!ctx) return;
+
+        const categoryData = Object.values(safeCategoryAnalysis).map(c => c.requests ?? 0);
+        const categoryLabels = Object.keys(safeCategoryAnalysis).map(k => k.charAt(0).toUpperCase() + k.slice(1));
+
+        // Create gradients for each category
+        const categoryGradients = categoryLabels.map((label, index) => {
+            const gradient = ctx.getContext('2d').createRadialGradient(150, 150, 20, 150, 150, 100);
+            const colorKeys = ['success', 'warning', 'info', 'danger', 'purple', 'teal', 'orange'];
+            const colorKey = colorKeys[index % colorKeys.length];
+            gradient.addColorStop(0, colors[colorKey]);
+            gradient.addColorStop(1, colors[colorKey + 'Gradient'][1]);
+            return gradient;
+        });
+
+        chartInstances.categoryChart = new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryData,
+                    backgroundColor: categoryGradients,
+                    borderWidth: 4,
+                    borderColor: '#fff',
+                    hoverBorderWidth: 6,
+                    hoverBorderColor: '#fff',
+                    hoverOffset: 20
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                animation: {
+                    ...animationConfig,
+                    animateRotate: true,
+                    animateScale: true
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 25,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 13,
+                                weight: '500'
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const dataset = data.datasets[0];
+                                        const value = dataset.data[i];
+                                        const total = dataset.data.reduce((a, b) => a +
+                                            b, 0);
+                                        const percentage = total > 0 ? ((value /
+                                            total) * 100).toFixed(1) : '0.0';
+                                        return {
+                                            text: `${label}: ${value} (${percentage}%)`,
+                                            fillStyle: dataset.backgroundColor[i],
+                                            pointStyle: 'circle'
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.raw / total) * 100)
+                                    .toFixed(1) : '0.0';
+                                return `${context.label}: ${context.raw} requests (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'point'
+                }
+            }
+        });
+    }
+
+    // Initialize all charts for seedlings
+    initializeStatusPieChart();
+    initializeTrendsChart();
+    initializeBarangayChart();
+    initializeCategoryChart();
+    initializeTopItemsChart();
+    initializeLeastItemsChart();
+    initializeProcessingTimeChart();
+    initializeSeasonalChart();
+
+    function initializeStatusPieChart() {
+        const ctx = document.getElementById('statusPieChart');
+        if (!ctx) return;
+
+        const data = [{{ implode(',', $statusAnalysis['counts']) }}];
+        const labels = [
+            @foreach ($statusAnalysis['counts'] as $status => $count)
+                '{{ ucfirst(str_replace('_', ' ', $status)) }}',
+            @endforeach
+        ];
+
+        // Create gradient backgrounds
+        const gradients = labels.map((label, index) => {
+            const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+            if (index === 0) {
+                gradient.addColorStop(0, colors.success);
+                gradient.addColorStop(1, colors.successGradient[1]);
+            } else if (index === 1) {
+                gradient.addColorStop(0, colors.danger);
+                gradient.addColorStop(1, colors.dangerGradient[1]);
+            } else {
+                gradient.addColorStop(0, colors.warning);
+                gradient.addColorStop(1, colors.warningGradient[1]);
+            }
+            return gradient;
+        });
+
+        chartInstances.statusPieChart = new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: gradients,
+                    borderWidth: 3,
+                    borderColor: '#fff',
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: '#fff',
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                animation: {
+                    ...animationConfig,
+                    animateRotate: true,
+                    animateScale: true
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 25,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: {
+                                size: 13,
+                                weight: '500'
+                            },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const dataset = data.datasets[0];
+                                        const value = dataset.data[i];
+                                        const total = dataset.data.reduce((a, b) => a +
+                                            b, 0);
+                                        const percentage = total > 0 ? ((value /
+                                            total) * 100).toFixed(1) : '0.0';
+                                        return {
+                                            text: `${label}: ${value} (${percentage}%)`,
+                                            fillStyle: dataset.backgroundColor[i],
+                                            pointStyle: 'circle'
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.raw / total) * 100)
+                                        .toFixed(1) : '0.0';
+                                    return `${context.label}: ${context.raw} (${percentage}%)`;
                                 }
                             }
                         },
@@ -922,216 +1099,6 @@
                         interaction: {
                             intersect: false,
                             mode: 'index'
-                        }
-                    }
-                });
-            }
-
-            function initializeBarangayChart() {
-                const ctx = document.getElementById('barangayChart');
-                if (!ctx) return;
-
-                const barangayData = [
-                    @foreach ($barangayAnalysis->take(10) as $barangay)
-                        {{ $barangay->total_requests }},
-                    @endforeach
-                ];
-
-                const barangayLabels = [
-                    @foreach ($barangayAnalysis->take(10) as $barangay)
-                        '{{ $barangay->barangay }}',
-                    @endforeach
-                ];
-
-                // Create different colors for each bar
-                const barColors = barangayData.map((value, index) => {
-                    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
-                    const colorKeys = ['primary', 'success', 'info', 'warning', 'purple', 'teal', 'orange',
-                        'secondary'
-                    ];
-                    const colorKey = colorKeys[index % colorKeys.length];
-                    gradient.addColorStop(0, colors[colorKey]);
-                    gradient.addColorStop(1, colors[colorKey + 'Gradient'][1]);
-                    return gradient;
-                });
-
-                chartInstances.barangayChart = new Chart(ctx.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: barangayLabels,
-                        datasets: [{
-                            label: 'Total Requests',
-                            data: barangayData,
-                            backgroundColor: barColors,
-                            borderColor: 'rgba(255, 255, 255, 0.8)',
-                            borderWidth: 2,
-                            borderRadius: 8,
-                            borderSkipped: false,
-                            hoverBackgroundColor: barColors.map(color => color),
-                            hoverBorderColor: '#fff',
-                            hoverBorderWidth: 3
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        animation: {
-                            ...animationConfig,
-                            delay: (context) => {
-                                return context.type === 'data' && context.mode === 'default' ? context
-                                    .dataIndex * 200 : 0;
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    title: function(context) {
-                                        return `Barangay: ${context[0].label}`;
-                                    },
-                                    label: function(context) {
-                                        return `Total Requests: ${context.raw}`;
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    color: '#6c757d',
-                                    maxRotation: 45,
-                                    font: {
-                                        size: 11,
-                                        weight: '500'
-                                    }
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(108, 117, 125, 0.1)',
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    color: '#6c757d',
-                                    font: {
-                                        size: 12,
-                                        weight: '500'
-                                    },
-                                    callback: function(value) {
-                                        return Number.isInteger(value) ? value : '';
-                                    }
-                                }
-                            }
-                        },
-                        interaction: {
-                            intersect: true,
-                            mode: 'index'
-                        }
-                    }
-                });
-            }
-
-            function initializeCategoryChart() {
-                const ctx = document.getElementById('categoryChart');
-                if (!ctx) return;
-
-                const categoryData = [
-                    @foreach ($categoryAnalysis as $category => $data)
-                        {{ $data['requests'] }},
-                    @endforeach
-                ];
-
-                const categoryLabels = [
-                    @foreach ($categoryAnalysis as $category => $data)
-                        '{{ ucfirst($category) }}',
-                    @endforeach
-                ];
-
-                // Create gradients for each category
-                const categoryGradients = categoryLabels.map((label, index) => {
-                    const gradient = ctx.getContext('2d').createRadialGradient(150, 150, 20, 150, 150, 100);
-                    const colorKeys = ['success', 'warning', 'info', 'danger', 'purple', 'teal', 'orange'];
-                    const colorKey = colorKeys[index % colorKeys.length];
-                    gradient.addColorStop(0, colors[colorKey]);
-                    gradient.addColorStop(1, colors[colorKey + 'Gradient'][1]);
-                    return gradient;
-                });
-
-                chartInstances.categoryChart = new Chart(ctx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: categoryLabels,
-                        datasets: [{
-                            data: categoryData,
-                            backgroundColor: categoryGradients,
-                            borderWidth: 4,
-                            borderColor: '#fff',
-                            hoverBorderWidth: 6,
-                            hoverBorderColor: '#fff',
-                            hoverOffset: 20
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '65%',
-                        animation: {
-                            ...animationConfig,
-                            animateRotate: true,
-                            animateScale: true
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 25,
-                                    usePointStyle: true,
-                                    pointStyle: 'circle',
-                                    font: {
-                                        size: 13,
-                                        weight: '500'
-                                    },
-                                    generateLabels: function(chart) {
-                                        const data = chart.data;
-                                        if (data.labels.length && data.datasets.length) {
-                                            return data.labels.map((label, i) => {
-                                                const dataset = data.datasets[0];
-                                                const value = dataset.data[i];
-                                                const total = dataset.data.reduce((a, b) => a +
-                                                    b, 0);
-                                                const percentage = total > 0 ? ((value /
-                                                    total) * 100).toFixed(1) : '0.0';
-                                                return {
-                                                    text: `${label}: ${value} (${percentage}%)`,
-                                                    fillStyle: dataset.backgroundColor[i],
-                                                    pointStyle: 'circle'
-                                                };
-                                            });
-                                        }
-                                        return [];
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = total > 0 ? ((context.raw / total) * 100)
-                                            .toFixed(1) : '0.0';
-                                        return `${context.label}: ${context.raw} requests (${percentage}%)`;
-                                    }
-                                }
-                            }
-                        },
-                        interaction: {
-                            intersect: false,
-                            mode: 'point'
                         }
                     }
                 });

@@ -27,20 +27,33 @@ class SeedlingDSSService
     public function generateInsights(array $analyticsData): array
     {
         try {
-            // Skip caching during testing - remove this line in production
-            // $cacheKey = 'seedling_dss_insights_' . md5(serialize($analyticsData));
+            $cacheKey = 'seedling_dss_insights_' . md5(serialize($analyticsData));
+            $cacheDuration = config('services.openai.cache_duration', 3600); // 1 hour default
 
-            // For now, directly call OpenAI without caching for debugging
-            if (!empty($this->openaiApiKey)) {
-                $insights = $this->callOpenAI($analyticsData);
-                Log::info('OpenAI Insights Generated:', ['insights' => $insights]);
-                return $insights;
-            } else {
-                Log::info('Using fallback insights due to missing OpenAI key');
-                return $this->getFallbackInsights($analyticsData);
-            }
+            return Cache::remember($cacheKey, $cacheDuration, function() use ($analyticsData) {
+                try {
+                    if (!empty($this->openaiApiKey)) {
+                        $insights = $this->callOpenAI($analyticsData);
+                        Log::info('OpenAI Insights Generated:', [
+                            'cache_key' => $cacheKey,
+                            'data_hash' => md5(serialize($analyticsData))
+                        ]);
+                        return $insights;
+                    }
+                    
+                    Log::info('Using fallback insights due to missing OpenAI key');
+                    return $this->getFallbackInsights($analyticsData);
+                } catch (\Exception $e) {
+                    Log::error('Failed to generate insights in cache callback', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    return $this->getFallbackInsights($analyticsData);
+                }
+            });
         } catch (\Exception $e) {
-            Log::error('DSS Insights Generation Failed: ' . $e->getMessage(), [
+            Log::error('DSS Insights Generation Failed', [
+                'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
             return $this->getFallbackInsights($analyticsData);
@@ -110,16 +123,25 @@ class SeedlingDSSService
             $barangayArray = (array) $barangayAnalysis;
         }
 
+        // Format category analysis data
+        $categoryBreakdown = collect($categoryAnalysis)->map(function($data, $category) {
+            return ucfirst($category) . ": " . ($data['requests'] ?? 0) . " requests, " . 
+                   ($data['total_items'] ?? 0) . " items";
+        })->implode('; ');
+
         return "
 AGRICULTURAL SEEDLING DISTRIBUTION PROGRAM - COMPREHENSIVE ANALYSIS REQUEST
 
 **CRITICAL DATA OVERVIEW:**
-- Total Seedling Requests Processed: " . number_format($overview['total_requests'] ?? 0) . "
+- Total Requests Processed: " . number_format($overview['total_requests'] ?? 0) . "
 - Program Approval Success Rate: " . ($overview['approval_rate'] ?? 0) . "%
-- Total Agricultural Units Distributed: " . number_format($overview['total_quantity_requested'] ?? 0) . "
-- Average Farmer Request Volume: " . number_format($overview['avg_request_size'] ?? 0, 1) . " units per application
+- Total Units Distributed: " . number_format($overview['total_quantity_requested'] ?? 0) . "
+- Average Request Volume: " . number_format($overview['avg_request_size'] ?? 0, 1) . " units per application
 - Geographic Coverage: " . ($overview['active_barangays'] ?? 0) . " barangays participating
 - Community Reach: " . number_format($overview['unique_applicants'] ?? 0) . " individual farmers served
+
+**CATEGORY DISTRIBUTION:**
+{$categoryBreakdown}
 
 **GEOGRAPHIC PERFORMANCE DATA:**
 Top Performing Areas: " . collect($barangayArray)->take(3)->map(function($b) {
@@ -134,7 +156,7 @@ Underperforming Areas: " . collect($barangayArray)->slice(-3)->map(function($b) 
            number_format(($barangay->approval_rate ?? 0), 1) . "% success rate)";
 })->implode('; ') . "
 
-**HIGH-DEMAND AGRICULTURAL ITEMS:**
+**HIGH-DEMAND ITEMS BY CATEGORY:**
 " . collect($topItems)->take(5)->map(function($item, $index) {
     return ($index + 1) . ". " . ($item['name'] ?? 'Unknown') . " (" . ($item['category'] ?? 'general') . "): " .
            number_format($item['total_quantity'] ?? 0) . " units requested across " . ($item['request_count'] ?? 0) . " applications";
@@ -148,7 +170,6 @@ Underperforming Areas: " . collect($barangayArray)->slice(-3)->map(function($b) 
 
 **OPERATIONAL METRICS:**
 - Application Processing Efficiency: " . json_encode($statusAnalysis) . "
-- Category Distribution: " . json_encode($categoryAnalysis) . "
 - Processing Time Analysis: " . json_encode($processingTime) . "
 
 **REQUIRED OUTPUT FORMAT:**

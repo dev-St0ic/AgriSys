@@ -191,13 +191,25 @@ class SeedlingAnalyticsService
     private function getTopItems(Collection $requests): array
     {
         $items = collect();
+        
+        // Update to use all 6 categories
+        $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
 
         foreach ($requests as $request) {
-            foreach (['vegetables', 'fruits', 'fertilizers'] as $category) {
-                if ($request->$category) {
-                    foreach ($request->$category as $item) {
-                        $name = is_array($item) ? $item['name'] : $item;
+            foreach ($categories as $category) {
+                $categoryData = $request->$category;
+                
+                // Safe JSON decode
+                if (is_string($categoryData)) {
+                    $categoryData = json_decode($categoryData, true);
+                }
+                
+                if ($categoryData && is_array($categoryData)) {
+                    foreach ($categoryData as $item) {
+                        $name = is_array($item) ? ($item['name'] ?? '') : $item;
                         $quantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+                        
+                        if (empty($name)) continue;
                         
                         $existing = $items->firstWhere('name', $name);
                         if ($existing) {
@@ -216,7 +228,7 @@ class SeedlingAnalyticsService
             }
         }
 
-        return $items->sortByDesc('total_quantity')->take(15)->toArray();
+        return $items->sortByDesc('total_quantity')->take(15)->values()->toArray();
     }
 
     /**
@@ -225,13 +237,25 @@ class SeedlingAnalyticsService
     private function getLeastRequestedItems(Collection $requests): array
     {
         $items = collect();
+        
+        // Update to use all 6 categories
+        $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
 
         foreach ($requests as $request) {
-            foreach (['vegetables', 'fruits', 'fertilizers'] as $category) {
-                if ($request->$category) {
-                    foreach ($request->$category as $item) {
-                        $name = is_array($item) ? $item['name'] : $item;
+            foreach ($categories as $category) {
+                $categoryData = $request->$category;
+                
+                // Safe JSON decode
+                if (is_string($categoryData)) {
+                    $categoryData = json_decode($categoryData, true);
+                }
+                
+                if ($categoryData && is_array($categoryData)) {
+                    foreach ($categoryData as $item) {
+                        $name = is_array($item) ? ($item['name'] ?? '') : $item;
                         $quantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
+                        
+                        if (empty($name)) continue;
                         
                         $existing = $items->firstWhere('name', $name);
                         if ($existing) {
@@ -250,7 +274,7 @@ class SeedlingAnalyticsService
             }
         }
 
-        return $items->sortBy('total_quantity')->take(10)->toArray();
+        return $items->sortBy('total_quantity')->take(10)->values()->toArray();
     }
 
     /**
@@ -271,17 +295,28 @@ class SeedlingAnalyticsService
      */
     private function getCategoryAnalysis(Collection $requests): array
     {
+        // Update to use all 6 categories
         $analysis = [
-            'vegetables' => ['requests' => 0, 'total_items' => 0],
+            'seeds' => ['requests' => 0, 'total_items' => 0],
+            'seedlings' => ['requests' => 0, 'total_items' => 0],
             'fruits' => ['requests' => 0, 'total_items' => 0],
+            'ornamentals' => ['requests' => 0, 'total_items' => 0],
+            'fingerlings' => ['requests' => 0, 'total_items' => 0],
             'fertilizers' => ['requests' => 0, 'total_items' => 0],
         ];
 
         foreach ($requests as $request) {
-            foreach (['vegetables', 'fruits', 'fertilizers'] as $category) {
-                if ($request->$category && count($request->$category) > 0) {
+            foreach (array_keys($analysis) as $category) {
+                $categoryData = $request->$category;
+                
+                // Safe JSON decode
+                if (is_string($categoryData)) {
+                    $categoryData = json_decode($categoryData, true);
+                }
+                
+                if ($categoryData && is_array($categoryData) && count($categoryData) > 0) {
                     $analysis[$category]['requests']++;
-                    $analysis[$category]['total_items'] += count($request->$category);
+                    $analysis[$category]['total_items'] += count($categoryData);
                 }
             }
         }
