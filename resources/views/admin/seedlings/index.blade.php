@@ -789,7 +789,7 @@
         </div>
 
         <!-- Date Filter Modal -->
-        <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel" aria-hidden="true">
+        <div class="modal fade" id="dateFilterModal" tabindex="-1">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header bg-info text-white">
@@ -873,6 +873,42 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title" id="confirmationModalLabel">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Status Update
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info mb-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Important:</strong> This action will update the status of selected items and may affect inventory levels.
+                        </div>
+                        <p class="mb-2"><strong>You are about to update:</strong></p>
+                        <ul id="confirmationList" class="mb-3">
+                            <!-- Dynamic list will be populated here -->
+                        </ul>
+                        <p class="text-muted">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            <small>Approved items will automatically deduct from inventory. This action cannot be undone.</small>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-primary" id="confirmUpdateBtn">
+                            <i class="fas fa-check me-1"></i>Yes, Update Status
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1061,6 +1097,26 @@
             background-color: #212529 !important;
             color: #ffffff !important;
         }
+
+        /* Additional styles for confirmation modal */
+        #confirmationList {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-left: 1.5rem;
+        }
+        
+        #confirmationList li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-change-badge {
+            display: inline-block;
+            margin-left: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
     </style>
 
     <script>
@@ -1199,12 +1255,119 @@
             }
         }
 
-        // Initialize tooltips
+        // Global variable to store the form being submitted
+        let formToSubmit = null;
+
+        // Intercept form submission and show confirmation
         document.addEventListener('DOMContentLoaded', function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
+            // Attach event listeners to all category forms
+            const categoryForms = document.querySelectorAll('[id^="categoryForm"]');
+            
+            categoryForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    showConfirmationModal(this);
+                });
+            });
+
+            // Handle the actual submission when confirmed
+            document.getElementById('confirmUpdateBtn').addEventListener('click', function() {
+                if (formToSubmit) {
+                    // Hide confirmation modal
+                    const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
+                    confirmModal.hide();
+                    
+                    // Submit the form
+                    formToSubmit.submit();
+                }
             });
         });
+
+        function showConfirmationModal(form) {
+            formToSubmit = form;
+            const confirmationList = document.getElementById('confirmationList');
+            confirmationList.innerHTML = '';
+
+            // Get all item status changes
+            const formData = new FormData(form);
+            const categories = formData.getAll('categories[]');
+            
+            let hasChanges = false;
+            let changeCount = 0;
+
+            categories.forEach(category => {
+                const categoryLabel = getCategoryLabel(category);
+                const categoryItems = [];
+
+                // Get all status changes for this category
+                for (let [key, value] of formData.entries()) {
+                    if (key.startsWith(`item_statuses[${category}]`)) {
+                        const itemName = key.match(/\[([^\]]+)\]$/)[1];
+                        if (value !== 'pending') {
+                            categoryItems.push({
+                                name: itemName,
+                                status: value
+                            });
+                            changeCount++;
+                            hasChanges = true;
+                        }
+                    }
+                }
+
+                // Add category section if there are changes
+                if (categoryItems.length > 0) {
+                    const categoryHeader = document.createElement('li');
+                    categoryHeader.innerHTML = `<strong>${categoryLabel}:</strong>`;
+                    confirmationList.appendChild(categoryHeader);
+
+                    const itemList = document.createElement('ul');
+                    categoryItems.forEach(item => {
+                        const listItem = document.createElement('li');
+                        const badgeClass = item.status === 'approved' ? 'bg-success' : 'bg-danger';
+                        const badgeText = item.status === 'approved' ? 'Approve' : 'Reject';
+                        listItem.innerHTML = `
+                            ${item.name}
+                            <span class="status-change-badge ${badgeClass} text-white">
+                                ${badgeText}
+                            </span>
+                        `;
+                        itemList.appendChild(listItem);
+                    });
+                    confirmationList.appendChild(itemList);
+                }
+            });
+
+            // If no changes detected, show a message
+            if (!hasChanges) {
+                confirmationList.innerHTML = '<li class="text-muted">No status changes detected. All items remain pending.</li>';
+                document.getElementById('confirmUpdateBtn').innerHTML = '<i class="fas fa-check me-1"></i>Proceed Anyway';
+            } else {
+                document.getElementById('confirmUpdateBtn').innerHTML = `<i class="fas fa-check me-1"></i>Yes, Update ${changeCount} Item${changeCount > 1 ? 's' : ''}`;
+            }
+
+            // Show the modal
+            const confirmModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            confirmModal.show();
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                'seeds': '🌾 Seeds',
+                'seedlings': '🌱 Seedlings',
+                'fruits': '🍎 Fruits',
+                'ornamentals': '🌺 Ornamentals',
+                'fingerlings': '🐟 Fingerlings',
+                'fertilizers': '🌿 Fertilizers'
+            };
+            return labels[category] || category;
+        }
+
+        function simpleConfirmSubmit(form) {
+            const result = confirm('Are you sure you want to update these item statuses?\n\nApproved items will automatically deduct from inventory.\nThis action cannot be undone.');
+            if (result) {
+                form.submit();
+            }
+            return false;
+        }
     </script>
 @endsection
