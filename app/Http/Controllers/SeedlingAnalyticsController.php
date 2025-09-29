@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Services\SeedlingDSSService;
 
 class SeedlingAnalyticsController extends Controller
 {    
@@ -227,7 +228,7 @@ class SeedlingAnalyticsController extends Controller
     }
 
     /**
-     * Get category analysis (vegetables, fruits, fertilizers)
+     * Get category analysis (seeds, seedlings, fruits, ornamentals, fingerlings, fertilizers)
      */
     private function getCategoryAnalysis($baseQuery)
     {
@@ -235,60 +236,32 @@ class SeedlingAnalyticsController extends Controller
             $requests = (clone $baseQuery)->get();
 
             $categoryStats = [
-                'vegetables' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
+                'seeds' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
+                'seedlings' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
                 'fruits' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
+                'ornamentals' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
+                'fingerlings' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
                 'fertilizers' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []]
             ];
 
             foreach ($requests as $request) {
-                // Handle JSON decoding safely
-                $vegetables = $this->safeJsonDecode($request->vegetables);
-                $fruits = $this->safeJsonDecode($request->fruits);
-                $fertilizers = $this->safeJsonDecode($request->fertilizers);
-
-                // Vegetables analysis
-                if (!empty($vegetables) && is_array($vegetables)) {
-                    $categoryStats['vegetables']['requests']++;
-                    foreach ($vegetables as $item) {
-                        if (isset($item['name']) && isset($item['quantity'])) {
-                            $quantity = (int) $item['quantity'];
-                            $categoryStats['vegetables']['total_items'] += $quantity;
-                            $name = trim($item['name']);
-                            if (!empty($name)) {
-                                $categoryStats['vegetables']['unique_items'][$name] =
-                                    ($categoryStats['vegetables']['unique_items'][$name] ?? 0) + $quantity;
-                            }
-                        }
-                    }
-                }
-
-                // Fruits analysis
-                if (!empty($fruits) && is_array($fruits)) {
-                    $categoryStats['fruits']['requests']++;
-                    foreach ($fruits as $item) {
-                        if (isset($item['name']) && isset($item['quantity'])) {
-                            $quantity = (int) $item['quantity'];
-                            $categoryStats['fruits']['total_items'] += $quantity;
-                            $name = trim($item['name']);
-                            if (!empty($name)) {
-                                $categoryStats['fruits']['unique_items'][$name] =
-                                    ($categoryStats['fruits']['unique_items'][$name] ?? 0) + $quantity;
-                            }
-                        }
-                    }
-                }
-
-                // Fertilizers analysis
-                if (!empty($fertilizers) && is_array($fertilizers)) {
-                    $categoryStats['fertilizers']['requests']++;
-                    foreach ($fertilizers as $item) {
-                        if (isset($item['name']) && isset($item['quantity'])) {
-                            $quantity = (int) $item['quantity'];
-                            $categoryStats['fertilizers']['total_items'] += $quantity;
-                            $name = trim($item['name']);
-                            if (!empty($name)) {
-                                $categoryStats['fertilizers']['unique_items'][$name] =
-                                    ($categoryStats['fertilizers']['unique_items'][$name] ?? 0) + $quantity;
+                // Process all 6 categories
+                $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+                
+                foreach ($categories as $category) {
+                    $items = $this->safeJsonDecode($request->{$category});
+                    
+                    if (!empty($items) && is_array($items)) {
+                        $categoryStats[$category]['requests']++;
+                        foreach ($items as $item) {
+                            if (isset($item['name']) && isset($item['quantity'])) {
+                                $quantity = (int) $item['quantity'];
+                                $categoryStats[$category]['total_items'] += $quantity;
+                                $name = trim($item['name']);
+                                if (!empty($name)) {
+                                    $categoryStats[$category]['unique_items'][$name] =
+                                        ($categoryStats[$category]['unique_items'][$name] ?? 0) + $quantity;
+                                }
                             }
                         }
                     }
@@ -299,8 +272,11 @@ class SeedlingAnalyticsController extends Controller
         } catch (\Exception $e) {
             Log::error('Category Analysis Error: ' . $e->getMessage());
             return [
-                'vegetables' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
+                'seeds' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
+                'seedlings' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
                 'fruits' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
+                'ornamentals' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
+                'fingerlings' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
                 'fertilizers' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []]
             ];
         }
@@ -314,63 +290,27 @@ class SeedlingAnalyticsController extends Controller
         try {
             $requests = (clone $baseQuery)->get();
             $allItems = [];
+            
+            $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
 
             foreach ($requests as $request) {
-                // Process vegetables
-                $vegetables = $this->safeJsonDecode($request->vegetables);
-                if (!empty($vegetables) && is_array($vegetables)) {
-                    foreach ($vegetables as $item) {
-                        if (isset($item['name']) && isset($item['quantity'])) {
-                            $name = trim($item['name']);
-                            if (!empty($name)) {
-                                $key = 'vegetables_' . $name;
-                                $quantity = (int) $item['quantity'];
-                                $allItems[$key] = [
-                                    'name' => $name,
-                                    'category' => 'vegetables',
-                                    'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
-                                    'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
-                                ];
-                            }
-                        }
-                    }
-                }
-
-                // Process fruits
-                $fruits = $this->safeJsonDecode($request->fruits);
-                if (!empty($fruits) && is_array($fruits)) {
-                    foreach ($fruits as $item) {
-                        if (isset($item['name']) && isset($item['quantity'])) {
-                            $name = trim($item['name']);
-                            if (!empty($name)) {
-                                $key = 'fruits_' . $name;
-                                $quantity = (int) $item['quantity'];
-                                $allItems[$key] = [
-                                    'name' => $name,
-                                    'category' => 'fruits',
-                                    'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
-                                    'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
-                                ];
-                            }
-                        }
-                    }
-                }
-
-                // Process fertilizers
-                $fertilizers = $this->safeJsonDecode($request->fertilizers);
-                if (!empty($fertilizers) && is_array($fertilizers)) {
-                    foreach ($fertilizers as $item) {
-                        if (isset($item['name']) && isset($item['quantity'])) {
-                            $name = trim($item['name']);
-                            if (!empty($name)) {
-                                $key = 'fertilizers_' . $name;
-                                $quantity = (int) $item['quantity'];
-                                $allItems[$key] = [
-                                    'name' => $name,
-                                    'category' => 'fertilizers',
-                                    'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
-                                    'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
-                                ];
+                foreach ($categories as $category) {
+                    $items = $this->safeJsonDecode($request->{$category});
+                    
+                    if (!empty($items) && is_array($items)) {
+                        foreach ($items as $item) {
+                            if (isset($item['name']) && isset($item['quantity'])) {
+                                $name = trim($item['name']);
+                                if (!empty($name)) {
+                                    $key = $category . '_' . $name;
+                                    $quantity = (int) $item['quantity'];
+                                    $allItems[$key] = [
+                                        'name' => $name,
+                                        'category' => $category,
+                                        'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
+                                        'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
+                                    ];
+                                }
                             }
                         }
                     }
@@ -396,63 +336,27 @@ class SeedlingAnalyticsController extends Controller
         try {
             $requests = (clone $baseQuery)->get();
             $allItems = [];
+            
+            $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
 
             foreach ($requests as $request) {
-                // Process vegetables
-                $vegetables = $this->safeJsonDecode($request->vegetables);
-                if (!empty($vegetables) && is_array($vegetables)) {
-                    foreach ($vegetables as $item) {
-                        if (isset($item['name']) && isset($item['quantity'])) {
-                            $name = trim($item['name']);
-                            if (!empty($name)) {
-                                $key = 'vegetables_' . $name;
-                                $quantity = (int) $item['quantity'];
-                                $allItems[$key] = [
-                                    'name' => $name,
-                                    'category' => 'vegetables',
-                                    'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
-                                    'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
-                                ];
-                            }
-                        }
-                    }
-                }
-
-                // Process fruits
-                $fruits = $this->safeJsonDecode($request->fruits);
-                if (!empty($fruits) && is_array($fruits)) {
-                    foreach ($fruits as $item) {
-                        if (isset($item['name']) && isset($item['quantity'])) {
-                            $name = trim($item['name']);
-                            if (!empty($name)) {
-                                $key = 'fruits_' . $name;
-                                $quantity = (int) $item['quantity'];
-                                $allItems[$key] = [
-                                    'name' => $name,
-                                    'category' => 'fruits',
-                                    'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
-                                    'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
-                                ];
-                            }
-                        }
-                    }
-                }
-
-                // Process fertilizers
-                $fertilizers = $this->safeJsonDecode($request->fertilizers);
-                if (!empty($fertilizers) && is_array($fertilizers)) {
-                    foreach ($fertilizers as $item) {
-                        if (isset($item['name']) && isset($item['quantity'])) {
-                            $name = trim($item['name']);
-                            if (!empty($name)) {
-                                $key = 'fertilizers_' . $name;
-                                $quantity = (int) $item['quantity'];
-                                $allItems[$key] = [
-                                    'name' => $name,
-                                    'category' => 'fertilizers',
-                                    'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
-                                    'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
-                                ];
+                foreach ($categories as $category) {
+                    $items = $this->safeJsonDecode($request->{$category});
+                    
+                    if (!empty($items) && is_array($items)) {
+                        foreach ($items as $item) {
+                            if (isset($item['name']) && isset($item['quantity'])) {
+                                $name = trim($item['name']);
+                                if (!empty($name)) {
+                                    $key = $category . '_' . $name;
+                                    $quantity = (int) $item['quantity'];
+                                    $allItems[$key] = [
+                                        'name' => $name,
+                                        'category' => $category,
+                                        'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
+                                        'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
+                                    ];
+                                }
                             }
                         }
                     }
@@ -694,7 +598,9 @@ class SeedlingAnalyticsController extends Controller
         ];
     }
 
-        // Generate Decision Support System (DSS) Report
+    /**
+     * Generate Decision Support System (DSS) Report
+     */
     public function generateDSSReport(Request $request)
     {
         try {
@@ -707,6 +613,130 @@ class SeedlingAnalyticsController extends Controller
         } catch (\Exception $e) {
             Log::error('DSS Report Generation Error: ' . $e->getMessage());
             return back()->with('error', 'Error generating DSS report: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generate comprehensive DSS report
+     */
+    public function dssReport(Request $request)
+    {
+        try {
+            // Validate request dates
+            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+            $endDate = $request->get('end_date', now()->format('Y-m-d'));
+            
+            // Validate date format and range
+            if (!$this->validateDateRange($startDate, $endDate)) {
+                return back()->with('error', 'Invalid date range specified.');
+            }
+
+            // Build base query with date filters
+            $baseQuery = SeedlingRequest::query()
+                ->when($startDate && $endDate, function($query) use ($startDate, $endDate) {
+                    return $query->whereBetween('created_at', [$startDate, $endDate]);
+                });
+
+            // Gather all required data
+            $overview = $this->getOverviewStatistics($baseQuery);
+            $analytics = $this->getAnalyticsData($startDate, $endDate);
+            $barangayAnalysis = $this->getBarangayAnalysis($baseQuery);
+            $topItems = $this->getTopRequestedItems($baseQuery);
+            $leastRequestedItems = $this->getLeastRequestedItems($baseQuery);
+
+            // Generate AI insights
+            $insights = $this->dssService->generateInsights(array_merge($overview, [
+                'analytics' => $analytics,
+                'barangayAnalysis' => $barangayAnalysis,
+                'topItems' => $topItems,
+                'leastRequestedItems' => $leastRequestedItems
+            ]));
+
+            // Prepare view data with safety checks
+            return view('admin.analytics.seedlings.dss-report', [
+                'overview' => $overview ?? [],
+                'insights' => $insights ?? [],
+                'analytics' => $analytics ?? [],
+                'barangayAnalysis' => $barangayAnalysis ?? collect(),
+                'topItems' => $topItems ?? collect(),
+                'leastRequestedItems' => $leastRequestedItems ?? collect(),
+                'period' => $this->formatPeriod($startDate, $endDate),
+                'generated_at' => now()->format('F j, Y \a\t g:i A'),
+                'ai_confidence' => $insights['ai_confidence'] ?? 'medium',
+                'title' => 'Agricultural DSS Analysis Report - ' . config('app.name')
+            ]);
+        } catch (\Exception $e) {
+            Log::error('DSS Report Generation Failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'dates' => ['start' => $startDate ?? null, 'end' => $endDate ?? null]
+            ]);
+
+            return back()->with('error', 'Failed to generate DSS report. Please try again or contact support.');
+        }
+    }
+
+    /**
+     * Validate date range for report generation
+     */
+    private function validateDateRange(?string $startDate, ?string $endDate): bool
+    {
+        if (!$startDate || !$endDate) {
+            return true; // Allow null dates to use defaults
+        }
+
+        try {
+            $start = Carbon::parse($startDate);
+            $end = Carbon::parse($endDate);
+
+            // Ensure dates are not in future and start is before end
+            return $start <= $end 
+                && $end <= now()
+                && $start->diffInYears($end) <= 2; // Max 2 years range
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get analytics data for specified period
+     * 
+     * @param string|null $startDate
+     * @param string|null $endDate
+     * @return array
+     */
+    private function getAnalyticsData($startDate, $endDate): array
+    {
+        try {
+            return $this->analyticsService->getAnalyticsData($startDate, $endDate);
+        } catch (\Exception $e) {
+            Log::error('Analytics Data Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'dates' => [
+                    'start' => $startDate,
+                    'end' => $endDate
+                ]
+            ]);
+
+            // Return safe default structure
+            return [
+                'overview' => $this->getDefaultOverview(),
+                'monthlyTrends' => [],
+                'barangayAnalysis' => collect(),
+                'categoryAnalysis' => [],
+                'statusAnalysis' => [
+                    'counts' => [],
+                    'percentages' => [],
+                    'total' => 0
+                ],
+                'processingTimeAnalysis' => [
+                    'avg_processing_days' => 0,
+                    'min_processing_days' => 0,
+                    'max_processing_days' => 0,
+                    'processed_count' => 0
+                ]
+            ];
         }
     }
 }

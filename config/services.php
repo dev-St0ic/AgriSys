@@ -47,6 +47,7 @@ return [
 
     'openai' => [
         'key' => env('OPENAI_API_KEY'),
+        'cache_duration' => env('OPENAI_CACHE_DURATION', 3600), // 1 hour
         'organization' => env('OPENAI_ORGANIZATION'),
         'model' => env('OPENAI_MODEL', 'gpt-4-turbo-preview'),
         'max_tokens' => env('OPENAI_MAX_TOKENS', 2000),
