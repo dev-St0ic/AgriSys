@@ -282,9 +282,8 @@ class SeedlingRequestController extends Controller
      */
     public function updateCategoryStatus(Request $request, SeedlingRequest $seedlingRequest)
     {
-        
         $request->validate([
-            'category' => 'required|in:' . implode(',', $validCategories),
+            'category' => 'required|in:' . implode(',', $this->validCategories),
             'status' => 'required|in:approved,rejected,under_review',
             'remarks' => 'nullable|string|max:500',
         ]);
@@ -332,10 +331,9 @@ class SeedlingRequestController extends Controller
      */
     public function bulkUpdateCategories(Request $request, SeedlingRequest $seedlingRequest)
     {
-       
         $request->validate([
             'categories' => 'required|array',
-            'categories.*' => 'required|in:' . implode(',', $validCategories),
+            'categories.*' => 'required|in:' . implode(',', $this->validCategories),
             'item_statuses' => 'required|array',
             'remarks' => 'nullable|string|max:500',
         ]);
@@ -500,13 +498,13 @@ class SeedlingRequestController extends Controller
         ]);
     }
 
+ 
     /**
      * Get category inventory status for AJAX requests (enhanced for all 6 categories)
      */
     public function getCategoryInventoryStatus(SeedlingRequest $seedlingRequest, $category)
     {
-        
-        if (!in_array($category, $validCategories)) {
+        if (!in_array($category, $this->validCategories)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid category'
