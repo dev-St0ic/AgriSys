@@ -153,50 +153,81 @@ Route::middleware('admin')->group(function () {
     // ==============================================
     // SEEDLING REQUESTS MANAGEMENT
     // ==============================================
-    Route::prefix('admin/seedling-requests')->name('admin.seedlings.')->group(function () {
 
-        // Main CRUD routes
-        Route::get('/', [SeedlingRequestController::class, 'index'])->name('requests');
-        Route::get('/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
+    // Seedling Requests Routes
+// Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])->group(function () {
+//     Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');
+//     Route::get('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
+//     Route::get('/seedlings/{seedlingRequest}/edit', [SeedlingRequestController::class, 'edit'])->name('admin.seedlings.edit');
+//     Route::get('/seedlings/create', [SeedlingRequestController::class, 'create'])->name('admin.seedlings.create');
+//     Route::delete('/seedlings/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('admin.seedlings.destroy');
+//     Route::patch('/requests/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
+//     Route::patch('/requests/{seedlingRequest}/items', [SeedlingRequestController::class, 'updateItems'])->name('update-items');
+//     Route::get('/requests/{seedlingRequest}/inventory-status', [SeedlingRequestController::class, 'getInventoryStatus'])->name('inventory-status');
+//     Route::get('/category-stats', [SeedlingRequestController::class, 'getCategoryStats'])->name('category-stats');
+// });
 
-        // Legacy status update (for overall status - maintains backward compatibility)
-        Route::patch('/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
 
-        // NEW: Category-specific status updates
-        Route::patch('/{seedlingRequest}/category-status', [SeedlingRequestController::class, 'updateCategoryStatus'])
-            ->name('update-category-status');
 
-        // NEW: Bulk update multiple categories at once
-        Route::patch('/{seedlingRequest}/bulk-categories', [SeedlingRequestController::class, 'bulkUpdateCategories'])
-            ->name('bulk-update-categories');
 
-        // AJAX routes for real-time inventory checking
-        Route::get('/{seedlingRequest}/inventory', [SeedlingRequestController::class, 'getInventoryStatus'])
-            ->name('inventory-status');
+// Seedling Requests Routes
+Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])->group(function () {
+    Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');
+    Route::get('/requests/create', [SeedlingRequestController::class, 'create'])->name('create');
+    Route::post('/requests', [SeedlingRequestController::class, 'store'])->name('store');
+    Route::get('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
+    Route::get('/requests/{seedlingRequest}/edit', [SeedlingRequestController::class, 'edit'])->name('edit');
+    Route::put('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'update'])->name('update');
+    Route::delete('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
+    Route::patch('/requests/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
+    Route::patch('/requests/{seedlingRequest}/items', [SeedlingRequestController::class, 'updateItems'])->name('update-items');
+    Route::get('/requests/{seedlingRequest}/inventory-status', [SeedlingRequestController::class, 'getInventoryStatus'])->name('inventory-status');
+    Route::get('/category-stats', [SeedlingRequestController::class, 'getCategoryStats'])->name('category-stats');
+});
+    // Route::prefix('admin/seedling-requests')->name('admin.seedlings.')->group(function () {
 
-        Route::get('/{seedlingRequest}/inventory/{category}', [SeedlingRequestController::class, 'getCategoryInventoryStatus'])
-            ->name('category-inventory-status');
+    //     // Main CRUD routes
+    //     Route::get('/', [SeedlingRequestController::class, 'index'])->name('requests');
+    //     Route::get('/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
 
-        // Export functionality
-        Route::get('/export', [SeedlingRequestController::class, 'export'])->name('export');
+    //     // Legacy status update (for overall status - maintains backward compatibility)
+    //     Route::patch('/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
 
-        // Delete functionality
-        Route::delete('/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
+    //     // NEW: Category-specific status updates
+    //     Route::patch('/{seedlingRequest}/category-status', [SeedlingRequestController::class, 'updateCategoryStatus'])
+    //         ->name('update-category-status');
 
-        // Optional: Category-specific reports
-        Route::get('/reports/category-summary', [SeedlingRequestController::class, 'categorySummaryReport'])
-            ->name('category-summary');
+    //     // NEW: Bulk update multiple categories at once
+    //     Route::patch('/{seedlingRequest}/bulk-categories', [SeedlingRequestController::class, 'bulkUpdateCategories'])
+    //         ->name('bulk-update-categories');
 
-        // Optional: Individual category reports
-        Route::get('/reports/vegetables', [SeedlingRequestController::class, 'vegetablesReport'])
-            ->name('vegetables-report');
+    //     // AJAX routes for real-time inventory checking
+    //     Route::get('/{seedlingRequest}/inventory', [SeedlingRequestController::class, 'getInventoryStatus'])
+    //         ->name('inventory-status');
 
-        Route::get('/reports/fruits', [SeedlingRequestController::class, 'fruitsReport'])
-            ->name('fruits-report');
+    //     Route::get('/{seedlingRequest}/inventory/{category}', [SeedlingRequestController::class, 'getCategoryInventoryStatus'])
+    //         ->name('category-inventory-status');
 
-        Route::get('/reports/fertilizers', [SeedlingRequestController::class, 'fertilizersReport'])
-            ->name('fertilizers-report');
-    });
+    //     // Export functionality
+    //     Route::get('/export', [SeedlingRequestController::class, 'export'])->name('export');
+
+    //     // Delete functionality
+    //     Route::delete('/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
+
+    //     // Optional: Category-specific reports
+    //     Route::get('/reports/category-summary', [SeedlingRequestController::class, 'categorySummaryReport'])
+    //         ->name('category-summary');
+
+    //     // Optional: Individual category reports
+    //     Route::get('/reports/vegetables', [SeedlingRequestController::class, 'vegetablesReport'])
+    //         ->name('vegetables-report');
+
+    //     Route::get('/reports/fruits', [SeedlingRequestController::class, 'fruitsReport'])
+    //         ->name('fruits-report');
+
+    //     Route::get('/reports/fertilizers', [SeedlingRequestController::class, 'fertilizersReport'])
+    //         ->name('fertilizers-report');
+    // });
     // ==============================================
     // ANALYTICS ROUTES - SECTION
     // ==============================================
