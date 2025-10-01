@@ -12,6 +12,22 @@
 
 @section('content')
     <div class="container-fluid">
+        <!-- Action Buttons Row -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0">Seedling Requests Management</h3>
+            <div class="btn-group">
+                <a href="{{ route('admin.seedlings.categories.index') }}" class="btn btn-success">
+                    <i class="fas fa-layer-group me-2"></i>Manage Dispersals
+                </a>
+                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                    <i class="fas fa-plus me-2"></i>New Dispersal
+                </button>
+                <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-2"></i>Create Dispersal
+                </a>
+            </div>
+        </div>
+
         <!-- Statistics Cards -->
         <div class="row g-3 mb-4">
             <div class="col-xl-2 col-md-4">
@@ -290,7 +306,7 @@
                                                     <i class="fas fa-eye"></i> View
                                                 </button>
 
-                                                  <!-- Add New Request Button -->
+                                                  <!-- Add New Request Button
                                                 <div class="mb-3">
                                                     <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
                                                         <i class="fas fa-plus-circle me-2"></i>Create New Request
@@ -300,12 +316,13 @@
                                                     <a href="{{ route('admin.seedlings.edit', $request) }}" class="btn btn-outline-warning">
                                                         <i class="fas fa-edit"></i> Edit
                                                     </a>
-                                                @endif
+                                                @endif -->
                                                 <button type="button" class="btn btn-outline-success"
                                                     data-bs-toggle="modal" data-bs-target="#updateModal{{ $request->id }}">
                                                     <i class="fas fa-edit"></i> Update
                                                 </button>
                                             </div>
+                                            
                                             
                                             @if ($request->hasDocuments())
                                                 <button type="button" class="btn btn-sm btn-outline-info mt-1"
@@ -768,6 +785,14 @@
             color: #adb5bd;
             background-color: transparent;
             cursor: not-allowed;
+        }
+
+        .btn-group > .btn {
+            margin-right: 0.25rem;
+        }
+
+        .btn-group > .btn:last-child {
+            margin-right: 0;
         }
     </style>
 

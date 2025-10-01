@@ -184,6 +184,16 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::get('/requests/{seedlingRequest}/inventory-status', [SeedlingRequestController::class, 'getInventoryStatus'])->name('inventory-status');
     Route::get('/category-stats', [SeedlingRequestController::class, 'getCategoryStats'])->name('category-stats');
 
+     // Seedling Categories Routes
+    Route::prefix('seedlings/categories')->name('seedlings.categories.')->group(function () {
+        Route::get('/', [SeedlingCategoryController::class, 'index'])->name('index');
+        Route::get('/create', [SeedlingCategoryController::class, 'create'])->name('create');
+        Route::post('/', [SeedlingCategoryController::class, 'store'])->name('store');
+        Route::get('/{category}', [SeedlingCategoryController::class, 'show'])->name('show');
+        Route::get('/{category}/edit', [SeedlingCategoryController::class, 'edit'])->name('edit');
+        Route::put('/{category}', [SeedlingCategoryController::class, 'update'])->name('update');
+        Route::delete('/{category}', [SeedlingCategoryController::class, 'destroy'])->name('destroy');
+    });
     //  Route::post('/admin/categories', [CategoryItemController::class, 'storeCategory'])->name('admin.categories.store');
     // Route::put('/admin/categories/{category}', [CategoryItemController::class, 'updateCategory'])->name('admin.categories.update');
     // Route::delete('/admin/categories/{category}', [CategoryItemController::class, 'destroyCategory'])->name('admin.categories.destroy');
@@ -195,19 +205,34 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     // Route::delete('/admin/category-items/{item}', [CategoryItemController::class, 'destroyItem'])->name('admin.items.destroy');
     // Route::post('/admin/category-items/{item}/toggle', [CategoryItemController::class, 'toggleItemStatus'])->name('admin.items.toggle');
 
-     // Category Management
-    Route::get('/categories/{category}', [CategoryItemController::class, 'showCategory']);
-    Route::post('/categories', [CategoryItemController::class, 'storeCategory']);
-    Route::put('/categories/{category}', [CategoryItemController::class, 'updateCategory']);
-    Route::delete('/categories/{category}', [CategoryItemController::class, 'destroyCategory']);
-    Route::post('/categories/{category}/toggle', [CategoryItemController::class, 'toggleCategoryStatus']);
+    //  // Category Management
+    // Route::get('/categories/{category}', [CategoryItemController::class, 'showCategory']);
+    // Route::post('/categories', [CategoryItemController::class, 'storeCategory']);
+    // Route::put('/categories/{category}', [CategoryItemController::class, 'updateCategory']);
+    // Route::delete('/categories/{category}', [CategoryItemController::class, 'destroyCategory']);
+    // Route::post('/categories/{category}/toggle', [CategoryItemController::class, 'toggleCategoryStatus']);
+    
+    // // Item Management
+    // Route::get('/items/{item}', [CategoryItemController::class, 'showItem']);
+    // Route::post('/items', [CategoryItemController::class, 'storeItem']);
+    // Route::put('/items/{item}', [CategoryItemController::class, 'updateItem']);
+    // Route::delete('/items/{item}', [CategoryItemController::class, 'destroyItem']);
+    // Route::post('/items/{item}/toggle', [CategoryItemController::class, 'toggleItemStatus']);
+
+    // Category Management
+    Route::get('/categories', [CategoryItemController::class, 'indexCategories'])->name('categories.index');
+    Route::get('/categories/{category}', [CategoryItemController::class, 'showCategory'])->name('categories.show');
+    Route::post('/categories', [CategoryItemController::class, 'storeCategory'])->name('categories.store');
+    Route::put('/categories/{category}', [CategoryItemController::class, 'updateCategory'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryItemController::class, 'destroyCategory'])->name('categories.destroy');
+    Route::post('/categories/{category}/toggle', [CategoryItemController::class, 'toggleCategoryStatus'])->name('categories.toggle');
     
     // Item Management
-    Route::get('/items/{item}', [CategoryItemController::class, 'showItem']);
-    Route::post('/items', [CategoryItemController::class, 'storeItem']);
-    Route::put('/items/{item}', [CategoryItemController::class, 'updateItem']);
-    Route::delete('/items/{item}', [CategoryItemController::class, 'destroyItem']);
-    Route::post('/items/{item}/toggle', [CategoryItemController::class, 'toggleItemStatus']);
+    Route::get('/items/{item}', [CategoryItemController::class, 'showItem'])->name('items.show');
+    Route::post('/items', [CategoryItemController::class, 'storeItem'])->name('items.store');
+    Route::post('/items/{item}', [CategoryItemController::class, 'updateItem'])->name('items.update');
+    Route::delete('/items/{item}', [CategoryItemController::class, 'destroyItem'])->name('items.destroy');
+    Route::post('/items/{item}/toggle', [CategoryItemController::class, 'toggleItemStatus'])->name('items.toggle');
 });
     // Route::prefix('admin/seedling-requests')->name('admin.seedlings.')->group(function () {
 

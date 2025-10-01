@@ -1,16 +1,24 @@
 <?php
-// app/Http/Controllers/CategoryItemController.php
 
 namespace App\Http\Controllers;
 
 use App\Models\RequestCategory;
 use App\Models\CategoryItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryItemController extends Controller
 {
-    // Category CRUD
+    // ==========================================
+    // CATEGORY CRUD OPERATIONS
+    // ==========================================
+    
+    public function indexCategories()
+    {
+        $categories = RequestCategory::with('items')->orderBy('display_order')->get();
+        return view('admin.seedlings.categories.index', compact('categories'));
+    }
+
     public function storeCategory(Request $request)
     {
         $validated = $request->validate([
@@ -26,7 +34,7 @@ class CategoryItemController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Category created successfully',
-            'category' => $category
+            'category' => $category->load('items')
         ]);
     }
 
@@ -46,17 +54,16 @@ class CategoryItemController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Category updated successfully',
-            'category' => $category
+            'category' => $category->load('items')
         ]);
     }
 
     public function destroyCategory(RequestCategory $category)
     {
-        // Check if category has items
         if ($category->items()->count() > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Cannot delete category with existing items'
+                'message' => 'Cannot delete category with existing items. Please delete all items first.'
             ], 422);
         }
 
@@ -68,7 +75,21 @@ class CategoryItemController extends Controller
         ]);
     }
 
-    // Item CRUD
+    public function toggleCategoryStatus(RequestCategory $category)
+    {
+        $category->update(['is_active' => !$category->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Category status updated successfully',
+            'is_active' => $category->is_active
+        ]);
+    }
+
+    // ==========================================
+    // ITEM CRUD OPERATIONS
+    // ==========================================
+
     public function storeItem(Request $request)
     {
         $validated = $request->validate([
@@ -112,7 +133,7 @@ class CategoryItemController extends Controller
         if ($request->hasFile('image')) {
             // Delete old image
             if ($item->image_path) {
-                \Storage::disk('public')->delete($item->image_path);
+                Storage::disk('public')->delete($item->image_path);
             }
             $validated['image_path'] = $request->file('image')->store('category-items', 'public');
         }
@@ -128,7 +149,6 @@ class CategoryItemController extends Controller
 
     public function destroyItem(CategoryItem $item)
     {
-        // Check if item is used in any requests
         if ($item->requestItems()->count() > 0) {
             return response()->json([
                 'success' => false,
@@ -138,7 +158,7 @@ class CategoryItemController extends Controller
 
         // Delete image
         if ($item->image_path) {
-            \Storage::disk('public')->delete($item->image_path);
+            Storage::disk('public')->delete($item->image_path);
         }
 
         $item->delete();
@@ -160,21 +180,9 @@ class CategoryItemController extends Controller
         ]);
     }
 
-    public function toggleCategoryStatus(RequestCategory $category)
-    {
-        $category->update(['is_active' => !$category->is_active]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Category status updated successfully',
-            'is_active' => $category->is_active
-        ]);
-    }
-
-
     public function showCategory(RequestCategory $category)
     {
-        return response()->json($category);
+        return response()->json($category->load('items'));
     }
 
     public function showItem(CategoryItem $item)
