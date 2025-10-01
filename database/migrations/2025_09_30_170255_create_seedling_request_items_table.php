@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('seedling_request_id')->constrained('seedling_requests')->onDelete('cascade');
             $table->foreignId('category_id')->constrained('request_categories')->onDelete('cascade');
             $table->foreignId('category_item_id')->nullable()->constrained('category_items')->onDelete('set null');
-            $table->string('item_name'); // Stored for history even if item is deleted
+            $table->string('item_name');
             $table->integer('requested_quantity');
             $table->integer('approved_quantity')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');

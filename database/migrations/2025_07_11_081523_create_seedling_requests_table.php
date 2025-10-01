@@ -51,6 +51,7 @@ return new class extends Migration
             $table->index('status');
             $table->index('barangay');
             $table->index('created_at');
+            $table->index('request_number');
         });
     }
 

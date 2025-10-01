@@ -97,7 +97,9 @@ class SeedlingRequestController extends Controller
         }
 
         $totalRequests = $statsQuery->count();
-        $underReviewCount = $statsQuery->where('status', 'under_review')->orWhere('status', 'pending')->count();
+        $underReviewCount = (clone $statsQuery)->where(function($q) {
+            $q->where('status', 'under_review')->orWhere('status', 'pending');
+        })->count();
         $approvedCount = (clone $statsQuery)->where('status', 'approved')->count();
         $partiallyApprovedCount = (clone $statsQuery)->where('status', 'partially_approved')->count();
         $rejectedCount = (clone $statsQuery)->where('status', 'rejected')->count();
@@ -105,8 +107,10 @@ class SeedlingRequestController extends Controller
         // Get unique barangays for filter dropdown
         $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
 
-        // Get active categories for filter dropdown
-        $categories = RequestCategory::active()->ordered()->get();
+        // Get active categories with items for the index page (for create modal)
+        $categories = RequestCategory::with(['items' => function($query) {
+            $query->where('is_active', true)->orderBy('display_order');
+        }])->where('is_active', true)->orderBy('display_order')->get();
 
         return view('admin.seedlings.index', compact(
             'requests',
@@ -125,7 +129,11 @@ class SeedlingRequestController extends Controller
      */
     public function create()
     {
-        $categories = RequestCategory::with('activeItems')->active()->ordered()->get();
+        // Load categories with their active items for dynamic selection
+        $categories = RequestCategory::with(['items' => function($query) {
+            $query->where('is_active', true)->orderBy('display_order');
+        }])->where('is_active', true)->orderBy('display_order')->get();
+        
         $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
         
         return view('admin.seedlings.create', compact('categories', 'barangays'));
@@ -136,7 +144,8 @@ class SeedlingRequestController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
+            // Personal Information
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -149,9 +158,14 @@ class SeedlingRequestController extends Controller
             'purpose' => 'nullable|string|max:1000',
             'preferred_delivery_date' => 'nullable|date|after:today',
             'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            
+            // Items - Dynamic array structure
             'items' => 'required|array|min:1',
             'items.*.category_item_id' => 'required|exists:category_items,id',
             'items.*.quantity' => 'required|integer|min:1',
+        ], [
+            'items.required' => 'Please add at least one item to the request.',
+            'items.min' => 'Please add at least one item to the request.',
         ]);
 
         try {
@@ -165,25 +179,25 @@ class SeedlingRequestController extends Controller
 
             // Create the main request
             $seedlingRequest = SeedlingRequest::create([
-                'first_name' => $request->first_name,
-                'middle_name' => $request->middle_name,
-                'last_name' => $request->last_name,
-                'extension_name' => $request->extension_name,
-                'contact_number' => $request->contact_number,
-                'email' => $request->email,
-                'address' => $request->address,
-                'barangay' => $request->barangay,
-                'planting_location' => $request->planting_location,
-                'purpose' => $request->purpose,
-                'preferred_delivery_date' => $request->preferred_delivery_date,
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'last_name' => $validated['last_name'],
+                'extension_name' => $validated['extension_name'],
+                'contact_number' => $validated['contact_number'],
+                'email' => $validated['email'],
+                'address' => $validated['address'],
+                'barangay' => $validated['barangay'],
+                'planting_location' => $validated['planting_location'],
+                'purpose' => $validated['purpose'],
+                'preferred_delivery_date' => $validated['preferred_delivery_date'],
                 'document_path' => $documentPath,
                 'status' => 'pending',
             ]);
 
-            // Create request items
+            // Create request items from dynamic selections
             $totalQuantity = 0;
-            foreach ($request->items as $itemData) {
-                $categoryItem = CategoryItem::findOrFail($itemData['category_item_id']);
+            foreach ($validated['items'] as $itemData) {
+                $categoryItem = CategoryItem::with('category')->findOrFail($itemData['category_item_id']);
                 
                 SeedlingRequestItem::create([
                     'seedling_request_id' => $seedlingRequest->id,
@@ -207,6 +221,8 @@ class SeedlingRequestController extends Controller
 
         } catch (\Exception $e) {
             \DB::rollback();
+            \Log::error('Failed to create seedling request: ' . $e->getMessage());
+            
             return redirect()->back()
                 ->withErrors(['error' => 'Failed to create request: ' . $e->getMessage()])
                 ->withInput();
@@ -214,26 +230,24 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Show a specific seedling request
-     */
-    public function show(SeedlingRequest $seedlingRequest)
-    {
-        $seedlingRequest->load(['items.category', 'items.categoryItem', 'reviewer']);
-        return view('admin.seedlings.show', compact('seedlingRequest'));
-    }
-
-    /**
      * Show the form for editing a seedling request
      */
     public function edit(SeedlingRequest $seedlingRequest)
     {
-        // Only allow editing pending requests
+        // Only allow editing pending or under_review requests
         if (!in_array($seedlingRequest->status, ['pending', 'under_review'])) {
-            return redirect()->back()->with('error', 'Cannot edit approved, rejected, or cancelled requests.');
+            return redirect()->route('admin.seedlings.requests')
+                ->with('error', 'Cannot edit approved, rejected, or cancelled requests.');
         }
 
-        $categories = RequestCategory::with('activeItems')->active()->ordered()->get();
+        // Load categories with active items for dynamic item selection
+        $categories = RequestCategory::with(['items' => function($query) {
+            $query->where('is_active', true)->orderBy('display_order');
+        }])->where('is_active', true)->orderBy('display_order')->get();
+        
         $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
+        
+        // Load existing items with their relationships
         $seedlingRequest->load(['items.category', 'items.categoryItem']);
         
         return view('admin.seedlings.edit', compact('seedlingRequest', 'categories', 'barangays'));
@@ -244,12 +258,14 @@ class SeedlingRequestController extends Controller
      */
     public function update(Request $request, SeedlingRequest $seedlingRequest)
     {
-        // Only allow editing pending requests
+        // Only allow editing pending or under_review requests
         if (!in_array($seedlingRequest->status, ['pending', 'under_review'])) {
-            return redirect()->back()->with('error', 'Cannot edit approved, rejected, or cancelled requests.');
+            return redirect()->route('admin.seedlings.requests')
+                ->with('error', 'Cannot edit approved, rejected, or cancelled requests.');
         }
 
-        $request->validate([
+        $validated = $request->validate([
+            // Personal Information
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -262,46 +278,50 @@ class SeedlingRequestController extends Controller
             'purpose' => 'nullable|string|max:1000',
             'preferred_delivery_date' => 'nullable|date|after:today',
             'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            
+            // Items - Dynamic array structure
             'items' => 'required|array|min:1',
             'items.*.category_item_id' => 'required|exists:category_items,id',
             'items.*.quantity' => 'required|integer|min:1',
+        ], [
+            'items.required' => 'Please add at least one item to the request.',
+            'items.min' => 'Please add at least one item to the request.',
         ]);
 
         try {
             \DB::beginTransaction();
 
-            // Handle document upload
+            // Handle document upload/replacement
             if ($request->hasFile('document')) {
                 // Delete old document if exists
                 if ($seedlingRequest->document_path) {
                     \Storage::disk('public')->delete($seedlingRequest->document_path);
                 }
-                $documentPath = $request->file('document')->store('seedling-requests', 'public');
-                $seedlingRequest->document_path = $documentPath;
+                $seedlingRequest->document_path = $request->file('document')->store('seedling-requests', 'public');
             }
 
-            // Update main request
+            // Update main request information
             $seedlingRequest->update([
-                'first_name' => $request->first_name,
-                'middle_name' => $request->middle_name,
-                'last_name' => $request->last_name,
-                'extension_name' => $request->extension_name,
-                'contact_number' => $request->contact_number,
-                'email' => $request->email,
-                'address' => $request->address,
-                'barangay' => $request->barangay,
-                'planting_location' => $request->planting_location,
-                'purpose' => $request->purpose,
-                'preferred_delivery_date' => $request->preferred_delivery_date,
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'last_name' => $validated['last_name'],
+                'extension_name' => $validated['extension_name'],
+                'contact_number' => $validated['contact_number'],
+                'email' => $validated['email'],
+                'address' => $validated['address'],
+                'barangay' => $validated['barangay'],
+                'planting_location' => $validated['planting_location'],
+                'purpose' => $validated['purpose'],
+                'preferred_delivery_date' => $validated['preferred_delivery_date'],
             ]);
 
-            // Delete old items
+            // Delete all existing items
             $seedlingRequest->items()->delete();
 
-            // Create new items
+            // Re-create items from the updated dynamic selections
             $totalQuantity = 0;
-            foreach ($request->items as $itemData) {
-                $categoryItem = CategoryItem::findOrFail($itemData['category_item_id']);
+            foreach ($validated['items'] as $itemData) {
+                $categoryItem = CategoryItem::with('category')->findOrFail($itemData['category_item_id']);
                 
                 SeedlingRequestItem::create([
                     'seedling_request_id' => $seedlingRequest->id,
@@ -325,6 +345,8 @@ class SeedlingRequestController extends Controller
 
         } catch (\Exception $e) {
             \DB::rollback();
+            \Log::error('Failed to update seedling request: ' . $e->getMessage());
+            
             return redirect()->back()
                 ->withErrors(['error' => 'Failed to update request: ' . $e->getMessage()])
                 ->withInput();
@@ -337,14 +359,28 @@ class SeedlingRequestController extends Controller
     public function destroy(SeedlingRequest $seedlingRequest)
     {
         try {
-            // Only allow deletion of pending requests
+            // Only allow deletion of pending, under_review, or rejected requests
             if (!in_array($seedlingRequest->status, ['pending', 'under_review', 'rejected'])) {
-                return redirect()->back()->with('error', 'Cannot delete approved requests. Please reject it first.');
+                return redirect()->back()
+                    ->with('error', 'Cannot delete approved requests. Please reject it first.');
             }
 
-            // If approved items exist, restore inventory
-            if ($seedlingRequest->status === 'approved' || $seedlingRequest->status === 'partially_approved') {
-                $seedlingRequest->restoreToInventory();
+            // If there are approved items, restore inventory
+            $approvedItems = $seedlingRequest->items()->where('status', 'approved')->get();
+            if ($approvedItems->count() > 0) {
+                foreach ($approvedItems as $item) {
+                    if ($item->categoryItem) {
+                        $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$item->item_name}%")
+                            ->where('category', $item->category->getInventoryCategoryName())
+                            ->where('is_active', true)
+                            ->first();
+
+                        if ($inventory) {
+                            $inventory->increment('current_stock', $item->approved_quantity ?? $item->requested_quantity);
+                            $inventory->update(['updated_by' => auth()->id()]);
+                        }
+                    }
+                }
             }
 
             $seedlingRequest->delete();
@@ -353,102 +389,14 @@ class SeedlingRequestController extends Controller
                 ->with('success', 'Seedling request deleted successfully!');
 
         } catch (\Exception $e) {
+            \Log::error('Failed to delete seedling request: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Failed to delete request: ' . $e->getMessage());
         }
     }
 
     /**
-     * Update the status of a seedling request
-     */
-    public function updateStatus(Request $request, SeedlingRequest $seedlingRequest)
-    {
-        $request->validate([
-            'status' => 'required|in:approved,rejected,under_review',
-            'remarks' => 'nullable|string|max:500',
-        ]);
-
-        $newStatus = $request->status;
-
-        try {
-            \DB::beginTransaction();
-
-            if ($newStatus === 'approved') {
-                // Check inventory availability
-                $inventoryCheck = $seedlingRequest->checkInventoryAvailability();
-                
-                if (!$inventoryCheck['can_fulfill']) {
-                    throw new \Exception('Insufficient inventory to approve all items');
-                }
-
-                // Approve all items
-                foreach ($seedlingRequest->items as $item) {
-                    $item->update([
-                        'status' => 'approved',
-                        'approved_quantity' => $item->requested_quantity
-                    ]);
-                }
-
-                // Deduct from inventory
-                if (!$seedlingRequest->deductFromInventory()) {
-                    throw new \Exception('Failed to deduct items from inventory');
-                }
-
-            } elseif ($newStatus === 'rejected') {
-                // Reject all items
-                foreach ($seedlingRequest->items as $item) {
-                    $item->update(['status' => 'rejected']);
-                }
-            } else {
-                // Reset to under review
-                foreach ($seedlingRequest->items as $item) {
-                    if ($item->status === 'approved') {
-                        // Restore inventory for previously approved items
-                        $seedlingRequest->restoreToInventory();
-                    }
-                    $item->update(['status' => 'pending']);
-                }
-            }
-
-            $seedlingRequest->update([
-                'status' => $newStatus,
-                'remarks' => $request->remarks,
-                'reviewed_by' => auth()->id(),
-                'reviewed_at' => now(),
-                'approved_at' => $newStatus === 'approved' ? now() : null,
-                'rejected_at' => $newStatus === 'rejected' ? now() : null,
-            ]);
-
-            \DB::commit();
-
-            // Send email notification if approved and email is available
-            if ($newStatus === 'approved' && $seedlingRequest->email) {
-                try {
-                    Mail::to($seedlingRequest->email)->send(new ApplicationApproved($seedlingRequest, 'seedling'));
-                } catch (\Exception $e) {
-                    \Log::error('Failed to send approval email: ' . $e->getMessage());
-                }
-            }
-
-            $message = match($newStatus) {
-                'approved' => 'Request approved successfully and inventory has been updated.',
-                'rejected' => 'Request rejected successfully.',
-                'under_review' => 'Request moved back to under review.',
-                default => 'Request status updated successfully.'
-            };
-
-            return redirect()->back()->with('success', $message);
-
-        } catch (\Exception $e) {
-            \DB::rollback();
-            return redirect()->back()
-                ->withErrors(['error' => $e->getMessage()])
-                ->withInput();
-        }
-    }
-
-    /**
-     * Update individual items in a request
+     * Update individual items in a request (for approval/rejection)
      */
     public function updateItems(Request $request, SeedlingRequest $seedlingRequest)
     {
@@ -477,7 +425,7 @@ class SeedlingRequestController extends Controller
                     if ($item->categoryItem) {
                         $check = $item->categoryItem->checkInventoryAvailability($item->requested_quantity);
                         if (!$check['available']) {
-                            throw new \Exception("Insufficient stock for {$item->item_name}");
+                            throw new \Exception("Insufficient stock for {$item->item_name}. Available: {$check['current_stock']}, Requested: {$item->requested_quantity}");
                         }
                     }
                     
@@ -517,7 +465,7 @@ class SeedlingRequestController extends Controller
                             ->first();
 
                         if ($inventory) {
-                            $inventory->increment('current_stock', $item->requested_quantity);
+                            $inventory->increment('current_stock', $item->approved_quantity ?? $item->requested_quantity);
                             $inventory->update(['updated_by' => auth()->id()]);
                         }
                     }
@@ -537,7 +485,7 @@ class SeedlingRequestController extends Controller
                             ->first();
 
                         if ($inventory) {
-                            $inventory->increment('current_stock', $item->requested_quantity);
+                            $inventory->increment('current_stock', $item->approved_quantity ?? $item->requested_quantity);
                             $inventory->update(['updated_by' => auth()->id()]);
                         }
                     }
@@ -559,74 +507,30 @@ class SeedlingRequestController extends Controller
                 'remarks' => $request->remarks,
                 'reviewed_by' => auth()->id(),
                 'reviewed_at' => now(),
-                'approved_at' => $overallStatus === 'approved' ? now() : null,
+                'approved_at' => ($overallStatus === 'approved' || $overallStatus === 'partially_approved') ? now() : null,
                 'rejected_at' => $overallStatus === 'rejected' ? now() : null,
-                'approved_quantity' => $seedlingRequest->approvedItems()->sum('approved_quantity')
             ]);
 
             \DB::commit();
+
+            // Send email notification if fully approved and email is available
+            if ($overallStatus === 'approved' && $seedlingRequest->email) {
+                try {
+                    Mail::to($seedlingRequest->email)->send(new ApplicationApproved($seedlingRequest, 'seedling'));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send approval email: ' . $e->getMessage());
+                }
+            }
 
             return redirect()->back()->with('success', 'Items updated successfully and inventory adjusted.');
 
         } catch (\Exception $e) {
             \DB::rollback();
+            \Log::error('Failed to update items: ' . $e->getMessage());
+            
             return redirect()->back()
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();
         }
-    }
-
-    /**
-     * Get inventory status for AJAX requests
-     */
-    public function getInventoryStatus(SeedlingRequest $seedlingRequest)
-    {
-        $inventoryStatus = $seedlingRequest->checkInventoryAvailability();
-
-        return response()->json([
-            'success' => true,
-            'data' => $inventoryStatus
-        ]);
-    }
-
-    /**
-     * Get category statistics for dashboard/reports
-     */
-    public function getCategoryStats(Request $request)
-    {
-        $query = SeedlingRequest::with('items');
-
-        // Apply date filters if provided
-        if ($request->has('date_from') && !empty($request->date_from)) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-
-        if ($request->has('date_to') && !empty($request->date_to)) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
-
-        $requests = $query->get();
-        $categories = RequestCategory::active()->get();
-
-        $stats = [];
-        foreach ($categories as $category) {
-            $categoryItems = SeedlingRequestItem::where('category_id', $category->id)
-                ->whereIn('seedling_request_id', $requests->pluck('id'))
-                ->get();
-
-            $stats[$category->name] = [
-                'display_name' => $category->display_name,
-                'total_requests' => $categoryItems->unique('seedling_request_id')->count(),
-                'total_items' => $categoryItems->count(),
-                'approved' => $categoryItems->where('status', 'approved')->count(),
-                'rejected' => $categoryItems->where('status', 'rejected')->count(),
-                'pending' => $categoryItems->where('status', 'pending')->count(),
-            ];
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $stats
-        ]);
     }
 }

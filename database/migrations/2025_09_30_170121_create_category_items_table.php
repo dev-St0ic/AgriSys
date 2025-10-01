@@ -11,17 +11,19 @@ return new class extends Migration
         Schema::create('category_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained('request_categories')->onDelete('cascade');
-            $table->string('name'); // Item name
+            $table->string('name');
             $table->text('description')->nullable();
-            $table->string('unit')->default('pcs'); // pcs, kg, liters, etc.
-            $table->decimal('price', 10, 2)->nullable(); // Optional pricing
+            $table->string('unit')->default('pcs');
+            $table->decimal('price', 10, 2)->nullable();
             $table->integer('min_quantity')->default(1);
             $table->integer('max_quantity')->nullable();
-            $table->boolean('is_available')->default(true);
-            $table->integer('sort_order')->default(0);
+            $table->string('image_path')->nullable(); // Added for images
+            $table->boolean('is_active')->default(true); // Changed from is_available
+            $table->integer('display_order')->default(0); // Changed from sort_order
             $table->timestamps();
             
-            $table->index(['category_id', 'is_available']);
+            $table->index(['category_id', 'is_active']);
+            $table->index('display_order');
         });
     }
 

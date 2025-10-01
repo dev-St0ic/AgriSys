@@ -18,16 +18,16 @@ class RequestCategorySeeder extends Seeder
                 'display_name' => 'Seeds',
                 'icon' => 'fa-seedling',
                 'description' => 'Various vegetable and crop seeds',
-                'sort_order' => 1,
+                'display_order' => 1,
                 'items' => [
-                    ['name' => 'Emerald Bitter Gourd Seeds', 'unit' => 'pack', 'sort_order' => 1],
-                    ['name' => 'Golden Harvest Rice Seeds', 'unit' => 'kg', 'sort_order' => 2],
-                    ['name' => 'Green Gem String Bean Seeds', 'unit' => 'pack', 'sort_order' => 3],
-                    ['name' => 'Okra Seeds', 'unit' => 'pack', 'sort_order' => 4],
-                    ['name' => 'Pioneer Hybrid Corn Seeds', 'unit' => 'kg', 'sort_order' => 5],
-                    ['name' => 'Red Ruby Tomato Seeds', 'unit' => 'pack', 'sort_order' => 6],
-                    ['name' => 'Sunshine Carrot Seeds', 'unit' => 'pack', 'sort_order' => 7],
-                    ['name' => 'Yellow Pearl Squash Seeds', 'unit' => 'pack', 'sort_order' => 8],
+                    ['name' => 'Emerald Bitter Gourd Seeds', 'unit' => 'pack', 'display_order' => 1],
+                    ['name' => 'Golden Harvest Rice Seeds', 'unit' => 'kg', 'display_order' => 2],
+                    ['name' => 'Green Gem String Bean Seeds', 'unit' => 'pack', 'display_order' => 3],
+                    ['name' => 'Okra Seeds', 'unit' => 'pack', 'display_order' => 4],
+                    ['name' => 'Pioneer Hybrid Corn Seeds', 'unit' => 'kg', 'display_order' => 5],
+                    ['name' => 'Red Ruby Tomato Seeds', 'unit' => 'pack', 'display_order' => 6],
+                    ['name' => 'Sunshine Carrot Seeds', 'unit' => 'pack', 'display_order' => 7],
+                    ['name' => 'Yellow Pearl Squash Seeds', 'unit' => 'pack', 'display_order' => 8],
                 ]
             ],
             [
@@ -35,15 +35,15 @@ class RequestCategorySeeder extends Seeder
                 'display_name' => 'Seedlings',
                 'icon' => 'fa-leaf',
                 'description' => 'Fruit tree seedlings',
-                'sort_order' => 2,
+                'display_order' => 2,
                 'items' => [
-                    ['name' => 'Avocado Seedling', 'unit' => 'pcs', 'sort_order' => 1],
-                    ['name' => 'Calamansi Seedling', 'unit' => 'pcs', 'sort_order' => 2],
-                    ['name' => 'Guava Seedling', 'unit' => 'pcs', 'sort_order' => 3],
-                    ['name' => 'Guyabano Seedling', 'unit' => 'pcs', 'sort_order' => 4],
-                    ['name' => 'Mango Seedling', 'unit' => 'pcs', 'sort_order' => 5],
-                    ['name' => 'Papaya Seedling', 'unit' => 'pcs', 'sort_order' => 6],
-                    ['name' => 'Santol Seedling', 'unit' => 'pcs', 'sort_order' => 7],
+                    ['name' => 'Avocado Seedling', 'unit' => 'pcs', 'display_order' => 1],
+                    ['name' => 'Calamansi Seedling', 'unit' => 'pcs', 'display_order' => 2],
+                    ['name' => 'Guava Seedling', 'unit' => 'pcs', 'display_order' => 3],
+                    ['name' => 'Guyabano Seedling', 'unit' => 'pcs', 'display_order' => 4],
+                    ['name' => 'Mango Seedling', 'unit' => 'pcs', 'display_order' => 5],
+                    ['name' => 'Papaya Seedling', 'unit' => 'pcs', 'display_order' => 6],
+                    ['name' => 'Santol Seedling', 'unit' => 'pcs', 'display_order' => 7],
                 ]
             ],
             [
@@ -51,12 +51,12 @@ class RequestCategorySeeder extends Seeder
                 'display_name' => 'Fruit Trees',
                 'icon' => 'fa-tree',
                 'description' => 'Mature fruit trees',
-                'sort_order' => 3,
+                'display_order' => 3,
                 'items' => [
-                    ['name' => 'Dwarf Coconut Tree', 'unit' => 'pcs', 'sort_order' => 1],
-                    ['name' => 'Lakatan Banana Tree', 'unit' => 'pcs', 'sort_order' => 2],
-                    ['name' => 'Rambutan Tree', 'unit' => 'pcs', 'sort_order' => 3],
-                    ['name' => 'Star Apple Tree', 'unit' => 'pcs', 'sort_order' => 4],
+                    ['name' => 'Dwarf Coconut Tree', 'unit' => 'pcs', 'display_order' => 1],
+                    ['name' => 'Lakatan Banana Tree', 'unit' => 'pcs', 'display_order' => 2],
+                    ['name' => 'Rambutan Tree', 'unit' => 'pcs', 'display_order' => 3],
+                    ['name' => 'Star Apple Tree', 'unit' => 'pcs', 'display_order' => 4],
                 ]
             ],
             [
@@ -64,13 +64,13 @@ class RequestCategorySeeder extends Seeder
                 'display_name' => 'Ornamental Plants',
                 'icon' => 'fa-spa',
                 'description' => 'Decorative and ornamental plants',
-                'sort_order' => 4,
+                'display_order' => 4,
                 'items' => [
-                    ['name' => 'Anthurium', 'unit' => 'pcs', 'sort_order' => 1],
-                    ['name' => 'Bougainvillea', 'unit' => 'pcs', 'sort_order' => 2],
-                    ['name' => 'Fortune Plant', 'unit' => 'pcs', 'sort_order' => 3],
-                    ['name' => 'Gumamela (Hibiscus)', 'unit' => 'pcs', 'sort_order' => 4],
-                    ['name' => 'Sansevieria (Snake Plant)', 'unit' => 'pcs', 'sort_order' => 5],
+                    ['name' => 'Anthurium', 'unit' => 'pcs', 'display_order' => 1],
+                    ['name' => 'Bougainvillea', 'unit' => 'pcs', 'display_order' => 2],
+                    ['name' => 'Fortune Plant', 'unit' => 'pcs', 'display_order' => 3],
+                    ['name' => 'Gumamela (Hibiscus)', 'unit' => 'pcs', 'display_order' => 4],
+                    ['name' => 'Sansevieria (Snake Plant)', 'unit' => 'pcs', 'display_order' => 5],
                 ]
             ],
             [
@@ -78,11 +78,11 @@ class RequestCategorySeeder extends Seeder
                 'display_name' => 'Fingerlings',
                 'icon' => 'fa-fish',
                 'description' => 'Fish fingerlings for aquaculture',
-                'sort_order' => 5,
+                'display_order' => 5,
                 'items' => [
-                    ['name' => 'Catfish Fingerling', 'unit' => 'pcs', 'min_quantity' => 50, 'sort_order' => 1],
-                    ['name' => 'Milkfish (Bangus) Fingerling', 'unit' => 'pcs', 'min_quantity' => 100, 'sort_order' => 2],
-                    ['name' => 'Tilapia Fingerlings', 'unit' => 'pcs', 'min_quantity' => 100, 'sort_order' => 3],
+                    ['name' => 'Catfish Fingerling', 'unit' => 'pcs', 'min_quantity' => 50, 'display_order' => 1],
+                    ['name' => 'Milkfish (Bangus) Fingerling', 'unit' => 'pcs', 'min_quantity' => 100, 'display_order' => 2],
+                    ['name' => 'Tilapia Fingerlings', 'unit' => 'pcs', 'min_quantity' => 100, 'display_order' => 3],
                 ]
             ],
             [
@@ -90,13 +90,13 @@ class RequestCategorySeeder extends Seeder
                 'display_name' => 'Fertilizers',
                 'icon' => 'fa-flask',
                 'description' => 'Organic and inorganic fertilizers',
-                'sort_order' => 6,
+                'display_order' => 6,
                 'items' => [
-                    ['name' => 'Ammonium Sulfate (21-0-0)', 'unit' => 'kg', 'sort_order' => 1],
-                    ['name' => 'Humic Acid', 'unit' => 'liter', 'sort_order' => 2],
-                    ['name' => 'Pre-processed Chicken Manure', 'unit' => 'kg', 'sort_order' => 3],
-                    ['name' => 'Urea (46-0-0)', 'unit' => 'kg', 'sort_order' => 4],
-                    ['name' => 'Vermicast Fertilizer', 'unit' => 'kg', 'sort_order' => 5],
+                    ['name' => 'Ammonium Sulfate (21-0-0)', 'unit' => 'kg', 'display_order' => 1],
+                    ['name' => 'Humic Acid', 'unit' => 'liter', 'display_order' => 2],
+                    ['name' => 'Pre-processed Chicken Manure', 'unit' => 'kg', 'display_order' => 3],
+                    ['name' => 'Urea (46-0-0)', 'unit' => 'kg', 'display_order' => 4],
+                    ['name' => 'Vermicast Fertilizer', 'unit' => 'kg', 'display_order' => 5],
                 ]
             ],
         ];

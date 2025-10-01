@@ -10,13 +10,16 @@ return new class extends Migration
     {
         Schema::create('request_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // e.g., 'seeds', 'seedlings', 'fruits'
-            $table->string('display_name'); // e.g., 'Seeds', 'Seedlings', 'Fruit Trees'
-            $table->string('icon')->nullable(); // icon class or path
+            $table->string('name')->unique();
+            $table->string('display_name');
+            $table->string('icon')->nullable();
             $table->text('description')->nullable();
-            $table->integer('sort_order')->default(0);
+            $table->integer('display_order')->default(0); // Changed from sort_order
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+            
+            $table->index('display_order');
+            $table->index('is_active');
         });
     }
 
