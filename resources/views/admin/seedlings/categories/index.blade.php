@@ -72,7 +72,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($category->items->sortBy('display_order') as $item)
+                                        @foreach($category->items->sortBy('name') as $item)
                                             <tr>
                                                 <td>
                                                     @if($item->image_path)
@@ -230,7 +230,24 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Unit *</label>
-                        <input type="text" name="unit" class="form-control" value="pcs" required>
+                        <select name="unit" class="form-select" required>
+                            <option value="">Select unit...</option>
+                            <option value="pcs" selected>Pieces (pcs)</option>
+                            <option value="kg">Kilogram (kg)</option>
+                            <option value="g">Gram (g)</option>
+                            <option value="lbs">Pound (lbs)</option>
+                            <option value="L">Liter (L)</option>
+                            <option value="mL">Milliliter (mL)</option>
+                            <option value="gal">Gallon (gal)</option>
+                            <option value="m">Meter (m)</option>
+                            <option value="cm">Centimeter (cm)</option>
+                            <option value="ft">Feet (ft)</option>
+                            <option value="box">Box</option>
+                            <option value="bag">Bag</option>
+                            <option value="bundle">Bundle</option>
+                            <option value="pack">Pack</option>
+                            <option value="set">Set</option>
+                        </select>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -241,10 +258,6 @@
                             <label class="form-label">Max Quantity</label>
                             <input type="number" name="max_quantity" class="form-control" min="1">
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Display Order</label>
-                        <input type="number" name="display_order" class="form-control" value="0" min="0">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Image</label>
@@ -284,7 +297,24 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Unit *</label>
-                        <input type="text" id="edit_item_unit" name="unit" class="form-control" required>
+                        <select id="edit_item_unit" name="unit" class="form-select" required>
+                            <option value="">Select unit...</option>
+                            <option value="pcs">Pieces (pcs)</option>
+                            <option value="kg">Kilogram (kg)</option>
+                            <option value="g">Gram (g)</option>
+                            <option value="lbs">Pound (lbs)</option>
+                            <option value="L">Liter (L)</option>
+                            <option value="mL">Milliliter (mL)</option>
+                            <option value="gal">Gallon (gal)</option>
+                            <option value="m">Meter (m)</option>
+                            <option value="cm">Centimeter (cm)</option>
+                            <option value="ft">Feet (ft)</option>
+                            <option value="box">Box</option>
+                            <option value="bag">Bag</option>
+                            <option value="bundle">Bundle</option>
+                            <option value="pack">Pack</option>
+                            <option value="set">Set</option>
+                        </select>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -295,10 +325,6 @@
                             <label class="form-label">Max Quantity</label>
                             <input type="number" id="edit_item_max_quantity" name="max_quantity" class="form-control" min="1">
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Display Order</label>
-                        <input type="number" id="edit_item_display_order" name="display_order" class="form-control" min="0">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Current Image</label>
@@ -323,207 +349,258 @@
 // CSRF Token
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+// Helper function for fetch requests with error handling
+async function makeRequest(url, options) {
+    try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.message || 'Request failed');
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
 // Category Functions
 function setItemCategory(categoryId) {
     document.getElementById('item_category_id').value = categoryId;
 }
 
-function editCategory(categoryId) {
-    fetch(`/admin/seedlings/categories/${categoryId}`)
-        .then(response => response.json())
-        .then(category => {
-            document.getElementById('edit_category_id').value = category.id;
-            document.getElementById('edit_category_name').value = category.name;
-            document.getElementById('edit_category_display_name').value = category.display_name;
-            document.getElementById('edit_category_icon').value = category.icon || '';
-            document.getElementById('edit_category_description').value = category.description || '';
-            document.getElementById('edit_category_display_order').value = category.display_order;
-            
-            new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+async function editCategory(categoryId) {
+    try {
+        const category = await makeRequest(`/admin/seedlings/categories/${categoryId}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
         });
+        
+        document.getElementById('edit_category_id').value = category.id;
+        document.getElementById('edit_category_name').value = category.name;
+        document.getElementById('edit_category_display_name').value = category.display_name;
+        document.getElementById('edit_category_icon').value = category.icon || '';
+        document.getElementById('edit_category_description').value = category.description || '';
+        document.getElementById('edit_category_display_order').value = category.display_order;
+        
+        new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+    } catch (error) {
+        alert('Error loading category: ' + error.message);
+    }
 }
 
-function toggleCategory(categoryId) {
-    if (confirm('Are you sure you want to toggle this category status?')) {
-        fetch(`/admin/seedlings/categories/${categoryId}/toggle`, {
+async function toggleCategory(categoryId) {
+    if (!confirm('Are you sure you want to toggle this category status?')) {
+        return;
+    }
+    
+    try {
+        const data = await makeRequest(`/admin/seedlings/categories/${categoryId}/toggle`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
+                'Accept': 'application/json'
             }
         });
+        
+        alert(data.message);
+        location.reload();
+    } catch (error) {
+        alert('Error toggling category: ' + error.message);
     }
 }
 
-function deleteCategory(categoryId) {
-    if (confirm('Are you sure? This will delete the category permanently.')) {
-        fetch(`/admin/seedlings/categories/${categoryId}`, {
+async function deleteCategory(categoryId) {
+    if (!confirm('Are you sure? This will delete the category permanently.')) {
+        return;
+    }
+    
+    try {
+        const data = await makeRequest(`/admin/seedlings/categories/${categoryId}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.success) {
-                location.reload();
+                'Accept': 'application/json'
             }
         });
+        
+        alert(data.message);
+        location.reload();
+    } catch (error) {
+        alert('Error deleting category: ' + error.message);
     }
 }
 
 // Item Functions
-function editItem(itemId) {
-    fetch(`/admin/seedlings/items/${itemId}`)
-        .then(response => response.json())
-        .then(item => {
-            document.getElementById('edit_item_id').value = item.id;
-            document.getElementById('edit_item_category_id').value = item.category_id;
-            document.getElementById('edit_item_name').value = item.name;
-            document.getElementById('edit_item_description').value = item.description || '';
-            document.getElementById('edit_item_unit').value = item.unit;
-            document.getElementById('edit_item_min_quantity').value = item.min_quantity;
-            document.getElementById('edit_item_max_quantity').value = item.max_quantity || '';
-            document.getElementById('edit_item_display_order').value = item.display_order;
-            
-            const imageDiv = document.getElementById('current_item_image');
-            if (item.image_path) {
-                imageDiv.innerHTML = `<img src="/storage/${item.image_path}" class="img-thumbnail" style="max-width: 200px;">`;
-            } else {
-                imageDiv.innerHTML = '<p class="text-muted">No image</p>';
+async function editItem(itemId) {
+    try {
+        const item = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
             }
-            
-            new bootstrap.Modal(document.getElementById('editItemModal')).show();
         });
+        
+        document.getElementById('edit_item_id').value = item.id;
+        document.getElementById('edit_item_category_id').value = item.category_id;
+        document.getElementById('edit_item_name').value = item.name;
+        document.getElementById('edit_item_description').value = item.description || '';
+        document.getElementById('edit_item_unit').value = item.unit;
+        document.getElementById('edit_item_min_quantity').value = item.min_quantity || '';
+        document.getElementById('edit_item_max_quantity').value = item.max_quantity || '';
+        
+        const imageDiv = document.getElementById('current_item_image');
+        if (item.image_path) {
+            imageDiv.innerHTML = `<img src="/storage/${item.image_path}" class="img-thumbnail" style="max-width: 200px;">`;
+        } else {
+            imageDiv.innerHTML = '<p class="text-muted">No image</p>';
+        }
+        
+        new bootstrap.Modal(document.getElementById('editItemModal')).show();
+    } catch (error) {
+        alert('Error loading item: ' + error.message);
+    }
 }
 
-function toggleItem(itemId) {
-    if (confirm('Are you sure you want to toggle this item status?')) {
-        fetch(`/admin/seedlings/items/${itemId}/toggle`, {
+async function toggleItem(itemId) {
+    if (!confirm('Are you sure you want to toggle this item status?')) {
+        return;
+    }
+    
+    try {
+        const data = await makeRequest(`/admin/seedlings/items/${itemId}/toggle`, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
+                'Accept': 'application/json'
             }
         });
+        
+        alert(data.message);
+        location.reload();
+    } catch (error) {
+        alert('Error toggling item: ' + error.message);
     }
 }
 
-function deleteItem(itemId) {
-    if (confirm('Are you sure? This will delete the item permanently.')) {
-        fetch(`/admin/seedlings/items/${itemId}`, {
+async function deleteItem(itemId) {
+    if (!confirm('Are you sure? This will delete the item permanently.')) {
+        return;
+    }
+    
+    try {
+        const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.success) {
-                location.reload();
+                'Accept': 'application/json'
             }
         });
+        
+        alert(data.message);
+        location.reload();
+    } catch (error) {
+        alert('Error deleting item: ' + error.message);
     }
 }
 
 // Form Submissions
-document.getElementById('createCategoryForm').addEventListener('submit', function(e) {
+document.getElementById('createCategoryForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     
-    fetch('/admin/seedlings/categories', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': csrfToken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+    try {
+        const data = await makeRequest('/admin/seedlings/categories', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        });
+        
         alert(data.message);
-        if (data.success) {
-            location.reload();
-        }
-    });
+        location.reload();
+    } catch (error) {
+        alert('Error creating category: ' + error.message);
+    }
 });
 
-document.getElementById('editCategoryForm').addEventListener('submit', function(e) {
+document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const categoryId = document.getElementById('edit_category_id').value;
     const formData = new FormData(this);
+    formData.append('_method', 'PUT');
     
-    fetch(`/admin/seedlings/categories/${categoryId}`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': csrfToken,
-            'X-HTTP-Method-Override': 'PUT'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+    try {
+        const data = await makeRequest(`/admin/seedlings/categories/${categoryId}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        });
+        
         alert(data.message);
-        if (data.success) {
-            location.reload();
-        }
-    });
+        location.reload();
+    } catch (error) {
+        alert('Error updating category: ' + error.message);
+    }
 });
 
-document.getElementById('createItemForm').addEventListener('submit', function(e) {
+document.getElementById('createItemForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     
-    fetch('/admin/seedlings/items', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': csrfToken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+    try {
+        const data = await makeRequest('/admin/seedlings/items', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        });
+        
         alert(data.message);
-        if (data.success) {
-            location.reload();
-        }
-    });
+        location.reload();
+    } catch (error) {
+        alert('Error creating item: ' + error.message);
+    }
 });
 
-document.getElementById('editItemForm').addEventListener('submit', function(e) {
+document.getElementById('editItemForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const itemId = document.getElementById('edit_item_id').value;
     const formData = new FormData(this);
+    formData.append('_method', 'PUT');
     
-    fetch(`/admin/seedlings/items/${itemId}`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': csrfToken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+    try {
+        const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        });
+        
         alert(data.message);
-        if (data.success) {
-            location.reload();
-        }
-    });
+        location.reload();
+    } catch (error) {
+        alert('Error updating item: ' + error.message);
+    }
 });
 </script>
 
