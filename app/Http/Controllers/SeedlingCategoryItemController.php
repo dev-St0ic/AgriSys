@@ -17,7 +17,7 @@ class SeedlingCategoryItemController extends Controller
     {
         $categories = RequestCategory::with(['items' => function($query) {
             $query->orderBy('name', 'asc');
-        }])->orderBy('display_order')->get();
+        }])->orderBy('name', 'asc')->get();
         
         return view('admin.seedlings.categories.index', compact('categories'));
     }
@@ -29,11 +29,14 @@ class SeedlingCategoryItemController extends Controller
             'display_name' => 'required|string|max:255',
             'icon' => 'nullable|string|max:50',
             'description' => 'nullable|string|max:500',
-            'display_order' => 'nullable|integer|min:0',
         ]);
 
         // Set category as inactive by default when created
         $validated['is_active'] = false;
+
+        // Auto-calculate display_order alphabetically
+        $maxOrder = RequestCategory::max('display_order') ?? -1;
+        $validated['display_order'] = $maxOrder + 1;
 
         $category = RequestCategory::create($validated);
 

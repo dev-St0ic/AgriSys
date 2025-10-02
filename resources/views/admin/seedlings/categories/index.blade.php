@@ -144,16 +144,43 @@
                         <input type="text" name="display_name" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Icon (Font Awesome class)</label>
-                        <input type="text" name="icon" class="form-control" placeholder="fa-seedling">
+                        <label class="form-label">Icon *</label>
+                        <select name="icon" id="create_icon" class="form-select" required onchange="updateIconPreview('create')">
+                            <option value="">Select an icon...</option>
+                            <option value="fa-seedling">🌱 Seedling</option>
+                            <option value="fa-leaf">🍃 Leaf</option>
+                            <option value="fa-tree">🌲 Tree</option>
+                            <option value="fa-spa">🌿 Herbs/Spa</option>
+                            <option value="fa-cannabis">🌿 Cannabis/Plant</option>
+                            <option value="fa-pepper-hot">🌶️ Pepper</option>
+                            <option value="fa-carrot">🥕 Carrot/Vegetable</option>
+                            <option value="fa-apple-alt">🍎 Apple/Fruit</option>
+                            <option value="fa-lemon">🍋 Lemon/Citrus</option>
+                            <option value="fa-wheat-awn">🌾 Wheat/Grain/Corn</option>
+                            <option value="fa-flask">🧪 Flask/Chemical</option>
+                            <option value="fa-tint">💧 Tint/Water</option>
+                            <option value="fa-sun">☀️ Sun</option>
+                            <option value="fa-cloud-rain">🌧️ Rain</option>
+                            <option value="fa-hand-holding-heart">💚 Hand Holding Heart</option>
+                            <option value="fa-tractor">🚜 Tractor/Farm</option>
+                            <option value="fa-warehouse">🏭 Warehouse</option>
+                            <option value="fa-tools">🔧 Tools</option>
+                            <option value="fa-person-digging">🔨 Shovel</option>
+                            <option value="fa-recycle">♻️ Recycle</option>
+                            <option value="fa-boxes">📦 Boxes</option>
+                            <option value="fa-box-open">📤 Box Open</option>
+                        </select>
+                        <div class="mt-2">
+                            <small class="text-muted">Preview: </small>
+                            <i id="create_icon_preview" class="fas fa-leaf fa-2x"></i>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Display Order</label>
-                        <input type="number" name="display_order" class="form-control" value="0" min="0">
+                    <div class="alert alert-info">
+                        <small><i class="fas fa-info-circle me-1"></i> Display order will be set automatically. You can adjust it later by editing the category.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -187,8 +214,36 @@
                         <input type="text" id="edit_category_display_name" name="display_name" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Icon (Font Awesome class)</label>
-                        <input type="text" id="edit_category_icon" name="icon" class="form-control">
+                        <label class="form-label">Icon *</label>
+                        <select name="icon" id="edit_icon" class="form-select" required onchange="updateIconPreview('edit')">
+                            <option value="">Select an icon...</option>
+                            <option value="fa-seedling">🌱 Seedling</option>
+                            <option value="fa-leaf">🍃 Leaf</option>
+                            <option value="fa-tree">🌲 Tree</option>
+                            <option value="fa-spa">🌿 Herbs/Spa</option>
+                            <option value="fa-cannabis">🌿 Cannabis/Plant</option>
+                            <option value="fa-pepper-hot">🌶️ Pepper</option>
+                            <option value="fa-carrot">🥕 Carrot/Vegetable</option>
+                            <option value="fa-apple-alt">🍎 Apple/Fruit</option>
+                            <option value="fa-lemon">🍋 Lemon/Citrus</option>
+                            <option value="fa-wheat-awn">🌾 Wheat/Grain/Corn</option>
+                            <option value="fa-flask">🧪 Flask/Chemical</option>
+                            <option value="fa-tint">💧 Tint/Water</option>
+                            <option value="fa-sun">☀️ Sun</option>
+                            <option value="fa-cloud-rain">🌧️ Rain</option>
+                            <option value="fa-hand-holding-heart">💚 Hand Holding Heart</option>
+                            <option value="fa-tractor">🚜 Tractor/Farm</option>
+                            <option value="fa-warehouse">🏭 Warehouse</option>
+                            <option value="fa-tools">🔧 Tools</option>
+                            <option value="fa-person-digging">🔨 Shovel</option>
+                            <option value="fa-recycle">♻️ Recycle</option>
+                            <option value="fa-boxes">📦 Boxes</option>
+                            <option value="fa-box-open">📤 Box Open</option>
+                        </select>
+                        <div class="mt-2">
+                            <small class="text-muted">Preview: </small>
+                            <i id="edit_icon_preview" class="fas fa-leaf fa-2x"></i>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Description</label>
@@ -197,6 +252,7 @@
                     <div class="mb-3">
                         <label class="form-label">Display Order</label>
                         <input type="number" id="edit_category_display_order" name="display_order" class="form-control" min="0">
+                        <small class="text-muted">Lower numbers appear first</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -349,6 +405,19 @@
 // CSRF Token
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+// Icon preview function
+function updateIconPreview(type) {
+    const select = document.getElementById(`${type}_icon`);
+    const preview = document.getElementById(`${type}_icon_preview`);
+    const iconClass = select.value;
+    
+    if (iconClass) {
+        preview.className = `fas ${iconClass} fa-2x`;
+    } else {
+        preview.className = 'fas fa-leaf fa-2x';
+    }
+}
+
 // Helper function for fetch requests with error handling
 async function makeRequest(url, options) {
     try {
@@ -384,9 +453,12 @@ async function editCategory(categoryId) {
         document.getElementById('edit_category_id').value = category.id;
         document.getElementById('edit_category_name').value = category.name;
         document.getElementById('edit_category_display_name').value = category.display_name;
-        document.getElementById('edit_category_icon').value = category.icon || '';
+        document.getElementById('edit_icon').value = category.icon || 'fa-leaf';
         document.getElementById('edit_category_description').value = category.description || '';
         document.getElementById('edit_category_display_order').value = category.display_order;
+        
+        // Update icon preview
+        updateIconPreview('edit');
         
         new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
     } catch (error) {
