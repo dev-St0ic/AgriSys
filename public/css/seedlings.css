@@ -81,7 +81,6 @@
     gap: 20px;
 }
 
-/* --- REPLACE the .seedlings-option section with this --- */
 .seedlings-column .seedlings-option {
     display: flex;
     flex-direction: column;
@@ -92,6 +91,10 @@
     background: #ffffff;
     transition: all 0.3s ease;
     text-align: center;
+    /* Fixed dimensions for uniformity */
+    min-height: 240px;
+    max-width: 180px;
+    width: 100%;
 }
 
 .seedlings-option:hover {
@@ -101,13 +104,25 @@
 }
 
 .seedling-image {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     object-fit: cover;
+    object-position: center;
     border-radius: 8px;
     border: 2px solid #e9ecef;
     margin-bottom: 10px;
     transition: all 0.3s ease;
+    display: block;
+    flex-shrink: 0;
+}
+
+/* when no image exists */
+
+.seedling-image.d-flex{
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
 }
 
 .seedlings-checkbox {
@@ -120,6 +135,7 @@
     padding: 8px 0;
     margin-bottom: 8px;
     width: 100%;
+    min-height: 40px;
 }
 
 .seedlings-checkbox input[type="checkbox"] {
@@ -138,6 +154,7 @@
     font-size: 0.9rem;
     line-height: 1.2;
     text-align: center;
+    word-break: break-word; /* this handle long item names */
 }
 
 .seedlings-quantity-control {
@@ -148,6 +165,7 @@
     gap: 6px;
     padding: 8px 0;
     width: 100%;
+    margin-top: auto; /* Push to bottom of card */
 }
 
 .seedlings-quantity-control label {
@@ -176,43 +194,46 @@
 
 /* --- Responsive Design --- */
 @media (max-width: 768px) {
-    .seedlings-categories {
-        padding: 0 15px;
-        gap: 30px;
-    }
-    
-    .seedlings-column {
-        padding: 20px;
-    }
-    
     .seedlings-column .seedlings-items-grid {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(150px, 150px));
         gap: 15px;
     }
     
+    .seedlings-column .seedlings-option {
+        min-height: 220px;
+        max-width: 150px;
+        padding: 12px;
+    }
+    
     .seedling-image {
-        width: 60px;
-        height: 60px;
+        width: 80px;
+        height: 80px;
     }
     
     .seedlings-checkbox span {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
     }
 }
 
 @media (max-width: 480px) {
     .seedlings-column .seedlings-items-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(130px, 130px));
         gap: 12px;
     }
     
-    .seedlings-column {
-        padding: 15px;
+    .seedlings-column .seedlings-option {
+        min-height: 200px;
+        max-width: 130px;
+        padding: 10px;
     }
     
     .seedling-image {
-        width: 50px;
-        height: 50px;
+        width: 70px;
+        height: 70px;
+    }
+    
+    .seedlings-checkbox span {
+        font-size: 0.8rem;
     }
 }
 

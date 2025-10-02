@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\FishrApplication;
 use App\Models\SeedlingRequest;
+use App\Models\SeedlingRequestItem;
+use App\Models\CategoryItem;
 use App\Models\BoatrApplication;
 use App\Models\RsbsaApplication;
 use App\Models\TrainingApplication;
@@ -154,14 +156,14 @@ class ApplicationController extends Controller
                 ->withInput();
         }
     }
-
+    
     /**
-     * Submit a new seedling request - Updated for 6 categories
+     * Submit a new seedling request - Dynamic Categories Version
      */
     public function submitSeedlings(Request $request)
     {
         try {
-            // Enhanced validation with better error messages
+            // Validation
             $validated = $request->validate([
                 'first_name' => 'required|string|max:255',
                 'middle_name' => 'nullable|string|max:255',
@@ -172,41 +174,28 @@ class ApplicationController extends Controller
                 'address' => 'required|string|max:500',
                 'selected_seedlings' => 'required|string',
                 'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
-            ], [
-                'first_name.required' => 'First name is required',
-                'last_name.required' => 'Last name is required',
-                'mobile.required' => 'Mobile number is required',
-                'email.required' => 'Email address is required',
-                'email.email' => 'Please enter a valid email address',
-                'barangay.required' => 'Please select your barangay',
-                'address.required' => 'Address is required',
-                'selected_seedlings.required' => 'Please select at least one seedling type',
-                'supporting_documents.mimes' => 'Supporting documents must be PDF, JPG, JPEG, or PNG',
-                'supporting_documents.max' => 'Supporting documents must not exceed 10MB'
             ]);
 
-            // Parse selected seedlings with validation
+            // Parse selected seedlings
             $selectedSeedlings = json_decode($validated['selected_seedlings'], true);
             if (!$selectedSeedlings || !is_array($selectedSeedlings)) {
                 throw new \Exception('Invalid seedlings selection data');
             }
 
-            // Handle file upload with better error handling
+            // Handle file upload
             $documentPath = null;
             if ($request->hasFile('supporting_documents')) {
                 $file = $request->file('supporting_documents');
                 if ($file->isValid()) {
                     $documentPath = $file->store('seedling_documents', 'public');
-                    Log::info('Seedling document uploaded', ['path' => $documentPath]);
-                } else {
-                    throw new \Exception('Invalid file upload');
+                    \Log::info('Seedling document uploaded', ['path' => $documentPath]);
                 }
             }
 
             // Generate unique request number
-            $requestNumber = $this->generateUniqueRequestNumber();
+            $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(\Str::random(6));
 
-            // Create the seedling request - Updated for all 6 categories
+            // Create the main seedling request
             $seedlingRequest = SeedlingRequest::create([
                 'request_number' => $requestNumber,
                 'first_name' => $validated['first_name'],
@@ -216,21 +205,33 @@ class ApplicationController extends Controller
                 'email' => $validated['email'],
                 'address' => $validated['address'],
                 'barangay' => $validated['barangay'],
-                'seedling_type' => $this->formatSeedlingTypes($selectedSeedlings),
-                // All 6 categories
-                'seeds' => $selectedSeedlings['seeds'] ?? [],
-                'seedlings' => $selectedSeedlings['seedlings'] ?? [],
-                'fruits' => $selectedSeedlings['fruits'] ?? [],
-                'ornamentals' => $selectedSeedlings['ornamentals'] ?? [],
-                'fingerlings' => $selectedSeedlings['fingerlings'] ?? [],
-                'fertilizers' => $selectedSeedlings['fertilizers'] ?? [],
-                'requested_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
                 'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
                 'document_path' => $documentPath,
-                'status' => 'under_review'
+                'status' => 'pending'
             ]);
 
-            Log::info('Seedling request created successfully', [
+            // Create individual request items from selections
+            $selections = $selectedSeedlings['selections'] ?? [];
+            
+            foreach ($selections as $categoryName => $items) {
+                foreach ($items as $item) {
+                    // Find the category item in database
+                    $categoryItem = CategoryItem::find($item['id']);
+                    
+                    if ($categoryItem) {
+                        SeedlingRequestItem::create([
+                            'seedling_request_id' => $seedlingRequest->id,
+                            'category_id' => $categoryItem->category_id,
+                            'category_item_id' => $categoryItem->id,
+                            'item_name' => $item['name'],
+                            'requested_quantity' => $item['quantity'],
+                            'status' => 'pending'
+                        ]);
+                    }
+                }
+            }
+
+            \Log::info('Seedling request created successfully', [
                 'id' => $seedlingRequest->id,
                 'request_number' => $seedlingRequest->request_number,
                 'name' => $seedlingRequest->full_name,
@@ -245,23 +246,17 @@ class ApplicationController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => $successMessage,
-                    'request_number' => $seedlingRequest->request_number,
-                    'data' => [
-                        'id' => $seedlingRequest->id,
-                        'name' => $seedlingRequest->full_name,
-                        'status' => $seedlingRequest->status
-                    ]
+                    'request_number' => $seedlingRequest->request_number
                 ]);
             }
 
             return redirect()->route('landing.page')->with('success', $successMessage);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::warning('Seedling request validation failed', [
-                'errors' => $e->errors(),
-                'request_data' => $request->except(['supporting_documents'])
+            \Log::warning('Seedling request validation failed', [
+                'errors' => $e->errors()
             ]);
-
+            
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -270,34 +265,21 @@ class ApplicationController extends Controller
                 ], 422);
             }
 
-            return redirect()->back()
-                ->withErrors($e->validator)
-                ->withInput()
-                ->with('error', 'Please check your input and try again.');
+            return redirect()->back()->withErrors($e->validator)->withInput();
 
         } catch (\Exception $e) {
-            Log::error('Seedling request error: ' . $e->getMessage(), [
-                'request_data' => $request->except(['supporting_documents']),
-                'file_info' => $request->hasFile('supporting_documents') ? [
-                    'original_name' => $request->file('supporting_documents')->getClientOriginalName(),
-                    'size' => $request->file('supporting_documents')->getSize(),
-                    'mime' => $request->file('supporting_documents')->getMimeType()
-                ] : null,
+            \Log::error('Seedling request error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
-
-            $errorMessage = 'There was an error submitting your request. Please try again.';
 
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage
+                    'message' => 'There was an error submitting your request. Please try again.'
                 ], 500);
             }
 
-            return redirect()->back()
-                ->with('error', $errorMessage)
-                ->withInput();
+            return redirect()->back()->with('error', 'There was an error submitting your request.')->withInput();
         }
     }
 /**

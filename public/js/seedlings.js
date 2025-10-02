@@ -1,5 +1,5 @@
 // ==============================================
-// SEEDLINGS MODULE - Updated for 6 Categories
+// SEEDLINGS MODULE - Dynamic Categories Support 
 // ==============================================
 
 // Global variable to store user selections
@@ -70,18 +70,147 @@ function backToSeedlingsChoice() {
 }
 
 // ==============================================
-// SELECTION MANAGEMENT
+// SELECTION MANAGEMENT - UPDATED FOR DYNAMIC
 // ==============================================
 
-// Toggles quantity input field visibility when checkbox is selected
+function collectUserSelections(form) {
+    const selections = {};
+    
+    // Get all category checkboxes (grouped by name attribute)
+    form.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+        const categoryName = cb.name;
+        const itemId = cb.dataset.itemId;
+        const itemName = cb.value;
+        
+        // Find quantity input using the itemId
+        const quantityInput = form.querySelector(`input[name="quantity_${itemId}"]`);
+        const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+        
+        // Initialize category array if not exists
+        if (!selections[categoryName]) {
+            selections[categoryName] = [];
+        }
+        
+        // Add item to category
+        selections[categoryName].push({
+            id: itemId,
+            name: itemName,
+            quantity: quantity
+        });
+    });
+    
+    return selections;
+}
+
+function validateSelections(selections) {
+    // Check if any category has items selected
+    return Object.values(selections).some(items => items.length > 0);
+}
+
+function calculateTotalQuantity(selections) {
+    return Object.values(selections).reduce((total, items) => {
+        return total + items.reduce((sum, item) => sum + item.quantity, 0);
+    }, 0);
+}
+
+function showSelectionSummary(selections) {
+    let summary = 'You have chosen:\n\n';
+    
+    const categoryIcons = {
+        seeds: '🌾',
+        seedlings: '🌱',
+        fruits: '🍎',
+        ornamentals: '🌺',
+        fingerlings: '🐟',
+        fertilizers: '🌿'
+        // Add more category icons as needed
+    };
+    
+    Object.entries(selections).forEach(([category, items]) => {
+        if (items.length > 0) {
+            const icon = categoryIcons[category] || '📦';
+            const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
+            summary += `${icon} ${categoryDisplay}:\n`;
+            items.forEach(item => {
+                summary += `  • ${item.name}: ${item.quantity} units\n`;
+            });
+            summary += '\n';
+        }
+    });
+    
+    const totalQuantity = calculateTotalQuantity(selections);
+    summary += `Total Items: ${totalQuantity} units\n`;
+    alert(summary);
+}
+
+function populateSeedlingsSummary() {
+    const summaryContainer = document.getElementById('seedlings-summary');
+    if (!summaryContainer || !window._seedlingsChoices) return;
+
+    let summaryHTML = '<h3 style="color: #40916c; margin-bottom: 15px;">📋 Your Selected Items:</h3>';
+
+    // Category icons mapping
+    const categoryIcons = {
+        seeds: '🌾',
+        seedlings: '🌱',
+        fruits: '🍎',
+        ornamentals: '🌺',
+        fingerlings: '🐟',
+        fertilizers: '🌿'
+        // Add more category icons as needed
+    };
+
+    Object.entries(window._seedlingsChoices.selections).forEach(([category, items]) => {
+        if (items.length > 0) {
+            const icon = categoryIcons[category] || '📦';
+            const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
+            summaryHTML += buildSummarySection(`${icon} ${categoryDisplay}:`, items);
+        }
+    });
+
+    // Add total quantity section
+    summaryHTML += buildTotalQuantitySection(window._seedlingsChoices.totalQuantity);
+    summaryContainer.innerHTML = summaryHTML;
+}
+
+// Toggle quantity field visibility
 function toggleQuantity(checkbox, quantityId) {
-    const quantityDiv = document.getElementById(quantityId);
-    if (quantityDiv) {
-        quantityDiv.style.display = checkbox.checked ? 'flex' : 'none';
+    const quantityControl = document.getElementById(quantityId);
+    if (quantityControl) {
+        if (checkbox.checked) {
+            quantityControl.style.display = 'flex';
+        } else {
+            quantityControl.style.display = 'none';
+        }
     }
 }
 
-// Processes user selections and proceeds to application form
+function buildSummarySection(title, items) {
+    let html = `<div style="margin-bottom: 15px;"><strong style="color: #2d6a4f;">${title}</strong>`;
+    html += '<ul style="margin: 8px 0; padding-left: 20px;">';
+    
+    items.forEach(item => {
+        html += `<li style="margin: 4px 0;">${item.name} - <span style="color: #40916c; font-weight: bold;">${item.quantity} units</span></li>`;
+    });
+    
+    html += '</ul></div>';
+    return html;
+}
+
+function buildTotalQuantitySection(totalQuantity) {
+    return `
+        <div style="margin-top: 20px; padding: 15px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #40916c;">
+            <strong style="color: #2d6a4f;">Total Quantity: 
+                <span style="color: #40916c; font-size: 1.2em;">${totalQuantity} units</span>
+            </strong>
+        </div>
+    `;
+}
+
+// ==============================================
+// UPDATED PROCEED FUNCTION
+// ==============================================
+
 function proceedToSeedlingsForm() {
     const form = document.getElementById('seedlings-choice-form');
     if (!form) {
@@ -89,75 +218,52 @@ function proceedToSeedlingsForm() {
         return;
     }
 
-    // Collect selections with quantities
     const selections = collectUserSelections(form);
 
-    // Validate selections
     if (!validateSelections(selections)) {
         alert('Please select at least one item from any category.');
         return;
     }
 
-    // Calculate total quantity
     const totalQuantity = calculateTotalQuantity(selections);
-    selections.totalQuantity = totalQuantity;
+    
+    window._seedlingsChoices = {
+        selections: selections,
+        totalQuantity: totalQuantity
+    };
 
-    // Show summary to user
     showSelectionSummary(selections);
-
-    // Save selections globally
-    window._seedlingsChoices = selections;
-
-    // Show application form
     showApplicationForm();
 }
 
 // Collects all user selections with quantities for all 6 categories
 function collectUserSelections(form) {
-    const seeds = [];
-    const seedlings = []; // Changed from vegetables to match HTML
-    const fruits = [];
-    const ornamentals = [];
-    const fingerlings = [];
-    const fertilizers = [];
-
-    // Collect seeds
-    form.querySelectorAll('input[name="seeds"]:checked').forEach(cb => {
-        const quantity = getQuantityForItem(form, cb.value);
-        seeds.push({ name: cb.value, quantity });
+    const selections = {};
+    
+    // Get all category checkboxes (grouped by name attribute)
+    form.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+        const categoryName = cb.name;
+        const itemId = cb.dataset.itemId;
+        const itemName = cb.value;
+        
+        // Find quantity input using the itemId
+        const quantityInput = form.querySelector(`input[name="quantity_${itemId}"]`);
+        const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+        
+        // Initialize category array if not exists
+        if (!selections[categoryName]) {
+            selections[categoryName] = [];
+        }
+        
+        // Add item to category
+        selections[categoryName].push({
+            id: itemId,
+            name: itemName,
+            quantity: quantity
+        });
     });
-
-    // Collect seedlings (changed from vegetables)
-    form.querySelectorAll('input[name="seedlings"]:checked').forEach(cb => {
-        const quantity = getQuantityForItem(form, cb.value);
-        seedlings.push({ name: cb.value, quantity });
-    });
-
-    // Collect fruits
-    form.querySelectorAll('input[name="fruits"]:checked').forEach(cb => {
-        const quantity = getQuantityForItem(form, cb.value);
-        fruits.push({ name: cb.value, quantity });
-    });
-
-    // Collect ornamentals
-    form.querySelectorAll('input[name="ornamentals"]:checked').forEach(cb => {
-        const quantity = getQuantityForItem(form, cb.value);
-        ornamentals.push({ name: cb.value, quantity });
-    });
-
-    // Collect fingerlings
-    form.querySelectorAll('input[name="fingerlings"]:checked').forEach(cb => {
-        const quantity = getQuantityForItem(form, cb.value);
-        fingerlings.push({ name: cb.value, quantity });
-    });
-
-    // Collect fertilizers
-    form.querySelectorAll('input[name="fertilizers"]:checked').forEach(cb => {
-        const quantity = getQuantityForItem(form, cb.value);
-        fertilizers.push({ name: cb.value, quantity });
-    });
-
-    return { seeds, seedlings, fruits, ornamentals, fingerlings, fertilizers };
+    
+    return selections;
 }
 
 // Gets quantity for a specific item
@@ -206,62 +312,46 @@ function getQuantityForItem(form, itemName) {
 
 // Validates that at least one item is selected
 function validateSelections(selections) {
-    return selections.seeds.length > 0 ||
-           selections.seedlings.length > 0 ||
-           selections.fruits.length > 0 ||
-           selections.ornamentals.length > 0 ||
-           selections.fingerlings.length > 0 ||
-           selections.fertilizers.length > 0;
+    // Check if any category has items selected
+    return Object.values(selections).some(items => items.length > 0);
 }
 
 // Calculates total quantity across all selections
 function calculateTotalQuantity(selections) {
-    return [...selections.seeds, ...selections.seedlings, ...selections.fruits, 
-            ...selections.ornamentals, ...selections.fingerlings, ...selections.fertilizers]
-        .reduce((sum, item) => sum + item.quantity, 0);
+    return Object.values(selections).reduce((total, items) => {
+        return total + items.reduce((sum, item) => sum + item.quantity, 0);
+    }, 0);
 }
+
 
 // Shows summary alert to user
 function showSelectionSummary(selections) {
     let summary = 'You have chosen:\n\n';
-
-    if (selections.seeds.length) {
-        summary += '🌾 Seeds:\n';
-        selections.seeds.forEach(s => summary += `  • ${s.name}: ${s.quantity} pcs\n`);
-        summary += '\n';
-    }
-
-    if (selections.seedlings.length) {
-        summary += '🌱 Seedlings:\n';
-        selections.seedlings.forEach(v => summary += `  • ${v.name}: ${v.quantity} pcs\n`);
-        summary += '\n';
-    }
-
-    if (selections.fruits.length) {
-        summary += '🍎 Fruit-bearing Trees:\n';
-        selections.fruits.forEach(f => summary += `  • ${f.name}: ${f.quantity} pcs\n`);
-        summary += '\n';
-    }
-
-    if (selections.ornamentals.length) {
-        summary += '🌺 Ornamentals:\n';
-        selections.ornamentals.forEach(o => summary += `  • ${o.name}: ${o.quantity} pcs\n`);
-        summary += '\n';
-    }
-
-    if (selections.fingerlings.length) {
-        summary += '🐟 Fingerlings:\n';
-        selections.fingerlings.forEach(f => summary += `  • ${f.name}: ${f.quantity} pcs\n`);
-        summary += '\n';
-    }
-
-    if (selections.fertilizers.length) {
-        summary += '🌿 Fertilizers:\n';
-        selections.fertilizers.forEach(fert => summary += `  • ${fert.name}: ${fert.quantity} pcs\n`);
-        summary += '\n';
-    }
-
-    summary += `Total Quantity: ${selections.totalQuantity} pcs\n\n`;
+    
+    const categoryIcons = {
+        seeds: '🌾',
+        seedlings: '🌱',
+        fruits: '🍎',
+        ornamentals: '🌺',
+        fingerlings: '🐟',
+        fertilizers: '🌿'
+        // Add more category icons as needed
+    };
+    
+    Object.entries(selections).forEach(([category, items]) => {
+        if (items.length > 0) {
+            const icon = categoryIcons[category] || '📦';
+            const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
+            summary += `${icon} ${categoryDisplay}:\n`;
+            items.forEach(item => {
+                summary += `  • ${item.name}: ${item.quantity} units\n`;
+            });
+            summary += '\n';
+        }
+    });
+    
+    const totalQuantity = calculateTotalQuantity(selections);
+    summary += `Total Items: ${totalQuantity} units\n`;
     alert(summary);
 }
 
@@ -392,34 +482,27 @@ function populateSeedlingsSummary() {
 
     let summaryHTML = '<h3 style="color: #40916c; margin-bottom: 15px;">📋 Your Selected Items:</h3>';
 
-    // Add all 6 categories
-    if (window._seedlingsChoices.seeds.length > 0) {
-        summaryHTML += buildSummarySection('🌾 Seeds:', window._seedlingsChoices.seeds);
-    }
+    // Category icons mapping
+    const categoryIcons = {
+        seeds: '🌾',
+        seedlings: '🌱',
+        fruits: '🍎',
+        ornamentals: '🌺',
+        fingerlings: '🐟',
+        fertilizers: '🌿'
+        // Add more category icons as needed
+    };
 
-    if (window._seedlingsChoices.seedlings.length > 0) {
-        summaryHTML += buildSummarySection('🌱 Seedlings:', window._seedlingsChoices.seedlings);
-    }
+    Object.entries(window._seedlingsChoices.selections).forEach(([category, items]) => {
+        if (items.length > 0) {
+            const icon = categoryIcons[category] || '📦';
+            const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
+            summaryHTML += buildSummarySection(`${icon} ${categoryDisplay}:`, items);
+        }
+    });
 
-    if (window._seedlingsChoices.fruits.length > 0) {
-        summaryHTML += buildSummarySection('🍎 Fruit-bearing Trees:', window._seedlingsChoices.fruits);
-    }
-
-    if (window._seedlingsChoices.ornamentals.length > 0) {
-        summaryHTML += buildSummarySection('🌺 Ornamentals:', window._seedlingsChoices.ornamentals);
-    }
-
-    if (window._seedlingsChoices.fingerlings.length > 0) {
-        summaryHTML += buildSummarySection('🐟 Fingerlings:', window._seedlingsChoices.fingerlings);
-    }
-
-    if (window._seedlingsChoices.fertilizers.length > 0) {
-        summaryHTML += buildSummarySection('🌿 Fertilizers:', window._seedlingsChoices.fertilizers);
-    }
-
-    // Add total quantity display
-    summaryHTML += buildTotalQuantitySection();
-
+    // Add total quantity section
+    summaryHTML += buildTotalQuantitySection(window._seedlingsChoices.totalQuantity);
     summaryContainer.innerHTML = summaryHTML;
 }
 
@@ -427,21 +510,24 @@ function populateSeedlingsSummary() {
 function buildSummarySection(title, items) {
     let html = `<div style="margin-bottom: 15px;"><strong style="color: #2d6a4f;">${title}</strong>`;
     html += '<ul style="margin: 8px 0; padding-left: 20px;">';
-
+    
     items.forEach(item => {
-        html += `<li style="margin: 4px 0;">${item.name} - <span style="color: #40916c; font-weight: bold;">${item.quantity} pcs</span></li>`;
+        html += `<li style="margin: 4px 0;">${item.name} - <span style="color: #40916c; font-weight: bold;">${item.quantity} units</span></li>`;
     });
-
+    
     html += '</ul></div>';
     return html;
 }
 
 // Builds the total quantity section
-function buildTotalQuantitySection() {
-    let html = '<div style="margin-top: 20px; padding: 15px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #40916c;">';
-    html += `<strong style="color: #2d6a4f;">Total Quantity: <span style="color: #40916c; font-size: 1.2em;">${window._seedlingsChoices.totalQuantity} pcs</span></strong>`;
-    html += '</div>';
-    return html;
+function buildTotalQuantitySection(totalQuantity) {
+    return `
+        <div style="margin-top: 20px; padding: 15px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #40916c;">
+            <strong style="color: #2d6a4f;">Total Quantity: 
+                <span style="color: #40916c; font-size: 1.2em;">${totalQuantity} units</span>
+            </strong>
+        </div>
+    `;
 }
 
 // ==============================================
@@ -455,111 +541,27 @@ function restorePreviousSelections() {
     const form = document.getElementById('seedlings-choice-form');
     if (!form) return;
 
-    // Restore all 6 categories
-    restoreItemSelections(form, 'seeds', window._seedlingsChoices.seeds);
-    restoreItemSelections(form, 'seedlings', window._seedlingsChoices.seedlings);
-    restoreItemSelections(form, 'fruits', window._seedlingsChoices.fruits);
-    restoreItemSelections(form, 'ornamentals', window._seedlingsChoices.ornamentals);
-    restoreItemSelections(form, 'fingerlings', window._seedlingsChoices.fingerlings);
-    restoreItemSelections(form, 'fertilizers', window._seedlingsChoices.fertilizers);
-}
-
-// Restores selections for a specific item type
-function restoreItemSelections(form, itemType, items) {
-    items.forEach(item => {
-        const checkbox = form.querySelector(`input[name="${itemType}"][value="${item.name}"]`);
-        if (checkbox) {
-            checkbox.checked = true;
-
-            // Show quantity field and restore value
-            const quantityId = getQuantityIdForItem(item.name);
-            toggleQuantity(checkbox, quantityId);
-
-            const quantityFieldName = getQuantityFieldName(item.name);
-            const quantityInput = form.querySelector(`input[name="${quantityFieldName}"]`);
-            if (quantityInput) quantityInput.value = item.quantity;
-        }
+    Object.entries(window._seedlingsChoices.selections).forEach(([category, items]) => {
+        items.forEach(item => {
+            // Restore checkbox
+            const checkbox = form.querySelector(`input[name="${category}"][data-item-id="${item.id}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+                
+                // Restore quantity
+                const quantityInput = form.querySelector(`input[name="quantity_${item.id}"]`);
+                if (quantityInput) {
+                    quantityInput.value = item.quantity;
+                    
+                    // Show quantity field
+                    const quantityDiv = quantityInput.closest('.quantity-field');
+                    if (quantityDiv) {
+                        quantityDiv.style.display = 'flex';
+                    }
+                }
+            }
+        });
     });
-}
-
-// Helper function to get quantity ID for an item
-function getQuantityIdForItem(itemName) {
-    const quantityIdMap = {
-        'Emerald Bitter Gourd Seeds': 'emerald-bitter-gourd-seeds-qty',
-        'Golden Harvest Rice Seeds': 'golden-harvest-rice-seeds-qty',
-        'Green Gem String Bean Seeds': 'green-gem-string-bean-seeds-qty',
-        'Okra Seeds': 'okra-seeds-qty',
-        'Pioneer Hybrid Corn Seeds': 'pioneer-hybrid-corn-seeds-qty',
-        'Red Ruby Tomato Seeds': 'red-ruby-tomato-seeds-qty',
-        'Sunshine Carrot Seeds': 'sunshine-carrot-seeds-qty',
-        'Yellow Pearl Squash Seeds': 'yellow-pearl-squash-seeds-qty',
-        'Avocado Seedling': 'avocado-seedling-qty',
-        'Calamansi Seedling': 'calamansi-seedling-qty',
-        'Guava Seedling': 'guava-seedling-qty',
-        'Guyabano Seedling': 'guyabano-seedling-qty',
-        'Mango Seedling': 'mango-seedling-qty',
-        'Papaya Seedling': 'papaya-seedling-qty',
-        'Santol Seedling': 'santol-seedling-qty',
-        'Dwarf Coconut Tree': 'dwarf-coconut-tree-qty',
-        'Lakatan Banana Tree': 'lakatan-banana-tree-qty',
-        'Rambutan Tree': 'rambutan-tree-qty',
-        'Star Apple Tree': 'star-apple-tree-qty',
-        'Anthurium': 'anthurium-qty',
-        'Bougainvillea': 'bougainvillea-qty',
-        'Fortune Plant': 'fortune-plant-qty',
-        'Gumamela (Hibiscus)': 'gumamela-qty',
-        'Sansevieria (Snake Plant)': 'sansevieria-qty',
-        'Catfish Fingerling': 'catfish-fingerling-qty',
-        'Milkfish (Bangus) Fingerling': 'milkfish-fingerling-qty',
-        'Tilapia Fingerlings': 'tilapia-fingerlings-qty',
-        'Ammonium Sulfate (21-0-0)': 'ammonium-sulfate-qty',
-        'Humic Acid': 'humic-acid-qty',
-        'Pre-processed Chicken Manure': 'pre-processed-chicken-manure-qty',
-        'Urea (46-0-0)': 'urea-qty',
-        'Vermicast Fertilizer': 'vermicast-fertilizer-qty'
-    };
-
-    return quantityIdMap[itemName] || itemName.replace(/[\s\(\)\-]/g, '-').toLowerCase() + '-qty';
-}
-
-// Helper function to get quantity field name for an item
-function getQuantityFieldName(itemName) {
-    const quantityFieldMap = {
-        'Emerald Bitter Gourd Seeds': 'emerald_bitter_gourd_seeds_quantity',
-        'Golden Harvest Rice Seeds': 'golden_harvest_rice_seeds_quantity',
-        'Green Gem String Bean Seeds': 'green_gem_string_bean_seeds_quantity',
-        'Okra Seeds': 'okra_seeds_quantity',
-        'Pioneer Hybrid Corn Seeds': 'pioneer_hybrid_corn_seeds_quantity',
-        'Red Ruby Tomato Seeds': 'red_ruby_tomato_seeds_quantity',
-        'Sunshine Carrot Seeds': 'sunshine_carrot_seeds_quantity',
-        'Yellow Pearl Squash Seeds': 'yellow_pearl_squash_seeds_quantity',
-        'Avocado Seedling': 'avocado_seedling_quantity',
-        'Calamansi Seedling': 'calamansi_seedling_quantity',
-        'Guava Seedling': 'guava_seedling_quantity',
-        'Guyabano Seedling': 'guyabano_seedling_quantity',
-        'Mango Seedling': 'mango_seedling_quantity',
-        'Papaya Seedling': 'papaya_seedling_quantity',
-        'Santol Seedling': 'santol_seedling_quantity',
-        'Dwarf Coconut Tree': 'dwarf_coconut_tree_quantity',
-        'Lakatan Banana Tree': 'lakatan_banana_tree_quantity',
-        'Rambutan Tree': 'rambutan_tree_quantity',
-        'Star Apple Tree': 'star_apple_tree_quantity',
-        'Anthurium': 'anthurium_quantity',
-        'Bougainvillea': 'bougainvillea_quantity',
-        'Fortune Plant': 'fortune_plant_quantity',
-        'Gumamela (Hibiscus)': 'gumamela_quantity',
-        'Sansevieria (Snake Plant)': 'sansevieria_quantity',
-        'Catfish Fingerling': 'catfish_fingerling_quantity',
-        'Milkfish (Bangus) Fingerling': 'milkfish_fingerling_quantity',
-        'Tilapia Fingerlings': 'tilapia_fingerlings_quantity',
-        'Ammonium Sulfate (21-0-0)': 'ammonium_sulfate_quantity',
-        'Humic Acid': 'humic_acid_quantity',
-        'Pre-processed Chicken Manure': 'pre_processed_chicken_manure_quantity',
-        'Urea (46-0-0)': 'urea_quantity',
-        'Vermicast Fertilizer': 'vermicast_fertilizer_quantity'
-    };
-
-    return quantityFieldMap[itemName] || itemName.replace(/[\s\(\)\-]/g, '_').toLowerCase() + '_quantity';
 }
 
 // ==============================================
@@ -585,9 +587,24 @@ function submitSeedlingsRequest(event) {
     // Prepare form data
     const formData = new FormData(form);
 
+    // Debug: Check what's in _seedlingsChoices
+    console.log('Selections:', window._seedlingsChoices);
+
     // Add selected seedlings data
     if (window._seedlingsChoices) {
         formData.append('selected_seedlings', JSON.stringify(window._seedlingsChoices));
+    } else {
+        console.error('No selections found!');
+        alert('Please select items first');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        return;
+    }
+
+    // Debug: Check form data
+    console.log('FormData entries:');
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
     }
 
     // Get CSRF token
@@ -604,18 +621,25 @@ function submitSeedlingsRequest(event) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Response:', data);
+        
         if (data.success) {
-            // Show success message
             alert('✅ ' + data.message);
-
-            // COMPLETE RESET FOR NEXT USER
             performCompleteReset();
-
-            // Return to main services page
             closeFormSeedlings();
         } else {
-            // Show error message
-            alert('❌ ' + (data.message || 'There was an error submitting your request.'));
+            // Show detailed errors
+            console.error('Validation errors:', data.errors);
+            
+            if (data.errors) {
+                let errorMsg = 'Validation errors:\n';
+                for (let field in data.errors) {
+                    errorMsg += `${field}: ${data.errors[field].join(', ')}\n`;
+                }
+                alert(errorMsg);
+            } else {
+                alert('❌ ' + (data.message || 'There was an error submitting your request.'));
+            }
         }
     })
     .catch(error => {
@@ -623,7 +647,6 @@ function submitSeedlingsRequest(event) {
         alert('❌ There was an error submitting your request. Please try again.');
     })
     .finally(() => {
-        // Reset button state
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     });
@@ -839,4 +862,4 @@ window.toggleQuantity = toggleQuantity;
 window.submitSeedlingsRequest = submitSeedlingsRequest;
 window.manualReset = manualReset;
 
-console.log('Seedlings module loaded successfully - 6 categories supported with complete functionality');
+console.log('Seedlings module loaded successfully - Dynamic categories supported');

@@ -1,3 +1,8 @@
+@php
+    $categories = \App\Models\RequestCategory::with(['items' => function($query) {
+        $query->where('is_active', true)->orderBy('display_order');
+    }])->where('is_active', true)->orderBy('display_order')->get();
+@endphp
 
 <!-- Seedlings Choice Section -->
 <section class="seedlings-application-section" id="seedlings-choice" style="display: none;">
@@ -7,405 +12,66 @@
     </div>
     <form id="seedlings-choice-form">
         <div class="seedlings-categories">
-            <!-- Seeds Category -->
-            <div class="seedlings-column">
-                <strong>Seeds</strong>
-                <div class="seedlings-items-grid">
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seeds/Emerald Bitter Gourd Seeds.jpg') }}" alt="Emerald Bitter Gourd Seeds" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seeds" value="Emerald Bitter Gourd Seeds" onchange="toggleQuantity(this, 'emerald-bitter-gourd-seeds-qty')">
-                            <span>Emerald Bitter Gourd Seeds</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="emerald-bitter-gourd-seeds-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="emerald_bitter_gourd_seeds_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seeds/Golden Harvest Rice Seeds.jpg') }}" alt="Golden Harvest Rice Seeds" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seeds" value="Golden Harvest Rice Seeds" onchange="toggleQuantity(this, 'golden-harvest-rice-seeds-qty')">
-                            <span>Golden Harvest Rice Seeds</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="golden-harvest-rice-seeds-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="golden_harvest_rice_seeds_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seeds/Green Gem String Bean Seeds.jpg') }}" alt="Green Gem String Bean Seeds" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seeds" value="Green Gem String Bean Seeds" onchange="toggleQuantity(this, 'green-gem-string-bean-seeds-qty')">
-                            <span>Green Gem String Bean Seeds</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="green-gem-string-bean-seeds-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="green_gem_string_bean_seeds_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seeds/Okra Seeds.jpg') }}" alt="Okra Seeds" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seeds" value="Okra Seeds" onchange="toggleQuantity(this, 'okra-seeds-qty')">
-                            <span>Okra Seeds</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="okra-seeds-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="okra_seeds_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seeds/Pioneer Hybrid Corn Seeds.jpg') }}" alt="Pioneer Hybrid Corn Seeds" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seeds" value="Pioneer Hybrid Corn Seeds" onchange="toggleQuantity(this, 'pioneer-hybrid-corn-seeds-qty')">
-                            <span>Pioneer Hybrid Corn Seeds</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="pioneer-hybrid-corn-seeds-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="pioneer_hybrid_corn_seeds_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seeds/Red Ruby Tomato Seeds.jpg') }}" alt="Red Ruby Tomato Seeds" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seeds" value="Red Ruby Tomato Seeds" onchange="toggleQuantity(this, 'red-ruby-tomato-seeds-qty')">
-                            <span>Red Ruby Tomato Seeds</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="red-ruby-tomato-seeds-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="red_ruby_tomato_seeds_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seeds/Sunshine Carrot Seeds.jpg') }}" alt="Sunshine Carrot Seeds" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seeds" value="Sunshine Carrot Seeds" onchange="toggleQuantity(this, 'sunshine-carrot-seeds-qty')">
-                            <span>Sunshine Carrot Seeds</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="sunshine-carrot-seeds-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="sunshine_carrot_seeds_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seeds/Yellow Pearl Squash Seeds.jpg') }}" alt="Yellow Pearl Squash Seeds" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seeds" value="Yellow Pearl Squash Seeds" onchange="toggleQuantity(this, 'yellow-pearl-squash-seeds-qty')">
-                            <span>Yellow Pearl Squash Seeds</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="yellow-pearl-squash-seeds-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="yellow_pearl_squash_seeds_quantity" min="1" value="1">
-                        </div>
+            @foreach($categories as $category)
+                <!-- Dynamic Category -->
+                <div class="seedlings-column">
+                    <strong>
+                        <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                        {{ $category->display_name }}
+                    </strong>
+                    @if($category->description)
+                        <small class="text-muted d-block mb-2">{{ $category->description }}</small>
+                    @endif
+                    
+                    <div class="seedlings-items-grid">
+                        @foreach($category->items as $item)
+                            <div class="seedlings-option">
+                                @if($item->image_path)
+                                    <img src="{{ Storage::url($item->image_path) }}" 
+                                         alt="{{ $item->name }}" 
+                                         class="seedling-image">
+                                @else
+                                    <div class="seedling-image d-flex align-items-center justify-content-center bg-light">
+                                        <i class="fas fa-image fa-2x text-muted"></i>
+                                    </div>
+                                @endif
+                                
+                                <div class="seedlings-checkbox">
+                                    <input type="checkbox" 
+                                           name="{{ $category->name }}" 
+                                           value="{{ $item->name }}" 
+                                           data-item-id="{{ $item->id }}"
+                                           onchange="toggleQuantity(this, 'qty-{{ $category->name }}-{{ $item->id }}')">
+                                    <span>{{ $item->name }}</span>
+                                </div>
+                                
+                                <div class="seedlings-quantity-control" id="qty-{{ $category->name }}-{{ $item->id }}">
+                                    <label>Qty:</label>
+                                    <input type="number" 
+                                           name="quantity_{{ $item->id }}" 
+                                           min="{{ $item->min_quantity ?? 1 }}" 
+                                           max="{{ $item->max_quantity ?? 999 }}"
+                                           value="{{ $item->min_quantity ?? 1 }}">
+                                    <span class="text-muted ms-1">{{ $item->unit }}</span>
+                                </div>
+                                
+                                @if($item->description)
+                                    <small class="text-muted mt-1">{{ $item->description }}</small>
+                                @endif
+                            </div>
+                        @endforeach
                     </div>
                 </div>
-            </div>
-
-            <!-- Seedlings Category -->
-            <div class="seedlings-column">
-                <strong>Seedlings</strong>
-                <div class="seedlings-items-grid">
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seedlings/Avocado Seedling.jpg') }}" alt="Avocado Seedling" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seedlings" value="Avocado Seedling" onchange="toggleQuantity(this, 'avocado-seedling-qty')">
-                            <span>Avocado Seedling</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="avocado-seedling-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="avocado_seedling_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seedlings/Calamansi Seedling.jpg') }}" alt="Calamansi Seedling" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seedlings" value="Calamansi Seedling" onchange="toggleQuantity(this, 'calamansi-seedling-qty')">
-                            <span>Calamansi Seedling</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="calamansi-seedling-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="calamansi_seedling_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seedlings/Guava Seedling.jpg') }}" alt="Guava Seedling" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seedlings" value="Guava Seedling" onchange="toggleQuantity(this, 'guava-seedling-qty')">
-                            <span>Guava Seedling</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="guava-seedling-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="guava_seedling_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seedlings/Guyabano Seedling.jpg') }}" alt="Guyabano Seedling" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seedlings" value="Guyabano Seedling" onchange="toggleQuantity(this, 'guyabano-seedling-qty')">
-                            <span>Guyabano Seedling</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="guyabano-seedling-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="guyabano_seedling_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seedlings/Mango Seedling.jpg') }}" alt="Mango Seedling" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seedlings" value="Mango Seedling" onchange="toggleQuantity(this, 'mango-seedling-qty')">
-                            <span>Mango Seedling</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="mango-seedling-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="mango_seedling_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seedlings/Papaya Seedling.jpg') }}" alt="Papaya Seedling" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seedlings" value="Papaya Seedling" onchange="toggleQuantity(this, 'papaya-seedling-qty')">
-                            <span>Papaya Seedling</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="papaya-seedling-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="papaya_seedling_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/seedlings/Santol Seedling.jpg') }}" alt="Santol Seedling" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="seedlings" value="Santol Seedling" onchange="toggleQuantity(this, 'santol-seedling-qty')">
-                            <span>Santol Seedling</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="santol-seedling-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="santol_seedling_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fruit-Bearing Trees Category -->
-            <div class="seedlings-column">
-                <strong>Fruit-Bearing Trees</strong>
-                <div class="seedlings-items-grid">
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fruit-bearing-trees/Dwarf Coconut Tree.jpg') }}" alt="Drawf Coconut Tree" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fruits" value="Dwarf Coconut Tree" onchange="toggleQuantity(this, 'drawf-coconut-tree-qty')">
-                            <span>Dwarf Coconut Tree</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="dwarf-coconut-tree-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="dwarf_coconut_tree_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fruit-bearing-trees/Lakatan Banana Tree.jpg') }}" alt="Lakatan Banana Tree" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fruits" value="Lakatan Banana Tree" onchange="toggleQuantity(this, 'lakatan-banana-tree-qty')">
-                            <span>Lakatan Banana Tree</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="lakatan-banana-tree-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="lakatan_banana_tree_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fruit-bearing-trees/Rambutan Tree.jpg') }}" alt="Rambutan Tree" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fruits" value="Rambutan Tree" onchange="toggleQuantity(this, 'rambutan-tree-qty')">
-                            <span>Rambutan Tree</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="rambutan-tree-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="rambutan_tree_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fruit-bearing-trees/Star Apple Tree.jpg') }}" alt="Star Apple Tree" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fruits" value="Star Apple Tree" onchange="toggleQuantity(this, 'star-apple-tree-qty')">
-                            <span>Star Apple Tree</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="star-apple-tree-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="star_apple_tree_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ornamentals Category -->
-            <div class="seedlings-column">
-                <strong>Ornamentals</strong>
-                <div class="seedlings-items-grid">
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/ornamentals/Anthurium.jpg') }}" alt="Anthurium" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="ornamentals" value="Anthurium" onchange="toggleQuantity(this, 'anthurium-qty')">
-                            <span>Anthurium</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="anthurium-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="anthurium_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/ornamentals/Bougainvillea.jpg') }}" alt="Bougainvillea" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="ornamentals" value="Bougainvillea" onchange="toggleQuantity(this, 'bougainvillea-qty')">
-                            <span>Bougainvillea</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="bougainvillea-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="bougainvillea_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/ornamentals/Fortune Plant.jpg') }}" alt="Fortune Plant" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="ornamentals" value="Fortune Plant" onchange="toggleQuantity(this, 'fortune-plant-qty')">
-                            <span>Fortune Plant</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="fortune-plant-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="fortune_plant_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/ornamentals/Gumamela (Hibiscus).jpg') }}" alt="Gumamela (Hibiscus)" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="ornamentals" value="Gumamela (Hibiscus)" onchange="toggleQuantity(this, 'gumamela-qty')">
-                            <span>Gumamela (Hibiscus)</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="gumamela-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="gumamela_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/ornamentals/Sansevieria (Snake Plant).jpg') }}" alt="Sansevieria (Snake Plant)" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="ornamentals" value="Sansevieria (Snake Plant)" onchange="toggleQuantity(this, 'sansevieria-qty')">
-                            <span>Sansevieria (Snake Plant)</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="sansevieria-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="sansevieria_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fingerlings Category -->
-            <div class="seedlings-column">
-                <strong>Fingerlings</strong>
-                <div class="seedlings-items-grid">
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fingerlings/Catfish Fingerlings.jpg') }}" alt="Catfish Fingerling" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fingerlings" value="Catfish Fingerling" onchange="toggleQuantity(this, 'catfish-fingerling-qty')">
-                            <span>Catfish Fingerling</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="catfish-fingerling-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="catfish_fingerling_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fingerlings/Milkfish (Bangus) Fingerlings.jpg') }}" alt="Milkfish (Bangus) Fingerling" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fingerlings" value="Milkfish (Bangus) Fingerling" onchange="toggleQuantity(this, 'milkfish-fingerling-qty')">
-                            <span>Milkfish (Bangus) Fingerling</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="milkfish-fingerling-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="milkfish_fingerling_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fingerlings/Tilapia Fingerlings.jpg') }}" alt="Tilapia Fingerlings" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fingerlings" value="Tilapia Fingerlings" onchange="toggleQuantity(this, 'tilapia-fingerlings-qty')">
-                            <span>Tilapia Fingerlings</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="tilapia-fingerlings-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="tilapia_fingerlings_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fertilizers Category -->
-            <div class="seedlings-column">
-                <strong>Fertilizers</strong>
-                <div class="seedlings-items-grid">
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fertilizers/Ammonium Sulfate (21-0-0).jpg') }}" alt="Ammonium Sulfate (21-0-0)" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fertilizers" value="Ammonium Sulfate (21-0-0)" onchange="toggleQuantity(this, 'ammonium-sulfate-qty')">
-                            <span>Ammonium Sulfate (21-0-0)</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="ammonium-sulfate-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="ammonium_sulfate_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fertilizers/Humic Acid.jpg') }}" alt="Humic Acid" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fertilizers" value="Humic Acid" onchange="toggleQuantity(this, 'humic-acid-qty')">
-                            <span>Humic Acid</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="humic-acid-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="humic_acid_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fertilizers/Pre-processed Chicken Manure.jpg') }}" alt="Pre-processed Chicken Manure" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fertilizers" value="Pre-processed Chicken Manure" onchange="toggleQuantity(this, 'pre-processed-chicken-manure-qty')">
-                            <span>Pre-processed Chicken Manure</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="pre-processed-chicken-manure-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="pre_processed_chicken_manure_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fertilizers/Urea (46-0-0).jpg') }}" alt="Urea (46-0-0)" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fertilizers" value="Urea (46-0-0)" onchange="toggleQuantity(this, 'urea-qty')">
-                            <span>Urea (46-0-0)</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="urea-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="urea_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                    <div class="seedlings-option">
-                        <img src="{{ asset('images/seedlings/fertilizers/Vermicast Fertilizer.jpg') }}" alt="Vermicast Fertilizer" class="seedling-image">
-                        <div class="seedlings-checkbox">
-                            <input type="checkbox" name="fertilizers" value="Vermicast Fertilizer" onchange="toggleQuantity(this, 'vermicast-fertilizer-qty')">
-                            <span>Vermicast Fertilizer</span>
-                        </div>
-                        <div class="seedlings-quantity-control" id="vermicast-fertilizer-qty">
-                            <label>Qty:</label>
-                            <input type="number" name="vermicast_fertilizer_quantity" min="1" value="1">
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endforeach
         </div>
+        
         <div style="text-align:center; margin-top:30px;">
             <button type="button" class="seedlings-next-btn" onclick="proceedToSeedlingsForm()">Next</button>
         </div>
     </form>
 </section>
+
+<!-- Rest of the form (application section) stays the same -->
 
 <!-- Seedlings Application Form Section -->
 <section class="application-section" id="seedlings-form" style="display: none;">
