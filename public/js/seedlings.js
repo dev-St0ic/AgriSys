@@ -587,9 +587,24 @@ function submitSeedlingsRequest(event) {
     // Prepare form data
     const formData = new FormData(form);
 
+    // Debug: Check what's in _seedlingsChoices
+    console.log('Selections:', window._seedlingsChoices);
+
     // Add selected seedlings data
     if (window._seedlingsChoices) {
         formData.append('selected_seedlings', JSON.stringify(window._seedlingsChoices));
+    } else {
+        console.error('No selections found!');
+        alert('Please select items first');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        return;
+    }
+
+    // Debug: Check form data
+    console.log('FormData entries:');
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
     }
 
     // Get CSRF token
@@ -606,18 +621,25 @@ function submitSeedlingsRequest(event) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Response:', data);
+        
         if (data.success) {
-            // Show success message
             alert('✅ ' + data.message);
-
-            // COMPLETE RESET FOR NEXT USER
             performCompleteReset();
-
-            // Return to main services page
             closeFormSeedlings();
         } else {
-            // Show error message
-            alert('❌ ' + (data.message || 'There was an error submitting your request.'));
+            // Show detailed errors
+            console.error('Validation errors:', data.errors);
+            
+            if (data.errors) {
+                let errorMsg = 'Validation errors:\n';
+                for (let field in data.errors) {
+                    errorMsg += `${field}: ${data.errors[field].join(', ')}\n`;
+                }
+                alert(errorMsg);
+            } else {
+                alert('❌ ' + (data.message || 'There was an error submitting your request.'));
+            }
         }
     })
     .catch(error => {
@@ -625,7 +647,6 @@ function submitSeedlingsRequest(event) {
         alert('❌ There was an error submitting your request. Please try again.');
     })
     .finally(() => {
-        // Reset button state
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     });
