@@ -32,11 +32,14 @@ class SeedlingCategoryItemController extends Controller
             'display_order' => 'nullable|integer|min:0',
         ]);
 
+        // Set category as inactive by default when created
+        $validated['is_active'] = false;
+
         $category = RequestCategory::create($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Category created successfully',
+            'message' => 'Category created successfully. Add items to activate it.',
             'category' => $category->load('items')
         ]);
     }
@@ -80,6 +83,18 @@ class SeedlingCategoryItemController extends Controller
 
     public function toggleCategoryStatus(RequestCategory $category)
     {
+        // Check if category has at least one active item before allowing activation
+        if (!$category->is_active) {
+            $hasActiveItems = $category->items()->where('is_active', true)->exists();
+            
+            if (!$hasActiveItems) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot activate category without active items. Please add and activate at least one item first.'
+                ], 422);
+            }
+        }
+
         $category->update(['is_active' => !$category->is_active]);
 
         return response()->json([
@@ -121,9 +136,15 @@ class SeedlingCategoryItemController extends Controller
 
         $item = CategoryItem::create($validated);
 
+        // Auto-activate category when first active item is added
+        $category = RequestCategory::find($validated['category_id']);
+        if (!$category->is_active && $item->is_active) {
+            $category->update(['is_active' => true]);
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Item created successfully',
+            'message' => 'Item created successfully' . (!$category->is_active ? ' and category has been activated' : ''),
             'item' => $item->load('category')
         ]);
     }
@@ -149,7 +170,23 @@ class SeedlingCategoryItemController extends Controller
             $validated['image_path'] = $request->file('image')->store('category-items', 'public');
         }
 
+        $oldCategoryId = $item->category_id;
         $item->update($validated);
+
+        // Check if old category should be deactivated (no active items left)
+        $oldCategory = RequestCategory::find($oldCategoryId);
+        if ($oldCategory && $oldCategory->is_active) {
+            $hasActiveItems = $oldCategory->items()->where('is_active', true)->exists();
+            if (!$hasActiveItems) {
+                $oldCategory->update(['is_active' => false]);
+            }
+        }
+
+        // Check if new category should be activated (has active items now)
+        $newCategory = RequestCategory::find($validated['category_id']);
+        if ($newCategory && !$newCategory->is_active && $item->is_active) {
+            $newCategory->update(['is_active' => true]);
+        }
 
         return response()->json([
             'success' => true,
@@ -167,12 +204,23 @@ class SeedlingCategoryItemController extends Controller
             ], 422);
         }
 
+        $categoryId = $item->category_id;
+
         // Delete image
         if ($item->image_path) {
             Storage::disk('public')->delete($item->image_path);
         }
 
         $item->delete();
+
+        // Check if category should be deactivated (no active items left)
+        $category = RequestCategory::find($categoryId);
+        if ($category && $category->is_active) {
+            $hasActiveItems = $category->items()->where('is_active', true)->exists();
+            if (!$hasActiveItems) {
+                $category->update(['is_active' => false]);
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -182,11 +230,32 @@ class SeedlingCategoryItemController extends Controller
 
     public function toggleItemStatus(CategoryItem $item)
     {
-        $item->update(['is_active' => !$item->is_active]);
+        $newStatus = !$item->is_active;
+        $item->update(['is_active' => $newStatus]);
+
+        $category = $item->category;
+
+        // If activating item, activate category if needed
+        if ($newStatus && !$category->is_active) {
+            $category->update(['is_active' => true]);
+            $message = 'Item activated and category has been activated';
+        }
+        // If deactivating item, check if category should be deactivated
+        elseif (!$newStatus && $category->is_active) {
+            $hasActiveItems = $category->items()->where('is_active', true)->exists();
+            if (!$hasActiveItems) {
+                $category->update(['is_active' => false]);
+                $message = 'Item deactivated and category has been deactivated (no active items remaining)';
+            } else {
+                $message = 'Item status updated successfully';
+            }
+        } else {
+            $message = 'Item status updated successfully';
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Item status updated successfully',
+            'message' => $message,
             'is_active' => $item->is_active
         ]);
     }
