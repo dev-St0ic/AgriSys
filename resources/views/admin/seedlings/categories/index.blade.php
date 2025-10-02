@@ -74,7 +74,7 @@
                                     <tbody>
                                         @foreach($category->items->sortBy('name') as $item)
                                             <tr>
-                                                <td>
+                                                <td style="width: 70px;">
                                                     @if($item->image_path)
                                                         <img src="{{ Storage::url($item->image_path) }}" 
                                                              alt="{{ $item->name }}" 
