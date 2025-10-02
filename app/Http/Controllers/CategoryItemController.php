@@ -86,6 +86,11 @@ class CategoryItemController extends Controller
         ]);
     }
 
+    public function showCategory(RequestCategory $category)
+    {
+        return response()->json($category->load('items'));
+    }
+
     // ==========================================
     // ITEM CRUD OPERATIONS
     // ==========================================
@@ -178,11 +183,6 @@ class CategoryItemController extends Controller
             'message' => 'Item status updated successfully',
             'is_active' => $item->is_active
         ]);
-    }
-
-    public function showCategory(RequestCategory $category)
-    {
-        return response()->json($category->load('items'));
     }
 
     public function showItem(CategoryItem $item)

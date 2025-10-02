@@ -173,6 +173,18 @@ function populateSeedlingsSummary() {
     summaryContainer.innerHTML = summaryHTML;
 }
 
+// Toggle quantity field visibility
+function toggleQuantity(checkbox, quantityId) {
+    const quantityControl = document.getElementById(quantityId);
+    if (quantityControl) {
+        if (checkbox.checked) {
+            quantityControl.style.display = 'flex';
+        } else {
+            quantityControl.style.display = 'none';
+        }
+    }
+}
+
 function buildSummarySection(title, items) {
     let html = `<div style="margin-bottom: 15px;"><strong style="color: #2d6a4f;">${title}</strong>`;
     html += '<ul style="margin: 8px 0; padding-left: 20px;">';
@@ -310,6 +322,7 @@ function calculateTotalQuantity(selections) {
         return total + items.reduce((sum, item) => sum + item.quantity, 0);
     }, 0);
 }
+
 
 // Shows summary alert to user
 function showSelectionSummary(selections) {

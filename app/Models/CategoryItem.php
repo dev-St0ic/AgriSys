@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryItem extends Model
 {
@@ -17,16 +18,17 @@ class CategoryItem extends Model
         'price',
         'min_quantity',
         'max_quantity',
-        'is_available',
-        'sort_order'
+        'image_path',
+        'is_active',
+        'display_order'
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'min_quantity' => 'integer',
         'max_quantity' => 'integer',
-        'is_available' => 'boolean',
-        'sort_order' => 'integer'
+        'is_active' => 'boolean',
+        'display_order' => 'integer'
     ];
 
     /**
@@ -46,11 +48,11 @@ class CategoryItem extends Model
     }
 
     /**
-     * Scope for available items
+     * Scope for active items
      */
-    public function scopeAvailable($query)
+    public function scopeActive($query)
     {
-        return $query->where('is_available', true);
+        return $query->where('is_active', true);
     }
 
     /**
@@ -58,7 +60,7 @@ class CategoryItem extends Model
      */
     public function scopeOrdered($query)
     {
-        return $query->orderBy('sort_order')->orderBy('name');
+        return $query->orderBy('display_order')->orderBy('name');
     }
 
     /**
@@ -67,6 +69,17 @@ class CategoryItem extends Model
     public function getFormattedNameAttribute(): string
     {
         return $this->name . ' (' . $this->unit . ')';
+    }
+
+    /**
+     * Get image URL
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        if ($this->image_path) {
+            return Storage::url($this->image_path);
+        }
+        return null;
     }
 
     /**

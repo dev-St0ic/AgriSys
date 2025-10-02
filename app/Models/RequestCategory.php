@@ -14,17 +14,17 @@ class RequestCategory extends Model
         'display_name',
         'icon',
         'description',
-        'sort_order',
+        'display_order',
         'is_active'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'sort_order' => 'integer'
+        'display_order' => 'integer'
     ];
 
     /**
-     * Get items belonging to this category
+     * Get all items in this category
      */
     public function items()
     {
@@ -36,11 +36,13 @@ class RequestCategory extends Model
      */
     public function activeItems()
     {
-        return $this->items()->where('is_available', true)->orderBy('sort_order');
+        return $this->hasMany(CategoryItem::class, 'category_id')
+            ->where('is_active', true)
+            ->orderBy('display_order');
     }
 
     /**
-     * Get request items for this category
+     * Get request items
      */
     public function requestItems()
     {
@@ -60,24 +62,25 @@ class RequestCategory extends Model
      */
     public function scopeOrdered($query)
     {
-        return $query->orderBy('sort_order')->orderBy('display_name');
+        return $query->orderBy('display_order')->orderBy('display_name');
     }
 
     /**
-     * Get inventory category name mapping
+     * Get inventory category name for mapping
      */
     public function getInventoryCategoryName(): string
     {
-        // Map to inventory category names
         $mapping = [
-            'seeds' => 'seed',
-            'seedlings' => 'seedling',
-            'fruits' => 'fruit',
-            'ornamentals' => 'ornamental',
-            'fingerlings' => 'fingerling',
-            'fertilizers' => 'fertilizer'
+            'seeds' => 'Seeds',
+            'seedlings' => 'Seedlings',
+            'fruits' => 'Fruit Trees',
+            'ornamentals' => 'Ornamental Plants',
+            'fingerlings' => 'Fingerlings',
+            'fertilizers' => 'Fertilizers',
+            'tools' => 'Tools',
+            'equipment' => 'Equipment'
         ];
 
-        return $mapping[$this->name] ?? $this->name;
+        return $mapping[$this->name] ?? $this->display_name;
     }
 }

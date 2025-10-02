@@ -6,6 +6,12 @@
 
 @section('content')
 <div class="container-fluid">
+     <!-- Back Button Here -->
+    <div class="mb-3">
+        <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Seedling Requests
+        </a>
+    </div>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-layer-group me-2"></i>Manage Categories & Items</h2>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal">

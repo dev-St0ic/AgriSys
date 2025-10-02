@@ -17,13 +17,10 @@
             <h3 class="mb-0">Seedling Requests Management</h3>
             <div class="btn-group">
                 <a href="{{ route('admin.seedlings.categories.index') }}" class="btn btn-success">
-                    <i class="fas fa-layer-group me-2"></i>Manage Dispersals
+                    <i class="fas fa-layer-group me-2"></i>Manage Categories & Items
                 </a>
-                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
-                    <i class="fas fa-plus me-2"></i>New Dispersal
-                </button>
                 <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus-circle me-2"></i>Create Dispersal
+                    <i class="fas fa-plus-circle me-2"></i>Create Request
                 </a>
             </div>
         </div>
