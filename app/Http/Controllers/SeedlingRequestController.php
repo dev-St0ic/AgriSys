@@ -365,20 +365,18 @@ class SeedlingRequestController extends Controller
                     ->with('error', 'Cannot delete approved requests. Please reject it first.');
             }
 
-            // If there are approved items, restore inventory
+            // If there are approved items, return supplies
             $approvedItems = $seedlingRequest->items()->where('status', 'approved')->get();
             if ($approvedItems->count() > 0) {
                 foreach ($approvedItems as $item) {
                     if ($item->categoryItem) {
-                        $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$item->item_name}%")
-                            ->where('category', $item->category->getInventoryCategoryName())
-                            ->where('is_active', true)
-                            ->first();
-
-                        if ($inventory) {
-                            $inventory->increment('current_stock', $item->approved_quantity ?? $item->requested_quantity);
-                            $inventory->update(['updated_by' => auth()->id()]);
-                        }
+                        $item->categoryItem->returnSupply(
+                            $item->approved_quantity ?? $item->requested_quantity,
+                            auth()->id(),
+                            "Returned from deleted request #{$seedlingRequest->request_number}",
+                            'SeedlingRequest',
+                            $seedlingRequest->id
+                        );
                     }
                 }
             }
@@ -396,7 +394,7 @@ class SeedlingRequestController extends Controller
     }
 
     /**
-     * Update individual items in a request (for approval/rejection)
+     * Update individual items in a request (for approval/rejection) - WITH AUTOMATIC SUPPLY DEDUCTION
      */
     public function updateItems(Request $request, SeedlingRequest $seedlingRequest)
     {
@@ -421,11 +419,11 @@ class SeedlingRequestController extends Controller
                 $wasApproved = $item->status === 'approved';
                 
                 if ($status === 'approved') {
-                    // Check inventory availability
+                    // Check supply availability
                     if ($item->categoryItem) {
-                        $check = $item->categoryItem->checkInventoryAvailability($item->requested_quantity);
+                        $check = $item->categoryItem->checkSupplyAvailability($item->requested_quantity);
                         if (!$check['available']) {
-                            throw new \Exception("Insufficient stock for {$item->item_name}. Available: {$check['current_stock']}, Requested: {$item->requested_quantity}");
+                            throw new \Exception("Insufficient supply for {$item->item_name}. Available: {$check['current_supply']}, Requested: {$item->requested_quantity}");
                         }
                     }
                     
@@ -436,16 +434,18 @@ class SeedlingRequestController extends Controller
                     ]);
                     $approvedCount++;
                     
-                    // Deduct from inventory if newly approved
+                    // AUTOMATIC SUPPLY DEDUCTION when newly approved
                     if (!$wasApproved && $item->categoryItem) {
-                        $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$item->item_name}%")
-                            ->where('category', $item->category->getInventoryCategoryName())
-                            ->where('is_active', true)
-                            ->first();
-
-                        if ($inventory && $inventory->current_stock >= $item->requested_quantity) {
-                            $inventory->decrement('current_stock', $item->requested_quantity);
-                            $inventory->update(['updated_by' => auth()->id()]);
+                        $success = $item->categoryItem->distributeSupply(
+                            $item->requested_quantity,
+                            auth()->id(),
+                            "Distributed for approved request #{$seedlingRequest->request_number} - {$seedlingRequest->full_name}",
+                            'SeedlingRequest',
+                            $seedlingRequest->id
+                        );
+                        
+                        if (!$success) {
+                            throw new \Exception("Failed to distribute supply for {$item->item_name}");
                         }
                     }
                     
@@ -457,17 +457,15 @@ class SeedlingRequestController extends Controller
                     ]);
                     $rejectedCount++;
                     
-                    // Restore inventory if was previously approved
+                    // AUTOMATIC SUPPLY RETURN if was previously approved
                     if ($wasApproved && $item->categoryItem) {
-                        $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$item->item_name}%")
-                            ->where('category', $item->category->getInventoryCategoryName())
-                            ->where('is_active', true)
-                            ->first();
-
-                        if ($inventory) {
-                            $inventory->increment('current_stock', $item->approved_quantity ?? $item->requested_quantity);
-                            $inventory->update(['updated_by' => auth()->id()]);
-                        }
+                        $item->categoryItem->returnSupply(
+                            $item->approved_quantity ?? $item->requested_quantity,
+                            auth()->id(),
+                            "Returned from rejected item in request #{$seedlingRequest->request_number}",
+                            'SeedlingRequest',
+                            $seedlingRequest->id
+                        );
                     }
                     
                 } else {
@@ -477,17 +475,15 @@ class SeedlingRequestController extends Controller
                         'rejection_reason' => null
                     ]);
                     
-                    // Restore inventory if was previously approved
+                    // AUTOMATIC SUPPLY RETURN if was previously approved
                     if ($wasApproved && $item->categoryItem) {
-                        $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$item->item_name}%")
-                            ->where('category', $item->category->getInventoryCategoryName())
-                            ->where('is_active', true)
-                            ->first();
-
-                        if ($inventory) {
-                            $inventory->increment('current_stock', $item->approved_quantity ?? $item->requested_quantity);
-                            $inventory->update(['updated_by' => auth()->id()]);
-                        }
+                        $item->categoryItem->returnSupply(
+                            $item->approved_quantity ?? $item->requested_quantity,
+                            auth()->id(),
+                            "Returned from pending item in request #{$seedlingRequest->request_number}",
+                            'SeedlingRequest',
+                            $seedlingRequest->id
+                        );
                     }
                 }
             }
@@ -522,7 +518,7 @@ class SeedlingRequestController extends Controller
                 }
             }
 
-            return redirect()->back()->with('success', 'Items updated successfully and inventory adjusted.');
+            return redirect()->back()->with('success', 'Items updated successfully and supplies automatically adjusted.');
 
         } catch (\Exception $e) {
             \DB::rollback();
