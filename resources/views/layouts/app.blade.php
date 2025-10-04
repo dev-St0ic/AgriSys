@@ -422,6 +422,13 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.seedlings.categories.index') ? 'active' : '' }} tooltip-custom"
+                                    href="{{ route('admin.seedlings.categories.index') }}" data-tooltip="Supply Management">
+                                        <i class="fas fa-layer-group me-2"></i>
+                                        <span class="nav-link-text">Supply Management</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.fishr.requests') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.fishr.requests') }}" data-tooltip="FishR Registrations">
                                         <i class="fas fa-fish"></i>
