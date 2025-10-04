@@ -268,7 +268,7 @@
                     <div class="mb-3">
                         <label class="form-label">Icon *</label>
                         <select name="icon" id="create_icon" class="form-select" required onchange="updateIconPreview('create')">
-                             option value="">Select an icon...</option>
+                            <option value="">Select an icon...</option>
                             <option value="fa-seedling">🌱 Seedling</option>
                             <option value="fa-leaf">🍃 Leaf</option>
                             <option value="fa-tree">🌲 Tree</option>
@@ -306,6 +306,77 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Create Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editCategoryForm" novalidate>
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_category_id" name="category_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name *</label>
+                        <input type="text" id="edit_category_name" name="name" class="form-control" required>
+                        <small class="text-muted">Internal name (lowercase, no spaces)</small>
+                        <div class="invalid-feedback">Please provide a category name.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Display Name *</label>
+                        <input type="text" id="edit_category_display_name" name="display_name" class="form-control" required>
+                        <div class="invalid-feedback">Please provide a display name.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Icon *</label>
+                        <select name="icon" id="edit_icon" class="form-select" required onchange="updateIconPreview('edit')">
+                            <option value="">Select an icon...</option>
+                            <option value="fa-seedling">🌱 Seedling</option>
+                            <option value="fa-leaf">🍃 Leaf</option>
+                            <option value="fa-tree">🌲 Tree</option>
+                            <option value="fa-spa">🌿 Herbs/Spa</option>
+                            <option value="fa-cannabis">🌿 Cannabis/Plant</option>
+                            <option value="fa-pepper-hot">🌶️ Pepper</option>
+                            <option value="fa-carrot">🥕 Carrot/Vegetable</option>
+                            <option value="fa-apple-alt">🍎 Apple/Fruit</option>
+                            <option value="fa-lemon">🍋 Lemon/Citrus</option>
+                            <option value="fa-wheat-awn">🌾 Wheat/Grain/Corn</option>
+                            <option value="fa-flask">🧪 Flask/Chemical</option>
+                            <option value="fa-tint">💧 Tint/Water</option>
+                            <option value="fa-sun">☀️ Sun</option>
+                            <option value="fa-cloud-rain">🌧️ Rain</option>
+                            <option value="fa-hand-holding-heart">💚 Hand Holding Heart</option>
+                            <option value="fa-tractor">🚜 Tractor/Farm</option>
+                            <option value="fa-warehouse">🏭 Warehouse</option>
+                            <option value="fa-tools">🔧 Tools</option>
+                            <option value="fa-person-digging">🔨 Shovel</option>
+                            <option value="fa-recycle">♻️ Recycle</option>
+                            <option value="fa-boxes">📦 Boxes</option>
+                            <option value="fa-box-open">📤 Box Open</option>
+                        </select>
+                        <div class="invalid-feedback">Please select an icon.</div>
+                        <div class="mt-2">
+                            <small class="text-muted">Preview: </small>
+                            <i id="edit_icon_preview" class="fas fa-leaf fa-2x"></i>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea id="edit_category_description" name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Category</button>
                 </div>
             </form>
         </div>
@@ -385,6 +456,83 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit Item Modal -->
+<div class="modal fade" id="editItemModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editItemForm" enctype="multipart/form-data" novalidate>
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="edit_item_id" name="item_id">
+                <input type="hidden" id="edit_item_category_id" name="category_id" required>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Name *</label>
+                            <input type="text" id="edit_item_name" name="name" class="form-control" required>
+                            <div class="invalid-feedback">Please provide an item name.</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Unit *</label>
+                            <select id="edit_item_unit" name="unit" class="form-select" required>
+                                <option value="">Select unit...</option>
+                                <option value="pcs">Pieces (pcs)</option>
+                                <option value="kg">Kilogram (kg)</option>
+                                <option value="L">Liter (L)</option>
+                                <option value="pack">Pack</option>
+                                <option value="bag">Bag</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a unit.</div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea id="edit_item_description" name="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    
+                    <hr>
+                    <h6 class="text-primary"><i class="fas fa-warehouse me-2"></i>Supply Settings</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Minimum Supply</label>
+                            <input type="number" id="edit_item_minimum_supply" name="minimum_supply" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Maximum Supply</label>
+                            <input type="number" id="edit_item_maximum_supply" name="maximum_supply" class="form-control" min="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reorder Point</label>
+                        <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control" min="0">
+                        <small class="text-muted">Alert when supply reaches this level</small>
+                    </div>
+                    
+                    <hr>
+                    <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
+                    
+                    <div class="mb-3">
+                        <div id="current_image_preview" class="mb-2"></div>
+                        <label class="form-label">Change Image</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <small class="text-muted">Recommended: 300x300px, max 2MB</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Item</button>
                 </div>
             </form>
         </div>
@@ -615,8 +763,53 @@ function setItemCategory(categoryId) {
 }
 
 async function editCategory(categoryId) {
-    // Implementation as before...
+    try {
+        const category = await makeRequest(`/admin/seedlings/categories/${categoryId}`, {
+            method: 'GET',
+            headers: {'X-CSRF-TOKEN': csrfToken}
+        });
+        
+        // Populate form fields
+        document.getElementById('edit_category_id').value = category.id;
+        document.getElementById('edit_category_name').value = category.name;
+        document.getElementById('edit_category_display_name').value = category.display_name;
+        document.getElementById('edit_icon').value = category.icon || 'fa-leaf';
+        document.getElementById('edit_category_description').value = category.description || '';
+        
+        // Update icon preview
+        updateIconPreview('edit');
+        
+        // Reset validation
+        document.getElementById('editCategoryForm').classList.remove('was-validated');
+        
+        // Show modal
+        new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+    } catch (error) {
+        showError('Error loading category: ' + error.message);
+    }
 }
+
+document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!validateForm(this)) {
+        return;
+    }
+    
+    const categoryId = document.getElementById('edit_category_id').value;
+    const formData = new FormData(this);
+    
+    try {
+        const data = await makeRequest(`/admin/seedlings/categories/${categoryId}`, {
+            method: 'POST',
+            body: formData,
+            headers: {'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json'}
+        });
+        showSuccess(data.message);
+    } catch (error) {
+        showError(error.message);
+    }
+});
 
 async function toggleCategory(categoryId) {
     if (!confirm('Toggle category status?')) return;
@@ -836,9 +1029,11 @@ document.getElementById('addSupplyForm').addEventListener('submit', async functi
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
         
+        // Update display without reopening modal
+        document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
+        loadSupplyLogs(itemId);
         this.reset();
         this.classList.remove('was-validated');
-        manageSupply(itemId); // Refresh the modal
     } catch (error) {
         showError(error.message);
     }
@@ -877,9 +1072,11 @@ document.getElementById('adjustSupplyForm').addEventListener('submit', async fun
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
         
+        // Update display without reopening modal
+        document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
+        loadSupplyLogs(itemId);
         this.reset();
         this.classList.remove('was-validated');
-        manageSupply(itemId);
     } catch (error) {
         showError(error.message);
     }
@@ -924,9 +1121,11 @@ document.getElementById('recordLossForm').addEventListener('submit', async funct
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
         
+        // Update display without reopening modal
+        document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
+        loadSupplyLogs(itemId);
         this.reset();
         this.classList.remove('was-validated');
-        manageSupply(itemId);
     } catch (error) {
         showError(error.message);
     }
@@ -959,9 +1158,65 @@ async function deleteItem(itemId) {
 }
 
 async function editItem(itemId) {
-    // Similar to editCategory - load item data and populate edit form
-    // Implementation left for brevity
+    try {
+        const item = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+            method: 'GET',
+            headers: {'X-CSRF-TOKEN': csrfToken}
+        });
+        
+        // Populate form fields
+        document.getElementById('edit_item_id').value = item.id;
+        document.getElementById('edit_item_category_id').value = item.category_id;
+        document.getElementById('edit_item_name').value = item.name;
+        document.getElementById('edit_item_unit').value = item.unit;
+        document.getElementById('edit_item_description').value = item.description || '';
+        document.getElementById('edit_item_minimum_supply').value = item.minimum_supply || 0;
+        document.getElementById('edit_item_maximum_supply').value = item.maximum_supply || '';
+        document.getElementById('edit_item_reorder_point').value = item.reorder_point || '';
+        
+        // Show current image if exists
+        const imagePreview = document.getElementById('current_image_preview');
+        if (item.image_path) {
+            imagePreview.innerHTML = `
+                <label class="form-label">Current Image:</label><br>
+                <img src="/storage/${item.image_path}" alt="${item.name}" 
+                     class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+            `;
+        } else {
+            imagePreview.innerHTML = '';
+        }
+        
+        // Reset validation
+        document.getElementById('editItemForm').classList.remove('was-validated');
+        
+        // Show modal
+        new bootstrap.Modal(document.getElementById('editItemModal')).show();
+    } catch (error) {
+        showError('Error loading item: ' + error.message);
+    }
 }
+
+document.getElementById('editItemForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!validateForm(this)) {
+        return;
+    }
+    
+    const itemId = document.getElementById('edit_item_id').value;
+    const formData = new FormData(this);
+    
+    try {
+        const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+            method: 'POST',
+            body: formData,
+            headers: {'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json'}
+        });
+        showSuccess(data.message);
+    } catch (error) {
+        showError(error.message);
+    }
+});
 
 // Reset form validation on modal close
 document.querySelectorAll('.modal').forEach(modal => {
