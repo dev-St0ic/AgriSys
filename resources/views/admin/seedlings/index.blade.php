@@ -16,8 +16,8 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="mb-0">Seedling Requests Management</h3>
             <div class="btn-group">
-                <a href="{{ route('admin.seedlings.categories.index') }}" class="btn btn-success">
-                    <i class="fas fa-layer-group me-2"></i>Manage Categories & Items
+                <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-2"></i>Create Request
                 </a>
             </div>
         </div>
