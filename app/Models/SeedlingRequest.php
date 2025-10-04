@@ -140,9 +140,9 @@ class SeedlingRequest extends Model
     }
 
     /**
-     * Check inventory availability for all items
+     * Check supply availability for all items
      */
-    public function checkInventoryAvailability(): array
+    public function checkSupplyAvailability(): array
     {
         $results = [];
         $canFulfill = true;
@@ -151,13 +151,13 @@ class SeedlingRequest extends Model
 
         foreach ($this->items as $item) {
             if ($item->categoryItem) {
-                $check = $item->categoryItem->checkInventoryAvailability($item->requested_quantity);
+                $check = $item->categoryItem->checkSupplyAvailability($item->requested_quantity);
                 
                 $itemData = [
                     'name' => $item->item_name,
                     'category' => $item->category->display_name,
                     'needed' => $item->requested_quantity,
-                    'available' => $check['current_stock']
+                    'available' => $check['current_supply']
                 ];
 
                 if ($check['available']) {
@@ -180,9 +180,9 @@ class SeedlingRequest extends Model
     }
 
     /**
-     * Deduct items from inventory
+     * Distribute supplies (automatic on approval)
      */
-    public function deductFromInventory(): bool
+    public function distributeSupplies(): bool
     {
         \DB::beginTransaction();
 
@@ -190,16 +190,16 @@ class SeedlingRequest extends Model
             foreach ($this->approvedItems as $item) {
                 if (!$item->categoryItem) continue;
 
-                $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$item->item_name}%")
-                    ->where('category', $item->category->getInventoryCategoryName())
-                    ->where('is_active', true)
-                    ->first();
+                $success = $item->categoryItem->distributeSupply(
+                    $item->approved_quantity ?? $item->requested_quantity,
+                    auth()->id(),
+                    "Distributed for approved request #{$this->request_number} - {$this->full_name}",
+                    'SeedlingRequest',
+                    $this->id
+                );
 
-                if ($inventory && $inventory->current_stock >= $item->approved_quantity) {
-                    $inventory->decrement('current_stock', $item->approved_quantity);
-                    $inventory->update(['updated_by' => auth()->id()]);
-                } else {
-                    throw new \Exception("Insufficient stock for {$item->item_name}");
+                if (!$success) {
+                    throw new \Exception("Failed to distribute supply for {$item->item_name}");
                 }
             }
 
@@ -207,15 +207,15 @@ class SeedlingRequest extends Model
             return true;
         } catch (\Exception $e) {
             \DB::rollback();
-            \Log::error("Inventory deduction failed: " . $e->getMessage());
+            \Log::error("Supply distribution failed: " . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Restore items to inventory
+     * Return supplies to pool (for cancelled/rejected requests)
      */
-    public function restoreToInventory(): bool
+    public function returnSupplies(): bool
     {
         \DB::beginTransaction();
 
@@ -223,22 +223,20 @@ class SeedlingRequest extends Model
             foreach ($this->approvedItems as $item) {
                 if (!$item->categoryItem) continue;
 
-                $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$item->item_name}%")
-                    ->where('category', $item->category->getInventoryCategoryName())
-                    ->where('is_active', true)
-                    ->first();
-
-                if ($inventory) {
-                    $inventory->increment('current_stock', $item->approved_quantity);
-                    $inventory->update(['updated_by' => auth()->id()]);
-                }
+                $item->categoryItem->returnSupply(
+                    $item->approved_quantity ?? $item->requested_quantity,
+                    auth()->id(),
+                    "Returned from request #{$this->request_number} - {$this->full_name}",
+                    'SeedlingRequest',
+                    $this->id
+                );
             }
 
             \DB::commit();
             return true;
         } catch (\Exception $e) {
             \DB::rollback();
-            \Log::error("Inventory restoration failed: " . $e->getMessage());
+            \Log::error("Supply return failed: " . $e->getMessage());
             return false;
         }
     }

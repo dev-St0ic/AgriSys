@@ -16,9 +16,6 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="mb-0">Seedling Requests Management</h3>
             <div class="btn-group">
-                <a href="{{ route('admin.seedlings.categories.index') }}" class="btn btn-success">
-                    <i class="fas fa-layer-group me-2"></i>Manage Categories & Items
-                </a>
                 <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus-circle me-2"></i>Create Request
                 </a>
@@ -448,12 +445,12 @@
                                                                 </h6>
 
                                                                 @foreach($items as $item)
-                                                                    @php
+                                                                   @php
                                                                         $stockCheck = $item->categoryItem 
-                                                                            ? $item->categoryItem->checkInventoryAvailability($item->requested_quantity)
-                                                                            : ['available' => false, 'current_stock' => 0];
+                                                                            ? $item->categoryItem->checkSupplyAvailability($item->requested_quantity)
+                                                                            : ['available' => false, 'current_supply' => 0];
                                                                     @endphp
-                                                                    
+                                                                                                                                        
                                                                     <div class="item-card d-flex align-items-center justify-content-between mb-3 p-3 
                                                                         {{ $item->status === 'approved' ? 'bg-success bg-opacity-10 border border-success' : 
                                                                            ($item->status === 'rejected' ? 'bg-danger bg-opacity-10 border border-danger' : 'bg-white border') }} 
@@ -471,7 +468,7 @@
                                                                                 <span class="text-muted">•</span>
                                                                                 <small class="{{ $stockCheck['available'] ? 'text-success' : 'text-warning' }}">
                                                                                     <i class="fas fa-box me-1"></i>Stock:
-                                                                                    <span class="fw-bold">{{ $stockCheck['current_stock'] }}</span>
+                                                                                    <span class="fw-bold">{{ $stockCheck['current_supply'] }}</span>
                                                                                     @if($stockCheck['available'])
                                                                                         <i class="fas fa-check text-success ms-1"></i>
                                                                                     @else

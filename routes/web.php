@@ -173,7 +173,7 @@ Route::middleware('admin')->group(function () {
 
 // Seedling Requests Routes
 Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])->group(function () {
-    Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');
+     Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');
     Route::get('/requests/create', [SeedlingRequestController::class, 'create'])->name('create');
     Route::post('/requests', [SeedlingRequestController::class, 'store'])->name('store');
     Route::get('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
@@ -182,7 +182,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::delete('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
     Route::patch('/requests/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
     Route::patch('/requests/{seedlingRequest}/items', [SeedlingRequestController::class, 'updateItems'])->name('update-items');
-    Route::get('/requests/{seedlingRequest}/inventory-status', [SeedlingRequestController::class, 'getInventoryStatus'])->name('inventory-status');
+    Route::get('/requests/{seedlingRequest}/supply-status', [SeedlingRequestController::class, 'getSupplyStatus'])->name('supply-status');
     Route::get('/category-stats', [SeedlingRequestController::class, 'getCategoryStats'])->name('category-stats');
 
     // Category Management
@@ -199,7 +199,21 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::put('/items/{item}', [SeedlingCategoryItemController::class, 'updateItem'])->name('items.update');
     Route::get('/items/{item}', [SeedlingCategoryItemController::class, 'showItem'])->name('items.show');
     Route::delete('/items/{item}', [SeedlingCategoryItemController::class, 'destroyItem'])->name('items.destroy');
+   
+     // Stock Management
+    // Route::post('/items/{item}/stock/add', [SeedlingCategoryItemController::class, 'addStock'])->name('items.stock.add');
+    // Route::post('/items/{item}/stock/deduct', [SeedlingCategoryItemController::class, 'deductStock'])->name('items.stock.deduct');
+    // Route::post('/items/{item}/stock/adjust', [SeedlingCategoryItemController::class, 'adjustStock'])->name('items.stock.adjust');
+    // Route::get('/items/{item}/stock/logs', [SeedlingCategoryItemController::class, 'getStockLogs'])->name('items.stock.logs');
+    // Route::post('/items/{item}/stock/check', [SeedlingCategoryItemController::class, 'checkStockAvailability'])->name('items.stock.check');
+    // Route::get('/items/{item}/stock-history', [SeedlingCategoryItemController::class, 'getStockHistory'])->name('items.stock-history');
     
+      // Supply Management Routes
+    Route::post('/items/{item}/supply/add', [SeedlingCategoryItemController::class, 'addSupply'])->name('items.supply.add');
+    Route::post('/items/{item}/supply/adjust', [SeedlingCategoryItemController::class, 'adjustSupply'])->name('items.supply.adjust');
+    Route::post('/items/{item}/supply/loss', [SeedlingCategoryItemController::class, 'recordLoss'])->name('items.supply.loss');
+    Route::get('/items/{item}/supply/logs', [SeedlingCategoryItemController::class, 'getSupplyLogs'])->name('items.supply.logs');
+    Route::get('/supply/stats', [SeedlingCategoryItemController::class, 'getSupplyStats'])->name('supply.stats');
 });
   
     // ==============================================
