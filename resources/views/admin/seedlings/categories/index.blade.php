@@ -201,6 +201,46 @@
             </div>
         @endforeach
     </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-circle me-2"></i>Error
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="errorMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check-circle me-2"></i>Success
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="successMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="location.reload()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Create Category Modal -->
@@ -211,29 +251,48 @@
                 <h5 class="modal-title">Create New Category</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="createCategoryForm">
+            <form id="createCategoryForm" novalidate>
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Name *</label>
                         <input type="text" name="name" class="form-control" required>
                         <small class="text-muted">Internal name (lowercase, no spaces)</small>
+                        <div class="invalid-feedback">Please provide a category name.</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Display Name *</label>
                         <input type="text" name="display_name" class="form-control" required>
+                        <div class="invalid-feedback">Please provide a display name.</div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Icon *</label>
                         <select name="icon" id="create_icon" class="form-select" required onchange="updateIconPreview('create')">
-                            <option value="">Select an icon...</option>
+                             option value="">Select an icon...</option>
                             <option value="fa-seedling">🌱 Seedling</option>
                             <option value="fa-leaf">🍃 Leaf</option>
                             <option value="fa-tree">🌲 Tree</option>
                             <option value="fa-spa">🌿 Herbs/Spa</option>
-                            <option value="fa-fish">🐟 Fish</option>
+                            <option value="fa-cannabis">🌿 Cannabis/Plant</option>
+                            <option value="fa-pepper-hot">🌶️ Pepper</option>
+                            <option value="fa-carrot">🥕 Carrot/Vegetable</option>
+                            <option value="fa-apple-alt">🍎 Apple/Fruit</option>
+                            <option value="fa-lemon">🍋 Lemon/Citrus</option>
+                            <option value="fa-wheat-awn">🌾 Wheat/Grain/Corn</option>
                             <option value="fa-flask">🧪 Flask/Chemical</option>
+                            <option value="fa-tint">💧 Tint/Water</option>
+                            <option value="fa-sun">☀️ Sun</option>
+                            <option value="fa-cloud-rain">🌧️ Rain</option>
+                            <option value="fa-hand-holding-heart">💚 Hand Holding Heart</option>
+                            <option value="fa-tractor">🚜 Tractor/Farm</option>
+                            <option value="fa-warehouse">🏭 Warehouse</option>
+                            <option value="fa-tools">🔧 Tools</option>
+                            <option value="fa-person-digging">🔨 Shovel</option>
+                            <option value="fa-recycle">♻️ Recycle</option>
+                            <option value="fa-boxes">📦 Boxes</option>
+                            <option value="fa-box-open">📤 Box Open</option>
                         </select>
+                        <div class="invalid-feedback">Please select an icon.</div>
                         <div class="mt-2">
                             <small class="text-muted">Preview: </small>
                             <i id="create_icon_preview" class="fas fa-leaf fa-2x"></i>
@@ -261,14 +320,15 @@
                 <h5 class="modal-title">Add New Item</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="createItemForm" enctype="multipart/form-data">
+            <form id="createItemForm" enctype="multipart/form-data" novalidate>
                 @csrf
-                <input type="hidden" id="item_category_id" name="category_id">
+                <input type="hidden" id="item_category_id" name="category_id" required>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Name *</label>
                             <input type="text" name="name" class="form-control" required>
+                            <div class="invalid-feedback">Please provide an item name.</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Unit *</label>
@@ -280,6 +340,7 @@
                                 <option value="pack">Pack</option>
                                 <option value="bag">Bag</option>
                             </select>
+                            <div class="invalid-feedback">Please select a unit.</div>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -372,11 +433,12 @@
                                 <i class="fas fa-arrow-up me-2"></i>Add Supply
                             </div>
                             <div class="card-body">
-                                <form id="addSupplyForm">
+                                <form id="addSupplyForm" novalidate>
                                     <input type="hidden" id="add_supply_item_id" name="item_id">
                                     <div class="mb-2">
-                                        <label class="form-label small">Quantity</label>
+                                        <label class="form-label small">Quantity *</label>
                                         <input type="number" name="quantity" class="form-control form-control-sm" required min="1">
+                                        <div class="invalid-feedback">Please enter a quantity.</div>
                                     </div>
                                     <div class="mb-2">
                                         <label class="form-label small">Source</label>
@@ -400,15 +462,17 @@
                                 <i class="fas fa-edit me-2"></i>Adjust Supply
                             </div>
                             <div class="card-body">
-                                <form id="adjustSupplyForm">
+                                <form id="adjustSupplyForm" novalidate>
                                     <input type="hidden" id="adjust_supply_item_id" name="item_id">
                                     <div class="mb-2">
-                                        <label class="form-label small">New Supply</label>
+                                        <label class="form-label small">New Supply *</label>
                                         <input type="number" name="new_supply" class="form-control form-control-sm" required min="0">
+                                        <div class="invalid-feedback">Please enter new supply amount.</div>
                                     </div>
                                     <div class="mb-2">
                                         <label class="form-label small">Reason *</label>
                                         <textarea name="reason" class="form-control form-control-sm" rows="3" required placeholder="Explain the adjustment..."></textarea>
+                                        <div class="invalid-feedback">Please provide a reason for adjustment.</div>
                                     </div>
                                     <button type="submit" class="btn btn-warning btn-sm w-100">
                                         <i class="fas fa-sync-alt me-1"></i>Adjust Supply
@@ -424,21 +488,24 @@
                                 <i class="fas fa-exclamation-triangle me-2"></i>Record Loss
                             </div>
                             <div class="card-body">
-                                <form id="recordLossForm">
+                                <form id="recordLossForm" novalidate>
                                     <input type="hidden" id="loss_supply_item_id" name="item_id">
                                     <div class="mb-2">
-                                        <label class="form-label small">Quantity Lost</label>
+                                        <label class="form-label small">Quantity Lost *</label>
                                         <input type="number" name="quantity" class="form-control form-control-sm" required min="1">
+                                        <div class="invalid-feedback">Please enter quantity lost.</div>
                                     </div>
                                     <div class="mb-2">
                                         <label class="form-label small">Reason *</label>
-                                        <select name="reason_type" class="form-select form-select-sm mb-2">
+                                        <select name="reason_type" class="form-select form-select-sm mb-2" required>
+                                            <option value="">Select reason type...</option>
                                             <option value="Expired">Expired</option>
                                             <option value="Damaged">Damaged</option>
                                             <option value="Lost">Lost</option>
                                             <option value="Other">Other</option>
                                         </select>
                                         <textarea name="reason" class="form-control form-control-sm" rows="2" required placeholder="Additional details..."></textarea>
+                                        <div class="invalid-feedback">Please provide a reason.</div>
                                     </div>
                                     <button type="submit" class="btn btn-danger btn-sm w-100">
                                         <i class="fas fa-minus-circle me-1"></i>Record Loss
@@ -472,12 +539,61 @@
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+// Show error modal (closes any open modal first)
+function showError(message) {
+    // Close all open modals first
+    const openModals = document.querySelectorAll('.modal.show');
+    openModals.forEach(modal => {
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) bsModal.hide();
+    });
+    
+    // Small delay to ensure previous modal is closed
+    setTimeout(() => {
+        document.getElementById('errorMessage').textContent = message;
+        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+    }, 300);
+}
+
+// Show success modal (closes any open modal first)
+function showSuccess(message, shouldReload = true) {
+    // Close all open modals first
+    const openModals = document.querySelectorAll('.modal.show');
+    openModals.forEach(modal => {
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) bsModal.hide();
+    });
+    
+    // Small delay to ensure previous modal is closed
+    setTimeout(() => {
+        document.getElementById('successMessage').textContent = message;
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        successModal.show();
+        
+        if (shouldReload) {
+            document.getElementById('successModal').addEventListener('hidden.bs.modal', function() {
+                location.reload();
+            }, { once: true });
+        }
+    }, 300);
+}
+
 // Icon preview
 function updateIconPreview(type) {
     const select = document.getElementById(`${type}_icon`);
     const preview = document.getElementById(`${type}_icon_preview`);
     const iconClass = select.value;
     preview.className = iconClass ? `fas ${iconClass} fa-2x` : 'fas fa-leaf fa-2x';
+}
+
+// Form validation helper
+function validateForm(form) {
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return false;
+    }
+    return true;
 }
 
 // Helper function
@@ -509,10 +625,9 @@ async function toggleCategory(categoryId) {
             method: 'POST',
             headers: {'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json'}
         });
-        alert(data.message);
-        location.reload();
+        showSuccess(data.message);
     } catch (error) {
-        alert('Error: ' + error.message);
+        showError(error.message);
     }
 }
 
@@ -523,10 +638,9 @@ async function deleteCategory(categoryId) {
             method: 'DELETE',
             headers: {'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json'}
         });
-        alert(data.message);
-        location.reload();
+        showSuccess(data.message);
     } catch (error) {
-        alert('Error: ' + error.message);
+        showError(error.message);
     }
 }
 
@@ -550,13 +664,21 @@ async function manageSupply(itemId) {
         document.getElementById('adjust_supply_item_id').value = itemId;
         document.getElementById('loss_supply_item_id').value = itemId;
         
+        // Reset forms and validation
+        document.getElementById('addSupplyForm').reset();
+        document.getElementById('adjustSupplyForm').reset();
+        document.getElementById('recordLossForm').reset();
+        document.getElementById('addSupplyForm').classList.remove('was-validated');
+        document.getElementById('adjustSupplyForm').classList.remove('was-validated');
+        document.getElementById('recordLossForm').classList.remove('was-validated');
+        
         // Load supply logs
         loadSupplyLogs(itemId);
         
         // Show modal
         new bootstrap.Modal(document.getElementById('supplyModal')).show();
     } catch (error) {
-        alert('Error loading item: ' + error.message);
+        showError('Error loading item: ' + error.message);
     }
 }
 
@@ -634,9 +756,14 @@ function getTransactionColor(type) {
     return colors[type] || 'secondary';
 }
 
-// Form Submissions
+// Form Submissions with Validation
 document.getElementById('createCategoryForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    if (!validateForm(this)) {
+        return;
+    }
+    
     const formData = new FormData(this);
     
     try {
@@ -645,15 +772,19 @@ document.getElementById('createCategoryForm').addEventListener('submit', async f
             body: formData,
             headers: {'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json'}
         });
-        alert(data.message);
-        location.reload();
+        showSuccess(data.message);
     } catch (error) {
-        alert('Error: ' + error.message);
+        showError(error.message);
     }
 });
 
 document.getElementById('createItemForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    if (!validateForm(this)) {
+        return;
+    }
+    
     const formData = new FormData(this);
     
     try {
@@ -662,16 +793,24 @@ document.getElementById('createItemForm').addEventListener('submit', async funct
             body: formData,
             headers: {'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json'}
         });
-        alert(data.message);
-        location.reload();
+        showSuccess(data.message);
     } catch (error) {
-        alert('Error: ' + error.message);
+        if (error.message.includes('name')) {
+            showError('An item with this name already exists in this category. Please use a different name.');
+        } else {
+            showError(error.message);
+        }
     }
 });
 
-// Supply Management Forms
+// Supply Management Forms with Validation
 document.getElementById('addSupplyForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    if (!validateForm(this)) {
+        return;
+    }
+    
     const itemId = document.getElementById('add_supply_item_id').value;
     const formData = new FormData(this);
     
@@ -685,17 +824,33 @@ document.getElementById('addSupplyForm').addEventListener('submit', async functi
             },
             body: JSON.stringify(Object.fromEntries(formData))
         });
-        alert(data.message);
+        
+        // Show success message without closing modal
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            ${data.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+        
         this.reset();
+        this.classList.remove('was-validated');
         manageSupply(itemId); // Refresh the modal
-        location.reload();
     } catch (error) {
-        alert('Error: ' + error.message);
+        showError(error.message);
     }
 });
 
 document.getElementById('adjustSupplyForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    if (!validateForm(this)) {
+        return;
+    }
+    
     const itemId = document.getElementById('adjust_supply_item_id').value;
     const formData = new FormData(this);
     
@@ -711,17 +866,32 @@ document.getElementById('adjustSupplyForm').addEventListener('submit', async fun
             },
             body: JSON.stringify(Object.fromEntries(formData))
         });
-        alert(data.message);
+        
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-warning alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            ${data.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+        
         this.reset();
+        this.classList.remove('was-validated');
         manageSupply(itemId);
-        location.reload();
     } catch (error) {
-        alert('Error: ' + error.message);
+        showError(error.message);
     }
 });
 
 document.getElementById('recordLossForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    if (!validateForm(this)) {
+        return;
+    }
+    
     const itemId = document.getElementById('loss_supply_item_id').value;
     const formData = new FormData(this);
     const reasonType = formData.get('reason_type');
@@ -743,12 +913,22 @@ document.getElementById('recordLossForm').addEventListener('submit', async funct
                 reason: fullReason
             })
         });
-        alert(data.message);
+        
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
+        toast.style.zIndex = '9999';
+        toast.innerHTML = `
+            ${data.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+        
         this.reset();
+        this.classList.remove('was-validated');
         manageSupply(itemId);
-        location.reload();
     } catch (error) {
-        alert('Error: ' + error.message);
+        showError(error.message);
     }
 });
 
@@ -759,10 +939,9 @@ async function toggleItem(itemId) {
             method: 'POST',
             headers: {'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json'}
         });
-        alert(data.message);
-        location.reload();
+        showSuccess(data.message);
     } catch (error) {
-        alert('Error: ' + error.message);
+        showError(error.message);
     }
 }
 
@@ -773,10 +952,9 @@ async function deleteItem(itemId) {
             method: 'DELETE',
             headers: {'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json'}
         });
-        alert(data.message);
-        location.reload();
+        showSuccess(data.message);
     } catch (error) {
-        alert('Error: ' + error.message);
+        showError(error.message);
     }
 }
 
@@ -784,6 +962,17 @@ async function editItem(itemId) {
     // Similar to editCategory - load item data and populate edit form
     // Implementation left for brevity
 }
+
+// Reset form validation on modal close
+document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('hidden.bs.modal', function() {
+        const forms = this.querySelectorAll('form');
+        forms.forEach(form => {
+            form.classList.remove('was-validated');
+            form.reset();
+        });
+    });
+});
 </script>
 
 <style>
@@ -802,6 +991,56 @@ async function editItem(itemId) {
 
 .text-xs {
     font-size: 0.75rem;
+}
+
+/* Fix modal z-index issues */
+.modal-backdrop {
+    z-index: 1040;
+}
+
+.modal {
+    z-index: 1050;
+}
+
+.modal.show ~ .modal {
+    z-index: 1060;
+}
+
+.modal.show ~ .modal-backdrop {
+    z-index: 1055;
+}
+
+/* Validation styles */
+.was-validated .form-control:invalid,
+.was-validated .form-select:invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.was-validated .form-control:valid,
+.was-validated .form-select:valid {
+    border-color: #198754;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.invalid-feedback {
+    display: none;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-select:invalid ~ .invalid-feedback,
+.was-validated textarea:invalid ~ .invalid-feedback {
+    display: block;
 }
 </style>
 @endsection

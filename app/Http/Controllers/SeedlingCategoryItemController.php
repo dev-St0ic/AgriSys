@@ -132,7 +132,7 @@ class SeedlingCategoryItemController extends Controller
     {
         $validated = $request->validate([
             'category_id' => 'required|exists:request_categories,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:category_items,name,NULL,id,category_id,' . $request->category_id,  
             'description' => 'nullable|string|max:500',
             'unit' => 'required|string|max:20',
             'min_quantity' => 'nullable|integer|min:1',
