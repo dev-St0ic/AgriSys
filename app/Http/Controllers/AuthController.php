@@ -78,10 +78,11 @@ class AuthController extends Controller
         $totalSuperAdmins = User::where('role', 'superadmin')->count();
         $totalUsers = User::where('role', 'user')->count();
 
-        // Get inventory statistics
-        $lowStockItems = \App\Models\Inventory::lowStock()->count();
-        $outOfStockItems = \App\Models\Inventory::outOfStock()->count();
-        $totalInventoryItems = \App\Models\Inventory::active()->count();
+        // Inventory statistics disabled for new supply management
+        // Set default values to prevent dashboard errors
+        $lowStockItems = 0;
+        $outOfStockItems = 0;
+        $totalInventoryItems = 0;
 
         // Analytics data
         $analyticsData = $this->getAnalyticsData();

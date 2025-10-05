@@ -75,19 +75,13 @@
                             <i class="fas fa-warehouse text-white"></i>
                         </div>
                         <div class="ms-3 flex-grow-1">
-                            <div class="metric-label">Inventory Items</div>
-                            <div class="metric-value text-info">{{ $totalInventoryItems }}</div>
-                            @if ($lowStockItems > 0 || $outOfStockItems > 0)
-                                <div class="metric-trend">
-                                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>
-                                    <small class="text-warning">{{ $outOfStockItems }} out, {{ $lowStockItems }} low</small>
-                                </div>
-                            @else
-                                <div class="metric-trend">
-                                    <i class="fas fa-check-circle text-success me-1"></i>
-                                    <small class="text-success">Stock levels good</small>
-                                </div>
-                            @endif
+                            <div class="metric-label">Supply Management</div>
+                            <div class="metric-value text-info">Coming Soon</div>
+                            {{-- Inventory system disabled for new supply management --}}
+                            <div class="metric-trend">
+                                <i class="fas fa-check-circle text-success me-1"></i>
+                                <small class="text-success">Ready for new system</small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -203,8 +197,8 @@
         </div>
     </div>
 
-    <!-- Inventory Alerts -->
-    @if ($lowStockItems > 0 || $outOfStockItems > 0)
+    {{-- Inventory Alerts - Disabled for new supply management --}}
+    {{-- @if ($lowStockItems > 0 || $outOfStockItems > 0)
         <div class="row mb-4">
             <div class="col-12">
                 <div class="alert alert-modern alert-warning d-flex align-items-center" role="alert">
@@ -241,7 +235,7 @@
                 </div>
             </div>
         </div>
-    @endif
+    @endif --}}
 
     <!-- Quick Actions Section -->
     <div class="row mb-4">
@@ -268,7 +262,8 @@
                                 </div>
                             </a>
                         </div>
-                        <div class="col-lg-3 col-md-6">
+                        {{-- Inventory quick action disabled for new supply management --}}
+                        {{-- <div class="col-lg-3 col-md-6">
                             <a href="{{ route('admin.inventory.index') }}" class="action-card-small btn-secondary">
                                 <div class="action-icon-small">
                                     <i class="fas fa-warehouse"></i>
@@ -278,7 +273,7 @@
                                     <small class="action-desc-small">Stock</small>
                                 </div>
                             </a>
-                        </div>
+                        </div> --}}
                         <div class="col-lg-3 col-md-6">
                             <a href="{{ route('admin.seedlings.requests') }}" class="action-card-small btn-success">
                                 <div class="action-icon-small">
