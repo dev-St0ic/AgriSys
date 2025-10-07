@@ -224,6 +224,11 @@ function openFormFishR(event) {
         event.preventDefault();
     }
 
+    // Check authentication before allowing access
+    if (!showAuthRequired('FishR Registration')) {
+        return false;
+    }
+
     console.log('Opening FishR form');
 
     // Hide all main sections and forms first
@@ -435,6 +440,12 @@ function initializeFishRFormSubmission() {
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         console.log('FishR form submitted');
+
+        // Check authentication before submitting
+        if (!isUserAuthenticatedAndVerified()) {
+            showAuthRequired('FishR Registration');
+            return false;
+        }
 
         const submitBtn = document.getElementById('fishr-submit-btn');
 

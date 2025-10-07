@@ -4,6 +4,61 @@
 // ==============================================
 
 // ==============================================
+// AUTHENTICATION CHECK FUNCTIONS
+// ==============================================
+
+/**
+ * Check if user is authenticated and verified
+ */
+function isUserAuthenticatedAndVerified() {
+    // Check if user data exists in window (set by Blade template)
+    if (typeof window.userData === 'undefined' || !window.userData) {
+        return false;
+    }
+
+    // Check if user is logged in and has approved status
+    return window.userData.status === 'approved';
+}
+
+/**
+ * Check if user is logged in (regardless of verification status)
+ */
+function isUserLoggedIn() {
+    return typeof window.userData !== 'undefined' && window.userData !== null;
+}
+
+/**
+ * Show authentication required modal with custom message
+ */
+function showAuthRequired(serviceName) {
+    if (!isUserLoggedIn()) {
+        // User not logged in - show login modal
+        showNotification('warning', `Please log in to access ${serviceName} service.`);
+        setTimeout(() => {
+            openAuthModal('login');
+        }, 500);
+        return false;
+    } else if (!isUserAuthenticatedAndVerified()) {
+        // User logged in but not verified
+        showNotification('warning', `Your account must be verified to access ${serviceName} service. Please complete your profile verification.`);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Wrapper function to check authentication before opening any service form
+ */
+function checkAuthBeforeService(serviceName, originalFunction, event) {
+    if (!showAuthRequired(serviceName)) {
+        event.preventDefault();
+        return false;
+    }
+    // If authenticated and verified, proceed with original function
+    return originalFunction(event);
+}
+
+// ==============================================
 // UTILITY FUNCTIONS - Show/Hide Helpers
 // ==============================================
 
@@ -15,9 +70,9 @@ function showAllMainSections() {
         'how-it-works',
         '.help-section'
     ];
-    
+
     sections.forEach(selector => {
-        const element = selector.startsWith('.') 
+        const element = selector.startsWith('.')
             ? document.querySelector(selector)
             : document.getElementById(selector);
         if (element) element.style.display = 'block';
@@ -27,12 +82,12 @@ function showAllMainSections() {
 function hideAllMainSections() {
     const sections = [
         'home',
-        '.announcement', 
+        '.announcement',
         'services',
         'how-it-works',
         '.help-section'
     ];
-    
+
     sections.forEach(selector => {
         const element = selector.startsWith('.')
             ? document.querySelector(selector)
@@ -47,7 +102,7 @@ function hideAllForms() {
         'seedlings-choice', 'seedlings-form',
         'fishr-form', 'boatr-form', 'training-form'
     ];
-    
+
     formIds.forEach(id => {
         const element = document.getElementById(id);
         if (element) element.style.display = 'none';
@@ -127,7 +182,7 @@ function openForm(event, formId, path) {
 function closeForm(formId) {
     const formElement = document.getElementById(formId);
     if (formElement) formElement.style.display = 'none';
-    
+
     showAllMainSections();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     history.pushState(null, '', '/services');
@@ -286,16 +341,16 @@ function openOfficeDirections() {
     const longitude = 121.0449;
     const officeName = "San Pedro City Agriculture Office";
     const address = "San Pedro City Hall, Laguna, Philippines";
-    
+
     // Different map URLs for different devices
     const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
     const appleMapsUrl = `maps://maps.google.com/maps?daddr=${latitude},${longitude}`;
     const generalMapsUrl = `https://maps.google.com/maps?daddr=${encodeURIComponent(address)}`;
-    
+
     // Detect device type
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    
+
     try {
         if (isMobile && isIOS) {
             window.location.href = appleMapsUrl;
@@ -314,17 +369,17 @@ function openOfficeDirections() {
  */
 function handleContactSubmit(event) {
     event.preventDefault();
-    
+
     // Get form data (you can process this as needed)
     const formData = new FormData(event.target);
-    
+
     // Show success message
     alert('Thank you for your message! We will get back to you within 24 hours.');
-    
+
     // Reset form and close modal
     event.target.reset();
     hideContactModal();
-    
+
     // Here you would normally send the data to your server
     // Example: sendToServer(formData);
 }
@@ -335,25 +390,25 @@ function handleContactSubmit(event) {
 function initializeHelpButtons() {
     // Get help buttons
     const helpButtons = document.querySelectorAll('.btn-help');
-    
+
     // Add event listeners
     if (helpButtons[0]) {
         helpButtons[0].addEventListener('click', showContactModal);
     }
-    
+
     if (helpButtons[1]) {
         helpButtons[1].addEventListener('click', openOfficeDirections);
     }
-    
+
     // Modal close functionality
     const modal = document.getElementById('contact-modal');
     const closeBtn = document.querySelector('.contact-modal-close');
     const form = document.getElementById('quick-contact-form');
-    
+
     if (closeBtn) {
         closeBtn.addEventListener('click', hideContactModal);
     }
-    
+
     if (modal) {
         // Close when clicking outside modal
         modal.addEventListener('click', function(event) {
@@ -362,11 +417,11 @@ function initializeHelpButtons() {
             }
         });
     }
-    
+
     if (form) {
         form.addEventListener('submit', handleContactSubmit);
     }
-    
+
     // Close modal with Escape key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
@@ -430,7 +485,7 @@ function handlePageLoad() {
  */
 function initializeLandingPage() {
     console.log('Landing page core features initialized');
-    
+
     // Add any core initialization logic here
     // Module-specific initialization should be handled in their respective modules
 }
@@ -444,11 +499,11 @@ window.addEventListener('popstate', handlePopState);
 window.addEventListener('DOMContentLoaded', () => {
     handlePageLoad();
     initializeLandingPage();
-    
-    // Note: Module-specific initialization functions should be called 
+
+    // Note: Module-specific initialization functions should be called
     // from their respective modules if needed:
     // - initializeRSBSAModule() - called from rsbsa.js
-    // - initializeSeedlingsModule() - called from seedlings.js  
+    // - initializeSeedlingsModule() - called from seedlings.js
     // - initializeFishRModule() - called from fishr.js
     // - initializeBoatRModule() - called from boatr.js
 });
