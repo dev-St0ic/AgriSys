@@ -40,6 +40,7 @@
     flex-wrap: wrap;
     justify-content: center;
     padding: 0 20px;
+    transition: max-height 0.3s ease;
 }
 
 .seedlings-category-tab {
@@ -68,6 +69,30 @@
     color: #ffffff;
     border-color: #40916c;
     box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3);
+}
+
+/* --- Category Show More/Less Styles --- */
+.seedlings-category-tab.category-tab-hidden {
+    display: none !important;
+}
+
+.seedlings-category-tab.category-toggle-btn {
+    background: #f8f9fa;
+    border: 2px solid #40916c;
+    color: #40916c;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.seedlings-category-tab.category-toggle-btn:hover {
+    background: #e8f5e9;
+    border-color: #2d6a4f;
+    color: #2d6a4f;
+    transform: translateY(-2px);
+}
+
+.seedlings-category-tab.category-toggle-btn i {
+    transition: transform 0.3s ease;
 }
 
 /* --- Filter Bar --- */
@@ -748,6 +773,12 @@
         padding: 10px 20px;
         font-size: 0.9rem;
         white-space: nowrap;
+    }
+    
+    .seedlings-category-tab.category-toggle-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 5px;
     }
     
     .seedlings-filter-bar {

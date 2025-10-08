@@ -21,6 +21,7 @@ function openFormSeedlings(event) {
         choice.style.display = 'block';
         setTimeout(() => {
             choice.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setupCategoryToggle(); // Initialize category toggle
         }, 100);
     }
     history.pushState(null, '', '/services/seedlings');
@@ -48,12 +49,88 @@ function backToSeedlingsChoice() {
 }
 
 // ==============================================
+// CATEGORY SHOW MORE/LESS FUNCTIONALITY
+// ==============================================
+
+function initializeCategoryTabs() {
+    const categoryTabs = document.querySelector('.seedlings-category-tabs');
+    if (!categoryTabs) return;
+    
+    // Remove existing toggle button if any
+    const existingToggle = categoryTabs.querySelector('.category-toggle-btn');
+    if (existingToggle) {
+        existingToggle.remove();
+    }
+    
+    const allTabs = Array.from(categoryTabs.querySelectorAll('.seedlings-category-tab:not(.category-toggle-btn)'));
+    const MAX_VISIBLE = 8; // Including "All Items" button
+    
+    // Only add show more/less if there are more than MAX_VISIBLE tabs
+    if (allTabs.length <= MAX_VISIBLE) {
+        // Remove hidden class from all tabs if less than max
+        allTabs.forEach(tab => {
+            tab.classList.remove('category-tab-hidden');
+        });
+        return;
+    }
+    
+    // Hide tabs beyond the first MAX_VISIBLE
+    allTabs.forEach((tab, index) => {
+        if (index >= MAX_VISIBLE) {
+            tab.classList.add('category-tab-hidden');
+        } else {
+            tab.classList.remove('category-tab-hidden');
+        }
+    });
+    
+    // Create Show More/Less button
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'seedlings-category-tab category-toggle-btn';
+    toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
+    toggleButton.setAttribute('data-expanded', 'false');
+    toggleButton.type = 'button';
+    
+    toggleButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        const isExpanded = this.getAttribute('data-expanded') === 'true';
+        
+        if (isExpanded) {
+            // Collapse - hide extra tabs
+            allTabs.forEach((tab, index) => {
+                if (index >= MAX_VISIBLE) {
+                    tab.classList.add('category-tab-hidden');
+                }
+            });
+            this.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
+            this.setAttribute('data-expanded', 'false');
+        } else {
+            // Expand - show all tabs
+            allTabs.forEach(tab => {
+                tab.classList.remove('category-tab-hidden');
+            });
+            this.innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
+            this.setAttribute('data-expanded', 'true');
+        }
+    });
+    
+    // Append toggle button to category tabs
+    categoryTabs.appendChild(toggleButton);
+}
+
+function setupCategoryToggle() {
+    // Wait a bit to ensure all categories are rendered
+    setTimeout(() => {
+        initializeCategoryTabs();
+    }, 100);
+}
+
+// ==============================================
 // FILTERING AND SEARCH FUNCTIONS
 // ==============================================
 
 function filterByCategory(categoryName) {
     // Update active tab
-    document.querySelectorAll('.seedlings-category-tab').forEach(tab => {
+    document.querySelectorAll('.seedlings-category-tab:not(.category-toggle-btn)').forEach(tab => {
         tab.classList.remove('active');
     });
     event.target.classList.add('active');
@@ -543,9 +620,13 @@ function performCompleteReset() {
     resetSupportingDocuments();
     
     // Reset filters
-    document.getElementById('seedlings-search').value = '';
-    document.getElementById('stock-filter').value = 'all';
-    document.getElementById('sort-by').value = 'name-asc';
+    const searchInput = document.getElementById('seedlings-search');
+    const stockFilter = document.getElementById('stock-filter');
+    const sortBy = document.getElementById('sort-by');
+    
+    if (searchInput) searchInput.value = '';
+    if (stockFilter) stockFilter.value = 'all';
+    if (sortBy) sortBy.value = 'name-asc';
     
     // Reset category filter
     const allTab = document.querySelector('[data-category="all"]');
@@ -602,6 +683,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('popstate', function() {
         performCompleteReset();
     });
+    
+    // Initialize category show more/less
+    setupCategoryToggle();
 });
 
 // ==============================================
@@ -623,5 +707,7 @@ window.filterByStock = filterByStock;
 window.sortItems = sortItems;
 window.clearAllSelections = clearAllSelections;
 window.submitSeedlingsRequest = submitSeedlingsRequest;
+window.initializeCategoryTabs = initializeCategoryTabs;
+window.setupCategoryToggle = setupCategoryToggle;
 
 console.log('Modern Seedlings module loaded successfully');
