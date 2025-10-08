@@ -1,21 +1,525 @@
 /* =================================================================
-   COMPLETE SEEDLINGS CSS - STANDALONE VERSION
+   MODERN SEEDLINGS LANDING PAGE CSS
    ================================================================= */
 
-/* --- Seedlings Application Section --- */
+/* --- Main Container --- */
 .seedlings-application-section {
-    background: #ffffff;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     padding: 40px 30px;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    font-family: 'Segoe UI', sans-serif;
-    overflow: hidden;
-    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* --- General Application Section (for backward compatibility) --- */
+/* --- Header --- */
+.seedlings-form-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.seedlings-form-header h2 {
+    color: #2d6a4f;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.seedlings-form-header p {
+    color: #555;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+
+/* --- Category Tabs --- */
+.seedlings-category-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 20px;
+    transition: max-height 0.3s ease;
+}
+
+.seedlings-category-tab {
+    padding: 12px 24px;
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #555;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.seedlings-category-tab:hover {
+    background: #f8f9fa;
+    border-color: #40916c;
+    transform: translateY(-2px);
+}
+
+.seedlings-category-tab.active {
+    background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+    color: #ffffff;
+    border-color: #40916c;
+    box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3);
+}
+
+/* --- Category Show More/Less Styles --- */
+.seedlings-category-tab.category-tab-hidden {
+    display: none !important;
+}
+
+.seedlings-category-tab.category-toggle-btn {
+    background: #f8f9fa;
+    border: 2px solid #40916c;
+    color: #40916c;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.seedlings-category-tab.category-toggle-btn:hover {
+    background: #e8f5e9;
+    border-color: #2d6a4f;
+    color: #2d6a4f;
+    transform: translateY(-2px);
+}
+
+.seedlings-category-tab.category-toggle-btn i {
+    transition: transform 0.3s ease;
+}
+
+/* --- Filter Bar --- */
+.seedlings-filter-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 0 20px;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.seedlings-search-box {
+    flex: 1 1 300px;
+    min-width: 250px;
+    position: relative;
+}
+
+.seedlings-search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+.seedlings-search-box input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    box-sizing: border-box; 
+}
+
+.seedlings-search-box input:focus {
+    outline: none;
+    border-color: #40916c;
+    box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1);
+}
+
+.seedlings-filter-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex: 0 1 auto;
+}
+
+.seedlings-filter-select {
+    padding: 12px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #555;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 180px;
+     box-sizing: border-box;
+    flex: 0 0 auto; 
+}
+
+.seedlings-filter-select:hover {
+    border-color: #40916c;
+}
+
+.seedlings-filter-select:focus {
+    outline: none;
+    border-color: #40916c;
+    box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1);
+}
+
+/* --- Selection Summary --- */
+.seedlings-selection-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+    border-radius: 50px;
+    margin: 0 20px 30px 20px;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3);
+}
+
+.selection-count {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.selection-count i {
+    font-size: 1.3rem;
+}
+
+.seedlings-clear-btn {
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid #ffffff;
+    border-radius: 50px;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.seedlings-clear-btn:hover {
+    background: #ffffff;
+    color: #40916c;
+}
+
+/* --- Items Grid --- */
+.seedlings-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 0 20px;
+    margin-bottom: 40px;
+}
+
+/* --- Item Card --- */
+.seedlings-item-card {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.seedlings-item-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Stock Badge --- */
+.seedlings-stock-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 10;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-in_stock {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+}
+
+.badge-low_stock {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+}
+
+.badge-out_of_stock {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff;
+}
+
+/* --- Item Image --- */
+.seedlings-item-image {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.seedlings-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.seedlings-item-card:hover .seedlings-item-image img {
+    transform: scale(1.1);
+}
+
+.seedlings-placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    color: #40916c;
+}
+
+/* --- Item Info --- */
+.seedlings-item-info {
+    padding: 20px;
+    flex-grow: 1;
+}
+
+.seedlings-item-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d6a4f;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.seedlings-item-category {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.seedlings-item-description {
+    font-size: 0.9rem;
+    color: #777;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.seedlings-item-stock {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.stock-label {
+    color: #666;
+    font-weight: 600;
+}
+
+.stock-value {
+    color: #40916c;
+    font-weight: 700;
+}
+
+/* --- Item Actions --- */
+.seedlings-item-actions {
+    padding: 0 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.seedlings-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.seedlings-checkbox-label:hover {
+    background: #e8f5e9;
+    border-color: #40916c;
+}
+
+.seedlings-checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-custom {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.seedlings-checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
+    background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+    border-color: #40916c;
+}
+
+.seedlings-checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.checkbox-text {
+    font-weight: 600;
+    color: #555;
+    flex-grow: 1;
+}
+
+.seedlings-checkbox-label input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+}
+
+.seedlings-checkbox-label input[type="checkbox"]:disabled + .checkbox-custom {
+    background: #e0e0e0;
+    border-color: #ccc;
+}
+
+/* --- Quantity Input --- */
+.seedlings-quantity-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.qty-btn {
+    width: 36px;
+    height: 36px;
+    border: 2px solid #40916c;
+    background: #ffffff;
+    color: #40916c;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.qty-btn:hover {
+    background: #40916c;
+    color: #ffffff;
+}
+
+.qty-input {
+    width: 60px;
+    padding: 8px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #2d6a4f;
+}
+
+.qty-input:focus {
+    outline: none;
+    border-color: #40916c;
+}
+
+/* --- No Results --- */
+.seedlings-no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.seedlings-no-results i {
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.seedlings-no-results p {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* --- Proceed Section --- */
+.seedlings-proceed-section {
+    text-align: center;
+    padding: 0 20px 20px 20px;
+}
+
+.seedlings-proceed-btn {
+    padding: 16px 48px;
+    background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.seedlings-proceed-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(64, 145, 108, 0.4);
+}
+
+.seedlings-proceed-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* --- Application Form Section --- */
 .application-section {
     background: #ffffff;
     padding: 40px 30px;
@@ -26,218 +530,7 @@
     font-family: 'Segoe UI', sans-serif;
 }
 
-
-/* --- Seedlings Form Header --- */
-.seedlings-form-header h2 {
-    color: #2d6a4f;
-    margin-bottom: 15px;
-    font-size: 2.5rem;
-    font-weight: 700;
-}
-
-.seedlings-form-header p {
-    margin-bottom: 25px;
-    color: #444;
-    opacity: 0.9;
-    font-size: 1.1rem;
-}
-
- /* --- REPLACE the .seedlings-categories section with this --- */
-.seedlings-categories {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-    margin-bottom: 40px;
-    padding: 0 20px;
-    max-width: 1000px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* --- REPLACE the .seedlings-column section with this --- */
-.seedlings-column {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 30px;
-    border: 2px solid #e9ecef;
-    width: 100%;
-}
-
-.seedlings-column > strong {
-    display: block;
-    font-size: 1.5rem;
-    color: #2d6a4f;
-    margin-bottom: 25px;
-    text-align: left;
-    font-weight: 700;
-    padding-bottom: 15px;
-    border-bottom: 3px solid #40916c;
-}
-
-/* --- Items Grid within each Category --- */
-.seedlings-column .seedlings-items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.seedlings-column .seedlings-option {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
-    background: #ffffff;
-    transition: all 0.3s ease;
-    text-align: center;
-    /* Fixed dimensions for uniformity */
-    min-height: 240px;
-    max-width: 180px;
-    width: 100%;
-}
-
-.seedlings-option:hover {
-    border-color: #40916c;
-    box-shadow: 0 4px 12px rgba(64, 145, 108, 0.15);
-    transform: translateY(-2px);
-}
-
-.seedling-image {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    object-position: center;
-    border-radius: 8px;
-    border: 2px solid #e9ecef;
-    margin-bottom: 10px;
-    transition: all 0.3s ease;
-    display: block;
-    flex-shrink: 0;
-}
-
-/* when no image exists */
-
-.seedling-image.d-flex{
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
-}
-
-.seedlings-checkbox {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    user-select: none;
-    padding: 8px 0;
-    margin-bottom: 8px;
-    width: 100%;
-    min-height: 40px;
-}
-
-.seedlings-checkbox input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-    margin: 0;
-    transform: scale(1.2);
-    accent-color: #40916c;
-    flex-shrink: 0;
-}
-
-.seedlings-checkbox span {
-    font-weight: 600;
-    color: #2d6a4f;
-    font-size: 0.9rem;
-    line-height: 1.2;
-    text-align: center;
-    word-break: break-word; /* this handle long item names */
-}
-
-.seedlings-quantity-control {
-    display: none;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 8px 0;
-    width: 100%;
-    margin-top: auto; /* Push to bottom of card */
-}
-
-.seedlings-quantity-control label {
-    font-size: 0.85rem;
-    color: #495057;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.seedlings-quantity-control input[type="number"] {
-    width: 50px;
-    padding: 4px 6px;
-    border: 2px solid #ced4da;
-    border-radius: 4px;
-    text-align: center;
-    font-weight: 600;
-    background: #ffffff;
-    font-size: 0.85rem;
-}
-
-.seedlings-quantity-control input[type="number"]:focus {
-    outline: none;
-    border-color: #40916c;
-    box-shadow: 0 0 0 2px rgba(64, 145, 108, 0.1);
-}
-
-/* --- Responsive Design --- */
-@media (max-width: 768px) {
-    .seedlings-column .seedlings-items-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 150px));
-        gap: 15px;
-    }
-    
-    .seedlings-column .seedlings-option {
-        min-height: 220px;
-        max-width: 150px;
-        padding: 12px;
-    }
-    
-    .seedling-image {
-        width: 80px;
-        height: 80px;
-    }
-    
-    .seedlings-checkbox span {
-        font-size: 0.85rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .seedlings-column .seedlings-items-grid {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 130px));
-        gap: 12px;
-    }
-    
-    .seedlings-column .seedlings-option {
-        min-height: 200px;
-        max-width: 130px;
-        padding: 10px;
-    }
-    
-    .seedling-image {
-        width: 70px;
-        height: 70px;
-    }
-    
-    .seedlings-checkbox span {
-        font-size: 0.8rem;
-    }
-}
-
-/* --- Seedlings Form Tabs --- */
+/* --- Form Tabs --- */
 .seedlings-form-tabs {
     display: flex;
     gap: 10px;
@@ -253,6 +546,7 @@
     font-weight: 600;
     border-radius: 6px;
     transition: all 0.2s ease-in-out;
+    position: relative;
 }
 
 .seedlings-tab-btn:hover {
@@ -272,24 +566,25 @@
     display: block;
 }
 
-/* --- Seedlings Form Elements --- */
-.seedlings-form-group {
-    margin-bottom: 20px;
+/* --- Tab Badge --- */
+.tab-badge {
+    display: inline-block;
+    background: #ef4444;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 8px;
+    vertical-align: middle;
 }
 
-.seedlings-form-row {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
+.seedlings-tab-btn.active .tab-badge {
+    background: #ffffff;
+    color: #40916c;
 }
 
-.seedlings-form-row .seedlings-form-group {
-    flex: 1;
-    min-width: 200px;
-}
-
-/* Form elements for both seedlings-application-section and application-section */
-.seedlings-application-section form label,
+/* --- Form Elements --- */
 .application-section form label {
     display: block;
     margin-bottom: 6px;
@@ -298,9 +593,6 @@
     color: #333;
 }
 
-.seedlings-application-section form input,
-.seedlings-application-section form select,
-.seedlings-application-section form textarea,
 .application-section form input,
 .application-section form select,
 .application-section form textarea {
@@ -313,9 +605,6 @@
     box-sizing: border-box;
 }
 
-.seedlings-application-section form input:focus,
-.seedlings-application-section form select:focus,
-.seedlings-application-section form textarea:focus,
 .application-section form input:focus,
 .application-section form select:focus,
 .application-section form textarea:focus {
@@ -324,14 +613,6 @@
     box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.1);
 }
 
-.seedlings-application-section form input[type="file"],
-.application-section form input[type="file"] {
-    padding: 8px;
-    background-color: #f8f9fa;
-}
-
-.seedlings-application-section form small,
-.seedlings-form-help,
 .application-section form small {
     font-size: 0.85rem;
     color: #666;
@@ -340,65 +621,7 @@
     line-height: 1.4;
 }
 
-/* --- Seedlings Alert Styles --- */
-.seedlings-alert {
-    padding: 15px;
-    margin: 20px 0;
-    border-radius: 8px;
-    font-weight: 500;
-    border-left: 4px solid;
-}
-
-.seedlings-alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border-left-color: #bee5eb;
-}
-
-.seedlings-alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border-left-color: #c3e6cb;
-}
-
-.seedlings-alert-danger {
-    background-color: #f8d7da;
-    color: #721c24;
-    border-left-color: #f5c6cb;
-}
-
-.seedlings-alert i {
-    margin-right: 8px;
-}
-
-.seedlings-alert ul {
-    margin: 10px 0 5px 20px;
-    padding: 0;
-}
-
-.seedlings-alert li {
-    margin: 4px 0;
-}
-
-/* --- Fixed Position Seedlings Alerts --- */
-.seedlings-alert.seedlings-fixed-alert {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    max-width: 400px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.seedlings-alert-success.seedlings-fixed-alert::before {
-    content: "✅ ";
-}
-
-.seedlings-alert-danger.seedlings-fixed-alert::before {
-    content: "❌ ";
-}
-
-/* --- Seedlings Form Buttons --- */
+/* --- Form Buttons --- */
 .seedlings-form-buttons {
     display: flex;
     justify-content: flex-end;
@@ -444,313 +667,232 @@
     cursor: not-allowed;
 }
 
-/* --- Seedlings Choice Buttons --- */
-.seedlings-btn-choice {
-    background: #22a554;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 12px 28px;
-    margin: 0 8px;
-    box-shadow: 0 2px 8px rgba(24, 201, 92, 0.08);
-    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-    outline: none;
-    cursor: pointer;
-}
-
-.seedlings-btn-choice:hover {
-    background: #1e8b4a;
-    transform: translateY(-2px) scale(1.04);
-    box-shadow: 0 4px 16px rgba(24, 201, 92, 0.18);
-}
-
-.seedlings-btn-choice:active {
-    transform: scale(0.98);
-}
-
-/* --- Seedlings-specific Option Styles --- */
-.seedlings-option {
-    background: white;
-    border-radius: 12px;
+/* --- Summary Tab Content Styles --- */
+.summary-content {
     padding: 20px;
-    border: 2px solid #e9ecef;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 20px;
 }
 
-.seedlings-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.seedlings-option input[type="checkbox"],
-.seedlings-option input[type="radio"] {
-    margin: 0;
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
-}
-
-/* Custom checkbox styling */
-.seedlings-option input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s ease;
-}
-
-.seedlings-checkbox input[type="checkbox"]:hover {
-    border-color: #40916c;
-}
-
-.seedlings-option input[type="checkbox"]:checked {
-    background-color: linear-gradient(135deg, #40916c 0%, #52b788 100%);
-    border-color: #40916c;
-}
-
-.seedlings-option input[type="checkbox"]:checked::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* Custom radio button styling */
-.seedlings-option input[type="radio"] {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    border: 2px solid #ccc;
-    border-radius: 3px;
-    background-color: white;
-    cursor: pointer;
-    position: relative;
-}
-
-.seedlings-option input[type="radio"]:checked {
-    background-color: #40916c;
-    border-color: #40916c;
-}
-
-.seedlings-option input[type="radio"]:checked::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* --- Seedlings Columns Layout --- */
-.seedlings-columns {
-    flex: 1;
-    min-width: 300px;
-    max-width: 350px;
-    background: #f8f9fa;
-    border-radius: 16px;
-    padding: 25px;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-}
-
-.seedlings-column strong {
-    display: block;
-    font-size: 1.4rem;
-    font-weight: 700;
+.summary-content h3 {
     color: #2d6a4f;
-    text-align: center;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid #40916c;
-    position: relative;
-}
-
-.seedlings-column strong::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, #40916c, #52b788);
-    border-radius: 2px;
-}
-
-.seedlings-column:hover {
-    border-color: #40916c;
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(64, 145, 108, 0.15);
-}
-
-.seedlings-col {
-    flex: 1;
-    min-width: 220px;
-    max-width: 260px;
-    padding: 10px 15px;
-    box-sizing: border-box;
-}
-
-.seedlings-col strong {
-    display: block;
-    margin-bottom: 15px;
-    font-size: 1.08em;
-    color: #000000;
-    text-align: center;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #40916c;
-}
-
-
-
-.seedling-image {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    object-position: center;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border: 2px solid #e9ecef;
-    transition: all 0.3s ease;
-    display: block;
-}
-
-.seedlings-option.selected .seedling-image {
-    border-color: #40916c;
-}
-/* --- Quantity Control Styles --- */
-.seedlings-quantity-control {
-    display: none;
-    margin-left: 24px;
-    margin-top: 5px;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background-color: #f9f9fa;
-    border-radius: 8px;
+    gap: 10px;
 }
 
-.seedlings-quantity-control label {
-    margin: 0;
-    font-size: 14px;
-    color: #666;
-    font-weight: normal;
-}
-
-.seedlings-quantity-control input[type="number"] {
-    width: 60px;
-    padding: 4px 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-/* Show quantity control when checkbox/radio is checked */
-.seedlings-option input[type="checkbox"]:checked ~ .seedlings-quantity-control,
-.seedlings-option input[type="radio"]:checked ~ .seedlings-quantity-control {
-    display: flex;
-}
-
-/* Alternative selector for different HTML structures */
-.seedlings-option input[type="checkbox"]:checked + .seedlings-checkbox + .seedlings-quantity-control,
-.seedlings-option input[type="radio"]:checked + .seedlings-checkbox + .seedlings-quantity-control {
-    display: flex;
-}
-
-/* --- Seedlings Summary Styles --- */
-.seedlings-summary,
-#seedlings-summary {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border: 1px solid #dee2e6;
-    border-left: 4px solid #40916c;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.seedlings-summary h3,
-#seedlings-summary h3 {
-    margin-top: 0;
+.summary-content h3 i {
     color: #40916c;
-    font-size: 1.2em;
 }
 
-.seedlings-summary ul,
-#seedlings-summary ul {
-    margin: 8px 0;
-    padding-left: 20px;
-}
-
-.seedlings-summary li,
-#seedlings-summary li {
-    margin: 4px 0;
-    font-size: 14px;
-}
-
-/* --- Seedlings Next Button --- */
-.seedlings-next-btn {
-    background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
-    color: white;
-    border: none;
-    padding: 12px 32px;
+.summary-category {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
     border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(64, 145, 108, 0.3);
+    border-left: 4px solid #40916c;
 }
 
-.seedlings-next-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(64, 145, 108, 0.4);
-    background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+.summary-category:last-child {
+    margin-bottom: 0;
 }
 
-.seedlings-next-btn:active {
-    transform: translateY(0);
+.summary-category strong {
+    color: #2d6a4f;
+    font-size: 1.05rem;
+    display: block;
+    margin-bottom: 10px;
 }
 
-/* --- Focus States for Accessibility --- */
-.seedlings-tab-btn:focus {
-    outline: 2px solid #40916c;
-    outline-offset: 2px;
+.summary-category ul {
+    margin: 0;
+    padding-left: 25px;
+    list-style: disc;
 }
 
-.seedlings-option input[type="checkbox"]:focus,
-.seedlings-option input[type="radio"]:focus {
-    outline: 2px solid #40916c;
-    outline-offset: 2px;
+.summary-category li {
+    margin: 8px 0;
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
 }
 
-/* --- Loading States --- */
-.seedlings-submit-btn.loading {
+.qty-highlight {
+    color: #40916c;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 1200px) {
+    .seedlings-items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+/* --- Responsive Design Updates --- */
+@media (max-width: 992px) {
+    .seedlings-filter-bar {
+        gap: 12px;
+    }
+    
+    .seedlings-search-box {
+        flex: 1 1 100%; /* Full width on medium screens */
+        min-width: 0;
+    }
+    
+    .seedlings-filter-group {
+        flex: 1 1 100%; /* Full width on medium screens */
+        width: 100%;
+    }
+    
+    .seedlings-filter-select {
+        flex: 1 1 calc(50% - 5px); /* Two selects per row */
+        min-width: 0;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .seedlings-application-section {
+        padding: 30px 20px;
+    }
+    
+    .seedlings-form-header h2 {
+        font-size: 2rem;
+    }
+    
+    .seedlings-category-tabs {
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 10px;
+    }
+    
+    .seedlings-category-tab {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    
+    .seedlings-category-tab.category-toggle-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 5px;
+    }
+    
+    .seedlings-filter-bar {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .seedlings-search-box {
+        width: 100%;
+        min-width: 0;
+    }
+    
+    .seedlings-filter-group {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .seedlings-filter-select {
+        flex: 1;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+    
+    .seedlings-items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    
+    .seedlings-item-image {
+        height: 180px;
+    }
+    
+    .seedlings-selection-summary {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .seedlings-proceed-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .seedlings-form-tabs {
+        flex-direction: column;
+    }
+    
+    .seedlings-tab-btn {
+        width: 100%;
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .seedlings-application-section {
+        padding: 20px 15px;
+        border-radius: 15px;
+    }
+    
+    .seedlings-form-header h2 {
+        font-size: 1.75rem;
+    }
+    
+    .seedlings-form-header p {
+        font-size: 1rem;
+    }
+    
+    .seedlings-items-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .seedlings-item-card {
+        max-width: 100%;
+    }
+    
+    .seedlings-form-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .seedlings-cancel-btn,
+    .seedlings-submit-btn {
+        width: 100%;
+    }
+
+    .seedlings-filter-bar {
+        padding: 0 15px;
+    }
+    
+    .seedlings-search-box input {
+        padding: 10px 15px 10px 40px;
+        font-size: 0.95rem;
+    }
+    
+    .seedlings-filter-select {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* --- Hidden Items --- */
+.seedlings-item-card.hidden {
+    display: none;
+}
+
+/* --- Loading State --- */
+.seedlings-proceed-btn.loading {
     background-color: #95a5a6;
     cursor: not-allowed;
     position: relative;
 }
 
-.seedlings-submit-btn.loading::after {
+.seedlings-proceed-btn.loading::after {
     content: '';
     position: absolute;
     width: 16px;
@@ -767,129 +909,27 @@
     100% { transform: rotate(360deg); }
 }
 
-/* --- Error and Success States --- */
-.seedlings-form-group.error input,
-.seedlings-form-group.error select,
-.seedlings-form-group.error textarea {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
+/* --- Smooth Transitions --- */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.seedlings-form-group.error label {
-    color: #dc3545;
+/* --- Scrollbar Styling --- */
+.seedlings-category-tabs::-webkit-scrollbar {
+    height: 6px;
 }
 
-.seedlings-error-message {
-    color: #dc3545;
-    font-size: 0.85rem;
-    margin-top: 5px;
-    display: block;
+.seedlings-category-tabs::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
 }
 
-.seedlings-form-group.success input,
-.seedlings-form-group.success select,
-.seedlings-form-group.success textarea {
-    border-color: #28a745;
-    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+.seedlings-category-tabs::-webkit-scrollbar-thumb {
+    background: #40916c;
+    border-radius: 10px;
 }
 
-/* --- Utility Classes --- */
-.seedlings-hidden {
-    display: none !important;
-}
-
-.seedlings-visible {
-    display: block !important;
-}
-
-.seedlings-text-center {
-    text-align: center;
-}
-
-.seedlings-text-left {
-    text-align: left;
-}
-
-.seedlings-text-right {
-    text-align: right;
-}
-
-/* --- Responsive Design for Seedlings --- */
-@media (max-width: 768px) {
-    .seedlings-application-section,
-    .application-section {
-        padding: 30px 20px;
-        margin: 20px 10px;
-    }
-
-    .seedlings-form-row {
-        flex-direction: column;
-    }
-
-    .seedlings-form-row .seedlings-form-group {
-        min-width: 100%;
-    }
-
-    .seedlings-form-buttons {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .seedlings-cancel-btn,
-    .seedlings-submit-btn {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .seedlings-columns {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .seedlings-col {
-        max-width: 100%;
-    }
-
-    /* Inline styles in HTML need to be overridden for mobile */
-    .seedlings-application-section div[style*="display: flex"] {
-        flex-direction: column !important;
-        gap: 20px !important;
-    }
-
-    .seedlings-application-section div[style*="flex:1"] {
-        flex: none !important;
-        min-width: 100% !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .seedlings-form-header h2 {
-        font-size: 24px;
-    }
-
-    .seedlings-form-tabs {
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .seedlings-tab-btn {
-        text-align: center;
-    }
-}
-
-/* --- Print Styles --- */
-@media print {
-    .seedlings-application-section,
-    .application-section {
-        box-shadow: none;
-        border: 1px solid #ddd;
-    }
-
-    .seedlings-form-buttons {
-        display: none;
-    }
-
-    .seedlings-alert {
-        break-inside: avoid;
-    }
+.seedlings-category-tabs::-webkit-scrollbar-thumb:hover {
+    background: #2d6a4f;
 }
