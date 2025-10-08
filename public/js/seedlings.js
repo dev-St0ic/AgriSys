@@ -314,36 +314,8 @@ function proceedToSeedlingsForm() {
         totalQuantity: totalQuantity
     };
     
-    showSelectionSummary(selections, totalQuantity);
+    // Go directly to form (no alert popup)
     showApplicationForm();
-}
-
-function showSelectionSummary(selections, totalQuantity) {
-    const categoryIcons = {
-        seeds: '🌾',
-        seedlings: '🌱',
-        fruits: '🍎',
-        ornamentals: '🌺',
-        fingerlings: '🐟',
-        fertilizers: '🌿'
-    };
-    
-    let summary = 'You have selected:\n\n';
-    
-    Object.entries(selections).forEach(([category, items]) => {
-        if (items.length > 0) {
-            const icon = categoryIcons[category] || '📦';
-            const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
-            summary += `${icon} ${categoryDisplay}:\n`;
-            items.forEach(item => {
-                summary += `  • ${item.name}: ${item.quantity} units\n`;
-            });
-            summary += '\n';
-        }
-    });
-    
-    summary += `Total Items: ${totalQuantity} units\n`;
-    alert(summary);
 }
 
 function showApplicationForm() {
@@ -440,49 +412,47 @@ function populateSeedlingsSummary() {
     const summaryContainer = document.getElementById('seedlings-summary');
     if (!summaryContainer || !window._seedlingsChoices) return;
     
-    let summaryHTML = '<h3 style="color: #40916c; margin-bottom: 15px;">📋 Your Selected Items:</h3>';
-    
-    const categoryIcons = {
-        seeds: '🌾',
-        seedlings: '🌱',
-        fruits: '🍎',
-        ornamentals: '🌺',
-        fingerlings: '🐟',
-        fertilizers: '🌿'
-    };
+    // Create compact header with expand/collapse functionality
+    let summaryHTML = `
+        <div class="summary-compact-header" onclick="toggleSummaryDetails()">
+            <div class="summary-header-content">
+                <i class="fas fa-shopping-cart"></i>
+                <strong>${window._seedlingsChoices.totalQuantity} items selected</strong>
+                <span class="summary-toggle-icon"><i class="fas fa-chevron-down"></i></span>
+            </div>
+        </div>
+        <div class="summary-details" id="summary-details" style="display: none;">
+    `;
     
     Object.entries(window._seedlingsChoices.selections).forEach(([category, items]) => {
         if (items.length > 0) {
-            const icon = categoryIcons[category] || '📦';
             const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
-            summaryHTML += buildSummarySection(`${icon} ${categoryDisplay}:`, items);
+            summaryHTML += `<div class="summary-category">`;
+            summaryHTML += `<strong>${categoryDisplay}:</strong>`;
+            summaryHTML += '<ul>';
+            items.forEach(item => {
+                summaryHTML += `<li>${item.name} - <span class="qty-highlight">${item.quantity} units</span></li>`;
+            });
+            summaryHTML += '</ul></div>';
         }
     });
     
-    summaryHTML += buildTotalQuantitySection(window._seedlingsChoices.totalQuantity);
+    summaryHTML += `</div>`;
     summaryContainer.innerHTML = summaryHTML;
 }
 
-function buildSummarySection(title, items) {
-    let html = `<div style="margin-bottom: 15px;"><strong style="color: #2d6a4f;">${title}</strong>`;
-    html += '<ul style="margin: 8px 0; padding-left: 20px;">';
+// Toggle summary details
+function toggleSummaryDetails() {
+    const details = document.getElementById('summary-details');
+    const icon = document.querySelector('.summary-toggle-icon i');
     
-    items.forEach(item => {
-        html += `<li style="margin: 4px 0;">${item.name} - <span style="color: #40916c; font-weight: bold;">${item.quantity} units</span></li>`;
-    });
-    
-    html += '</ul></div>';
-    return html;
-}
-
-function buildTotalQuantitySection(totalQuantity) {
-    return `
-        <div style="margin-top: 20px; padding: 15px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #40916c;">
-            <strong style="color: #2d6a4f;">Total Quantity: 
-                <span style="color: #40916c; font-size: 1.2em;">${totalQuantity} units</span>
-            </strong>
-        </div>
-    `;
+    if (details.style.display === 'none') {
+        details.style.display = 'block';
+        icon.className = 'fas fa-chevron-up';
+    } else {
+        details.style.display = 'none';
+        icon.className = 'fas fa-chevron-down';
+    }
 }
 
 // ==============================================
@@ -664,5 +634,6 @@ window.filterByStock = filterByStock;
 window.sortItems = sortItems;
 window.clearAllSelections = clearAllSelections;
 window.submitSeedlingsRequest = submitSeedlingsRequest;
+window.toggleSummaryDetails = toggleSummaryDetails;
 
 console.log('Modern Seedlings module loaded successfully');

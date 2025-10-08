@@ -1130,6 +1130,10 @@ document.getElementById('recordLossForm').addEventListener('submit', async funct
         showError(error.message);
     }
 });
+// RELOAD PAGE WHEN SUPPLY MODAL CLOSES - This ensures the main page shows updated supply counts
+document.getElementById('supplyModal').addEventListener('hidden.bs.modal', function() {
+    location.reload();
+});
 
 async function toggleItem(itemId) {
     if (!confirm('Toggle item status?')) return;
