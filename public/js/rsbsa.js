@@ -111,6 +111,11 @@ function openRSBSAForm(event) {
         event.preventDefault();
     }
 
+    // Check authentication before allowing access
+    if (!showAuthRequired('RSBSA Registration')) {
+        return false;
+    }
+
     console.log('Opening RSBSA form');
 
     // Hide all main sections and forms first
@@ -399,6 +404,12 @@ function handleRSBSAFormSubmission() {
         e.stopPropagation();
 
         console.log('RSBSA form submission intercepted');
+
+        // Check authentication before submitting
+        if (!isUserAuthenticatedAndVerified()) {
+            showAuthRequired('RSBSA Registration');
+            return false;
+        }
 
         // Validate form
         const validation = validateRSBSAForm(this);

@@ -45,6 +45,11 @@ function ensureCSRFToken() {
 function openFormBoatR(event) {
     if (event) event.preventDefault();
 
+    // Check authentication before allowing access
+    if (!showAuthRequired('BoatR Registration')) {
+        return false;
+    }
+
     // Hide other sections (implement these functions as needed)
     if (typeof hideAllMainSections === 'function') hideAllMainSections();
     if (typeof hideAllForms === 'function') hideAllForms();
@@ -406,6 +411,12 @@ function submitBoatRForm(event) {
     event.preventDefault();
 
     console.log('=== BoatR Form Submission Started ===');
+
+    // Check authentication before submitting
+    if (!isUserAuthenticatedAndVerified()) {
+        showAuthRequired('BoatR Registration');
+        return false;
+    }
 
     const form = document.getElementById('boatr-registration-form');
     if (!form) {

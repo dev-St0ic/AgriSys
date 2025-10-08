@@ -11,6 +11,11 @@ function openFormTraining(event) {
         event.preventDefault();
     }
 
+    // Check authentication before allowing access
+    if (!showAuthRequired('Training Registration')) {
+        return false;
+    }
+
     console.log('Opening Training form');
 
     // Hide all main sections and forms first
@@ -229,6 +234,12 @@ document.addEventListener('DOMContentLoaded', function() {
         trainingForm.addEventListener('submit', function(e) {
             e.preventDefault();
             console.log('Training form submission started');
+
+            // Check authentication before submitting
+            if (!isUserAuthenticatedAndVerified()) {
+                showAuthRequired('Training Registration');
+                return false;
+            }
 
             // Basic validation
             if (!validateTrainingForm()) {
