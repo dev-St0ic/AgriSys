@@ -77,11 +77,11 @@
     margin-bottom: 30px;
     padding: 0 20px;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: stretch;
 }
 
 .seedlings-search-box {
-    flex: 1;
+    flex: 1 1 300px;
     min-width: 250px;
     position: relative;
 }
@@ -93,6 +93,7 @@
     transform: translateY(-50%);
     color: #999;
     font-size: 1.1rem;
+    pointer-events: none;
 }
 
 .seedlings-search-box input {
@@ -103,6 +104,7 @@
     font-size: 1rem;
     transition: all 0.3s ease;
     background: #ffffff;
+    box-sizing: border-box; 
 }
 
 .seedlings-search-box input:focus {
@@ -115,6 +117,7 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    flex: 0 1 auto;
 }
 
 .seedlings-filter-select {
@@ -128,6 +131,8 @@
     cursor: pointer;
     transition: all 0.3s ease;
     min-width: 180px;
+     box-sizing: border-box;
+    flex: 0 0 auto; 
 }
 
 .seedlings-filter-select:hover {
@@ -700,6 +705,29 @@
     }
 }
 
+/* --- Responsive Design Updates --- */
+@media (max-width: 992px) {
+    .seedlings-filter-bar {
+        gap: 12px;
+    }
+    
+    .seedlings-search-box {
+        flex: 1 1 100%; /* Full width on medium screens */
+        min-width: 0;
+    }
+    
+    .seedlings-filter-group {
+        flex: 1 1 100%; /* Full width on medium screens */
+        width: 100%;
+    }
+    
+    .seedlings-filter-select {
+        flex: 1 1 calc(50% - 5px); /* Two selects per row */
+        min-width: 0;
+    }
+}
+
+
 @media (max-width: 768px) {
     .seedlings-application-section {
         padding: 30px 20px;
@@ -724,19 +752,23 @@
     
     .seedlings-filter-bar {
         flex-direction: column;
+        gap: 15px;
     }
     
     .seedlings-search-box {
         width: 100%;
+        min-width: 0;
     }
     
     .seedlings-filter-group {
         width: 100%;
+        flex-direction: column;
     }
     
     .seedlings-filter-select {
         flex: 1;
         min-width: 0;
+        flex: 1 1 auto;
     }
     
     .seedlings-items-grid {
@@ -800,6 +832,20 @@
     .seedlings-cancel-btn,
     .seedlings-submit-btn {
         width: 100%;
+    }
+
+    .seedlings-filter-bar {
+        padding: 0 15px;
+    }
+    
+    .seedlings-search-box input {
+        padding: 10px 15px 10px 40px;
+        font-size: 0.95rem;
+    }
+    
+    .seedlings-filter-select {
+        padding: 10px 15px;
+        font-size: 0.9rem;
     }
 }
 
