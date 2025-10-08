@@ -252,6 +252,21 @@ function updateSelectionSummary() {
     } else {
         summaryDiv.style.display = 'none';
     }
+    
+    // Update the tab button badge
+    updateSummaryTabBadge();
+}
+
+function updateSummaryTabBadge() {
+    const summaryBtn = document.querySelector('.seedlings-tab-btn[onclick*="seedlings-summary-tab"]');
+    if (summaryBtn) {
+        const badge = summaryBtn.querySelector('.tab-badge');
+        if (selectedItems.size > 0) {
+            if (badge) {
+                badge.textContent = selectedItems.size;
+            }
+        }
+    }
 }
 
 function updateProceedButton() {
@@ -326,11 +341,7 @@ function showApplicationForm() {
         appForm.style.display = 'block';
         toggleSupportingDocuments(window._seedlingsChoices.totalQuantity);
         
-        const summaryDiv = document.getElementById('seedlings-summary');
-        if (summaryDiv) {
-            summaryDiv.style.display = 'block';
-            populateSeedlingsSummary();
-        }
+        populateSeedlingsSummary();
         
         showSeedlingsTab('seedlings-form-tab', null);
         
@@ -409,19 +420,12 @@ function toggleSupportingDocuments(totalQuantity) {
 // ==============================================
 
 function populateSeedlingsSummary() {
-    const summaryContainer = document.getElementById('seedlings-summary');
+    const summaryContainer = document.getElementById('seedlings-summary-tab');
     if (!summaryContainer || !window._seedlingsChoices) return;
     
-    // Create compact header with expand/collapse functionality
     let summaryHTML = `
-        <div class="summary-compact-header" onclick="toggleSummaryDetails()">
-            <div class="summary-header-content">
-                <i class="fas fa-shopping-cart"></i>
-                <strong>${window._seedlingsChoices.totalQuantity} items selected</strong>
-                <span class="summary-toggle-icon"><i class="fas fa-chevron-down"></i></span>
-            </div>
-        </div>
-        <div class="summary-details" id="summary-details" style="display: none;">
+        <div class="summary-content">
+            <h3><i class="fas fa-shopping-cart"></i> Selected Items (${window._seedlingsChoices.totalQuantity} total)</h3>
     `;
     
     Object.entries(window._seedlingsChoices.selections).forEach(([category, items]) => {
@@ -439,20 +443,6 @@ function populateSeedlingsSummary() {
     
     summaryHTML += `</div>`;
     summaryContainer.innerHTML = summaryHTML;
-}
-
-// Toggle summary details
-function toggleSummaryDetails() {
-    const details = document.getElementById('summary-details');
-    const icon = document.querySelector('.summary-toggle-icon i');
-    
-    if (details.style.display === 'none') {
-        details.style.display = 'block';
-        icon.className = 'fas fa-chevron-up';
-    } else {
-        details.style.display = 'none';
-        icon.className = 'fas fa-chevron-down';
-    }
 }
 
 // ==============================================
@@ -544,10 +534,9 @@ function performCompleteReset() {
     clearAllSelections();
     
     // Clear summary
-    const summaryContainer = document.getElementById('seedlings-summary');
+    const summaryContainer = document.getElementById('seedlings-summary-tab');
     if (summaryContainer) {
         summaryContainer.innerHTML = '';
-        summaryContainer.style.display = 'none';
     }
     
     // Reset supporting documents
@@ -634,6 +623,5 @@ window.filterByStock = filterByStock;
 window.sortItems = sortItems;
 window.clearAllSelections = clearAllSelections;
 window.submitSeedlingsRequest = submitSeedlingsRequest;
-window.toggleSummaryDetails = toggleSummaryDetails;
 
 console.log('Modern Seedlings module loaded successfully');
