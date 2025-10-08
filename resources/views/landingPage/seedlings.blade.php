@@ -1,7 +1,12 @@
 @php
-    $categories = \App\Models\RequestCategory::with(['items' => function($query) {
-        $query->where('is_active', true)->orderBy('name', 'asc');
-    }])->where('is_active', true)->orderBy('display_order')->get();
+    $categories = \App\Models\RequestCategory::with([
+        'items' => function ($query) {
+            $query->where('is_active', true)->orderBy('name', 'asc');
+        },
+    ])
+        ->where('is_active', true)
+        ->orderBy('display_order')
+        ->get();
 @endphp
 
 <!-- Seedlings Choice Section -->
@@ -16,8 +21,9 @@
         <button class="seedlings-category-tab active" data-category="all" onclick="filterByCategory('all')">
             <i class="fas fa-th-large"></i> All Items
         </button>
-        @foreach($categories as $category)
-            <button class="seedlings-category-tab" data-category="{{ $category->name }}" onclick="filterByCategory('{{ $category->name }}')">
+        @foreach ($categories as $category)
+            <button class="seedlings-category-tab" data-category="{{ $category->name }}"
+                onclick="filterByCategory('{{ $category->name }}')">
                 <i class="fas {{ $category->icon ?? 'fa-leaf' }}"></i> {{ $category->display_name }}
             </button>
         @endforeach
@@ -59,17 +65,15 @@
     <form id="seedlings-choice-form">
         <!-- Items Grid -->
         <div class="seedlings-items-grid" id="items-grid">
-            @foreach($categories as $category)
-                @foreach($category->items as $item)
-                    <div class="seedlings-item-card" 
-                         data-category="{{ $category->name }}"
-                         data-item-name="{{ strtolower($item->name) }}"
-                         data-stock="{{ $item->current_supply }}"
-                         data-stock-status="{{ $item->stock_status }}">
-                        
+            @foreach ($categories as $category)
+                @foreach ($category->items as $item)
+                    <div class="seedlings-item-card" data-category="{{ $category->name }}"
+                        data-item-name="{{ strtolower($item->name) }}" data-stock="{{ $item->current_supply }}"
+                        data-stock-status="{{ $item->stock_status }}">
+
                         <!-- Stock Badge -->
                         <div class="seedlings-stock-badge badge-{{ $item->stock_status }}">
-                            @if($item->stock_status === 'in_stock')
+                            @if ($item->stock_status === 'in_stock')
                                 <i class="fas fa-check-circle"></i> In Stock
                             @elseif($item->stock_status === 'low_stock')
                                 <i class="fas fa-exclamation-triangle"></i> Low Stock
@@ -80,9 +84,8 @@
 
                         <!-- Item Image -->
                         <div class="seedlings-item-image">
-                            @if($item->image_path)
-                                <img src="{{ Storage::url($item->image_path) }}" 
-                                     alt="{{ $item->name }}">
+                            @if ($item->image_path)
+                                <img src="{{ Storage::url($item->image_path) }}" alt="{{ $item->name }}">
                             @else
                                 <div class="seedlings-placeholder-image">
                                     <i class="fas {{ $category->icon ?? 'fa-leaf' }} fa-3x"></i>
@@ -97,7 +100,7 @@
                                 <i class="fas {{ $category->icon ?? 'fa-leaf' }}"></i>
                                 {{ $category->display_name }}
                             </p>
-                            @if($item->description)
+                            @if ($item->description)
                                 <p class="seedlings-item-description">{{ Str::limit($item->description, 80) }}</p>
                             @endif
                             <div class="seedlings-item-stock">
@@ -109,28 +112,24 @@
                         <!-- Selection Controls -->
                         <div class="seedlings-item-actions">
                             <label class="seedlings-checkbox-label">
-                                <input type="checkbox" 
-                                       name="{{ $category->name }}" 
-                                       value="{{ $item->name }}" 
-                                       data-item-id="{{ $item->id }}"
-                                       onchange="toggleItemSelection(this, '{{ $item->id }}')"
-                                       {{ $item->current_supply <= 0 ? 'disabled' : '' }}>
+                                <input type="checkbox" name="{{ $category->name }}" value="{{ $item->name }}"
+                                    data-item-id="{{ $item->id }}"
+                                    onchange="toggleItemSelection(this, '{{ $item->id }}')"
+                                    {{ $item->current_supply <= 0 ? 'disabled' : '' }}>
                                 <span class="checkbox-custom"></span>
                                 <span class="checkbox-text">Select</span>
                             </label>
 
-                            <div class="seedlings-quantity-input" id="qty-wrapper-{{ $item->id }}" style="display: none;">
+                            <div class="seedlings-quantity-input" id="qty-wrapper-{{ $item->id }}"
+                                style="display: none;">
                                 <button type="button" class="qty-btn" onclick="decrementQty('{{ $item->id }}')">
                                     <i class="fas fa-minus"></i>
                                 </button>
-                                <input type="number" 
-                                       id="qty-{{ $item->id }}"
-                                       name="quantity_{{ $item->id }}" 
-                                       min="{{ $item->min_quantity ?? 1 }}" 
-                                       max="{{ min($item->max_quantity ?? 999, $item->current_supply) }}"
-                                       value="{{ $item->min_quantity ?? 1 }}"
-                                       class="qty-input"
-                                       onchange="updateQuantity('{{ $item->id }}')">
+                                <input type="number" id="qty-{{ $item->id }}" name="quantity_{{ $item->id }}"
+                                    min="{{ $item->min_quantity ?? 1 }}"
+                                    max="{{ min($item->max_quantity ?? 999, $item->current_supply) }}"
+                                    value="{{ $item->min_quantity ?? 1 }}" class="qty-input"
+                                    onchange="updateQuantity('{{ $item->id }}')">
                                 <button type="button" class="qty-btn" onclick="incrementQty('{{ $item->id }}')">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -149,7 +148,8 @@
 
         <!-- Proceed Button -->
         <div class="seedlings-proceed-section">
-            <button type="button" class="seedlings-proceed-btn" onclick="proceedToSeedlingsForm()" disabled id="proceed-btn">
+            <button type="button" class="seedlings-proceed-btn" onclick="proceedToSeedlingsForm()" disabled
+                id="proceed-btn">
                 <i class="fas fa-arrow-right"></i> Proceed to Application Form
             </button>
         </div>
@@ -168,8 +168,7 @@
             onclick="showSeedlingsTab('seedlings-form-tab', event)">
             Application Form
         </button>
-        <button type="button" class="seedlings-tab-btn"
-            onclick="showSeedlingsTab('seedlings-summary-tab', event)">
+        <button type="button" class="seedlings-tab-btn" onclick="showSeedlingsTab('seedlings-summary-tab', event)">
             Selected Items <span class="tab-badge" id="selected-count">0</span>
         </button>
         <button type="button" class="seedlings-tab-btn"
@@ -183,26 +182,26 @@
             enctype="multipart/form-data">
             @csrf
             <input type="hidden" id="selected_seedlings" name="selected_seedlings" value="">
-            
-            <label for="first_name">First Name *</label>
-            <input type="text" id="first_name" name="first_name" required>
 
-            <label for="middle_name">Middle Name (Optional)</label>
-            <input type="text" id="middle_name" name="middle_name">
+            <label for="seedlings-first_name">First Name *</label>
+            <input type="text" id="seedlings-first_name" name="first_name" required>
 
-            <label for="last_name">Last Name *</label>
-            <input type="text" id="last_name" name="last_name" required>
+            <label for="seedlings-middle_name">Middle Name (Optional)</label>
+            <input type="text" id="seedlings-middle_name" name="middle_name">
 
-            <label for="mobile">Mobile Number *</label>
-            <input type="tel" id="mobile" name="mobile" required>
+            <label for="seedlings-last_name">Last Name *</label>
+            <input type="text" id="seedlings-last_name" name="last_name" required>
+
+            <label for="seedlings-mobile">Mobile Number *</label>
+            <input type="tel" id="seedlings-mobile" name="mobile" required>
             <small>Please provide a valid mobile number for SMS notifications.</small>
 
-            <label for="email">Email Address *</label>
-            <input type="email" id="email" name="email" required>
+            <label for="seedlings-email">Email Address *</label>
+            <input type="email" id="seedlings-email" name="email" required>
             <small>Please provide a valid email address for notifications.</small>
 
-            <label for="barangay">Barangay *</label>
-            <select id="barangay" name="barangay" required>
+            <label for="seedlings-barangay">Barangay *</label>
+            <select id="seedlings-barangay" name="barangay" required>
                 <option value="" disabled selected>Select Barangay</option>
                 <option value="Bagong Silang">Bagong Silang</option>
                 <option value="Calendola">Calendola</option>

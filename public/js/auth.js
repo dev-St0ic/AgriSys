@@ -10,7 +10,7 @@ function openAuthModal(type = 'login') {
         console.error('Auth modal not found');
         return;
     }
-    
+
     modal.style.display = 'flex';
     showLogInForm();
     document.body.style.overflow = 'hidden';
@@ -25,16 +25,16 @@ function openAuthModal(type = 'login') {
 function closeAuthModal() {
     const modal = document.getElementById('auth-modal');
     if (!modal) return;
-    
+
     modal.style.display = 'none';
-    
+
     // Reset forms
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form-submit');
-    
+
     if (loginForm) loginForm.reset();
     if (signupForm) signupForm.reset();
-    
+
     hideAuthMessages();
     clearValidationErrors();
     resetButtonStates();
@@ -46,11 +46,11 @@ function showLogInForm() {
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const modalTitle = document.getElementById('auth-modal-title');
-    
+
     if (loginForm) loginForm.style.display = 'block';
     if (signupForm) signupForm.style.display = 'none';
     if (modalTitle) modalTitle.textContent = 'LOG IN';
-    
+
     hideAuthMessages();
     clearValidationErrors();
     resetButtonStates();
@@ -60,15 +60,15 @@ function showSignUpForm() {
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
     const modalTitle = document.getElementById('auth-modal-title');
-    
+
     if (loginForm) loginForm.style.display = 'none';
     if (signupForm) signupForm.style.display = 'block';
     if (modalTitle) modalTitle.textContent = 'SIGN UP';
-    
+
     hideAuthMessages();
     clearValidationErrors();
     resetButtonStates();
-    
+
     setTimeout(() => {
         const firstInput = signupForm.querySelector('input');
         if (firstInput) firstInput.focus();
@@ -81,18 +81,18 @@ function showSignUpForm() {
 
 function setButtonLoading(button, loadingText) {
     if (!button) return;
-    
+
     const btnText = button.querySelector('.btn-text');
     const btnLoader = button.querySelector('.btn-loader');
-    
+
     // Store original text if not already stored
     if (!button.dataset.originalText) {
         button.dataset.originalText = btnText ? btnText.textContent : button.textContent;
     }
-    
+
     button.classList.add('loading');
     button.disabled = true;
-    
+
     if (btnText && btnLoader) {
         btnText.textContent = loadingText;
         btnText.style.display = 'inline';
@@ -104,14 +104,14 @@ function setButtonLoading(button, loadingText) {
 
 function resetButtonState(button) {
     if (!button) return;
-    
+
     const btnText = button.querySelector('.btn-text');
     const btnLoader = button.querySelector('.btn-loader');
     const originalText = button.dataset.originalText;
-    
+
     button.classList.remove('loading');
     button.disabled = false;
-    
+
     if (btnText && btnLoader) {
         btnText.textContent = originalText || 'Submit';
         btnText.style.display = 'inline';
@@ -140,12 +140,12 @@ function refreshProfileVerifyButton() {
     if (!verifyBtn || !window.userData) return;
 
     const status = (window.userData.status || '').toLowerCase();
-    
+
     // Remove all existing classes and states
     verifyBtn.classList.remove('pending', 'verified', 'rejected');
     verifyBtn.disabled = false;
     verifyBtn.onclick = null; // Clear existing handler
-    
+
     switch (status) {
         case 'verified':
         case 'approved':
@@ -154,7 +154,7 @@ function refreshProfileVerifyButton() {
             verifyBtn.classList.add('verified');
             verifyBtn.innerHTML = '<span class="btn-icon">✅</span> Verified';
             break;
-            
+
         case 'pending':
         case 'pending_verification':
             // Pending state: neutral colors, disabled, with clock
@@ -162,7 +162,7 @@ function refreshProfileVerifyButton() {
             verifyBtn.classList.add('pending');
             verifyBtn.innerHTML = '<span class="btn-icon">⏳</span> Pending Verification';
             break;
-            
+
         case 'rejected':
             // Rejected state: can retry verification (orange/amber styling)
             verifyBtn.disabled = false;
@@ -170,7 +170,7 @@ function refreshProfileVerifyButton() {
             verifyBtn.innerHTML = '<span class="btn-icon">🔄</span> Retry Verification';
             verifyBtn.onclick = () => showVerificationModal();
             break;
-            
+
         case 'unverified':
         case 'active':
         case '':
@@ -184,7 +184,7 @@ function refreshProfileVerifyButton() {
             verifyBtn.onclick = () => showVerificationModal();
             break;
     }
-    
+
     console.log(`Profile verify button updated for status: ${status}`);
 }
 
@@ -209,11 +209,11 @@ function showProfileModal() {
         console.error('Profile modal not found');
         return;
     }
-    
+
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     loadProfileData();
-    
+
     // Close user dropdown
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
@@ -265,7 +265,67 @@ function loadProfileData() {
 }
 
 function editProfile() {
-    showNotification('info', 'Profile editing feature coming soon!');
+    const modal = document.getElementById('edit-profile-modal');
+    if (!modal) {
+        console.error('Edit profile modal not found');
+        return;
+    }
+
+    // Load current profile data
+    loadCurrentProfileData();
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Close profile modal if open
+    closeProfileModal();
+}
+
+function closeEditProfileModal() {
+    const modal = document.getElementById('edit-profile-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+async function loadCurrentProfileData() {
+    try {
+        const response = await fetch('/api/user/profile', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+            },
+            credentials: 'same-origin'
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.user) {
+            populateEditForm(data.user);
+        } else {
+            showNotification('error', 'Failed to load profile data');
+        }
+    } catch (error) {
+        console.error('Error loading profile data:', error);
+        showNotification('error', 'Failed to load profile data');
+    }
+}
+
+function populateEditForm(user) {
+    // Populate form fields with current data
+    document.getElementById('edit-first-name').value = user.first_name || '';
+    document.getElementById('edit-middle-name').value = user.middle_name || '';
+    document.getElementById('edit-last-name').value = user.last_name || '';
+    document.getElementById('edit-name-extension').value = user.name_extension || '';
+    document.getElementById('edit-contact-number').value = user.contact_number || '';
+    document.getElementById('edit-gender').value = user.gender || '';
+    document.getElementById('edit-date-of-birth').value = user.date_of_birth || '';
+    document.getElementById('edit-age').value = user.age || '';
+    document.getElementById('edit-user-type').value = user.user_type || '';
+    document.getElementById('edit-complete-address').value = user.complete_address || '';
+    document.getElementById('edit-barangay').value = user.barangay || '';
 }
 
 function changePassword() {
@@ -282,10 +342,10 @@ function showVerificationModal() {
         console.error('Verification modal not found');
         return;
     }
-    
+
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    
+
     // Close profile modal if open
     closeProfileModal();
 }
@@ -296,13 +356,13 @@ function closeVerificationModal() {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
-    
+
     // Reset form
     const form = document.getElementById('verification-form');
     if (form) {
         form.reset();
     }
-    
+
     // Clear preview images
     clearImagePreviews();
     resetButtonStates();
@@ -319,7 +379,7 @@ function clearImagePreviews() {
 function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
     const file = input.files[0];
-    
+
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -339,10 +399,10 @@ function previewImage(input, previewId) {
 
 function handleVerificationSubmit(event) {
     event.preventDefault();
-    
+
     const form = event.target;
     const submitBtn = form.querySelector('.verification-submit-btn');
-    
+
     // UPDATED: Validation to match backend requirements exactly
     const requiredFields = [
         { name: 'firstName', label: 'First Name' },
@@ -356,17 +416,17 @@ function handleVerificationSubmit(event) {
         { name: 'idBack', label: 'ID Back', type: 'file' },
         { name: 'locationProof', label: 'Location Proof', type: 'file' }
     ];
-    
+
     let isValid = true;
     let missingFields = [];
-    
+
     requiredFields.forEach(field => {
         const input = form.querySelector(`[name="${field.name}"]`);
         if (!input) {
             console.error(`Field ${field.name} not found in form`);
             return;
         }
-        
+
         if (field.type === 'file') {
             if (!input.files || !input.files.length) {
                 isValid = false;
@@ -379,27 +439,27 @@ function handleVerificationSubmit(event) {
             }
         }
     });
-    
+
     // Additional validations
     const dateOfBirth = form.querySelector('[name="dateOfBirth"]').value;
     if (dateOfBirth) {
         const birthDate = new Date(dateOfBirth);
         const today = new Date();
         const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
-        
+
         if (age < 18) {
             isValid = false;
             showNotification('error', 'You must be at least 18 years old to register.');
             return false;
         }
-        
+
         if (age > 100) {
             isValid = false;
             showNotification('error', 'Please enter a valid date of birth.');
             return false;
         }
     }
-    
+
     const contactNumber = form.querySelector('[name="contactNumber"]').value;
     if (contactNumber) {
         // Philippine mobile number validation (09XXXXXXXXX or +639XXXXXXXXX)
@@ -410,18 +470,18 @@ function handleVerificationSubmit(event) {
             return false;
         }
     }
-    
+
     if (!isValid) {
         showNotification('error', `Please complete all required fields: ${missingFields.join(', ')}`);
         return false;
     }
-    
+
     // Set button to loading state
     setButtonLoading(submitBtn, 'Submitting Verification...');
-    
+
     // Create FormData for file upload - EXACTLY as backend expects
     const formData = new FormData();
-    
+
     // Add form fields with exact names expected by backend
     formData.append('firstName', form.querySelector('[name="firstName"]').value.trim());
     formData.append('lastName', form.querySelector('[name="lastName"]').value.trim());
@@ -432,22 +492,22 @@ function handleVerificationSubmit(event) {
     formData.append('dateOfBirth', form.querySelector('[name="dateOfBirth"]').value);
     formData.append('barangay', form.querySelector('[name="barangay"]').value);
     formData.append('completeAddress', form.querySelector('[name="completeAddress"]').value.trim());
-    
+
     // Add file uploads - EXACT names expected by backend
     const idFrontFile = form.querySelector('[name="idFront"]').files[0];
     const idBackFile = form.querySelector('[name="idBack"]').files[0];
     const locationProofFile = form.querySelector('[name="locationProof"]').files[0];
-    
+
     if (idFrontFile) formData.append('idFront', idFrontFile);
     if (idBackFile) formData.append('idBack', idBackFile);
     if (locationProofFile) formData.append('locationProof', locationProofFile);
-    
+
     // Debug logging
     console.log('Submitting verification form with data:');
     for (let pair of formData.entries()) {
         console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]));
     }
-    
+
     // Submit to backend
     fetch('/auth/verify-profile', {
         method: 'POST',
@@ -464,7 +524,7 @@ function handleVerificationSubmit(event) {
     })
     .then(data => {
         console.log('Server response:', data);
-        
+
         if (data.success) {
             // Update local user status so UI stays consistent
             if (window.userData) {
@@ -486,13 +546,13 @@ function handleVerificationSubmit(event) {
          } else {
              console.error('Verification failed:', data);
              let errorMessage = data.message || 'Verification submission failed';
-             
+
              // Handle validation errors
              if (data.errors) {
                  const errorMessages = Object.values(data.errors).flat();
                  errorMessage = errorMessages.join(', ');
              }
-             
+
              showNotification('error', errorMessage);
              resetButtonState(submitBtn);
          }
@@ -502,8 +562,121 @@ function handleVerificationSubmit(event) {
         showNotification('error', 'Network error. Please check your connection and try again.');
         resetButtonState(submitBtn);
     });
-    
+
     return false;
+}
+
+// ==============================================
+// EDIT PROFILE FORM HANDLER
+// ==============================================
+
+async function handleEditProfileSubmit(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const submitBtn = document.getElementById('save-profile-btn');
+
+    // Get form data
+    const formData = new FormData(form);
+    const profileData = {};
+
+    // Convert FormData to regular object
+    for (let [key, value] of formData.entries()) {
+        if (value.trim() !== '') {
+            profileData[key] = value.trim();
+        }
+    }
+
+    // Validation
+    if (!profileData.first_name) {
+        showNotification('error', 'First name is required');
+        return;
+    }
+
+    if (!profileData.last_name) {
+        showNotification('error', 'Last name is required');
+        return;
+    }
+
+    if (profileData.contact_number) {
+        // Philippine mobile number validation
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(profileData.contact_number)) {
+            showNotification('error', 'Please enter a valid Philippine mobile number (09XXXXXXXXX)');
+            return;
+        }
+    }
+
+    if (profileData.date_of_birth) {
+        const birthDate = new Date(profileData.date_of_birth);
+        const today = new Date();
+        const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+
+        if (age < 18) {
+            showNotification('error', 'You must be at least 18 years old');
+            return;
+        }
+
+        if (age > 100) {
+            showNotification('error', 'Please enter a valid date of birth');
+            return;
+        }
+    }
+
+    // Set loading state
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoader = submitBtn.querySelector('.btn-loader');
+
+    if (btnText) btnText.style.display = 'none';
+    if (btnLoader) btnLoader.style.display = 'inline';
+    submitBtn.disabled = true;
+
+    try {
+        const response = await fetch('/api/user/update-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(profileData),
+            credentials: 'same-origin'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showNotification('success', data.message || 'Profile updated successfully!');
+
+            // Update window.userData with new profile data
+            if (window.userData && data.user) {
+                Object.assign(window.userData, data.user);
+            }
+
+            // Close modal after short delay
+            setTimeout(() => {
+                closeEditProfileModal();
+            }, 1000);
+
+        } else {
+            let errorMessage = data.message || 'Failed to update profile';
+
+            if (data.errors) {
+                const errorMessages = Object.values(data.errors).flat();
+                errorMessage = errorMessages.join(', ');
+            }
+
+            showNotification('error', errorMessage);
+        }
+    } catch (error) {
+        console.error('Profile update error:', error);
+        showNotification('error', 'Network error. Please check your connection and try again.');
+    } finally {
+        // Reset button state
+        if (btnText) btnText.style.display = 'inline';
+        if (btnLoader) btnLoader.style.display = 'none';
+        submitBtn.disabled = false;
+    }
 }
 
 // ==============================================
@@ -516,11 +689,11 @@ function showMyApplicationsModal() {
         console.error('Applications modal not found');
         return;
     }
-    
+
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     loadUserApplicationsInModal();
-    
+
     // Close user dropdown
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
@@ -539,7 +712,7 @@ function closeApplicationsModal() {
 function loadUserApplicationsInModal() {
     const grid = document.getElementById('applications-modal-grid');
     if (!grid) return;
-    
+
     // Check if user is logged in
     if (!window.userData) {
         grid.innerHTML = `
@@ -553,7 +726,7 @@ function loadUserApplicationsInModal() {
         `;
         return;
     }
-    
+
     // Show loading state
     grid.innerHTML = `
         <div class="loading-state">
@@ -561,7 +734,7 @@ function loadUserApplicationsInModal() {
             <p>Loading your applications...</p>
         </div>
     `;
-    
+
     // Try to fetch real data, fallback to mock data
     fetch('/api/user/applications', {
         headers: {
@@ -587,7 +760,7 @@ function loadUserApplicationsInModal() {
 function renderApplicationsInModal(applications) {
     const grid = document.getElementById('applications-modal-grid');
     if (!grid) return;
-    
+
     if (applications.length === 0) {
         grid.innerHTML = `
             <div class="empty-applications">
@@ -600,7 +773,7 @@ function renderApplicationsInModal(applications) {
         `;
         return;
     }
-    
+
     grid.innerHTML = applications.map(app => `
         <div class="application-card">
             <h4>${app.type}</h4>
@@ -653,7 +826,7 @@ function renderMockApplicationsInModal() {
             description: 'Fishing boat registration - requires additional documentation'
         }
     ];
-    
+
     renderApplicationsInModal(mockApplications);
 }
 
@@ -669,7 +842,7 @@ function formatApplicationDate(dateString) {
 function accountSettings() {
     // Open account settings in new tab
     window.open('/account/settings', '_blank');
-    
+
     // Close dropdown
     const dropdown = document.getElementById('user-dropdown');
     if (dropdown) {
@@ -714,21 +887,21 @@ let usernameCheckTimeout;
 
 function checkUsernameAvailability(username) {
     clearTimeout(usernameCheckTimeout);
-    
+
     const usernameInput = document.getElementById('signup-username');
     const usernameStatus = document.querySelector('.username-status');
-    
+
     if (!username || username.length < 3) {
         if (usernameStatus) {
             usernameStatus.innerHTML = '';
         }
         return;
     }
-    
+
     if (usernameStatus) {
         usernameStatus.innerHTML = '<span class="text-info">Checking...</span>';
     }
-    
+
     usernameCheckTimeout = setTimeout(() => {
         fetch('/auth/check-username', {
             method: 'POST',
@@ -771,10 +944,10 @@ function validateBasicSignupForm() {
     const password = document.getElementById('signup-password').value;
     const confirmPassword = document.getElementById('signup-confirm-password').value;
     const agreeTerms = document.getElementById('agree-terms').checked;
-    
+
     let isValid = true;
     let errors = [];
-    
+
     if (!username) {
         errors.push('Username is required');
         isValid = false;
@@ -785,7 +958,7 @@ function validateBasicSignupForm() {
         errors.push('Username can only contain letters, numbers, and underscores');
         isValid = false;
     }
-    
+
     if (!email) {
         errors.push('Email is required');
         isValid = false;
@@ -793,7 +966,7 @@ function validateBasicSignupForm() {
         errors.push('Please enter a valid email address');
         isValid = false;
     }
-    
+
     if (!password) {
         errors.push('Password is required');
         isValid = false;
@@ -801,49 +974,49 @@ function validateBasicSignupForm() {
         errors.push('Password must be at least 8 characters');
         isValid = false;
     }
-    
+
     if (password !== confirmPassword) {
         errors.push('Passwords do not match');
         isValid = false;
     }
-    
+
     if (!agreeTerms) {
         errors.push('You must agree to the Terms of Service and Privacy Policy');
         isValid = false;
     }
-    
+
     const usernameInput = document.getElementById('signup-username');
     if (usernameInput.classList.contains('is-invalid')) {
         errors.push('Please choose a different username');
         isValid = false;
     }
-    
+
     if (!isValid) {
         showAuthError(errors.join(', '));
     } else {
         hideAuthMessages();
     }
-    
+
     return isValid;
 }
 
 function checkPasswordStrength(password) {
     const strengthBar = document.querySelector('.strength-fill');
     const strengthText = document.querySelector('.strength-text');
-    
+
     if (!strengthBar || !strengthText) return;
-    
+
     let strength = 0;
     let strengthLabel = 'Too weak';
-    
+
     if (password.length >= 8) strength++;
     if (/[a-z]/.test(password)) strength++;
     if (/[A-Z]/.test(password)) strength++;
     if (/\d/.test(password)) strength++;
     if (/[^a-zA-Z0-9]/.test(password)) strength++;
-    
+
     strengthBar.className = 'strength-fill';
-    
+
     switch (strength) {
         case 0:
         case 1:
@@ -864,18 +1037,18 @@ function checkPasswordStrength(password) {
             strengthLabel = 'Strong';
             break;
     }
-    
+
     strengthText.textContent = `Password strength: ${strengthLabel}`;
 }
 
 function checkPasswordMatch(password, confirmPassword) {
     const matchStatus = document.querySelector('.password-match-status');
-    
+
     if (!matchStatus || !confirmPassword) {
         if (matchStatus) matchStatus.innerHTML = '';
         return;
     }
-    
+
     if (password === confirmPassword) {
         matchStatus.className = 'password-match-status match';
         matchStatus.textContent = 'Passwords match';
@@ -894,20 +1067,20 @@ function resetSignupForm() {
     if (form) {
         form.reset();
     }
-    
+
     // Clear all validation states
     const inputs = form.querySelectorAll('input');
     inputs.forEach(input => {
         input.classList.remove('is-valid', 'is-invalid', 'valid', 'error');
         input.style.borderColor = '';
     });
-    
+
     // Clear username status
     const usernameStatus = document.querySelector('.username-status');
     if (usernameStatus) {
         usernameStatus.innerHTML = '';
     }
-    
+
     // Clear password strength
     const strengthBar = document.querySelector('.strength-fill');
     const strengthText = document.querySelector('.strength-text');
@@ -917,13 +1090,13 @@ function resetSignupForm() {
     if (strengthText) {
         strengthText.textContent = 'Password strength';
     }
-    
+
     // Clear password match
     const matchStatus = document.querySelector('.password-match-status');
     if (matchStatus) {
         matchStatus.innerHTML = '';
     }
-    
+
     // Clear any field errors
     const fieldErrors = document.querySelectorAll('.field-error');
     fieldErrors.forEach(error => error.remove());
@@ -936,10 +1109,10 @@ function resetSignupForm() {
 function togglePasswordVisibility(inputId) {
     const input = document.getElementById(inputId);
     if (!input) return;
-    
+
     const toggle = input.nextElementSibling;
     if (!toggle) return;
-    
+
     if (input.type === 'password') {
         input.type = 'text';
         toggle.textContent = 'Hide';
@@ -957,7 +1130,7 @@ function showNotification(type, message) {
             <span class="notification-message">${message}</span>
         </div>
     `;
-    
+
     if (!document.querySelector('#notification-styles')) {
         const styles = document.createElement('style');
         styles.id = 'notification-styles';
@@ -976,32 +1149,32 @@ function showNotification(type, message) {
                 border-left: 4px solid;
                 min-width: 300px;
             }
-            
+
             .notification.show {
                 transform: translateX(0);
             }
-            
+
             .notification-success {
                 border-left-color: #28a745;
                 background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
             }
-            
+
             .notification-error {
                 border-left-color: #dc3545;
                 background: linear-gradient(135deg, #fff8f8 0%, #f5e8e8 100%);
             }
-            
+
             .notification-info {
                 border-left-color: #17a2b8;
                 background: linear-gradient(135deg, #f8fdff 0%, #e8f5f8 100%);
             }
-            
+
             .notification-content {
                 display: flex;
                 align-items: center;
                 gap: 8px;
             }
-            
+
             .notification-message {
                 font-weight: 500;
                 color: #333;
@@ -1009,11 +1182,11 @@ function showNotification(type, message) {
         `;
         document.head.appendChild(styles);
     }
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => notification.classList.add('show'), 100);
-    
+
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 300);
@@ -1043,7 +1216,7 @@ function showForgotPassword() {
 function showAuthError(message) {
     const errorDiv = document.getElementById('auth-error-message');
     const successDiv = document.getElementById('auth-success-message');
-    
+
     if (errorDiv) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'flex';
@@ -1056,7 +1229,7 @@ function showAuthError(message) {
 function showAuthSuccess(message) {
     const successDiv = document.getElementById('auth-success-message');
     const errorDiv = document.getElementById('auth-error-message');
-    
+
     if (successDiv) {
         successDiv.textContent = message;
         successDiv.style.display = 'flex';
@@ -1069,7 +1242,7 @@ function showAuthSuccess(message) {
 function hideAuthMessages() {
     const errorDiv = document.getElementById('auth-error-message');
     const successDiv = document.getElementById('auth-success-message');
-    
+
     if (errorDiv) errorDiv.style.display = 'none';
     if (successDiv) successDiv.style.display = 'none';
 }
@@ -1080,10 +1253,10 @@ function clearValidationErrors() {
         input.classList.remove('error', 'invalid', 'valid', 'is-invalid', 'is-valid');
         input.style.borderColor = '';
     });
-    
+
     const errorMessages = document.querySelectorAll('.field-error');
     errorMessages.forEach(msg => msg.remove());
-    
+
     const usernameStatus = document.querySelector('.username-status');
     if (usernameStatus) {
         usernameStatus.innerHTML = '';
@@ -1096,23 +1269,23 @@ function clearValidationErrors() {
 
 function handleLoginSubmit(event) {
     event.preventDefault();
-    
+
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('login-password').value;
-    
+
     if (!username || !password) {
         showAuthError('Please fill in all fields');
         return false;
     }
-    
+
     const form = event.target;
     const submitBtn = form.querySelector('.auth-submit-btn');
-    
+
     // Set button to loading state with text
     setButtonLoading(submitBtn, 'Signing In...');
-    
+
     const formData = new FormData(form);
-    
+
     fetch('/auth/login', {
         method: 'POST',
         body: formData,
@@ -1142,23 +1315,23 @@ function handleLoginSubmit(event) {
             setTimeout(() => resetButtonState(submitBtn), 1000);
         }
     });
-    
+
     return false;
 }
 
 function handleSignupSubmit(event) {
     event.preventDefault();
-    
+
     if (!validateBasicSignupForm()) {
         return false;
     }
-    
+
     const form = event.target;
     const submitBtn = form.querySelector('.auth-submit-btn');
-    
+
     // Set button to loading state
     setButtonLoading(submitBtn, 'Creating Account...');
-    
+
     const formData = {
         username: document.getElementById('signup-username').value.trim(),
         email: document.getElementById('signup-email').value.trim(),
@@ -1166,10 +1339,10 @@ function handleSignupSubmit(event) {
         password_confirmation: document.getElementById('signup-confirm-password').value,
         terms_accepted: document.getElementById('agree-terms').checked
     };
-    
+
     // Debug: Log what we're sending
     console.log('Sending data:', formData);
-    
+
     fetch('/auth/register', {
         method: 'POST',
         headers: {
@@ -1185,26 +1358,26 @@ function handleSignupSubmit(event) {
     })
     .then(data => {
         console.log('Server response:', data);
-        
+
         if (data.success) {
             // Update button text to success
             setButtonLoading(submitBtn, 'Account Created!');
-            
+
             // Show success message
             showAuthSuccess('Account created successfully! Redirecting to login...');
             showNotification('success', 'Account created successfully!');
-            
+
             // Reset form after short delay
             setTimeout(() => {
                 resetSignupForm();
                 hideAuthMessages();
-                
+
                 // Auto-redirect to login form after 2 seconds
                 setTimeout(() => {
                     showLogInForm();
                 }, 2000);
             }, 1000);
-            
+
         } else {
             console.log('Validation errors:', data.errors);
             showAuthError(data.message || 'Registration failed');
@@ -1220,15 +1393,15 @@ function handleSignupSubmit(event) {
         showAuthError('An error occurred. Please try again.');
         setTimeout(() => resetButtonState(submitBtn), 1000);
     });
-    
+
     return false;
 }
 
 function handleValidationErrors(errors) {
     clearValidationErrors();
-    
+
     const errorFields = Object.keys(errors);
-    
+
     errorFields.forEach(field => {
         const fieldMapping = {
             'username': 'signup-username',
@@ -1236,21 +1409,21 @@ function handleValidationErrors(errors) {
             'password': 'signup-password',
             'terms_accepted': 'agree-terms'
         };
-        
+
         const fieldName = fieldMapping[field] || field;
         const input = document.getElementById(fieldName);
-        
+
         if (input) {
             input.classList.add('error', 'is-invalid');
             input.style.borderColor = '#dc3545';
-            
+
             const errorMsg = document.createElement('div');
             errorMsg.className = 'field-error';
             errorMsg.textContent = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
             errorMsg.style.color = '#dc3545';
             errorMsg.style.fontSize = '12px';
             errorMsg.style.marginTop = '4px';
-            
+
             const parent = input.closest('.form-group') || input.parentElement;
             parent.appendChild(errorMsg);
         }
@@ -1368,19 +1541,25 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginForm) {
         loginForm.addEventListener('submit', handleLoginSubmit);
     }
-    
+
     // Signup form submission
     const signupForm = document.getElementById('signup-form-submit');
     if (signupForm) {
         signupForm.addEventListener('submit', handleSignupSubmit);
     }
-    
+
     // Verification form submission
     const verificationForm = document.getElementById('verification-form');
     if (verificationForm) {
         verificationForm.addEventListener('submit', handleVerificationSubmit);
     }
-    
+
+    // Edit profile form submission
+    const editProfileForm = document.getElementById('edit-profile-form');
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', handleEditProfileSubmit);
+    }
+
     // Username availability checker
     const usernameInput = document.getElementById('signup-username');
     if (usernameInput) {
@@ -1388,7 +1567,7 @@ document.addEventListener('DOMContentLoaded', function() {
             checkUsernameAvailability(this.value);
         });
     }
-    
+
     // Password strength checker
     const passwordInput = document.getElementById('signup-password');
     if (passwordInput) {
@@ -1396,7 +1575,7 @@ document.addEventListener('DOMContentLoaded', function() {
             checkPasswordStrength(this.value);
         });
     }
-    
+
     // Password confirmation checker
     const confirmPasswordInput = document.getElementById('signup-confirm-password');
     if (confirmPasswordInput) {
@@ -1405,7 +1584,7 @@ document.addEventListener('DOMContentLoaded', function() {
             checkPasswordMatch(password, this.value);
         });
     }
-    
+
     // File input change handlers for image preview
     const idFrontInput = document.getElementById('idFront');
     if (idFrontInput) {
@@ -1413,21 +1592,21 @@ document.addEventListener('DOMContentLoaded', function() {
             previewImage(this, 'idFrontPreview');
         });
     }
-    
+
     const idBackInput = document.getElementById('idBack');
     if (idBackInput) {
         idBackInput.addEventListener('change', function() {
             previewImage(this, 'idBackPreview');
         });
     }
-    
+
     const locationProofInput = document.getElementById('locationProof');
     if (locationProofInput) {
         locationProofInput.addEventListener('change', function() {
             previewImage(this, 'locationProofPreview');
         });
     }
-    
+
     // Auth modal close functionality
     const authModal = document.getElementById('auth-modal');
     if (authModal) {
@@ -1437,7 +1616,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Applications modal close functionality
     const applicationsModal = document.getElementById('applications-modal');
     if (applicationsModal) {
@@ -1447,7 +1626,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Profile modal close functionality
     const profileModal = document.getElementById('profile-modal');
     if (profileModal) {
@@ -1457,7 +1636,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Verification modal close functionality
     const verificationModal = document.getElementById('verification-modal');
     if (verificationModal) {
@@ -1467,17 +1646,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
+    // Edit profile modal close functionality
+    const editProfileModal = document.getElementById('edit-profile-modal');
+    if (editProfileModal) {
+        editProfileModal.addEventListener('click', function(event) {
+            if (event.target === editProfileModal) {
+                closeEditProfileModal();
+            }
+        });
+    }
+
+    // Date of birth change handler to auto-calculate age
+    const dobInput = document.getElementById('edit-date-of-birth');
+    if (dobInput) {
+        dobInput.addEventListener('change', function() {
+            const dob = new Date(this.value);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+
+            const ageInput = document.getElementById('edit-age');
+            if (ageInput && age >= 0) {
+                ageInput.value = age;
+            }
+        });
+    }
+
     // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
         const dropdown = document.getElementById('user-dropdown');
         const profile = document.getElementById('user-profile');
-        
+
         if (dropdown && profile && !profile.contains(event.target)) {
             dropdown.classList.remove('show');
         }
     });
-    
+
     // ESC key to close modals
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
@@ -1485,29 +1694,29 @@ document.addEventListener('DOMContentLoaded', function() {
             if (authModal && authModal.style.display !== 'none') {
                 closeAuthModal();
             }
-            
+
             const applicationsModal = document.getElementById('applications-modal');
             if (applicationsModal && applicationsModal.style.display !== 'none') {
                 closeApplicationsModal();
             }
-            
+
             const profileModal = document.getElementById('profile-modal');
             if (profileModal && profileModal.style.display !== 'none') {
                 closeProfileModal();
             }
-            
+
             const verificationModal = document.getElementById('verification-modal');
             if (verificationModal && verificationModal.style.display !== 'none') {
                 closeVerificationModal();
             }
-            
+
             const dropdown = document.getElementById('user-dropdown');
             if (dropdown && dropdown.classList.contains('show')) {
                 dropdown.classList.remove('show');
             }
         }
     });
-    
+
     // ensure verify button matches current user status (useful when userData supplied to window)
     refreshProfileVerifyButton();
 
@@ -1536,6 +1745,10 @@ window.closeProfileModal = closeProfileModal;
 window.showVerificationModal = showVerificationModal;
 window.closeVerificationModal = closeVerificationModal;
 window.editProfile = editProfile;
+window.closeEditProfileModal = closeEditProfileModal;
+window.loadCurrentProfileData = loadCurrentProfileData;
+window.populateEditForm = populateEditForm;
+window.handleEditProfileSubmit = handleEditProfileSubmit;
 window.changePassword = changePassword;
 window.accountSettings = accountSettings;
 window.logoutUser = logoutUser;

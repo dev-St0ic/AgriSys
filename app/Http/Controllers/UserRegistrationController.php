@@ -97,10 +97,10 @@ class UserRegistrationController extends Controller
         }
 
         $username = $request->username;
-        
+
         // Check if username exists in user_registration table
         $exists = UserRegistration::where('username', $username)->exists();
-        
+
         return response()->json([
             'available' => !$exists,
             'message' => $exists ? 'Username already taken' : 'Username available'
@@ -114,7 +114,7 @@ class UserRegistrationController extends Controller
     {
         // Debug: Log incoming data
         \Log::info('Registration attempt:', $request->all());
-        
+
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|min:3|max:50|regex:/^[a-zA-Z0-9_]+$/|unique:user_registration,username',
             'email' => 'required|string|email|max:255|unique:user_registration,email',
@@ -138,7 +138,7 @@ class UserRegistrationController extends Controller
         if ($validator->fails()) {
             // Debug: Log validation errors
             \Log::error('Validation failed:', $validator->errors()->toArray());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Please check the form for errors.',
@@ -188,7 +188,7 @@ class UserRegistrationController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Registration failed. Please try again.',
@@ -228,7 +228,7 @@ class UserRegistrationController extends Controller
                 ->first();
 
             if ($userRegistration && Hash::check($password, $userRegistration->password)) {
-                
+
                 // UPDATED: Only block permanently banned users, allow all others including "rejected"
                 if ($userRegistration->status === 'banned' || $userRegistration->status === 'permanently_banned') {
                     return response()->json([
@@ -246,7 +246,7 @@ class UserRegistrationController extends Controller
                     'user_type' => $userRegistration->user_type,
                     'status' => $userRegistration->status
                 ]);
-                
+
                 // Also store individual keys for backward compatibility if needed
                 $request->session()->put('user_id', $userRegistration->id);
                 $request->session()->put('user_email', $userRegistration->email);
@@ -260,7 +260,7 @@ class UserRegistrationController extends Controller
 
                 // UPDATED: Determine message based on user status with proper rejected handling
                 $redirectUrl = '/dashboard'; // Default user dashboard
-                
+
                 switch ($userRegistration->status) {
                     case 'unverified':
                         $message = 'Welcome! You can start using our services. Complete profile verification for full access.';
@@ -305,10 +305,10 @@ class UserRegistrationController extends Controller
 
             // If not found in registrations, try admin users table
             $user = User::where('email', $loginField)->first();
-            
+
             if ($user && Hash::check($password, $user->password)) {
                 Auth::login($user);
-                
+
                 // For admin users, also store in session format expected by middleware
                 $request->session()->put('user', [
                     'id' => $user->id,
@@ -318,7 +318,7 @@ class UserRegistrationController extends Controller
                     'user_type' => 'admin',
                     'status' => 'approved'
                 ]);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Admin login successful!',
@@ -339,7 +339,7 @@ class UserRegistrationController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Login failed: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Login failed. Please try again.',
@@ -355,12 +355,12 @@ class UserRegistrationController extends Controller
     {
         // Clear all session data
         $request->session()->flush();
-        
+
         // If it's an admin user, logout from Laravel auth
         if (Auth::check()) {
             Auth::logout();
         }
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Logged out successfully',
@@ -419,7 +419,7 @@ class UserRegistrationController extends Controller
             \Log::error('Verification validation failed', [
                 'errors' => $validator->errors()->toArray()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Please check all required fields.',
@@ -481,7 +481,7 @@ class UserRegistrationController extends Controller
                     'error' => $fileException->getMessage(),
                     'user_id' => $userId
                 ]);
-                
+
                 return response()->json([
                     'success' => false,
                     'message' => 'File upload failed. Please try again with smaller images.'
@@ -564,7 +564,7 @@ class UserRegistrationController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Verification submission failed. Please try again.',
@@ -586,24 +586,24 @@ class UserRegistrationController extends Controller
         }
 
         $registration = UserRegistration::with('approvedBy')->find($id);
-        
+
         if (!$registration) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registration not found'
             ], 404);
         }
-        
+
         return response()->json([
             'success' => true,
             'data' => [
                 'id' => $registration->id,
                 'username' => $registration->username,
                 'email' => $registration->email,
-                'first_name' => $registration->first_name,        
-                'middle_name' => $registration->middle_name,      
-                'last_name' => $registration->last_name,          
-                'name_extension' => $registration->name_extension, 
+                'first_name' => $registration->first_name,
+                'middle_name' => $registration->middle_name,
+                'last_name' => $registration->last_name,
+                'name_extension' => $registration->name_extension,
                 'full_name' => $registration->full_name ?? $registration->username,
                 'contact_number' => $registration->contact_number,
                 'complete_address' => $registration->complete_address,
@@ -617,12 +617,12 @@ class UserRegistrationController extends Controller
                 'organization' => $registration->organization,
                 'emergency_contact_name' => $registration->emergency_contact_name,
                 'emergency_contact_phone' => $registration->emergency_contact_phone,
-                
+
                 // Document paths
                 'location_document_path' => $registration->location_document_path,
                 'id_front_path' => $registration->id_front_path,
                 'id_back_path' => $registration->id_back_path,
-                
+
                 'email_verified' => $registration->hasVerifiedEmail(),
                 'terms_accepted' => $registration->terms_accepted,
                 'privacy_accepted' => $registration->privacy_accepted,
@@ -654,7 +654,7 @@ class UserRegistrationController extends Controller
         }
 
         $registration = UserRegistration::find($id);
-        
+
         if (!$registration) {
             return response()->json([
                 'success' => false,
@@ -664,7 +664,7 @@ class UserRegistrationController extends Controller
 
         $documentPath = null;
         $documentName = '';
-        
+
         switch ($type) {
             case 'location':
                 $documentPath = $registration->location_document_path;
@@ -701,7 +701,7 @@ class UserRegistrationController extends Controller
                     'document_path' => $documentPath,
                     'storage_path' => storage_path('app/public/' . $documentPath)
                 ]);
-                
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Document file not found on server'
@@ -713,13 +713,13 @@ class UserRegistrationController extends Controller
             $fileSize = filesize($filePath);
             $mimeType = mime_content_type($filePath);
             $fileName = basename($documentPath);
-            
+
             // Generate the public URL for the document
             $documentUrl = asset('storage/' . $documentPath);
-            
+
             // Check if it's an image
             $isImage = str_starts_with($mimeType, 'image/');
-            
+
             // Log successful document access
             \Log::info("Document accessed successfully", [
                 'registration_id' => $id,
@@ -730,7 +730,7 @@ class UserRegistrationController extends Controller
                 'mime_type' => $mimeType,
                 'admin_user' => auth()->user()->email
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'document_url' => $documentUrl,
@@ -744,7 +744,7 @@ class UserRegistrationController extends Controller
                 ],
                 'file_exists' => true
             ]);
-            
+
         } catch (\Exception $e) {
             \Log::error("Error generating document URL", [
                 'registration_id' => $id,
@@ -753,7 +753,7 @@ class UserRegistrationController extends Controller
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error accessing document: ' . $e->getMessage()
@@ -772,13 +772,13 @@ class UserRegistrationController extends Controller
         }
 
         $registration = UserRegistration::find($id);
-        
+
         if (!$registration) {
             abort(404, 'Registration not found');
         }
 
         $documentPath = null;
-        
+
         switch ($type) {
             case 'location':
                 $documentPath = $registration->location_document_path;
@@ -799,7 +799,7 @@ class UserRegistrationController extends Controller
 
         $filePath = \Storage::disk('public')->path($documentPath);
         $mimeType = mime_content_type($filePath);
-        
+
         return response()->file($filePath, [
             'Content-Type' => $mimeType,
             'Content-Disposition' => 'inline; filename="' . basename($documentPath) . '"'
@@ -812,14 +812,14 @@ class UserRegistrationController extends Controller
     public function approve(Request $request, $id)
     {
         $registration = UserRegistration::find($id);
-        
+
         if (!$registration) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registration not found'
             ], 404);
         }
-        
+
         $registration->update([
             'status' => 'approved',
             'approved_at' => now(),
@@ -829,7 +829,7 @@ class UserRegistrationController extends Controller
             'rejected_at' => null,
             'banned_at' => null
         ]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Registration approved successfully'
@@ -842,14 +842,14 @@ class UserRegistrationController extends Controller
     public function reject(Request $request, $id)
     {
         $registration = UserRegistration::find($id);
-        
+
         if (!$registration) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registration not found'
             ], 404);
         }
-        
+
         $registration->update([
             'status' => 'rejected',
             'rejected_at' => now(),
@@ -859,7 +859,7 @@ class UserRegistrationController extends Controller
             'approved_at' => null,
             'banned_at' => null
         ]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Registration rejected successfully'
@@ -879,14 +879,14 @@ class UserRegistrationController extends Controller
         }
 
         $registration = UserRegistration::find($id);
-        
+
         if (!$registration) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registration not found'
             ], 404);
         }
-        
+
         $registration->update([
             'status' => 'banned',
             'banned_at' => now(),
@@ -896,7 +896,7 @@ class UserRegistrationController extends Controller
             'rejected_at' => null,
             'rejection_reason' => null
         ]);
-        
+
         \Log::warning('User account banned', [
             'registration_id' => $id,
             'username' => $registration->username,
@@ -904,7 +904,7 @@ class UserRegistrationController extends Controller
             'banned_by' => auth()->user()->email,
             'reason' => $request->reason ?? 'No reason provided'
         ]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'User account banned successfully'
@@ -924,27 +924,27 @@ class UserRegistrationController extends Controller
         }
 
         $registration = UserRegistration::find($id);
-        
+
         if (!$registration) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registration not found'
             ], 404);
         }
-        
+
         $registration->update([
             'status' => 'unverified', // Reset to unverified so they can resubmit verification
             'banned_at' => null,
             'ban_reason' => null,
         ]);
-        
+
         \Log::info('User account unbanned', [
             'registration_id' => $id,
             'username' => $registration->username,
             'email' => $registration->email,
             'unbanned_by' => auth()->user()->email
         ]);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'User account unbanned successfully'
@@ -964,7 +964,7 @@ class UserRegistrationController extends Controller
         }
 
         $registration = UserRegistration::find($id);
-        
+
         if (!$registration) {
             return response()->json([
                 'success' => false,
@@ -1059,16 +1059,16 @@ class UserRegistrationController extends Controller
         }
 
         $registration = UserRegistration::find($id);
-        
+
         if (!$registration) {
             return response()->json([
                 'success' => false,
                 'message' => 'Registration not found'
             ], 404);
         }
-        
+
         $registration->delete();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Registration deleted successfully'
@@ -1135,13 +1135,45 @@ class UserRegistrationController extends Controller
                 'id' => $registration->id,
                 'username' => $registration->username,
                 'email' => $registration->email,
+                'first_name' => $registration->first_name,
+                'middle_name' => $registration->middle_name,
+                'last_name' => $registration->last_name,
+                'name_extension' => $registration->name_extension,
                 'full_name' => $registration->full_name,
-                'status' => $registration->status,
+                'contact_number' => $registration->contact_number,
+                'complete_address' => $registration->complete_address,
+                'barangay' => $registration->barangay,
                 'user_type' => $registration->user_type,
+                'age' => $registration->age,
+                'date_of_birth' => $registration->date_of_birth,
+                'gender' => $registration->gender,
+                'status' => $registration->status,
+                'verification_status' => $registration->email_verified_at ? 'verified' : 'unverified',
                 'created_at' => $registration->created_at->format('M d, Y'),
                 'last_login_at' => $registration->last_login_at ? $registration->last_login_at->format('M d, Y') : null,
+                'profile_completion' => $this->calculateProfileCompletion($registration),
             ]
         ]);
+    }
+
+    /**
+     * Calculate profile completion percentage
+     */
+    private function calculateProfileCompletion($registration)
+    {
+        $requiredFields = [
+            'first_name', 'last_name', 'contact_number', 'complete_address',
+            'barangay', 'user_type', 'age', 'date_of_birth', 'gender'
+        ];
+
+        $filledFields = 0;
+        foreach ($requiredFields as $field) {
+            if (!empty($registration->$field)) {
+                $filledFields++;
+            }
+        }
+
+        return round(($filledFields / count($requiredFields)) * 100);
     }
 
     /**
@@ -1203,11 +1235,26 @@ class UserRegistrationController extends Controller
             ], 404);
         }
 
+        // Enhanced validation for more profile fields
         $validator = Validator::make($request->all(), [
-            'first_name' => 'sometimes|string|max:100',
-            'last_name' => 'sometimes|string|max:100',
-            'contact_number' => 'sometimes|string|max:20',
-            'complete_address' => 'sometimes|string',
+            'first_name' => 'sometimes|string|max:100|regex:/^[a-zA-Z\s]+$/',
+            'middle_name' => 'sometimes|nullable|string|max:100|regex:/^[a-zA-Z\s]+$/',
+            'last_name' => 'sometimes|string|max:100|regex:/^[a-zA-Z\s]+$/',
+            'name_extension' => 'sometimes|nullable|string|max:10',
+            'contact_number' => 'sometimes|string|max:20|regex:/^[\+]?[0-9\-\(\)\s]+$/',
+            'complete_address' => 'sometimes|string|max:500',
+            'barangay' => 'sometimes|string|max:100',
+            'user_type' => 'sometimes|in:farmer,fisherfolk,individual',
+            'age' => 'sometimes|integer|min:18|max:100',
+            'date_of_birth' => 'sometimes|date|before:today',
+            'gender' => 'sometimes|in:male,female,other,prefer_not_to_say',
+        ], [
+            'first_name.regex' => 'First name should only contain letters and spaces',
+            'middle_name.regex' => 'Middle name should only contain letters and spaces',
+            'last_name.regex' => 'Last name should only contain letters and spaces',
+            'contact_number.regex' => 'Please enter a valid contact number',
+            'age.min' => 'Age must be at least 18 years old',
+            'date_of_birth.before' => 'Date of birth must be before today',
         ]);
 
         if ($validator->fails()) {
@@ -1219,21 +1266,63 @@ class UserRegistrationController extends Controller
         }
 
         try {
-            $registration->update($request->only([
+            // Calculate age from date of birth if provided
+            $updateData = $request->only([
                 'first_name',
-                'last_name', 
+                'middle_name',
+                'last_name',
+                'name_extension',
                 'contact_number',
-                'complete_address'
-            ]));
+                'complete_address',
+                'barangay',
+                'user_type',
+                'age',
+                'date_of_birth',
+                'gender'
+            ]);
+
+            // Auto-calculate age from date_of_birth if provided
+            if ($request->has('date_of_birth') && $request->date_of_birth) {
+                $dob = new \DateTime($request->date_of_birth);
+                $now = new \DateTime();
+                $updateData['age'] = $now->diff($dob)->y;
+            }
+
+            $registration->update(array_filter($updateData, function($value) {
+                return $value !== null;
+            }));
+
+            // Update session data with new information
+            $updatedUser = session('user');
+            $updatedUser['name'] = $registration->full_name ?? $registration->username;
+            session(['user' => $updatedUser]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Profile updated successfully'
+                'message' => 'Profile updated successfully',
+                'user' => [
+                    'id' => $registration->id,
+                    'username' => $registration->username,
+                    'email' => $registration->email,
+                    'first_name' => $registration->first_name,
+                    'middle_name' => $registration->middle_name,
+                    'last_name' => $registration->last_name,
+                    'name_extension' => $registration->name_extension,
+                    'full_name' => $registration->full_name,
+                    'contact_number' => $registration->contact_number,
+                    'complete_address' => $registration->complete_address,
+                    'barangay' => $registration->barangay,
+                    'user_type' => $registration->user_type,
+                    'age' => $registration->age,
+                    'date_of_birth' => $registration->date_of_birth,
+                    'gender' => $registration->gender,
+                    'status' => $registration->status,
+                ]
             ]);
 
         } catch (\Exception $e) {
             \Log::error('Profile update failed: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Profile update failed. Please try again.'
@@ -1302,7 +1391,7 @@ class UserRegistrationController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Bulk approve failed: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Bulk approval failed. Please try again.'
@@ -1355,7 +1444,7 @@ class UserRegistrationController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Bulk reject failed: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Bulk rejection failed. Please try again.'
@@ -1408,7 +1497,7 @@ class UserRegistrationController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Bulk ban failed: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Bulk ban failed. Please try again.'
@@ -1447,7 +1536,7 @@ class UserRegistrationController extends Controller
         $registrations = $query->orderBy('created_at', 'desc')->get();
 
         $filename = 'user_registrations_' . now()->format('Y-m-d_H-i-s') . '.csv';
-        
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
@@ -1455,11 +1544,11 @@ class UserRegistrationController extends Controller
 
         $callback = function() use ($registrations) {
             $file = fopen('php://output', 'w');
-            
+
             // CSV Headers
             fputcsv($file, [
-                'ID', 'Username', 'Email', 'First Name', 'Last Name', 
-                'User Type', 'Status', 'Contact Number', 'Barangay', 
+                'ID', 'Username', 'Email', 'First Name', 'Last Name',
+                'User Type', 'Status', 'Contact Number', 'Barangay',
                 'Created At', 'Approved At', 'Rejected At', 'Banned At', 'Last Login'
             ]);
 
