@@ -25,8 +25,8 @@
             @csrf
 
             <div class="fishr-form-group">
-                <label for="first_name">First Name *</label>
-                <input type="text" id="first_name" name="first_name" placeholder="Enter your first name"
+                <label for="fishr-first_name">First Name *</label>
+                <input type="text" id="fishr-first_name" name="first_name" placeholder="Enter your first name"
                     value="{{ old('first_name') }}" required>
                 @error('first_name')
                     <span class="fishr-error-text">{{ $message }}</span>
@@ -34,8 +34,8 @@
             </div>
 
             <div class="fishr-form-group">
-                <label for="middle_name">Middle Name (Optional)</label>
-                <input type="text" id="middle_name" name="middle_name" placeholder="Enter your middle name"
+                <label for="fishr-middle_name">Middle Name (Optional)</label>
+                <input type="text" id="fishr-middle_name" name="middle_name" placeholder="Enter your middle name"
                     value="{{ old('middle_name') }}">
                 @error('middle_name')
                     <span class="fishr-error-text">{{ $message }}</span>
@@ -43,8 +43,8 @@
             </div>
 
             <div class="fishr-form-group">
-                <label for="last_name">Last Name *</label>
-                <input type="text" id="last_name" name="last_name" placeholder="Enter your last name"
+                <label for="fishr-last_name">Last Name *</label>
+                <input type="text" id="fishr-last_name" name="last_name" placeholder="Enter your last name"
                     value="{{ old('last_name') }}" required>
                 @error('last_name')
                     <span class="fishr-error-text">{{ $message }}</span>
@@ -53,8 +53,8 @@
 
 
             <div class="fishr-form-group">
-                <label for="sex">Sex *</label>
-                <select id="sex" name="sex" required>
+                <label for="fishr-sex">Sex *</label>
+                <select id="fishr-sex" name="sex" required>
                     <option value="" disabled selected>Select Sex</option>
                     <option value="Male" {{ old('sex') == 'Male' ? 'selected' : '' }}>Male</option>
                     <option value="Female" {{ old('sex') == 'Female' ? 'selected' : '' }}>Female</option>
@@ -67,8 +67,8 @@
             </div>
 
             <div class="fishr-form-group">
-                <label for="barangay">Barangay *</label>
-                <select id="barangay" name="barangay" required>
+                <label for="fishr-barangay">Barangay *</label>
+                <select id="fishr-barangay" name="barangay" required>
                     <option value="" disabled selected>Select Barangay</option>
                     <option value="Bagong Silang">Bagong Silang</option>
                     <option value="Cuyab">Cuyab</option>
@@ -105,8 +105,8 @@
 
 
             <div class="fishr-form-group">
-                <label for="contact_number">Contact Number *</label>
-                <input type="tel" id="contact_number" name="contact_number"
+                <label for="fishr-contact_number">Contact Number *</label>
+                <input type="tel" id="fishr-contact_number" name="contact_number"
                     placeholder="Enter your contact number (e.g., 09123456789)" value="{{ old('contact_number') }}"
                     required>
                 @error('contact_number')
@@ -115,8 +115,8 @@
             </div>
 
             <div class="fishr-form-group">
-                <label for="email">Email Address *</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email address"
+                <label for="fishr-email">Email Address *</label>
+                <input type="email" id="fishr-email" name="email" placeholder="Enter your email address"
                     value="{{ old('email') }}" required>
                 @error('email')
                     <span class="fishr-error-text">{{ $message }}</span>
@@ -125,8 +125,9 @@
 
 
             <div class="fishr-form-group">
-                <label for="main_livelihood">Main Livelihood *</label>
-                <select id="main_livelihood" name="main_livelihood" required onchange="toggleOtherLivelihood(this)">
+                <label for="fishr-main_livelihood">Main Livelihood *</label>
+                <select id="fishr-main_livelihood" name="main_livelihood" required
+                    onchange="toggleOtherLivelihood(this)">
                     <option value="" disabled selected>Select Livelihood</option>
                     <option value="capture">Capture Fishing</option>
                     <option value="aquaculture">Aquaculture</option>
@@ -139,10 +140,10 @@
                 @enderror
             </div>
 
-            <div class="fishr-form-group" id="other-livelihood-field"
+            <div class="fishr-form-group" id="fishr-other-livelihood-field"
                 style="display: {{ old('main_livelihood') == 'others' ? 'block' : 'none' }};">
-                <label for="other_livelihood">Please specify (if others) *</label>
-                <input type="text" id="other_livelihood" name="other_livelihood"
+                <label for="fishr-other_livelihood">Please specify (if others) *</label>
+                <input type="text" id="fishr-other_livelihood" name="other_livelihood"
                     placeholder="Specify other livelihood" value="{{ old('other_livelihood') }}">
                 <small class="fishr-form-text">Please provide specific details about your livelihood activity</small>
                 @error('other_livelihood')

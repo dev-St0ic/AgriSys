@@ -803,6 +803,147 @@
         </div>
     @endif
 
+    <!-- EDIT PROFILE MODAL -->
+    <div id="edit-profile-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content edit-profile-modal">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <span class="modal-close" onclick="closeEditProfileModal()">&times;</span>
+            </div>
+
+            <div class="modal-body">
+                <form id="edit-profile-form">
+                    <div class="profile-edit-section">
+                        <h5>Personal Information</h5>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-first-name">First Name *</label>
+                                <input type="text" id="edit-first-name" name="first_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-middle-name">Middle Name</label>
+                                <input type="text" id="edit-middle-name" name="middle_name">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-last-name">Last Name *</label>
+                                <input type="text" id="edit-last-name" name="last_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-name-extension">Name Extension</label>
+                                <select id="edit-name-extension" name="name_extension">
+                                    <option value="">Select</option>
+                                    <option value="Jr.">Jr.</option>
+                                    <option value="Sr.">Sr.</option>
+                                    <option value="III">III</option>
+                                    <option value="IV">IV</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-contact-number">Contact Number *</label>
+                                <input type="tel" id="edit-contact-number" name="contact_number"
+                                    placeholder="e.g., +639123456789">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-gender">Gender</label>
+                                <select id="edit-gender" name="gender">
+                                    <option value="">Select Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                    <option value="prefer_not_to_say">Prefer not to say</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-date-of-birth">Date of Birth</label>
+                                <input type="date" id="edit-date-of-birth" name="date_of_birth">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-age">Age</label>
+                                <input type="number" id="edit-age" name="age" min="18" max="100"
+                                    readonly>
+                                <small>Calculated automatically from date of birth</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-user-type">User Type</label>
+                            <select id="edit-user-type" name="user_type">
+                                <option value="">Select Type</option>
+                                <option value="farmer">Farmer</option>
+                                <option value="fisherfolk">Fisherfolk</option>
+                                <option value="individual">Individual</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="profile-edit-section">
+                        <h5>Address Information</h5>
+
+                        <div class="form-group">
+                            <label for="edit-complete-address">Complete Address *</label>
+                            <textarea id="edit-complete-address" name="complete_address" placeholder="Enter your complete address"
+                                rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-barangay">Barangay</label>
+                            <select id="edit-barangay" name="barangay">
+                                <option value="">Select Barangay</option>
+                                <option value="Bagong Silang">Bagong Silang</option>
+                                <option value="Calendola">Calendola</option>
+                                <option value="Chrysanthemum">Chrysanthemum</option>
+                                <option value="Cuyab">Cuyab</option>
+                                <option value="Estrella">Estrella</option>
+                                <option value="Fatima">Fatima</option>
+                                <option value="G.S.I.S.">G.S.I.S.</option>
+                                <option value="Landayan">Landayan</option>
+                                <option value="Langgam">Langgam</option>
+                                <option value="Laram">Laram</option>
+                                <option value="Magsaysay">Magsaysay</option>
+                                <option value="Maharlika">Maharlika</option>
+                                <option value="Narra">Narra</option>
+                                <option value="Nueva">Nueva</option>
+                                <option value="Pacita 1">Pacita 1</option>
+                                <option value="Pacita 2">Pacita 2</option>
+                                <option value="Poblacion">Poblacion</option>
+                                <option value="Riverside">Riverside</option>
+                                <option value="Rosario">Rosario</option>
+                                <option value="Sampaguita Village">Sampaguita Village</option>
+                                <option value="San Antonio">San Antonio</option>
+                                <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                <option value="San Roque">San Roque</option>
+                                <option value="San Vicente">San Vicente</option>
+                                <option value="Santo Niño">Santo Niño</option>
+                                <option value="United Bayanihan">United Bayanihan</option>
+                                <option value="United Better Living">United Better Living</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeEditProfileModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-primary" id="save-profile-btn">
+                            <span class="btn-text">Save Changes</span>
+                            <span class="btn-loader" style="display: none;">Saving...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Section -->
     <footer class="footer" id="main-footer">
         <div class="footer-container">

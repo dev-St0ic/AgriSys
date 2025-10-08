@@ -28,19 +28,16 @@ function isUserLoggedIn() {
 }
 
 /**
- * Show authentication required modal with custom message
+ * Show authentication required modal without alert notifications
  */
 function showAuthRequired(serviceName) {
     if (!isUserLoggedIn()) {
-        // User not logged in - show login modal
-        showNotification('warning', `Please log in to access ${serviceName} service.`);
-        setTimeout(() => {
-            openAuthModal('login');
-        }, 500);
+        // User not logged in - show login modal directly
+        openAuthModal('login');
         return false;
     } else if (!isUserAuthenticatedAndVerified()) {
-        // User logged in but not verified
-        showNotification('warning', `Your account must be verified to access ${serviceName} service. Please complete your profile verification.`);
+        // User logged in but not verified - show login modal for verification
+        openAuthModal('login');
         return false;
     }
     return true;
