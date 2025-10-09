@@ -21,7 +21,7 @@ function openFormSeedlings(event) {
     }
 
     console.log('Opening Seedlings form');
-    
+
     performCompleteReset();
     hideAllMainSections();
     hideAllForms();
@@ -641,7 +641,7 @@ function performCompleteReset() {
     // Reset category filter
     const allTab = document.querySelector('[data-category="all"]');
     if (allTab) {
-        filterByCategory.call(allTab, 'all');
+        allTab.click();
     }
     
     console.log('Complete reset performed');
