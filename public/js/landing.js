@@ -36,11 +36,187 @@ function showAuthRequired(serviceName) {
         openAuthModal('login');
         return false;
     } else if (!isUserAuthenticatedAndVerified()) {
-        // User logged in but not verified - show login modal for verification
-        openAuthModal('login');
+        // User logged in but not verified - show verification alert modal
+        showVerificationRequiredModal(serviceName);
         return false;
     }
     return true;
+}
+
+/**
+ * Show verification required modal for unverified accounts
+ */
+function showVerificationRequiredModal(serviceName) {
+    const userData = window.userData;
+    let modalContent = '';
+
+    // Determine user's current status and create appropriate message
+    switch (userData.status) {
+        case 'unverified':
+            modalContent = `
+                <div class="verification-alert-modal" id="verification-alert-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3><i class="fas fa-shield-alt"></i> Account Verification Required</h3>
+                            <button type="button" class="close-btn" onclick="closeVerificationAlert()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h4>Complete Your Profile Verification</h4>
+                            <p>To access <strong>${serviceName}</strong> services, you need to verify your account by completing your profile information and uploading required documents.</p>
+                            <div class="verification-steps">
+                                <div class="step">
+                                    <span class="step-number">1</span>
+                                    <span class="step-text">Complete personal information</span>
+                                </div>
+                                <div class="step">
+                                    <span class="step-number">2</span>
+                                    <span class="step-text">Upload valid ID documents</span>
+                                </div>
+                                <div class="step">
+                                    <span class="step-number">3</span>
+                                    <span class="step-text">Wait for admin approval</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-verify-now" onclick="startVerificationProcess()">
+                                <i class="fas fa-check-circle"></i> Verify Account Now
+                            </button>
+                            <button type="button" class="btn-cancel" onclick="closeVerificationAlert()">
+                                Maybe Later
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+
+        case 'pending':
+            modalContent = `
+                <div class="verification-alert-modal" id="verification-alert-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3><i class="fas fa-clock"></i> Verification Pending</h3>
+                            <button type="button" class="close-btn" onclick="closeVerificationAlert()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert-icon pending">
+                                <i class="fas fa-hourglass-half"></i>
+                            </div>
+                            <h4>Your Account is Under Review</h4>
+                            <p>Your verification documents have been submitted and are currently being reviewed by our admin team.</p>
+                            <p>To access <strong>${serviceName}</strong> services, please wait for verification approval.</p>
+                            <div class="status-info">
+                                <p><strong>Current Status:</strong> <span class="status-badge pending">Pending Review</span></p>
+                                <p><em>You'll receive a notification once your account is approved.</em></p>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-primary" onclick="closeVerificationAlert()">
+                                <i class="fas fa-check"></i> Understood
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+
+        case 'rejected':
+            modalContent = `
+                <div class="verification-alert-modal" id="verification-alert-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3><i class="fas fa-times-circle"></i> Verification Required</h3>
+                            <button type="button" class="close-btn" onclick="closeVerificationAlert()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert-icon rejected">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <h4>Account Verification Needed</h4>
+                            <p>Your previous verification was not approved. To access <strong>${serviceName}</strong> services, please resubmit your verification documents.</p>
+                            <div class="status-info">
+                                <p><strong>Status:</strong> <span class="status-badge rejected">Verification Required</span></p>
+                                <p><em>Please update your documents and try again.</em></p>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-verify-now" onclick="startVerificationProcess()">
+                                <i class="fas fa-upload"></i> Resubmit Verification
+                            </button>
+                            <button type="button" class="btn-cancel" onclick="closeVerificationAlert()">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+
+        default:
+            modalContent = `
+                <div class="verification-alert-modal" id="verification-alert-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3><i class="fas fa-shield-alt"></i> Account Verification Required</h3>
+                            <button type="button" class="close-btn" onclick="closeVerificationAlert()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <h4>Verify Your Account</h4>
+                            <p>To access <strong>${serviceName}</strong> services, your account must be verified first.</p>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-verify-now" onclick="startVerificationProcess()">
+                                <i class="fas fa-check-circle"></i> Start Verification
+                            </button>
+                            <button type="button" class="btn-cancel" onclick="closeVerificationAlert()">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+    }
+
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalContent);
+
+    // Show modal with animation
+    setTimeout(() => {
+        const modal = document.getElementById('verification-alert-modal');
+        if (modal) {
+            modal.classList.add('show');
+        }
+    }, 10);
+}
+
+/**
+ * Close verification alert modal
+ */
+function closeVerificationAlert() {
+    const modal = document.getElementById('verification-alert-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+}
+
+/**
+ * Start verification process - opens the verification modal
+ */
+function startVerificationProcess() {
+    closeVerificationAlert();
+    
+    // Redirect to the verification form page
+    window.location.href = '/auth/start-verification';
 }
 
 /**
@@ -505,6 +681,15 @@ window.addEventListener('DOMContentLoaded', () => {
     // - initializeBoatRModule() - called from boatr.js
 });
 
+
+// ==============================================
+// GLOBAL FUNCTION EXPORTS
+// ==============================================
+
+// Make verification functions available globally
+window.showVerificationRequiredModal = showVerificationRequiredModal;
+window.closeVerificationAlert = closeVerificationAlert;
+window.startVerificationProcess = startVerificationProcess;
 
 console.log('Landing page JavaScript loaded successfully');
 
