@@ -2131,6 +2131,329 @@
     }
 }
 
+/* ==============================================
+   VERIFICATION ALERT MODAL STYLES
+   ============================================== */
+
+.verification-alert-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.verification-alert-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.verification-alert-modal .modal-content {
+    background: #ffffff;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.verification-alert-modal.show .modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.verification-alert-modal .modal-header {
+    padding: 24px 24px 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: none;
+}
+
+.verification-alert-modal .modal-header h3 {
+    color: #1f2937;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.verification-alert-modal .modal-header h3 i {
+    color: #f59e0b;
+    font-size: 22px;
+}
+
+.verification-alert-modal .close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.verification-alert-modal .close-btn:hover {
+    color: #374151;
+    background: #f3f4f6;
+}
+
+.verification-alert-modal .modal-body {
+    padding: 20px 24px 24px 24px;
+    text-align: center;
+}
+
+.verification-alert-modal .alert-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef3c7, #fed7aa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.verification-alert-modal .alert-icon i {
+    font-size: 36px;
+    color: #d97706;
+}
+
+.verification-alert-modal .alert-icon.pending {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+
+.verification-alert-modal .alert-icon.pending i {
+    color: #2563eb;
+}
+
+.verification-alert-modal .alert-icon.rejected {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+}
+
+.verification-alert-modal .alert-icon.rejected i {
+    color: #dc2626;
+}
+
+.verification-alert-modal h4 {
+    color: #111827;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+}
+
+.verification-alert-modal p {
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 16px 0;
+}
+
+.verification-alert-modal .verification-steps {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.verification-alert-modal .step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.verification-alert-modal .step:last-child {
+    margin-bottom: 0;
+}
+
+.verification-alert-modal .step-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0A6953, #2d6a4f);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.verification-alert-modal .step-text {
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.verification-alert-modal .status-info {
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    text-align: left;
+}
+
+.verification-alert-modal .status-info p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+}
+
+.verification-alert-modal .status-info p:last-child {
+    margin-bottom: 0;
+}
+
+.verification-alert-modal .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.verification-alert-modal .status-badge.pending {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.verification-alert-modal .status-badge.rejected {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.verification-alert-modal .modal-actions {
+    padding: 0 24px 24px 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.verification-alert-modal .btn-verify-now {
+    background: linear-gradient(135deg, #0A6953, #2d6a4f);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.verification-alert-modal .btn-verify-now:hover {
+    background: linear-gradient(135deg, #064e3b, #1e3a2f);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.3);
+}
+
+.verification-alert-modal .btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.verification-alert-modal .btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.verification-alert-modal .btn-cancel {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #d1d5db;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 100px;
+}
+
+.verification-alert-modal .btn-cancel:hover {
+    background: #e5e7eb;
+    color: #374151;
+    border-color: #9ca3af;
+}
+
+/* Responsive Design for Verification Modal */
+@media (max-width: 768px) {
+    .verification-alert-modal .modal-content {
+        max-width: 95%;
+        margin: 0 10px;
+    }
+
+    .verification-alert-modal .modal-header,
+    .verification-alert-modal .modal-body,
+    .verification-alert-modal .modal-actions {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .verification-alert-modal .modal-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .verification-alert-modal .btn-verify-now,
+    .verification-alert-modal .btn-primary,
+    .verification-alert-modal .btn-cancel {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .verification-alert-modal .alert-icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+    }
+
+    .verification-alert-modal .alert-icon i {
+        font-size: 28px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .auth-modal-overlay,
     .modal-overlay,
@@ -2141,7 +2464,9 @@
     .user-avatar,
     .verification-submit-btn,
     .btn-primary,
-    .btn-secondary {
+    .btn-secondary,
+    .verification-alert-modal,
+    .verification-alert-modal .modal-content {
         animation: none;
         transition: none;
     }
