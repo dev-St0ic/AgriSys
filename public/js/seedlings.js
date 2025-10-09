@@ -11,7 +11,17 @@ let selectedItems = new Map(); // itemId -> {name, quantity, categoryName}
 // ==============================================
 
 function openFormSeedlings(event) {
-    event.preventDefault();
+    if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+    }
+
+    // Check authentication before allowing access
+    if (!showAuthRequired('Seedlings Request')) {
+        return false;
+    }
+
+    console.log('Opening Seedlings form');
+    
     performCompleteReset();
     hideAllMainSections();
     hideAllForms();
