@@ -944,6 +944,110 @@
         </div>
     </div>
 
+    <!-- CHANGE PASSWORD MODAL -->
+    <div id="change-password-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content change-password-modal">
+            <div class="modal-header">
+                <h3>Change Password</h3>
+                <span class="modal-close" onclick="closeChangePasswordModal()">&times;</span>
+            </div>
+
+            <div class="modal-body">
+                <div class="change-password-content">
+                    <div class="password-requirements">
+                        <h5>Password Requirements</h5>
+                        <ul>
+                            <li>At least 8 characters long</li>
+                            <li>Mix of uppercase and lowercase letters</li>
+                            <li>Include numbers and special characters</li>
+                            <li>Different from your current password</li>
+                        </ul>
+                    </div>
+
+                    <!--  Prevent default form submission -->
+                    <form id="change-password-form" onsubmit="return handleChangePasswordSubmit(event)">
+                        <div class="form-group">
+                            <label for="current-password">Current Password *</label>
+                            <div class="password-input-container">
+                                <input type="password" 
+                                    id="current-password" 
+                                    name="current_password" 
+                                    required
+                                    autocomplete="current-password"
+                                    placeholder="Enter your current password">
+                                <button type="button" class="password-toggle"
+                                        onclick="togglePasswordVisibility('current-password')">
+                                    Show
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-password">New Password *</label>
+                            <div class="password-input-container">
+                                <input type="password" 
+                                    id="new-password" 
+                                    name="new_password" 
+                                    required
+                                    minlength="8"
+                                    autocomplete="new-password"
+                                    placeholder="Enter your new password"
+                                    oninput="checkNewPasswordStrength(this.value)">
+                                <button type="button" class="password-toggle"
+                                        onclick="togglePasswordVisibility('new-password')">
+                                    Show
+                                </button>
+                            </div>
+                            <div class="password-strength new-password-strength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill"></div>
+                                </div>
+                                <div class="strength-text">Password strength</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm-new-password">Confirm New Password *</label>
+                            <div class="password-input-container">
+                                <input type="password" 
+                                    id="confirm-new-password" 
+                                    name="confirm_new_password" 
+                                    required
+                                    autocomplete="new-password"
+                                    placeholder="Confirm your new password"
+                                    oninput="checkNewPasswordMatch(document.getElementById('new-password').value, this.value)">
+                                <button type="button" class="password-toggle"
+                                        onclick="togglePasswordVisibility('confirm-new-password')">
+                                    Show
+                                </button>
+                            </div>
+                            <div class="password-match-status confirm-new-password-match"></div>
+                        </div>
+
+                        <div class="security-notice">
+                            <div class="notice-icon">🔒</div>
+                            <div class="notice-content">
+                                <h6>Security Tip</h6>
+                                <p>For your security, you will be logged out after changing your password and will need to log in again with your new password.</p>
+                            </div>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeChangePasswordModal()">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn-primary change-password-submit-btn">
+                                <span class="btn-text">Change Password</span>
+                                <span class="btn-loader" style="display: none;">Changing...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Footer Section -->
     <footer class="footer" id="main-footer">
         <div class="footer-container">

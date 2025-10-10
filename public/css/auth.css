@@ -2131,6 +2131,174 @@
     }
 }
 
+
+/* Change Password Modal Styles */
+.change-password-modal {
+    max-width: 550px;
+    width: 90%;
+}
+
+.password-requirements {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    border-left: 4px solid #3b82f6;
+}
+
+.password-requirements h5 {
+    margin: 0 0 12px 0;
+    color: #1e40af;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.password-requirements ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.password-requirements li {
+    color: #1e3a8a;
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.password-requirements li:last-child {
+    margin-bottom: 0;
+}
+
+.change-password-content .form-group {
+    margin-bottom: 20px;
+}
+
+.change-password-content label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+    font-size: 14px;
+}
+
+.change-password-content input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.change-password-content input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.new-password-strength {
+    margin-top: 8px;
+}
+
+.confirm-new-password-match {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 0;
+}
+
+.confirm-new-password-match.match {
+    color: #10b981;
+}
+
+.confirm-new-password-match.no-match {
+    color: #ef4444;
+}
+
+.security-notice {
+    display: flex;
+    gap: 12px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    border-left: 4px solid #f59e0b;
+}
+
+.security-notice .notice-icon {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.security-notice .notice-content h6 {
+    margin: 0 0 4px 0;
+    color: #92400e;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.security-notice .notice-content p {
+    margin: 0;
+    color: #78350f;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-secondary,
+.btn-primary {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.change-password-submit-btn .btn-loader {
+    display: none;
+}
+
+.change-password-submit-btn.loading .btn-text {
+    display: none;
+}
+
+.change-password-submit-btn.loading .btn-loader {
+    display: inline;
+}
+
 /* ==============================================
    VERIFICATION ALERT MODAL STYLES
    ============================================== */

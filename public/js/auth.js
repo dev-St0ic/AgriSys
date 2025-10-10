@@ -329,7 +329,285 @@ function populateEditForm(user) {
 }
 
 function changePassword() {
-    showNotification('info', 'Password change feature coming soon!');
+    const modal = document.getElementById('change-password-modal');
+    if (!modal) {
+        console.error('Change password modal not found');
+        return;
+    }
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Close profile modal if open
+    closeProfileModal();
+}
+
+function closeChangePasswordModal() {
+    const modal = document.getElementById('change-password-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Reset form
+    const form = document.getElementById('change-password-form');
+    if (form) {
+        form.reset();
+    }
+
+    // Clear any validation messages
+    clearPasswordValidation();
+}
+
+function clearPasswordValidation() {
+    const inputs = document.querySelectorAll('#change-password-form input');
+    inputs.forEach(input => {
+        input.classList.remove('error', 'invalid', 'valid');
+        input.style.borderColor = '';
+    });
+
+    const errorMessages = document.querySelectorAll('.password-error');
+    errorMessages.forEach(msg => msg.remove());
+
+    const strengthBar = document.querySelector('.new-password-strength .strength-fill');
+    const strengthText = document.querySelector('.new-password-strength .strength-text');
+    if (strengthBar) {
+        strengthBar.className = 'strength-fill';
+    }
+    if (strengthText) {
+        strengthText.textContent = 'Password strength';
+    }
+
+    const matchStatus = document.querySelector('.confirm-new-password-match');
+    if (matchStatus) {
+        matchStatus.innerHTML = '';
+    }
+}
+
+/**
+ *Handle change password form submission
+ * Prevents default form submission that causes GET request
+ */
+function handleChangePasswordSubmit(event) {
+    // Prevent default form submission
+    event.preventDefault();
+    event.stopPropagation();
+
+    const form = event.target;
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmNewPassword = document.getElementById('confirm-new-password').value;
+    const submitBtn = form.querySelector('.change-password-submit-btn');
+
+    console.log('🔐 Password change initiated');
+
+    // Client-side validation (UX improvement)
+    let errors = [];
+
+    if (!currentPassword) {
+        errors.push('Current password is required');
+    }
+
+    if (!newPassword) {
+        errors.push('New password is required');
+    } else if (newPassword.length < 8) {
+        errors.push('New password must be at least 8 characters');
+    }
+
+    if (newPassword !== confirmNewPassword) {
+        errors.push('New passwords do not match');
+    }
+
+    if (currentPassword === newPassword) {
+        errors.push('New password must be different from current password');
+    }
+
+    if (errors.length > 0) {
+        showNotification('error', errors.join(', '));
+        return false; // CRITICAL: Return false to prevent submission
+    }
+
+    // Set button to loading state
+    setButtonLoading(submitBtn, 'Changing Password...');
+
+    // Get CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    if (!csrfToken) {
+        console.error('❌ CSRF token not found!');
+        showNotification('error', 'Security token missing. Please refresh the page.');
+        resetButtonState(submitBtn);
+        return false;
+    }
+
+    console.log('📤 Sending password change request...');
+
+    // Submit password change via AJAX/Fetch
+    fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            current_password: currentPassword,
+            new_password: newPassword,
+            new_password_confirmation: confirmNewPassword
+        }),
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        console.log('📥 Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('📦 Response data:', data);
+
+        if (data.success) {
+            setButtonLoading(submitBtn, 'Password Changed!');
+            showNotification('success', data.message || 'Password changed successfully!');
+
+            // Clear form
+            form.reset();
+            clearPasswordValidation();
+
+            // Close modal and redirect after short delay
+            setTimeout(() => {
+                closeChangePasswordModal();
+                
+                // Force logout and redirect to login
+                if (data.redirect) {
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                }
+            }, 1500);
+
+        } else {
+            console.error('❌ Password change failed:', data);
+            
+            let errorMessage = data.message || 'Password change failed';
+
+            // Handle validation errors
+            if (data.errors) {
+                const errorMessages = Object.values(data.errors).flat();
+                errorMessage = errorMessages.join(', ');
+                
+                // Highlight specific fields with errors
+                Object.keys(data.errors).forEach(field => {
+                    const input = document.getElementById(field.replace('_', '-'));
+                    if (input) {
+                        input.style.borderColor = '#dc2626';
+                        input.classList.add('error');
+                    }
+                });
+            }
+
+            showNotification('error', errorMessage);
+            resetButtonState(submitBtn);
+        }
+    })
+    .catch(error => {
+        console.error('❌ Network error:', error);
+        showNotification('error', 'Network error. Please check your connection and try again.');
+        resetButtonState(submitBtn);
+    });
+
+    // CRITICAL: Return false to prevent any form submission
+    return false;
+}
+
+/**
+ * Clear password validation UI
+ */
+function clearPasswordValidation() {
+    const inputs = document.querySelectorAll('#change-password-form input');
+    inputs.forEach(input => {
+        input.classList.remove('error', 'invalid', 'valid');
+        input.style.borderColor = '';
+    });
+
+    const errorMessages = document.querySelectorAll('.password-error');
+    errorMessages.forEach(msg => msg.remove());
+
+    const strengthBar = document.querySelector('.new-password-strength .strength-fill');
+    const strengthText = document.querySelector('.new-password-strength .strength-text');
+    if (strengthBar) {
+        strengthBar.className = 'strength-fill';
+    }
+    if (strengthText) {
+        strengthText.textContent = 'Password strength';
+    }
+
+    const matchStatus = document.querySelector('.confirm-new-password-match');
+    if (matchStatus) {
+        matchStatus.innerHTML = '';
+    }
+}
+
+/**
+ * Check new password strength
+ */
+function checkNewPasswordStrength(password) {
+    const strengthBar = document.querySelector('.new-password-strength .strength-fill');
+    const strengthText = document.querySelector('.new-password-strength .strength-text');
+
+    if (!strengthBar || !strengthText) return;
+
+    let strength = 0;
+    let strengthLabel = 'Too weak';
+
+    if (password.length >= 8) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+    strengthBar.className = 'strength-fill';
+
+    switch (strength) {
+        case 0:
+        case 1:
+            strengthBar.classList.add('weak');
+            strengthLabel = 'Weak';
+            break;
+        case 2:
+            strengthBar.classList.add('fair');
+            strengthLabel = 'Fair';
+            break;
+        case 3:
+        case 4:
+            strengthBar.classList.add('good');
+            strengthLabel = 'Good';
+            break;
+        case 5:
+            strengthBar.classList.add('strong');
+            strengthLabel = 'Strong';
+            break;
+    }
+
+    strengthText.textContent = `Password strength: ${strengthLabel}`;
+}
+
+/**
+ * Check if new password matches confirmation
+ */
+function checkNewPasswordMatch(newPassword, confirmPassword) {
+    const matchStatus = document.querySelector('.confirm-new-password-match');
+
+    if (!matchStatus || !confirmPassword) {
+        if (matchStatus) matchStatus.innerHTML = '';
+        return;
+    }
+
+    if (newPassword === confirmPassword) {
+        matchStatus.className = 'confirm-new-password-match match';
+        matchStatus.textContent = '✓ Passwords match';
+    } else {
+        matchStatus.className = 'confirm-new-password-match no-match';
+        matchStatus.textContent = '✗ Passwords do not match';
+    }
 }
 
 // ==============================================
@@ -1717,6 +1995,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    document.addEventListener('DOMContentLoaded', function() {
+        // Change password form submission
+        const changePasswordForm = document.getElementById('change-password-form');
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', handleChangePasswordSubmit);
+        }
+
+        // New password strength checker
+        const newPasswordInput = document.getElementById('new-password');
+        if (newPasswordInput) {
+            newPasswordInput.addEventListener('input', function() {
+                checkNewPasswordStrength(this.value);
+            });
+        }
+
+        // Confirm new password checker
+        const confirmNewPasswordInput = document.getElementById('confirm-new-password');
+        if (confirmNewPasswordInput) {
+            confirmNewPasswordInput.addEventListener('input', function() {
+                const newPassword = document.getElementById('new-password').value;
+                checkNewPasswordMatch(newPassword, this.value);
+            });
+        }
+
+        // Change password modal close functionality
+        const changePasswordModal = document.getElementById('change-password-modal');
+        if (changePasswordModal) {
+            changePasswordModal.addEventListener('click', function(event) {
+                if (event.target === changePasswordModal) {
+                    closeChangePasswordModal();
+                }
+            });
+        }
+    });
+
     // ensure verify button matches current user status (useful when userData supplied to window)
     refreshProfileVerifyButton();
 
@@ -1755,5 +2068,11 @@ window.logoutUser = logoutUser;
 window.showNotification = showNotification;
 window.previewImage = previewImage;
 window.refreshProfileVerifyButton = refreshProfileVerifyButton;
+window.changePassword = changePassword;
+window.closeChangePasswordModal = closeChangePasswordModal;
+window.handleChangePasswordSubmit = handleChangePasswordSubmit;
+window.checkNewPasswordStrength = checkNewPasswordStrength;
+window.checkNewPasswordMatch = checkNewPasswordMatch;
+
 
 console.log('Enhanced Auth.js with Profile Verification and Status Management loaded successfully');

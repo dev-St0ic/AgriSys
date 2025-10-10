@@ -1578,6 +1578,92 @@ class UserRegistrationController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    //  change user password
+    public function changePassword(Request $request)
+    {
+        $userId = session('user.id');
+        if (!$userId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please log in to change password'
+            ], 401);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+            'new_password_confirmation' => 'required|string',
+        ], [
+            'current_password.required' => 'Current password is required',
+            'new_password.required' => 'New password is required',
+            'new_password.min' => 'New password must be at least 8 characters',
+            'new_password.confirmed' => 'Password confirmation does not match',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please check all required fields.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $userRegistration = UserRegistration::find($userId);
+            
+            if (!$userRegistration) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            // Verify current password
+            if (!Hash::check($request->current_password, $userRegistration->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Current password is incorrect',
+                    'errors' => [
+                        'current_password' => ['Current password is incorrect']
+                    ]
+                ], 422);
+            }
+
+            // Update password (model mutator will hash it automatically)
+            $userRegistration->password = $request->new_password;
+            $userRegistration->save();
+
+            // Log password change
+            \Log::info('Password changed successfully', [
+                'user_id' => $userId,
+                'username' => $userRegistration->username,
+                'ip' => $request->ip()
+            ]);
+
+            // Clear all sessions except CSRF token (force re-login)
+            $request->session()->flush();
+            $request->session()->regenerate();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password changed successfully! Please log in with your new password.',
+                'redirect' => '/'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Password change failed: ' . $e->getMessage(), [
+                'user_id' => $userId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Password change failed. Please try again.',
+                'error' => config('app.debug') ? $e->getMessage() : 'Server error'
+            ], 500);
+        }
+    }
     /**
      * Helper method to determine referral source
      */
