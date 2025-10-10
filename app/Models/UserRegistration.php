@@ -275,4 +275,20 @@ class UserRegistration extends Model
             }
         });
     }
+
+     /**
+     *  User has many RSBSA applications
+     */
+    public function rsbsaApplications()
+    {
+        return $this->hasMany(RsbsaApplication::class, 'user_id');
+    }
+
+    /**
+     *  Get latest RSBSA application
+     */
+    public function latestRsbsaApplication()
+    {
+        return $this->hasOne(RsbsaApplication::class, 'user_id')->latestOfMany();
+    }
 }

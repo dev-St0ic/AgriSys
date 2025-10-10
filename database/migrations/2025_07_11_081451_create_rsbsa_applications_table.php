@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('rsbsa_applications', function (Blueprint $table) {
             $table->id();
 
+            $table->unsignedBigInteger('user_id');
+            
+
             // Application identification
             $table->string('application_number')->unique();
 
@@ -55,7 +58,14 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            // Foreign key constraints
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('user_registration')
+                ->onDelete('cascade');
+
             // Indexes for better performance
+            $table->index('user_id');
             $table->index(['status', 'created_at']);
             $table->index(['barangay', 'main_livelihood']);
             $table->index('barangay_id');

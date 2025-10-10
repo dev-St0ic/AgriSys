@@ -12,6 +12,7 @@ class RsbsaApplication extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id', // Foreign key to user_registration table
         'application_number',
         'first_name',
         'middle_name',
@@ -44,6 +45,10 @@ class RsbsaApplication extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    
+
+    
 
     /**
      * Get the full name attribute
@@ -101,6 +106,15 @@ class RsbsaApplication extends Model
             default => 'secondary'
         };
     }
+
+    /**
+     * Relationship: RSBSA application belongs to a user
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(UserRegistration::class, 'user_id');
+    }
+
 
     /**
      * Relationship with admin who reviewed the application
