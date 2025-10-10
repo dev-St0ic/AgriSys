@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('training_applications', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedBigInteger('user_id');
+
             $table->string('application_number')->unique();
             $table->string('first_name');
             $table->string('middle_name')->nullable();
@@ -47,6 +50,12 @@ return new class extends Migration
             $table->index('contact_number');
             $table->index('email');
             $table->index(['first_name', 'last_name']); // Added for name searches
+
+            // Foreign key constraints
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('user_registration')
+                ->onDelete('cascade');
 
             // Foreign key for admin who updated the status - will be added in separate migration
             // $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');

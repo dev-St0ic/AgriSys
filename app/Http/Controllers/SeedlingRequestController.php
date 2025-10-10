@@ -64,7 +64,7 @@ class SeedlingRequestController extends Controller
 
         // Get statistics
         $statsQuery = SeedlingRequest::query();
-        
+
         // Apply same filters for stats (except status)
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
@@ -133,9 +133,9 @@ class SeedlingRequestController extends Controller
         $categories = RequestCategory::with(['items' => function($query) {
             $query->where('is_active', true)->orderBy('display_order');
         }])->where('is_active', true)->orderBy('display_order')->get();
-        
+
         $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
-        
+
         return view('admin.seedlings.create', compact('categories', 'barangays'));
     }
 
@@ -158,7 +158,7 @@ class SeedlingRequestController extends Controller
             'purpose' => 'nullable|string|max:1000',
             'preferred_delivery_date' => 'nullable|date|after:today',
             'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            
+
             // Items - Dynamic array structure
             'items' => 'required|array|min:1',
             'items.*.category_item_id' => 'required|exists:category_items,id',
@@ -177,8 +177,12 @@ class SeedlingRequestController extends Controller
                 $documentPath = $request->file('document')->store('seedling-requests', 'public');
             }
 
+            // Get user ID from session
+            $userId = session('user.id');
+
             // Create the main request
             $seedlingRequest = SeedlingRequest::create([
+                'user_id' => $userId,
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
                 'last_name' => $validated['last_name'],
@@ -198,7 +202,7 @@ class SeedlingRequestController extends Controller
             $totalQuantity = 0;
             foreach ($validated['items'] as $itemData) {
                 $categoryItem = CategoryItem::with('category')->findOrFail($itemData['category_item_id']);
-                
+
                 SeedlingRequestItem::create([
                     'seedling_request_id' => $seedlingRequest->id,
                     'category_id' => $categoryItem->category_id,
@@ -222,7 +226,7 @@ class SeedlingRequestController extends Controller
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error('Failed to create seedling request: ' . $e->getMessage());
-            
+
             return redirect()->back()
                 ->withErrors(['error' => 'Failed to create request: ' . $e->getMessage()])
                 ->withInput();
@@ -244,12 +248,12 @@ class SeedlingRequestController extends Controller
         $categories = RequestCategory::with(['items' => function($query) {
             $query->where('is_active', true)->orderBy('display_order');
         }])->where('is_active', true)->orderBy('display_order')->get();
-        
+
         $barangays = SeedlingRequest::distinct()->pluck('barangay')->filter()->sort();
-        
+
         // Load existing items with their relationships
         $seedlingRequest->load(['items.category', 'items.categoryItem']);
-        
+
         return view('admin.seedlings.edit', compact('seedlingRequest', 'categories', 'barangays'));
     }
 
@@ -278,7 +282,7 @@ class SeedlingRequestController extends Controller
             'purpose' => 'nullable|string|max:1000',
             'preferred_delivery_date' => 'nullable|date|after:today',
             'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            
+
             // Items - Dynamic array structure
             'items' => 'required|array|min:1',
             'items.*.category_item_id' => 'required|exists:category_items,id',
@@ -322,7 +326,7 @@ class SeedlingRequestController extends Controller
             $totalQuantity = 0;
             foreach ($validated['items'] as $itemData) {
                 $categoryItem = CategoryItem::with('category')->findOrFail($itemData['category_item_id']);
-                
+
                 SeedlingRequestItem::create([
                     'seedling_request_id' => $seedlingRequest->id,
                     'category_id' => $categoryItem->category_id,
@@ -346,7 +350,7 @@ class SeedlingRequestController extends Controller
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error('Failed to update seedling request: ' . $e->getMessage());
-            
+
             return redirect()->back()
                 ->withErrors(['error' => 'Failed to update request: ' . $e->getMessage()])
                 ->withInput();
@@ -414,10 +418,10 @@ class SeedlingRequestController extends Controller
 
             foreach ($itemStatuses as $itemId => $status) {
                 $item = SeedlingRequestItem::findOrFail($itemId);
-                
+
                 // Check if status is changing from approved to something else
                 $wasApproved = $item->status === 'approved';
-                
+
                 if ($status === 'approved') {
                     // Check supply availability
                     if ($item->categoryItem) {
@@ -426,14 +430,14 @@ class SeedlingRequestController extends Controller
                             throw new \Exception("Insufficient supply for {$item->item_name}. Available: {$check['current_supply']}, Requested: {$item->requested_quantity}");
                         }
                     }
-                    
+
                     $item->update([
                         'status' => 'approved',
                         'approved_quantity' => $item->requested_quantity,
                         'rejection_reason' => null
                     ]);
                     $approvedCount++;
-                    
+
                     // AUTOMATIC SUPPLY DEDUCTION when newly approved
                     if (!$wasApproved && $item->categoryItem) {
                         $success = $item->categoryItem->distributeSupply(
@@ -443,12 +447,12 @@ class SeedlingRequestController extends Controller
                             'SeedlingRequest',
                             $seedlingRequest->id
                         );
-                        
+
                         if (!$success) {
                             throw new \Exception("Failed to distribute supply for {$item->item_name}");
                         }
                     }
-                    
+
                 } elseif ($status === 'rejected') {
                     $item->update([
                         'status' => 'rejected',
@@ -456,7 +460,7 @@ class SeedlingRequestController extends Controller
                         'rejection_reason' => $request->input("rejection_reasons.{$itemId}")
                     ]);
                     $rejectedCount++;
-                    
+
                     // AUTOMATIC SUPPLY RETURN if was previously approved
                     if ($wasApproved && $item->categoryItem) {
                         $item->categoryItem->returnSupply(
@@ -467,14 +471,14 @@ class SeedlingRequestController extends Controller
                             $seedlingRequest->id
                         );
                     }
-                    
+
                 } else {
                     $item->update([
                         'status' => 'pending',
                         'approved_quantity' => null,
                         'rejection_reason' => null
                     ]);
-                    
+
                     // AUTOMATIC SUPPLY RETURN if was previously approved
                     if ($wasApproved && $item->categoryItem) {
                         $item->categoryItem->returnSupply(
@@ -523,7 +527,7 @@ class SeedlingRequestController extends Controller
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error('Failed to update items: ' . $e->getMessage());
-            
+
             return redirect()->back()
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();

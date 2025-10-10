@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('boatr_applications', function (Blueprint $table) {
             $table->id();
 
+            $table->unsignedBigInteger('user_id');
+
             // Application identification
             $table->string('application_number')->unique();
 
@@ -114,6 +116,12 @@ return new class extends Migration
             $table->index('vessel_name'); // For vessel searches
             $table->index('inspection_completed');
             $table->index('documents_verified');
+
+            // Foreign key constraints
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('user_registration')
+                ->onDelete('cascade');
 
             // Foreign key constraints - will be added in separate migration
             // $table->foreign('fishr_application_id')->references('id')->on('fishr_applications')->onDelete('set null');

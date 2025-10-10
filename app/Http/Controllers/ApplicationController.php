@@ -70,8 +70,12 @@ class ApplicationController extends Controller
             // Generate unique registration number
             $registrationNumber = $this->generateUniqueRegistrationNumber();
 
+            // Get user ID from session
+            $userId = session('user.id');
+
             // Create the FishR registration
             $fishRRegistration = FishrApplication::create([
+                'user_id' => $userId,
                 'registration_number' => $registrationNumber,
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
@@ -157,7 +161,7 @@ class ApplicationController extends Controller
                 ->withInput();
         }
     }
-    
+
     /**
      * Submit a new seedling request - Dynamic Categories Version
      */
@@ -213,12 +217,12 @@ class ApplicationController extends Controller
 
             // Create individual request items from selections
             $selections = $selectedSeedlings['selections'] ?? [];
-            
+
             foreach ($selections as $categoryName => $items) {
                 foreach ($items as $item) {
                     // Find the category item in database
                     $categoryItem = CategoryItem::find($item['id']);
-                    
+
                     if ($categoryItem) {
                         SeedlingRequestItem::create([
                             'seedling_request_id' => $seedlingRequest->id,
@@ -257,7 +261,7 @@ class ApplicationController extends Controller
             \Log::warning('Seedling request validation failed', [
                 'errors' => $e->errors()
             ]);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -303,7 +307,7 @@ class ApplicationController extends Controller
 
 //         if (!$userId) {
 //             Log::warning('RSBSA submission attempted without authentication');
-                
+
 //             if ($request->ajax() || $request->wantsJson()) {
 //                 return response()->json([
 //                     'success' => false,
@@ -311,7 +315,7 @@ class ApplicationController extends Controller
 //                     'require_auth' => true
 //                 ], 401);
 //             }
-                
+
 //             return redirect()->route('landing.page')
 //                 ->with('error', 'You must be logged in to submit an RSBSA application.');
 //             }
@@ -389,7 +393,7 @@ class ApplicationController extends Controller
 
 //         // Prepare data for database insertion (streamlined)
 //         $applicationData = [
-//             'user_id' =>$userId, 
+//             'user_id' =>$userId,
 //             'application_number' => $applicationNumber,
 //             'first_name' => $validated['first_name'],
 //             'middle_name' => $validated['middle_name'] ?: null,
@@ -497,13 +501,13 @@ public function submitRsbsa(Request $request)
 
         // ✅ to get user ID
         $userId = null;
-        
-        
+
+
         // Method 2: Nested session data
         if (session()->has('user.id')) {
             $userId = session('user.id');
         }
-   
+
         Log::info('User ID resolution attempt', [
             'resolved_user_id' => $userId,
             'session_keys' => array_keys(session()->all()),
@@ -514,7 +518,7 @@ public function submitRsbsa(Request $request)
             Log::warning('RSBSA submission - user not authenticated', [
                 'session_data' => session()->all()
             ]);
-                
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -522,7 +526,7 @@ public function submitRsbsa(Request $request)
                     'require_auth' => true
                 ], 401);
             }
-                
+
             return redirect()->route('landing.page')
                 ->with('error', 'You must be logged in to submit an RSBSA application.');
         }
@@ -533,7 +537,7 @@ public function submitRsbsa(Request $request)
             Log::error('User ID from session does not exist in database', [
                 'user_id' => $userId
             ]);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -541,7 +545,7 @@ public function submitRsbsa(Request $request)
                     'require_auth' => true
                 ], 401);
             }
-            
+
             return redirect()->route('landing.page')
                 ->with('error', 'Invalid user session. Please log in again.');
         }
@@ -553,7 +557,7 @@ public function submitRsbsa(Request $request)
         ]);
 
         // ... rest of your validation and submission code stays the same ...
-        
+
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
@@ -733,8 +737,12 @@ public function submitRsbsa(Request $request)
             $applicationNumber = $this->generateUniqueApplicationNumber();
             Log::info('Generated application number: ' . $applicationNumber);
 
+            // Get user ID from session
+            $userId = session('user.id');
+
             // Create the BoatR registration
             $boatRRegistration = BoatrApplication::create([
+                'user_id' => $userId,
                 'application_number' => $applicationNumber,
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
@@ -882,6 +890,9 @@ public function submitRsbsa(Request $request)
             // Generate unique application number
             $applicationNumber = 'TRAIN-' . date('Y') . '-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
 
+            // Get user ID from session
+            $userId = session('user.id');
+
             // Handle document uploads with better error handling
             $documentPaths = [];
             if ($request->hasFile('documents')) {
@@ -896,6 +907,7 @@ public function submitRsbsa(Request $request)
 
             // Create training application with logging
             $training = TrainingApplication::create([
+                'user_id' => $userId,
                 'application_number' => $applicationNumber,
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
