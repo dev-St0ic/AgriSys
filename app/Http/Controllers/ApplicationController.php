@@ -162,131 +162,303 @@ class ApplicationController extends Controller
         }
     }
 
+    // /**
+    //  * Submit a new seedling request - Dynamic Categories Version
+    //  */
+    // public function submitSeedlings(Request $request)
+    // {
+    //     try {
+    //         // Validation
+    //         $validated = $request->validate([
+    //             'first_name' => 'required|string|max:255',
+    //             'middle_name' => 'nullable|string|max:255',
+    //             'last_name' => 'required|string|max:255',
+    //             'mobile' => 'required|string|max:20',
+    //             'email' => 'required|email|max:255',
+    //             'barangay' => 'required|string|max:255',
+    //             'address' => 'required|string|max:500',
+    //             'selected_seedlings' => 'required|string',
+    //             'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
+    //         ]);
+
+    //         // Parse selected seedlings
+    //         $selectedSeedlings = json_decode($validated['selected_seedlings'], true);
+    //         if (!$selectedSeedlings || !is_array($selectedSeedlings)) {
+    //             throw new \Exception('Invalid seedlings selection data');
+    //         }
+
+    //         // Handle file upload
+    //         $documentPath = null;
+    //         if ($request->hasFile('supporting_documents')) {
+    //             $file = $request->file('supporting_documents');
+    //             if ($file->isValid()) {
+    //                 $documentPath = $file->store('seedling_documents', 'public');
+    //                 \Log::info('Seedling document uploaded', ['path' => $documentPath]);
+    //             }
+    //         }
+
+    //         // Generate unique request number
+    //         $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(\Str::random(6));
+
+    //         // Create the main seedling request
+    //         $seedlingRequest = SeedlingRequest::create([
+    //             'request_number' => $requestNumber,
+    //             'first_name' => $validated['first_name'],
+    //             'middle_name' => $validated['middle_name'],
+    //             'last_name' => $validated['last_name'],
+    //             'contact_number' => $validated['mobile'],
+    //             'email' => $validated['email'],
+    //             'address' => $validated['address'],
+    //             'barangay' => $validated['barangay'],
+    //             'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
+    //             'document_path' => $documentPath,
+    //             'status' => 'pending'
+    //         ]);
+
+    //         // Create individual request items from selections
+    //         $selections = $selectedSeedlings['selections'] ?? [];
+
+    //         foreach ($selections as $categoryName => $items) {
+    //             foreach ($items as $item) {
+    //                 // Find the category item in database
+    //                 $categoryItem = CategoryItem::find($item['id']);
+
+    //                 if ($categoryItem) {
+    //                     SeedlingRequestItem::create([
+    //                         'seedling_request_id' => $seedlingRequest->id,
+    //                         'category_id' => $categoryItem->category_id,
+    //                         'category_item_id' => $categoryItem->id,
+    //                         'item_name' => $item['name'],
+    //                         'requested_quantity' => $item['quantity'],
+    //                         'status' => 'pending'
+    //                     ]);
+    //                 }
+    //             }
+    //         }
+
+    //         \Log::info('Seedling request created successfully', [
+    //             'id' => $seedlingRequest->id,
+    //             'request_number' => $seedlingRequest->request_number,
+    //             'name' => $seedlingRequest->full_name,
+    //             'total_quantity' => $seedlingRequest->total_quantity
+    //         ]);
+
+    //         $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' .
+    //                         $seedlingRequest->request_number .
+    //                         '. You will receive an SMS notification once your request is processed.';
+
+    //         if ($request->ajax() || $request->wantsJson()) {
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'message' => $successMessage,
+    //                 'request_number' => $seedlingRequest->request_number
+    //             ]);
+    //         }
+
+    //         return redirect()->route('landing.page')->with('success', $successMessage);
+
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         \Log::warning('Seedling request validation failed', [
+    //             'errors' => $e->errors()
+    //         ]);
+
+    //         if ($request->ajax() || $request->wantsJson()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Please check your input and try again.',
+    //                 'errors' => $e->errors()
+    //             ], 422);
+    //         }
+
+    //         return redirect()->back()->withErrors($e->validator)->withInput();
+
+    //     } catch (\Exception $e) {
+    //         \Log::error('Seedling request error: ' . $e->getMessage(), [
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+
+    //         if ($request->ajax() || $request->wantsJson()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'There was an error submitting your request. Please try again.'
+    //             ], 500);
+    //         }
+
+    //         return redirect()->back()->with('error', 'There was an error submitting your request.')->withInput();
+    //     }
+    // }
+
     /**
-     * Submit a new seedling request - Dynamic Categories Version
-     */
-    public function submitSeedlings(Request $request)
-    {
-        try {
-            // Validation
-            $validated = $request->validate([
-                'first_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'mobile' => 'required|string|max:20',
-                'email' => 'required|email|max:255',
-                'barangay' => 'required|string|max:255',
-                'address' => 'required|string|max:500',
-                'selected_seedlings' => 'required|string',
-                'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
-            ]);
-
-            // Parse selected seedlings
-            $selectedSeedlings = json_decode($validated['selected_seedlings'], true);
-            if (!$selectedSeedlings || !is_array($selectedSeedlings)) {
-                throw new \Exception('Invalid seedlings selection data');
-            }
-
-            // Handle file upload
-            $documentPath = null;
-            if ($request->hasFile('supporting_documents')) {
-                $file = $request->file('supporting_documents');
-                if ($file->isValid()) {
-                    $documentPath = $file->store('seedling_documents', 'public');
-                    \Log::info('Seedling document uploaded', ['path' => $documentPath]);
-                }
-            }
-
-            // Generate unique request number
-            $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(\Str::random(6));
-
-            // Create the main seedling request
-            $seedlingRequest = SeedlingRequest::create([
-                'request_number' => $requestNumber,
-                'first_name' => $validated['first_name'],
-                'middle_name' => $validated['middle_name'],
-                'last_name' => $validated['last_name'],
-                'contact_number' => $validated['mobile'],
-                'email' => $validated['email'],
-                'address' => $validated['address'],
-                'barangay' => $validated['barangay'],
-                'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
-                'document_path' => $documentPath,
-                'status' => 'pending'
-            ]);
-
-            // Create individual request items from selections
-            $selections = $selectedSeedlings['selections'] ?? [];
-
-            foreach ($selections as $categoryName => $items) {
-                foreach ($items as $item) {
-                    // Find the category item in database
-                    $categoryItem = CategoryItem::find($item['id']);
-
-                    if ($categoryItem) {
-                        SeedlingRequestItem::create([
-                            'seedling_request_id' => $seedlingRequest->id,
-                            'category_id' => $categoryItem->category_id,
-                            'category_item_id' => $categoryItem->id,
-                            'item_name' => $item['name'],
-                            'requested_quantity' => $item['quantity'],
-                            'status' => 'pending'
-                        ]);
-                    }
-                }
-            }
-
-            \Log::info('Seedling request created successfully', [
-                'id' => $seedlingRequest->id,
-                'request_number' => $seedlingRequest->request_number,
-                'name' => $seedlingRequest->full_name,
-                'total_quantity' => $seedlingRequest->total_quantity
-            ]);
-
-            $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' .
-                            $seedlingRequest->request_number .
-                            '. You will receive an SMS notification once your request is processed.';
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $successMessage,
-                    'request_number' => $seedlingRequest->request_number
-                ]);
-            }
-
-            return redirect()->route('landing.page')->with('success', $successMessage);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Seedling request validation failed', [
-                'errors' => $e->errors()
-            ]);
-
+ * Submit a new seedling request - WITH USER AUTHENTICATION
+ */
+public function submitSeedlings(Request $request)
+{
+    try {
+        // ✅ GET USER ID FROM SESSION FIRST
+        $userId = session('user.id');
+        
+        // ✅ CHECK IF USER IS AUTHENTICATED
+        if (!$userId) {
+            Log::warning('Seedling submission attempted without authentication');
+            
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please check your input and try again.',
-                    'errors' => $e->errors()
-                ], 422);
+                    'message' => 'You must be logged in to submit a seedling request.',
+                    'require_auth' => true
+                ], 401);
             }
-
-            return redirect()->back()->withErrors($e->validator)->withInput();
-
-        } catch (\Exception $e) {
-            \Log::error('Seedling request error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'There was an error submitting your request. Please try again.'
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'There was an error submitting your request.')->withInput();
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'You must be logged in to submit a seedling request.');
         }
+        
+        // ✅ VERIFY USER EXISTS IN DATABASE
+        $userExists = \App\Models\UserRegistration::find($userId);
+        if (!$userExists) {
+            Log::error('User ID from session does not exist in database', [
+                'user_id' => $userId
+            ]);
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user session. Please log in again.',
+                    'require_auth' => true
+                ], 401);
+            }
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'Invalid user session. Please log in again.');
+        }
+        
+        Log::info('Seedling submission started', [
+            'user_id' => $userId,
+            'username' => $userExists->username,
+            'request_data' => $request->except(['supporting_documents'])
+        ]);
+        
+        // Validation
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'mobile' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'barangay' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'selected_seedlings' => 'required|string',
+            'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
+        ]);
+
+        // Parse selected seedlings
+        $selectedSeedlings = json_decode($validated['selected_seedlings'], true);
+        if (!$selectedSeedlings || !is_array($selectedSeedlings)) {
+            throw new \Exception('Invalid seedlings selection data');
+        }
+
+        // Handle file upload
+        $documentPath = null;
+        if ($request->hasFile('supporting_documents')) {
+            $file = $request->file('supporting_documents');
+            if ($file->isValid()) {
+                $documentPath = $file->store('seedling_documents', 'public');
+                Log::info('Seedling document uploaded', ['path' => $documentPath]);
+            }
+        }
+
+        // Generate unique request number
+        $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+
+        // ✅ CREATE THE SEEDLING REQUEST WITH USER_ID
+        $seedlingRequest = SeedlingRequest::create([
+            'user_id' => $userId, // ✅ CRITICAL: Associate with authenticated user
+            'request_number' => $requestNumber,
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'],
+            'last_name' => $validated['last_name'],
+            'contact_number' => $validated['mobile'],
+            'email' => $validated['email'],
+            'address' => $validated['address'],
+            'barangay' => $validated['barangay'],
+            'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
+            'document_path' => $documentPath,
+            'status' => 'pending'
+        ]);
+
+        // Create individual request items from selections
+        $selections = $selectedSeedlings['selections'] ?? [];
+
+        foreach ($selections as $categoryName => $items) {
+            foreach ($items as $item) {
+                // Find the category item in database
+                $categoryItem = CategoryItem::find($item['id']);
+
+                if ($categoryItem) {
+                    SeedlingRequestItem::create([
+                        'seedling_request_id' => $seedlingRequest->id,
+                        'category_id' => $categoryItem->category_id,
+                        'category_item_id' => $categoryItem->id,
+                        'item_name' => $item['name'],
+                        'requested_quantity' => $item['quantity'],
+                        'status' => 'pending'
+                    ]);
+                }
+            }
+        }
+
+        Log::info('Seedling request created successfully', [
+            'id' => $seedlingRequest->id,
+            'user_id' => $userId,
+            'request_number' => $seedlingRequest->request_number,
+            'name' => $seedlingRequest->full_name,
+            'total_quantity' => $seedlingRequest->total_quantity
+        ]);
+
+        $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' .
+                        $seedlingRequest->request_number .
+                        '. You will receive an SMS notification once your request is processed.';
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage,
+                'request_number' => $seedlingRequest->request_number
+            ]);
+        }
+
+        return redirect()->route('landing.page')->with('success', $successMessage);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::warning('Seedling request validation failed', [
+            'errors' => $e->errors()
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please check your input and try again.',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        return redirect()->back()->withErrors($e->validator)->withInput();
+
+    } catch (\Exception $e) {
+        Log::error('Seedling request error: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ], 500);
+        }
+
+        return redirect()->back()->with('error', 'There was an error submitting your request.')->withInput();
     }
+}
 // /**
 //  * Submit RSBSA request - STREAMLINED VERSION
 //  */
@@ -857,13 +1029,39 @@ public function submitRsbsa(Request $request)
      */
     public function submitTraining(Request $request)
     {
-        try {
-            Log::info('Training submission started', [
-                'request_method' => $request->method(),
-                'has_csrf' => $request->has('_token'),
-                'content_type' => $request->header('Content-Type')
-            ]);
-
+       try {
+        // ✅ ADD THIS AUTHENTICATION CHECK
+        $userId = session('user.id');
+        
+        if (!$userId) {
+            Log::warning('Training submission attempted without authentication');
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'You must be logged in to submit a training application.',
+                'require_auth' => true
+            ], 401);
+        }
+        
+        // Verify user exists
+        $userExists = \App\Models\UserRegistration::find($userId);
+        if (!$userExists) {
+            Log::error('User ID does not exist', ['user_id' => $userId]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid user session. Please log in again.',
+                'require_auth' => true
+            ], 401);
+        }
+        
+        Log::info('Training submission started', [
+            'user_id' => $userId,
+            'username' => $userExists->username,
+            'request_method' => $request->method(),
+            'has_csrf' => $request->has('_token'),
+            'content_type' => $request->header('Content-Type')
+        ]);
             // Enhanced validation with better error messages
             $validated = $request->validate([
                 'first_name' => 'required|string|max:255',

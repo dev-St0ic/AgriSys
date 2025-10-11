@@ -6,7 +6,7 @@ use App\Models\RsbsaApplication;
 use App\Models\SeedlingRequest;
 use App\Models\FishrApplication;
 use App\Models\BoatrApplication;
-use App\Models\TrainingRequest;
+use App\Models\TrainingApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -33,7 +33,7 @@ class UserApplicationsController extends Controller
 
             $allApplications = [];
 
-            // 1. Fetch RSBSA Applications
+            // 1. FETCH RSBSA APPLICATIONS
             $rsbsaApps = RsbsaApplication::where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -57,7 +57,7 @@ class UserApplicationsController extends Controller
                 ];
             }
 
-            // 2. Fetch Seedling Requests (if table exists)
+            // 2. FETCH SEEDLING REQUESTS
             try {
                 if (class_exists('App\Models\SeedlingRequest')) {
                     $seedlingApps = SeedlingRequest::where('user_id', $userId)
@@ -68,8 +68,8 @@ class UserApplicationsController extends Controller
                         $allApplications[] = [
                             'id' => $app->id,
                             'type' => 'Seedlings Request',
-                            'application_number' => $app->application_number ?? $app->reference_number ?? 'SL-' . $app->id,
-                            'reference_number' => $app->reference_number ?? 'SL-' . $app->id,
+                            'application_number' => $app->request_number ?? 'SL-' . $app->id,
+                            'reference_number' => $app->request_number ?? 'SL-' . $app->id,
                             'status' => $app->status,
                             'description' => 'Request for agricultural seedlings',
                             'full_name' => $app->full_name ?? $app->name ?? 'N/A',
@@ -86,7 +86,7 @@ class UserApplicationsController extends Controller
                 Log::warning('Could not fetch seedling applications: ' . $e->getMessage());
             }
 
-            // 3. Fetch FishR Applications (if table exists)
+            // 3. FETCH FISHR APPLICATIONS
             try {
                 if (class_exists('App\Models\FishrApplication')) {
                     $fishrApps = FishrApplication::where('user_id', $userId)
@@ -97,8 +97,8 @@ class UserApplicationsController extends Controller
                         $allApplications[] = [
                             'id' => $app->id,
                             'type' => 'FishR Registration',
-                            'application_number' => $app->application_number ?? 'FR-' . $app->id,
-                            'reference_number' => $app->application_number ?? 'FR-' . $app->id,
+                            'application_number' => $app->registration_number ?? 'FR-' . $app->id,
+                            'reference_number' => $app->registration_number ?? 'FR-' . $app->id,
                             'status' => $app->status,
                             'description' => 'Fisherfolk registration',
                             'full_name' => $app->full_name ?? $app->name ?? 'N/A',
@@ -115,7 +115,7 @@ class UserApplicationsController extends Controller
                 Log::warning('Could not fetch FishR applications: ' . $e->getMessage());
             }
 
-            // 4. Fetch BoatR Applications (if table exists)
+            // 4. FETCH BOATR APPLICATIONS
             try {
                 if (class_exists('App\Models\BoatrApplication')) {
                     $boatrApps = BoatrApplication::where('user_id', $userId)
@@ -144,10 +144,10 @@ class UserApplicationsController extends Controller
                 Log::warning('Could not fetch BoatR applications: ' . $e->getMessage());
             }
 
-            // 5. Fetch Training Requests (if table exists)
+            // 5. FETCH TRAINING APPLICATIONS
             try {
-                if (class_exists('App\Models\TrainingRequest')) {
-                    $trainingApps = TrainingRequest::where('user_id', $userId)
+                if (class_exists('App\Models\TrainingApplication')) {
+                    $trainingApps = TrainingApplication::where('user_id', $userId)
                         ->orderBy('created_at', 'desc')
                         ->get();
 
@@ -158,8 +158,9 @@ class UserApplicationsController extends Controller
                             'application_number' => $app->application_number ?? 'TR-' . $app->id,
                             'reference_number' => $app->application_number ?? 'TR-' . $app->id,
                             'status' => $app->status,
-                            'description' => 'Agricultural training program request',
-                            'full_name' => $app->full_name ?? $app->name ?? 'N/A',
+                            'description' => 'Agricultural training program: ' . ($app->training_type ?? 'General'),
+                            'full_name' => $app->full_name ?? ($app->first_name . ' ' . $app->last_name),
+                            'training_type' => $app->training_type,
                             'barangay' => $app->barangay ?? null,
                             'remarks' => $app->remarks ?? null,
                             'submitted_at' => $app->created_at->format('Y-m-d H:i:s'),
@@ -186,8 +187,7 @@ class UserApplicationsController extends Controller
 
             Log::info('Successfully fetched applications', [
                 'user_id' => $userId,
-                'total_count' => count($allApplications),
-                'rsbsa_count' => $rsbsaApps->count()
+                'total_count' => count($allApplications)
             ]);
 
             return response()->json([
@@ -196,7 +196,10 @@ class UserApplicationsController extends Controller
                 'total' => count($allApplications),
                 'breakdown' => [
                     'rsbsa' => $rsbsaApps->count(),
-                    // Add other counts as needed
+                    'seedlings' => isset($seedlingApps) ? $seedlingApps->count() : 0,
+                    'fishr' => isset($fishrApps) ? $fishrApps->count() : 0,
+                    'boatr' => isset($boatrApps) ? $boatrApps->count() : 0,
+                    'training' => isset($trainingApps) ? $trainingApps->count() : 0,
                 ]
             ]);
 
@@ -260,6 +263,55 @@ class UserApplicationsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load RSBSA applications'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get Training applications only
+     */
+    public function getTrainingApplications(Request $request)
+    {
+        try {
+            $userId = session('user.id');
+            
+            if (!$userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please log in to view your applications'
+                ], 401);
+            }
+
+            $applications = TrainingApplication::where('user_id', $userId)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($app) {
+                    return [
+                        'id' => $app->id,
+                        'type' => 'Training Request',
+                        'application_number' => $app->application_number ?? 'TR-' . $app->id,
+                        'status' => $app->status,
+                        'description' => 'Agricultural training program: ' . ($app->training_type ?? 'General'),
+                        'full_name' => $app->full_name ?? ($app->first_name . ' ' . $app->last_name),
+                        'training_type' => $app->training_type,
+                        'barangay' => $app->barangay,
+                        'remarks' => $app->remarks,
+                        'submitted_at' => $app->created_at->format('M d, Y h:i A'),
+                        'date' => $app->created_at->format('Y-m-d'),
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'applications' => $applications
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching training applications: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load training applications'
             ], 500);
         }
     }
