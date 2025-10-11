@@ -110,9 +110,6 @@ class ApplicationController extends Controller
             // Generate unique registration number
             $registrationNumber = $this->generateUniqueRegistrationNumber();
 
-            // Get user ID from session
-            $userId = session('user.id');
-
             // Create the FishR registration
             $fishRRegistration = FishrApplication::create([
                 'user_id' => $userId,
@@ -877,11 +874,48 @@ public function submitRsbsa(Request $request)
     public function submitBoatR(Request $request)
     {
         try {
-            Log::info('BoatR submission started', [
-                'request_method' => $request->method(),
-                'has_csrf' => $request->has('_token'),
-                'content_type' => $request->header('Content-Type')
-            ]);
+        // ✅ ADD THIS AUTHENTICATION CHECK
+        $userId = session('user.id');
+        
+        if (!$userId) {
+            Log::warning('BoatR submission attempted without authentication');
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to submit a BoatR registration.',
+                    'require_auth' => true
+                ], 401);
+            }
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'You must be logged in to submit a BoatR registration.');
+        }
+        
+        // Verify user exists
+        $userExists = \App\Models\UserRegistration::find($userId);
+        if (!$userExists) {
+            Log::error('User ID does not exist', ['user_id' => $userId]);
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user session. Please log in again.',
+                    'require_auth' => true
+                ], 401);
+            }
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'Invalid user session. Please log in again.');
+        }
+        
+        Log::info('BoatR submission started', [
+            'user_id' => $userId,
+            'username' => $userExists->username,
+            'request_method' => $request->method(),
+            'has_csrf' => $request->has('_token'),
+            'content_type' => $request->header('Content-Type')
+        ]);
 
             // Enhanced validation
             $validated = $request->validate([
@@ -948,9 +982,6 @@ public function submitRsbsa(Request $request)
             // Generate unique application number
             $applicationNumber = $this->generateUniqueApplicationNumber();
             Log::info('Generated application number: ' . $applicationNumber);
-
-            // Get user ID from session
-            $userId = session('user.id');
 
             // Create the BoatR registration
             $boatRRegistration = BoatrApplication::create([
@@ -1127,9 +1158,6 @@ public function submitRsbsa(Request $request)
 
             // Generate unique application number
             $applicationNumber = 'TRAIN-' . date('Y') . '-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
-
-            // Get user ID from session
-            $userId = session('user.id');
 
             // Handle document uploads with better error handling
             $documentPaths = [];
