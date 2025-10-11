@@ -987,6 +987,140 @@ function closeApplicationsModal() {
     }
 }
 
+// function loadUserApplicationsInModal() {
+//     const grid = document.getElementById('applications-modal-grid');
+//     if (!grid) return;
+
+//     // Check if user is logged in
+//     if (!window.userData) {
+//         grid.innerHTML = `
+//             <div class="empty-applications">
+//                 <h4>Please Log In</h4>
+//                 <p>You need to be logged in to view your applications.</p>
+//                 <button class="quick-action-btn" onclick="closeApplicationsModal(); openAuthModal('login');">
+//                     <span>🔐</span> Log In
+//                 </button>
+//             </div>
+//         `;
+//         return;
+//     }
+
+//     // Show loading state
+//     grid.innerHTML = `
+//         <div class="loading-state">
+//             <div class="loader"></div>
+//             <p>Loading your applications...</p>
+//         </div>
+//     `;
+
+//     // Try to fetch real data, fallback to mock data
+//     fetch('/api/user/applications', {
+//         headers: {
+//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+//             'Accept': 'application/json'
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success && data.applications) {
+//             renderApplicationsInModal(data.applications);
+//         } else {
+//             // Fallback to mock data for development
+//             renderMockApplicationsInModal();
+//         }
+//     })
+//     .catch(error => {
+//         console.log('Loading mock applications for development');
+//         renderMockApplicationsInModal();
+//     });
+// }
+
+// function renderApplicationsInModal(applications) {
+//     const grid = document.getElementById('applications-modal-grid');
+//     if (!grid) return;
+
+//     if (applications.length === 0) {
+//         grid.innerHTML = `
+//             <div class="empty-applications">
+//                 <h4>No Applications Yet</h4>
+//                 <p>You haven't submitted any applications yet. Browse our services to get started!</p>
+//                 <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
+//                     <span>🌾</span> Browse Services
+//                 </button>
+//             </div>
+//         `;
+//         return;
+//     }
+
+//     grid.innerHTML = applications.map(app => `
+//         <div class="application-card">
+//             <h4>${app.type}</h4>
+//             <p>${app.description || 'Application submitted successfully'}</p>
+//             <div class="application-status status-${app.status.toLowerCase().replace(' ', '_')}">
+//                 ${app.status.charAt(0).toUpperCase() + app.status.slice(1).replace('_', ' ')}
+//             </div>
+//             <div class="application-date">
+//                 Submitted: ${formatApplicationDate(app.date)}
+//             </div>
+//         </div>
+//     `).join('');
+// }
+
+// function renderMockApplicationsInModal() {
+//     const mockApplications = [
+//         {
+//             id: 1,
+//             type: 'Seedlings Request',
+//             date: '2025-01-15',
+//             status: 'pending',
+//             description: 'Request for vegetable seedlings - tomatoes, eggplant, and pepper varieties'
+//         },
+//         {
+//             id: 2,
+//             type: 'FishR Registration',
+//             date: '2025-01-10',
+//             status: 'approved',
+//             description: 'Fisherfolk registration for coastal fishing activities'
+//         },
+//         {
+//             id: 3,
+//             type: 'Training Request',
+//             date: '2025-01-08',
+//             status: 'processing',
+//             description: 'Agricultural training program on sustainable farming practices'
+//         },
+//         {
+//             id: 4,
+//             type: 'RSBSA Registration',
+//             date: '2025-01-05',
+//             status: 'approved',
+//             description: 'Registry System for Basic Sectors in Agriculture enrollment'
+//         },
+//         {
+//             id: 5,
+//             type: 'BoatR Registration',
+//             date: '2025-01-03',
+//             status: 'rejected',
+//             description: 'Fishing boat registration - requires additional documentation'
+//         }
+//     ];
+
+//     renderApplicationsInModal(mockApplications);
+// }
+
+// function formatApplicationDate(dateString) {
+//     const date = new Date(dateString);
+//     return date.toLocaleDateString('en-US', {
+//         year: 'numeric',
+//         month: 'short',
+//         day: 'numeric'
+//     });
+// }
+
+// ==============================================
+// UPDATED: MY APPLICATIONS MODAL - WITH REAL RSBSA DATA
+// ==============================================
+
 function loadUserApplicationsInModal() {
     const grid = document.getElementById('applications-modal-grid');
     if (!grid) return;
@@ -1013,25 +1147,28 @@ function loadUserApplicationsInModal() {
         </div>
     `;
 
-    // Try to fetch real data, fallback to mock data
-    fetch('/api/user/applications', {
+    // Fetch ALL applications (RSBSA, Seedlings, FishR, BoatR, Training)
+    fetch('/api/user/applications/all', {
+        method: 'GET',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
-        }
+        },
+        credentials: 'same-origin'
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Applications loaded:', data);
+        
         if (data.success && data.applications) {
             renderApplicationsInModal(data.applications);
         } else {
-            // Fallback to mock data for development
-            renderMockApplicationsInModal();
+            renderEmptyApplications();
         }
     })
     .catch(error => {
-        console.log('Loading mock applications for development');
-        renderMockApplicationsInModal();
+        console.error('Error loading applications:', error);
+        renderEmptyApplications();
     });
 }
 
@@ -1040,82 +1177,361 @@ function renderApplicationsInModal(applications) {
     if (!grid) return;
 
     if (applications.length === 0) {
-        grid.innerHTML = `
-            <div class="empty-applications">
-                <h4>No Applications Yet</h4>
-                <p>You haven't submitted any applications yet. Browse our services to get started!</p>
-                <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
-                    <span>🌾</span> Browse Services
-                </button>
-            </div>
-        `;
+        renderEmptyApplications();
         return;
     }
 
-    grid.innerHTML = applications.map(app => `
-        <div class="application-card">
-            <h4>${app.type}</h4>
-            <p>${app.description || 'Application submitted successfully'}</p>
-            <div class="application-status status-${app.status.toLowerCase().replace(' ', '_')}">
-                ${app.status.charAt(0).toUpperCase() + app.status.slice(1).replace('_', ' ')}
+    grid.innerHTML = applications.map(app => {
+        const statusClass = getApplicationStatusClass(app.status);
+        const statusIcon = getApplicationStatusIcon(app.status);
+        const typeIcon = getApplicationTypeIcon(app.type);
+
+        return `
+            <div class="application-card ${statusClass}">
+                <div class="application-header">
+                    <div class="app-icon">${typeIcon}</div>
+                    <div class="app-info">
+                        <h4>${app.type}</h4>
+                        <p class="app-number">${app.application_number || app.reference_number || 'N/A'}</p>
+                    </div>
+                </div>
+                
+                <p class="app-description">${app.description || 'Application submitted'}</p>
+                
+                ${app.full_name || app.livelihood || app.barangay ? `
+                    <div class="app-details">
+                        ${app.full_name ? `<div class="detail-item"><strong>Name:</strong> ${app.full_name}</div>` : ''}
+                        ${app.livelihood ? `<div class="detail-item"><strong>Livelihood:</strong> ${app.livelihood}</div>` : ''}
+                        ${app.barangay ? `<div class="detail-item"><strong>Barangay:</strong> ${app.barangay}</div>` : ''}
+                    </div>
+                ` : ''}
+                
+                <div class="application-footer">
+                    <div class="application-status status-badge-${app.status.toLowerCase().replace(/[_\s]/g, '-')}">
+                        ${statusIcon} ${formatApplicationStatus(app.status)}
+                    </div>
+                    <div class="application-date">
+                        ${formatApplicationDate(app.submitted_at || app.date || app.created_at)}
+                    </div>
+                </div>
+
+                ${app.remarks ? `
+                    <div class="app-remarks">
+                        <strong>Remarks:</strong> ${app.remarks}
+                    </div>
+                ` : ''}
             </div>
-            <div class="application-date">
-                Submitted: ${formatApplicationDate(app.date)}
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
-function renderMockApplicationsInModal() {
-    const mockApplications = [
-        {
-            id: 1,
-            type: 'Seedlings Request',
-            date: '2025-01-15',
-            status: 'pending',
-            description: 'Request for vegetable seedlings - tomatoes, eggplant, and pepper varieties'
-        },
-        {
-            id: 2,
-            type: 'FishR Registration',
-            date: '2025-01-10',
-            status: 'approved',
-            description: 'Fisherfolk registration for coastal fishing activities'
-        },
-        {
-            id: 3,
-            type: 'Training Request',
-            date: '2025-01-08',
-            status: 'processing',
-            description: 'Agricultural training program on sustainable farming practices'
-        },
-        {
-            id: 4,
-            type: 'RSBSA Registration',
-            date: '2025-01-05',
-            status: 'approved',
-            description: 'Registry System for Basic Sectors in Agriculture enrollment'
-        },
-        {
-            id: 5,
-            type: 'BoatR Registration',
-            date: '2025-01-03',
-            status: 'rejected',
-            description: 'Fishing boat registration - requires additional documentation'
-        }
-    ];
+function renderEmptyApplications() {
+    const grid = document.getElementById('applications-modal-grid');
+    if (!grid) return;
 
-    renderApplicationsInModal(mockApplications);
+    grid.innerHTML = `
+        <div class="empty-applications">
+            <div class="empty-icon">📋</div>
+            <h4>No Applications Yet</h4>
+            <p>You haven't submitted any applications yet. Browse our services to get started!</p>
+            <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
+                <span>🌾</span> Browse Services
+            </button>
+        </div>
+    `;
+}
+
+// Helper functions for application display
+function getApplicationStatusClass(status) {
+    const normalized = status.toLowerCase().replace(/[_\s]/g, '-');
+    return `app-status-${normalized}`;
+}
+
+function getApplicationStatusIcon(status) {
+    const icons = {
+        'pending': '⏳',
+        'under_review': '🔍',
+        'processing': '⚙️',
+        'approved': '✅',
+        'rejected': '❌',
+        'cancelled': '🚫'
+    };
+    return icons[status.toLowerCase()] || '📄';
+}
+
+function getApplicationTypeIcon(type) {
+    const icons = {
+        'RSBSA Registration': '📋',
+        'Seedlings Request': '🌱',
+        'FishR Registration': '🐟',
+        'BoatR Registration': '⛵',
+        'Training Request': '📚'
+    };
+    return icons[type] || '📄';
+}
+
+function formatApplicationStatus(status) {
+    return status
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
 }
 
 function formatApplicationDate(dateString) {
+    if (!dateString) return 'N/A';
+
     const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now - date);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
     });
 }
+
+// Add CSS for improved application cards (inject once)
+if (!document.getElementById('application-cards-styles')) {
+    const styles = document.createElement('style');
+    styles.id = 'application-cards-styles';
+    styles.textContent = `
+        .application-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid #dee2e6;
+        }
+
+        .application-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .application-card.app-status-pending {
+            border-left-color: #ffc107;
+        }
+
+        .application-card.app-status-under-review,
+        .application-card.app-status-processing {
+            border-left-color: #17a2b8;
+        }
+
+        .application-card.app-status-approved {
+            border-left-color: #28a745;
+        }
+
+        .application-card.app-status-rejected {
+            border-left-color: #dc3545;
+        }
+
+        .application-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .app-icon {
+            font-size: 32px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .app-info h4 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .app-number {
+            margin: 4px 0 0 0;
+            font-size: 12px;
+            color: #6c757d;
+            font-family: 'Courier New', monospace;
+        }
+
+        .app-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .app-details {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .detail-item {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-item strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .application-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .application-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge-pending {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge-under-review,
+        .status-badge-processing {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge-approved {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge-rejected {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .application-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .app-remarks {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: #fff3cd;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .app-remarks strong {
+            font-weight: 600;
+        }
+
+        .empty-applications {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-applications h4 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .empty-applications p {
+            color: #666;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+
+        .quick-action-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .loading-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(styles);
+}
+
+console.log('✅ Updated My Applications with RSBSA integration loaded');
 
 function accountSettings() {
     // Open account settings in new tab

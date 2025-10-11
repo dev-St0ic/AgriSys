@@ -19,6 +19,7 @@ use App\Http\Controllers\InventoryAnalyticsController;
 use App\Http\Controllers\UserRegistrationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\SeedlingCategoryItemController;
+use App\Http\Controllers\UserApplicationsController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -571,6 +572,13 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
         Route::get('/profile', [UserRegistrationController::class, 'getUserProfile'])->name('api.user.profile');
         Route::get('/applications', [UserRegistrationController::class, 'getUserApplications'])->name('api.user.applications');
         Route::post('/update-profile', [UserRegistrationController::class, 'updateUserProfile'])->name('api.user.update-profile');
+
+        // ✅ ADD THESE TWO ROUTES
+        Route::get('/applications/all', [UserApplicationsController::class, 'getAllApplications'])
+            ->name('api.user.applications.all');
+        
+        Route::get('/applications/rsbsa', [UserApplicationsController::class, 'getRsbsaApplications'])
+            ->name('api.user.applications.rsbsa');
 
         // change pass word route
         Route::post('/change-password', [UserRegistrationController::class, 'changePassword'])->name('api.user.change-password');

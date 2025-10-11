@@ -1112,6 +1112,8 @@
     <script src="{{ asset('js/api-service.js') }}"></script>
     <script src="{{ asset('js/auth.js') }}"></script>
     <script src="{{ asset('js/session-manager.js') }}"></script>
+    <script src="{{ asset('js/rsbsa-autofill.js') }}"></script>
+    <script src="{{ asset('js/user-applications-rsbsa.js') }}"></script>
 </body>
 
 </html>
