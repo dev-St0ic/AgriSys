@@ -12,6 +12,7 @@ class SeedlingRequest extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id', // Foreign key to user_registration table
         'request_number',
         'first_name',
         'middle_name',

@@ -1116,6 +1116,7 @@
     <script src="{{ asset('js/training-autofill.js') }}"></script>
     <script src="{{ asset('js/fishr-autofill.js') }}"></script>
     <script src="{{ asset('js/boatr-autofill.js') }}"></script>
+    <script src="{{ asset('js/seedlings-autofill.js') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}"></script>
 </body>
 

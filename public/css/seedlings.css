@@ -520,15 +520,75 @@
 }
 
 /* --- Application Form Section --- */
-.application-section {
+section.application-section {
     background: #ffffff;
     padding: 40px 30px;
     max-width: 850px;
     margin: 40px auto;
     border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     font-family: 'Segoe UI', sans-serif;
 }
+
+/* Form header inside application section - SPECIFIC targeting */
+section.application-section .seedlings-form-header {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 25px;
+}
+
+section.application-section .seedlings-form-header h2 {
+    color: #2d6a4f;
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: 28px;
+}
+
+section.application-section .seedlings-form-header p {
+    margin-bottom: 25px;
+    color: #444;
+    text-align: center;
+    font-size: 15px;
+}
+
+/* --- Form Label Styles (outside form tag) --- */
+section.application-section label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+}
+
+section.application-section input,
+section.application-section select,
+section.application-section textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border 0.2s;
+    box-sizing: border-box;
+    background: #ffffff;
+}
+
+section.application-section input:focus,
+section.application-section select:focus,
+section.application-section textarea:focus {
+    border-color: #52b788;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.1);
+}
+
+section.application-section small {
+    font-size: 0.85rem;
+    color: #666;
+    display: block;
+    margin-top: 5px;
+    line-height: 1.4;
+}
+
 
 /* --- Form Tabs --- */
 .seedlings-form-tabs {
@@ -564,6 +624,23 @@
 
 .seedlings-tab-content.active {
     display: block;
+}
+
+/* --- Form Row Layout --- */
+/* --- Form Group and Row Styles --- */
+.seedlings-form-group {
+    margin-bottom: 20px;
+}
+
+.seedlings-form-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.seedlings-form-row .seedlings-form-group {
+    flex: 1;
+    min-width: 200px;
 }
 
 /* --- Tab Badge --- */
@@ -760,6 +837,14 @@
     
     .seedlings-form-header h2 {
         font-size: 2rem;
+    }
+
+    .seedlings-form-row {
+        flex-direction: column;
+    }
+    
+    .seedlings-form-row .seedlings-form-group {
+        min-width: 100%;
     }
     
     .seedlings-category-tabs {
