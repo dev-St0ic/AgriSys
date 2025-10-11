@@ -23,6 +23,46 @@ class ApplicationController extends Controller
     public function submitFishR(Request $request)
     {
         try {
+        // ✅ ADD THIS AUTHENTICATION CHECK
+        $userId = session('user.id');
+        
+        if (!$userId) {
+            Log::warning('FishR submission attempted without authentication');
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to submit a FishR registration.',
+                    'require_auth' => true
+                ], 401);
+            }
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'You must be logged in to submit a FishR registration.');
+        }
+        
+        // Verify user exists
+        $userExists = \App\Models\UserRegistration::find($userId);
+        if (!$userExists) {
+            Log::error('User ID from session does not exist in database', ['user_id' => $userId]);
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user session. Please log in again.',
+                    'require_auth' => true
+                ], 401);
+            }
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'Invalid user session. Please log in again.');
+        }
+        
+        Log::info('FishR submission started', [
+            'user_id' => $userId,
+            'username' => $userExists->username
+        ]);
+        
             // Enhanced validation with better error messages
             $validated = $request->validate([
                 'first_name' => 'required|string|max:255',
