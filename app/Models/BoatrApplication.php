@@ -13,6 +13,7 @@ class BoatrApplication extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id', // Foreign key to user_registration table
         'application_number',
         'first_name',
         'middle_name',
@@ -132,6 +133,14 @@ class BoatrApplication extends Model
     public function getBoatDimensionsAttribute()
     {
         return "{$this->boat_length}' × {$this->boat_width}' × {$this->boat_depth}'";
+    }
+
+    /**
+     * Relationship: BoatR application belongs to a user
+     */
+    public function user()
+    {
+        return $this->belongsTo(UserRegistration::class, 'user_id');
     }
 
     /**

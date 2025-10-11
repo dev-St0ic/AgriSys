@@ -11,6 +11,7 @@ class FishrApplication extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id', // Foreign key to user_registration table
         'registration_number',
         'first_name',
         'middle_name',
@@ -126,6 +127,14 @@ class FishrApplication extends Model
             });
         }
         return $query;
+    }
+
+    /**
+     * Relationship: FishR application belongs to a user
+     */
+    public function user()
+    {
+        return $this->belongsTo(UserRegistration::class, 'user_id');
     }
 
     /**

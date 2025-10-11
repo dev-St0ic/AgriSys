@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\SeedlingRequest;
 use App\Models\User;
+use App\Models\UserRegistration;
 use Illuminate\Support\Str;
 
 /**
@@ -96,6 +97,7 @@ class SeedlingRequestFactory extends Factory
         $lastName = $this->faker->lastName;
 
         return [
+            'user_id' => UserRegistration::inRandomOrder()->first()?->id ?? UserRegistration::factory()->create()->id,
             'request_number' => 'SEED-' . strtoupper(Str::random(8)),
             'first_name' => $firstName,
             'middle_name' => $this->faker->optional(0.7)->firstName,
@@ -112,7 +114,7 @@ class SeedlingRequestFactory extends Factory
                 'Urban farming', 'Aquaponics project', 'Landscape beautification', 'Fish farming'
             ]),
             'seedling_type' => $this->formatSeedlingTypes($selectedSeeds, $selectedSeedlings, $selectedFruits, $selectedOrnamentals, $selectedFingerlings, $selectedFertilizers),
-            
+
             // Store items - Laravel will cast to JSON automatically
             'seeds' => empty($selectedSeeds) ? null : $selectedSeeds,
             'seedlings' => empty($selectedSeedlings) ? null : $selectedSeedlings,
@@ -120,7 +122,7 @@ class SeedlingRequestFactory extends Factory
             'ornamentals' => empty($selectedOrnamentals) ? null : $selectedOrnamentals,
             'fingerlings' => empty($selectedFingerlings) ? null : $selectedFingerlings,
             'fertilizers' => empty($selectedFertilizers) ? null : $selectedFertilizers,
-            
+
             'requested_quantity' => $totalQuantity,
             'total_quantity' => $totalQuantity,
             'preferred_delivery_date' => $this->faker->optional(0.8)->dateTimeBetween('now', '+30 days'),
@@ -177,7 +179,7 @@ class SeedlingRequestFactory extends Factory
         return $this->state(function (array $attributes) {
             // Get the users or use fallback
             $userId = User::inRandomOrder()->first()?->id ?? 1;
-            
+
             return [
                 'status' => 'approved',
                 'seeds_status' => !empty($attributes['seeds']) ? 'approved' : null,
@@ -191,7 +193,7 @@ class SeedlingRequestFactory extends Factory
                 'reviewed_by' => $userId,
                 'reviewed_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
                 'remarks' => 'Request approved and ready for pickup.',
-                
+
                 // Set approved items
                 'seeds_approved_items' => !empty($attributes['seeds']) ? $attributes['seeds'] : null,
                 'seedlings_approved_items' => !empty($attributes['seedlings']) ? $attributes['seedlings'] : null,
@@ -207,7 +209,7 @@ class SeedlingRequestFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $userId = User::inRandomOrder()->first()?->id ?? 1;
-            
+
             return [
                 'status' => 'rejected',
                 'seeds_status' => !empty($attributes['seeds']) ? 'rejected' : null,
@@ -227,7 +229,7 @@ class SeedlingRequestFactory extends Factory
                     'Incomplete application form.',
                     'Unable to verify applicant information.'
                 ]),
-                
+
                 // Set rejected items
                 'seeds_rejected_items' => !empty($attributes['seeds']) ? $attributes['seeds'] : null,
                 'seedlings_rejected_items' => !empty($attributes['seedlings']) ? $attributes['seedlings'] : null,
@@ -244,7 +246,7 @@ class SeedlingRequestFactory extends Factory
         return $this->state(function (array $attributes) {
             $userId = User::inRandomOrder()->first()?->id ?? 1;
             $statuses = ['approved', 'rejected'];
-            
+
             return [
                 'status' => 'partially_approved',
                 'seeds_status' => !empty($attributes['seeds']) ? $this->faker->randomElement($statuses) : null,

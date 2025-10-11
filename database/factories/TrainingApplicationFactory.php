@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\TrainingApplication;
 use App\Models\User;
+use App\Models\UserRegistration;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -61,6 +62,7 @@ class TrainingApplicationFactory extends Factory
         $lastName = $this->faker->lastName;
 
         return [
+            'user_id' => UserRegistration::inRandomOrder()->first()?->id ?? UserRegistration::factory()->create()->id,
             'application_number' => 'TRAIN-' . strtoupper(Str::random(8)),
             'first_name' => $firstName,
             'middle_name' => $this->faker->optional(0.7)->firstName,

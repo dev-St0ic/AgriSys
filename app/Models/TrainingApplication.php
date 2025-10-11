@@ -11,6 +11,7 @@ class TrainingApplication extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id', // Foreign key to user_registration table
         'application_number',
         'first_name',
         'middle_name',
@@ -83,6 +84,14 @@ class TrainingApplication extends Model
             'sampaguita_propagation' => 'Sampaguita Propagation Training',
             default => ucfirst(str_replace('_', ' ', $this->training_type))
         };
+    }
+
+    /**
+     * Relationship: Training application belongs to a user
+     */
+    public function user()
+    {
+        return $this->belongsTo(UserRegistration::class, 'user_id');
     }
 
     /**

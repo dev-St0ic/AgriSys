@@ -73,6 +73,7 @@ class RsbsaApplicationFactory extends Factory
         $lastName = $this->faker->lastName;
 
         return [
+            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory()->create()->id,
             'application_number' => 'RSBSA-' . strtoupper(Str::random(8)),
             'first_name' => $firstName,
             'middle_name' => $this->faker->optional(0.7)->firstName,

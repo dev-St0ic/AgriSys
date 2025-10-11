@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('fishr_applications', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedBigInteger('user_id');
+
             $table->string('registration_number')->unique();
             $table->string('first_name');
             $table->string('middle_name')->nullable();
@@ -44,6 +47,12 @@ return new class extends Migration
             $table->index('contact_number'); // Added for search functionality
             $table->index('email'); // Added for email search functionality
             $table->index(['first_name', 'last_name']); // Added for name searches
+
+            // Foreign key constraints
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('user_registration')
+                ->onDelete('cascade');
 
             // Foreign key for admin who updated the status and barangay
             // Will be added in separate migration after all tables are created

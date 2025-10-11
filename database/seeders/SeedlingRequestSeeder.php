@@ -8,6 +8,7 @@ use App\Models\SeedlingRequestItem;
 use App\Models\RequestCategory;
 use App\Models\CategoryItem;
 use App\Models\User;
+use App\Models\UserRegistration;
 use Carbon\Carbon;
 
 class SeedlingRequestSeeder extends Seeder
@@ -18,6 +19,11 @@ class SeedlingRequestSeeder extends Seeder
     public function run(): void
     {
         $this->command->info('Creating seedling requests with items...');
+
+        // Ensure we have users in the user_registration table
+        if (UserRegistration::count() < 10) {
+            UserRegistration::factory(20)->create();
+        }
 
         // Ensure at least one user exists
         if (User::count() === 0) {
@@ -52,13 +58,13 @@ class SeedlingRequestSeeder extends Seeder
 
         // Q1 2024 (January - March)
         $this->createRequests(15, '2024-01-01', 89, 'approved', $categories);
-        
+
         // Q2 2024 (April - June) - Peak season
         $this->createRequests(20, '2024-04-01', 91, 'approved', $categories);
-        
+
         // Q3 2024 (July - September)
         $this->createRequests(18, '2024-07-01', 92, 'approved', $categories);
-        
+
         // Q4 2024 (October - December)
         $this->createRequests(16, '2024-10-01', 92, 'approved', $categories);
     }
@@ -69,19 +75,19 @@ class SeedlingRequestSeeder extends Seeder
 
         // Q1 2025
         $this->createRequests(20, '2025-01-01', 89, 'approved', $categories);
-        
+
         // Q2 2025
         $this->createRequests(25, '2025-04-01', 91, 'approved', $categories);
-        
+
         // Q3 2025 (current)
         $this->createRequests(15, '2025-07-01', 58, 'approved', $categories);
-        
+
         // Recent pending requests
         $this->createRequests(8, Carbon::now()->subDays(14)->format('Y-m-d'), 14, 'pending', $categories);
-        
+
         // Rejected requests
         $this->createRequests(8, '2025-01-01', 240, 'rejected', $categories);
-        
+
         // Partially approved requests
         $this->createRequests(12, '2025-01-01', 240, 'partially_approved', $categories);
     }
@@ -89,12 +95,14 @@ class SeedlingRequestSeeder extends Seeder
     private function createRequests(int $count, string $startDate, int $dayRange, string $status, $categories): void
     {
         $users = User::all();
-        
+        $userRegistrations = UserRegistration::all();
+
         for ($i = 0; $i < $count; $i++) {
             $createdDate = Carbon::parse($startDate)->addDays(rand(0, $dayRange));
-            
+
             // Create main request
             $request = SeedlingRequest::create([
+                'user_id' => $userRegistrations->random()->id,
                 'request_number' => SeedlingRequest::generateRequestNumber(),
                 'first_name' => fake()->firstName(),
                 'middle_name' => rand(0, 1) ? fake()->firstName() : null,
@@ -121,7 +129,7 @@ class SeedlingRequestSeeder extends Seeder
 
             // Add items to the request
             $this->addItemsToRequest($request, $categories, $status);
-            
+
             // Update total quantity
             $request->update([
                 'total_quantity' => $request->items()->sum('requested_quantity'),
@@ -134,17 +142,17 @@ class SeedlingRequestSeeder extends Seeder
     {
         // Randomly select 1-3 categories
         $selectedCategories = $categories->random(rand(1, 3));
-        
+
         foreach ($selectedCategories as $category) {
             $categoryItems = $category->items;
             if ($categoryItems->isEmpty()) continue;
-            
+
             // Select 1-3 items from this category
             $selectedItems = $categoryItems->random(min(rand(1, 3), $categoryItems->count()));
-            
+
             foreach ($selectedItems as $categoryItem) {
                 $requestedQty = rand(5, 20);
-                
+
                 // Determine item status based on request status
                 $itemStatus = match($requestStatus) {
                     'approved' => 'approved',
@@ -152,7 +160,7 @@ class SeedlingRequestSeeder extends Seeder
                     'partially_approved' => ['approved', 'rejected'][rand(0, 1)],
                     default => 'pending'
                 };
-                
+
                 SeedlingRequestItem::create([
                     'seedling_request_id' => $request->id,
                     'category_id' => $category->id,

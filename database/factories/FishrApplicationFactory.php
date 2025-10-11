@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\FishrApplication;
 use App\Models\User;
+use App\Models\UserRegistration;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -34,19 +35,19 @@ class FishrApplicationFactory extends Factory
             'G.S.I.S.', 'Landayan', 'Langgam', 'Laram', 'Magsaysay',
             'Nueva', 'San Antonio', 'San Roque', 'San Vicente', 'Santo Niño'
         ];
-        
+
         // Generate creation time
         $createdAt = $this->faker->dateTimeBetween('-1 year', 'now');
-        
+
         // Generate status update time (if status is not under_review)
         $statusUpdatedAt = null;
         $updatedBy = null;
         $remarks = null;
-        
+
         if ($status !== 'under_review') {
             $statusUpdatedAt = $this->faker->dateTimeBetween($createdAt, 'now');
             $updatedBy = User::inRandomOrder()->first()?->id ?? 1; // Assumes you have users
-            
+
             // Generate remarks for some entries
             if ($this->faker->boolean(60)) { // 60% chance of having remarks
                 $remarks = $this->getRandomRemarks($status);
@@ -55,8 +56,9 @@ class FishrApplicationFactory extends Factory
 
         $firstName = $this->faker->firstName;
         $lastName = $this->faker->lastName;
-        
+
         return [
+            'user_id' => UserRegistration::inRandomOrder()->first()?->id ?? UserRegistration::factory()->create()->id,
             'registration_number' => 'FISHR-' . strtoupper(Str::random(8)),
             'first_name' => $firstName,
             'middle_name' => $this->faker->optional(0.7)->firstName,

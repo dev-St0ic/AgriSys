@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\BoatrApplication;
 use App\Models\User;
+use App\Models\UserRegistration;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -65,6 +66,7 @@ class BoatrApplicationFactory extends Factory
         ];
 
         return [
+            'user_id' => UserRegistration::inRandomOrder()->first()?->id ?? UserRegistration::factory()->create()->id,
             'application_number' => $applicationNumber,
             'first_name' => $firstName,
             'middle_name' => $middleName,

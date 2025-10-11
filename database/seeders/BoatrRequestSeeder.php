@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\BoatrApplication;
 use App\Models\User;
+use App\Models\UserRegistration;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
@@ -15,6 +16,11 @@ class BoatrRequestSeeder extends Seeder
      */
     public function run(): void
     {
+        // Ensure we have users in the user_registration table
+        if (UserRegistration::count() < 10) {
+            UserRegistration::factory(20)->create();
+        }
+
         // Ensure we have at least one admin user before creating applications
         $this->createAdminUserIfNotExists();
 
@@ -23,7 +29,7 @@ class BoatrRequestSeeder extends Seeder
         try {
             // Check if table exists and has correct structure
             $this->validateTableStructure();
-            
+
             // Optional: Clear existing records (comment out if you want to keep existing data)
             // BoatrApplication::truncate();
             // $this->command->info('🗑️ Cleared existing BoatR applications');
@@ -44,7 +50,7 @@ class BoatrRequestSeeder extends Seeder
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Provide helpful suggestions
             $this->command->error('💡 Suggestions:');
             $this->command->error('   1. Run: php artisan migrate:fresh');
@@ -65,11 +71,11 @@ class BoatrRequestSeeder extends Seeder
         // Check for required columns based on your ACTUAL migration
         $requiredColumns = [
             'application_number',
-            'first_name', 
-            'last_name', 
+            'first_name',
+            'last_name',
             'fishr_number',
-            'vessel_name', 
-            'boat_type', 
+            'vessel_name',
+            'boat_type',
             'status',
             // Updated to match your migration
             'user_document_path',
@@ -213,7 +219,7 @@ class BoatrRequestSeeder extends Seeder
             $withUserDocs = BoatrApplication::whereNotNull('user_document_path')->count();
             $withInspectionDocs = BoatrApplication::whereNotNull('inspection_documents')->count();
             $inspectionCompleted = BoatrApplication::where('inspection_completed', true)->count();
-            
+
             $this->command->info('📊 Additional Statistics:');
             $this->command->info("   📎 With User Documents: {$withUserDocs}");
             $this->command->info("   📋 With Inspection Documents: {$withInspectionDocs}");
