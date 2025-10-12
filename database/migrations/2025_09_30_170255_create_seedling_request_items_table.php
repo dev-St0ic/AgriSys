@@ -10,6 +10,9 @@ return new class extends Migration
     {
         Schema::create('seedling_request_items', function (Blueprint $table) {
             $table->id();
+            
+            $table->unsignedBigInteger('user_id');
+
             $table->foreignId('seedling_request_id')->constrained('seedling_requests')->onDelete('cascade');
             $table->foreignId('category_id')->constrained('request_categories')->onDelete('cascade');
             $table->foreignId('category_item_id')->nullable()->constrained('category_items')->onDelete('set null');

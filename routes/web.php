@@ -19,6 +19,7 @@ use App\Http\Controllers\InventoryAnalyticsController;
 use App\Http\Controllers\UserRegistrationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\SeedlingCategoryItemController;
+use App\Http\Controllers\UserApplicationsController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -572,6 +573,10 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
         Route::get('/applications', [UserRegistrationController::class, 'getUserApplications'])->name('api.user.applications');
         Route::post('/update-profile', [UserRegistrationController::class, 'updateUserProfile'])->name('api.user.update-profile');
 
+        // New endpoint to fetch all applications (RSBSA, Seedlings, FishR, BoatR, Training) in my applications modal
+        Route::get('/applications/all', [UserApplicationsController::class, 'getAllApplications'])
+            ->name('api.user.applications.all');
+        
         // change pass word route
         Route::post('/change-password', [UserRegistrationController::class, 'changePassword'])->name('api.user.change-password');
     });

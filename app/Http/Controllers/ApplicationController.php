@@ -23,6 +23,46 @@ class ApplicationController extends Controller
     public function submitFishR(Request $request)
     {
         try {
+        // ✅ ADD THIS AUTHENTICATION CHECK
+        $userId = session('user.id');
+        
+        if (!$userId) {
+            Log::warning('FishR submission attempted without authentication');
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to submit a FishR registration.',
+                    'require_auth' => true
+                ], 401);
+            }
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'You must be logged in to submit a FishR registration.');
+        }
+        
+        // Verify user exists
+        $userExists = \App\Models\UserRegistration::find($userId);
+        if (!$userExists) {
+            Log::error('User ID from session does not exist in database', ['user_id' => $userId]);
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user session. Please log in again.',
+                    'require_auth' => true
+                ], 401);
+            }
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'Invalid user session. Please log in again.');
+        }
+        
+        Log::info('FishR submission started', [
+            'user_id' => $userId,
+            'username' => $userExists->username
+        ]);
+        
             // Enhanced validation with better error messages
             $validated = $request->validate([
                 'first_name' => 'required|string|max:255',
@@ -69,9 +109,6 @@ class ApplicationController extends Controller
 
             // Generate unique registration number
             $registrationNumber = $this->generateUniqueRegistrationNumber();
-
-            // Get user ID from session
-            $userId = session('user.id');
 
             // Create the FishR registration
             $fishRRegistration = FishrApplication::create([
@@ -162,382 +199,164 @@ class ApplicationController extends Controller
         }
     }
 
+    // /**
+    //  * Submit a new seedling request - Dynamic Categories Version
+    //  */
+    // public function submitSeedlings(Request $request)
+    // {
+    //     try {
+    //         // Validation
+    //         $validated = $request->validate([
+    //             'first_name' => 'required|string|max:255',
+    //             'middle_name' => 'nullable|string|max:255',
+    //             'last_name' => 'required|string|max:255',
+    //             'mobile' => 'required|string|max:20',
+    //             'email' => 'required|email|max:255',
+    //             'barangay' => 'required|string|max:255',
+    //             'address' => 'required|string|max:500',
+    //             'selected_seedlings' => 'required|string',
+    //             'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
+    //         ]);
+
+    //         // Parse selected seedlings
+    //         $selectedSeedlings = json_decode($validated['selected_seedlings'], true);
+    //         if (!$selectedSeedlings || !is_array($selectedSeedlings)) {
+    //             throw new \Exception('Invalid seedlings selection data');
+    //         }
+
+    //         // Handle file upload
+    //         $documentPath = null;
+    //         if ($request->hasFile('supporting_documents')) {
+    //             $file = $request->file('supporting_documents');
+    //             if ($file->isValid()) {
+    //                 $documentPath = $file->store('seedling_documents', 'public');
+    //                 \Log::info('Seedling document uploaded', ['path' => $documentPath]);
+    //             }
+    //         }
+
+    //         // Generate unique request number
+    //         $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(\Str::random(6));
+
+    //         // Create the main seedling request
+    //         $seedlingRequest = SeedlingRequest::create([
+    //             'request_number' => $requestNumber,
+    //             'first_name' => $validated['first_name'],
+    //             'middle_name' => $validated['middle_name'],
+    //             'last_name' => $validated['last_name'],
+    //             'contact_number' => $validated['mobile'],
+    //             'email' => $validated['email'],
+    //             'address' => $validated['address'],
+    //             'barangay' => $validated['barangay'],
+    //             'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
+    //             'document_path' => $documentPath,
+    //             'status' => 'pending'
+    //         ]);
+
+    //         // Create individual request items from selections
+    //         $selections = $selectedSeedlings['selections'] ?? [];
+
+    //         foreach ($selections as $categoryName => $items) {
+    //             foreach ($items as $item) {
+    //                 // Find the category item in database
+    //                 $categoryItem = CategoryItem::find($item['id']);
+
+    //                 if ($categoryItem) {
+    //                     SeedlingRequestItem::create([
+    //                         'seedling_request_id' => $seedlingRequest->id,
+    //                         'category_id' => $categoryItem->category_id,
+    //                         'category_item_id' => $categoryItem->id,
+    //                         'item_name' => $item['name'],
+    //                         'requested_quantity' => $item['quantity'],
+    //                         'status' => 'pending'
+    //                     ]);
+    //                 }
+    //             }
+    //         }
+
+    //         \Log::info('Seedling request created successfully', [
+    //             'id' => $seedlingRequest->id,
+    //             'request_number' => $seedlingRequest->request_number,
+    //             'name' => $seedlingRequest->full_name,
+    //             'total_quantity' => $seedlingRequest->total_quantity
+    //         ]);
+
+    //         $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' .
+    //                         $seedlingRequest->request_number .
+    //                         '. You will receive an SMS notification once your request is processed.';
+
+    //         if ($request->ajax() || $request->wantsJson()) {
+    //             return response()->json([
+    //                 'success' => true,
+    //                 'message' => $successMessage,
+    //                 'request_number' => $seedlingRequest->request_number
+    //             ]);
+    //         }
+
+    //         return redirect()->route('landing.page')->with('success', $successMessage);
+
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         \Log::warning('Seedling request validation failed', [
+    //             'errors' => $e->errors()
+    //         ]);
+
+    //         if ($request->ajax() || $request->wantsJson()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'Please check your input and try again.',
+    //                 'errors' => $e->errors()
+    //             ], 422);
+    //         }
+
+    //         return redirect()->back()->withErrors($e->validator)->withInput();
+
+    //     } catch (\Exception $e) {
+    //         \Log::error('Seedling request error: ' . $e->getMessage(), [
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+
+    //         if ($request->ajax() || $request->wantsJson()) {
+    //             return response()->json([
+    //                 'success' => false,
+    //                 'message' => 'There was an error submitting your request. Please try again.'
+    //             ], 500);
+    //         }
+
+    //         return redirect()->back()->with('error', 'There was an error submitting your request.')->withInput();
+    //     }
+    // }
+
     /**
-     * Submit a new seedling request - Dynamic Categories Version
-     */
-    public function submitSeedlings(Request $request)
-    {
-        try {
-            // Validation
-            $validated = $request->validate([
-                'first_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'mobile' => 'required|string|max:20',
-                'email' => 'required|email|max:255',
-                'barangay' => 'required|string|max:255',
-                'address' => 'required|string|max:500',
-                'selected_seedlings' => 'required|string',
-                'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
-            ]);
-
-            // Parse selected seedlings
-            $selectedSeedlings = json_decode($validated['selected_seedlings'], true);
-            if (!$selectedSeedlings || !is_array($selectedSeedlings)) {
-                throw new \Exception('Invalid seedlings selection data');
-            }
-
-            // Handle file upload
-            $documentPath = null;
-            if ($request->hasFile('supporting_documents')) {
-                $file = $request->file('supporting_documents');
-                if ($file->isValid()) {
-                    $documentPath = $file->store('seedling_documents', 'public');
-                    \Log::info('Seedling document uploaded', ['path' => $documentPath]);
-                }
-            }
-
-            // Generate unique request number
-            $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(\Str::random(6));
-
-            // Create the main seedling request
-            $seedlingRequest = SeedlingRequest::create([
-                'request_number' => $requestNumber,
-                'first_name' => $validated['first_name'],
-                'middle_name' => $validated['middle_name'],
-                'last_name' => $validated['last_name'],
-                'contact_number' => $validated['mobile'],
-                'email' => $validated['email'],
-                'address' => $validated['address'],
-                'barangay' => $validated['barangay'],
-                'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
-                'document_path' => $documentPath,
-                'status' => 'pending'
-            ]);
-
-            // Create individual request items from selections
-            $selections = $selectedSeedlings['selections'] ?? [];
-
-            foreach ($selections as $categoryName => $items) {
-                foreach ($items as $item) {
-                    // Find the category item in database
-                    $categoryItem = CategoryItem::find($item['id']);
-
-                    if ($categoryItem) {
-                        SeedlingRequestItem::create([
-                            'seedling_request_id' => $seedlingRequest->id,
-                            'category_id' => $categoryItem->category_id,
-                            'category_item_id' => $categoryItem->id,
-                            'item_name' => $item['name'],
-                            'requested_quantity' => $item['quantity'],
-                            'status' => 'pending'
-                        ]);
-                    }
-                }
-            }
-
-            \Log::info('Seedling request created successfully', [
-                'id' => $seedlingRequest->id,
-                'request_number' => $seedlingRequest->request_number,
-                'name' => $seedlingRequest->full_name,
-                'total_quantity' => $seedlingRequest->total_quantity
-            ]);
-
-            $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' .
-                            $seedlingRequest->request_number .
-                            '. You will receive an SMS notification once your request is processed.';
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => $successMessage,
-                    'request_number' => $seedlingRequest->request_number
-                ]);
-            }
-
-            return redirect()->route('landing.page')->with('success', $successMessage);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Seedling request validation failed', [
-                'errors' => $e->errors()
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Please check your input and try again.',
-                    'errors' => $e->errors()
-                ], 422);
-            }
-
-            return redirect()->back()->withErrors($e->validator)->withInput();
-
-        } catch (\Exception $e) {
-            \Log::error('Seedling request error: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'There was an error submitting your request. Please try again.'
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'There was an error submitting your request.')->withInput();
-        }
-    }
-// /**
-//  * Submit RSBSA request - STREAMLINED VERSION
-//  */
-// public function submitRsbsa(Request $request)
-// {
-//     try {
-//         Log::info('RSBSA submission started in ApplicationController', [
-//             'request_method' => $request->method(),
-//             'has_csrf' => $request->has('_token'),
-//             'content_type' => $request->header('Content-Type'),
-//             'form_data' => $request->except(['supporting_docs', '_token']),
-//             'user_id' => session('user')
-//         ]);
-
-//         //  Get user ID directly from session
-//         $user = session('user');
-//         $userId = null;
-
-//         if (!$userId) {
-//             Log::warning('RSBSA submission attempted without authentication');
-
-//             if ($request->ajax() || $request->wantsJson()) {
-//                 return response()->json([
-//                     'success' => false,
-//                     'message' => 'You must be logged in to submit an RSBSA application.',
-//                     'require_auth' => true
-//                 ], 401);
-//             }
-
-//             return redirect()->route('landing.page')
-//                 ->with('error', 'You must be logged in to submit an RSBSA application.');
-//             }
-
-//             Log::info('User authenticated for RSBSA submission', [
-//             'user_id' => $user['id'] ?? null,
-//             'username' => $user['username'] ?? null,
-//             'email' => $user['email'] ?? null
-//         ]);
-
-//         // Streamlined validation matching the simplified form
-//         $validated = $request->validate([
-//             'first_name' => 'required|string|max:255',
-//             'middle_name' => 'nullable|string|max:255',
-//             'last_name' => 'required|string|max:255',
-//             'sex' => 'required|in:Male,Female,Preferred not to say',
-//             'barangay' => 'required|string|max:255',
-//             'mobile' => 'required|string|max:20',
-//             'email' => 'required|email|max:255',
-//             'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
-//             'land_area' => 'nullable|numeric|min:0|max:1000',
-//             'farm_location' => 'nullable|string|max:500',
-//             'commodity' => 'nullable|string|max:1000',
-//             'supporting_docs' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB max
-//         ], [
-//             'first_name.required' => 'First name is required',
-//             'last_name.required' => 'Last name is required',
-//             'sex.required' => 'Please select your sex',
-//             'sex.in' => 'Invalid sex selection',
-//             'barangay.required' => 'Please select your barangay',
-//             'mobile.required' => 'Mobile number is required',
-//             'email.required' => 'Email address is required',
-//             'email.email' => 'Please enter a valid email address',
-//             'main_livelihood.required' => 'Please select your main livelihood',
-//             'main_livelihood.in' => 'Invalid livelihood selected',
-//             'land_area.numeric' => 'Land area must be a number',
-//             'land_area.min' => 'Land area cannot be negative',
-//             'land_area.max' => 'Land area cannot exceed 1000 hectares',
-//             'supporting_docs.mimes' => 'Supporting documents must be PDF, JPG, JPEG, or PNG',
-//             'supporting_docs.max' => 'Supporting documents must not exceed 5MB'
-//         ]);
-
-//         Log::info('RSBSA validation passed', ['validated_data' => $validated]);
-
-//         // Handle file upload
-//         $documentPath = null;
-//         if ($request->hasFile('supporting_docs')) {
-//             $file = $request->file('supporting_docs');
-//             if ($file->isValid()) {
-//                 try {
-//                     // Create directory if it doesn't exist
-//                     Storage::disk('public')->makeDirectory('rsbsa_documents');
-
-//                     // Generate unique filename
-//                     $fileName = 'rsbsa_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-//                     $documentPath = $file->storeAs('rsbsa_documents', $fileName, 'public');
-
-//                     Log::info('RSBSA document uploaded', [
-//                         'path' => $documentPath,
-//                         'original_name' => $file->getClientOriginalName(),
-//                         'size' => $file->getSize()
-//                     ]);
-//                 } catch (\Exception $e) {
-//                     Log::error('File upload error', ['error' => $e->getMessage()]);
-//                     throw new \Exception('File upload failed: ' . $e->getMessage());
-//                 }
-//             } else {
-//                 throw new \Exception('Invalid file upload');
-//             }
-//         }
-
-//         // Generate unique application number for RSBSA
-//         $applicationNumber = $this->generateUniqueRsbsaApplicationNumber();
-//         Log::info('Generated RSBSA application number: ' . $applicationNumber);
-
-//         // Prepare data for database insertion (streamlined)
-//         $applicationData = [
-//             'user_id' =>$userId,
-//             'application_number' => $applicationNumber,
-//             'first_name' => $validated['first_name'],
-//             'middle_name' => $validated['middle_name'] ?: null,
-//             'last_name' => $validated['last_name'],
-//             'sex' => $validated['sex'],
-//             'contact_number' => $validated['mobile'],
-//             'email' => $validated['email'],
-//             'barangay' => $validated['barangay'],
-//             'main_livelihood' => $validated['main_livelihood'],
-//             'land_area' => $validated['land_area'],
-//             'farm_location' => $validated['farm_location'],
-//             'commodity' => $validated['commodity'],
-//             'supporting_document_path' => $documentPath,
-//             'status' => 'pending'
-//         ];
-
-//         Log::info('Attempting to create RSBSA application', ['data' => $applicationData]);
-
-//         // Create the RSBSA application
-//         $rsbsaApplication = \App\Models\RsbsaApplication::create($applicationData);
-
-//         Log::info('RSBSA registration created successfully', [
-//             'id' => $rsbsaApplication->id,
-//             'application_number' => $rsbsaApplication->application_number,
-//             'name' => $rsbsaApplication->full_name,
-//             'livelihood' => $rsbsaApplication->main_livelihood
-//         ]);
-
-//         $successMessage = 'Your RSBSA application has been submitted successfully! Application Number: ' .
-//                         $rsbsaApplication->application_number .
-//                         '. You will receive an SMS notification once your application is processed.';
-
-//         if ($request->ajax() || $request->wantsJson()) {
-//             return response()->json([
-//                 'success' => true,
-//                 'message' => $successMessage,
-//                 'application_number' => $rsbsaApplication->application_number,
-//                 'data' => [
-//                     'id' => $rsbsaApplication->id,
-//                     'name' => $rsbsaApplication->full_name,
-//                     'status' => $rsbsaApplication->status
-//                 ]
-//             ]);
-//         }
-
-//         return redirect()->route('landing.page')->with('success', $successMessage);
-
-//     } catch (\Illuminate\Validation\ValidationException $e) {
-//         Log::warning('RSBSA application validation failed', [
-//             'errors' => $e->errors(),
-//             'request_data' => $request->except(['supporting_docs', '_token'])
-//         ]);
-
-//         if ($request->ajax() || $request->wantsJson()) {
-//             return response()->json([
-//                 'success' => false,
-//                 'message' => 'Please check your input and try again.',
-//                 'errors' => $e->errors()
-//             ], 422);
-//         }
-
-//         return redirect()->back()
-//             ->withErrors($e->validator)
-//             ->withInput()
-//             ->with('error', 'Please check your input and try again.');
-
-//     } catch (\Exception $e) {
-//         Log::error('RSBSA application error: ' . $e->getMessage(), [
-//             'request_data' => $request->except(['supporting_docs', '_token']),
-//             'user_id' => Auth::guard('user_registration')->id(),
-//             'file_info' => $request->hasFile('supporting_docs') ? [
-//                 'original_name' => $request->file('supporting_docs')->getClientOriginalName(),
-//                 'size' => $request->file('supporting_docs')->getSize(),
-//                 'mime' => $request->file('supporting_docs')->getMimeType()
-//             ] : null,
-//             'trace' => $e->getTraceAsString()
-//         ]);
-
-//         $errorMessage = 'There was an error submitting your application. Please try again.';
-
-//         if ($request->ajax() || $request->wantsJson()) {
-//             return response()->json([
-//                 'success' => false,
-//                 'message' => $errorMessage,
-//                 'debug_error' => config('app.debug') ? $e->getMessage() : null
-//             ], 500);
-//         }
-
-//         return redirect()->back()
-//             ->with('error', $errorMessage)
-//             ->withInput();
-//     }
-// }
-/**
- * Submit RSBSA request - FIXED SESSION ACCESS
+ * Submit a new seedling request - WITH USER AUTHENTICATION
  */
-public function submitRsbsa(Request $request)
+public function submitSeedlings(Request $request)
 {
     try {
-        Log::info('RSBSA submission started', [
-            'request_method' => $request->method(),
-            'has_csrf' => $request->has('_token'),
-            'all_session_data' => session()->all(), // 🔍 Debug: see all session data
-        ]);
-
-        // ✅ to get user ID
-        $userId = null;
-
-
-        // Method 2: Nested session data
-        if (session()->has('user.id')) {
-            $userId = session('user.id');
-        }
-
-        Log::info('User ID resolution attempt', [
-            'resolved_user_id' => $userId,
-            'session_keys' => array_keys(session()->all()),
-        ]);
-
-        // Validate authentication
+        // ✅ GET USER ID FROM SESSION FIRST
+        $userId = session('user.id');
+        
+        // ✅ CHECK IF USER IS AUTHENTICATED
         if (!$userId) {
-            Log::warning('RSBSA submission - user not authenticated', [
-                'session_data' => session()->all()
-            ]);
-
+            Log::warning('Seedling submission attempted without authentication');
+            
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'You must be logged in to submit an RSBSA application.',
+                    'message' => 'You must be logged in to submit a seedling request.',
                     'require_auth' => true
                 ], 401);
             }
-
+            
             return redirect()->route('landing.page')
-                ->with('error', 'You must be logged in to submit an RSBSA application.');
+                ->with('error', 'You must be logged in to submit a seedling request.');
         }
-
-        // ✅ Verify user exists in database
+        
+        // ✅ VERIFY USER EXISTS IN DATABASE
         $userExists = \App\Models\UserRegistration::find($userId);
         if (!$userExists) {
             Log::error('User ID from session does not exist in database', [
                 'user_id' => $userId
             ]);
-
+            
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -545,16 +364,188 @@ public function submitRsbsa(Request $request)
                     'require_auth' => true
                 ], 401);
             }
-
+            
             return redirect()->route('landing.page')
                 ->with('error', 'Invalid user session. Please log in again.');
         }
-
-        Log::info('User authenticated for RSBSA submission', [
+        
+        Log::info('Seedling submission started', [
             'user_id' => $userId,
             'username' => $userExists->username,
-            'email' => $userExists->email,
+            'request_data' => $request->except(['supporting_documents'])
         ]);
+        
+        // Validation
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'mobile' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'barangay' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'selected_seedlings' => 'required|string',
+            'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
+        ]);
+
+        // Parse selected seedlings
+        $selectedSeedlings = json_decode($validated['selected_seedlings'], true);
+        if (!$selectedSeedlings || !is_array($selectedSeedlings)) {
+            throw new \Exception('Invalid seedlings selection data');
+        }
+
+        // Handle file upload
+        $documentPath = null;
+        if ($request->hasFile('supporting_documents')) {
+            $file = $request->file('supporting_documents');
+            if ($file->isValid()) {
+                $documentPath = $file->store('seedling_documents', 'public');
+                Log::info('Seedling document uploaded', ['path' => $documentPath]);
+            }
+        }
+
+        // Generate unique request number
+        $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+
+        // ✅ CREATE THE SEEDLING REQUEST WITH USER_ID
+        $seedlingRequest = SeedlingRequest::create([
+            'user_id' => $userId, // ✅ CRITICAL: Associate with authenticated user
+            'request_number' => $requestNumber,
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'],
+            'last_name' => $validated['last_name'],
+            'contact_number' => $validated['mobile'],
+            'email' => $validated['email'],
+            'address' => $validated['address'],
+            'barangay' => $validated['barangay'],
+            'total_quantity' => $selectedSeedlings['totalQuantity'] ?? 0,
+            'document_path' => $documentPath,
+            'status' => 'pending'
+        ]);
+
+        // Create individual request items from selections
+        $selections = $selectedSeedlings['selections'] ?? [];
+
+        foreach ($selections as $categoryName => $items) {
+            foreach ($items as $item) {
+                // Find the category item in database
+                $categoryItem = CategoryItem::find($item['id']);
+
+                if ($categoryItem) {
+                    SeedlingRequestItem::create([
+                        'seedling_request_id' => $seedlingRequest->id,
+                        'category_id' => $categoryItem->category_id,
+                        'category_item_id' => $categoryItem->id,
+                        'item_name' => $item['name'],
+                        'requested_quantity' => $item['quantity'],
+                        'status' => 'pending'
+                    ]);
+                }
+            }
+        }
+
+        Log::info('Seedling request created successfully', [
+            'id' => $seedlingRequest->id,
+            'user_id' => $userId,
+            'request_number' => $seedlingRequest->request_number,
+            'name' => $seedlingRequest->full_name,
+            'total_quantity' => $seedlingRequest->total_quantity
+        ]);
+
+        $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' .
+                        $seedlingRequest->request_number .
+                        '. You will receive an SMS notification once your request is processed.';
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage,
+                'request_number' => $seedlingRequest->request_number
+            ]);
+        }
+
+        return redirect()->route('landing.page')->with('success', $successMessage);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::warning('Seedling request validation failed', [
+            'errors' => $e->errors()
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please check your input and try again.',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        return redirect()->back()->withErrors($e->validator)->withInput();
+
+    } catch (\Exception $e) {
+        Log::error('Seedling request error: ' . $e->getMessage(), [
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'There was an error submitting your request. Please try again.'
+            ], 500);
+        }
+
+        return redirect()->back()->with('error', 'There was an error submitting your request.')->withInput();
+    }
+}
+
+/**
+ * Submit RSBSA request - FIXED SESSION ACCESS
+ */
+public function submitRsbsa(Request $request)
+{   
+    
+    try {
+    // ✅ ADD THIS AUTHENTICATION CHECK
+    $userId = session('user.id');
+    
+    if (!$userId) {
+        Log::warning('FishR submission attempted without authentication');
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You must be logged in to submit a FishR registration.',
+                'require_auth' => true
+            ], 401);
+        }
+        
+        return redirect()->route('landing.page')
+            ->with('error', 'You must be logged in to submit a FishR registration.');
+    }
+    
+    // Verify user exists
+    $userExists = \App\Models\UserRegistration::find($userId);
+    if (!$userExists) {
+        Log::error('User ID from session does not exist in database', ['user_id' => $userId]);
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid user session. Please log in again.',
+                'require_auth' => true
+            ], 401);
+        }
+        
+        return redirect()->route('landing.page')
+            ->with('error', 'Invalid user session. Please log in again.');
+    }
+    
+    Log::info('FishR submission started', [
+        'user_id' => $userId,
+        'username' => $userExists->username,
+        'request_method' => $request->method(),
+        'has_csrf' => $request->has('_token'),
+        'content_type' => $request->header('Content-Type')
+    ]);
 
         // ... rest of your validation and submission code stays the same ...
 
@@ -665,11 +656,48 @@ public function submitRsbsa(Request $request)
     public function submitBoatR(Request $request)
     {
         try {
-            Log::info('BoatR submission started', [
-                'request_method' => $request->method(),
-                'has_csrf' => $request->has('_token'),
-                'content_type' => $request->header('Content-Type')
-            ]);
+        // ✅ ADD THIS AUTHENTICATION CHECK
+        $userId = session('user.id');
+        
+        if (!$userId) {
+            Log::warning('BoatR submission attempted without authentication');
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to submit a BoatR registration.',
+                    'require_auth' => true
+                ], 401);
+            }
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'You must be logged in to submit a BoatR registration.');
+        }
+        
+        // Verify user exists
+        $userExists = \App\Models\UserRegistration::find($userId);
+        if (!$userExists) {
+            Log::error('User ID does not exist', ['user_id' => $userId]);
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid user session. Please log in again.',
+                    'require_auth' => true
+                ], 401);
+            }
+            
+            return redirect()->route('landing.page')
+                ->with('error', 'Invalid user session. Please log in again.');
+        }
+        
+        Log::info('BoatR submission started', [
+            'user_id' => $userId,
+            'username' => $userExists->username,
+            'request_method' => $request->method(),
+            'has_csrf' => $request->has('_token'),
+            'content_type' => $request->header('Content-Type')
+        ]);
 
             // Enhanced validation
             $validated = $request->validate([
@@ -736,9 +764,6 @@ public function submitRsbsa(Request $request)
             // Generate unique application number
             $applicationNumber = $this->generateUniqueApplicationNumber();
             Log::info('Generated application number: ' . $applicationNumber);
-
-            // Get user ID from session
-            $userId = session('user.id');
 
             // Create the BoatR registration
             $boatRRegistration = BoatrApplication::create([
@@ -857,13 +882,39 @@ public function submitRsbsa(Request $request)
      */
     public function submitTraining(Request $request)
     {
-        try {
-            Log::info('Training submission started', [
-                'request_method' => $request->method(),
-                'has_csrf' => $request->has('_token'),
-                'content_type' => $request->header('Content-Type')
-            ]);
-
+       try {
+        // ✅ ADD THIS AUTHENTICATION CHECK
+        $userId = session('user.id');
+        
+        if (!$userId) {
+            Log::warning('Training submission attempted without authentication');
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'You must be logged in to submit a training application.',
+                'require_auth' => true
+            ], 401);
+        }
+        
+        // Verify user exists
+        $userExists = \App\Models\UserRegistration::find($userId);
+        if (!$userExists) {
+            Log::error('User ID does not exist', ['user_id' => $userId]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid user session. Please log in again.',
+                'require_auth' => true
+            ], 401);
+        }
+        
+        Log::info('Training submission started', [
+            'user_id' => $userId,
+            'username' => $userExists->username,
+            'request_method' => $request->method(),
+            'has_csrf' => $request->has('_token'),
+            'content_type' => $request->header('Content-Type')
+        ]);
             // Enhanced validation with better error messages
             $validated = $request->validate([
                 'first_name' => 'required|string|max:255',
@@ -889,9 +940,6 @@ public function submitRsbsa(Request $request)
 
             // Generate unique application number
             $applicationNumber = 'TRAIN-' . date('Y') . '-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
-
-            // Get user ID from session
-            $userId = session('user.id');
 
             // Handle document uploads with better error handling
             $documentPaths = [];
