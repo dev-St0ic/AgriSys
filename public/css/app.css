@@ -23,7 +23,7 @@ body {
 .btn-admin {
     display: inline-block;
     padding: 8px 16px;
-    background-color: #007bff;
+    background-color: #40916c;
     color: white;
     text-decoration: none;
     border-radius: 4px;
@@ -34,7 +34,7 @@ body {
 }
 
 .btn-admin:hover {
-    background-color: #0056b3;
+    background-color: #2d6a4f;
 }
 
 .btn-admin.btn-danger {
@@ -57,8 +57,8 @@ body {
 
 .form-control-admin:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #40916c;
+    box-shadow: 0 0 0 2px rgba(64, 145, 108, 0.25);
 }
 
 /* Table styles for admin panel */

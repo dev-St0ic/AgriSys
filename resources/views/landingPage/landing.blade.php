@@ -67,13 +67,28 @@
                 @if (isset($user))
                     <!-- User Profile Dropdown -->
                     <div class="user-profile" id="user-profile" onclick="toggleUserDropdown()">
-                        <div class="user-info">
-                            <div class="user-name">{{ $user['name'] ?? $user['username'] }}</div>
-                            <div class="user-status">{{ ucfirst($user['status'] ?? 'Active') }}</div>
-                        </div>
                         <div class="user-avatar">
                             {{ strtoupper(substr($user['name'] ?? $user['username'], 0, 1)) }}
                         </div>
+                        <div class="user-info">
+                            <div class="user-name">
+                                @php
+                                    $fullName = $user['name'] ?? $user['username'];
+                                    $firstName = explode(' ', $fullName)[0];
+                                @endphp
+                                {{ $firstName }}
+                            </div>
+                            <div class="user-status">
+                                @if (isset($user['status']) && strtolower($user['status']) == 'approved')
+                                    ✓ Verified
+                                @elseif(isset($user['status']) && strtolower($user['status']) == 'pending')
+                                    ⏳ Pending
+                                @else
+                                    {{ ucfirst($user['status'] ?? 'Active') }}
+                                @endif
+                            </div>
+                        </div>
+                        <div class="dropdown-arrow">▼</div>
 
                         <!-- Dropdown Menu -->
                         <div class="user-dropdown" id="user-dropdown">
@@ -969,14 +984,10 @@
                         <div class="form-group">
                             <label for="current-password">Current Password *</label>
                             <div class="password-input-container">
-                                <input type="password" 
-                                    id="current-password" 
-                                    name="current_password" 
-                                    required
-                                    autocomplete="current-password"
-                                    placeholder="Enter your current password">
+                                <input type="password" id="current-password" name="current_password" required
+                                    autocomplete="current-password" placeholder="Enter your current password">
                                 <button type="button" class="password-toggle"
-                                        onclick="togglePasswordVisibility('current-password')">
+                                    onclick="togglePasswordVisibility('current-password')">
                                     Show
                                 </button>
                             </div>
@@ -985,16 +996,11 @@
                         <div class="form-group">
                             <label for="new-password">New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" 
-                                    id="new-password" 
-                                    name="new_password" 
-                                    required
-                                    minlength="8"
-                                    autocomplete="new-password"
-                                    placeholder="Enter your new password"
+                                <input type="password" id="new-password" name="new_password" required minlength="8"
+                                    autocomplete="new-password" placeholder="Enter your new password"
                                     oninput="checkNewPasswordStrength(this.value)">
                                 <button type="button" class="password-toggle"
-                                        onclick="togglePasswordVisibility('new-password')">
+                                    onclick="togglePasswordVisibility('new-password')">
                                     Show
                                 </button>
                             </div>
@@ -1009,15 +1015,11 @@
                         <div class="form-group">
                             <label for="confirm-new-password">Confirm New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" 
-                                    id="confirm-new-password" 
-                                    name="confirm_new_password" 
-                                    required
-                                    autocomplete="new-password"
-                                    placeholder="Confirm your new password"
+                                <input type="password" id="confirm-new-password" name="confirm_new_password" required
+                                    autocomplete="new-password" placeholder="Confirm your new password"
                                     oninput="checkNewPasswordMatch(document.getElementById('new-password').value, this.value)">
                                 <button type="button" class="password-toggle"
-                                        onclick="togglePasswordVisibility('confirm-new-password')">
+                                    onclick="togglePasswordVisibility('confirm-new-password')">
                                     Show
                                 </button>
                             </div>
@@ -1028,7 +1030,8 @@
                             <div class="notice-icon">🔒</div>
                             <div class="notice-content">
                                 <h6>Security Tip</h6>
-                                <p>For your security, you will be logged out after changing your password and will need to log in again with your new password.</p>
+                                <p>For your security, you will be logged out after changing your password and will need
+                                    to log in again with your new password.</p>
                             </div>
                         </div>
 

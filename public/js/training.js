@@ -277,19 +277,19 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.success) {
-                    // Show success message
-                    showTrainingMessage(data.message, 'success');
+                    // Show success message using alert like other services
+                    alert('✅ ' + data.message);
 
                     // Reset form
                     trainingForm.reset();
 
-                    // Close form after delay
+                    // Close form after short delay
                     setTimeout(() => {
                         closeFormTraining();
-                    }, 3000);
+                    }, 500);
                 } else {
-                    // Show error message
-                    showTrainingMessage(data.message || 'An error occurred while submitting your application.', 'error');
+                    // Show error message using alert
+                    alert('❌ ' + (data.message || 'An error occurred while submitting your application.'));
 
                     // Handle validation errors
                     if (data.errors) {
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error submitting training application:', error);
-                showTrainingMessage('An error occurred while submitting your application. Please try again.', 'error');
+                alert('❌ An error occurred while submitting your application. Please try again.');
             })
             .finally(() => {
                 // Reset button state
