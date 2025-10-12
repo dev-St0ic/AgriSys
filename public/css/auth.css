@@ -814,26 +814,60 @@
 .user-profile {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     position: relative;
     cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.user-profile:hover {
+    background-color: rgba(168, 230, 207, 0.1);
 }
 
 .user-info {
-    text-align: right;
-    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2d6a4f;
 }
 
 .user-name {
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 2px;
+    font-weight: 700;
+    font-size: 16px;
+    color: #2d6a4f;
+    letter-spacing: 0.3px;
+    text-transform: capitalize;
+    white-space: nowrap;
 }
 
 .user-status {
-    font-size: 11px;
-    opacity: 0.8;
-    color: #a8e6cf;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0A6953;
+    background: rgba(168, 230, 207, 0.25);
+    padding: 3px 12px;
+    border-radius: 12px;
+    display: inline-block;
+    border: 1px solid #a8e6cf;
+    white-space: nowrap;
+}
+
+.dropdown-arrow {
+    font-size: 10px;
+    color: #2d6a4f;
+    transition: transform 0.3s ease;
+    margin-left: 4px;
+}
+
+.user-profile:hover .dropdown-arrow {
+    color: #0A6953;
+}
+
+.user-dropdown.show ~ .dropdown-arrow,
+.user-profile.active .dropdown-arrow {
+    transform: rotate(180deg);
 }
 
 .user-avatar {
@@ -847,13 +881,16 @@
     font-weight: bold;
     color: #0A6953;
     font-size: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid #e0e0e0;
     transition: all 0.3s ease;
 }
 
 .user-avatar:hover {
-    transform: scale(1.05);
-    border-color: rgba(255,255,255,0.6);
+    background: #0A6953;
+    color: white;
+    border-color: #0A6953;
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3);
 }
 
 /* Dropdown Menu */

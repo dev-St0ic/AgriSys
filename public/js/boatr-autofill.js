@@ -32,18 +32,18 @@ function autoFillBoatRFromProfile() {
         const field = form.querySelector(`[name="${fieldName}"]`);
         if (field && value) {
             field.value = value;
-            
+
             // Trigger change event for selects
             if (field.tagName === 'SELECT') {
                 field.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            
+
             // Add visual feedback
             field.style.backgroundColor = '#f0f8ff';
             setTimeout(() => {
                 field.style.backgroundColor = '';
             }, 2000);
-            
+
             filledCount++;
             console.log(`✓ Filled ${fieldName} with: ${value}`);
             return true;
@@ -85,7 +85,7 @@ function autoFillBoatRFromProfile() {
  */
 async function fetchAndAutoFillBoatR() {
     console.log('Fetching fresh user profile data...');
-    
+
     // Show loading state
     const btn = document.getElementById('boatr-autofill-btn');
     const originalText = btn ? btn.innerHTML : '';
@@ -115,7 +115,7 @@ async function fetchAndAutoFillBoatR() {
         if (data.success && data.user) {
             // Update window.userData with fresh data
             window.userData = Object.assign({}, window.userData, data.user);
-            
+
             // Now auto-fill
             autoFillBoatRFromProfile();
         } else {
@@ -170,8 +170,8 @@ function addAutoFillButtonToBoatR() {
     buttonContainer.style.cssText = `
         margin-bottom: 20px;
         padding: 15px;
-        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-        border-left: 4px solid #ff9800;
+        background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+        border-left: 4px solid #4caf50;
         border-radius: 8px;
         display: flex;
         justify-content: space-between;
@@ -181,14 +181,14 @@ function addAutoFillButtonToBoatR() {
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #e65100;">💡 Quick Fill:</strong> 
-            <span style="color: #f57c00;">Use your verified profile data to auto-complete this form</span>
+            <strong style="color: #2e7d32;">💡 Quick Fill:</strong>
+            <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
         </div>
         <div class="autofill-actions">
-            <button type="button" id="boatr-autofill-btn" class="btn-autofill" 
+            <button type="button" id="boatr-autofill-btn" class="btn-autofill"
                     onclick="fetchAndAutoFillBoatR()"
                     style="
-                        background: #ff9800;
+                        background: #4caf50;
                         color: white;
                         border: none;
                         padding: 10px 20px;
@@ -199,11 +199,11 @@ function addAutoFillButtonToBoatR() {
                         margin-right: 8px;
                         transition: all 0.3s ease;
                     "
-                    onmouseover="this.style.background='#f57c00'"
-                    onmouseout="this.style.background='#ff9800'">
+                    onmouseover="this.style.background='#388e3c'"
+                    onmouseout="this.style.background='#4caf50'">
                 ✓ Use My Profile Data
             </button>
-            <button type="button" class="btn-clear" 
+            <button type="button" class="btn-clear"
                     onclick="clearBoatRAutoFill()"
                     style="
                         background: #757575;
@@ -244,7 +244,7 @@ function initializeBoatRAutoFill() {
     // Add auto-fill button when form is displayed
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' && 
+            if (mutation.type === 'attributes' &&
                 mutation.attributeName === 'style') {
                 const boatrForm = document.getElementById('boatr-form');
                 if (boatrForm && boatrForm.style.display !== 'none') {
