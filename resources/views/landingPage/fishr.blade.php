@@ -27,7 +27,12 @@
             <div class="fishr-form-group">
                 <label for="fishr-first_name">First Name *</label>
                 <input type="text" id="fishr-first_name" name="first_name" placeholder="Enter your first name"
+                    pattern="[a-zA-Z\s\'-]+"
+                    title="First name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('first_name') }}" required>
+                <span class="validation-warning" id="fishr-first_name-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    spaces, hyphens, and apostrophes are allowed</span>
                 @error('first_name')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
@@ -36,7 +41,12 @@
             <div class="fishr-form-group">
                 <label for="fishr-middle_name">Middle Name (Optional)</label>
                 <input type="text" id="fishr-middle_name" name="middle_name" placeholder="Enter your middle name"
+                    pattern="[a-zA-Z\s\'-]+"
+                    title="Middle name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('middle_name') }}">
+                <span class="validation-warning" id="fishr-middle_name-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    spaces, hyphens, and apostrophes are allowed</span>
                 @error('middle_name')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
@@ -45,8 +55,26 @@
             <div class="fishr-form-group">
                 <label for="fishr-last_name">Last Name *</label>
                 <input type="text" id="fishr-last_name" name="last_name" placeholder="Enter your last name"
+                    pattern="[a-zA-Z\s\'-]+"
+                    title="Last name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('last_name') }}" required>
+                <span class="validation-warning" id="fishr-last_name-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    spaces, hyphens, and apostrophes are allowed</span>
                 @error('last_name')
+                    <span class="fishr-error-text">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="fishr-form-group">
+                <label for="fishr-name_extension">Name Extension (Optional)</label>
+                <input type="text" id="fishr-name_extension" name="name_extension" placeholder="Jr., Sr., III, etc."
+                    pattern="[a-zA-Z.\s]+" title="Name extension can only contain letters, periods, and spaces"
+                    value="{{ old('name_extension') }}">
+                <span class="validation-warning" id="fishr-name_extension-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    periods, and spaces are allowed</span>
+                @error('name_extension')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
             </div>
@@ -107,7 +135,9 @@
             <div class="fishr-form-group">
                 <label for="fishr-contact_number">Contact Number *</label>
                 <input type="tel" id="fishr-contact_number" name="contact_number"
-                    placeholder="Enter your contact number (e.g., 09123456789)" value="{{ old('contact_number') }}"
+                    placeholder="+639XXXXXXXXX or 09XXXXXXXXX" value="{{ old('contact_number') }}"
+                    pattern="^(\+639|09)\d{9}$"
+                    title="Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
                     required>
                 @error('contact_number')
                     <span class="fishr-error-text">{{ $message }}</span>
@@ -214,3 +244,53 @@
         </ul>
     </div>
 </section>
+
+<script>
+    // Real-time validation for name fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameFields = [{
+                id: 'fishr-first_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'fishr-middle_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'fishr-last_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'fishr-name_extension',
+                pattern: /^[a-zA-Z.\s]*$/
+            }
+        ];
+
+        nameFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            const warning = document.getElementById(field.id + '-warning');
+
+            if (input && warning) {
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+
+                    if (!field.pattern.test(value)) {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    } else {
+                        warning.style.display = 'none';
+                        input.style.borderColor = '';
+                    }
+                });
+
+                // Also validate on blur
+                input.addEventListener('blur', function(e) {
+                    if (!field.pattern.test(e.target.value) && e.target.value !== '') {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    }
+                });
+            }
+        });
+    });
+</script>

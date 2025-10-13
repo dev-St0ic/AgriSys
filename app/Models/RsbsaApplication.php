@@ -17,6 +17,7 @@ class RsbsaApplication extends Model
         'first_name',
         'middle_name',
         'last_name',
+        'name_extension',
         'sex',
         'contact_number',
         'email',
@@ -46,9 +47,9 @@ class RsbsaApplication extends Model
         'updated_at' => 'datetime',
     ];
 
-    
 
-    
+
+
 
     /**
      * Get the full name attribute

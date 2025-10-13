@@ -29,12 +29,12 @@ function autoFillRSBSAFromProfile() {
         const field = form.querySelector(`[name="${fieldName}"]`);
         if (field && value) {
             field.value = value;
-            
+
             // Trigger change event for selects
             if (field.tagName === 'SELECT') {
                 field.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            
+
             filledCount++;
             console.log(`✓ Filled ${fieldName} with: ${value}`);
             return true;
@@ -52,8 +52,13 @@ function autoFillRSBSAFromProfile() {
     // Fill Last Name
     setFieldValue('last_name', userData.last_name);
 
+    // Fill Name Extension
+    setFieldValue('name_extension', userData.name_extension || userData.extension_name);
+
     // Fill Sex/Gender
-    if (userData.gender) {
+    if (userData.sex) {
+        setFieldValue('sex', userData.sex);
+    } else if (userData.gender) {
         const genderMap = {
             'male': 'Male',
             'female': 'Female',
@@ -112,7 +117,7 @@ function autoFillRSBSAFromProfile() {
  */
 async function fetchAndAutoFillRSBSA() {
     console.log('Fetching fresh user profile data...');
-    
+
     // Show loading state
     const btn = document.getElementById('rsbsa-autofill-btn');
     const originalText = btn ? btn.innerHTML : '';
@@ -142,7 +147,7 @@ async function fetchAndAutoFillRSBSA() {
         if (data.success && data.user) {
             // Update window.userData with fresh data
             window.userData = Object.assign({}, window.userData, data.user);
-            
+
             // Now auto-fill
             autoFillRSBSAFromProfile();
         } else {
@@ -178,13 +183,13 @@ function clearRSBSAAutoFill() {
  */
 function isFormEmpty(form) {
     const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select');
-    
+
     for (let input of inputs) {
         if (input.value && input.value.trim() !== '') {
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -223,11 +228,11 @@ function addAutoFillButtonToRSBSA() {
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2e7d32;">💡 Quick Fill:</strong> 
+            <strong style="color: #2e7d32;">💡 Quick Fill:</strong>
             <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
         </div>
         <div class="autofill-actions">
-            <button type="button" id="rsbsa-autofill-btn" class="btn-autofill" 
+            <button type="button" id="rsbsa-autofill-btn" class="btn-autofill"
                     onclick="fetchAndAutoFillRSBSA()"
                     style="
                         background: #4caf50;
@@ -245,7 +250,7 @@ function addAutoFillButtonToRSBSA() {
                     onmouseout="this.style.background='#4caf50'">
                 ✓ Use My Profile Data
             </button>
-            <button type="button" class="btn-clear" 
+            <button type="button" class="btn-clear"
                     onclick="clearRSBSAAutoFill()"
                     style="
                         background: #757575;
@@ -284,7 +289,7 @@ function initializeRSBSAAutoFill() {
     // Add auto-fill button when form is displayed
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' && 
+            if (mutation.type === 'attributes' &&
                 mutation.attributeName === 'style') {
                 const rsbsaForm = document.getElementById('new-rsbsa');
                 if (rsbsaForm && rsbsaForm.style.display !== 'none') {

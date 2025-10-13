@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->unsignedBigInteger('user_id');
-            
+
 
             // Application identification
             $table->string('application_number')->unique();
@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
+            $table->string('name_extension')->nullable();
             $table->enum('sex', ['Male', 'Female', 'Preferred not to say']);
 
             // Contact Information

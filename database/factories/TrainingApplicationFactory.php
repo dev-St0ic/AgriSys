@@ -27,6 +27,22 @@ class TrainingApplicationFactory extends Factory
      */
     public function definition(): array
     {
+        // Filipino names for realistic data
+        $filipinoFirstNames = [
+            'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
+            'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
+            'Maria', 'Ana', 'Rosa', 'Carmen', 'Teresa', 'Luz', 'Elena', 'Patricia',
+            'Isabel', 'Gloria', 'Margarita', 'Rosario', 'Angelina', 'Cristina'
+        ];
+
+        $filipinoLastNames = [
+            'Reyes', 'Santos', 'Cruz', 'Bautista', 'Garcia', 'Mendoza', 'Torres', 'Flores',
+            'Rivera', 'Gonzales', 'Ramos', 'Dela Cruz', 'Sanchez', 'Villanueva', 'Castro',
+            'Martinez', 'Fernandez', 'Lopez', 'Aquino', 'Hernandez', 'Marquez', 'Morales'
+        ];
+
+        $nameExtensions = ['Jr.', 'Sr.', 'II', 'III', 'IV'];
+
         $trainingTypes = [
             'tilapia_hito',
             'hydroponics',
@@ -58,26 +74,30 @@ class TrainingApplicationFactory extends Factory
             }
         }
 
-        $firstName = $this->faker->firstName;
-        $lastName = $this->faker->lastName;
+        $firstName = $this->faker->randomElement($filipinoFirstNames);
+        $lastName = $this->faker->randomElement($filipinoLastNames);
+        $middleName = $this->faker->optional(0.8)->randomElement($filipinoFirstNames);
+        $nameExtension = $this->faker->optional(0.15)->randomElement($nameExtensions);
 
         return [
             'user_id' => UserRegistration::inRandomOrder()->first()?->id ?? UserRegistration::factory()->create()->id,
             'application_number' => 'TRAIN-' . strtoupper(Str::random(8)),
             'first_name' => $firstName,
-            'middle_name' => $this->faker->optional(0.7)->firstName,
+            'middle_name' => $middleName,
             'last_name' => $lastName,
+            'name_extension' => $nameExtension,
             'contact_number' => $this->faker->randomElement([
                 '09' . $this->faker->numerify('#########'),
                 '+639' . $this->faker->numerify('#########')
             ]),
             'email' => $this->faker->optional(0.9)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'barangay' => $this->faker->randomElement([
-                'Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Fatima',
-                'G.S.I.S.', 'Landayan', 'Laram', 'Magsaysay', 'Maharlika',
-                'Narra', 'Nueva', 'Pacita 1', 'Pacita 2', 'Poblacion',
-                'Rosario', 'Riverside', 'Sampaguita Village', 'San Antonio',
-                'San Lorenzo Ruiz', 'San Roque', 'San Vicente', 'United Bayanihan', 'United Better Living'
+                'Bagong Silang', 'Cuyab', 'Estrella', 'G.S.I.S.', 'Landayan',
+                'Langgam', 'Laram', 'Magsaysay', 'Nueva', 'Poblacion',
+                'Riverside', 'San Antonio', 'San Roque', 'San Vicente', 'Santo Niño',
+                'United Bayanihan', 'United Better Living', 'Sampaguita Village',
+                'Calendola', 'Narra', 'Chrysanthemum', 'Fatima', 'Maharlika',
+                'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
             ]),
             'training_type' => $trainingType,
             'document_paths' => $this->faker->optional(0.6)->randomElement([

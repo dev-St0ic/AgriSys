@@ -184,17 +184,40 @@
             <input type="hidden" id="selected_seedlings" name="selected_seedlings" value="">
 
             <label for="seedlings-first_name">First Name *</label>
-            <input type="text" id="seedlings-first_name" name="first_name" required>
+            <input type="text" id="seedlings-first_name" name="first_name" pattern="[a-zA-Z\s\'-]+"
+                title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
+            <span class="validation-warning" id="seedlings-first_name-warning"
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                hyphens, and apostrophes are allowed</span>
 
             <label for="seedlings-middle_name">Middle Name (Optional)</label>
-            <input type="text" id="seedlings-middle_name" name="middle_name">
+            <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z\s\'-]+"
+                title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
+            <span class="validation-warning" id="seedlings-middle_name-warning"
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                hyphens, and apostrophes are allowed</span>
 
             <label for="seedlings-last_name">Last Name *</label>
-            <input type="text" id="seedlings-last_name" name="last_name" required>
+            <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z\s\'-]+"
+                title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
+            <span class="validation-warning" id="seedlings-last_name-warning"
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                hyphens, and apostrophes are allowed</span>
+
+            <label for="seedlings-extension_name">Name Extension (Optional)</label>
+            <input type="text" id="seedlings-extension_name" name="extension_name"
+                placeholder="Jr., Sr., III, etc." pattern="[a-zA-Z.\s]+"
+                title="Name extension can only contain letters, periods, and spaces">
+            <span class="validation-warning" id="seedlings-extension_name-warning"
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, periods,
+                and spaces are allowed</span>
 
             <label for="seedlings-mobile">Mobile Number *</label>
-            <input type="tel" id="seedlings-mobile" name="mobile" required>
-            <small>Please provide a valid mobile number for SMS notifications.</small>
+            <input type="tel" id="seedlings-mobile" name="mobile" placeholder="+639XXXXXXXXX or 09XXXXXXXXX"
+                pattern="^(\+639|09)\d{9}$"
+                title="Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
+                required>
+            <small>Format: +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)</small>
 
             <label for="seedlings-email">Email Address *</label>
             <input type="email" id="seedlings-email" name="email" required>
@@ -272,3 +295,52 @@
         <!-- Summary will be populated here by JavaScript -->
     </div>
 </section>
+
+<script>
+    // Real-time validation for name fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameFields = [{
+                id: 'seedlings-first_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'seedlings-middle_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'seedlings-last_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'seedlings-extension_name',
+                pattern: /^[a-zA-Z.\s]*$/
+            }
+        ];
+
+        nameFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            const warning = document.getElementById(field.id + '-warning');
+
+            if (input && warning) {
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+
+                    if (!field.pattern.test(value)) {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    } else {
+                        warning.style.display = 'none';
+                        input.style.borderColor = '';
+                    }
+                });
+
+                input.addEventListener('blur', function(e) {
+                    if (!field.pattern.test(e.target.value) && e.target.value !== '') {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    }
+                });
+            }
+        });
+    });
+</script>

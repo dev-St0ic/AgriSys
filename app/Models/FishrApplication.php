@@ -16,6 +16,7 @@ class FishrApplication extends Model
         'first_name',
         'middle_name',
         'last_name',
+        'name_extension',
         'sex',
         'barangay',
         'contact_number',

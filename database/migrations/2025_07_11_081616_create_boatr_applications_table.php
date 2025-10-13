@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
+            $table->string('name_extension')->nullable();
             $table->string('contact_number', 20);
             $table->string('email')->nullable();
             $table->string('barangay'); // Barangay location

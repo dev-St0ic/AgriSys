@@ -16,6 +16,7 @@ class TrainingApplication extends Model
         'first_name',
         'middle_name',
         'last_name',
+        'name_extension',
         'contact_number',
         'email',
         'barangay',

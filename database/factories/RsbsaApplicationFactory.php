@@ -69,15 +69,31 @@ class RsbsaApplicationFactory extends Factory
             }
         }
 
-        $firstName = $this->faker->firstName;
-        $lastName = $this->faker->lastName;
+        // Filipino names
+        $filipinoFirstNames = [
+            'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
+            'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
+            'Maria', 'Ana', 'Rosa', 'Carmen', 'Teresa', 'Luz', 'Elena', 'Patricia',
+            'Isabel', 'Gloria', 'Margarita', 'Rosario', 'Angelina', 'Cristina'
+        ];
+
+        $filipinoLastNames = [
+            'Reyes', 'Santos', 'Cruz', 'Bautista', 'Garcia', 'Mendoza', 'Torres', 'Flores',
+            'Rivera', 'Gonzales', 'Ramos', 'Dela Cruz', 'Sanchez', 'Villanueva', 'Castro',
+            'Martinez', 'Fernandez', 'Lopez', 'Aquino', 'Hernandez', 'Marquez', 'Morales'
+        ];
+
+        $firstName = $this->faker->randomElement($filipinoFirstNames);
+        $middleName = $this->faker->optional(0.8)->randomElement($filipinoFirstNames);
+        $lastName = $this->faker->randomElement($filipinoLastNames);
 
         return [
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory()->create()->id,
             'application_number' => 'RSBSA-' . strtoupper(Str::random(8)),
             'first_name' => $firstName,
-            'middle_name' => $this->faker->optional(0.7)->firstName,
+            'middle_name' => $middleName,
             'last_name' => $lastName,
+            'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
             'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'sex' => $this->faker->randomElement(['Male', 'Female']),
             'contact_number' => $this->faker->randomElement([
