@@ -99,10 +99,11 @@ class SeedlingRequestSeeder extends Seeder
 
         for ($i = 0; $i < $count; $i++) {
             $createdDate = Carbon::parse($startDate)->addDays(rand(0, $dayRange));
+            $selectedUserRegistration = $userRegistrations->random();
 
             // Create main request
             $request = SeedlingRequest::create([
-                'user_id' => $userRegistrations->random()->id,
+                'user_id' => $selectedUserRegistration->id,
                 'request_number' => SeedlingRequest::generateRequestNumber(),
                 'first_name' => fake()->firstName(),
                 'middle_name' => rand(0, 1) ? fake()->firstName() : null,
@@ -128,7 +129,7 @@ class SeedlingRequestSeeder extends Seeder
             ]);
 
             // Add items to the request
-            $this->addItemsToRequest($request, $categories, $status);
+            $this->addItemsToRequest($request, $categories, $status, $selectedUserRegistration->id);
 
             // Update total quantity
             $request->update([
@@ -138,7 +139,7 @@ class SeedlingRequestSeeder extends Seeder
         }
     }
 
-    private function addItemsToRequest($request, $categories, $requestStatus): void
+    private function addItemsToRequest($request, $categories, $requestStatus, $userId): void
     {
         // Randomly select 1-3 categories
         $selectedCategories = $categories->random(rand(1, 3));
@@ -163,6 +164,7 @@ class SeedlingRequestSeeder extends Seeder
 
                 SeedlingRequestItem::create([
                     'seedling_request_id' => $request->id,
+                    'user_id' => $userId,
                     'category_id' => $category->id,
                     'category_item_id' => $categoryItem->id,
                     'item_name' => $categoryItem->name,
