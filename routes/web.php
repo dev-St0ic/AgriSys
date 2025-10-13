@@ -16,6 +16,7 @@ use App\Http\Controllers\BoatrAnalyticsController;
 use App\Http\Controllers\RsbsaAnalyticsController;
 use App\Http\Controllers\TrainingAnalyticsController;
 use App\Http\Controllers\InventoryAnalyticsController;
+use App\Http\Controllers\UserRegistrationAnalyticsController;
 use App\Http\Controllers\UserRegistrationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\SeedlingCategoryItemController;
@@ -246,6 +247,10 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     // INVENTORY ANALYTICS - NEW SECTION
     Route::get('/inventory', [InventoryAnalyticsController::class, 'index'])->name('inventory');
     Route::get('/inventory/export', [InventoryAnalyticsController::class, 'export'])->name('inventory.export');
+
+     // User Registration Analytics
+    Route::get('/user-registration', [UserRegistrationAnalyticsController::class, 'index'])->name('user-registration');
+    Route::get('/user-registration/export', [UserRegistrationAnalyticsController::class, 'export'])->name('user-registration.export');
     });
 
 
