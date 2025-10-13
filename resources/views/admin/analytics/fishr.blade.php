@@ -56,6 +56,12 @@
                                         <i class="fas fa-boxes me-1"></i> Inventory
                                     </a>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                    <a href="{{ route('admin.analytics.user-registration') }}"
+                                    class="nav-link {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
+                                        <i class="fas fa-user-plus me-1"></i> User Registration
+                                    </a>
+                            </li>
                         </ul>
                     </div>
                 </div>

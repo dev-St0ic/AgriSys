@@ -36,8 +36,8 @@ class SeedlingAnalyticsController extends Controller
             // Base query with date range
             $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
 
-            // 1. Overview Statistics
-            $overview = $this->getOverviewStatistics(clone $baseQuery);
+            // 1. Overview Statistics with comparisons
+            $overview = $this->getOverviewStatistics(clone $baseQuery, $startDate, $endDate);
 
             // 2. Request Status Analysis
             $statusAnalysis = $this->getStatusAnalysis(clone $baseQuery);
@@ -45,7 +45,7 @@ class SeedlingAnalyticsController extends Controller
             // 3. Monthly Trends
             $monthlyTrends = $this->getMonthlyTrends($startDate, $endDate);
 
-            // 4. Barangay Analysis
+            // 4. Barangay Analysis with performance scoring
             $barangayAnalysis = $this->getBarangayAnalysis(clone $baseQuery);
 
             // 5. Seedling Category Analysis
@@ -69,6 +69,21 @@ class SeedlingAnalyticsController extends Controller
             // 11. Inventory Impact Analysis
             $inventoryImpact = $this->getInventoryImpactAnalysis(clone $baseQuery);
 
+            // NEW: 12. Supply vs Demand Analysis
+            $supplyDemandAnalysis = $this->getSupplyDemandAnalysis(clone $baseQuery);
+
+            // NEW: 13. Barangay Performance Score
+            $barangayPerformance = $this->getBarangayPerformanceScore($barangayAnalysis);
+
+            // NEW: 14. Category Fulfillment Rate
+            $categoryFulfillment = $this->getCategoryFulfillmentRate(clone $baseQuery);
+
+            // NEW: 15. Request Velocity (Trend Analysis)
+            $requestVelocity = $this->getRequestVelocity($startDate, $endDate);
+
+            // NEW: 16. Geographic Distribution Heat Map Data
+            $geoDistribution = $this->getGeographicDistribution(clone $baseQuery);
+
             return view('admin.analytics.seedlings', compact(
                 'overview',
                 'statusAnalysis',
@@ -81,6 +96,11 @@ class SeedlingAnalyticsController extends Controller
                 'seasonalAnalysis',
                 'monthlyBarangayAnalysis',
                 'inventoryImpact',
+                'supplyDemandAnalysis',
+                'barangayPerformance',
+                'categoryFulfillment',
+                'requestVelocity',
+                'geoDistribution',
                 'startDate',
                 'endDate'
             ));
@@ -93,9 +113,9 @@ class SeedlingAnalyticsController extends Controller
     }
 
     /**
-     * Get overview statistics
+     * Get overview statistics with period comparison
      */
-    private function getOverviewStatistics($baseQuery)
+    private function getOverviewStatistics($baseQuery, $startDate, $endDate)
     {
         try {
             $total = $baseQuery->count();
@@ -118,6 +138,18 @@ class SeedlingAnalyticsController extends Controller
             // Count active barangays
             $activeBarangays = (clone $baseQuery)->whereNotNull('barangay')->distinct()->count('barangay');
 
+            // Calculate previous period for comparison
+            $start = Carbon::parse($startDate);
+            $end = Carbon::parse($endDate);
+            $daysDiff = $start->diffInDays($end);
+            
+            $prevStart = $start->copy()->subDays($daysDiff)->format('Y-m-d');
+            $prevEnd = $start->copy()->subDay()->format('Y-m-d');
+            
+            $prevTotal = SeedlingRequest::whereBetween('created_at', [$prevStart . ' 00:00:00', $prevEnd . ' 23:59:59'])->count();
+            
+            $changePercentage = $prevTotal > 0 ? round((($total - $prevTotal) / $prevTotal) * 100, 1) : 0;
+
             return [
                 'total_requests' => $total,
                 'approved_requests' => $approved,
@@ -128,11 +160,225 @@ class SeedlingAnalyticsController extends Controller
                 'approval_rate' => $this->calculateApprovalRate($total, $approved),
                 'avg_request_size' => $avgRequestSize,
                 'unique_applicants' => $uniqueApplicants,
-                'active_barangays' => $activeBarangays
+                'active_barangays' => $activeBarangays,
+                'change_percentage' => $changePercentage,
+                'fulfillment_rate' => $totalQuantityRequested > 0 ? round(($totalQuantityApproved / $totalQuantityRequested) * 100, 2) : 0
             ];
         } catch (\Exception $e) {
             Log::error('Overview Statistics Error: ' . $e->getMessage());
             return $this->getDefaultOverview();
+        }
+    }
+
+    /**
+     * NEW: Get supply vs demand analysis
+     */
+    private function getSupplyDemandAnalysis($baseQuery)
+    {
+        try {
+            $requests = (clone $baseQuery)->get();
+            $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+            
+            $analysis = [];
+            
+            foreach ($categories as $category) {
+                $totalDemand = 0;
+                $itemDemands = [];
+                
+                foreach ($requests as $request) {
+                    $items = $this->safeJsonDecode($request->{$category});
+                    
+                    if (!empty($items) && is_array($items)) {
+                        foreach ($items as $item) {
+                            if (isset($item['name']) && isset($item['quantity'])) {
+                                $name = trim($item['name']);
+                                $quantity = (int) $item['quantity'];
+                                $totalDemand += $quantity;
+                                $itemDemands[$name] = ($itemDemands[$name] ?? 0) + $quantity;
+                            }
+                        }
+                    }
+                }
+                
+                $analysis[$category] = [
+                    'total_demand' => $totalDemand,
+                    'unique_items' => count($itemDemands),
+                    'top_demand_item' => !empty($itemDemands) ? array_keys($itemDemands, max($itemDemands))[0] : 'N/A',
+                    'demand_distribution' => $itemDemands
+                ];
+            }
+            
+            return $analysis;
+        } catch (\Exception $e) {
+            Log::error('Supply Demand Analysis Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * NEW: Get barangay performance score
+     */
+    private function getBarangayPerformanceScore($barangayAnalysis)
+    {
+        try {
+            $scored = [];
+            
+            foreach ($barangayAnalysis as $barangay) {
+                $approvalRate = $barangay->total_requests > 0 
+                    ? ($barangay->approved / $barangay->total_requests) * 100 
+                    : 0;
+                
+                // Calculate performance score (0-100)
+                $score = (
+                    ($approvalRate * 0.4) + // 40% weight on approval rate
+                    (min($barangay->total_requests / 50, 1) * 30) + // 30% on request volume (capped at 50)
+                    (min($barangay->unique_applicants / 20, 1) * 20) + // 20% on unique applicants (capped at 20)
+                    (min($barangay->total_quantity / 500, 1) * 10) // 10% on quantity (capped at 500)
+                );
+                
+                $scored[] = [
+                    'barangay' => $barangay->barangay,
+                    'score' => round($score, 2),
+                    'approval_rate' => round($approvalRate, 2),
+                    'total_requests' => $barangay->total_requests,
+                    'grade' => $this->getPerformanceGrade($score)
+                ];
+            }
+            
+            // Sort by score descending
+            usort($scored, function($a, $b) {
+                return $b['score'] <=> $a['score'];
+            });
+            
+            return collect($scored);
+        } catch (\Exception $e) {
+            Log::error('Barangay Performance Score Error: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    /**
+     * Helper: Get performance grade
+     */
+    private function getPerformanceGrade($score)
+    {
+        if ($score >= 90) return 'A+';
+        if ($score >= 85) return 'A';
+        if ($score >= 80) return 'B+';
+        if ($score >= 75) return 'B';
+        if ($score >= 70) return 'C+';
+        if ($score >= 65) return 'C';
+        if ($score >= 60) return 'D';
+        return 'F';
+    }
+
+    /**
+     * NEW: Get category fulfillment rate
+     */
+    private function getCategoryFulfillmentRate($baseQuery)
+    {
+        try {
+            $approvedRequests = (clone $baseQuery)->where('status', 'approved')->get();
+            $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+            
+            $fulfillment = [];
+            
+            foreach ($categories as $category) {
+                $totalRequested = 0;
+                $totalApproved = 0;
+                
+                foreach ($approvedRequests as $request) {
+                    $items = $this->safeJsonDecode($request->{$category});
+                    
+                    if (!empty($items) && is_array($items)) {
+                        foreach ($items as $item) {
+                            if (isset($item['quantity'])) {
+                                $totalRequested += (int) $item['quantity'];
+                                // Assuming approved quantity equals requested for now
+                                $totalApproved += (int) $item['quantity'];
+                            }
+                        }
+                    }
+                }
+                
+                $fulfillment[$category] = [
+                    'requested' => $totalRequested,
+                    'approved' => $totalApproved,
+                    'rate' => $totalRequested > 0 ? round(($totalApproved / $totalRequested) * 100, 2) : 0
+                ];
+            }
+            
+            return $fulfillment;
+        } catch (\Exception $e) {
+            Log::error('Category Fulfillment Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * NEW: Get request velocity (trend analysis)
+     */
+    private function getRequestVelocity($startDate, $endDate)
+    {
+        try {
+            $weeklyData = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->select(
+                    DB::raw('YEARWEEK(created_at, 1) as week'),
+                    DB::raw('COUNT(*) as request_count'),
+                    DB::raw('MIN(created_at) as week_start')
+                )
+                ->groupBy('week')
+                ->orderBy('week')
+                ->get();
+            
+            $velocity = [];
+            $previousCount = null;
+            
+            foreach ($weeklyData as $index => $week) {
+                $change = 0;
+                if ($previousCount !== null) {
+                    $change = $previousCount > 0 ? round((($week->request_count - $previousCount) / $previousCount) * 100, 1) : 0;
+                }
+                
+                $velocity[] = [
+                    'week' => Carbon::parse($week->week_start)->format('M d'),
+                    'count' => $week->request_count,
+                    'change' => $change,
+                    'trend' => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable')
+                ];
+                
+                $previousCount = $week->request_count;
+            }
+            
+            return collect($velocity);
+        } catch (\Exception $e) {
+            Log::error('Request Velocity Error: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    /**
+     * NEW: Get geographic distribution data
+     */
+    private function getGeographicDistribution($baseQuery)
+    {
+        try {
+            $distribution = (clone $baseQuery)
+                ->select(
+                    'barangay',
+                    DB::raw('COUNT(*) as intensity'),
+                    DB::raw('SUM(CASE WHEN status = "approved" THEN 1 ELSE 0 END) as approved'),
+                    DB::raw('ROUND(AVG(CASE WHEN status = "approved" THEN 1 ELSE 0 END) * 100, 2) as approval_rate')
+                )
+                ->whereNotNull('barangay')
+                ->where('barangay', '!=', '')
+                ->groupBy('barangay')
+                ->get();
+            
+            return $distribution;
+        } catch (\Exception $e) {
+            Log::error('Geographic Distribution Error: ' . $e->getMessage());
+            return collect([]);
         }
     }
 
@@ -245,7 +491,6 @@ class SeedlingAnalyticsController extends Controller
             ];
 
             foreach ($requests as $request) {
-                // Process all 6 categories
                 $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
                 
                 foreach ($categories as $category) {
@@ -317,7 +562,6 @@ class SeedlingAnalyticsController extends Controller
                 }
             }
 
-            // Sort by total quantity and return top 15
             return collect($allItems)
                 ->sortByDesc('total_quantity')
                 ->take(15)
@@ -363,7 +607,6 @@ class SeedlingAnalyticsController extends Controller
                 }
             }
 
-            // Sort by total quantity ascending and return least requested items
             return collect($allItems)
                 ->sortBy('total_quantity')
                 ->take(15)
@@ -458,7 +701,7 @@ class SeedlingAnalyticsController extends Controller
     }
 
     /**
-     * Get monthly barangay analysis showing top and least active barangays per month
+     * Get monthly barangay analysis
      */
     private function getMonthlyBarangayAnalysis($startDate, $endDate)
     {
@@ -501,10 +744,8 @@ class SeedlingAnalyticsController extends Controller
                 $monthlyAnalysis[$month]['total_requests'] += $data->request_count;
             }
 
-            // Determine top and least active barangays for each month
             foreach ($monthlyAnalysis as $month => &$analysis) {
                 if (!empty($analysis['barangays'])) {
-                    // Sort by request count
                     usort($analysis['barangays'], function($a, $b) {
                         return $b['requests'] - $a['requests'];
                     });
@@ -594,149 +835,9 @@ class SeedlingAnalyticsController extends Controller
             'approval_rate' => 0,
             'avg_request_size' => 0,
             'unique_applicants' => 0,
-            'active_barangays' => 0
+            'active_barangays' => 0,
+            'change_percentage' => 0,
+            'fulfillment_rate' => 0
         ];
-    }
-
-    /**
-     * Generate Decision Support System (DSS) Report
-     */
-    public function generateDSSReport(Request $request)
-    {
-        try {
-            $startDate = $request->get('start_date');
-            $endDate = $request->get('end_date');
-            
-            $pdf = $this->analyticsService->generateDSSReport($startDate, $endDate);
-            
-            return $pdf->download('seedling_dss_report_' . date('Y-m-d_H-i-s') . '.pdf');
-        } catch (\Exception $e) {
-            Log::error('DSS Report Generation Error: ' . $e->getMessage());
-            return back()->with('error', 'Error generating DSS report: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Generate comprehensive DSS report
-     */
-    public function dssReport(Request $request)
-    {
-        try {
-            // Validate request dates
-            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-            $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
-            // Validate date format and range
-            if (!$this->validateDateRange($startDate, $endDate)) {
-                return back()->with('error', 'Invalid date range specified.');
-            }
-
-            // Build base query with date filters
-            $baseQuery = SeedlingRequest::query()
-                ->when($startDate && $endDate, function($query) use ($startDate, $endDate) {
-                    return $query->whereBetween('created_at', [$startDate, $endDate]);
-                });
-
-            // Gather all required data
-            $overview = $this->getOverviewStatistics($baseQuery);
-            $analytics = $this->getAnalyticsData($startDate, $endDate);
-            $barangayAnalysis = $this->getBarangayAnalysis($baseQuery);
-            $topItems = $this->getTopRequestedItems($baseQuery);
-            $leastRequestedItems = $this->getLeastRequestedItems($baseQuery);
-
-            // Generate AI insights
-            $insights = $this->dssService->generateInsights(array_merge($overview, [
-                'analytics' => $analytics,
-                'barangayAnalysis' => $barangayAnalysis,
-                'topItems' => $topItems,
-                'leastRequestedItems' => $leastRequestedItems
-            ]));
-
-            // Prepare view data with safety checks
-            return view('admin.analytics.seedlings.dss-report', [
-                'overview' => $overview ?? [],
-                'insights' => $insights ?? [],
-                'analytics' => $analytics ?? [],
-                'barangayAnalysis' => $barangayAnalysis ?? collect(),
-                'topItems' => $topItems ?? collect(),
-                'leastRequestedItems' => $leastRequestedItems ?? collect(),
-                'period' => $this->formatPeriod($startDate, $endDate),
-                'generated_at' => now()->format('F j, Y \a\t g:i A'),
-                'ai_confidence' => $insights['ai_confidence'] ?? 'medium',
-                'title' => 'Agricultural DSS Analysis Report - ' . config('app.name')
-            ]);
-        } catch (\Exception $e) {
-            Log::error('DSS Report Generation Failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'dates' => ['start' => $startDate ?? null, 'end' => $endDate ?? null]
-            ]);
-
-            return back()->with('error', 'Failed to generate DSS report. Please try again or contact support.');
-        }
-    }
-
-    /**
-     * Validate date range for report generation
-     */
-    private function validateDateRange(?string $startDate, ?string $endDate): bool
-    {
-        if (!$startDate || !$endDate) {
-            return true; // Allow null dates to use defaults
-        }
-
-        try {
-            $start = Carbon::parse($startDate);
-            $end = Carbon::parse($endDate);
-
-            // Ensure dates are not in future and start is before end
-            return $start <= $end 
-                && $end <= now()
-                && $start->diffInYears($end) <= 2; // Max 2 years range
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    /**
-     * Get analytics data for specified period
-     * 
-     * @param string|null $startDate
-     * @param string|null $endDate
-     * @return array
-     */
-    private function getAnalyticsData($startDate, $endDate): array
-    {
-        try {
-            return $this->analyticsService->getAnalyticsData($startDate, $endDate);
-        } catch (\Exception $e) {
-            Log::error('Analytics Data Error', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'dates' => [
-                    'start' => $startDate,
-                    'end' => $endDate
-                ]
-            ]);
-
-            // Return safe default structure
-            return [
-                'overview' => $this->getDefaultOverview(),
-                'monthlyTrends' => [],
-                'barangayAnalysis' => collect(),
-                'categoryAnalysis' => [],
-                'statusAnalysis' => [
-                    'counts' => [],
-                    'percentages' => [],
-                    'total' => 0
-                ],
-                'processingTimeAnalysis' => [
-                    'avg_processing_days' => 0,
-                    'min_processing_days' => 0,
-                    'max_processing_days' => 0,
-                    'processed_count' => 0
-                ]
-            ];
-        }
     }
 }

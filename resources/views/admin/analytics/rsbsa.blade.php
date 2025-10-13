@@ -17,48 +17,54 @@
                             <p class="text-muted mb-0">Comprehensive insights into Registry System for Basic Sectors in
                                 Agriculture</p>
                         </div>
-                        <!-- Service Tabs - Unified Structure -->
-                        <div class="d-flex justify-content-center">
+                    <!-- Service Tabs - Unified Structure -->
+                    <div class="d-flex justify-content-center">
+                        <ul class="nav nav-pills" id="serviceTab" role="tablist">
                             <ul class="nav nav-pills" id="serviceTab" role="tablist">
-                                <ul class="nav nav-pills" id="serviceTab" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <a href="{{ route('admin.analytics.seedlings') }}"
-                                            class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                                            <i class="fas fa-seedling me-1"></i> Seedlings
-                                        </a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a href="{{ route('admin.analytics.rsbsa') }}"
-                                            class="nav-link {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                                            <i class="fas fa-user-check me-1"></i> RSBSA
-                                        </a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a href="{{ route('admin.analytics.fishr') }}"
-                                            class="nav-link {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                                            <i class="fas fa-fish me-1"></i> FISHR
-                                        </a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a href="{{ route('admin.analytics.boatr') }}"
-                                            class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                                            <i class="fas fa-ship me-1"></i> BOATR
-                                        </a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a href="{{ route('admin.analytics.training') }}" 
-                                        class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                                            <i class="fas fa-graduation-cap me-1"></i> Training
-                                        </a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a href="{{ route('admin.analytics.inventory') }}" 
-                                        class="nav-link {{ request()->routeIs('admin.analytics.inventory') ? 'active' : '' }}">
-                                            <i class="fas fa-boxes me-1"></i> Inventory
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
+                                <li class="nav-item" role="presentation">
+                                    <a href="{{ route('admin.analytics.seedlings') }}"
+                                        class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
+                                        <i class="fas fa-seedling me-1"></i> Seedlings
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="{{ route('admin.analytics.rsbsa') }}"
+                                        class="nav-link {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
+                                        <i class="fas fa-user-check me-1"></i> RSBSA
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="{{ route('admin.analytics.fishr') }}"
+                                        class="nav-link {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
+                                        <i class="fas fa-fish me-1"></i> FISHR
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="{{ route('admin.analytics.boatr') }}"
+                                        class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                                        <i class="fas fa-ship me-1"></i> BOATR
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="{{ route('admin.analytics.training') }}" 
+                                    class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                                        <i class="fas fa-graduation-cap me-1"></i> Training
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="{{ route('admin.analytics.inventory') }}" 
+                                    class="nav-link {{ request()->routeIs('admin.analytics.inventory') ? 'active' : '' }}">
+                                        <i class="fas fa-boxes me-1"></i> Inventory
+                                    </a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="{{ route('admin.analytics.user-registration') }}"
+                                        class="nav-link {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
+                                        <i class="fas fa-user-plus me-1"></i> User Registration
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
