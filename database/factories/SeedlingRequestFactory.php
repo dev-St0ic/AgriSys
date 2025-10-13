@@ -69,12 +69,26 @@ class SeedlingRequestFactory extends Factory
         ];
 
         $barangays = [
-            'Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Fatima',
-            'G.S.I.S.', 'Landayan', 'Laram', 'Magsaysay', 'Maharlika',
-            'Narra', 'Nueva', 'Pacita 1', 'Pacita 2', 'Poblacion',
-            'Rosario', 'Riverside', 'Sampaguita Village', 'San Antonio',
-            'San Lorenzo Ruiz', 'San Roque', 'San Vicente',
-            'United Bayanihan', 'United Better Living'
+            'Bagong Silang', 'Cuyab', 'Estrella', 'G.S.I.S.', 'Landayan',
+            'Langgam', 'Laram', 'Magsaysay', 'Nueva', 'Poblacion',
+            'Riverside', 'San Antonio', 'San Roque', 'San Vicente', 'Santo Niño',
+            'United Bayanihan', 'United Better Living', 'Sampaguita Village',
+            'Calendola', 'Narra', 'Chrysanthemum', 'Fatima', 'Maharlika',
+            'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
+        ];
+
+        // Filipino names for realistic data
+        $filipinoFirstNames = [
+            'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
+            'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
+            'Maria', 'Ana', 'Rosa', 'Carmen', 'Teresa', 'Luz', 'Elena', 'Patricia',
+            'Isabel', 'Gloria', 'Margarita', 'Rosario', 'Angelina', 'Cristina'
+        ];
+
+        $filipinoLastNames = [
+            'Reyes', 'Santos', 'Cruz', 'Bautista', 'Garcia', 'Mendoza', 'Torres', 'Flores',
+            'Rivera', 'Gonzales', 'Ramos', 'Dela Cruz', 'Sanchez', 'Villanueva', 'Castro',
+            'Martinez', 'Fernandez', 'Lopez', 'Aquino', 'Hernandez', 'Marquez', 'Morales'
         ];
 
         // Randomly select items
@@ -93,16 +107,17 @@ class SeedlingRequestFactory extends Factory
                         collect($selectedFingerlings)->sum('quantity') +
                         collect($selectedFertilizers)->sum('quantity');
 
-        $firstName = $this->faker->firstName;
-        $lastName = $this->faker->lastName;
+        $firstName = $this->faker->randomElement($filipinoFirstNames);
+        $lastName = $this->faker->randomElement($filipinoLastNames);
+        $middleName = $this->faker->optional(0.8)->randomElement($filipinoFirstNames);
 
         return [
             'user_id' => UserRegistration::inRandomOrder()->first()?->id ?? UserRegistration::factory()->create()->id,
             'request_number' => 'SEED-' . strtoupper(Str::random(8)),
             'first_name' => $firstName,
-            'middle_name' => $this->faker->optional(0.7)->firstName,
+            'middle_name' => $middleName,
             'last_name' => $lastName,
-            'extension_name' => $this->faker->optional(0.2)->randomElement(['Jr.', 'Sr.', 'II', 'III']),
+            'extension_name' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
             'contact_number' => $this->faker->phoneNumber,
             'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'address' => $this->faker->streetAddress,

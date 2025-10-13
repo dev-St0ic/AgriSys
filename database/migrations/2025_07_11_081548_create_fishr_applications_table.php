@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
+            $table->string('name_extension')->nullable();
             $table->enum('sex', ['Male', 'Female', 'Preferred not to say']);
             $table->string('barangay');
             $table->unsignedBigInteger('barangay_id')->nullable(); // Foreign key to barangays table

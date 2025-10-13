@@ -18,6 +18,38 @@ use Illuminate\Support\Facades\Auth;
 class ApplicationController extends Controller
 {
     /**
+     * Normalize Philippine mobile number to +639 format
+     * Converts 09XXXXXXXXX to +639XXXXXXXXX
+     */
+    private function normalizeMobileNumber($mobileNumber)
+    {
+        if (!$mobileNumber) {
+            return null;
+        }
+
+        // Remove any spaces or dashes
+        $mobileNumber = preg_replace('/[\s\-]/', '', $mobileNumber);
+
+        // If starts with 09, convert to +639
+        if (preg_match('/^09\d{9}$/', $mobileNumber)) {
+            return '+63' . substr($mobileNumber, 1);
+        }
+
+        // If already in +639 format, return as is
+        if (preg_match('/^\+639\d{9}$/', $mobileNumber)) {
+            return $mobileNumber;
+        }
+
+        // If starts with 639, add + prefix
+        if (preg_match('/^639\d{9}$/', $mobileNumber)) {
+            return '+' . $mobileNumber;
+        }
+
+        // Return original if doesn't match any pattern
+        return $mobileNumber;
+    }
+
+    /**
      * Submit FishR (Fisherfolk Registration) request
      */
     public function submitFishR(Request $request)
@@ -25,10 +57,10 @@ class ApplicationController extends Controller
         try {
         // ✅ ADD THIS AUTHENTICATION CHECK
         $userId = session('user.id');
-        
+
         if (!$userId) {
             Log::warning('FishR submission attempted without authentication');
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -36,16 +68,16 @@ class ApplicationController extends Controller
                     'require_auth' => true
                 ], 401);
             }
-            
+
             return redirect()->route('landing.page')
                 ->with('error', 'You must be logged in to submit a FishR registration.');
         }
-        
+
         // Verify user exists
         $userExists = \App\Models\UserRegistration::find($userId);
         if (!$userExists) {
             Log::error('User ID from session does not exist in database', ['user_id' => $userId]);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -53,34 +85,40 @@ class ApplicationController extends Controller
                     'require_auth' => true
                 ], 401);
             }
-            
+
             return redirect()->route('landing.page')
                 ->with('error', 'Invalid user session. Please log in again.');
         }
-        
+
         Log::info('FishR submission started', [
             'user_id' => $userId,
             'username' => $userExists->username
         ]);
-        
+
             // Enhanced validation with better error messages
             $validated = $request->validate([
-                'first_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
-                'last_name' => 'required|string|max:255',
+                'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
                 'sex' => 'required|in:Male,Female,Preferred not to say',
                 'barangay' => 'required|string|max:255',
-                'contact_number' => 'required|string|max:20',
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'email' => 'required|email|max:255',
                 'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
                 'other_livelihood' => 'nullable|string|max:255|required_if:main_livelihood,others',
                 'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
             ], [
                 'first_name.required' => 'First name is required',
+                'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
+                'middle_name.regex' => 'Middle name can only contain letters, spaces, hyphens, and apostrophes',
                 'last_name.required' => 'Last name is required',
+                'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+                'name_extension.regex' => 'Name extension can only contain letters, periods, and spaces',
                 'sex.required' => 'Please select your sex',
                 'barangay.required' => 'Please select your barangay',
                 'contact_number.required' => 'Contact number is required',
+                'contact_number.regex' => 'Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
                 'main_livelihood.required' => 'Please select your main livelihood',
@@ -110,6 +148,9 @@ class ApplicationController extends Controller
             // Generate unique registration number
             $registrationNumber = $this->generateUniqueRegistrationNumber();
 
+            // Normalize contact number to +639 format
+            $normalizedContactNumber = $this->normalizeMobileNumber($validated['contact_number']);
+
             // Create the FishR registration
             $fishRRegistration = FishrApplication::create([
                 'user_id' => $userId,
@@ -117,9 +158,10 @@ class ApplicationController extends Controller
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
                 'last_name' => $validated['last_name'],
+                'name_extension' => $validated['name_extension'] ?? null,
                 'sex' => $validated['sex'],
                 'barangay' => $validated['barangay'],
-                'contact_number' => $validated['contact_number'],
+                'contact_number' => $normalizedContactNumber,
                 'email' => $validated['email'],
                 'main_livelihood' => $validated['main_livelihood'],
                 'livelihood_description' => $livelihoodDescription,
@@ -333,11 +375,11 @@ public function submitSeedlings(Request $request)
     try {
         // ✅ GET USER ID FROM SESSION FIRST
         $userId = session('user.id');
-        
+
         // ✅ CHECK IF USER IS AUTHENTICATED
         if (!$userId) {
             Log::warning('Seedling submission attempted without authentication');
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -345,18 +387,18 @@ public function submitSeedlings(Request $request)
                     'require_auth' => true
                 ], 401);
             }
-            
+
             return redirect()->route('landing.page')
                 ->with('error', 'You must be logged in to submit a seedling request.');
         }
-        
+
         // ✅ VERIFY USER EXISTS IN DATABASE
         $userExists = \App\Models\UserRegistration::find($userId);
         if (!$userExists) {
             Log::error('User ID from session does not exist in database', [
                 'user_id' => $userId
             ]);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -364,28 +406,36 @@ public function submitSeedlings(Request $request)
                     'require_auth' => true
                 ], 401);
             }
-            
+
             return redirect()->route('landing.page')
                 ->with('error', 'Invalid user session. Please log in again.');
         }
-        
+
         Log::info('Seedling submission started', [
             'user_id' => $userId,
             'username' => $userExists->username,
             'request_data' => $request->except(['supporting_documents'])
         ]);
-        
-        // Validation
+
+                // Validation
         $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'mobile' => 'required|string|max:20',
+            'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'extension_name' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
+            'mobile' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
             'email' => 'required|email|max:255',
             'barangay' => 'required|string|max:255',
             'address' => 'required|string|max:500',
             'selected_seedlings' => 'required|string',
             'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
+        ], [
+            'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
+            'middle_name.regex' => 'Middle name can only contain letters, spaces, hyphens, and apostrophes',
+            'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+            'extension_name.regex' => 'Name extension can only contain letters, periods, and spaces',
+            'mobile.required' => 'Mobile number is required',
+            'mobile.regex' => 'Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
         ]);
 
         // Parse selected seedlings
@@ -407,6 +457,9 @@ public function submitSeedlings(Request $request)
         // Generate unique request number
         $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
+        // Normalize mobile number to +639 format
+        $normalizedMobile = $this->normalizeMobileNumber($validated['mobile']);
+
         // ✅ CREATE THE SEEDLING REQUEST WITH USER_ID
         $seedlingRequest = SeedlingRequest::create([
             'user_id' => $userId, // ✅ CRITICAL: Associate with authenticated user
@@ -414,7 +467,8 @@ public function submitSeedlings(Request $request)
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'],
             'last_name' => $validated['last_name'],
-            'contact_number' => $validated['mobile'],
+            'extension_name' => $validated['extension_name'] ?? null,
+            'contact_number' => $normalizedMobile,
             'email' => $validated['email'],
             'address' => $validated['address'],
             'barangay' => $validated['barangay'],
@@ -501,15 +555,15 @@ public function submitSeedlings(Request $request)
  * Submit RSBSA request - FIXED SESSION ACCESS
  */
 public function submitRsbsa(Request $request)
-{   
-    
+{
+
     try {
     // ✅ ADD THIS AUTHENTICATION CHECK
     $userId = session('user.id');
-    
+
     if (!$userId) {
         Log::warning('FishR submission attempted without authentication');
-        
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
@@ -517,16 +571,16 @@ public function submitRsbsa(Request $request)
                 'require_auth' => true
             ], 401);
         }
-        
+
         return redirect()->route('landing.page')
             ->with('error', 'You must be logged in to submit a FishR registration.');
     }
-    
+
     // Verify user exists
     $userExists = \App\Models\UserRegistration::find($userId);
     if (!$userExists) {
         Log::error('User ID from session does not exist in database', ['user_id' => $userId]);
-        
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
@@ -534,11 +588,11 @@ public function submitRsbsa(Request $request)
                 'require_auth' => true
             ], 401);
         }
-        
+
         return redirect()->route('landing.page')
             ->with('error', 'Invalid user session. Please log in again.');
     }
-    
+
     Log::info('FishR submission started', [
         'user_id' => $userId,
         'username' => $userExists->username,
@@ -550,18 +604,26 @@ public function submitRsbsa(Request $request)
         // ... rest of your validation and submission code stays the same ...
 
         $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+            'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
             'sex' => 'required|in:Male,Female,Preferred not to say',
             'barangay' => 'required|string|max:255',
-            'mobile' => 'required|string|max:20',
+            'mobile' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
             'email' => 'required|email|max:255',
             'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
             'land_area' => 'nullable|numeric|min:0|max:1000',
             'farm_location' => 'nullable|string|max:500',
             'commodity' => 'nullable|string|max:1000',
             'supporting_docs' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ], [
+            'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
+            'middle_name.regex' => 'Middle name can only contain letters, spaces, hyphens, and apostrophes',
+            'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+            'name_extension.regex' => 'Name extension can only contain letters, periods, and spaces',
+            'mobile.required' => 'Mobile number is required',
+            'mobile.regex' => 'Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
         ]);
 
         // Handle file upload
@@ -578,6 +640,9 @@ public function submitRsbsa(Request $request)
         // Generate application number
         $applicationNumber = $this->generateUniqueRsbsaApplicationNumber();
 
+        // Normalize mobile number to +639 format
+        $normalizedMobile = $this->normalizeMobileNumber($validated['mobile']);
+
         // Create application
         $applicationData = [
             'user_id' => $userId,
@@ -585,8 +650,9 @@ public function submitRsbsa(Request $request)
             'first_name' => $validated['first_name'],
             'middle_name' => $validated['middle_name'] ?: null,
             'last_name' => $validated['last_name'],
+            'name_extension' => $validated['name_extension'] ?? null,
             'sex' => $validated['sex'],
-            'contact_number' => $validated['mobile'],
+            'contact_number' => $normalizedMobile,
             'email' => $validated['email'],
             'barangay' => $validated['barangay'],
             'main_livelihood' => $validated['main_livelihood'],
@@ -658,10 +724,10 @@ public function submitRsbsa(Request $request)
         try {
         // ✅ ADD THIS AUTHENTICATION CHECK
         $userId = session('user.id');
-        
+
         if (!$userId) {
             Log::warning('BoatR submission attempted without authentication');
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -669,16 +735,16 @@ public function submitRsbsa(Request $request)
                     'require_auth' => true
                 ], 401);
             }
-            
+
             return redirect()->route('landing.page')
                 ->with('error', 'You must be logged in to submit a BoatR registration.');
         }
-        
+
         // Verify user exists
         $userExists = \App\Models\UserRegistration::find($userId);
         if (!$userExists) {
             Log::error('User ID does not exist', ['user_id' => $userId]);
-            
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -686,11 +752,11 @@ public function submitRsbsa(Request $request)
                     'require_auth' => true
                 ], 401);
             }
-            
+
             return redirect()->route('landing.page')
                 ->with('error', 'Invalid user session. Please log in again.');
         }
-        
+
         Log::info('BoatR submission started', [
             'user_id' => $userId,
             'username' => $userExists->username,
@@ -701,10 +767,11 @@ public function submitRsbsa(Request $request)
 
             // Enhanced validation
             $validated = $request->validate([
-                'first_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'contact_number' => 'required|string|max:20',
+                'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'email' => 'required|email|max:255',
                 'barangay' => 'required|string|max:255',
                 'fishr_number' => 'required|string|max:255',
@@ -719,8 +786,13 @@ public function submitRsbsa(Request $request)
                 'supporting_documents' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240'
             ], [
                 'first_name.required' => 'First name is required',
+                'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
+                'middle_name.regex' => 'Middle name can only contain letters, spaces, hyphens, and apostrophes',
                 'last_name.required' => 'Last name is required',
+                'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+                'name_extension.regex' => 'Name extension can only contain letters, periods, and spaces',
                 'contact_number.required' => 'Contact number is required',
+                'contact_number.regex' => 'Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
                 'barangay.required' => 'Barangay is required',
@@ -765,6 +837,9 @@ public function submitRsbsa(Request $request)
             $applicationNumber = $this->generateUniqueApplicationNumber();
             Log::info('Generated application number: ' . $applicationNumber);
 
+            // Normalize contact number to +639 format
+            $normalizedContactNumber = $this->normalizeMobileNumber($validated['contact_number']);
+
             // Create the BoatR registration
             $boatRRegistration = BoatrApplication::create([
                 'user_id' => $userId,
@@ -772,7 +847,8 @@ public function submitRsbsa(Request $request)
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
                 'last_name' => $validated['last_name'],
-                'contact_number' => $validated['contact_number'],
+                'name_extension' => $validated['name_extension'] ?? null,
+                'contact_number' => $normalizedContactNumber,
                 'email' => $validated['email'],
                 'barangay' => $validated['barangay'],
                 'fishr_number' => $validated['fishr_number'],
@@ -885,29 +961,29 @@ public function submitRsbsa(Request $request)
        try {
         // ✅ ADD THIS AUTHENTICATION CHECK
         $userId = session('user.id');
-        
+
         if (!$userId) {
             Log::warning('Training submission attempted without authentication');
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'You must be logged in to submit a training application.',
                 'require_auth' => true
             ], 401);
         }
-        
+
         // Verify user exists
         $userExists = \App\Models\UserRegistration::find($userId);
         if (!$userExists) {
             Log::error('User ID does not exist', ['user_id' => $userId]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid user session. Please log in again.',
                 'require_auth' => true
             ], 401);
         }
-        
+
         Log::info('Training submission started', [
             'user_id' => $userId,
             'username' => $userExists->username,
@@ -917,19 +993,24 @@ public function submitRsbsa(Request $request)
         ]);
             // Enhanced validation with better error messages
             $validated = $request->validate([
-                'first_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'contact_number' => 'required|string|size:11',
+                'first_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
+                'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'email' => 'required|email|max:255',
                 'barangay' => 'required|string|max:255',
                 'training_type' => 'required|string',
                 'documents.*' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120'
             ], [
                 'first_name.required' => 'First name is required',
+                'first_name.regex' => 'First name can only contain letters, spaces, hyphens, and apostrophes',
+                'middle_name.regex' => 'Middle name can only contain letters, spaces, hyphens, and apostrophes',
                 'last_name.required' => 'Last name is required',
+                'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
+                'name_extension.regex' => 'Name extension can only contain letters, periods, and spaces',
                 'contact_number.required' => 'Contact number is required',
-                'contact_number.size' => 'Contact number must be 11 digits',
+                'contact_number.regex' => 'Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
                 'barangay.required' => 'Barangay is required',
@@ -953,6 +1034,9 @@ public function submitRsbsa(Request $request)
                 }
             }
 
+            // Normalize contact number to +639 format
+            $normalizedContactNumber = $this->normalizeMobileNumber($validated['contact_number']);
+
             // Create training application with logging
             $training = TrainingApplication::create([
                 'user_id' => $userId,
@@ -960,7 +1044,8 @@ public function submitRsbsa(Request $request)
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'],
                 'last_name' => $validated['last_name'],
-                'contact_number' => $validated['contact_number'],
+                'name_extension' => $validated['name_extension'] ?? null,
+                'contact_number' => $normalizedContactNumber,
                 'email' => $validated['email'],
                 'barangay' => $validated['barangay'],
                 'training_type' => $validated['training_type'],

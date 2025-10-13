@@ -61,6 +61,9 @@ function autoFillFishRFromProfile() {
     // Fill Last Name
     setFieldValue('last_name', userData.last_name);
 
+    // Fill Name Extension
+    setFieldValue('name_extension', userData.name_extension || userData.extension_name);
+
     // Fill Sex/Gender
     if (userData.sex) {
         setFieldValue('sex', userData.sex);

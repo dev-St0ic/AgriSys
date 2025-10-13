@@ -26,24 +26,49 @@
             <div class="training-form-group">
                 <label for="training_first_name">First Name *</label>
                 <input type="text" id="training_first_name" name="first_name" placeholder="Enter your first name"
-                    required>
+                    pattern="[a-zA-Z\s\'-]+"
+                    title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
+                <span class="validation-warning" id="training_first_name-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
             <div class="training-form-group">
                 <label for="training_middle_name">Middle Name (Optional)</label>
-                <input type="text" id="training_middle_name" name="middle_name" placeholder="Enter your middle name">
+                <input type="text" id="training_middle_name" name="middle_name" placeholder="Enter your middle name"
+                    pattern="[a-zA-Z\s\'-]+"
+                    title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
+                <span class="validation-warning" id="training_middle_name-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
             <div class="training-form-group">
                 <label for="training_last_name">Last Name *</label>
                 <input type="text" id="training_last_name" name="last_name" placeholder="Enter your last name"
-                    required>
+                    pattern="[a-zA-Z\s\'-]+"
+                    title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
+                <span class="validation-warning" id="training_last_name-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    spaces, hyphens, and apostrophes are allowed</span>
+            </div>
+
+            <div class="training-form-group">
+                <label for="training_name_extension">Name Extension (Optional)</label>
+                <input type="text" id="training_name_extension" name="name_extension"
+                    placeholder="Jr., Sr., III, etc." pattern="[a-zA-Z.\s]+"
+                    title="Name extension can only contain letters, periods, and spaces">
+                <span class="validation-warning" id="training_name_extension-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    periods, and spaces are allowed</span>
             </div>
 
             <div class="training-form-group">
                 <label for="training_contact_number">Contact Number *</label>
                 <input type="tel" id="training_contact_number" name="contact_number"
-                    placeholder="Enter your contact number (e.g., 09123456789)" pattern="[0-9]{11}" required>
+                    placeholder="+639XXXXXXXXX or 09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
+                    title="Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
+                    required>
             </div>
 
             <div class="training-form-group">
@@ -194,3 +219,52 @@
         </div>
     </div>
 </section>
+
+<script>
+    // Real-time validation for name fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameFields = [{
+                id: 'training_first_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'training_middle_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'training_last_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'training_name_extension',
+                pattern: /^[a-zA-Z.\s]*$/
+            }
+        ];
+
+        nameFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            const warning = document.getElementById(field.id + '-warning');
+
+            if (input && warning) {
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+
+                    if (!field.pattern.test(value)) {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    } else {
+                        warning.style.display = 'none';
+                        input.style.borderColor = '';
+                    }
+                });
+
+                input.addEventListener('blur', function(e) {
+                    if (!field.pattern.test(e.target.value) && e.target.value !== '') {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    }
+                });
+            }
+        });
+    });
+</script>

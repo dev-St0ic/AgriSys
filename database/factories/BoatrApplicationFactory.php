@@ -27,9 +27,26 @@ class BoatrApplicationFactory extends Factory
      */
     public function definition(): array
     {
-        $firstName = $this->faker->firstName();
-        $middleName = $this->faker->optional(0.7)->firstName();
-        $lastName = $this->faker->lastName();
+        // Filipino names for realistic data
+        $filipinoFirstNames = [
+            'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
+            'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
+            'Maria', 'Ana', 'Rosa', 'Carmen', 'Teresa', 'Luz', 'Elena', 'Patricia',
+            'Isabel', 'Gloria', 'Margarita', 'Rosario', 'Angelina', 'Cristina'
+        ];
+
+        $filipinoLastNames = [
+            'Reyes', 'Santos', 'Cruz', 'Bautista', 'Garcia', 'Mendoza', 'Torres', 'Flores',
+            'Rivera', 'Gonzales', 'Ramos', 'Dela Cruz', 'Sanchez', 'Villanueva', 'Castro',
+            'Martinez', 'Fernandez', 'Lopez', 'Aquino', 'Hernandez', 'Marquez', 'Morales'
+        ];
+
+        $nameExtensions = ['Jr.', 'Sr.', 'II', 'III', 'IV'];
+
+        $firstName = $this->faker->randomElement($filipinoFirstNames);
+        $middleName = $this->faker->optional(0.8)->randomElement($filipinoFirstNames);
+        $lastName = $this->faker->randomElement($filipinoLastNames);
+        $nameExtension = $this->faker->optional(0.15)->randomElement($nameExtensions);
 
         // Generate unique application number
         $applicationNumber = 'BOATR-' . strtoupper(Str::random(8));
@@ -71,14 +88,16 @@ class BoatrApplicationFactory extends Factory
             'first_name' => $firstName,
             'middle_name' => $middleName,
             'last_name' => $lastName,
+            'name_extension' => $nameExtension,
             'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'contact_number' => $this->faker->phoneNumber(), // Added missing contact_number field
             'barangay' => $this->faker->randomElement([
-                'Bagong Silang', 'Calendola', 'Chrysanthemum', 'Cuyab', 'Fatima',
-                'G.S.I.S.', 'Landayan', 'Laram', 'Magsaysay', 'Maharlika',
-                'Narra', 'Nueva', 'Pacita 1', 'Pacita 2', 'Poblacion',
-                'Rosario', 'Riverside', 'Sampaguita Village', 'San Antonio',
-                'San Lorenzo Ruiz', 'San Roque', 'San Vicente', 'United Bayanihan', 'United Better Living'
+                'Bagong Silang', 'Cuyab', 'Estrella', 'G.S.I.S.', 'Landayan',
+                'Langgam', 'Laram', 'Magsaysay', 'Nueva', 'Poblacion',
+                'Riverside', 'San Antonio', 'San Roque', 'San Vicente', 'Santo Niño',
+                'United Bayanihan', 'United Better Living', 'Sampaguita Village',
+                'Calendola', 'Narra', 'Chrysanthemum', 'Fatima', 'Maharlika',
+                'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
             ]),
             'fishr_number' => $fishrNumber,
             'vessel_name' => 'MV ' . $this->faker->words(2, true),

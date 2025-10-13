@@ -32,18 +32,18 @@ function autoFillSeedlingsFromProfile() {
         const field = form.querySelector(`[name="${fieldName}"]`);
         if (field && value) {
             field.value = value;
-            
+
             // Trigger change event for selects
             if (field.tagName === 'SELECT') {
                 field.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            
+
             // Add visual feedback
             field.style.backgroundColor = '#f0f8ff';
             setTimeout(() => {
                 field.style.backgroundColor = '';
             }, 2000);
-            
+
             filledCount++;
             console.log(`✓ Filled ${fieldName} with: ${value}`);
             return true;
@@ -60,6 +60,9 @@ function autoFillSeedlingsFromProfile() {
 
     // Fill Last Name
     setFieldValue('last_name', userData.last_name);
+
+    // Fill Extension Name (note: seedlings uses 'extension_name' not 'name_extension')
+    setFieldValue('extension_name', userData.extension_name || userData.name_extension);
 
     // Fill Mobile Number
     setFieldValue('mobile', userData.contact_number || userData.mobile_number || userData.phone || userData.mobile);
@@ -88,7 +91,7 @@ function autoFillSeedlingsFromProfile() {
  */
 async function fetchAndAutoFillSeedlings() {
     console.log('Fetching fresh user profile data...');
-    
+
     // Show loading state
     const btn = document.getElementById('seedlings-autofill-btn');
     const originalText = btn ? btn.innerHTML : '';
@@ -118,7 +121,7 @@ async function fetchAndAutoFillSeedlings() {
         if (data.success && data.user) {
             // Update window.userData with fresh data
             window.userData = Object.assign({}, window.userData, data.user);
-            
+
             // Now auto-fill
             autoFillSeedlingsFromProfile();
         } else {
@@ -187,11 +190,11 @@ function addAutoFillButtonToSeedlings() {
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2e7d32;">💡 Quick Fill:</strong> 
+            <strong style="color: #2e7d32;">💡 Quick Fill:</strong>
             <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
         </div>
         <div class="autofill-actions">
-            <button type="button" id="seedlings-autofill-btn" class="btn-autofill" 
+            <button type="button" id="seedlings-autofill-btn" class="btn-autofill"
                     onclick="fetchAndAutoFillSeedlings()"
                     style="
                         background: #4caf50;
@@ -209,7 +212,7 @@ function addAutoFillButtonToSeedlings() {
                     onmouseout="this.style.background='#4caf50'">
                 ✓ Use My Profile Data
             </button>
-            <button type="button" class="btn-clear" 
+            <button type="button" class="btn-clear"
                     onclick="clearSeedlingsAutoFill()"
                     style="
                         background: #757575;
@@ -256,7 +259,7 @@ function initializeSeedlingsAutoFill() {
     // Add auto-fill button when form is displayed
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' && 
+            if (mutation.type === 'attributes' &&
                 mutation.attributeName === 'style') {
                 const seedlingsForm = document.getElementById('seedlings-form');
                 if (seedlingsForm && seedlingsForm.style.display !== 'none') {

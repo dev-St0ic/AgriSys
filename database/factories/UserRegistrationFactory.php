@@ -21,9 +21,32 @@ class UserRegistrationFactory extends Factory
      */
     public function definition(): array
     {
-        $firstName = $this->faker->firstName();
-        $lastName = $this->faker->lastName();
-        
+        // Filipino names for realistic data
+        $filipinoFirstNames = [
+            'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
+            'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
+            'Maria', 'Ana', 'Rosa', 'Carmen', 'Teresa', 'Luz', 'Elena', 'Patricia',
+            'Isabel', 'Gloria', 'Margarita', 'Rosario', 'Angelina', 'Cristina'
+        ];
+
+        $filipinoLastNames = [
+            'Reyes', 'Santos', 'Cruz', 'Bautista', 'Garcia', 'Mendoza', 'Torres', 'Flores',
+            'Rivera', 'Gonzales', 'Ramos', 'Dela Cruz', 'Sanchez', 'Villanueva', 'Castro',
+            'Martinez', 'Fernandez', 'Lopez', 'Aquino', 'Hernandez', 'Marquez', 'Morales'
+        ];
+
+        $allBarangays = [
+            'Bagong Silang', 'Cuyab', 'Estrella', 'G.S.I.S.', 'Landayan',
+            'Langgam', 'Laram', 'Magsaysay', 'Nueva', 'Poblacion',
+            'Riverside', 'San Antonio', 'San Roque', 'San Vicente', 'Santo Niño',
+            'United Bayanihan', 'United Better Living', 'Sampaguita Village',
+            'Calendola', 'Narra', 'Chrysanthemum', 'Fatima', 'Maharlika',
+            'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
+        ];
+
+        $firstName = $this->faker->randomElement($filipinoFirstNames);
+        $lastName = $this->faker->randomElement($filipinoLastNames);
+
         return [
             // Basic required fields for signup
             'username' => $this->faker->unique()->userName(),
@@ -32,22 +55,19 @@ class UserRegistrationFactory extends Factory
             'status' => $this->faker->randomElement(['unverified', 'pending', 'approved', 'rejected']),
             'terms_accepted' => true,
             'privacy_accepted' => true,
-            
+
             // Extended fields (filled during verification - nullable)
             'first_name' => $firstName,
             'last_name' => $lastName,
-            'middle_name' => $this->faker->optional(0.3)->firstName(),
-            'name_extension' => $this->faker->optional(0.1)->randomElement(['Jr.', 'Sr.', 'III', 'IV']),
+            'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
+            'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
             'contact_number' => $this->faker->optional(0.8)->numerify('+639#########'), // UPDATED: contact_number instead of phone
             'complete_address' => $this->faker->optional(0.7)->address(),
-            'barangay' => $this->faker->optional(0.7)->randomElement([
-                'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
-                'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
-            ]),
+            'barangay' => $this->faker->optional(0.7)->randomElement($allBarangays),
             'user_type' => $this->faker->optional(0.8)->randomElement(['farmer', 'fisherfolk']),
             'date_of_birth' => $this->faker->optional(0.8)->dateTimeBetween('-70 years', '-18 years'),
             'gender' => $this->faker->optional(0.9)->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
-            
+
             // System fields
             'verification_token' => $this->faker->optional(0.3)->sha256(),
             'email_verified_at' => $this->faker->optional(0.7)->dateTimeBetween('-30 days', 'now'),
@@ -86,16 +106,38 @@ class UserRegistrationFactory extends Factory
      */
     public function pending(): static
     {
+        // Filipino names for realistic data
+        $filipinoFirstNames = [
+            'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
+            'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
+            'Maria', 'Ana', 'Rosa', 'Carmen', 'Teresa', 'Luz', 'Elena', 'Patricia',
+            'Isabel', 'Gloria', 'Margarita', 'Rosario', 'Angelina', 'Cristina'
+        ];
+
+        $filipinoLastNames = [
+            'Reyes', 'Santos', 'Cruz', 'Bautista', 'Garcia', 'Mendoza', 'Torres', 'Flores',
+            'Rivera', 'Gonzales', 'Ramos', 'Dela Cruz', 'Sanchez', 'Villanueva', 'Castro',
+            'Martinez', 'Fernandez', 'Lopez', 'Aquino', 'Hernandez', 'Marquez', 'Morales'
+        ];
+
+        $allBarangays = [
+            'Bagong Silang', 'Cuyab', 'Estrella', 'G.S.I.S.', 'Landayan',
+            'Langgam', 'Laram', 'Magsaysay', 'Nueva', 'Poblacion',
+            'Riverside', 'San Antonio', 'San Roque', 'San Vicente', 'Santo Niño',
+            'United Bayanihan', 'United Better Living', 'Sampaguita Village',
+            'Calendola', 'Narra', 'Chrysanthemum', 'Fatima', 'Maharlika',
+            'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
+        ];
+
         return $this->state(fn (array $attributes) => [
             'status' => UserRegistration::STATUS_PENDING,
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
+            'first_name' => $this->faker->randomElement($filipinoFirstNames),
+            'last_name' => $this->faker->randomElement($filipinoLastNames),
+            'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
+            'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
             'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
             'complete_address' => $this->faker->address(),
-            'barangay' => $this->faker->randomElement([
-                'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
-                'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
-            ]),
+            'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
             'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
             'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
@@ -110,16 +152,38 @@ class UserRegistrationFactory extends Factory
      */
     public function approved(): static
     {
+        // Filipino names for realistic data
+        $filipinoFirstNames = [
+            'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
+            'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
+            'Maria', 'Ana', 'Rosa', 'Carmen', 'Teresa', 'Luz', 'Elena', 'Patricia',
+            'Isabel', 'Gloria', 'Margarita', 'Rosario', 'Angelina', 'Cristina'
+        ];
+
+        $filipinoLastNames = [
+            'Reyes', 'Santos', 'Cruz', 'Bautista', 'Garcia', 'Mendoza', 'Torres', 'Flores',
+            'Rivera', 'Gonzales', 'Ramos', 'Dela Cruz', 'Sanchez', 'Villanueva', 'Castro',
+            'Martinez', 'Fernandez', 'Lopez', 'Aquino', 'Hernandez', 'Marquez', 'Morales'
+        ];
+
+        $allBarangays = [
+            'Bagong Silang', 'Cuyab', 'Estrella', 'G.S.I.S.', 'Landayan',
+            'Langgam', 'Laram', 'Magsaysay', 'Nueva', 'Poblacion',
+            'Riverside', 'San Antonio', 'San Roque', 'San Vicente', 'Santo Niño',
+            'United Bayanihan', 'United Better Living', 'Sampaguita Village',
+            'Calendola', 'Narra', 'Chrysanthemum', 'Fatima', 'Maharlika',
+            'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
+        ];
+
         return $this->state(fn (array $attributes) => [
             'status' => UserRegistration::STATUS_APPROVED,
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
+            'first_name' => $this->faker->randomElement($filipinoFirstNames),
+            'last_name' => $this->faker->randomElement($filipinoLastNames),
+            'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
+            'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
             'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
             'complete_address' => $this->faker->address(),
-            'barangay' => $this->faker->randomElement([
-                'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
-                'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
-            ]),
+            'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
             'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
             'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
@@ -134,16 +198,38 @@ class UserRegistrationFactory extends Factory
      */
     public function rejected(): static
     {
+        // Filipino names for realistic data
+        $filipinoFirstNames = [
+            'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
+            'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
+            'Maria', 'Ana', 'Rosa', 'Carmen', 'Teresa', 'Luz', 'Elena', 'Patricia',
+            'Isabel', 'Gloria', 'Margarita', 'Rosario', 'Angelina', 'Cristina'
+        ];
+
+        $filipinoLastNames = [
+            'Reyes', 'Santos', 'Cruz', 'Bautista', 'Garcia', 'Mendoza', 'Torres', 'Flores',
+            'Rivera', 'Gonzales', 'Ramos', 'Dela Cruz', 'Sanchez', 'Villanueva', 'Castro',
+            'Martinez', 'Fernandez', 'Lopez', 'Aquino', 'Hernandez', 'Marquez', 'Morales'
+        ];
+
+        $allBarangays = [
+            'Bagong Silang', 'Cuyab', 'Estrella', 'G.S.I.S.', 'Landayan',
+            'Langgam', 'Laram', 'Magsaysay', 'Nueva', 'Poblacion',
+            'Riverside', 'San Antonio', 'San Roque', 'San Vicente', 'Santo Niño',
+            'United Bayanihan', 'United Better Living', 'Sampaguita Village',
+            'Calendola', 'Narra', 'Chrysanthemum', 'Fatima', 'Maharlika',
+            'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
+        ];
+
         return $this->state(fn (array $attributes) => [
             'status' => UserRegistration::STATUS_REJECTED,
-            'first_name' => $this->faker->firstName(),
-            'last_name' => $this->faker->lastName(),
+            'first_name' => $this->faker->randomElement($filipinoFirstNames),
+            'last_name' => $this->faker->randomElement($filipinoLastNames),
+            'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
+            'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
             'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
             'complete_address' => $this->faker->address(),
-            'barangay' => $this->faker->randomElement([
-                'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
-                'Barangay Poblacion', 'Barangay Riverside', 'Barangay Central'
-            ]),
+            'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
             'approved_at' => null,
             'approved_by' => null,

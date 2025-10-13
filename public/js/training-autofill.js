@@ -29,18 +29,18 @@ function autoFillTrainingFromProfile() {
         const field = form.querySelector(`[name="${fieldName}"]`);
         if (field && value) {
             field.value = value;
-            
+
             // Trigger change event for selects
             if (field.tagName === 'SELECT') {
                 field.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            
+
             // Add visual feedback
             field.style.backgroundColor = '#f0f8ff';
             setTimeout(() => {
                 field.style.backgroundColor = '';
             }, 2000);
-            
+
             filledCount++;
             console.log(`✓ Filled ${fieldName} with: ${value}`);
             return true;
@@ -57,6 +57,9 @@ function autoFillTrainingFromProfile() {
 
     // Fill Last Name
     setFieldValue('last_name', userData.last_name);
+
+    // Fill Name Extension
+    setFieldValue('name_extension', userData.name_extension || userData.extension_name);
 
     // Fill Contact Number
     setFieldValue('contact_number', userData.contact_number || userData.mobile || userData.phone);
@@ -82,7 +85,7 @@ function autoFillTrainingFromProfile() {
  */
 async function fetchAndAutoFillTraining() {
     console.log('Fetching fresh user profile data...');
-    
+
     // Show loading state
     const btn = document.getElementById('training-autofill-btn');
     const originalText = btn ? btn.innerHTML : '';
@@ -112,7 +115,7 @@ async function fetchAndAutoFillTraining() {
         if (data.success && data.user) {
             // Update window.userData with fresh data
             window.userData = Object.assign({}, window.userData, data.user);
-            
+
             // Now auto-fill
             autoFillTrainingFromProfile();
         } else {
@@ -148,13 +151,13 @@ function clearTrainingAutoFill() {
  */
 function isTrainingFormEmpty(form) {
     const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select');
-    
+
     for (let input of inputs) {
         if (input.value && input.value.trim() !== '') {
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -193,11 +196,11 @@ function addAutoFillButtonToTraining() {
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2e7d32;">💡 Quick Fill:</strong> 
+            <strong style="color: #2e7d32;">💡 Quick Fill:</strong>
             <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
         </div>
         <div class="autofill-actions">
-            <button type="button" id="training-autofill-btn" class="btn-autofill" 
+            <button type="button" id="training-autofill-btn" class="btn-autofill"
                     onclick="fetchAndAutoFillTraining()"
                     style="
                         background: #4caf50;
@@ -215,7 +218,7 @@ function addAutoFillButtonToTraining() {
                     onmouseout="this.style.background='#4caf50'">
                 ✓ Use My Profile Data
             </button>
-            <button type="button" class="btn-clear" 
+            <button type="button" class="btn-clear"
                     onclick="clearTrainingAutoFill()"
                     style="
                         background: #757575;
@@ -256,7 +259,7 @@ function initializeTrainingAutoFill() {
     // Add auto-fill button when form is displayed
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' && 
+            if (mutation.type === 'attributes' &&
                 mutation.attributeName === 'style') {
                 const trainingForm = document.getElementById('training-form');
                 if (trainingForm && trainingForm.style.display !== 'none') {

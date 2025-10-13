@@ -2,7 +2,8 @@
 <section class="rsbsa-application-section" id="new-rsbsa" style="display: none;">
     <div class="rsbsa-form-header">
         <h2>RSBSA Registration</h2>
-        <p>Registry System for Basic Sectors in Agriculture - Register as a farmer, fisherfolk, or agricultural worker.</p>
+        <p>Registry System for Basic Sectors in Agriculture - Register as a farmer, fisherfolk, or agricultural worker.
+        </p>
     </div>
 
     <div class="rsbsa-form-tabs">
@@ -15,15 +16,36 @@
         <form method="POST" action="/apply/rsbsa" enctype="multipart/form-data" id="rsbsa-form">
             @csrf
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
-            
+
             <label>First Name *</label>
-            <input type="text" name="first_name" placeholder="Enter your first name" required>
+            <input type="text" id="rsbsa-first_name" name="first_name" placeholder="Enter your first name"
+                pattern="[a-zA-Z\s\'-]+" title="First name can only contain letters, spaces, hyphens, and apostrophes"
+                required>
+            <span class="validation-warning" id="rsbsa-first_name-warning"
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                hyphens, and apostrophes are allowed</span>
 
             <label>Middle Name (Optional)</label>
-            <input type="text" name="middle_name" placeholder="Enter your middle name">
+            <input type="text" id="rsbsa-middle_name" name="middle_name" placeholder="Enter your middle name"
+                pattern="[a-zA-Z\s\'-]+" title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
+            <span class="validation-warning" id="rsbsa-middle_name-warning"
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                hyphens, and apostrophes are allowed</span>
 
             <label>Last Name *</label>
-            <input type="text" name="last_name" placeholder="Enter your last name" required>
+            <input type="text" id="rsbsa-last_name" name="last_name" placeholder="Enter your last name"
+                pattern="[a-zA-Z\s\'-]+" title="Last name can only contain letters, spaces, hyphens, and apostrophes"
+                required>
+            <span class="validation-warning" id="rsbsa-last_name-warning"
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                hyphens, and apostrophes are allowed</span>
+
+            <label>Name Extension (Optional)</label>
+            <input type="text" id="rsbsa-name_extension" name="name_extension" placeholder="Jr., Sr., III, etc."
+                pattern="[a-zA-Z.\s]+" title="Name extension can only contain letters, periods, and spaces">
+            <span class="validation-warning" id="rsbsa-name_extension-warning"
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, periods,
+                and spaces are allowed</span>
 
             <label>Sex *</label>
             <select name="sex" required>
@@ -66,7 +88,9 @@
             </select>
 
             <label>Mobile Number *</label>
-            <input type="tel" name="mobile" placeholder="Enter your mobile number (e.g., 09123456789)" required>
+            <input type="tel" name="mobile" placeholder="+639XXXXXXXXX or 09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
+                title="Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
+                required>
 
             <label>Email Address *</label>
             <input type="email" name="email" placeholder="Enter your email address" required>
@@ -81,7 +105,8 @@
             </select>
 
             <label>Land Area (in hectares)</label>
-            <input type="number" name="land_area" step="0.01" min="0" max="1000" placeholder="Enter land area (optional)">
+            <input type="number" name="land_area" step="0.01" min="0" max="1000"
+                placeholder="Enter land area (optional)">
 
             <label>Farm Location</label>
             <input type="text" name="farm_location" placeholder="Enter farm location (optional)">
@@ -96,11 +121,15 @@
                 For fisherfolk: Upload a photo of your aquaculture setup (e.g., fishpond, fish cage, fish pen).<br>
                 Accepted formats: JPG, PNG, PDF (Max size: 5MB)
             </small>
-            
+
             <!-- File preview area -->
-            <div id="file-preview" style="display: none; margin-top: 10px; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
-                <p style="margin: 0 0 10px 0; color: #495057;"><strong>Selected file:</strong> <span id="file-name"></span></p>
-                <button type="button" onclick="removeFile()" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Remove File</button>
+            <div id="file-preview"
+                style="display: none; margin-top: 10px; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; color: #495057;"><strong>Selected file:</strong> <span
+                        id="file-name"></span></p>
+                <button type="button" onclick="removeFile()"
+                    style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Remove
+                    File</button>
             </div>
 
             <div class="rsbsa-form-buttons">
@@ -123,10 +152,12 @@
 
     <div class="rsbsa-tab-content" id="information" style="display: none;">
         <h3>Important Information</h3>
-        <p>All applications are subject to review and approval by the City Agriculture Office. Processing time is typically 3–5 working days. You may be contacted for additional information or verification.</p>
-        
-        <p>All information provided must be accurate and truthful. Submission of incomplete or incorrect information may result in delays or rejection.</p>
-        
+        <p>All applications are subject to review and approval by the City Agriculture Office. Processing time is
+            typically 3–5 working days. You may be contacted for additional information or verification.</p>
+
+        <p>All information provided must be accurate and truthful. Submission of incomplete or incorrect information may
+            result in delays or rejection.</p>
+
         <h3>Contact Information</h3>
         <p>For assistance with your application, please contact:</p>
         <ul>
@@ -135,7 +166,7 @@
             <li><strong>Office Hours:</strong> Monday - Friday, 8:00 AM - 5:00 PM</li>
             <li><strong>Location:</strong> City Agriculture Office, San Pedro City Hall</li>
         </ul>
-        
+
         <h3>What Happens Next?</h3>
         <ol>
             <li>Your application will be reviewed by our agriculture office</li>
@@ -145,3 +176,52 @@
         </ol>
     </div>
 </section>
+
+<script>
+    // Real-time validation for name fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameFields = [{
+                id: 'rsbsa-first_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'rsbsa-middle_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'rsbsa-last_name',
+                pattern: /^[a-zA-Z\s\'-]*$/
+            },
+            {
+                id: 'rsbsa-name_extension',
+                pattern: /^[a-zA-Z.\s]*$/
+            }
+        ];
+
+        nameFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            const warning = document.getElementById(field.id + '-warning');
+
+            if (input && warning) {
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+
+                    if (!field.pattern.test(value)) {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    } else {
+                        warning.style.display = 'none';
+                        input.style.borderColor = '';
+                    }
+                });
+
+                input.addEventListener('blur', function(e) {
+                    if (!field.pattern.test(e.target.value) && e.target.value !== '') {
+                        warning.style.display = 'block';
+                        input.style.borderColor = '#ff6b6b';
+                    }
+                });
+            }
+        });
+    });
+</script>
