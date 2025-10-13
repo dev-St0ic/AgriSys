@@ -230,38 +230,72 @@ function closeProfileModal() {
 }
 
 function loadProfileData() {
-    // Load recent activity (this would normally come from your backend)
-    const activityList = document.getElementById('recent-activity-list');
-    if (activityList && window.userData) {
-        // You can populate this with real data from your backend
-        const mockActivity = [
-            {
-                icon: '📝',
-                text: 'Submitted RSBSA Registration',
-                date: '2 days ago'
-            },
-            {
-                icon: '✅',
-                text: 'Seedling Request Approved',
-                date: '1 week ago'
-            },
-            {
-                icon: '👤',
-                text: 'Profile Updated',
-                date: '2 weeks ago'
+    // Load application statistics and recent activity from the combined endpoint
+    fetch('/api/user/applications/all', {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the statistics in the modal
+            const totalStat = document.querySelector('.stat-item:nth-child(1) .stat-number');
+            const approvedStat = document.querySelector('.stat-item:nth-child(2) .stat-number');
+            const pendingStat = document.querySelector('.stat-item:nth-child(3) .stat-number');
+            
+            if (totalStat) totalStat.textContent = data.total || '0';
+            if (approvedStat) {
+                // Calculate approved from all applications
+                const approvedCount = data.applications.filter(app => 
+                    app.status.toLowerCase() === 'approved'
+                ).length;
+                approvedStat.textContent = approvedCount || '0';
             }
-        ];
+            if (pendingStat) {
+                // Calculate pending from all applications
+                const pendingCount = data.applications.filter(app => 
+                    ['pending', 'under_review', 'processing'].includes(app.status.toLowerCase())
+                ).length;
+                pendingStat.textContent = pendingCount || '0';
+            }
 
-        activityList.innerHTML = mockActivity.map(activity => `
-            <div class="activity-item">
-                <div class="activity-icon">${activity.icon}</div>
-                <div class="activity-content">
-                    <div class="activity-text">${activity.text}</div>
-                    <div class="activity-date">${activity.date}</div>
+            // Load recent activity from the response
+            const activityList = document.getElementById('recent-activity-list');
+            if (activityList) {
+                if (data.recent_activity && data.recent_activity.length > 0) {
+                    activityList.innerHTML = data.recent_activity.map(activity => `
+                        <div class="activity-item">
+                            <div class="activity-icon">${activity.icon}</div>
+                            <div class="activity-content">
+                                <div class="activity-text">${activity.text}</div>
+                                <div class="activity-date">${activity.date}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    activityList.innerHTML = `
+                        <div class="empty-activity">
+                            <p>No recent activity yet</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error loading profile data:', error);
+        // Fallback: show error message
+        const activityList = document.getElementById('recent-activity-list');
+        if (activityList) {
+            activityList.innerHTML = `
+                <div class="error-activity">
+                    <p>Unable to load recent activity</p>
                 </div>
-            </div>
-        `).join('');
-    }
+            `;
+        }
+    });
 }
 
 function editProfile() {

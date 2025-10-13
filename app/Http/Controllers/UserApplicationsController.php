@@ -12,14 +12,9 @@ use Illuminate\Support\Facades\Log;
 
 class UserApplicationsController extends Controller
 {
-    /**
-     * Get all applications for the authenticated user
-     * Combines RSBSA, Seedlings, FishR, BoatR, and Training applications
-     */
     public function getAllApplications(Request $request)
     {
         try {
-            // Get user ID from session
             $userId = session('user.id');
             
             if (!$userId) {
@@ -33,7 +28,7 @@ class UserApplicationsController extends Controller
 
             $allApplications = [];
 
-            // 1. FETCH RSBSA APPLICATIONS
+            // FETCH RSBSA APPLICATIONS
             $rsbsaApps = RsbsaApplication::where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -53,11 +48,12 @@ class UserApplicationsController extends Controller
                     'submitted_at' => $app->created_at->format('Y-m-d H:i:s'),
                     'date' => $app->created_at->format('Y-m-d'),
                     'created_at' => $app->created_at->format('M d, Y'),
-                    'sort_date' => $app->created_at
+                    'sort_date' => $app->created_at,
+                    'updated_at' => $app->updated_at
                 ];
             }
 
-            // 2. FETCH SEEDLING REQUESTS
+            // FETCH SEEDLING REQUESTS
             try {
                 if (class_exists('App\Models\SeedlingRequest')) {
                     $seedlingApps = SeedlingRequest::where('user_id', $userId)
@@ -78,7 +74,8 @@ class UserApplicationsController extends Controller
                             'submitted_at' => $app->created_at->format('Y-m-d H:i:s'),
                             'date' => $app->created_at->format('Y-m-d'),
                             'created_at' => $app->created_at->format('M d, Y'),
-                            'sort_date' => $app->created_at
+                            'sort_date' => $app->created_at,
+                            'updated_at' => $app->updated_at
                         ];
                     }
                 }
@@ -86,7 +83,7 @@ class UserApplicationsController extends Controller
                 Log::warning('Could not fetch seedling applications: ' . $e->getMessage());
             }
 
-            // 3. FETCH FISHR APPLICATIONS
+            // FETCH FISHR APPLICATIONS
             try {
                 if (class_exists('App\Models\FishrApplication')) {
                     $fishrApps = FishrApplication::where('user_id', $userId)
@@ -107,7 +104,8 @@ class UserApplicationsController extends Controller
                             'submitted_at' => $app->created_at->format('Y-m-d H:i:s'),
                             'date' => $app->created_at->format('Y-m-d'),
                             'created_at' => $app->created_at->format('M d, Y'),
-                            'sort_date' => $app->created_at
+                            'sort_date' => $app->created_at,
+                            'updated_at' => $app->updated_at
                         ];
                     }
                 }
@@ -115,7 +113,7 @@ class UserApplicationsController extends Controller
                 Log::warning('Could not fetch FishR applications: ' . $e->getMessage());
             }
 
-            // 4. FETCH BOATR APPLICATIONS
+            // FETCH BOATR APPLICATIONS
             try {
                 if (class_exists('App\Models\BoatrApplication')) {
                     $boatrApps = BoatrApplication::where('user_id', $userId)
@@ -136,7 +134,8 @@ class UserApplicationsController extends Controller
                             'submitted_at' => $app->created_at->format('Y-m-d H:i:s'),
                             'date' => $app->created_at->format('Y-m-d'),
                             'created_at' => $app->created_at->format('M d, Y'),
-                            'sort_date' => $app->created_at
+                            'sort_date' => $app->created_at,
+                            'updated_at' => $app->updated_at
                         ];
                     }
                 }
@@ -144,7 +143,7 @@ class UserApplicationsController extends Controller
                 Log::warning('Could not fetch BoatR applications: ' . $e->getMessage());
             }
 
-            // 5. FETCH TRAINING APPLICATIONS
+            // FETCH TRAINING APPLICATIONS
             try {
                 if (class_exists('App\Models\TrainingApplication')) {
                     $trainingApps = TrainingApplication::where('user_id', $userId)
@@ -166,7 +165,8 @@ class UserApplicationsController extends Controller
                             'submitted_at' => $app->created_at->format('Y-m-d H:i:s'),
                             'date' => $app->created_at->format('Y-m-d'),
                             'created_at' => $app->created_at->format('M d, Y'),
-                            'sort_date' => $app->created_at
+                            'sort_date' => $app->created_at,
+                            'updated_at' => $app->updated_at
                         ];
                     }
                 }
@@ -174,14 +174,15 @@ class UserApplicationsController extends Controller
                 Log::warning('Could not fetch training applications: ' . $e->getMessage());
             }
 
-            // Sort all applications by date (newest first)
             usort($allApplications, function($a, $b) {
                 return $b['sort_date'] <=> $a['sort_date'];
             });
 
-            // Remove sort_date field from response
+            $recentActivity = $this->generateRecentActivity($allApplications);
+
             $allApplications = array_map(function($app) {
                 unset($app['sort_date']);
+                unset($app['updated_at']);
                 return $app;
             }, $allApplications);
 
@@ -193,6 +194,7 @@ class UserApplicationsController extends Controller
             return response()->json([
                 'success' => true,
                 'applications' => $allApplications,
+                'recent_activity' => $recentActivity,
                 'total' => count($allApplications),
                 'breakdown' => [
                     'rsbsa' => $rsbsaApps->count(),
@@ -218,9 +220,90 @@ class UserApplicationsController extends Controller
         }
     }
 
-    /**
-     * Get RSBSA applications only
-     */
+    private function generateRecentActivity($applications)
+    {
+        $activities = [];
+        
+        foreach ($applications as $app) {
+            $activities[] = [
+                'icon' => $this->getActivityIcon($app['type']),
+                'text' => 'Submitted ' . $app['type'],
+                'date' => $this->getRelativeTime($app['submitted_at']),
+                'timestamp' => $app['submitted_at']
+            ];
+
+            if (isset($app['updated_at']) && $app['updated_at'] != $app['sort_date']) {
+                $activities[] = [
+                    'icon' => $this->getStatusIcon($app['status']),
+                    'text' => $app['type'] . ' - ' . ucfirst(str_replace('_', ' ', $app['status'])),
+                    'date' => $this->getRelativeTime($app['updated_at']),
+                    'timestamp' => $app['updated_at']
+                ];
+            }
+        }
+
+        usort($activities, function($a, $b) {
+            return strtotime($b['timestamp']) - strtotime($a['timestamp']);
+        });
+
+        $activities = array_map(function($activity) {
+            unset($activity['timestamp']);
+            return $activity;
+        }, array_slice($activities, 0, 5));
+
+        return $activities;
+    }
+
+    private function getActivityIcon($type)
+    {
+        $icons = [
+            'RSBSA Registration' => '📋',
+            'Seedlings Request' => '🌱',
+            'FishR Registration' => '🐟',
+            'BoatR Registration' => '⛵',
+            'Training Request' => '📚'
+        ];
+        return $icons[$type] ?? '📄';
+    }
+
+    private function getStatusIcon($status)
+    {
+        $icons = [
+            'pending' => '⏳',
+            'under_review' => '🔍',
+            'approved' => '✅',
+            'rejected' => '❌',
+            'completed' => '✅'
+        ];
+        return $icons[strtolower($status)] ?? '📌';
+    }
+
+    private function getRelativeTime($timestamp)
+    {
+        $time = strtotime($timestamp);
+        $now = time();
+        $diff = $now - $time;
+
+        if ($diff < 60) {
+            return 'Just now';
+        } elseif ($diff < 3600) {
+            $mins = floor($diff / 60);
+            return $mins . ' minute' . ($mins > 1 ? 's' : '') . ' ago';
+        } elseif ($diff < 86400) {
+            $hours = floor($diff / 3600);
+            return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
+        } elseif ($diff < 604800) {
+            $days = floor($diff / 86400);
+            return $days . ' day' . ($days > 1 ? 's' : '') . ' ago';
+        } elseif ($diff < 2592000) {
+            $weeks = floor($diff / 604800);
+            return $weeks . ' week' . ($weeks > 1 ? 's' : '') . ' ago';
+        } else {
+            $months = floor($diff / 2592000);
+            return $months . ' month' . ($months > 1 ? 's' : '') . ' ago';
+        }
+    }
+
     public function getRsbsaApplications(Request $request)
     {
         try {
@@ -267,9 +350,6 @@ class UserApplicationsController extends Controller
         }
     }
 
-    /**
-     * Get Training applications only
-     */
     public function getTrainingApplications(Request $request)
     {
         try {
@@ -312,6 +392,56 @@ class UserApplicationsController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load training applications'
+            ], 500);
+        }
+    }
+
+    public function getApplicationStats(Request $request)
+    {
+        try {
+            $userId = session('user.id');
+            
+            if (!$userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please log in'
+                ], 401);
+            }
+
+            $total = 
+                RsbsaApplication::where('user_id', $userId)->count() +
+                SeedlingRequest::where('user_id', $userId)->count() +
+                FishrApplication::where('user_id', $userId)->count() +
+                BoatrApplication::where('user_id', $userId)->count() +
+                TrainingApplication::where('user_id', $userId)->count();
+            
+            $approved = 
+                RsbsaApplication::where('user_id', $userId)->where('status', 'approved')->count() +
+                SeedlingRequest::where('user_id', $userId)->where('status', 'approved')->count() +
+                FishrApplication::where('user_id', $userId)->where('status', 'approved')->count() +
+                BoatrApplication::where('user_id', $userId)->where('status', 'approved')->count() +
+                TrainingApplication::where('user_id', $userId)->where('status', 'approved')->count();
+            
+            $pending = 
+                RsbsaApplication::where('user_id', $userId)->whereIn('status', ['pending', 'under_review'])->count() +
+                SeedlingRequest::where('user_id', $userId)->whereIn('status', ['pending', 'under_review'])->count() +
+                FishrApplication::where('user_id', $userId)->whereIn('status', ['pending', 'under_review'])->count() +
+                BoatrApplication::where('user_id', $userId)->whereIn('status', ['pending', 'under_review'])->count() +
+                TrainingApplication::where('user_id', $userId)->whereIn('status', ['pending', 'under_review'])->count();
+
+            return response()->json([
+                'success' => true,
+                'total' => $total,
+                'approved' => $approved,
+                'pending' => $pending
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching application stats: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to load statistics'
             ], 500);
         }
     }
