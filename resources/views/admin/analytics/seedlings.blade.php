@@ -60,9 +60,9 @@
                                     </a>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <a href="{{ route('admin.analytics.inventory') }}"
-                                        class="nav-link {{ request()->routeIs('admin.analytics.inventory') ? 'active' : '' }}">
-                                        <i class="fas fa-boxes me-1"></i> Inventory
+                                    <a href="{{ route('admin.analytics.supply-management') }}"
+                                        class="nav-link {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
+                                        <i class="fas fa-boxes me-1"></i> Supply Management
                                     </a>
                                 </li>
                                 <li class="nav-item" role="presentation">
