@@ -9,15 +9,13 @@
 <!-- Header with Service Navigation -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm border-0">
             <div class="card-body">
-                <!-- Title and Description at Top -->
                 <div class="text-center mb-4">
-                    <h4 class="mb-2">BOATR Analytics Dashboard</h4>
+                    <h4 class="mb-2 fw-bold">BOATR Analytics Dashboard</h4>
                     <p class="text-muted mb-0">Comprehensive insights into Boat Registration Services</p>
                 </div>
                 
-                <!-- Centered Service Navigation Buttons -->
                 <div class="d-flex justify-content-center">
                     <ul class="nav nav-pills" id="serviceTab" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -51,9 +49,9 @@
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a href="{{ route('admin.analytics.inventory') }}" 
-                            class="nav-link {{ request()->routeIs('admin.analytics.inventory') ? 'active' : '' }}">
-                                <i class="fas fa-boxes me-1"></i> Inventory
+                            <a href="{{ route('admin.analytics.supply-management') }}"
+                                class="nav-link {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
+                                <i lass="fas fa-boxes me-1"></i> Supply Management
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -69,672 +67,477 @@
     </div>
 </div>
 
-<!-- Service Content -->
-<div class="tab-content" id="serviceTabContent">
-    <!-- BOATR Service Tab -->
-    <div class="tab-pane fade show active" id="boatr-service" role="tabpanel">
-        
-        <!-- Date Range Filter -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <form method="GET" action="{{ route('admin.analytics.boatr') }}" class="row g-3">
-                            <div class="col-md-3">
-                                <label for="start_date" class="form-label">Start Date</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date" 
-                                       value="{{ $startDate }}">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="end_date" class="form-label">End Date</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date" 
-                                       value="{{ $endDate }}">
-                            </div>
-                            <div class="col-md-6 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary me-2">
-                                    <i class="fas fa-filter me-1"></i> Apply Filter
-                                </button>
-                                <a href="{{ route('admin.analytics.boatr.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
-                                   class="btn btn-success me-2">
-                                    <i class="fas fa-download me-1"></i> Export
-                                </a>
-                                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#boatrInsightsModal">
-                                    <i class="fas fa-lightbulb me-1"></i> AI Insights
-                                </button>
-                            </div>
-                        </form>
+<!-- Date Range Filter -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <form method="GET" action="{{ route('admin.analytics.boatr') }}" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="start_date" class="form-label fw-semibold">Start Date</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" 
+                               value="{{ $startDate }}">
                     </div>
+                    <div class="col-md-3">
+                        <label for="end_date" class="form-label fw-semibold">End Date</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" 
+                               value="{{ $endDate }}">
+                    </div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-filter me-2"></i> Apply Filter
+                        </button>
+                        <a href="{{ route('admin.analytics.boatr.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}" 
+                           class="btn btn-success px-4">
+                            <i class="fas fa-download me-2"></i> Export Data
+                        </a>
+                        <button type="button" class="btn btn-outline-info px-4" data-bs-toggle="modal" data-bs-target="#boatrInsightsModal">
+                            <i class="fas fa-lightbulb me-2"></i> AI Insights
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card card-blue">
+            <div class="metric-icon">
+                <i class="fas fa-ship"></i>
+            </div>
+            <div class="metric-content">
+                <h6 class="metric-label">Total Applications</h6>
+                <h2 class="metric-value">{{ number_format($overview['total_applications']) }}</h2>
+                <p class="metric-detail">{{ number_format($overview['unique_applicants']) }} boat owners</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card card-green">
+            <div class="metric-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="metric-content">
+                <h6 class="metric-label">Approval Rate</h6>
+                <h2 class="metric-value">{{ $overview['approval_rate'] }}%</h2>
+                <p class="metric-detail">{{ number_format($overview['approved_applications']) }} approved</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card card-purple">
+            <div class="metric-icon">
+                <i class="fas fa-anchor"></i>
+            </div>
+            <div class="metric-content">
+                <h6 class="metric-label">Registered Fleet</h6>
+                <h2 class="metric-value">{{ $overview['unique_vessels'] }}</h2>
+                <p class="metric-detail">{{ $overview['unique_boat_types'] }} boat types</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <div class="metric-card card-orange">
+            <div class="metric-icon">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div class="metric-content">
+                <h6 class="metric-label">Inspection Rate</h6>
+                <h2 class="metric-value">{{ $overview['inspection_completion_rate'] }}%</h2>
+                <p class="metric-detail">{{ number_format($overview['inspections_completed']) }} completed</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Charts Row -->
+<div class="row g-4 mb-4">
+    <!-- Application Trends -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-chart-line text-primary me-2"></i>Application Trends Over Time
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="boatrTrendsChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Distribution -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-tasks text-primary me-2"></i>Application Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="status-list">
+                    @php
+                        $statusColors = [
+                            'approved' => 'success',
+                            'rejected' => 'danger',
+                            'under_review' => 'warning',
+                            'inspection_scheduled' => 'info',
+                            'inspection_required' => 'primary',
+                            'documents_pending' => 'secondary',
+                            'pending' => 'secondary'
+                        ];
+                    @endphp
+                    @foreach($statusAnalysis['counts'] as $status => $count)
+                    <div class="status-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="status-name">
+                                <span class="status-dot bg-{{ $statusColors[$status] ?? 'secondary' }}"></span>
+                                {{ ucfirst(str_replace('_', ' ', $status)) }}
+                            </span>
+                            <div>
+                                <span class="badge bg-{{ $statusColors[$status] ?? 'secondary' }} me-1">{{ $count }}</span>
+                                <small class="text-muted">{{ $statusAnalysis['percentages'][$status] }}%</small>
+                            </div>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-{{ $statusColors[$status] ?? 'secondary' }}" 
+                                 style="width: {{ $statusAnalysis['percentages'][$status] }}%"></div>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Key Metrics Row -->
-        <div class="row mb-4">
-            <!-- Total Applications Card -->
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
-                    <div class="card-body text-white">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-title mb-2 opacity-75">Total Applications</h6>
-                                <h2 class="mb-1">{{ number_format($overview['total_applications']) }}</h2>
-                                <small class="opacity-75">
-                                    <i class="fas fa-arrow-up me-1"></i>12% from last period
-                                </small>
-                            </div>
-                            <div class="p-3 bg-white bg-opacity-20 rounded-circle">
-                                <i class="fas fa-ship fa-lg"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- Performance & Analysis Row -->
+<div class="row g-4 mb-4">
+    <!-- Performance Metrics -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-tachometer-alt text-primary me-2"></i>Performance Metrics
+                </h5>
             </div>
-            
-            <!-- Approval Rate Card -->
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                    <div class="card-body text-white">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-title mb-2 opacity-75">Approval Rate</h6>
-                                <h2 class="mb-1">{{ $overview['approval_rate'] }}%</h2>
-                                <small class="opacity-75">{{ number_format($overview['approved_applications']) }} approved</small>
-                            </div>
-                            <div class="p-3 bg-white bg-opacity-20 rounded-circle">
-                                <i class="fas fa-check-circle fa-lg"></i>
-                            </div>
-                        </div>
+            <div class="card-body">
+                <div class="performance-metric">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Processing Time</h6>
+                        <span class="badge bg-{{ $processingTimeAnalysis['avg_processing_days'] < 5 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] < 10 ? 'warning' : 'danger') }}">
+                            {{ $processingTimeAnalysis['avg_processing_days'] }}d avg
+                        </span>
                     </div>
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar bg-{{ $processingTimeAnalysis['avg_processing_days'] < 5 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] < 10 ? 'warning' : 'danger') }}" 
+                             style="width: {{ min(100, (21 - $processingTimeAnalysis['avg_processing_days']) / 21 * 100) }}%"></div>
+                    </div>
+                    <small class="text-muted">Median: {{ $processingTimeAnalysis['median_processing_days'] }}d | Processed: {{ $processingTimeAnalysis['processed_count'] }}</small>
                 </div>
-            </div>
-            
-            <!-- Vessel Fleet Card -->
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                    <div class="card-body text-white">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-title mb-2 opacity-75">Registered Fleet</h6>
-                                <h2 class="mb-1">{{ $overview['unique_vessels'] }}</h2>
-                                <small class="opacity-75">{{ number_format($overview['unique_applicants']) }} boat owners</small>
-                            </div>
-                            <div class="p-3 bg-white bg-opacity-20 rounded-circle">
-                                <i class="fas fa-anchor fa-lg"></i>
-                            </div>
-                        </div>
+                
+                <hr class="my-3">
+                
+                <div class="performance-metric">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Completion Rate</h6>
+                        <span class="badge bg-info">{{ $performanceMetrics['completion_rate'] }}%</span>
                     </div>
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar bg-info" style="width: {{ $performanceMetrics['completion_rate'] }}%"></div>
+                    </div>
+                    <small class="text-muted">Applications completed from total submissions</small>
                 </div>
-            </div>
-            
-            <!-- Inspection Status Card -->
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-                    <div class="card-body text-white">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="card-title mb-2 opacity-75">Inspection Rate</h6>
-                                <h2 class="mb-1">{{ $overview['inspection_completion_rate'] }}%</h2>
-                                <small class="opacity-75">{{ number_format($overview['inspections_completed']) }} inspections done</small>
-                            </div>
-                            <div class="p-3 bg-white bg-opacity-20 rounded-circle">
-                                <i class="fas fa-clipboard-check fa-lg"></i>
-                            </div>
-                        </div>
+                
+                <hr class="my-3">
+                
+                <div class="performance-metric">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Quality Score</h6>
+                        <span class="badge bg-{{ $performanceMetrics['quality_score'] > 80 ? 'success' : ($performanceMetrics['quality_score'] > 60 ? 'warning' : 'danger') }}">
+                            {{ $performanceMetrics['quality_score'] }}%
+                        </span>
                     </div>
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar bg-{{ $performanceMetrics['quality_score'] > 80 ? 'success' : ($performanceMetrics['quality_score'] > 60 ? 'warning' : 'danger') }}" 
+                             style="width: {{ $performanceMetrics['quality_score'] }}%"></div>
+                    </div>
+                    <small class="text-muted">Based on approval, document & inspection rates</small>
+                </div>
+                
+                <hr class="my-3">
+                
+                <div class="performance-metric">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Daily Volume</h6>
+                        <span class="badge bg-primary">{{ $performanceMetrics['avg_applications_per_day'] }}</span>
+                    </div>
+                    <div class="progress mb-2" style="height: 10px;">
+                        <div class="progress-bar bg-primary" style="width: {{ min(100, $performanceMetrics['avg_applications_per_day'] * 10) }}%"></div>
+                    </div>
+                    <small class="text-muted">Average applications per day</small>
                 </div>
             </div>
         </div>
-
-        <!-- Main Analytics Row -->
-        <div class="row">
-            <!-- Status Distribution -->
-            <div class="col-lg-4 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header bg-gradient-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-pie-chart me-2"></i>Application Status Distribution
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="position-relative">
-                            <canvas id="boatrStatusDonutChart" height="250"></canvas>
-                        </div>
-                        <div class="mt-3">
-                            @foreach($statusAnalysis['counts'] as $status => $count)
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="d-flex align-items-center">
-                                    <i class="fas fa-circle me-2 text-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }}"></i>
-                                    {{ ucfirst(str_replace('_', ' ', $status)) }}
-                                </span>
-                                <div>
-                                    <span class="badge bg-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }}">
-                                        {{ $count }}
-                                    </span>
-                                    <small class="text-muted ms-1">{{ $statusAnalysis['percentages'][$status] }}%</small>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
+    </div>
+    
+    <!-- Top Boat Types -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-ship text-primary me-2"></i>Top Boat Types
+                </h5>
             </div>
-
-            <!-- Trends Chart -->
-            <div class="col-lg-8 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header bg-gradient-info text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-line me-2"></i>Monthly Application Trends
-                        </h5>
+            <div class="card-body">
+                @foreach($boatTypeAnalysis->take(5) as $index => $boatType)
+                <div class="boat-type-item">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center">
+                            <span class="rank-badge">{{ $index + 1 }}</span>
+                            <span class="fw-semibold">{{ ucfirst($boatType->boat_type) }}</span>
+                        </div>
+                        <span class="badge bg-primary">{{ $boatType->total_applications }}</span>
                     </div>
-                    <div class="card-body">
-                        <canvas id="boatrTrendsChart" height="120"></canvas>
+                    <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar bg-primary" 
+                             style="width: {{ ($boatType->total_applications / $boatTypeAnalysis->first()->total_applications) * 100 }}%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span>Approval: {{ round(($boatType->approved / max(1, $boatType->total_applications)) * 100, 1) }}%</span>
+                        <span>Avg: {{ round($boatType->avg_length ?? 0, 1) }}ft × {{ round($boatType->avg_width ?? 0, 1) }}ft</span>
                     </div>
                 </div>
+                @if(!$loop->last)<hr class="my-3">@endif
+                @endforeach
             </div>
         </div>
-
-        <!-- Secondary Analytics Row -->
-        <div class="row">
-            <!-- Boat Type Distribution -->
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-success text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-ship me-2"></i>Boat Type Distribution
-                        </h5>
+    </div>
+    
+    <!-- Inspection Analysis -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-clipboard-check text-primary me-2"></i>Inspection Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="inspection-stat bg-success-subtle p-3 rounded text-center">
+                            <h3 class="text-success mb-1">{{ $inspectionAnalysis['inspections_completed'] }}</h3>
+                            <small class="text-muted">Completed</small>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            @foreach($boatTypeAnalysis->take(5) as $index => $boatType)
-                            <div class="col-12 mb-3">
-                                <div class="d-flex align-items-center p-3 rounded" style="background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);">
-                                    <div class="me-3">
-                                        <div class="badge bg-primary rounded-pill p-2">
-                                            {{ $index + 1 }}
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">{{ ucfirst($boatType->boat_type) }}</h6>
-                                        <div class="progress mb-1" style="height: 6px;">
-                                            <div class="progress-bar bg-primary" 
-                                                 style="width: {{ ($boatType->total_applications / $boatTypeAnalysis->first()->total_applications) * 100 }}%"></div>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <small class="text-muted">{{ $boatType->total_applications }} boats</small>
-                                            <small class="text-primary">{{ round(($boatType->approved / max(1, $boatType->total_applications)) * 100, 1) }}% approval</small>
-                                        </div>
-                                        <div class="d-flex justify-content-between">
-                                            <small class="text-muted">Avg L: {{ round($boatType->avg_length ?? 0, 1) }}ft</small>
-                                            <small class="text-muted">W: {{ round($boatType->avg_width ?? 0, 1) }}ft</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
+                    <div class="col-6">
+                        <div class="inspection-stat bg-warning-subtle p-3 rounded text-center">
+                            <h3 class="text-warning mb-1">{{ $inspectionAnalysis['inspections_scheduled'] }}</h3>
+                            <small class="text-muted">Scheduled</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="inspection-stat bg-danger-subtle p-3 rounded text-center">
+                            <h3 class="text-danger mb-1">{{ $inspectionAnalysis['inspections_required'] }}</h3>
+                            <small class="text-muted">Required</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="inspection-stat bg-info-subtle p-3 rounded text-center">
+                            <h3 class="text-info mb-1">{{ $inspectionAnalysis['avg_inspection_time'] }}d</h3>
+                            <small class="text-muted">Avg Time</small>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Enhanced Fishing Gear Analysis -->
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-warning text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-tools me-2"></i>Fishing Gear Distribution
-                        </h5>
+                
+                @if($inspectionAnalysis['inspector_workload']->isNotEmpty())
+                <h6 class="mb-3 fw-semibold">Inspector Workload</h6>
+                @foreach($inspectionAnalysis['inspector_workload']->take(5) as $inspector)
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-truncate">{{ $inspector->inspector->name ?? 'Inspector #' . $inspector->inspected_by }}</span>
+                    <div class="d-flex align-items-center">
+                        <div class="progress me-2" style="width: 80px; height: 6px;">
+                            <div class="progress-bar bg-info" 
+                                 style="width: {{ ($inspector->inspections_count / $inspectionAnalysis['inspector_workload']->first()->inspections_count) * 100 }}%"></div>
+                        </div>
+                        <span class="badge bg-info">{{ $inspector->inspections_count }}</span>
                     </div>
-                    <div class="card-body">
-                        @if($fishingGearAnalysis && $fishingGearAnalysis->count() > 0)
-                            <div class="position-relative mb-3" style="height: 250px;">
-                                <canvas id="boatrFishingGearChart"></canvas>
-                            </div>
-                            <div class="row">
-                                @foreach($fishingGearAnalysis->take(4) as $gear)
-                                <div class="col-6 mb-2">
-                                    <div class="p-2 rounded bg-light">
-                                        <h6 class="mb-1 text-truncate">{{ ucwords($gear->primary_fishing_gear) }}</h6>
-                                        <div class="d-flex justify-content-between">
-                                            <small class="text-muted">{{ $gear->total_applications }} boats</small>
-                                            <small class="text-success">{{ $gear->approval_rate ?? round(($gear->approved / max(1, $gear->total_applications)) * 100, 1) }}%</small>
-                                        </div>
-                                        <div class="progress mt-1" style="height: 4px;">
-                                            <div class="progress-bar bg-warning" 
-                                                 style="width: {{ $gear->percentage ?? (($gear->total_applications / max(1, $fishingGearAnalysis->sum('total_applications'))) * 100) }}%"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                </div>
+                @endforeach
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Insights Row -->
+<div class="row g-4 mb-4">
+    <!-- Fishing Gear Analysis -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-tools text-primary me-2"></i>Fishing Gear Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                @if($fishingGearAnalysis && $fishingGearAnalysis->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fishing Gear</th>
+                                    <th class="text-center">Total</th>
+                                    <th class="text-center">Approved</th>
+                                    <th class="text-center">Approval Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($fishingGearAnalysis->take(6) as $gear)
+                                <tr>
+                                    <td><strong>{{ ucwords($gear->primary_fishing_gear) }}</strong></td>
+                                    <td class="text-center">{{ $gear->total_applications }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">{{ $gear->approved }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-{{ $gear->approval_rate > 80 ? 'success' : ($gear->approval_rate > 60 ? 'warning' : 'danger') }}">
+                                            {{ $gear->approval_rate }}%
+                                        </span>
+                                    </td>
+                                </tr>
                                 @endforeach
-                            </div>
-                            
-                            <!-- Detailed Fishing Gear Table -->
-                            <div class="mt-3">
-                                <h6 class="mb-2">Detailed Breakdown</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Fishing Gear</th>
-                                                <th>Total</th>
-                                                <th>Approved</th>
-                                                <th>Pending</th>
-                                                <th>Avg Days</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($fishingGearAnalysis as $gear)
-                                            <tr>
-                                                <td><strong>{{ ucwords($gear->primary_fishing_gear) }}</strong></td>
-                                                <td>{{ $gear->total_applications }}</td>
-                                                <td>
-                                                    <span class="badge bg-success">{{ $gear->approved }}</span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-warning">{{ $gear->pending ?? ($gear->total_applications - $gear->approved - $gear->rejected) }}</span>
-                                                </td>
-                                                <td>{{ round($gear->avg_processing_days ?? 0, 1) }} days</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        @else
-                            <div class="text-center py-4">
-                                <i class="fas fa-tools fa-3x text-muted mb-3"></i>
-                                <h6 class="text-muted">No Fishing Gear Data Available</h6>
-                                <p class="text-muted mb-0">No BOATR applications with fishing gear information found for the selected date range.</p>
-                                <small class="text-muted">Try expanding your date range or check if applications have been submitted.</small>
-                            </div>
-                        @endif
+                            </tbody>
+                        </table>
                     </div>
+                @else
+                    <div class="text-center py-5">
+                        <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">No Fishing Gear Data Available</h6>
+                        <p class="text-muted mb-0">Try expanding your date range or check if applications have been submitted.</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    
+    <!-- Document Impact -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 fw-semibold">
+                    <i class="fas fa-file-alt text-primary me-2"></i>Document Submission Impact
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="text-center p-3 bg-success-subtle rounded">
+                            <h3 class="text-success mb-1">{{ $documentAnalysis['approval_rate_with_user_docs'] }}%</h3>
+                            <small class="text-muted">With Documents</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center p-3 bg-warning-subtle rounded">
+                            <h3 class="text-warning mb-1">{{ $documentAnalysis['approval_rate_without_user_docs'] }}%</h3>
+                            <small class="text-muted">Without Documents</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-semibold">User Documents Submitted</span>
+                        <span class="text-success">{{ $documentAnalysis['with_user_documents'] }} / {{ $documentAnalysis['total'] }}</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-success" 
+                             style="width: {{ $documentAnalysis['user_doc_submission_rate'] }}%"></div>
+                    </div>
+                    <small class="text-muted">{{ $documentAnalysis['user_doc_submission_rate'] }}% submission rate</small>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-semibold">Inspection Documents</span>
+                        <span class="text-info">{{ $documentAnalysis['with_inspection_documents'] }} / {{ $documentAnalysis['total'] }}</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-info" 
+                             style="width: {{ $documentAnalysis['inspection_doc_submission_rate'] }}%"></div>
+                    </div>
+                    <small class="text-muted">{{ $documentAnalysis['inspection_doc_submission_rate'] }}% submission rate</small>
+                </div>
+                
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Key Insight:</strong> Applications with documents have {{ $documentAnalysis['approval_rate_with_user_docs'] - $documentAnalysis['approval_rate_without_user_docs'] }}% higher approval rate.
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Vessel Size & Engine Analysis -->
-        <div class="row">
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-secondary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-ruler-combined me-2"></i>Vessel Size Categories
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Size Category</th>
-                                        <th>Count</th>
-                                        <th>Approval</th>
-                                        <th>Avg Dimensions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($vesselSizeAnalysis as $size)
-                                    <tr>
-                                        <td><strong>{{ $size->size_category }}</strong></td>
-                                        <td>{{ $size->total_applications }}</td>
-                                        <td>
-                                            <span class="badge bg-success">{{ round(($size->approved / max(1, $size->total_applications)) * 100, 1) }}%</span>
-                                        </td>
-                                        <td>
-                                            <small class="text-muted">
-                                                L: {{ round($size->avg_length ?? 0, 1) }}ft<br>
-                                                W: {{ round($size->avg_width ?? 0, 1) }}ft
-                                            </small>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+<!-- Key Insights Banner -->
+<div class="row mb-4">
+    <div class="col-12">
+            <div class="card-body">
+                <h5 class="mb-3 fw-bold">
+                    <i class="fas fa-chart-pie me-2"></i>Key Performance Insights
+                </h5>
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="insight-box">
+                            <div class="insight-icon bg-success bg-opacity-25 mb-2">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h6 class="fw-bold">{{ $overview['approval_rate'] }}% Approval Rate</h6>
+                            <p class="mb-0 small opacity-75">{{ $overview['approved_applications'] }} approved out of {{ $overview['total_applications'] }} total applications</p>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Engine Analysis -->
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-dark text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-cog me-2"></i>Engine Type Analysis
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        @foreach($engineAnalysis->take(5) as $engine)
-                        <div class="d-flex justify-content-between align-items-center mb-3 p-3 rounded" style="background: rgba(0,0,0,0.05);">
-                            <div>
-                                <h6 class="mb-1">{{ ucwords($engine->engine_type) }}</h6>
-                                <div class="progress" style="width: 120px; height: 6px;">
-                                    <div class="progress-bar bg-dark" 
-                                         style="width: {{ ($engine->total_applications / $engineAnalysis->first()->total_applications) * 100 }}%"></div>
-                                </div>
-                                <small class="text-muted">Avg HP: {{ round($engine->avg_horsepower ?? 0, 1) }}</small>
+                    
+                    <div class="col-md-3">
+                        <div class="insight-box">
+                            <div class="insight-icon bg-info bg-opacity-25 mb-2">
+                                <i class="fas fa-clock"></i>
                             </div>
-                            <div class="text-end">
-                                <div class="badge bg-primary">{{ $engine->total_applications }}</div>
-                                <br>
-                                <small class="text-success">{{ round(($engine->approved / max(1, $engine->total_applications)) * 100, 1) }}%</small>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Inspection & Document Analysis -->
-        <div class="row">
-            <!-- Inspection Analysis -->
-            <div class="col-lg-8 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-info text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-clipboard-check me-2"></i>Inspection Analysis
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-4">
-                            <div class="col-md-3 text-center">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-success mb-1">{{ $inspectionAnalysis['inspections_completed'] }}</h4>
-                                    <p class="mb-0 text-muted">Completed</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-warning mb-1">{{ $inspectionAnalysis['inspections_scheduled'] }}</h4>
-                                    <p class="mb-0 text-muted">Scheduled</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-danger mb-1">{{ $inspectionAnalysis['inspections_required'] }}</h4>
-                                    <p class="mb-0 text-muted">Required</p>
-                                </div>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-info mb-1">{{ $inspectionAnalysis['completion_rate'] }}%</h4>
-                                    <p class="mb-0 text-muted">Rate</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Inspector Workload -->
-                        @if($inspectionAnalysis['inspector_workload']->isNotEmpty())
-                        <h6 class="mb-3">Inspector Workload</h6>
-                        @foreach($inspectionAnalysis['inspector_workload']->take(5) as $inspector)
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>{{ $inspector->inspector->name ?? 'Inspector #' . $inspector->inspected_by }}</span>
-                            <div class="d-flex align-items-center">
-                                <div class="progress me-2" style="width: 100px; height: 6px;">
-                                    <div class="progress-bar bg-info" 
-                                         style="width: {{ ($inspector->inspections_count / $inspectionAnalysis['inspector_workload']->first()->inspections_count) * 100 }}%"></div>
-                                </div>
-                                <span class="badge bg-info">{{ $inspector->inspections_count }}</span>
-                            </div>
-                        </div>
-                        @endforeach
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Performance Metrics -->
-            <div class="col-lg-4 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-warning text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-tachometer-alt me-2"></i>Performance Metrics
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="metric-item mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0">Processing Time</h6>
-                                <span class="badge bg-{{ $processingTimeAnalysis['avg_processing_days'] < 5 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] < 10 ? 'warning' : 'danger') }}">
-                                    {{ $processingTimeAnalysis['avg_processing_days'] }}d avg
-                                </span>
-                            </div>
-                            <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-{{ $processingTimeAnalysis['avg_processing_days'] < 5 ? 'success' : ($processingTimeAnalysis['avg_processing_days'] < 10 ? 'warning' : 'danger') }}" 
-                                     style="width: {{ min(100, (21 - $processingTimeAnalysis['avg_processing_days']) / 21 * 100) }}%"></div>
-                            </div>
-                            <small class="text-muted">Median: {{ $processingTimeAnalysis['median_processing_days'] }}d</small>
-                        </div>
-                        
-                        <div class="metric-item mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0">Completion Rate</h6>
-                                <span class="badge bg-info">{{ $performanceMetrics['completion_rate'] }}%</span>
-                            </div>
-                            <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-info" style="width: {{ $performanceMetrics['completion_rate'] }}%"></div>
-                            </div>
-                            <small class="text-muted">{{ $processingTimeAnalysis['processed_count'] }} processed</small>
-                        </div>
-                        
-                        <div class="metric-item mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0">Quality Score</h6>
-                                <span class="badge bg-{{ $performanceMetrics['quality_score'] > 80 ? 'success' : ($performanceMetrics['quality_score'] > 60 ? 'warning' : 'danger') }}">
-                                    {{ $performanceMetrics['quality_score'] }}%
-                                </span>
-                            </div>
-                            <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-{{ $performanceMetrics['quality_score'] > 80 ? 'success' : ($performanceMetrics['quality_score'] > 60 ? 'warning' : 'danger') }}" 
-                                     style="width: {{ $performanceMetrics['quality_score'] }}%"></div>
-                            </div>
-                            <small class="text-muted">Based on approval & inspection rates</small>
-                        </div>
-                        
-                        <div class="metric-item">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0">Daily Average</h6>
-                                <span class="badge bg-primary">{{ $performanceMetrics['avg_applications_per_day'] }}</span>
-                            </div>
-                            <div class="progress mb-1" style="height: 8px;">
-                                <div class="progress-bar bg-primary" style="width: {{ min(100, $performanceMetrics['avg_applications_per_day'] * 10) }}%"></div>
-                            </div>
-                            <small class="text-muted">Applications per day</small>
+                            <h6 class="fw-bold">{{ $processingTimeAnalysis['avg_processing_days'] }}d Processing</h6>
+                            <p class="mb-0 small opacity-75">Average time from submission to decision</p>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Document Analysis & Registration Patterns -->
-        <div class="row">
-            <!-- Document Analysis -->
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-success text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-file-alt me-2"></i>Document Submission Analysis
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center mb-3">
-                            <div class="col-6">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-success mb-1">{{ $documentAnalysis['approval_rate_with_user_docs'] }}%</h4>
-                                    <p class="mb-0 text-muted">Approval with Docs</p>
-                                </div>
+                    
+                    <div class="col-md-3">
+                        <div class="insight-box">
+                            <div class="insight-icon bg-warning bg-opacity-25 mb-2">
+                                <i class="fas fa-file-alt"></i>
                             </div>
-                            <div class="col-6">
-                                <div class="p-3 rounded bg-light">
-                                    <h4 class="text-warning mb-1">{{ $documentAnalysis['approval_rate_without_user_docs'] }}%</h4>
-                                    <p class="mb-0 text-muted">Approval without Docs</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>User Documents</span>
-                                <span class="text-success">{{ $documentAnalysis['with_user_documents'] }}</span>
-                            </div>
-                            <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-success" 
-                                     style="width: {{ $documentAnalysis['total'] > 0 ? ($documentAnalysis['with_user_documents'] / $documentAnalysis['total']) * 100 : 0 }}%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Inspection Documents</span>
-                                <span class="text-info">{{ $documentAnalysis['with_inspection_documents'] }}</span>
-                            </div>
-                            <div class="progress mb-2" style="height: 8px;">
-                                <div class="progress-bar bg-info" 
-                                     style="width: {{ $documentAnalysis['total'] > 0 ? ($documentAnalysis['with_inspection_documents'] / $documentAnalysis['total']) * 100 : 0 }}%"></div>
-                            </div>
-                        </div>
-                        <div class="alert alert-info">
-                            <small>
-                                <i class="fas fa-info-circle me-1"></i>
-                                Applications with user documents have a {{ $documentAnalysis['approval_rate_with_user_docs'] - $documentAnalysis['approval_rate_without_user_docs'] }}% higher approval rate.
-                            </small>
+                            <h6 class="fw-bold">{{ $documentAnalysis['user_doc_submission_rate'] }}% Doc Rate</h6>
+                            <p class="mb-0 small opacity-75">{{ $documentAnalysis['approval_rate_with_user_docs'] - $documentAnalysis['approval_rate_without_user_docs'] }}% higher approval with documents</p>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Registration Patterns -->
-            <div class="col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-calendar-alt me-2"></i>Registration Patterns
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <h6 class="mb-3">Applications by Day of Week</h6>
-                        @foreach($registrationPatterns['day_of_week'] as $day)
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>{{ $day->day_name }}</span>
-                            <div class="d-flex align-items-center">
-                                <div class="progress me-2" style="width: 100px; height: 6px;">
-                                    <div class="progress-bar bg-primary" 
-                                         style="width: {{ $registrationPatterns['day_of_week']->max('applications_count') > 0 ? ($day->applications_count / $registrationPatterns['day_of_week']->max('applications_count')) * 100 : 0 }}%"></div>
-                                </div>
-                                <span class="badge bg-primary">{{ $day->applications_count }}</span>
+                    
+                    <div class="col-md-3">
+                        <div class="insight-box">
+                            <div class="insight-icon bg-primary bg-opacity-25 mb-2">
+                                <i class="fas fa-ship"></i>
                             </div>
-                        </div>
-                        @endforeach
-                        
-                        <hr class="my-3">
-                        
-                        <h6 class="mb-3">Peak Registration Hours</h6>
-                        @php
-                            $peakHours = $registrationPatterns['hourly']->sortByDesc('applications_count')->take(3);
-                        @endphp
-                        @foreach($peakHours as $hour)
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>{{ $hour->hour }}:00 - {{ $hour->hour + 1 }}:00</span>
-                            <span class="badge bg-warning">{{ $hour->applications_count }} applications</span>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Key Insights Row -->
-        <div class="row">
-            <div class="col-12 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-gradient-dark text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-lightbulb me-2"></i>Key Performance Insights
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="insight-item mb-3">
-                                    <div class="d-flex align-items-start">
-                                        <div class="me-3">
-                                            <div class="p-2 rounded-circle bg-success bg-opacity-10">
-                                                <i class="fas fa-check-circle text-success"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Strong Registration Rate</h6>
-                                            <p class="text-muted mb-0 small">
-                                                {{ $overview['approval_rate'] }}% approval rate with {{ $overview['unique_vessels'] }} vessels registered.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <div class="insight-item mb-3">
-                                    <div class="d-flex align-items-start">
-                                        <div class="me-3">
-                                            <div class="p-2 rounded-circle bg-info bg-opacity-10">
-                                                <i class="fas fa-clipboard-check text-info"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Inspection Progress</h6>
-                                            <p class="text-muted mb-0 small">
-                                                {{ $inspectionAnalysis['completion_rate'] }}% inspection completion with {{ $inspectionAnalysis['avg_inspection_time'] }}d average time.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <div class="insight-item mb-3">
-                                    <div class="d-flex align-items-start">
-                                        <div class="me-3">
-                                            <div class="p-2 rounded-circle bg-warning bg-opacity-10">
-                                                <i class="fas fa-file-alt text-warning"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Document Impact</h6>
-                                            <p class="text-muted mb-0 small">
-                                                {{ $documentAnalysis['approval_rate_with_user_docs'] - $documentAnalysis['approval_rate_without_user_docs'] }}% higher approval with supporting documents.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <div class="insight-item mb-3">
-                                    <div class="d-flex align-items-start">
-                                        <div class="me-3">
-                                            <div class="p-2 rounded-circle bg-primary bg-opacity-10">
-                                                <i class="fas fa-ship text-primary"></i>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-1">Fleet Diversity</h6>
-                                            <p class="text-muted mb-0 small">
-                                                {{ $overview['unique_boat_types'] }} different boat types with varied fishing gear applications.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <h6 class="fw-bold">{{ $overview['unique_boat_types'] }} Boat Types</h6>
+                            <p class="mb-0 small opacity-75">Diverse fleet with {{ $overview['unique_vessels'] }} registered vessels</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
-<!-- BOATR AI Insights Modal -->
+<!-- AI Insights Modal -->
 <div class="modal fade" id="boatrInsightsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -747,48 +550,52 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <h6><i class="fas fa-chart-line text-success me-2"></i>Growth Opportunities</h6>
+                        <h6 class="fw-bold mb-3"><i class="fas fa-chart-line text-success me-2"></i>Growth Opportunities</h6>
                         <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-arrow-up text-success me-2"></i>
-                                Streamline inspection process for faster approvals
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <strong>Streamline Processing:</strong> Current {{ $processingTimeAnalysis['avg_processing_days'] }}d average can be reduced
                             </li>
-                            <li class="mb-2">
+                            <li class="mb-3">
                                 <i class="fas fa-file-alt text-info me-2"></i>
-                                Promote digital document submission system
+                                <strong>Digital Documents:</strong> {{ 100 - $documentAnalysis['user_doc_submission_rate'] }}% applications lack documents
                             </li>
-                            <li class="mb-2">
-                                <i class="fas fa-ship text-warning me-2"></i>
-                                Focus on underrepresented boat types
+                            <li class="mb-3">
+                                <i class="fas fa-ship text-primary me-2"></i>
+                                <strong>Fleet Diversity:</strong> Focus on {{ $boatTypeAnalysis->first()->boat_type ?? 'primary' }} type optimization
                             </li>
                         </ul>
                     </div>
                     <div class="col-md-6">
-                        <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>Areas for Improvement</h6>
+                        <h6 class="fw-bold mb-3"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Areas for Improvement</h6>
                         <ul class="list-unstyled">
-                            <li class="mb-2">
+                            <li class="mb-3">
                                 <i class="fas fa-clock text-warning me-2"></i>
-                                {{ $processingTimeAnalysis['avg_processing_days'] > 10 ? 'Reduce processing time' : 'Maintain current processing speed' }}
+                                <strong>Processing Speed:</strong> {{ $processingTimeAnalysis['avg_processing_days'] > 10 ? 'Reduce processing time to under 10 days' : 'Maintain current processing efficiency' }}
                             </li>
-                            <li class="mb-2">
+                            <li class="mb-3">
                                 <i class="fas fa-clipboard-check text-info me-2"></i>
-                                {{ $inspectionAnalysis['completion_rate'] < 80 ? 'Improve inspection completion rate' : 'Maintain inspection quality' }}
+                                <strong>Inspection Rate:</strong> {{ $inspectionAnalysis['completion_rate'] < 80 ? 'Improve completion to 80%+' : 'Maintain inspection quality standards' }}
                             </li>
-                            <li class="mb-2">
-                                <i class="fas fa-tools text-success me-2"></i>
-                                Balance fishing gear type registrations
+                            <li class="mb-3">
+                                <i class="fas fa-balance-scale text-success me-2"></i>
+                                <strong>Gear Balance:</strong> Ensure fair distribution across fishing gear types
                             </li>
                         </ul>
                     </div>
                 </div>
                 
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="alert alert-info">
-                            <h6><i class="fas fa-lightbulb me-2"></i>Recommendation</h6>
-                            <p class="mb-0">Consider implementing mobile inspection units for remote areas and developing a digital inspection checklist to improve efficiency and consistency across all boat registrations.</p>
-                        </div>
-                    </div>
+                <hr class="my-4">
+                
+                <div class="alert alert-primary mb-0">
+                    <h6 class="fw-bold mb-2"><i class="fas fa-lightbulb me-2"></i>Strategic Recommendation</h6>
+                    <p class="mb-2">Based on current data analysis:</p>
+                    <ul class="mb-0">
+                        <li>Implement mobile inspection units for remote coastal areas</li>
+                        <li>Develop digital checklist system to standardize inspections</li>
+                        <li>Create document submission awareness campaign ({{ 100 - $documentAnalysis['user_doc_submission_rate'] }}% gap)</li>
+                        <li>Establish fast-track processing for complete applications</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -798,55 +605,363 @@
 
 @section('styles')
 <style>
-.bg-gradient-primary { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-.bg-gradient-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-.bg-gradient-info { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
-.bg-gradient-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-.bg-gradient-dark { background: linear-gradient(135deg, #374151 0%, #111827 100%); }
-.bg-gradient-secondary { background: linear-gradient(135deg, #6b7280 0%, #374151 100%); }
+/* Custom Gradient Backgrounds */
+.bg-gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.bg-gradient-dark { background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%); }
 
-.hover-bg-light:hover {
-    background-color: rgba(0,0,0,0.05);
-    transition: background-color 0.2s;
-}
-
-.insight-item {
-    transition: transform 0.2s;
-}
-
-.insight-item:hover {
-    transform: translateX(5px);
-}
-
-.metric-item {
-    padding: 1rem;
-    border-radius: 8px;
-    background: rgba(0,0,0,0.02);
-}
-
-.card {
+/* Metric Cards */
+.metric-card {
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: none;
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.metric-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.card-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
+.card-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+.card-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; }
+.card-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+
+.metric-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.metric-icon i {
+    font-size: 28px;
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-label {
+    font-size: 13px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.metric-value {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1;
+}
+
+.metric-detail {
+    font-size: 13px;
+    opacity: 0.85;
+    margin: 0;
+}
+
+/* Card Styling */
+.card {
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    padding: 16px 20px;
+}
+
+/* Status List */
+.status-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.status-item {
+    padding: 12px 0;
+}
+
+.status-item:not(:last-child) {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.status-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Performance Metrics */
+.performance-metric {
+    padding: 16px;
+    border-radius: 8px;
+    background: #f8fafc;
+    transition: background 0.2s ease;
+}
+
+.performance-metric:hover {
+    background: #f1f5f9;
+}
+
+/* Boat Type Items */
+.boat-type-item {
+    padding: 12px 0;
+}
+
+.rank-badge {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 8px;
+    font-weight: 700;
+    margin-right: 12px;
+    font-size: 14px;
+}
+
+/* Inspection Stats */
+.inspection-stat {
+    transition: transform 0.2s ease;
+}
+
+.inspection-stat:hover {
+    transform: scale(1.05);
+}
+
+.inspection-stat h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Insight Boxes */
+.insight-box {
+    padding: 8px;
+}
+
+.insight-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insight-icon i {
+    font-size: 24px;
+}
+
+/* Navigation Pills */
 .nav-pills .nav-link {
-    border-radius: 25px;
-    margin: 0 5px;
-    transition: all 0.3s;
+    border-radius: 50px;
+    padding: 10px 20px;
+    margin: 0 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-pills .nav-link:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
 }
 
 .nav-pills .nav-link.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Table Styling */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #475569;
+}
+
+.table tbody tr {
+    transition: background 0.2s ease;
 }
 
 .table-hover tbody tr:hover {
-    background-color: rgba(0,0,0,0.05);
+    background: #f8fafc;
+}
+
+/* Progress Bars */
+.progress {
+    background: rgba(0,0,0,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+}
+
+.btn-outline-info {
+    border: 2px solid #06b6d4;
+    color: #06b6d4;
+}
+
+.btn-outline-info:hover {
+    background: #06b6d4;
+    color: white;
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    padding: 10px 16px;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-label {
+    font-size: 14px;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+/* Badge Styling */
+.badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    color: #0c4a6e;
+}
+
+.alert-primary {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e3a8a;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .metric-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .metric-value {
+        font-size: 28px;
+    }
+    
+    .nav-pills {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .nav-pills .nav-link {
+        margin: 4px;
+    }
+}
+
+/* Scrollbar Styling */
+.status-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.status-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.status-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.status-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeIn 0.5s ease-out;
 }
 </style>
 @endsection
@@ -855,68 +970,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    let chartInstances = {};
-    
-    // Initialize charts immediately for BOATR tab
-    initializeBoatrStatusDonutChart();
-    initializeBoatrTrendsChart();
-    initializeBoatrFishingGearChart();
-    
-    function initializeBoatrStatusDonutChart() {
-        const ctx = document.getElementById('boatrStatusDonutChart');
-        if (!ctx) return;
-        
-        chartInstances.boatrStatusDonutChart = new Chart(ctx.getContext('2d'), {
-            type: 'doughnut',
-            data: {
-                labels: [
-                    @foreach($statusAnalysis['counts'] as $status => $count)
-                        '{{ ucfirst(str_replace("_", " ", $status)) }}',
-                    @endforeach
-                ],
-                datasets: [{
-                    data: [{{ implode(',', $statusAnalysis['counts']) }}],
-                    backgroundColor: [
-                        '#10b981',  // green for approved
-                        '#ef4444',  // red for rejected  
-                        '#f59e0b',  // amber for under_review
-                        '#8b5cf6',  // purple for inspection_scheduled
-                        '#06b6d4',  // cyan for inspection_required
-                        '#f97316',  // orange for documents_pending
-                        '#6b7280'   // gray for pending
-                    ],
-                    borderWidth: 0,
-                    cutout: '70%'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.parsed;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = ((value / total) * 100).toFixed(1);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    function initializeBoatrTrendsChart() {
-        const ctx = document.getElementById('boatrTrendsChart');
-        if (!ctx) return;
-        
-        chartInstances.boatrTrendsChart = new Chart(ctx.getContext('2d'), {
+    // Initialize Trends Chart
+    const trendsCtx = document.getElementById('boatrTrendsChart');
+    if (trendsCtx) {
+        new Chart(trendsCtx.getContext('2d'), {
             type: 'line',
             data: {
                 labels: [
@@ -935,10 +992,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     pointBackgroundColor: '#3b82f6',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
+                    pointRadius: 5,
+                    pointHoverRadius: 7
                 }, {
-                    label: 'Approved Applications',
+                    label: 'Approved',
                     data: [{{ $monthlyTrends->pluck('approved')->implode(',') }}],
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -948,10 +1005,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     pointBackgroundColor: '#10b981',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
+                    pointRadius: 5,
+                    pointHoverRadius: 7
                 }, {
-                    label: 'Inspections Completed',
+                    label: 'Inspections',
                     data: [{{ $monthlyTrends->pluck('inspections_completed')->implode(',') }}],
                     borderColor: '#f59e0b',
                     backgroundColor: 'rgba(245, 158, 11, 0.1)',
@@ -959,19 +1016,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     tension: 0.4,
                     fill: false,
                     pointBackgroundColor: '#f59e0b',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }, {
-                    label: 'Unique Vessels',
-                    data: [{{ $monthlyTrends->pluck('unique_vessels')->implode(',') }}],
-                    borderColor: '#8b5cf6',
-                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: false,
-                    pointBackgroundColor: '#8b5cf6',
                     pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
                     pointRadius: 4,
@@ -984,6 +1028,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 interaction: {
                     mode: 'index',
                     intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y;
+                                return label;
+                            }
+                        }
+                    }
                 },
                 scales: {
                     x: {
@@ -999,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(0,0,0,0.1)'
+                            color: 'rgba(0, 0, 0, 0.05)'
                         },
                         ticks: {
                             font: {
@@ -1007,216 +1084,36 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         }
                     }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 20,
-                            font: {
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        backgroundColor: 'rgba(0,0,0,0.8)',
-                        titleColor: 'white',
-                        bodyColor: 'white',
-                        borderColor: 'rgba(255,255,255,0.2)',
-                        borderWidth: 1,
-                        cornerRadius: 8,
-                        displayColors: true
-                    }
-                },
-                elements: {
-                    point: {
-                        hoverBorderWidth: 3
-                    }
                 }
             }
         });
     }
-    
-    function initializeBoatrFishingGearChart() {
-        const ctx = document.getElementById('boatrFishingGearChart');
-        if (!ctx) {
-            console.log('Fishing gear chart canvas not found');
-            return;
-        }
-        
-        // Check if we have fishing gear data
-        @if($fishingGearAnalysis && $fishingGearAnalysis->count() > 0)
-            const gearData = [
-                @foreach($fishingGearAnalysis->take(5) as $gear)
-                    {{ $gear->total_applications }},
-                @endforeach
-            ];
-            
-            const gearLabels = [
-                @foreach($fishingGearAnalysis->take(5) as $gear)
-                    '{{ ucwords($gear->primary_fishing_gear) }}',
-                @endforeach
-            ];
-            
-            const approvalData = [
-                @foreach($fishingGearAnalysis->take(5) as $gear)
-                    {{ $gear->approved }},
-                @endforeach
-            ];
-            
-            const pendingData = [
-                @foreach($fishingGearAnalysis->take(5) as $gear)
-                    {{ $gear->pending ?? ($gear->total_applications - $gear->approved - $gear->rejected) }},
-                @endforeach
-            ];
-            
-            console.log('Fishing gear data:', gearData);
-            console.log('Fishing gear labels:', gearLabels);
-            
-            if (gearData.length === 0 || gearLabels.length === 0) {
-                // Show no data message
-                ctx.getContext('2d').fillText('No fishing gear data available', 10, 50);
-                return;
+
+    // Smooth scroll for navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
-            
-            chartInstances.boatrFishingGearChart = new Chart(ctx.getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: gearLabels,
-                    datasets: [{
-                        label: 'Total Applications',
-                        data: gearData,
-                        backgroundColor: [
-                            '#3b82f6',  // blue
-                            '#10b981',  // green
-                            '#f59e0b',  // amber
-                            '#8b5cf6',  // purple
-                            '#ef4444'   // red
-                        ],
-                        borderColor: [
-                            '#2563eb',
-                            '#059669',
-                            '#d97706',
-                            '#7c3aed',
-                            '#dc2626'
-                        ],
-                        borderWidth: 2,
-                        cutout: '60%'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 15,
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    return `${label}: ${value} applications (${percentage}%)`;
-                                },
-                                afterLabel: function(context) {
-                                    const index = context.dataIndex;
-                                    const approved = approvalData[index] || 0;
-                                    const pending = pendingData[index] || 0;
-                                    return [
-                                        `Approved: ${approved}`,
-                                        `Pending: ${pending}`
-                                    ];
-                                }
-                            }
-                        }
-                    },
-                    animation: {
-                        animateRotate: true,
-                        duration: 1000
-                    }
-                }
-            });
-        @else
-            // No data available, show placeholder
-            const ctx2d = ctx.getContext('2d');
-            ctx2d.fillStyle = '#6b7280';
-            ctx2d.font = '16px Arial';
-            ctx2d.textAlign = 'center';
-            ctx2d.fillText('No fishing gear data available', ctx.width / 2, ctx.height / 2);
-            
-            ctx2d.font = '12px Arial';
-            ctx2d.fillStyle = '#9ca3af';
-            ctx2d.fillText('Try expanding your date range', ctx.width / 2, (ctx.height / 2) + 25);
-        @endif
+        });
+    });
+
+    // Add loading state to filter button
+    const filterForm = document.querySelector('form[method="GET"]');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Loading...';
+                submitBtn.disabled = true;
+            }
+        });
     }
-    
-    // Service tab switching
-    const serviceTabs = document.querySelectorAll('#serviceTab button[data-bs-toggle="tab"], #serviceTab a');
-    serviceTabs.forEach(tab => {
-        if (tab.hasAttribute('data-bs-toggle')) {
-            tab.addEventListener('shown.bs.tab', function(event) {
-                const targetTab = event.target.getAttribute('data-bs-target');
-                
-                // Handle other service analytics initialization here
-                switch(targetTab) {
-                    case '#seedlings-service':
-                        console.log('Seedlings service selected');
-                        break;
-                    case '#rsbsa-service':
-                        console.log('RSBSA service selected');
-                        break;
-                    case '#fishr-service':
-                        console.log('FISHR service selected');
-                        break;
-                    default:
-                        // BOATR is already initialized
-                        break;
-                }
-            });
-        }
-    });
-    
-    // Cleanup function
-    window.destroyCharts = function() {
-        Object.values(chartInstances).forEach(chart => {
-            if (chart) {
-                chart.destroy();
-            }
-        });
-        chartInstances = {};
-    };
-    
-    // Add smooth scrolling for better UX
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', function(e) {
-            // Add loading animation or effects here if needed
-        });
-    });
-    
-    // Add hover effects for metric cards
-    document.querySelectorAll('.metric-item').forEach(item => {
-        item.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.02)';
-            this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
-        });
-        
-        item.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-            this.style.boxShadow = 'none';
-        });
-    });
 });
 </script>
 @endsection
