@@ -214,9 +214,28 @@ function closeVerificationAlert() {
  */
 function startVerificationProcess() {
     closeVerificationAlert();
-    
-    // Redirect to the verification form page
-    window.location.href = '/auth/start-verification';
+
+    // Small delay to allow the alert modal to close smoothly
+    setTimeout(() => {
+        // Open the existing verification modal from auth.js
+        if (typeof showVerificationModal === 'function') {
+            showVerificationModal();
+        } else {
+            // Fallback - show profile modal if verification modal not available
+            if (typeof showProfileModal === 'function') {
+                showProfileModal();
+            } else {
+                // Last fallback - try to open verification modal by ID
+                const verificationModal = document.getElementById('verification-modal');
+                if (verificationModal) {
+                    verificationModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    console.error('Verification modal not found');
+                }
+            }
+        }
+    }, 300); // Match the modal close animation duration
 }
 
 /**
