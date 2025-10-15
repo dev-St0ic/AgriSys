@@ -67,14 +67,13 @@ return [
 
     'anthropic' => [
         'key' => env('ANTHROPIC_API_KEY'),
-        'cache_duration' => env('ANTHROPIC_CACHE_DURATION', 3600),
-        'model' => env('ANTHROPIC_MODEL', 'claude-3-5-sonnet-20241022'),
-        'max_tokens' => env('ANTHROPIC_MAX_TOKENS', 4096),
-        'temperature' => env('ANTHROPIC_TEMPERATURE', 0.3),
-        'timeout' => env('ANTHROPIC_TIMEOUT', 90),
-        'api_version' => '2023-06-01',
+        'model' => 'claude-sonnet-4-5-20250929', //  Best choice
+        'max_tokens' => 8192,  // Enough for detailed prescriptions
+        'temperature' => 0.1,  //  Low = consistent, precise
+        'timeout' => 120,      // Allow time for complex analysis
+        'cache_duration' => 3600, // Cache for 1 hour
+        'api_version' => '2023-06-01'
     ],
-
     /*
     |--------------------------------------------------------------------------
     | PDF Generation Configuration

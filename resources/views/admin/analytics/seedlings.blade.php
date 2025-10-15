@@ -153,7 +153,7 @@
                                     </button>
                                     <a href="{{ route('admin.analytics.seedlings.dss-report') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
                                         class="btn btn-info" target="_blank">
-                                        <i class="fas fa-file-download me-2"></i>DSS Report
+                                        <i class="fas fa-file-pdf"></i>Decision Support Report
                                     </a>
                                 </div>
                             </div>
