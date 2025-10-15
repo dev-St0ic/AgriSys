@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\SeedlingRequest;
+use App\Models\SeedlingRequestItem;
+use App\Models\RequestCategory;
+use App\Models\CategoryItem;
 use App\Services\SeedlingAnalyticsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,19 +22,24 @@ class SeedlingAnalyticsController extends Controller
         $this->analyticsService = $analyticsService;
     }
 
-    /**
-     * Display seedling analytics dashboard
-     */
     public function index(Request $request)
     {
         try {
-            // Date range filter with better defaults
-            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-            $endDate = $request->get('end_date', now()->format('Y-m-d'));
-
-            // Validate dates
-            $startDate = Carbon::parse($startDate)->format('Y-m-d');
-            $endDate = Carbon::parse($endDate)->format('Y-m-d');
+            // Get filter type and preset
+            $filterType = $request->get('filter_type', 'preset');
+            $datePreset = $request->get('date_preset', 'this_month');
+            
+            // Calculate dates based on filter type
+            if ($filterType === 'preset') {
+                [$startDate, $endDate] = $this->calculatePresetDates($datePreset);
+            } else {
+                $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+                $endDate = $request->get('end_date', now()->format('Y-m-d'));
+                
+                // Validate dates
+                $startDate = Carbon::parse($startDate)->format('Y-m-d');
+                $endDate = Carbon::parse($endDate)->format('Y-m-d');
+            }
 
             // Base query with date range
             $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
@@ -69,20 +77,26 @@ class SeedlingAnalyticsController extends Controller
             // 11. Inventory Impact Analysis
             $inventoryImpact = $this->getInventoryImpactAnalysis(clone $baseQuery);
 
-            // NEW: 12. Supply vs Demand Analysis
+            // 12. Supply vs Demand Analysis
             $supplyDemandAnalysis = $this->getSupplyDemandAnalysis(clone $baseQuery);
 
-            // NEW: 13. Barangay Performance Score
+            // 13. Barangay Performance Score
             $barangayPerformance = $this->getBarangayPerformanceScore($barangayAnalysis);
 
-            // NEW: 14. Category Fulfillment Rate
+            // 14. Category Fulfillment Rate
             $categoryFulfillment = $this->getCategoryFulfillmentRate(clone $baseQuery);
 
-            // NEW: 15. Request Velocity (Trend Analysis)
+            // 15. Request Velocity (Trend Analysis)
             $requestVelocity = $this->getRequestVelocity($startDate, $endDate);
 
-            // NEW: 16. Geographic Distribution Heat Map Data
+            // 16. Geographic Distribution Heat Map Data
             $geoDistribution = $this->getGeographicDistribution(clone $baseQuery);
+            
+            // NEW: 17. Supply Alerts
+            $supplyAlerts = $this->getSupplyAlerts();
+            
+            // NEW: 18. Rejection Analysis
+            $rejectionAnalysis = $this->getRejectionAnalysis(clone $baseQuery);
 
             return view('admin.analytics.seedlings', compact(
                 'overview',
@@ -101,14 +115,102 @@ class SeedlingAnalyticsController extends Controller
                 'categoryFulfillment',
                 'requestVelocity',
                 'geoDistribution',
+                'supplyAlerts',
+                'rejectionAnalysis',
                 'startDate',
-                'endDate'
+                'endDate',
+                'filterType',
+                'datePreset'
             ));
         } catch (\Exception $e) {
             Log::error('Analytics Error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
             return back()->with('error', 'Error loading analytics data. Please try again.');
+        }
+    }
+
+    /**
+     * Calculate date range based on preset selection
+     */
+    private function calculatePresetDates($preset)
+    {
+        $today = now();
+        
+        switch($preset) {
+            case 'today':
+                return [$today->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'yesterday':
+                $yesterday = $today->copy()->subDay();
+                return [$yesterday->format('Y-m-d'), $yesterday->format('Y-m-d')];
+                
+            case 'last_7_days':
+                return [$today->copy()->subDays(7)->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_14_days':
+                return [$today->copy()->subDays(14)->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_30_days':
+                return [$today->copy()->subDays(30)->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'this_week':
+                return [$today->copy()->startOfWeek()->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_week':
+                $lastWeekEnd = $today->copy()->startOfWeek()->subDay();
+                $lastWeekStart = $lastWeekEnd->copy()->startOfWeek();
+                return [$lastWeekStart->format('Y-m-d'), $lastWeekEnd->format('Y-m-d')];
+                
+            case 'this_month':
+                return [$today->copy()->startOfMonth()->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_month':
+                $lastMonth = $today->copy()->subMonth();
+                return [
+                    $lastMonth->startOfMonth()->format('Y-m-d'),
+                    $lastMonth->endOfMonth()->format('Y-m-d')
+                ];
+                
+            case 'this_quarter':
+                $quarter = ceil($today->month / 3);
+                $startMonth = ($quarter - 1) * 3 + 1;
+                return [
+                    $today->copy()->setMonth($startMonth)->startOfMonth()->format('Y-m-d'),
+                    $today->format('Y-m-d')
+                ];
+                
+            case 'last_quarter':
+                $currentQuarter = ceil($today->month / 3);
+                $lastQuarter = $currentQuarter - 1;
+                if ($lastQuarter < 1) {
+                    $lastQuarter = 4;
+                    $year = $today->year - 1;
+                } else {
+                    $year = $today->year;
+                }
+                $startMonth = ($lastQuarter - 1) * 3 + 1;
+                $endMonth = $lastQuarter * 3;
+                return [
+                    now()->setYear($year)->setMonth($startMonth)->startOfMonth()->format('Y-m-d'),
+                    now()->setYear($year)->setMonth($endMonth)->endOfMonth()->format('Y-m-d')
+                ];
+                
+            case 'this_year':
+                return [$today->copy()->startOfYear()->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_year':
+                $lastYear = $today->copy()->subYear();
+                return [
+                    $lastYear->startOfYear()->format('Y-m-d'),
+                    $lastYear->endOfYear()->format('Y-m-d')
+                ];
+                
+            case 'all_time':
+                return ['2020-01-01', $today->format('Y-m-d')];
+                
+            default:
+                return [$today->copy()->startOfMonth()->format('Y-m-d'), $today->format('Y-m-d')];
         }
     }
 
@@ -176,37 +278,36 @@ class SeedlingAnalyticsController extends Controller
     private function getSupplyDemandAnalysis($baseQuery)
     {
         try {
-            $requests = (clone $baseQuery)->get();
-            $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+            $requestIds = (clone $baseQuery)->pluck('id');
             
-            $analysis = [];
-            
-            foreach ($categories as $category) {
-                $totalDemand = 0;
-                $itemDemands = [];
-                
-                foreach ($requests as $request) {
-                    $items = $this->safeJsonDecode($request->{$category});
+            $analysis = RequestCategory::with('items')
+                ->get()
+                ->mapWithKeys(function ($category) use ($requestIds) {
+                    $items = SeedlingRequestItem::whereIn('seedling_request_id', $requestIds)
+                        ->where('category_id', $category->id)
+                        ->get();
                     
-                    if (!empty($items) && is_array($items)) {
-                        foreach ($items as $item) {
-                            if (isset($item['name']) && isset($item['quantity'])) {
-                                $name = trim($item['name']);
-                                $quantity = (int) $item['quantity'];
-                                $totalDemand += $quantity;
-                                $itemDemands[$name] = ($itemDemands[$name] ?? 0) + $quantity;
-                            }
-                        }
-                    }
-                }
-                
-                $analysis[$category] = [
-                    'total_demand' => $totalDemand,
-                    'unique_items' => count($itemDemands),
-                    'top_demand_item' => !empty($itemDemands) ? array_keys($itemDemands, max($itemDemands))[0] : 'N/A',
-                    'demand_distribution' => $itemDemands
-                ];
-            }
+                    $itemDemands = $items->groupBy('item_name')
+                        ->map(function ($group) {
+                            return $group->sum('requested_quantity');
+                        })
+                        ->toArray();
+                    
+                    $totalDemand = array_sum($itemDemands);
+                    $topDemandItem = !empty($itemDemands) 
+                        ? array_keys($itemDemands, max($itemDemands))[0] 
+                        : 'N/A';
+                    
+                    return [
+                        $category->name => [
+                            'total_demand' => $totalDemand,
+                            'unique_items' => count($itemDemands),
+                            'top_demand_item' => $topDemandItem,
+                            'demand_distribution' => $itemDemands
+                        ]
+                    ];
+                })
+                ->toArray();
             
             return $analysis;
         } catch (\Exception $e) {
@@ -278,35 +379,31 @@ class SeedlingAnalyticsController extends Controller
     private function getCategoryFulfillmentRate($baseQuery)
     {
         try {
-            $approvedRequests = (clone $baseQuery)->where('status', 'approved')->get();
-            $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
+            $requestIds = (clone $baseQuery)
+                ->whereIn('status', ['approved', 'partially_approved'])
+                ->pluck('id');
             
-            $fulfillment = [];
-            
-            foreach ($categories as $category) {
-                $totalRequested = 0;
-                $totalApproved = 0;
-                
-                foreach ($approvedRequests as $request) {
-                    $items = $this->safeJsonDecode($request->{$category});
+            $fulfillment = RequestCategory::all()
+                ->mapWithKeys(function ($category) use ($requestIds) {
+                    $items = SeedlingRequestItem::whereIn('seedling_request_id', $requestIds)
+                        ->where('category_id', $category->id)
+                        ->get();
                     
-                    if (!empty($items) && is_array($items)) {
-                        foreach ($items as $item) {
-                            if (isset($item['quantity'])) {
-                                $totalRequested += (int) $item['quantity'];
-                                // Assuming approved quantity equals requested for now
-                                $totalApproved += (int) $item['quantity'];
-                            }
-                        }
-                    }
-                }
-                
-                $fulfillment[$category] = [
-                    'requested' => $totalRequested,
-                    'approved' => $totalApproved,
-                    'rate' => $totalRequested > 0 ? round(($totalApproved / $totalRequested) * 100, 2) : 0
-                ];
-            }
+                    $totalRequested = $items->sum('requested_quantity');
+                    $totalApproved = $items->where('status', 'approved')
+                        ->sum('approved_quantity');
+                    
+                    return [
+                        $category->name => [
+                            'requested' => $totalRequested,
+                            'approved' => $totalApproved,
+                            'rate' => $totalRequested > 0 
+                                ? round(($totalApproved / $totalRequested) * 100, 2) 
+                                : 0
+                        ]
+                    ];
+                })
+                ->toArray();
             
             return $fulfillment;
         } catch (\Exception $e) {
@@ -474,56 +571,40 @@ class SeedlingAnalyticsController extends Controller
     }
 
     /**
-     * Get category analysis (seeds, seedlings, fruits, ornamentals, fingerlings, fertilizers)
+     * Get category analysis with item breakdown
      */
     private function getCategoryAnalysis($baseQuery)
     {
         try {
-            $requests = (clone $baseQuery)->get();
-
-            $categoryStats = [
-                'seeds' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'seedlings' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'fruits' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'ornamentals' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'fingerlings' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'fertilizers' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []]
-            ];
-
-            foreach ($requests as $request) {
-                $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
-                
-                foreach ($categories as $category) {
-                    $items = $this->safeJsonDecode($request->{$category});
+            $requestIds = (clone $baseQuery)->pluck('id');
+            
+            $categoryStats = RequestCategory::with('items')
+                ->get()
+                ->mapWithKeys(function ($category) use ($requestIds) {
+                    $items = SeedlingRequestItem::whereIn('seedling_request_id', $requestIds)
+                        ->where('category_id', $category->id)
+                        ->get();
                     
-                    if (!empty($items) && is_array($items)) {
-                        $categoryStats[$category]['requests']++;
-                        foreach ($items as $item) {
-                            if (isset($item['name']) && isset($item['quantity'])) {
-                                $quantity = (int) $item['quantity'];
-                                $categoryStats[$category]['total_items'] += $quantity;
-                                $name = trim($item['name']);
-                                if (!empty($name)) {
-                                    $categoryStats[$category]['unique_items'][$name] =
-                                        ($categoryStats[$category]['unique_items'][$name] ?? 0) + $quantity;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+                    $uniqueItems = $items->groupBy('item_name')
+                        ->map(function ($group) {
+                            return $group->sum('requested_quantity');
+                        })
+                        ->toArray();
+                    
+                    return [
+                        $category->name => [
+                            'requests' => $items->unique('seedling_request_id')->count(),
+                            'total_items' => $items->sum('requested_quantity'),
+                            'unique_items' => $uniqueItems
+                        ]
+                    ];
+                })
+                ->toArray();
 
             return $categoryStats;
         } catch (\Exception $e) {
             Log::error('Category Analysis Error: ' . $e->getMessage());
-            return [
-                'seeds' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'seedlings' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'fruits' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'ornamentals' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'fingerlings' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []],
-                'fertilizers' => ['requests' => 0, 'total_items' => 0, 'unique_items' => []]
-            ];
+            return [];
         }
     }
 
@@ -533,39 +614,30 @@ class SeedlingAnalyticsController extends Controller
     private function getTopRequestedItems($baseQuery)
     {
         try {
-            $requests = (clone $baseQuery)->get();
-            $allItems = [];
+            $requestIds = (clone $baseQuery)->pluck('id');
             
-            $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
-
-            foreach ($requests as $request) {
-                foreach ($categories as $category) {
-                    $items = $this->safeJsonDecode($request->{$category});
-                    
-                    if (!empty($items) && is_array($items)) {
-                        foreach ($items as $item) {
-                            if (isset($item['name']) && isset($item['quantity'])) {
-                                $name = trim($item['name']);
-                                if (!empty($name)) {
-                                    $key = $category . '_' . $name;
-                                    $quantity = (int) $item['quantity'];
-                                    $allItems[$key] = [
-                                        'name' => $name,
-                                        'category' => $category,
-                                        'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
-                                        'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
-                                    ];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return collect($allItems)
-                ->sortByDesc('total_quantity')
+            $items = SeedlingRequestItem::with(['category', 'categoryItem'])
+                ->whereIn('seedling_request_id', $requestIds)
+                ->select(
+                    'category_id',
+                    'item_name',
+                    DB::raw('SUM(requested_quantity) as total_quantity'),
+                    DB::raw('COUNT(DISTINCT seedling_request_id) as request_count')
+                )
+                ->groupBy('category_id', 'item_name')
+                ->orderBy('total_quantity', 'desc')
                 ->take(15)
-                ->values();
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'name' => $item->item_name,
+                        'category' => $item->category->name ?? 'Unknown',
+                        'total_quantity' => $item->total_quantity,
+                        'request_count' => $item->request_count
+                    ];
+                });
+
+            return $items;
         } catch (\Exception $e) {
             Log::error('Top Items Error: ' . $e->getMessage());
             return collect([]);
@@ -578,39 +650,30 @@ class SeedlingAnalyticsController extends Controller
     private function getLeastRequestedItems($baseQuery)
     {
         try {
-            $requests = (clone $baseQuery)->get();
-            $allItems = [];
+            $requestIds = (clone $baseQuery)->pluck('id');
             
-            $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
-
-            foreach ($requests as $request) {
-                foreach ($categories as $category) {
-                    $items = $this->safeJsonDecode($request->{$category});
-                    
-                    if (!empty($items) && is_array($items)) {
-                        foreach ($items as $item) {
-                            if (isset($item['name']) && isset($item['quantity'])) {
-                                $name = trim($item['name']);
-                                if (!empty($name)) {
-                                    $key = $category . '_' . $name;
-                                    $quantity = (int) $item['quantity'];
-                                    $allItems[$key] = [
-                                        'name' => $name,
-                                        'category' => $category,
-                                        'total_quantity' => ($allItems[$key]['total_quantity'] ?? 0) + $quantity,
-                                        'request_count' => ($allItems[$key]['request_count'] ?? 0) + 1
-                                    ];
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return collect($allItems)
-                ->sortBy('total_quantity')
+            $items = SeedlingRequestItem::with(['category', 'categoryItem'])
+                ->whereIn('seedling_request_id', $requestIds)
+                ->select(
+                    'category_id',
+                    'item_name',
+                    DB::raw('SUM(requested_quantity) as total_quantity'),
+                    DB::raw('COUNT(DISTINCT seedling_request_id) as request_count')
+                )
+                ->groupBy('category_id', 'item_name')
+                ->orderBy('total_quantity', 'asc')
                 ->take(15)
-                ->values();
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'name' => $item->item_name,
+                        'category' => $item->category->name ?? 'Unknown',
+                        'total_quantity' => $item->total_quantity,
+                        'request_count' => $item->request_count
+                    ];
+                });
+
+            return $items;
         } catch (\Exception $e) {
             Log::error('Least Requested Items Error: ' . $e->getMessage());
             return collect([]);
@@ -697,6 +760,63 @@ class SeedlingAnalyticsController extends Controller
                 'Dry Season (Nov-Apr)' => ['months' => [11, 12, 1, 2, 3, 4], 'requests' => 0, 'quantity' => 0],
                 'Wet Season (May-Oct)' => ['months' => [5, 6, 7, 8, 9, 10], 'requests' => 0, 'quantity' => 0]
             ];
+        }
+    }
+
+    /**
+     * Get supply alerts for low stock items
+     */
+    private function getSupplyAlerts()
+    {
+        try {
+            $lowStockItems = CategoryItem::where('supply_alert_enabled', true)
+                ->whereColumn('current_supply', '<=', 'reorder_point')
+                ->with('category')
+                ->orderBy('current_supply', 'asc')
+                ->get()
+                ->map(function($item) {
+                    $percentage = $item->reorder_point > 0 
+                        ? round(($item->current_supply / $item->reorder_point) * 100, 1)
+                        : 0;
+                        
+                    return [
+                        'name' => $item->name,
+                        'category' => $item->category->display_name ?? 'Unknown',
+                        'current' => $item->current_supply,
+                        'reorder_point' => $item->reorder_point,
+                        'minimum' => $item->minimum_supply,
+                        'percentage' => $percentage,
+                        'status' => $percentage <= 25 ? 'critical' : ($percentage <= 50 ? 'low' : 'warning')
+                    ];
+                });
+            
+            return $lowStockItems;
+        } catch (\Exception $e) {
+            Log::error('Supply Alerts Error: ' . $e->getMessage());
+            return collect([]);
+        }
+    }
+
+    /**
+     * Get rejection analysis
+     */
+    private function getRejectionAnalysis($baseQuery)
+    {
+        try {
+            $requestIds = (clone $baseQuery)->pluck('id');
+            
+            $rejectedItems = SeedlingRequestItem::whereIn('seedling_request_id', $requestIds)
+                ->where('status', 'rejected')
+                ->whereNotNull('rejection_reason')
+                ->select('rejection_reason', DB::raw('count(*) as count'))
+                ->groupBy('rejection_reason')
+                ->orderBy('count', 'desc')
+                ->get();
+            
+            return $rejectedItems;
+        } catch (\Exception $e) {
+            Log::error('Rejection Analysis Error: ' . $e->getMessage());
+            return collect([]);
         }
     }
 
@@ -802,25 +922,6 @@ class SeedlingAnalyticsController extends Controller
     }
 
     /**
-     * Safe JSON decode with fallback
-     */
-    private function safeJsonDecode($json)
-    {
-        if (empty($json)) {
-            return [];
-        }
-
-        if (is_string($json)) {
-            $decoded = json_decode($json, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                return $decoded;
-            }
-        }
-
-        return is_array($json) ? $json : [];
-    }
-
-    /**
      * Get default overview when errors occur
      */
     private function getDefaultOverview()
@@ -839,5 +940,38 @@ class SeedlingAnalyticsController extends Controller
             'change_percentage' => 0,
             'fulfillment_rate' => 0
         ];
+    }
+
+    /**
+     * Generate DSS Report PDF
+     */
+    public function generateDSSReport(Request $request)
+    {
+        try {
+            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+            $endDate = $request->get('end_date', now()->format('Y-m-d'));
+
+            Log::info('Generating DSS Report', [
+                'start_date' => $startDate,
+                'end_date' => $endDate
+            ]);
+
+            // Generate the report using the analytics service
+            $pdf = $this->analyticsService->generateDSSReport($startDate, $endDate);
+
+            // Generate filename with timestamp
+            $filename = 'DSS_Report_' . Carbon::parse($startDate)->format('Ymd') . 
+                        '_to_' . Carbon::parse($endDate)->format('Ymd') . '.pdf';
+
+            return $pdf->download($filename);
+
+        } catch (\Exception $e) {
+            Log::error('DSS Report Generation Failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Failed to generate DSS report: ' . $e->getMessage());
+        }
     }
 }

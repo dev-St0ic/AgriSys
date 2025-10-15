@@ -45,16 +45,35 @@ return [
     |
     */
 
-    'openai' => [
-        'key' => env('OPENAI_API_KEY'),
-        'cache_duration' => env('OPENAI_CACHE_DURATION', 3600), // 1 hour
-        'organization' => env('OPENAI_ORGANIZATION'),
-        'model' => env('OPENAI_MODEL', 'gpt-4-turbo-preview'),
-        'max_tokens' => env('OPENAI_MAX_TOKENS', 2000),
-        'temperature' => env('OPENAI_TEMPERATURE', 0.3),
-        'timeout' => env('OPENAI_TIMEOUT', 60),
-    ],
+    // 'openai' => [
+    //     'key' => env('OPENAI_API_KEY'),
+    //     'cache_duration' => env('OPENAI_CACHE_DURATION', 3600), // 1 hour
+    //     'organization' => env('OPENAI_ORGANIZATION'),
+    //     'model' => env('OPENAI_MODEL', 'gpt-4-turbo-preview'),
+    //     'max_tokens' => env('OPENAI_MAX_TOKENS', 2000),
+    //     'temperature' => env('OPENAI_TEMPERATURE', 0.3),
+    //     'timeout' => env('OPENAI_TIMEOUT', 60),
+    // ],
 
+     /*
+    |--------------------------------------------------------------------------
+    | Anthropic Claude Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for Anthropic Claude API integration used by the Decision
+    | Support System for generating AI-powered insights and recommendations.
+    |
+    */
+
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'model' => 'claude-sonnet-4-5-20250929', //  Best choice
+        'max_tokens' => 8192,  // Enough for detailed prescriptions
+        'temperature' => 0.1,  //  Low = consistent, precise
+        'timeout' => 300,      // Allow time for complex analysis
+        'cache_duration' => 3600, // Cache for 1 hour
+        'api_version' => '2023-06-01'
+    ],
     /*
     |--------------------------------------------------------------------------
     | PDF Generation Configuration
