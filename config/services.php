@@ -45,14 +45,34 @@ return [
     |
     */
 
-    'openai' => [
-        'key' => env('OPENAI_API_KEY'),
-        'cache_duration' => env('OPENAI_CACHE_DURATION', 3600), // 1 hour
-        'organization' => env('OPENAI_ORGANIZATION'),
-        'model' => env('OPENAI_MODEL', 'gpt-4-turbo-preview'),
-        'max_tokens' => env('OPENAI_MAX_TOKENS', 2000),
-        'temperature' => env('OPENAI_TEMPERATURE', 0.3),
-        'timeout' => env('OPENAI_TIMEOUT', 60),
+    // 'openai' => [
+    //     'key' => env('OPENAI_API_KEY'),
+    //     'cache_duration' => env('OPENAI_CACHE_DURATION', 3600), // 1 hour
+    //     'organization' => env('OPENAI_ORGANIZATION'),
+    //     'model' => env('OPENAI_MODEL', 'gpt-4-turbo-preview'),
+    //     'max_tokens' => env('OPENAI_MAX_TOKENS', 2000),
+    //     'temperature' => env('OPENAI_TEMPERATURE', 0.3),
+    //     'timeout' => env('OPENAI_TIMEOUT', 60),
+    // ],
+
+     /*
+    |--------------------------------------------------------------------------
+    | Anthropic Claude Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for Anthropic Claude API integration used by the Decision
+    | Support System for generating AI-powered insights and recommendations.
+    |
+    */
+
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'cache_duration' => env('ANTHROPIC_CACHE_DURATION', 3600),
+        'model' => env('ANTHROPIC_MODEL', 'claude-3-5-sonnet-20241022'),
+        'max_tokens' => env('ANTHROPIC_MAX_TOKENS', 4096),
+        'temperature' => env('ANTHROPIC_TEMPERATURE', 0.3),
+        'timeout' => env('ANTHROPIC_TIMEOUT', 90),
+        'api_version' => '2023-06-01',
     ],
 
     /*

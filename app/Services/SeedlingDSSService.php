@@ -9,15 +9,21 @@ use Carbon\Carbon;
 
 class SeedlingDSSService
 {
-    private string $openaiApiKey;
-    private string $openaiApiUrl = 'https://api.openai.com/v1/chat/completions';
+    private string $anthropicApiKey;
+    private string $anthropicApiUrl = 'https://api.anthropic.com/v1/messages';
+    private string $model;
+    private int $maxTokens;
+    private float $temperature;
 
     public function __construct()
     {
-        $this->openaiApiKey = config('services.openai.key');
+        $this->anthropicApiKey = config('services.anthropic.key');
+        $this->model = config('services.anthropic.model', 'claude-sonnet-4-5-20250929');
+        $this->maxTokens = config('services.anthropic.max_tokens', 4096);
+        $this->temperature = config('services.anthropic.temperature', 0.3);
 
-        if (empty($this->openaiApiKey)) {
-            Log::warning('OpenAI API key not configured. Using fallback insights.');
+        if (empty($this->anthropicApiKey)) {
+            Log::warning('Anthropic API key not configured. Using fallback insights.');
         }
     }
 
@@ -28,20 +34,20 @@ class SeedlingDSSService
     {
         try {
             $cacheKey = 'seedling_dss_insights_' . md5(serialize($analyticsData));
-            $cacheDuration = config('services.openai.cache_duration', 3600); // 1 hour default
+            $cacheDuration = config('services.anthropic.cache_duration', 3600);
 
             return Cache::remember($cacheKey, $cacheDuration, function() use ($analyticsData) {
                 try {
-                    if (!empty($this->openaiApiKey)) {
-                        $insights = $this->callOpenAI($analyticsData);
-                        Log::info('OpenAI Insights Generated:', [
+                    if (!empty($this->anthropicApiKey)) {
+                        $insights = $this->callClaude($analyticsData);
+                        Log::info('Claude Insights Generated:', [
                             'cache_key' => $cacheKey,
                             'data_hash' => md5(serialize($analyticsData))
                         ]);
                         return $insights;
                     }
                     
-                    Log::info('Using fallback insights due to missing OpenAI key');
+                    Log::info('Using fallback insights due to missing Anthropic API key');
                     return $this->getFallbackInsights($analyticsData);
                 } catch (\Exception $e) {
                     Log::error('Failed to generate insights in cache callback', [
@@ -61,45 +67,46 @@ class SeedlingDSSService
     }
 
     /**
-     * Call OpenAI GPT-4 API for insights generation
+     * Call Anthropic Claude API for insights generation
      */
-    private function callOpenAI(array $analyticsData): array
+    private function callClaude(array $analyticsData): array
     {
         $prompt = $this->buildAnalyticsPrompt($analyticsData);
 
-        Log::info('Sending prompt to OpenAI:', ['prompt_length' => strlen($prompt)]);
+        Log::info('Sending prompt to Claude:', ['prompt_length' => strlen($prompt)]);
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->openaiApiKey,
+            'x-api-key' => $this->anthropicApiKey,
+            'anthropic-version' => config('services.anthropic.api_version', '2023-06-01'),
             'Content-Type' => 'application/json',
-        ])->timeout(90)->post($this->openaiApiUrl, [
-            'model' => 'gpt-4-turbo-preview',
+        ])->timeout(config('services.anthropic.timeout', 90))->post($this->anthropicApiUrl, [
+            'model' => $this->model,
+            'max_tokens' => $this->maxTokens,
+            'temperature' => $this->temperature,
             'messages' => [
-                [
-                    'role' => 'system',
-                    'content' => 'You are an expert agricultural data analyst and decision support system specialist. You must provide detailed, actionable insights for improving seedling distribution programs. Always respond with structured, comprehensive analysis in the exact format requested.'
-                ],
                 [
                     'role' => 'user',
                     'content' => $prompt
                 ]
             ],
-            'temperature' => 0.3,
-            'max_tokens' => 3000, // Increased for more detailed responses
+            'system' => 'You are an expert agricultural data analyst and decision support system specialist with deep expertise in municipal agriculture programs. You provide detailed, actionable insights for improving seedling distribution programs. Always respond with structured, comprehensive analysis in the exact format requested. Focus on practical, implementable recommendations that municipal agriculture officers can act upon immediately.'
         ]);
 
         if (!$response->successful()) {
-            Log::error('OpenAI API request failed', [
+            Log::error('Claude API request failed', [
                 'status' => $response->status(),
                 'body' => $response->body()
             ]);
-            throw new \Exception('OpenAI API request failed: ' . $response->body());
+            throw new \Exception('Claude API request failed: ' . $response->body());
         }
 
         $result = $response->json();
-        Log::info('OpenAI Response:', ['response' => $result]);
+        Log::info('Claude Response:', ['response' => $result]);
 
-        return $this->parseAIResponse($result['choices'][0]['message']['content']);
+        // Extract text from Claude's response format
+        $messageContent = $result['content'][0]['text'] ?? '';
+        
+        return $this->parseAIResponse($messageContent);
     }
 
     /**
@@ -116,18 +123,40 @@ class SeedlingDSSService
         $categoryAnalysis = $data['categoryAnalysis'] ?? [];
         $processingTime = $data['processingTimeAnalysis'] ?? [];
 
-        // Convert barangay analysis to array format for consistent processing
+        // Convert barangay analysis to array format
         if (is_object($barangayAnalysis) && method_exists($barangayAnalysis, 'toArray')) {
             $barangayArray = $barangayAnalysis->toArray();
         } else {
             $barangayArray = (array) $barangayAnalysis;
         }
 
-        // Format category analysis data
+        // Format category analysis
         $categoryBreakdown = collect($categoryAnalysis)->map(function($data, $category) {
             return ucfirst($category) . ": " . ($data['requests'] ?? 0) . " requests, " . 
                    ($data['total_items'] ?? 0) . " items";
         })->implode('; ');
+
+        $topBarangays = collect($barangayArray)->take(3)->map(function($b) {
+            $barangay = is_object($b) ? $b : (object) $b;
+            return ($barangay->barangay ?? 'Unknown') . " (" . ($barangay->total_requests ?? 0) . " requests, " .
+                   number_format(($barangay->approval_rate ?? 0), 1) . "% success rate)";
+        })->implode('; ');
+
+        $underperformingBarangays = collect($barangayArray)->slice(-3)->map(function($b) {
+            $barangay = is_object($b) ? $b : (object) $b;
+            return ($barangay->barangay ?? 'Unknown') . " (" . ($barangay->total_requests ?? 0) . " requests, " .
+                   number_format(($barangay->approval_rate ?? 0), 1) . "% success rate)";
+        })->implode('; ');
+
+        $topItemsList = collect($topItems)->take(5)->map(function($item, $index) {
+            return ($index + 1) . ". " . ($item['name'] ?? 'Unknown') . " (" . ($item['category'] ?? 'general') . "): " .
+                   number_format($item['total_quantity'] ?? 0) . " units requested across " . ($item['request_count'] ?? 0) . " applications";
+        })->implode("\n");
+
+        $leastItemsList = collect($leastRequestedItems)->take(5)->map(function($item, $index) {
+            return ($index + 1) . ". " . ($item['name'] ?? 'Unknown') . " (" . ($item['category'] ?? 'general') . "): Only " .
+                   number_format($item['total_quantity'] ?? 0) . " units in " . ($item['request_count'] ?? 0) . " requests";
+        })->implode("\n");
 
         return "
 AGRICULTURAL SEEDLING DISTRIBUTION PROGRAM - COMPREHENSIVE ANALYSIS REQUEST
@@ -144,64 +173,49 @@ AGRICULTURAL SEEDLING DISTRIBUTION PROGRAM - COMPREHENSIVE ANALYSIS REQUEST
 {$categoryBreakdown}
 
 **GEOGRAPHIC PERFORMANCE DATA:**
-Top Performing Areas: " . collect($barangayArray)->take(3)->map(function($b) {
-    $barangay = is_object($b) ? $b : (object) $b;
-    return ($barangay->barangay ?? 'Unknown') . " (" . ($barangay->total_requests ?? 0) . " requests, " .
-           number_format(($barangay->approval_rate ?? 0), 1) . "% success rate)";
-})->implode('; ') . "
+Top Performing Areas: {$topBarangays}
 
-Underperforming Areas: " . collect($barangayArray)->slice(-3)->map(function($b) {
-    $barangay = is_object($b) ? $b : (object) $b;
-    return ($barangay->barangay ?? 'Unknown') . " (" . ($barangay->total_requests ?? 0) . " requests, " .
-           number_format(($barangay->approval_rate ?? 0), 1) . "% success rate)";
-})->implode('; ') . "
+Underperforming Areas: {$underperformingBarangays}
 
 **HIGH-DEMAND ITEMS BY CATEGORY:**
-" . collect($topItems)->take(5)->map(function($item, $index) {
-    return ($index + 1) . ". " . ($item['name'] ?? 'Unknown') . " (" . ($item['category'] ?? 'general') . "): " .
-           number_format($item['total_quantity'] ?? 0) . " units requested across " . ($item['request_count'] ?? 0) . " applications";
-})->implode("\n") . "
+{$topItemsList}
 
 **UNDERUTILIZED RESOURCES:**
-" . collect($leastRequestedItems)->take(5)->map(function($item, $index) {
-    return ($index + 1) . ". " . ($item['name'] ?? 'Unknown') . " (" . ($item['category'] ?? 'general') . "): Only " .
-           number_format($item['total_quantity'] ?? 0) . " units in " . ($item['request_count'] ?? 0) . " requests";
-})->implode("\n") . "
+{$leastItemsList}
 
 **OPERATIONAL METRICS:**
-- Application Processing Efficiency: " . json_encode($statusAnalysis) . "
-- Processing Time Analysis: " . json_encode($processingTime) . "
+- Application Processing Status: " . json_encode($statusAnalysis) . "
+- Processing Time Analysis: Average " . ($processingTime['avg_processing_days'] ?? 0) . " days
 
 **REQUIRED OUTPUT FORMAT:**
 You must provide a comprehensive Decision Support System analysis with exactly these sections. Each section must contain 3-5 detailed, actionable insights:
 
 **EXECUTIVE_SUMMARY**
-Provide 3-4 key strategic findings that municipal officials need to know immediately.
+Provide 3-4 key strategic findings that municipal officials need to know immediately. Focus on the most critical insights about program performance and impact.
 
 **PERFORMANCE_INSIGHTS**
-Provide 4-5 detailed analytical observations about program effectiveness, efficiency gaps, and operational strengths.
+Provide 4-5 detailed analytical observations about program effectiveness, efficiency gaps, and operational strengths. Include specific metrics and comparative analysis.
 
 **STRATEGIC_RECOMMENDATIONS**
-Provide 4-5 specific, actionable policy and program recommendations that can be implemented within 3-6 months.
+Provide 4-5 specific, actionable policy and program recommendations that can be implemented within 3-6 months. Each recommendation should be concrete and measurable.
 
 **OPERATIONAL_PRESCRIPTIONS**
-Provide 3-4 immediate operational improvements focusing on process optimization, resource allocation, and service delivery.
+Provide 3-4 immediate operational improvements focusing on process optimization, resource allocation, and service delivery. These should be implementable within 30-90 days.
 
 **RISK_ASSESSMENT**
-Identify 2-3 critical risks to program sustainability and provide specific mitigation strategies.
+Identify 2-3 critical risks to program sustainability and provide specific mitigation strategies for each risk.
 
-Please structure your response as clear paragraphs under each heading, not as JSON. Write detailed, professional analysis suitable for municipal agricultural administrators.
+Please structure your response as clear, professional paragraphs under each heading (not as JSON). Write detailed analysis suitable for municipal agricultural administrators. Each insight should be a complete sentence or paragraph that provides actionable intelligence.
         ";
     }
 
     /**
-     * Parse AI response into structured format - IMPROVED VERSION
+     * Parse AI response into structured format
      */
     private function parseAIResponse(string $response): array
     {
-        Log::info('Parsing AI Response:', ['response_length' => strlen($response)]);
+        Log::info('Parsing Claude Response:', ['response_length' => strlen($response)]);
 
-        // Initialize sections
         $sections = [
             'executive_summary' => [],
             'performance_insights' => [],
@@ -210,7 +224,6 @@ Please structure your response as clear paragraphs under each heading, not as JS
             'risk_assessment' => []
         ];
 
-        // Clean and split response
         $response = strip_tags($response);
         $lines = explode("\n", $response);
 
@@ -221,8 +234,9 @@ Please structure your response as clear paragraphs under each heading, not as JS
             $line = trim($line);
             if (empty($line)) continue;
 
-            // Check for section headers
             $lowerLine = strtolower($line);
+            
+            // Check for section headers
             if (strpos($lowerLine, 'executive') !== false && strpos($lowerLine, 'summary') !== false) {
                 $this->saveSectionContent($sections, $currentSection, $currentContent);
                 $currentSection = 'executive_summary';
@@ -244,7 +258,6 @@ Please structure your response as clear paragraphs under each heading, not as JS
                 $currentSection = 'risk_assessment';
                 $currentContent = '';
             } elseif ($currentSection) {
-                // Add content to current section
                 if (!empty($currentContent)) {
                     $currentContent .= ' ';
                 }
@@ -252,13 +265,12 @@ Please structure your response as clear paragraphs under each heading, not as JS
             }
         }
 
-        // Don't forget the last section
+        // Save the last section
         $this->saveSectionContent($sections, $currentSection, $currentContent);
 
-        // Break long paragraphs into sentences for better display
+        // Break long paragraphs into sentences
         foreach ($sections as $key => &$content) {
             if (count($content) === 1 && strlen($content[0]) > 500) {
-                // Split long content into sentences
                 $sentences = preg_split('/(?<=[.!?])\s+/', $content[0]);
                 $content = array_filter($sentences, function($sentence) {
                     return strlen(trim($sentence)) > 10;
@@ -287,11 +299,10 @@ Please structure your response as clear paragraphs under each heading, not as JS
     {
         if ($section && !empty(trim($content))) {
             $content = trim($content);
-            // Split content by sentences for better formatting
             $sentences = preg_split('/(?<=[.!?])\s+/', $content);
             foreach ($sentences as $sentence) {
                 $sentence = trim($sentence);
-                if (strlen($sentence) > 10) { // Only add meaningful sentences
+                if (strlen($sentence) > 10) {
                     $sections[$section][] = $sentence;
                 }
             }
@@ -299,7 +310,7 @@ Please structure your response as clear paragraphs under each heading, not as JS
     }
 
     /**
-     * Enhanced fallback insights with more detailed content
+     * Enhanced fallback insights
      */
     private function getFallbackInsights(array $data): array
     {

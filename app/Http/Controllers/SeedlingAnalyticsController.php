@@ -840,4 +840,36 @@ class SeedlingAnalyticsController extends Controller
             'fulfillment_rate' => 0
         ];
     }
+    /**
+ * Generate DSS Report PDF
+ */
+public function generateDSSReport(Request $request)
+{
+    try {
+        $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+        $endDate = $request->get('end_date', now()->format('Y-m-d'));
+
+        Log::info('Generating DSS Report', [
+            'start_date' => $startDate,
+            'end_date' => $endDate
+        ]);
+
+        // Generate the report using the analytics service
+        $pdf = $this->analyticsService->generateDSSReport($startDate, $endDate);
+
+        // Generate filename with timestamp
+        $filename = 'DSS_Report_' . Carbon::parse($startDate)->format('Ymd') . 
+                    '_to_' . Carbon::parse($endDate)->format('Ymd') . '.pdf';
+
+        return $pdf->download($filename);
+
+    } catch (\Exception $e) {
+        Log::error('DSS Report Generation Failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return back()->with('error', 'Failed to generate DSS report: ' . $e->getMessage());
+    }
+}
 }

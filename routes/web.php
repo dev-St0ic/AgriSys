@@ -228,6 +228,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
         // Route::get('/seedlings/export', [SeedlingAnalyticsController::class, 'export'])->name('seedlings.export');
         Route::get('/seedlings/dss-report', [SeedlingAnalyticsController::class, 'generateDSSReport'])
         ->name('seedlings.dss-report');
+        
 
          // RSBSA ANALYTICS - NEW SECTION
     Route::get('/rsbsa', [RsbsaAnalyticsController::class, 'index'])->name('rsbsa');
