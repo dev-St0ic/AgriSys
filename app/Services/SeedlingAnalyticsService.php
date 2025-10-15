@@ -74,13 +74,25 @@ class SeedlingAnalyticsService
 
         // Approval Rate Recommendations
         if ($overview['approval_rate'] < 70) {
-            $recommendations['approval_rate'] = $this->dssService->getMetricRecommendations('approval_rate', $analyticsData);
+            $recommendations['approval_rate'] = [
+                'status' => 'critical',
+                'message' => 'Approval rate critically low',
+                'current' => $overview['approval_rate'] . '%',
+                'target' => '85%',
+                'action' => 'Review and streamline approval criteria'
+            ];
         }
 
         // Processing Time Recommendations
         $avgProcessingDays = $analyticsData['processingTimeAnalysis']['avg_processing_days'] ?? 0;
         if ($avgProcessingDays > 5) {
-            $recommendations['processing_time'] = $this->dssService->getMetricRecommendations('processing_time', $analyticsData);
+            $recommendations['processing_time'] = [
+                'status' => 'warning',
+                'message' => 'Processing time exceeds target',
+                'current' => round($avgProcessingDays, 1) . ' days',
+                'target' => '<3 days',
+                'action' => 'Optimize approval workflow'
+            ];
         }
 
         // Barangay Coverage Recommendations
@@ -95,7 +107,6 @@ class SeedlingAnalyticsService
 
         return $recommendations;
     }
-
     /**
      * Calculate performance metrics
      */

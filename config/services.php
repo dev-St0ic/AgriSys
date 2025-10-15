@@ -70,7 +70,7 @@ return [
         'model' => 'claude-sonnet-4-5-20250929', //  Best choice
         'max_tokens' => 8192,  // Enough for detailed prescriptions
         'temperature' => 0.1,  //  Low = consistent, precise
-        'timeout' => 120,      // Allow time for complex analysis
+        'timeout' => 300,      // Allow time for complex analysis
         'cache_duration' => 3600, // Cache for 1 hour
         'api_version' => '2023-06-01'
     ],

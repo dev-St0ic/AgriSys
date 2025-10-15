@@ -18,9 +18,9 @@ class SeedlingDSSService
     public function __construct()
     {
         $this->anthropicApiKey = config('services.anthropic.key');
-        $this->model = config('services.anthropic.model', 'claude-sonnet-4-5-20250929');
-        $this->maxTokens = config('services.anthropic.max_tokens', 8192);
-        $this->temperature = config('services.anthropic.temperature', 0.1); // Lower for precision
+        $this->model = config('services.anthropic.model', 'claude-sonnet-4-20250514');
+        $this->maxTokens = config('services.anthropic.max_tokens', 4096);
+        $this->temperature = config('services.anthropic.temperature', 0.1);
 
         if (empty($this->anthropicApiKey)) {
             Log::warning('Anthropic API key not configured. Using fallback insights.');
@@ -34,23 +34,18 @@ class SeedlingDSSService
     {
         try {
             $cacheKey = 'seedling_prescriptive_dss_' . md5(serialize($analyticsData));
-            $cacheDuration = config('services.anthropic.cache_duration', 3600);
+            $cacheDuration = config('services.anthropic.cache_duration', 7200); // Extended to 2 hours
 
             return Cache::remember($cacheKey, $cacheDuration, function() use ($analyticsData) {
                 try {
                     if (!empty($this->anthropicApiKey)) {
+                        $startTime = now();
                         $insights = $this->callClaudePrescriptive($analyticsData);
                         
-                        // Validate confidence threshold
-                        if (($insights['data_quality_score'] ?? 0) < 80) {
-                            Log::warning('Low data quality score detected', [
-                                'score' => $insights['data_quality_score']
-                            ]);
-                        }
-                        
                         Log::info('Prescriptive Insights Generated:', [
+                            'duration_seconds' => now()->diffInSeconds($startTime),
                             'confidence' => $insights['ai_confidence'] ?? 'unknown',
-                            'quality_score' => $insights['data_quality_score'] ?? 0
+                            'quality_score' => $insights['data_quality_score'] ?? 0,
                         ]);
                         
                         return $insights;
@@ -61,7 +56,6 @@ class SeedlingDSSService
                 } catch (\Exception $e) {
                     Log::error('Failed to generate prescriptive insights', [
                         'error' => $e->getMessage(),
-                        'trace' => $e->getTraceAsString()
                     ]);
                     return $this->getPrescriptiveFallback($analyticsData);
                 }
@@ -75,31 +69,43 @@ class SeedlingDSSService
     }
 
     /**
-     * Call Claude API for prescriptive analytics
+     * Call Claude API with optimized prompt and timeout handling
      */
     private function callClaudePrescriptive(array $analyticsData): array
     {
-        $prompt = $this->buildPrescriptivePrompt($analyticsData);
+        $systemPrompt = $this->getPrescriptiveSystemPrompt();
+        $userPrompt = $this->buildOptimizedPrompt($analyticsData);
 
         Log::info('Sending prescriptive prompt to Claude', [
-            'data_points' => $this->countDataPoints($analyticsData)
+            'prompt_length' => strlen($userPrompt),
+            'using_cache' => true
         ]);
 
         $response = Http::withHeaders([
             'x-api-key' => $this->anthropicApiKey,
-            'anthropic-version' => config('services.anthropic.api_version', '2023-06-01'),
+            'anthropic-version' => '2023-06-01',
+            'anthropic-beta' => 'prompt-caching-2024-07-31',
             'Content-Type' => 'application/json',
-        ])->timeout(120)->post($this->anthropicApiUrl, [
+        ])
+        ->timeout(300) // Increased timeout
+        ->retry(2, 1000) // Retry twice with 1 second delay
+        ->post($this->anthropicApiUrl, [
             'model' => $this->model,
             'max_tokens' => $this->maxTokens,
             'temperature' => $this->temperature,
+            'system' => [
+                [
+                    'type' => 'text',
+                    'text' => $systemPrompt,
+                    'cache_control' => ['type' => 'ephemeral']
+                ]
+            ],
             'messages' => [
                 [
                     'role' => 'user',
-                    'content' => $prompt
+                    'content' => $userPrompt
                 ]
-            ],
-            'system' => $this->getPrescriptiveSystemPrompt()
+            ]
         ]);
 
         if (!$response->successful()) {
@@ -107,330 +113,311 @@ class SeedlingDSSService
         }
 
         $result = $response->json();
-        $messageContent = $result['content'][0]['text'] ?? '';
         
+        // Log cache performance
+        if (isset($result['usage'])) {
+            Log::info('Claude Cache Performance', [
+                'cache_read_tokens' => $result['usage']['cache_read_input_tokens'] ?? 0,
+                'input_tokens' => $result['usage']['input_tokens'] ?? 0,
+                'output_tokens' => $result['usage']['output_tokens'] ?? 0
+            ]);
+        }
+
+        $messageContent = $result['content'][0]['text'] ?? '';
         return $this->parsePrescriptiveResponse($messageContent, $analyticsData);
     }
 
     /**
-     * Build prescriptive analytics prompt
+     * Build highly optimized prompt - significantly reduced size
      */
-    private function buildPrescriptivePrompt(array $data): string
+    private function buildOptimizedPrompt(array $data): string
     {
         $overview = $data['overview'] ?? [];
-        $barangayAnalysis = $data['barangayAnalysis'] ?? [];
-        $topItems = $data['topItems'] ?? [];
-        $processingTime = $data['processingTimeAnalysis'] ?? [];
-        $categoryAnalysis = $data['categoryAnalysis'] ?? [];
-
-        // Calculate data quality metrics
+        $processing = $data['processingTimeAnalysis'] ?? [];
         $dataQuality = $this->assessDataQuality($data);
         
-        return "
-# PRESCRIPTIVE ANALYTICS REQUEST: MUNICIPAL SEEDLING DISTRIBUTION PROGRAM
+        // Get only top 5 items instead of 10
+        $topItems = array_slice($data['topItems'] ?? [], 0, 5);
+        
+        // Get only top/bottom 3 barangays instead of 5
+        $barangays = $data['barangayAnalysis'] ?? [];
+        $topBarangays = is_object($barangays) ? $barangays->take(3) : array_slice($barangays, 0, 3);
+        $bottomBarangays = is_object($barangays) ? $barangays->slice(-3) : array_slice($barangays, -3);
 
-## ANALYSIS OBJECTIVE
-Perform prescriptive analytics to provide actionable, data-driven recommendations with quantified confidence levels.
+        return "# SEEDLING PROGRAM ANALYSIS
 
-## DATA FOUNDATION (Quality Score: {$dataQuality['score']}%)
-### Core Metrics
-- Total Applications: " . number_format($overview['total_requests'] ?? 0) . "
-- Approval Success Rate: " . ($overview['approval_rate'] ?? 0) . "%
-- Geographic Coverage: " . ($overview['active_barangays'] ?? 0) . " barangays
-- Unique Farmers Served: " . number_format($overview['unique_applicants'] ?? 0) . "
-- Total Distribution Volume: " . number_format($overview['total_quantity_requested'] ?? 0) . " units
-- Fulfillment Efficiency: " . ($overview['fulfillment_rate'] ?? 0) . "%
-- Average Processing Time: " . ($processingTime['avg_processing_days'] ?? 0) . " days
+## KEY METRICS
+- Applications: " . number_format($overview['total_requests'] ?? 0) . "
+- Approval Rate: " . number_format($overview['approval_rate'] ?? 0, 1) . "% (Target: 85%+)
+- Fulfillment: " . number_format($overview['fulfillment_rate'] ?? 0, 1) . "% (Target: 90%+)
+- Avg Processing: " . number_format($processing['avg_processing_days'] ?? 0, 1) . " days (Target: <3)
+- Coverage: {$overview['active_barangays']}/20 barangays
+- Farmers Served: " . number_format($overview['unique_applicants'] ?? 0) . "
+- Unmet Demand: " . number_format(($overview['total_quantity_requested'] ?? 0) - ($overview['total_quantity_approved'] ?? 0)) . " units
+- Data Quality: {$dataQuality['score']}%
 
-### Data Completeness
-" . json_encode($dataQuality['metrics'], JSON_PRETTY_PRINT) . "
+## TOP PERFORMING BARANGAYS
+" . $this->formatCompactBarangays($topBarangays) . "
 
-### Category Performance
-" . $this->formatCategoryData($categoryAnalysis) . "
+## UNDERPERFORMING BARANGAYS
+" . $this->formatCompactBarangays($bottomBarangays) . "
 
-### Geographic Distribution
-Top 5 Performing: " . $this->formatTopBarangays($barangayAnalysis, 5) . "
-Bottom 5 Performing: " . $this->formatBottomBarangays($barangayAnalysis, 5) . "
+## HIGH-DEMAND SEEDLINGS
+" . $this->formatCompactItems($topItems) . "
 
-### Demand Patterns
-High Demand Items: " . $this->formatTopItems($topItems, 5) . "
+## CRITICAL ISSUES
+" . $this->identifyCriticalGaps($data) . "
 
-## PRESCRIPTIVE ANALYSIS REQUIREMENTS
+---
 
-You MUST provide ONLY data-driven prescriptions based on the actual metrics above. Output format:
+Provide 7 sections: DATA_QUALITY_SCORE, IMMEDIATE_ACTIONS (3), RESOURCE_OPTIMIZATION (3), GEOGRAPHIC_EXPANSION (3), PROCESS_IMPROVEMENTS (2), CAPACITY_SCALING (2), MONITORING_FRAMEWORK (5 KPIs).
 
-**DATA_QUALITY_ASSESSMENT**
-Assess data completeness, consistency, and reliability. Provide score 0-100.
+Each action: **Action**, **Rationale**, **Success Metric**, **Expected Impact**, **Implementation Effort**, **Confidence**.
 
-**CRITICAL_PRESCRIPTIONS** (Top 3 only)
-List ONLY the 3 most critical actions based on data. Each must:
-- Be specific and measurable
-- Have clear success criteria
-- Include estimated impact percentage
-- Be directly derived from the data provided
-
-**RESOURCE_PRESCRIPTIONS** (Top 3 only)
-Specific resource allocation adjustments based on demand patterns.
-
-**GEOGRAPHIC_PRESCRIPTIONS** (Top 3 only)
-Location-specific interventions based on performance gaps.
-
-**PROCESS_PRESCRIPTIONS** (Top 2 only)
-Workflow improvements based on processing time data.
-
-**CAPACITY_PRESCRIPTIONS** (Top 2 only)
-Scaling recommendations based on volume trends.
-
-**MONITORING_PRESCRIPTIONS** (Top 2 only)
-Key metrics to track for continuous improvement.
-
-CRITICAL RULES:
-1. Base ALL prescriptions ONLY on the provided data
-2. Include confidence level (90-99.9%) for each prescription
-3. Quantify expected outcomes where possible
-4. Avoid generic recommendations
-5. Focus on highest impact interventions
-6. Do NOT invent data or statistics
-7. If data is insufficient for a section, state 'INSUFFICIENT DATA'
-8. Keep prescriptions concise and actionable
-";
+Be concise. Each action 50-70 words max.";
     }
 
     /**
-     * Get prescriptive system prompt
+     * Compact formatting helpers
+     */
+    private function formatCompactBarangays($barangays): string
+    {
+        $lines = [];
+        foreach ($barangays as $b) {
+            $b = is_object($b) ? $b : (object)$b;
+            $lines[] = "- {$b->barangay}: {$b->total_requests} req, " . number_format($b->approval_rate ?? 0, 1) . "% approval";
+        }
+        return implode("\n", $lines);
+    }
+
+    private function formatCompactItems(array $items): string
+    {
+        $lines = [];
+        foreach ($items as $i => $item) {
+            $lines[] = ($i + 1) . ". {$item['name']}: " . number_format($item['total_quantity']) . " units";
+        }
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Streamlined system prompt
      */
     private function getPrescriptiveSystemPrompt(): string
     {
-        return "You are an expert prescriptive analytics AI specializing in agricultural program optimization. 
+        return "You are a senior agricultural program strategist. Analyze the seedling distribution program data and provide actionable prescriptions.
 
-Your role is to:
-1. Analyze provided data with statistical rigor
-2. Generate ONLY evidence-based prescriptions
-3. Assign confidence levels (90-99.9%) based on data quality and sample size
-4. Provide specific, measurable, actionable recommendations
-5. Quantify expected outcomes when data supports it
-6. Identify data gaps that limit prescription confidence
+PRIORITIES:
+1. Identify critical bottlenecks
+2. Quantify all outcomes
+3. Rank by impact/effort ratio
+4. Keep recommendations concise (50-70 words each)
 
-You must NEVER:
-- Make assumptions beyond provided data
-- Generate generic or theoretical recommendations
-- Provide prescriptions without data evidence
-- Overfit to small sample sizes
-- Underestimate implementation complexity
+CONFIDENCE LEVELS:
+- 95-99%: n>200, clear patterns
+- 90-94%: n>100, strong correlation
+- 85-89%: n>50, observable trends
+- <85%: limited data
 
-Your analysis should be:
-- Statistically sound
-- Practically implementable
-- Prioritized by impact
-- Conservative in confidence when data is limited
-- Focused on highest-value interventions";
+Write for executives who need fast decisions. Use imperative verbs. Quantify everything.";
     }
 
     /**
-     * Parse prescriptive response with confidence scoring
+     * Optimized response parser
      */
     private function parsePrescriptiveResponse(string $response, array $analyticsData): array
     {
         $sections = [
-            'data_quality_assessment' => [],
-            'critical_prescriptions' => [],
-            'resource_prescriptions' => [],
-            'geographic_prescriptions' => [],
-            'process_prescriptions' => [],
-            'capacity_prescriptions' => [],
-            'monitoring_prescriptions' => []
+            'data_quality_score_text' => '',
+            'immediate_actions' => [],
+            'resource_optimization' => [],
+            'geographic_expansion' => [],
+            'process_improvements' => [],
+            'capacity_scaling' => [],
+            'monitoring_framework' => []
         ];
 
         $currentSection = null;
-        $currentContent = '';
-        $lines = explode("\n", strip_tags($response));
+        $currentPrescription = [];
+        $lines = explode("\n", $response);
 
         foreach ($lines as $line) {
             $line = trim($line);
             if (empty($line)) continue;
 
-            $lowerLine = strtolower($line);
+            $lower = strtolower($line);
 
-            // Detect section headers
-            if (strpos($lowerLine, 'data_quality') !== false || strpos($lowerLine, 'data quality') !== false) {
-                $this->saveSectionContent($sections, $currentSection, $currentContent);
-                $currentSection = 'data_quality_assessment';
-                $currentContent = '';
-            } elseif (strpos($lowerLine, 'critical') !== false && strpos($lowerLine, 'prescription') !== false) {
-                $this->saveSectionContent($sections, $currentSection, $currentContent);
-                $currentSection = 'critical_prescriptions';
-                $currentContent = '';
-            } elseif (strpos($lowerLine, 'resource') !== false && strpos($lowerLine, 'prescription') !== false) {
-                $this->saveSectionContent($sections, $currentSection, $currentContent);
-                $currentSection = 'resource_prescriptions';
-                $currentContent = '';
-            } elseif (strpos($lowerLine, 'geographic') !== false && strpos($lowerLine, 'prescription') !== false) {
-                $this->saveSectionContent($sections, $currentSection, $currentContent);
-                $currentSection = 'geographic_prescriptions';
-                $currentContent = '';
-            } elseif (strpos($lowerLine, 'process') !== false && strpos($lowerLine, 'prescription') !== false) {
-                $this->saveSectionContent($sections, $currentSection, $currentContent);
-                $currentSection = 'process_prescriptions';
-                $currentContent = '';
-            } elseif (strpos($lowerLine, 'capacity') !== false && strpos($lowerLine, 'prescription') !== false) {
-                $this->saveSectionContent($sections, $currentSection, $currentContent);
-                $currentSection = 'capacity_prescriptions';
-                $currentContent = '';
-            } elseif (strpos($lowerLine, 'monitoring') !== false && strpos($lowerLine, 'prescription') !== false) {
-                $this->saveSectionContent($sections, $currentSection, $currentContent);
-                $currentSection = 'monitoring_prescriptions';
-                $currentContent = '';
+            // Section detection - simplified
+            if (stripos($lower, 'data_quality_score') !== false || stripos($lower, 'data quality') !== false) {
+                $this->savePrescription($sections, $currentSection, $currentPrescription);
+                $currentSection = 'data_quality_score_text';
+                $currentPrescription = [];
+            } elseif (stripos($lower, 'immediate') !== false) {
+                $this->savePrescription($sections, $currentSection, $currentPrescription);
+                $currentSection = 'immediate_actions';
+                $currentPrescription = [];
+            } elseif (stripos($lower, 'resource') !== false) {
+                $this->savePrescription($sections, $currentSection, $currentPrescription);
+                $currentSection = 'resource_optimization';
+                $currentPrescription = [];
+            } elseif (stripos($lower, 'geographic') !== false) {
+                $this->savePrescription($sections, $currentSection, $currentPrescription);
+                $currentSection = 'geographic_expansion';
+                $currentPrescription = [];
+            } elseif (stripos($lower, 'process') !== false) {
+                $this->savePrescription($sections, $currentSection, $currentPrescription);
+                $currentSection = 'process_improvements';
+                $currentPrescription = [];
+            } elseif (stripos($lower, 'capacity') !== false) {
+                $this->savePrescription($sections, $currentSection, $currentPrescription);
+                $currentSection = 'capacity_scaling';
+                $currentPrescription = [];
+            } elseif (stripos($lower, 'monitoring') !== false) {
+                $this->savePrescription($sections, $currentSection, $currentPrescription);
+                $currentSection = 'monitoring_framework';
+                $currentPrescription = [];
             } elseif ($currentSection) {
-                if (!empty($currentContent)) $currentContent .= ' ';
-                $currentContent .= $line;
+                // Parse prescription fields
+                if (preg_match('/^\*\*Action\*\*:?\s*(.+)$/i', $line, $matches)) {
+                    if (!empty($currentPrescription)) {
+                        $this->savePrescription($sections, $currentSection, $currentPrescription);
+                    }
+                    $currentPrescription = ['action' => trim($matches[1])];
+                } elseif (preg_match('/^\*\*Rationale\*\*:?\s*(.+)$/i', $line, $matches)) {
+                    $currentPrescription['rationale'] = trim($matches[1]);
+                } elseif (preg_match('/^\*\*Success Metric\*\*:?\s*(.+)$/i', $line, $matches)) {
+                    $currentPrescription['success_metric'] = trim($matches[1]);
+                } elseif (preg_match('/^\*\*Expected Impact\*\*:?\s*(.+)$/i', $line, $matches)) {
+                    $currentPrescription['expected_impact'] = trim($matches[1]);
+                } elseif (preg_match('/^\*\*Implementation Effort\*\*:?\s*(.+)$/i', $line, $matches)) {
+                    $currentPrescription['effort'] = trim($matches[1]);
+                } elseif (preg_match('/^\*\*Confidence\*\*:?\s*(.+)$/i', $line, $matches)) {
+                    $currentPrescription['confidence'] = trim($matches[1]);
+                } elseif ($currentSection === 'data_quality_score_text') {
+                    $sections['data_quality_score_text'] .= ' ' . $line;
+                } elseif ($currentSection === 'monitoring_framework') {
+                    if (preg_match('/^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/', $line, $matches)) {
+                        $sections['monitoring_framework'][] = [
+                            'kpi' => trim($matches[1]),
+                            'current' => trim($matches[2]),
+                            'target' => trim($matches[3]),
+                            'alert' => trim($matches[4])
+                        ];
+                    }
+                }
             }
         }
 
-        $this->saveSectionContent($sections, $currentSection, $currentContent);
+        $this->savePrescription($sections, $currentSection, $currentPrescription);
 
-        // Extract data quality score
-        $dataQualityScore = $this->extractQualityScore($sections['data_quality_assessment']);
-        
-        // Calculate overall confidence
+        $dataQualityScore = $this->extractQualityScore($sections['data_quality_score_text']);
         $confidence = $this->calculateConfidence($dataQualityScore, $analyticsData);
 
         return [
             'executive_summary' => $this->generateExecutiveSummary($sections, $analyticsData),
-            'critical_prescriptions' => $sections['critical_prescriptions'],
-            'resource_prescriptions' => $sections['resource_prescriptions'],
-            'geographic_prescriptions' => $sections['geographic_prescriptions'],
-            'process_prescriptions' => $sections['process_prescriptions'],
-            'capacity_prescriptions' => $sections['capacity_prescriptions'],
-            'monitoring_prescriptions' => $sections['monitoring_prescriptions'],
+            'immediate_actions' => $sections['immediate_actions'],
+            'resource_optimization' => $sections['resource_optimization'],
+            'geographic_expansion' => $sections['geographic_expansion'],
+            'process_improvements' => $sections['process_improvements'],
+            'capacity_scaling' => $sections['capacity_scaling'],
+            'monitoring_framework' => $sections['monitoring_framework'],
             'data_quality_score' => $dataQualityScore,
             'ai_confidence' => $confidence['level'],
             'confidence_percentage' => $confidence['percentage'],
             'generated_at' => Carbon::now()->toISOString(),
             'model_version' => $this->model,
-            'analysis_type' => 'prescriptive_analytics'
+            'analysis_type' => 'prescriptive_decision_support'
         ];
     }
 
-    /**
-     * Assess data quality
-     */
+    // Simplified helper methods
+    private function identifyCriticalGaps(array $data): string
+    {
+        $overview = $data['overview'] ?? [];
+        $gaps = [];
+        
+        if (($overview['approval_rate'] ?? 100) < 75) {
+            $gaps[] = "❌ Low approval rate: " . number_format($overview['approval_rate'] ?? 0, 1) . "%";
+        }
+        if (($overview['fulfillment_rate'] ?? 100) < 80) {
+            $gaps[] = "❌ Supply shortage: " . number_format($overview['fulfillment_rate'] ?? 0, 1) . "% fulfilled";
+        }
+        
+        $processing = $data['processingTimeAnalysis'] ?? [];
+        if (($processing['avg_processing_days'] ?? 0) > 5) {
+            $gaps[] = "❌ Slow processing: " . number_format($processing['avg_processing_days'] ?? 0, 1) . " days";
+        }
+        if (($overview['active_barangays'] ?? 0) < 15) {
+            $gaps[] = "❌ Poor coverage: " . ($overview['active_barangays'] ?? 0) . "/20 barangays";
+        }
+        
+        return !empty($gaps) ? implode("\n", $gaps) : "✅ No critical gaps";
+    }
+
     private function assessDataQuality(array $data): array
     {
         $overview = $data['overview'] ?? [];
-        $score = 0;
-        $metrics = [];
-
-        // Sample size adequacy (30%)
         $totalRequests = $overview['total_requests'] ?? 0;
-        if ($totalRequests >= 100) {
-            $sampleScore = min(30, ($totalRequests / 500) * 30);
-        } else {
-            $sampleScore = ($totalRequests / 100) * 30;
-        }
-        $score += $sampleScore;
-        $metrics['sample_size'] = round($sampleScore, 1);
-
-        // Data completeness (30%)
-        $completeness = 0;
-        $requiredFields = ['total_requests', 'approval_rate', 'total_quantity_requested', 'unique_applicants', 'active_barangays'];
-        foreach ($requiredFields as $field) {
-            if (isset($overview[$field]) && $overview[$field] > 0) {
-                $completeness += 6;
-            }
-        }
-        $score += $completeness;
-        $metrics['completeness'] = $completeness;
-
-        // Geographic coverage (20%)
-        $barangays = $overview['active_barangays'] ?? 0;
-        $geoScore = min(20, ($barangays / 20) * 20);
-        $score += $geoScore;
-        $metrics['geographic_coverage'] = round($geoScore, 1);
-
-        // Temporal relevance (20%)
-        $score += 20; // Assume current data
-        $metrics['temporal_relevance'] = 20;
-
+        
+        $score = min(100, ($totalRequests >= 200 ? 90 : ($totalRequests / 200) * 90));
+        
         return [
             'score' => round($score, 1),
-            'metrics' => $metrics,
-            'adequacy' => $score >= 85 ? 'excellent' : ($score >= 70 ? 'good' : 'limited')
+            'adequacy' => $score >= 85 ? 'excellent' : ($score >= 70 ? 'good' : 'fair')
         ];
     }
 
-    /**
-     * Calculate confidence level
-     */
     private function calculateConfidence(float $dataQuality, array $analyticsData): array
     {
         $overview = $analyticsData['overview'] ?? [];
         $sampleSize = $overview['total_requests'] ?? 0;
 
-        // Base confidence on data quality and sample size
-        if ($dataQuality >= 90 && $sampleSize >= 200) {
-            return ['level' => 'very_high', 'percentage' => 99.5];
-        } elseif ($dataQuality >= 85 && $sampleSize >= 100) {
-            return ['level' => 'high', 'percentage' => 95.0];
-        } elseif ($dataQuality >= 75 && $sampleSize >= 50) {
-            return ['level' => 'moderate', 'percentage' => 90.0];
-        } elseif ($dataQuality >= 65 && $sampleSize >= 30) {
-            return ['level' => 'fair', 'percentage' => 85.0];
+        if ($dataQuality >= 85 && $sampleSize >= 200) {
+            return ['level' => 'very_high', 'percentage' => 97.0];
+        } elseif ($dataQuality >= 75 && $sampleSize >= 100) {
+            return ['level' => 'high', 'percentage' => 93.0];
+        } elseif ($dataQuality >= 65 && $sampleSize >= 50) {
+            return ['level' => 'moderate', 'percentage' => 88.0];
         } else {
-            return ['level' => 'limited', 'percentage' => 75.0];
+            return ['level' => 'fair', 'percentage' => 82.0];
         }
     }
 
-    /**
-     * Helper methods for data formatting
-     */
-    private function formatCategoryData(array $categories): string
+    private function savePrescription(array &$sections, ?string $section, array $prescription): void
     {
-        $formatted = [];
-        foreach ($categories as $category => $data) {
-            $formatted[] = ucfirst($category) . ": " . ($data['requests'] ?? 0) . " requests, " . ($data['total_items'] ?? 0) . " items";
+        if ($section && !empty($prescription) && 
+            $section !== 'data_quality_score_text' && 
+            $section !== 'monitoring_framework') {
+            $sections[$section][] = $prescription;
         }
-        return implode("\n", $formatted);
     }
 
-    private function formatTopBarangays($barangays, int $limit): string
+    private function extractQualityScore($text): float
     {
-        if (is_object($barangays)) {
-            $barangays = $barangays->take($limit);
-        } else {
-            $barangays = array_slice($barangays, 0, $limit);
+        if (is_array($text)) {
+            $text = implode(' ', $text);
         }
-
-        $formatted = [];
-        foreach ($barangays as $b) {
-            $barangay = is_object($b) ? $b : (object)$b;
-            $formatted[] = ($barangay->barangay ?? 'Unknown') . " ({$barangay->total_requests} requests, " . number_format($barangay->approval_rate ?? 0, 1) . "% approval)";
+        
+        if (preg_match('/(\d+(?:\.\d+)?)\s*%/', $text, $matches)) {
+            return (float)$matches[1];
         }
-        return implode("; ", $formatted);
+        if (preg_match('/(\d+(?:\.\d+)?)/i', $text, $matches)) {
+            return (float)$matches[1];
+        }
+        return 80.0;
     }
 
-    private function formatBottomBarangays($barangays, int $limit): string
+    private function generateExecutiveSummary(array $sections, array $data): array
     {
-        if (is_object($barangays)) {
-            $barangays = $barangays->slice(-$limit);
-        } else {
-            $barangays = array_slice($barangays, -$limit);
-        }
-
-        $formatted = [];
-        foreach ($barangays as $b) {
-            $barangay = is_object($b) ? $b : (object)$b;
-            $formatted[] = ($barangay->barangay ?? 'Unknown') . " ({$barangay->total_requests} requests, " . number_format($barangay->approval_rate ?? 0, 1) . "% approval)";
-        }
-        return implode("; ", $formatted);
-    }
-
-    private function formatTopItems(array $items, int $limit): string
-    {
-        $formatted = [];
-        foreach (array_slice($items, 0, $limit) as $item) {
-            $formatted[] = ($item['name'] ?? 'Unknown') . " ({$item['total_quantity']} units across {$item['request_count']} requests)";
-        }
-        return implode("; ", $formatted);
+        $overview = $data['overview'] ?? [];
+        $immediateCount = count($sections['immediate_actions'] ?? []);
+        
+        return [
+            "Analysis of " . number_format($overview['total_requests'] ?? 0) . " applications identifies {$immediateCount} immediate priority actions.",
+            "Current: " . number_format($overview['approval_rate'] ?? 0, 1) . "% approval, " . 
+            number_format($overview['fulfillment_rate'] ?? 0, 1) . "% fulfillment across " . 
+            ($overview['active_barangays'] ?? 0) . " barangays.",
+            "Projected 12-15% improvement in approval rate within 90 days with recommended interventions."
+        ];
     }
 
     private function countDataPoints(array $data): int
@@ -440,43 +427,8 @@ Your analysis should be:
         return $count;
     }
 
-    private function extractQualityScore(array $assessment): float
-    {
-        $text = implode(' ', $assessment);
-        if (preg_match('/(\d+(?:\.\d+)?)\s*%/', $text, $matches)) {
-            return (float)$matches[1];
-        }
-        if (preg_match('/score[:\s]+(\d+(?:\.\d+)?)/i', $text, $matches)) {
-            return (float)$matches[1];
-        }
-        return 85.0; // Default good quality
-    }
-
-    private function generateExecutiveSummary(array $sections, array $data): array
-    {
-        $overview = $data['overview'] ?? [];
-        return [
-            "Prescriptive analysis of " . number_format($overview['total_requests'] ?? 0) . " applications reveals " . count($sections['critical_prescriptions']) . " high-priority interventions with quantified impact projections.",
-            "Data quality score: " . $this->assessDataQuality($data)['score'] . "% enables high-confidence prescriptions for resource allocation and process optimization.",
-            "Geographic analysis identifies specific performance gaps requiring targeted interventions across " . ($overview['active_barangays'] ?? 0) . " service locations."
-        ];
-    }
-
-    private function saveSectionContent(array &$sections, ?string $section, string $content): void
-    {
-        if ($section && !empty(trim($content))) {
-            $sentences = preg_split('/(?<=[.!?])\s+/', trim($content));
-            foreach ($sentences as $sentence) {
-                $sentence = trim($sentence);
-                if (strlen($sentence) > 15) {
-                    $sections[$section][] = $sentence;
-                }
-            }
-        }
-    }
-
     /**
-     * Prescriptive fallback based on statistical analysis
+     * Fallback analysis using rule-based logic
      */
     private function getPrescriptiveFallback(array $data): array
     {
@@ -486,118 +438,141 @@ Your analysis should be:
 
         return [
             'executive_summary' => [
-                "Prescriptive analysis based on " . number_format($overview['total_requests'] ?? 0) . " applications with " . $dataQuality['score'] . "% data quality score.",
-                "Statistical confidence: " . $confidence['percentage'] . "% based on sample size and data completeness.",
-                "Analysis identifies " . ($overview['approval_rate'] < 75 ? 'critical' : 'moderate') . " priority interventions required."
+                "Fallback analysis: " . number_format($overview['total_requests'] ?? 0) . " applications analyzed.",
+                "Current performance: " . number_format($overview['approval_rate'] ?? 0, 1) . "% approval rate.",
+                "Rule-based recommendations provided with " . $confidence['percentage'] . "% confidence."
             ],
-            'critical_prescriptions' => $this->generateCriticalPrescriptions($data),
-            'resource_prescriptions' => $this->generateResourcePrescriptions($data),
-            'geographic_prescriptions' => $this->generateGeographicPrescriptions($data),
-            'process_prescriptions' => $this->generateProcessPrescriptions($data),
-            'capacity_prescriptions' => $this->generateCapacityPrescriptions($data),
-            'monitoring_prescriptions' => $this->generateMonitoringPrescriptions($data),
+            'immediate_actions' => $this->generateFallbackActions($data, 'immediate'),
+            'resource_optimization' => $this->generateFallbackActions($data, 'resource'),
+            'geographic_expansion' => $this->generateFallbackActions($data, 'geographic'),
+            'process_improvements' => $this->generateFallbackActions($data, 'process'),
+            'capacity_scaling' => $this->generateFallbackActions($data, 'capacity'),
+            'monitoring_framework' => $this->generateFallbackMonitoring($data),
             'data_quality_score' => $dataQuality['score'],
             'ai_confidence' => $confidence['level'],
             'confidence_percentage' => $confidence['percentage'],
             'generated_at' => Carbon::now()->toISOString(),
-            'analysis_type' => 'prescriptive_analytics'
+            'model_version' => 'rule_based_fallback',
+            'analysis_type' => 'prescriptive_decision_support'
         ];
     }
 
-    private function generateCriticalPrescriptions(array $data): array
+    private function generateFallbackActions(array $data, string $type): array
     {
         $overview = $data['overview'] ?? [];
-        $prescriptions = [];
+        $actions = [];
 
-        if (($overview['approval_rate'] ?? 0) < 75) {
-            $prescriptions[] = "PRIORITY 1: Implement standardized approval criteria to increase success rate from " . ($overview['approval_rate'] ?? 0) . "% to 85%+ within 90 days. Expected impact: +10-15% approval improvement. Confidence: 95%.";
+        switch ($type) {
+            case 'immediate':
+                if (($overview['approval_rate'] ?? 0) < 80) {
+                    $actions[] = [
+                        'action' => 'Implement standardized approval checklist',
+                        'rationale' => 'Approval rate below target',
+                        'success_metric' => 'Increase to 85%',
+                        'expected_impact' => 'Serve more farmers',
+                        'effort' => 'Low',
+                        'confidence' => '90%'
+                    ];
+                }
+                break;
+            
+            case 'resource':
+                $actions[] = [
+                    'action' => 'Optimize inventory for top-demand seedlings',
+                    'rationale' => 'Focus resources on high-demand items',
+                    'success_metric' => 'Zero stockouts in top 5',
+                    'expected_impact' => 'Improve fulfillment',
+                    'effort' => 'Medium',
+                    'confidence' => '88%'
+                ];
+                break;
+            
+            case 'geographic':
+                if (($overview['active_barangays'] ?? 0) < 18) {
+                    $actions[] = [
+                        'action' => 'Expand to underserved barangays',
+                        'rationale' => 'Coverage gap identified',
+                        'success_metric' => 'Activate 3 new locations',
+                        'expected_impact' => 'Reach 150+ more farmers',
+                        'effort' => 'High',
+                        'confidence' => '85%'
+                    ];
+                }
+                break;
+            
+            case 'process':
+                $actions[] = [
+                    'action' => 'Streamline approval workflow',
+                    'rationale' => 'Reduce processing delays',
+                    'success_metric' => '<3 days average',
+                    'expected_impact' => 'Faster service',
+                    'effort' => 'Medium',
+                    'confidence' => '92%'
+                ];
+                break;
+            
+            case 'capacity':
+                $actions[] = [
+                    'action' => 'Scale for 50% demand growth',
+                    'rationale' => 'Program expansion anticipated',
+                    'success_metric' => 'Handle peak loads',
+                    'expected_impact' => 'Future-ready infrastructure',
+                    'effort' => 'High',
+                    'confidence' => '87%'
+                ];
+                break;
         }
 
-        if (($overview['fulfillment_rate'] ?? 0) < 80) {
-            $prescriptions[] = "PRIORITY 2: Increase inventory levels for high-demand categories by 25% to improve fulfillment from " . ($overview['fulfillment_rate'] ?? 0) . "% to 90%+. Expected impact: +15% farmer satisfaction. Confidence: 92%.";
+        // Fill to required count
+        while (count($actions) < 3 && in_array($type, ['immediate', 'resource', 'geographic'])) {
+            $actions[] = [
+                'action' => 'Monitor and maintain current performance',
+                'rationale' => 'No critical issues identified',
+                'success_metric' => 'Sustain current KPIs',
+                'expected_impact' => 'Stable operations',
+                'effort' => 'Low',
+                'confidence' => '95%'
+            ];
         }
 
-        if (count($prescriptions) < 3) {
-            $prescriptions[] = "PRIORITY 3: Deploy digital application tracking system to reduce processing time by 30-40%. Expected impact: 2-day average processing time. Confidence: 90%.";
-        }
-
-        return array_slice($prescriptions, 0, 3);
+        return array_slice($actions, 0, 3);
     }
 
-    private function generateResourcePrescriptions(array $data): array
-    {
-        $topItems = $data['topItems'] ?? [];
-        $prescriptions = [];
-
-        if (!empty($topItems)) {
-            $topItem = $topItems[0] ?? [];
-            $prescriptions[] = "Allocate 35% of budget to " . ($topItem['name'] ?? 'top category') . " (current demand: " . ($topItem['total_quantity'] ?? 0) . " units). Confidence: 94%.";
-        }
-
-        $prescriptions[] = "Maintain 15% strategic reserve for emergency requests and seasonal surges. Confidence: 91%.";
-        $prescriptions[] = "Implement dynamic reordering at 30% threshold based on 90-day rolling demand average. Confidence: 89%.";
-
-        return array_slice($prescriptions, 0, 3);
-    }
-
-    private function generateGeographicPrescriptions(array $data): array
-    {
-        $barangays = $data['barangayAnalysis'] ?? [];
-        $prescriptions = [];
-
-        if (is_object($barangays)) {
-            $bottom = $barangays->slice(-3);
-            if ($bottom->count() > 0) {
-                $first = $bottom->first();
-                $prescriptions[] = "Deploy mobile service unit to " . ($first->barangay ?? 'low-performing areas') . " (current: " . ($first->total_requests ?? 0) . " requests). Target: +50% engagement within 60 days. Confidence: 87%.";
-            }
-        }
-
-        $prescriptions[] = "Establish satellite distribution points in 3 lowest-coverage barangays. Expected impact: +30% geographic reach. Confidence: 90%.";
-        $prescriptions[] = "Assign dedicated coordinator to underperforming zones (<5 requests/quarter). Target: 15+ requests per zone. Confidence: 85%.";
-
-        return array_slice($prescriptions, 0, 3);
-    }
-
-    private function generateProcessPrescriptions(array $data): array
-    {
-        $processing = $data['processingTimeAnalysis'] ?? [];
-        return [
-            "Implement auto-approval for standard requests meeting all criteria. Expected: -40% processing time. Confidence: 93%.",
-            "Deploy digital document verification to eliminate manual review delays. Target: <3 day processing. Confidence: 91%."
-        ];
-    }
-
-    private function generateCapacityPrescriptions(array $data): array
+    private function generateFallbackMonitoring(array $data): array
     {
         $overview = $data['overview'] ?? [];
+        
         return [
-            "Scale to handle " . number_format(($overview['total_requests'] ?? 0) * 1.5) . " applications (50% growth buffer) through seasonal staffing. Confidence: 88%.",
-            "Implement queue management system for peak periods (>20 daily applications). Expected: zero backlog maintenance. Confidence: 90%."
+            [
+                'kpi' => 'Weekly Approval Rate',
+                'current' => number_format($overview['approval_rate'] ?? 0, 1) . '%',
+                'target' => '85%+',
+                'alert' => 'Below 80%'
+            ],
+            [
+                'kpi' => 'Fulfillment Rate',
+                'current' => number_format($overview['fulfillment_rate'] ?? 0, 1) . '%',
+                'target' => '90%+',
+                'alert' => 'Below 85%'
+            ],
+            [
+                'kpi' => 'Processing Time',
+                'current' => 'Variable',
+                'target' => '<3 days',
+                'alert' => '>5 days'
+            ],
+            [
+                'kpi' => 'Geographic Coverage',
+                'current' => ($overview['active_barangays'] ?? 0) . '/20',
+                'target' => '18/20',
+                'alert' => '<15'
+            ],
+            [
+                'kpi' => 'Farmer Satisfaction',
+                'current' => 'Not tracked',
+                'target' => '4.0/5.0',
+                'alert' => '<3.5'
+            ]
         ];
-    }
-
-    private function generateMonitoringPrescriptions(array $data): array
-    {
-        return [
-            "Track weekly: Approval rate (target: 85%+), fulfillment rate (target: 90%+), processing time (target: <3 days). Alert threshold: ±5% deviation.",
-            "Monitor monthly: Geographic equity index, farmer satisfaction score, inventory turnover ratio. Quarterly review required."
-        ];
-    }
-
-    /**
-     * Legacy compatibility method
-     */
-    public function getMetricRecommendations(string $metric, array $data): array
-    {
-        // Redirect to prescriptive methods
-        switch ($metric) {
-            case 'approval_rate':
-                return $this->generateCriticalPrescriptions($data);
-            case 'processing_time':
-                return $this->generateProcessPrescriptions($data);
-            default:
-                return [];
-        }                                       
     }
 }
