@@ -25,13 +25,21 @@ class SeedlingAnalyticsController extends Controller
     public function index(Request $request)
     {
         try {
-            // Date range filter with better defaults
-            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-            $endDate = $request->get('end_date', now()->format('Y-m-d'));
-
-            // Validate dates
-            $startDate = Carbon::parse($startDate)->format('Y-m-d');
-            $endDate = Carbon::parse($endDate)->format('Y-m-d');
+            // Get filter type and preset
+            $filterType = $request->get('filter_type', 'preset');
+            $datePreset = $request->get('date_preset', 'this_month');
+            
+            // Calculate dates based on filter type
+            if ($filterType === 'preset') {
+                [$startDate, $endDate] = $this->calculatePresetDates($datePreset);
+            } else {
+                $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+                $endDate = $request->get('end_date', now()->format('Y-m-d'));
+                
+                // Validate dates
+                $startDate = Carbon::parse($startDate)->format('Y-m-d');
+                $endDate = Carbon::parse($endDate)->format('Y-m-d');
+            }
 
             // Base query with date range
             $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
@@ -110,7 +118,9 @@ class SeedlingAnalyticsController extends Controller
                 'supplyAlerts',
                 'rejectionAnalysis',
                 'startDate',
-                'endDate'
+                'endDate',
+                'filterType',
+                'datePreset'
             ));
         } catch (\Exception $e) {
             Log::error('Analytics Error: ' . $e->getMessage(), [
@@ -119,6 +129,91 @@ class SeedlingAnalyticsController extends Controller
             return back()->with('error', 'Error loading analytics data. Please try again.');
         }
     }
+
+    /**
+     * Calculate date range based on preset selection
+     */
+    private function calculatePresetDates($preset)
+    {
+        $today = now();
+        
+        switch($preset) {
+            case 'today':
+                return [$today->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'yesterday':
+                $yesterday = $today->copy()->subDay();
+                return [$yesterday->format('Y-m-d'), $yesterday->format('Y-m-d')];
+                
+            case 'last_7_days':
+                return [$today->copy()->subDays(7)->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_14_days':
+                return [$today->copy()->subDays(14)->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_30_days':
+                return [$today->copy()->subDays(30)->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'this_week':
+                return [$today->copy()->startOfWeek()->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_week':
+                $lastWeekEnd = $today->copy()->startOfWeek()->subDay();
+                $lastWeekStart = $lastWeekEnd->copy()->startOfWeek();
+                return [$lastWeekStart->format('Y-m-d'), $lastWeekEnd->format('Y-m-d')];
+                
+            case 'this_month':
+                return [$today->copy()->startOfMonth()->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_month':
+                $lastMonth = $today->copy()->subMonth();
+                return [
+                    $lastMonth->startOfMonth()->format('Y-m-d'),
+                    $lastMonth->endOfMonth()->format('Y-m-d')
+                ];
+                
+            case 'this_quarter':
+                $quarter = ceil($today->month / 3);
+                $startMonth = ($quarter - 1) * 3 + 1;
+                return [
+                    $today->copy()->setMonth($startMonth)->startOfMonth()->format('Y-m-d'),
+                    $today->format('Y-m-d')
+                ];
+                
+            case 'last_quarter':
+                $currentQuarter = ceil($today->month / 3);
+                $lastQuarter = $currentQuarter - 1;
+                if ($lastQuarter < 1) {
+                    $lastQuarter = 4;
+                    $year = $today->year - 1;
+                } else {
+                    $year = $today->year;
+                }
+                $startMonth = ($lastQuarter - 1) * 3 + 1;
+                $endMonth = $lastQuarter * 3;
+                return [
+                    now()->setYear($year)->setMonth($startMonth)->startOfMonth()->format('Y-m-d'),
+                    now()->setYear($year)->setMonth($endMonth)->endOfMonth()->format('Y-m-d')
+                ];
+                
+            case 'this_year':
+                return [$today->copy()->startOfYear()->format('Y-m-d'), $today->format('Y-m-d')];
+                
+            case 'last_year':
+                $lastYear = $today->copy()->subYear();
+                return [
+                    $lastYear->startOfYear()->format('Y-m-d'),
+                    $lastYear->endOfYear()->format('Y-m-d')
+                ];
+                
+            case 'all_time':
+                return ['2020-01-01', $today->format('Y-m-d')];
+                
+            default:
+                return [$today->copy()->startOfMonth()->format('Y-m-d'), $today->format('Y-m-d')];
+        }
+    }
+
     /**
      * Get overview statistics with period comparison
      */
@@ -316,6 +411,7 @@ class SeedlingAnalyticsController extends Controller
             return [];
         }
     }
+
     /**
      * NEW: Get request velocity (trend analysis)
      */
@@ -478,7 +574,7 @@ class SeedlingAnalyticsController extends Controller
      * Get category analysis with item breakdown
      */
     private function getCategoryAnalysis($baseQuery)
-        {
+    {
         try {
             $requestIds = (clone $baseQuery)->pluck('id');
             
@@ -723,6 +819,7 @@ class SeedlingAnalyticsController extends Controller
             return collect([]);
         }
     }
+
     /**
      * Get monthly barangay analysis
      */
@@ -844,36 +941,37 @@ class SeedlingAnalyticsController extends Controller
             'fulfillment_rate' => 0
         ];
     }
+
     /**
- * Generate DSS Report PDF
- */
-public function generateDSSReport(Request $request)
-{
-    try {
-        $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-        $endDate = $request->get('end_date', now()->format('Y-m-d'));
+     * Generate DSS Report PDF
+     */
+    public function generateDSSReport(Request $request)
+    {
+        try {
+            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+            $endDate = $request->get('end_date', now()->format('Y-m-d'));
 
-        Log::info('Generating DSS Report', [
-            'start_date' => $startDate,
-            'end_date' => $endDate
-        ]);
+            Log::info('Generating DSS Report', [
+                'start_date' => $startDate,
+                'end_date' => $endDate
+            ]);
 
-        // Generate the report using the analytics service
-        $pdf = $this->analyticsService->generateDSSReport($startDate, $endDate);
+            // Generate the report using the analytics service
+            $pdf = $this->analyticsService->generateDSSReport($startDate, $endDate);
 
-        // Generate filename with timestamp
-        $filename = 'DSS_Report_' . Carbon::parse($startDate)->format('Ymd') . 
-                    '_to_' . Carbon::parse($endDate)->format('Ymd') . '.pdf';
+            // Generate filename with timestamp
+            $filename = 'DSS_Report_' . Carbon::parse($startDate)->format('Ymd') . 
+                        '_to_' . Carbon::parse($endDate)->format('Ymd') . '.pdf';
 
-        return $pdf->download($filename);
+            return $pdf->download($filename);
 
-    } catch (\Exception $e) {
-        Log::error('DSS Report Generation Failed', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
+        } catch (\Exception $e) {
+            Log::error('DSS Report Generation Failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        return back()->with('error', 'Failed to generate DSS report: ' . $e->getMessage());
+            return back()->with('error', 'Failed to generate DSS report: ' . $e->getMessage());
+        }
     }
-}
 }

@@ -598,6 +598,6 @@ Your analysis should be:
                 return $this->generateProcessPrescriptions($data);
             default:
                 return [];
-        }
+        }                                       
     }
 }

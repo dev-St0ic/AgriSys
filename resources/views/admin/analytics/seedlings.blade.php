@@ -11,6 +11,12 @@
     $barangayPerformance = $barangayPerformance ?? collect();
     $categoryFulfillment = $categoryFulfillment ?? [];
     $processingTimeAnalysis = $processingTimeAnalysis ?? [];
+    
+    // ADD THESE NEW DEFAULTS FOR FILTER
+    $filterType = $filterType ?? 'preset';
+    $datePreset = $datePreset ?? 'this_month';
+    $startDate = $startDate ?? now()->startOfMonth()->format('Y-m-d');
+    $endDate = $endDate ?? now()->format('Y-m-d');
 @endphp
 
 @extends('layouts.app')
@@ -94,36 +100,36 @@
                                     <i class="fas fa-filter me-1"></i>Filter Type
                                 </label>
                                 <select class="form-select" id="filter_type" name="filter_type">
-                                    <option value="preset">Quick Preset</option>
-                                    <option value="custom">Custom Range</option>
+                                    <option value="preset" {{ $filterType === 'preset' ? 'selected' : '' }}>Quick Preset</option>
+                                    <option value="custom" {{ $filterType === 'custom' ? 'selected' : '' }}>Custom Range</option>
                                 </select>
                             </div>
 
                             <!-- Preset Options (shown when filter_type = preset) -->
-                            <div class="col-lg-3 col-md-6" id="preset_container">
+                            <div class="col-lg-3 col-md-6" id="preset_container" style="display: {{ $filterType === 'preset' ? 'block' : 'none' }};">
                                 <label for="date_preset" class="form-label fw-semibold">
                                     <i class="fas fa-calendar-alt me-1"></i>Select Period
                                 </label>
                                 <select class="form-select" id="date_preset" name="date_preset">
-                                    <option value="today">Today</option>
-                                    <option value="yesterday">Yesterday</option>
-                                    <option value="last_7_days">Last 7 Days</option>
-                                    <option value="last_14_days">Last 14 Days</option>
-                                    <option value="last_30_days">Last 30 Days</option>
-                                    <option value="this_week">This Week</option>
-                                    <option value="last_week">Last Week</option>
-                                    <option value="this_month" selected>This Month</option>
-                                    <option value="last_month">Last Month</option>
-                                    <option value="this_quarter">This Quarter</option>
-                                    <option value="last_quarter">Last Quarter</option>
-                                    <option value="this_year">This Year</option>
-                                    <option value="last_year">Last Year</option>
-                                    <option value="all_time">All Time</option>
+                                    <option value="today" {{ $datePreset === 'today' ? 'selected' : '' }}>Today</option>
+                                    <option value="yesterday" {{ $datePreset === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
+                                    <option value="last_7_days" {{ $datePreset === 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
+                                    <option value="last_14_days" {{ $datePreset === 'last_14_days' ? 'selected' : '' }}>Last 14 Days</option>
+                                    <option value="last_30_days" {{ $datePreset === 'last_30_days' ? 'selected' : '' }}>Last 30 Days</option>
+                                    <option value="this_week" {{ $datePreset === 'this_week' ? 'selected' : '' }}>This Week</option>
+                                    <option value="last_week" {{ $datePreset === 'last_week' ? 'selected' : '' }}>Last Week</option>
+                                    <option value="this_month" {{ $datePreset === 'this_month' ? 'selected' : '' }}>This Month</option>
+                                    <option value="last_month" {{ $datePreset === 'last_month' ? 'selected' : '' }}>Last Month</option>
+                                    <option value="this_quarter" {{ $datePreset === 'this_quarter' ? 'selected' : '' }}>This Quarter</option>
+                                    <option value="last_quarter" {{ $datePreset === 'last_quarter' ? 'selected' : '' }}>Last Quarter</option>
+                                    <option value="this_year" {{ $datePreset === 'this_year' ? 'selected' : '' }}>This Year</option>
+                                    <option value="last_year" {{ $datePreset === 'last_year' ? 'selected' : '' }}>Last Year</option>
+                                    <option value="all_time" {{ $datePreset === 'all_time' ? 'selected' : '' }}>All Time</option>
                                 </select>
                             </div>
 
                             <!-- Custom Date Range (shown when filter_type = custom) -->
-                            <div class="col-lg-6 col-md-12" id="custom_container" style="display: none;">
+                            <div class="col-lg-6 col-md-12" id="custom_container" style="display: {{ $filterType === 'custom' ? 'block' : 'none' }};">
                                 <div class="row g-2">
                                     <div class="col-md-6">
                                         <label for="start_date" class="form-label fw-semibold">
@@ -153,7 +159,7 @@
                                     </button>
                                     <a href="{{ route('admin.analytics.seedlings.dss-report') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
                                         class="btn btn-info" target="_blank">
-                                        <i class="fas fa-file-pdf"></i>Decision Support Report
+                                        <i class="fas fa-file-pdf"></i> Decision Support Report
                                     </a>
                                 </div>
                             </div>
@@ -164,7 +170,13 @@
                             <small class="text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
                                 <strong>Current Filter:</strong> 
-                                <span id="filter_display">This Month</span>
+                                <span id="filter_display">
+                                    @if($filterType === 'preset')
+                                        {{ ucwords(str_replace('_', ' ', $datePreset)) }}
+                                    @else
+                                        Custom Range
+                                    @endif
+                                </span>
                                 <span class="mx-2">|</span>
                                 <span id="date_range_display">{{ date('M d, Y', strtotime($startDate)) }} - {{ date('M d, Y', strtotime($endDate)) }}</span>
                             </small>
