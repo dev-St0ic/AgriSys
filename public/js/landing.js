@@ -380,6 +380,64 @@ function closeForm(formId) {
     history.pushState(null, '', '/services');
 }
 
+// Project filtering functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filterValue = this.getAttribute('data-filter');
+            
+            projectCards.forEach(card => {
+                if (filterValue === 'all') {
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'scale(1)';
+                    }, 10);
+                } else {
+                    if (card.getAttribute('data-category') === filterValue) {
+                        card.style.display = 'block';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'scale(1)';
+                        }, 10);
+                    } else {
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
+                }
+            });
+        });
+    });
+    
+    // Pagination functionality
+    const paginationButtons = document.querySelectorAll('.pagination-btn');
+    
+    paginationButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (this.id === 'prevPage' || this.id === 'nextPage') return;
+            
+            paginationButtons.forEach(btn => {
+                if (btn.id !== 'prevPage' && btn.id !== 'nextPage') {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            this.classList.add('active');
+        });
+    });
+});
+
 // ==============================================
 // RSBSA FORM FUNCTIONS - Moved to rsbsa.js
 // ==============================================
