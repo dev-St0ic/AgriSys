@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="{{ asset('css/training.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+
+
 
     @if (isset($user))
         <script>
@@ -45,14 +48,10 @@
 
     <header>
         <div class="header-left">
-            <div class="logos">
-                <img src="../images/logos/AgriSysRemoveBG.png" alt="System Logo" class="logo-img-1">
-                <img src="../images/logos/CagoRemoveBG.png" alt="Client Logo" class="logo-img-2">
-
-                <div class="location">
-                    <div class="city">San Pedro</div>
-                    <div>City Agriculture Office</div>
-                </div>
+            <div class="logo-text">
+                <h2 class="logo-text">
+                    <span class="logo-agri">Agri</span><span class="logo-sys">Sys</span>
+                </h2>
             </div>
             <div class="header-center nav-buttons">
                 <button type="button" class="btn" onclick="goHome(event)">Home</button>
