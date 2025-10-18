@@ -11,6 +11,7 @@ class SeedlingRequestItem extends Model
 
     protected $fillable = [
         'seedling_request_id',
+        'user_id',
         'category_id',
         'category_item_id',
         'item_name',
