@@ -488,6 +488,7 @@ public function submitSeedlings(Request $request)
                 if ($categoryItem) {
                     SeedlingRequestItem::create([
                         'seedling_request_id' => $seedlingRequest->id,
+                        'user_id' => $userId,
                         'category_id' => $categoryItem->category_id,
                         'category_item_id' => $categoryItem->id,
                         'item_name' => $item['name'],

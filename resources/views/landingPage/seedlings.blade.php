@@ -184,21 +184,21 @@
             <input type="hidden" id="selected_seedlings" name="selected_seedlings" value="">
 
             <label for="seedlings-first_name">First Name *</label>
-            <input type="text" id="seedlings-first_name" name="first_name" pattern="[a-zA-Z\s\'-]+"
+            <input type="text" id="seedlings-first_name" name="first_name" pattern="[a-zA-Z '\-]+"
                 title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
             <span class="validation-warning" id="seedlings-first_name-warning"
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
 
             <label for="seedlings-middle_name">Middle Name (Optional)</label>
-            <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z\s\'-]+"
+            <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z '\-]+"
                 title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
             <span class="validation-warning" id="seedlings-middle_name-warning"
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
 
             <label for="seedlings-last_name">Last Name *</label>
-            <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z\s\'-]+"
+            <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z '\-]+"
                 title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
             <span class="validation-warning" id="seedlings-last_name-warning"
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
