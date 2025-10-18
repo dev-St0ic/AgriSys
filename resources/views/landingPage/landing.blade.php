@@ -15,8 +15,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 
-
-
     @if (isset($user))
         <script>
             // Pass user data to JavaScript
@@ -133,18 +131,20 @@
         </div>
     </header>
 
-    <section class="announcement">
-        <p><strong>📢 Announcement:</strong> Seedling distribution starts July 1, 2025. Visit the Seedlings section for
-            more info.</p>
-    </section>
-
     <!-- Welcome Section (Same for both guest and logged-in users) -->
-    <section class="welcome" id="home">
+    <!-- <section class="welcome" id="home">
         <h2>Welcome to AgriSys</h2>
         <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
         <button class="btn-services"
-            onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore
-            Services</button>
+            onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore Services</button>
+    </section> -->
+    <section class="welcome" id="home">
+        <div class="welcome-content">
+            <h2>Welcome to <span class="highlight">AgriSys</span><br>Agriculture System</br></h2>
+            <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
+            <button class="btn-services" onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore Services</button>
+        </div>
+        <div class="welcome-image"></div>
     </section>
 
     <!-- Services Section (Always visible) -->

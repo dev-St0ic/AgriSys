@@ -27,12 +27,6 @@ header {
     min-height: 50px; 
 }
 
-.header-left {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%; /* Take full width to push items apart */
-}
 
 
 .logo-text {
@@ -41,6 +35,7 @@ header {
     color: #00AA00;
     margin: 0;
     padding: 0;
+    flex-shrink: 0; /* Prevent logo from shrinking */
 }
 
 
@@ -67,6 +62,7 @@ header {
     gap: 15px;
     align-items: center;
     margin-left: auto; /* space between left and center */
+    margin-right: 10px; /* Space before auth buttons */
 }
 
 .header-center .btn {
@@ -110,6 +106,15 @@ header {
     display: flex;
     gap: 10px;
     align-items: center;
+    flex-shrink: 0; /* Prevent auth buttons from shrinking */
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; /* Take full width to push items apart */
+    gap: 20px; /* Add gap between logo and buttons */
 }
 
 /* Auth buttons styling */
@@ -167,214 +172,191 @@ header {
 
 /* --- Welcome Section --- */
 .welcome {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.4)), /* Dark overlay for better text visibility */
-        url('../images/hero/temporaryBG.jpg');
-
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    height: 90vh;
+    width: 100%;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../images/hero/temporaryBG.jpg');
     background-size: cover;
-    background-position: center center;
-    height: 70vh;
-    min-height: 500px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* Left side - Text content */
+.welcome-content {
+    flex: 1;
+    padding: 60px 60px;
+    color: #1a1a1a;
+    z-index: 2;
+    max-width: 600px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    color: #ffffff;
-    text-align: center;
-    padding: 60px 20px;
-    position: relative;
-}
-
-/* Additional overlay for extra text contrast */
-
-.welcome::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%);
-    z-index: -1; /* Behind the content */
-}
-
-/* Ensure content appears above overlay */
-
-.welcome > * {
-    position: relative;
-    z-index: 2; /* Ensure content is above the overlay */
 }
 
 .welcome h2 {
     font-size: 3.5rem;
     font-weight: 700;
     margin-bottom: 20px;
-    margin-top: 100px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8),
-    0 0 20px rgba(0, 0, 0, 0.5); /*enhance shadow for better visibility */
     letter-spacing: 1px;
+    color: #ffffff;
     line-height: 1.2;
 }
 
-#home .welcome p {
-    font-size: 1.8rem;
-    font-weight: 400;
-    max-width: 700px;
-    margin: 0 auto 60px auto;
-    text-align: center;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8),
-    0 0 15px rgba(0, 0, 0, 0.4); /*enhance shadow for better visibility */
-    line-height: 1.4;
-    padding: 0 20px;
+.welcome-content h2 .highlight {
+    color: #24f798;
 }
 
-.welcome .btn-services {
-    padding: 18px 36px;
-    background-color: #ffffff;
-    border: 3px solid transparent;
-    color: #2d6a4f;
+.welcome-content p {
     font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 40px;
+    line-height: 1.6;
+    color: #ffffff;
+}
+
+
+.welcome-content .btn-services {
+    padding: 16px 32px;
+    background-color: #40916c;
+    border: 2px solid #40916c;
+    color:  #ffffff;
+    font-size: 1rem;
     font-weight: 600;
     border-radius: 50px;
     text-decoration: none;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 14px 15px rgba(0, 0, 0, 0.2);
     text-transform: uppercase;
     letter-spacing: 1px;
-    position: relative;
-    overflow: hidden;
-    margin-top: 20px;
+    display: inline-block;
+    margin-top: 10px;
+    width: fit-content;
 }
 
 .welcome .btn-services:hover {
-    background-color: #0A6953;
-    color: #ffffff;
-    border-color: #ffffff;
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(64, 145, 108, 0.4); /* Elevated shadow */
+    background-color: #2d6a4f;
+    border-color: #2d6a4f;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(64, 145, 108, 0.3); /* Elevated shadow */
 }
 
 .welcome .btn-services:active {
-    transform: translateY(-1) scale(1.02);
+    transform: translateY(-1);
 }
 
-/* animation subtle for welcome text */
-@keyframes fadeInUp {
+
+/* animation for welcome text */
+@keyframes fadeInLeft {
     from{
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateX(-30px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
     }
 }
-
-.welcome h2{
-    animation: fadeInUp 1s ease-out 0.2s both;
+.welcome h2 {
+    animation: fadeInLeft 1s ease-out 0.2s both;
+    will-change: transform, opacity;
 }
 
 .welcome p {
-    animation: fadeInUp 1s ease-out 0.4s both;
+    animation: fadeInLeft 1s ease-out 0.4s both;
+    will-change: transform, opacity;
 }
 
 .welcome .btn-services {
-    animation: fadeInUp 1s ease-out 0.6s both;
+    animation: fadeInLeft 1s ease-out 0.6s both;
+    will-change: transform, opacity;
 }
 
+.welcome-image {
+    animation: fadeInRight 1s ease-out 0.3s both;
+    will-change: transform, opacity;
+}
 
-/* --- Enhanced Mobile Responsiveness --- */
+ /* --- Enhanced Mobile Responsiveness --- */
 @media (max-width: 1024px) {
     .welcome {
-        height: 60vh;
-        min-height: 450px;
-        padding: 50px 20px;
+        height: auto;
+        min-height: 60vh;
+        background-attachment: scroll;
     }
 
-    .welcome h2 {
-        font-size: 3rem;
+    .welcome-content {
+        padding: 50px 40px;
     }
 
-    #home .welcome p {
-        font-size: 1.6rem;
-        max-width: 600px;
+    .welcome-content h2 {
+        font-size: 2.8rem;
+    }
+
+    .welcome-content p {
+        font-size: 1rem;
     }
 }
 
 @media (max-width: 768px) {
     .welcome {
-        height: 55vh;
-        min-height: 400px;
-        padding: 40px 15px;
-        background-attachment: scroll; /* Remove parallax on mobile for performance */
+        height: auto;
+        min-height: 55vh;
+        background-attachment: scroll;
     }
 
-    .welcome h2 {
-        font-size: 2.5rem;
+    .welcome-content {
+        padding: 40px 30px;
+    }
+
+    .welcome-content h2 {
+        font-size: 2.2rem;
         margin-bottom: 15px;
     }
 
-    #home .welcome p {
-        font-size: 1.3rem;
-        max-width: 100%;
-        margin-bottom: 50px;
-        padding: 0 10px;
+    .welcome-content p {
+        font-size: 0.95rem;
+        margin-bottom: 30px;
     }
 
-    .welcome .btn-services {
-        padding: 16px 28px;
-        font-size: 1rem;
-        margin-top: 20px;
+    .welcome-content .btn-services {
+        padding: 14px 28px;
+        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 480px) {
     .welcome {
-        height: 50vh;
-        min-height: 350px;
-        padding: 30px 10px;
+        height: auto;
+        min-height: 50vh;
+        background-attachment: scroll;
     }
 
-    .welcome h2 {
-        font-size: 2rem;
+    .welcome-content {
+        padding: 30px 20px;
+    }
+
+    .welcome-content h2 {
+        font-size: 1.8rem;
         margin-bottom: 12px;
     }
 
-    #home .welcome p {
-        font-size: 1.1rem;
-        margin-bottom: 25px;
-        line-height: 1.3;
+    .welcome-content p {
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        line-height: 1.4;
     }
 
-    .welcome .btn-services {
-        padding: 14px 24px;
-        font-size: 0.95rem;
-    }
-}
-
-
-/* --- Announcement Section --- */
-.announcement {
-    position: sticky;
-    top: 0;
-    z-index: 999;
-    background-color: #2d6a4f;
-    color: white;
-    padding: 12px 30px;
-    font-size: 0.95rem;
-    text-align: center;
-    border-bottom: 2px solid #0A6953;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    opacity: 0;
-    animation: fadeIn 0.8s ease-out 0.3s forwards;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
+    .welcome-content .btn-services {
+        padding: 12px 24px;
+        font-size: 0.85rem;
     }
 }
 /* --- Services Section --- */
