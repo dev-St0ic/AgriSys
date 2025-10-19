@@ -1619,15 +1619,68 @@ function checkUsernameAvailability(username) {
     const usernameInput = document.getElementById('signup-username');
     const usernameStatus = document.querySelector('.username-status');
 
-    if (!username || username.length < 3) {
+    if (!username || username.trim() === '') {
         if (usernameStatus) {
             usernameStatus.innerHTML = '';
         }
+        usernameInput.classList.remove('is-valid', 'is-invalid');
+        return; // Exit function early - no checking needed
+    }
+
+    // CLIENT-SIDE VALIDATION RULES
+    let errors = [];
+
+    // 1. Length check (3-20 characters)
+    if (username.length < 3) {
+        errors.push('Username must be at least 3 characters');
+    }
+    if (username.length > 20) {
+        errors.push('Username must not exceed 20 characters');
+    }
+
+    // 2. No spaces allowed
+    if (/\s/.test(username)) {
+        errors.push('Username cannot contain spaces');
+    }
+
+    // 3. Only letters, numbers, underscores, and dots allowed
+    if (!/^[a-zA-Z0-9_.]+$/.test(username)) {
+        errors.push('Username can only contain letters, numbers, underscores, and dots');
+    }
+
+    // 4. Cannot start with a number
+    if (/^[0-9]/.test(username)) {
+        errors.push('Username cannot start with a number');
+    }
+
+    // 5. Must contain at least one letter (cannot be only numbers)
+    if (!/[a-zA-Z]/.test(username)) {
+        errors.push('Username must contain at least one letter');
+    }
+
+    // 6. Cannot start or end with underscore or dot
+    if (/^[_.]|[_.]$/.test(username)) {
+        errors.push('Username cannot start or end with underscore or dot');
+    }
+
+    // 7. No consecutive dots or underscores
+    if (/[_.]{2,}/.test(username)) {
+        errors.push('Username cannot have consecutive dots or underscores');
+    }
+
+    // Display validation errors immediately
+    if (errors.length > 0) {
+        if (usernameStatus) {
+            usernameStatus.innerHTML = `<span class="text-danger">✗ ${errors[0]}</span>`;
+        }
+        usernameInput.classList.remove('is-valid');
+        usernameInput.classList.add('is-invalid');
         return;
     }
 
+    // If validation passes, check availability on server
     if (usernameStatus) {
-        usernameStatus.innerHTML = '<span class="text-info">Checking...</span>';
+        usernameStatus.innerHTML = '<span class="text-info">Checking availability...</span>';
     }
 
     usernameCheckTimeout = setTimeout(() => {
@@ -1659,8 +1712,435 @@ function checkUsernameAvailability(username) {
                 usernameStatus.innerHTML = '<span class="text-muted">⚠ Could not check availability</span>';
             }
         });
-    }, 500);
+    }, 500); // Debounce for 500ms
 }
+
+// ==============================================
+// EMAIL VALIDATION FUNCTION
+// ==============================================
+
+/**
+ * Comprehensive email validation
+ * Validates email format according to standard patterns
+ */
+function validateEmail(email) {
+    const validation = {
+        valid: true,
+        error: ''
+    };
+
+    // Check if email is empty
+    if (!email || email.trim() === '') {
+        validation.valid = false;
+        validation.error = 'Email is required';
+        return validation;
+    }
+
+    // Remove whitespace
+    email = email.trim();
+
+    // Check for spaces
+    if (/\s/.test(email)) {
+        validation.valid = false;
+        validation.error = 'Email cannot contain spaces';
+        return validation;
+    }
+
+    // Check length (standard email max is 254 characters)
+    if (email.length > 254) {
+        validation.valid = false;
+        validation.error = 'Email is too long (max 254 characters)';
+        return validation;
+    }
+
+    // Check basic format: must have @ and at least one dot after @
+    if (!email.includes('@') || !email.split('@')[1]?.includes('.')) {
+        validation.valid = false;
+        validation.error = 'Invalid email format (must be name@domain.com)';
+        return validation;
+    }
+
+    // Comprehensive email regex pattern
+    // Allows: letters, numbers, dots, underscores, hyphens
+    // Format: localpart@domain.tld
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    if (!emailPattern.test(email)) {
+        validation.valid = false;
+        validation.error = 'Invalid email format. Use letters, numbers, dots, underscores, or hyphens';
+        return validation;
+    }
+
+    // Split email into local part and domain
+    const [localPart, domain] = email.split('@');
+
+    // Validate local part (before @)
+    if (localPart.length === 0 || localPart.length > 64) {
+        validation.valid = false;
+        validation.error = 'Email username part is invalid (max 64 characters)';
+        return validation;
+    }
+
+    // Check for consecutive dots
+    if (/\.\./.test(email)) {
+        validation.valid = false;
+        validation.error = 'Email cannot have consecutive dots';
+        return validation;
+    }
+
+    // Check if starts or ends with dot, underscore, or hyphen
+    if (/^[._-]|[._-]@/.test(email)) {
+        validation.valid = false;
+        validation.error = 'Email cannot start with a dot, underscore, or hyphen';
+        return validation;
+    }
+
+    // Validate domain part (after @)
+    if (domain.length === 0 || domain.length > 255) {
+        validation.valid = false;
+        validation.error = 'Email domain is invalid';
+        return validation;
+    }
+
+    // Check domain has valid TLD (at least 2 characters)
+    const domainParts = domain.split('.');
+    const tld = domainParts[domainParts.length - 1];
+    if (tld.length < 2) {
+        validation.valid = false;
+        validation.error = 'Email must have a valid domain extension (e.g., .com, .ph)';
+        return validation;
+    }
+
+    return validation;
+}
+
+/**
+ * Real-time email validation for signup form
+ */
+function checkEmailValidity(email) {
+    const emailInput = document.getElementById('signup-email');
+    const validation = validateEmail(email);
+
+    if (!email) {
+        emailInput.classList.remove('is-valid', 'is-invalid');
+        return;
+    }
+
+    if (validation.valid) {
+        emailInput.classList.remove('is-invalid');
+        emailInput.classList.add('is-valid');
+    } else {
+        emailInput.classList.remove('is-valid');
+        emailInput.classList.add('is-invalid');
+        
+        // Show validation message
+        let errorMsg = emailInput.parentElement.querySelector('.email-error');
+        if (!errorMsg) {
+            errorMsg = document.createElement('div');
+            errorMsg.className = 'email-error field-error';
+            errorMsg.style.color = '#dc3545';
+            errorMsg.style.fontSize = '12px';
+            errorMsg.style.marginTop = '4px';
+            emailInput.parentElement.appendChild(errorMsg);
+        }
+        errorMsg.textContent = validation.error;
+    }
+}
+
+// ==============================================
+// PASSWORD VALIDATION FUNCTION
+// ==============================================
+
+/**
+ * Comprehensive password validation
+ * Enforces strong password requirements
+ */
+function validatePassword(password) {
+    const validation = {
+        valid: true,
+        error: '',
+        strength: 0,
+        requirements: {
+            minLength: false,
+            hasUppercase: false,
+            hasLowercase: false,
+            hasNumber: false,
+            hasSpecialChar: false,
+            noSpaces: true
+        }
+    };
+
+    // Check if password is empty
+    if (!password) {
+        validation.valid = false;
+        validation.error = 'Password is required';
+        return validation;
+    }
+
+    // Check for spaces
+    if (/\s/.test(password)) {
+        validation.valid = false;
+        validation.error = 'Password cannot contain spaces';
+        validation.requirements.noSpaces = false;
+        return validation;
+    }
+
+    // Check minimum length (8 characters)
+    if (password.length >= 8) {
+        validation.requirements.minLength = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = 'Password must be at least 8 characters';
+    }
+
+    // Check for at least one uppercase letter
+    if (/[A-Z]/.test(password)) {
+        validation.requirements.hasUppercase = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one uppercase letter';
+    }
+
+    // Check for at least one lowercase letter
+    if (/[a-z]/.test(password)) {
+        validation.requirements.hasLowercase = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one lowercase letter';
+    }
+
+    // Check for at least one number
+    if (/\d/.test(password)) {
+        validation.requirements.hasNumber = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one number';
+    }
+
+    // Check for at least one special character (@, #, !, $, %, ^, &, *, etc.)
+    if (/[@#!$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+        validation.requirements.hasSpecialChar = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one special character (@, #, !, $, etc.)';
+    }
+
+    // Ensure password is not numbers only
+    if (/^\d+$/.test(password)) {
+        validation.valid = false;
+        validation.error = 'Password cannot be numbers only';
+        return validation;
+    }
+
+    // Ensure password is not letters only
+    if (/^[a-zA-Z]+$/.test(password)) {
+        validation.valid = false;
+        validation.error = 'Password cannot be letters only';
+        return validation;
+    }
+
+    return validation;
+}
+
+
+function checkPasswordStrength(password) {
+    const strengthBar = document.querySelector('.strength-fill');
+    const strengthText = document.querySelector('.strength-text');
+
+    if (!strengthBar || !strengthText) return;
+
+    const validation = validatePassword(password);
+    const requirements = validation.requirements;
+
+     // Remove all strength classes
+    strengthBar.className = 'strength-fill';
+
+    if (!password) {
+        strengthText.textContent = 'Password strength';
+        return;
+    }
+
+       // Calculate strength based on requirements met
+    const strength = validation.strength;
+    let strengthLabel = 'Too weak';
+    let strengthClass = 'weak';
+
+    if (strength <= 2) {
+        strengthLabel = 'Weak';
+        strengthClass = 'weak';
+    } else if (strength === 3) {
+        strengthLabel = 'Fair';
+        strengthClass = 'fair';
+    } else if (strength === 4) {
+        strengthLabel = 'Good';
+        strengthClass = 'good';
+    } else if (strength === 5) {
+        strengthLabel = 'Strong';
+        strengthClass = 'strong';
+    }
+
+    strengthBar.classList.add(strengthClass);
+    strengthText.textContent = `Password strength: ${strengthLabel}`;
+
+    // Show detailed requirements below password input
+    showPasswordRequirements(requirements);
+}
+
+/**
+ * Display password requirements checklist
+ */
+function showPasswordRequirements(requirements) {
+    const passwordInput = document.getElementById('signup-password');
+    if (!passwordInput) return;
+
+    let requirementsDiv = document.querySelector('.password-requirements-list');
+    
+    if (!requirementsDiv) {
+        requirementsDiv = document.createElement('div');
+        requirementsDiv.className = 'password-requirements-list';
+        requirementsDiv.style.cssText = `
+            margin-top: 8px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 12px;
+        `;
+        passwordInput.parentElement.appendChild(requirementsDiv);
+    }
+
+    requirementsDiv.innerHTML = `
+        <div style="margin-bottom: 4px; font-weight: 600; color: #374151;">Password must contain:</div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.minLength ? '#10b981' : '#6b7280'};">
+            <span>${requirements.minLength ? '✓' : '○'}</span>
+            <span>At least 8 characters</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.hasUppercase ? '#10b981' : '#6b7280'};">
+            <span>${requirements.hasUppercase ? '✓' : '○'}</span>
+            <span>At least 1 uppercase letter (A-Z)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.hasLowercase ? '#10b981' : '#6b7280'};">
+            <span>${requirements.hasLowercase ? '✓' : '○'}</span>
+            <span>At least 1 lowercase letter (a-z)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.hasNumber ? '#10b981' : '#6b7280'};">
+            <span>${requirements.hasNumber ? '✓' : '○'}</span>
+            <span>At least 1 number (0-9)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.hasSpecialChar ? '#10b981' : '#6b7280'};">
+            <span>${requirements.hasSpecialChar ? '✓' : '○'}</span>
+            <span>At least 1 special character (@, #, !, $, etc.)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; color: ${requirements.noSpaces ? '#10b981' : '#ef4444'};">
+            <span>${requirements.noSpaces ? '✓' : '✗'}</span>
+            <span>No spaces allowed</span>
+        </div>
+    `;
+}
+
+/**
+ * Real-time password validation for signup form
+ */
+function checkPasswordValidity(password) {
+    const passwordInput = document.getElementById('signup-password');
+    if (!passwordInput) return;
+
+    const validation = validatePassword(password);
+
+    if (!password) {
+        passwordInput.classList.remove('is-valid', 'is-invalid');
+        // Remove requirements list if password is empty
+        const requirementsList = document.querySelector('.password-requirements-list');
+        if (requirementsList) requirementsList.remove();
+        return;
+    }
+
+    if (validation.valid) {
+        passwordInput.classList.remove('is-invalid');
+        passwordInput.classList.add('is-valid');
+    } else {
+        passwordInput.classList.remove('is-valid');
+        passwordInput.classList.add('is-invalid');
+    }
+}
+
+// ==============================================
+// CONFIRM PASSWORD VALIDATION
+// ==============================================
+
+/**
+ * Validate password confirmation matches original password
+ */
+function validatePasswordConfirmation(password, confirmPassword) {
+    const validation = {
+        valid: true,
+        error: ''
+    };
+
+    // Trim both values
+    password = (password || '').trim();
+    confirmPassword = (confirmPassword || '').trim();
+
+    // Check if confirm password is empty
+    if (!confirmPassword) {
+        validation.valid = false;
+        validation.error = 'Please confirm your password';
+        return validation;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+        validation.valid = false;
+        validation.error = 'Passwords do not match';
+        return validation;
+    }
+
+    return validation;
+}
+
+function checkPasswordMatch(password, confirmPassword) {
+    const matchStatus = document.querySelector('.password-match-status');
+    const confirmInput = document.getElementById('signup-confirm-password');
+
+    if (!matchStatus) return;
+
+    // Trim both inputs
+    password = (password || '').trim();
+    confirmPassword = (confirmPassword || '').trim();
+
+    // Clear status if confirm password is empty
+    if (!confirmPassword) {
+        matchStatus.innerHTML = '';
+        confirmInput.classList.remove('is-valid', 'is-invalid');
+        return;
+    }
+
+     // Only show status if BOTH password and confirm password have content
+    if (!password || !confirmPassword) {
+        matchStatus.innerHTML = '';
+        confirmInput.classList.remove('is-valid', 'is-invalid');
+        return;
+    }
+
+    const validation = validatePasswordConfirmation(password, confirmPassword);
+
+    if (validation.valid) {
+        matchStatus.className = 'password-match-status match';
+        matchStatus.innerHTML = '<span style="color: #10b981;">✓ Passwords match</span>';
+        confirmInput.classList.remove('is-invalid');
+        confirmInput.classList.add('is-valid');
+    } else {
+        matchStatus.className = 'password-match-status no-match';
+        matchStatus.innerHTML = `<span style="color: #ef4444;">✗ ${validation.error}</span>`;
+        confirmInput.classList.remove('is-valid');
+        confirmInput.classList.add('is-invalid');
+    }
+}
+
 
 // ==============================================
 // FORM VALIDATION
@@ -1669,8 +2149,8 @@ function checkUsernameAvailability(username) {
 function validateBasicSignupForm() {
     const username = document.getElementById('signup-username').value.trim();
     const email = document.getElementById('signup-email').value.trim();
-    const password = document.getElementById('signup-password').value;
-    const confirmPassword = document.getElementById('signup-confirm-password').value;
+    const password = document.getElementById('signup-password').value.trim();
+    const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
     const agreeTerms = document.getElementById('agree-terms').checked;
 
     let isValid = true;
@@ -1687,24 +2167,24 @@ function validateBasicSignupForm() {
         isValid = false;
     }
 
-    if (!email) {
-        errors.push('Email is required');
-        isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errors.push('Please enter a valid email address');
-        isValid = false;
-    }
-
-    if (!password) {
-        errors.push('Password is required');
-        isValid = false;
-    } else if (password.length < 8) {
-        errors.push('Password must be at least 8 characters');
+   // Updated email validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+        errors.push(emailValidation.error);
         isValid = false;
     }
 
-    if (password !== confirmPassword) {
-        errors.push('Passwords do not match');
+    // updated password validation
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+        errors.push(passwordValidation.error);
+        isValid = false;
+    }
+
+    // Confirm password validation
+    const confirmValidation = validatePasswordConfirmation(password, confirmPassword);
+    if (!confirmValidation.valid) {
+        errors.push(confirmValidation.error);
         isValid = false;
     }
 
@@ -1727,65 +2207,6 @@ function validateBasicSignupForm() {
 
     return isValid;
 }
-
-function checkPasswordStrength(password) {
-    const strengthBar = document.querySelector('.strength-fill');
-    const strengthText = document.querySelector('.strength-text');
-
-    if (!strengthBar || !strengthText) return;
-
-    let strength = 0;
-    let strengthLabel = 'Too weak';
-
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/\d/.test(password)) strength++;
-    if (/[^a-zA-Z0-9]/.test(password)) strength++;
-
-    strengthBar.className = 'strength-fill';
-
-    switch (strength) {
-        case 0:
-        case 1:
-            strengthBar.classList.add('weak');
-            strengthLabel = 'Weak';
-            break;
-        case 2:
-            strengthBar.classList.add('fair');
-            strengthLabel = 'Fair';
-            break;
-        case 3:
-        case 4:
-            strengthBar.classList.add('good');
-            strengthLabel = 'Good';
-            break;
-        case 5:
-            strengthBar.classList.add('strong');
-            strengthLabel = 'Strong';
-            break;
-    }
-
-    strengthText.textContent = `Password strength: ${strengthLabel}`;
-}
-
-function checkPasswordMatch(password, confirmPassword) {
-    const matchStatus = document.querySelector('.password-match-status');
-
-    if (!matchStatus || !confirmPassword) {
-        if (matchStatus) matchStatus.innerHTML = '';
-        return;
-    }
-
-    if (password === confirmPassword) {
-        matchStatus.className = 'password-match-status match';
-        matchStatus.textContent = 'Passwords match';
-    } else {
-        matchStatus.className = 'password-match-status no-match';
-        matchStatus.textContent = 'Passwords do not match';
-    }
-}
-
 // ==============================================
 // FORM RESET FUNCTION
 // ==============================================
@@ -1801,6 +2222,7 @@ function resetSignupForm() {
     inputs.forEach(input => {
         input.classList.remove('is-valid', 'is-invalid', 'valid', 'error');
         input.style.borderColor = '';
+        input.value = '';  // CLEAR VALUES
     });
 
     // Clear username status
@@ -1817,6 +2239,12 @@ function resetSignupForm() {
     }
     if (strengthText) {
         strengthText.textContent = 'Password strength';
+    }
+
+    // Clear password requirements
+    const requirementsList = document.querySelector('.password-requirements-list');
+    if (requirementsList) {
+        requirementsList.remove();
     }
 
     // Clear password match
@@ -1850,62 +2278,232 @@ function togglePasswordVisibility(inputId) {
     }
 }
 
+// Enhanced Notification System with Sound Support
 function showNotification(type, message) {
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
+    notification.className = `notification notification-${type} show-notification`;
+    
+    // Create icon based on type
+    let icon = '';
+    switch(type) {
+        case 'success':
+            icon = '✓';
+            break;
+        case 'error':
+            icon = '⚠';
+            break;
+        case 'info':
+            icon = 'ℹ';
+            break;
+        default:
+            icon = '•';
+    }
+    
     notification.innerHTML = `
-        <div class="notification-content">
-            <span class="notification-message">${message}</span>
+        <div class="notification-container">
+            <div class="notification-icon">${icon}</div>
+            <div class="notification-content">
+                <div class="notification-message">${message}</div>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
         </div>
     `;
 
-    if (!document.querySelector('#notification-styles')) {
+    // Add styles if not already present
+    if (!document.querySelector('#enhanced-notification-styles')) {
         const styles = document.createElement('style');
-        styles.id = 'notification-styles';
+        styles.id = 'enhanced-notification-styles';
         styles.textContent = `
-            .notification {
+            /* Enhanced Notification Styles */
+            .show-notification {
                 position: fixed;
-                top: 20px;
-                right: 20px;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0.9);
                 background: white;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                padding: 16px 20px;
-                z-index: 10000;
-                transform: translateX(400px);
-                transition: all 0.3s ease;
-                border-left: 4px solid;
-                min-width: 300px;
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+                padding: 0;
+                z-index: 10001;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                border-left: 6px solid;
+                min-width: 400px;
+                max-width: 500px;
+                opacity: 0;
+                pointer-events: none;
             }
 
-            .notification.show {
-                transform: translateX(0);
+            .show-notification.notification-success {
+                border-left-color: #10b981;
             }
 
-            .notification-success {
-                border-left-color: #28a745;
-                background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
+            .show-notification.notification-error {
+                border-left-color: #ef4444;
             }
 
-            .notification-error {
-                border-left-color: #dc3545;
-                background: linear-gradient(135deg, #fff8f8 0%, #f5e8e8 100%);
+            .show-notification.notification-info {
+                border-left-color: #3b82f6;
             }
 
-            .notification-info {
-                border-left-color: #17a2b8;
-                background: linear-gradient(135deg, #f8fdff 0%, #e8f5f8 100%);
+            /* Animate in */
+            .show-notification {
+                animation: notificationSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            }
+
+            @keyframes notificationSlideIn {
+                0% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0.8);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+            }
+
+            @keyframes notificationSlideOut {
+                0% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0.8);
+                }
+            }
+
+            .notification-container {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                padding: 24px 28px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .notification-icon {
+                flex-shrink: 0;
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                font-weight: bold;
+            }
+
+            .notification-success .notification-icon {
+                background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+                color: #065f46;
+            }
+
+            .notification-error .notification-icon {
+                background: linear-gradient(135deg, #fee2e2, #fecaca);
+                color: #991b1b;
+            }
+
+            .notification-info .notification-icon {
+                background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+                color: #1e40af;
             }
 
             .notification-content {
-                display: flex;
-                align-items: center;
-                gap: 8px;
+                flex: 1;
+                min-width: 0;
             }
 
             .notification-message {
                 font-weight: 500;
-                color: #333;
+                color: #1f2937;
+                font-size: 16px;
+                line-height: 1.5;
+                word-wrap: break-word;
+            }
+
+            .notification-success .notification-message {
+                color: #065f46;
+            }
+
+            .notification-error .notification-message {
+                color: #7f1d1d;
+            }
+
+            .notification-info .notification-message {
+                color: #1e3a8a;
+            }
+
+            .notification-close {
+                flex-shrink: 0;
+                background: none;
+                border: none;
+                font-size: 28px;
+                color: #d1d5db;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                border-radius: 50%;
+            }
+
+            .notification-close:hover {
+                color: #6b7280;
+                background: #f3f4f6;
+            }
+
+            /* Responsive Design for Mobile */
+            @media (max-width: 768px) {
+                .show-notification {
+                    min-width: 90vw;
+                    max-width: 90vw;
+                    top: 60%;
+                }
+
+                .notification-container {
+                    padding: 20px 20px;
+                }
+
+                .notification-icon {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 20px;
+                }
+
+                .notification-message {
+                    font-size: 15px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .show-notification {
+                    min-width: 85vw;
+                    max-width: 85vw;
+                }
+
+                .notification-container {
+                    padding: 18px 16px;
+                    gap: 12px;
+                }
+
+                .notification-icon {
+                    width: 36px;
+                    height: 36px;
+                    font-size: 18px;
+                }
+
+                .notification-message {
+                    font-size: 14px;
+                }
+
+                .notification-close {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 24px;
+                }
             }
         `;
         document.head.appendChild(styles);
@@ -1913,24 +2511,118 @@ function showNotification(type, message) {
 
     document.body.appendChild(notification);
 
-    setTimeout(() => notification.classList.add('show'), 100);
-
+    // Trigger animation
     setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 4000);
+        notification.style.opacity = '1';
+        notification.style.pointerEvents = 'auto';
+    }, 10);
+
+    // Play notification sound
+    playNotificationSound(type);
+
+    // Auto remove after 5 seconds
+    const timeoutId = setTimeout(() => {
+        notification.style.animation = 'notificationSlideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        setTimeout(() => notification.remove(), 400);
+    }, 5000);
+
+    // Allow manual close
+    notification.querySelector('.notification-close').onclick = () => {
+        clearTimeout(timeoutId);
+        notification.style.animation = 'notificationSlideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        setTimeout(() => notification.remove(), 400);
+    };
+}
+
+// Notification Sound System
+function playNotificationSound(type) {
+    // Try to use Web Audio API for better compatibility
+    try {
+        playToneNotification(type);
+    } catch (e) {
+        console.log('Web Audio API not available, notification sound skipped');
+    }
+}
+
+function playToneNotification(type) {
+    // Create audio context
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    let frequency, duration;
+    
+    switch(type) {
+        case 'success':
+            // Two ascending tones for success
+            frequency = [523.25, 659.25]; // C5, E5
+            duration = [150, 150];
+            break;
+        case 'error':
+            // Two descending tones for error
+            frequency = [392, 261.63]; // G4, C4
+            duration = [200, 200];
+            break;
+        case 'info':
+            // Single tone for info
+            frequency = [440]; // A4
+            duration = [150];
+            break;
+        default:
+            return;
+    }
+
+    frequency.forEach((freq, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = freq;
+        oscillator.type = 'sine';
+        
+        const startTime = audioContext.currentTime + (index > 0 ? duration[index - 1] / 1000 : 0);
+        
+        gainNode.gain.setValueAtTime(0.3, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration[index] / 1000);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration[index] / 1000);
+    });
+}
+
+// Alternative: Use simple beep with fallback
+function playSimpleBeep() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 1000; // 1kHz beep
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+    } catch (e) {
+        // Silently fail if audio not available
+    }
 }
 
 // ==============================================
 // PLACEHOLDER FUNCTIONS
 // ==============================================
 
-function signInWithGoogle() {
-    showNotification('info', 'Google Sign In will be implemented soon!');
+function signInWithFacebook() {
+    showNotification('info', 'Facebook Sign In will be implemented soon!');
 }
 
-function signUpWithGoogle() {
-    showNotification('info', 'Google Sign Up will be implemented soon!');
+function signUpWithFacebook() {
+    showNotification('info', 'Facebook Sign Up will be implemented soon!');
 }
 
 function showForgotPassword() {
@@ -2063,8 +2755,8 @@ function handleSignupSubmit(event) {
     const formData = {
         username: document.getElementById('signup-username').value.trim(),
         email: document.getElementById('signup-email').value.trim(),
-        password: document.getElementById('signup-password').value,
-        password_confirmation: document.getElementById('signup-confirm-password').value,
+        password: document.getElementById('signup-password').value.trim(),
+        password_confirmation: document.getElementById('signup-confirm-password').value.trim(),
         terms_accepted: document.getElementById('agree-terms').checked
     };
 
@@ -2095,10 +2787,18 @@ function handleSignupSubmit(event) {
             showAuthSuccess('Account created successfully! Redirecting to login...');
             showNotification('success', 'Account created successfully!');
 
+             // IMPORTANT: Clear all input values immediately to stop validation
+            document.getElementById('signup-username').value = '';
+            document.getElementById('signup-email').value = '';
+            document.getElementById('signup-password').value = '';
+            document.getElementById('signup-confirm-password').value = '';
+            document.getElementById('agree-terms').checked = false;
+
             // Reset form after short delay
             setTimeout(() => {
                 resetSignupForm();
                 hideAuthMessages();
+                clearAllValidationUI();  // NEW: Clear all validation UI elements
 
                 // Auto-redirect to login form after 2 seconds
                 setTimeout(() => {
@@ -2124,6 +2824,59 @@ function handleSignupSubmit(event) {
 
     return false;
 }
+
+// NEW FUNCTION: Clear all validation UI elements
+function clearAllValidationUI() {
+    // Clear username status
+    const usernameStatus = document.querySelector('.username-status');
+    if (usernameStatus) {
+        usernameStatus.innerHTML = '';
+    }
+
+    // Clear email error
+    const emailError = document.querySelector('.email-error');
+    if (emailError) {
+        emailError.remove();
+    }
+
+    // Clear password strength
+    const strengthBar = document.querySelector('.strength-fill');
+    const strengthText = document.querySelector('.strength-text');
+    if (strengthBar) {
+        strengthBar.className = 'strength-fill';
+         strengthBar.style.width = '0%';
+    }
+    if (strengthText) {
+        strengthText.textContent = 'Password strength';
+        strengthText.style.display = 'none'; 
+    }
+
+    // Clear password requirements list
+    const requirementsList = document.querySelector('.password-requirements-list');
+    if (requirementsList) {
+        requirementsList.remove();
+    }
+
+    // Clear password match status
+    const matchStatus = document.querySelector('.password-match-status');
+    if (matchStatus) {
+        matchStatus.innerHTML = '';
+        matchStatus.style.display = 'none';  
+        matchStatus.className = 'password-match-status';  
+    }
+
+    // Clear all input styling
+    const inputs = document.querySelectorAll('#signup-form input');
+    inputs.forEach(input => {
+        input.classList.remove('is-valid', 'is-invalid', 'valid', 'error');
+        input.style.borderColor = '';
+    });
+
+    // Clear any field errors
+    const fieldErrors = document.querySelectorAll('.field-error');
+    fieldErrors.forEach(error => error.remove());
+}
+
 
 function handleValidationErrors(errors) {
     clearValidationErrors();
@@ -2296,20 +3049,49 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Password strength checker
-    const passwordInput = document.getElementById('signup-password');
-    if (passwordInput) {
-        passwordInput.addEventListener('input', function() {
-            checkPasswordStrength(this.value);
+    // Email validation checker
+    const emailInput = document.getElementById('signup-email');
+    if (emailInput) {
+        emailInput.addEventListener('input', function() {
+            checkEmailValidity(this.value);
+        });
+        
+        // Also validate on blur
+        emailInput.addEventListener('blur', function() {
+            checkEmailValidity(this.value);
         });
     }
 
-    // Password confirmation checker
+    // Password strength and validity checker
+    const passwordInput = document.getElementById('signup-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const trimmedPassword = this.value.trim();  // TRIM 
+            checkPasswordStrength(trimmedPassword);
+            checkPasswordValidity(trimmedPassword);
+
+            // Re-validate confirmation if it has a value
+            const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
+            if (confirmPassword) {
+                checkPasswordMatch(trimmedPassword, confirmPassword);  // USE TRIMMED VALUE
+            }
+        });
+    }
+
+   // Password confirmation checker with validation
     const confirmPasswordInput = document.getElementById('signup-confirm-password');
     if (confirmPasswordInput) {
         confirmPasswordInput.addEventListener('input', function() {
-            const password = document.getElementById('signup-password').value;
-            checkPasswordMatch(password, this.value);
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = this.value.trim();  // TRIM HERE
+            checkPasswordMatch(password, confirmPassword);
+        });
+        
+        // check on blur
+        confirmPasswordInput.addEventListener('blur', function() {
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = this.value.trim();  // TRIM HERE
+            checkPasswordMatch(password, confirmPassword);
         });
     }
 
@@ -2497,8 +3279,8 @@ window.closeAuthModal = closeAuthModal;
 window.showLogInForm = showLogInForm;
 window.showSignUpForm = showSignUpForm;
 window.togglePasswordVisibility = togglePasswordVisibility;
-window.signInWithGoogle = signInWithGoogle;
-window.signUpWithGoogle = signUpWithGoogle;
+window.signInWithFacebook = signInWithFacebook;
+window.signUpWithFacebook = signUpWithFacebook;
 window.showForgotPassword = showForgotPassword;
 window.toggleUserDropdown = toggleUserDropdown;
 window.showMyApplicationsModal = showMyApplicationsModal;

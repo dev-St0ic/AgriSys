@@ -200,125 +200,196 @@
     margin-bottom: 30px;
     flex-wrap: wrap;
 }
+/* =====================================================
+   ENHANCED NOTIFICATION STYLES (CENTER POSITIONED)
+   ===================================================== */
 
-/* Enhanced Notification Styles */
 .notification {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    padding: 18px 24px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+    padding: 0;
     z-index: 10001;
-    transform: translateX(400px);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border-left: 4px solid;
-    min-width: 320px;
-    max-width: 450px;
+    border-left: 6px solid;
+    min-width: 400px;
+    max-width: 500px;
+    opacity: 0;
+    pointer-events: none;
+    animation: notificationSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-.notification.show {
-    transform: translateX(0);
+@keyframes notificationSlideIn {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes notificationSlideOut {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
 }
 
 .notification-success {
     border-left-color: #10b981;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
 }
 
 .notification-error {
     border-left-color: #ef4444;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
 }
 
 .notification-info {
     border-left-color: #3b82f6;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.notification-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 28px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.notification-success .notification-icon {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+.notification-error .notification-icon {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+}
+
+.notification-info .notification-icon {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
 }
 
 .notification-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    flex: 1;
+    min-width: 0;
 }
 
 .notification-message {
     font-weight: 500;
     color: #1f2937;
-    font-size: 15px;
-    line-height: 1.4;
+    font-size: 16px;
+    line-height: 1.5;
+    word-wrap: break-word;
 }
 
-/* Responsive Design for Mobile */
+.notification-success .notification-message {
+    color: #065f46;
+}
+
+.notification-error .notification-message {
+    color: #7f1d1d;
+}
+
+.notification-info .notification-message {
+    color: #1e3a8a;
+}
+
+.notification-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: #d1d5db;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+}
+
+.notification-close:hover {
+    color: #6b7280;
+    background: #f3f4f6;
+}
+
+/* Responsive Design for Tablets */
 @media (max-width: 768px) {
-    .profile-actions {
-        flex-direction: column;
-    }
-
-    .profile-action-btn {
-        min-width: auto;
-        justify-content: center;
-        flex: none;
-    }
-
     .notification {
-        right: 10px;
-        left: 10px;
-        min-width: auto;
-        max-width: none;
-        transform: translateY(-100px);
+        min-width: 90vw;
+        max-width: 90vw;
+        top: 60%;
     }
 
-    .notification.show {
-        transform: translateY(0);
+    .notification-container {
+        padding: 20px 20px;
+    }
+
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .notification-message {
+        font-size: 15px;
     }
 }
 
+/* Responsive Design for Mobile Phones */
 @media (max-width: 480px) {
-    .profile-action-btn {
-        padding: 10px 16px;
-        font-size: 13px;
+    .notification {
+        min-width: 85vw;
+        max-width: 85vw;
+        top: 50%;
     }
 
-    .btn-icon {
+    .notification-container {
+        padding: 18px 16px;
+        gap: 12px;
+    }
+
+    .notification-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+
+    .notification-message {
         font-size: 14px;
     }
-}
 
-/* Focus States for Accessibility */
-.profile-action-btn:focus {
-    outline: 2px solid #0A6953;
-    outline-offset: 2px;
-}
-
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-    .profile-action-btn {
-        border-width: 3px;
-    }
-
-    .status-pending,
-    .status-approved,
-    .status-processing,
-    .status-rejected {
-        border-width: 2px;
-    }
-
-    .notification {
-        border-left-width: 6px;
-    }
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-    .profile-action-btn,
-    .notification {
-        transition: none;
-    }
-
-    .profile-action-btn:hover {
-        transform: none;
+    .notification-close {
+        width: 28px;
+        height: 28px;
+        font-size: 24px;
     }
 }
 
@@ -366,14 +437,16 @@
     padding: 25px 30px;
     border-radius: 20px 20px 0 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .auth-modal-header h3 {
     margin: 0;
     font-size: 24px;
     font-weight: 600;
+    align-items: center;
 }
 
 .auth-modal-close {
@@ -388,6 +461,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: absolute;  /* ADD THIS */
+    right: 20px;  /* ADD THIS */
+    top: 25%;  /* ADD THIS */
 }
 
 .auth-modal-close:hover {
@@ -532,28 +608,52 @@
 
 /* Password Match Status */
 .password-match-status {
-    font-size: 12px;
-    margin-top: 4px;
+    font-size: 13px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #f8f9fa;
+}
+
+.password-match-status.match {
+    background: #d1fae5;
+    border: 1px solid #10b981;
+}
+
+.password-match-status.no-match {
+    background: #fee2e2;
+    border: 1px solid #ef4444;
+}
+
+.password-match-status span {
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
-.password-match-status.match {
-    color: #10b981;
+/* Visual feedback for valid/invalid inputs */
+input.is-valid {
+    border-color: #10b981 !important;
+    background-image: none;
 }
 
-.password-match-status.match::before {
+input.is-invalid {
+    border-color: #ef4444 !important;
+    background-image: none;
+}
+
+/* .password-match-status.match::before {
     content: "✓ ";
-}
-
-.password-match-status.no-match {
-    color: #ef4444;
 }
 
 .password-match-status.no-match::before {
     content: "✗ ";
-}
+} */
+
 
 /* Step Header for Signup */
 .step-header {
@@ -655,8 +755,8 @@
     font-weight: 500;
 }
 
-/* Google Sign In/Up Button */
-.google-signin-btn {
+/* Facebook Sign In/Up Button */
+.facebook-signin-btn {
     width: 100%;
     padding: 14px;
     background: white;
@@ -674,19 +774,21 @@
     margin-bottom: 20px;
 }
 
-.google-signin-btn:hover {
+.facebook-signin-btn:hover {
     border-color: #d1d5db;
     background: #f9fafb;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.google-signin-btn:active {
+.facebook-signin-btn:active {
     transform: translateY(0);
 }
 
-.google-icon {
+.facebook-icon {
     flex-shrink: 0;
+    width: 20px;
+    height: 20px;
 }
 
 /* Sign Up Prompt */
@@ -716,28 +818,29 @@
 }
 
 /* Back to Login Button */
-.back-to-login {
-    margin-bottom: 20px;
+.login-prompt {
+    text-align: center;
+    margin-bottom: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
 }
 
-.back-btn {
-    background: none;
-    border: none;
-    color: #0A6953;
-    cursor: pointer;
+.login-prompt p {
+    margin: 0;
+    color: #6b7280;
     font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    padding: 8px 12px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
 }
 
-.back-btn:hover {
+.login-prompt a {
+    color: #0A6953;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.login-prompt a:hover {
     color: #085a47;
-    background: rgba(10, 105, 83, 0.05);
+    text-decoration: underline;
 }
 
 /* Checkbox Group */
@@ -745,23 +848,26 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .checkbox-group input[type="checkbox"] {
-    width: auto;
+    width: 18px;
+    height: 18px;
     margin: 0;
     margin-top: 2px;
     flex-shrink: 0;
     accent-color: #0A6953;
+    cursor: pointer;
 }
 
 .checkbox-group label {
     margin: 0;
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 14px;
+    line-height: 1.5;
     cursor: pointer;
-    text-align: center;
+    text-align: left;
+    color: #374151;
 }
 
 .checkbox-group a {
@@ -1399,21 +1505,41 @@
 .username-status .text-success {
     color: #10b981;
     font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
 }
 
 .username-status .text-danger {
     color: #ef4444;
     font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
 }
 
 .username-status .text-info {
     color: #3b82f6;
     font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
 }
 
 .username-status .text-muted {
     color: #6b7280;
     font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
 }
 
 .form-text {

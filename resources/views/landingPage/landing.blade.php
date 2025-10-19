@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('css/training.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 
     @if (isset($user))
         <script>
@@ -45,14 +46,10 @@
 
     <header>
         <div class="header-left">
-            <div class="logos">
-                <img src="../images/logos/AgriSysRemoveBG.png" alt="System Logo" class="logo-img-1">
-                <img src="../images/logos/CagoRemoveBG.png" alt="Client Logo" class="logo-img-2">
-
-                <div class="location">
-                    <div class="city">San Pedro</div>
-                    <div>City Agriculture Office</div>
-                </div>
+            <div class="logo-text">
+                <h2 class="logo-text">
+                    <span class="logo-agri">Agri</span><span class="logo-sys">Sys</span>
+                </h2>
             </div>
             <div class="header-center nav-buttons">
                 <button type="button" class="btn" onclick="goHome(event)">Home</button>
@@ -134,19 +131,344 @@
         </div>
     </header>
 
-    <section class="announcement">
-        <p><strong>📢 Announcement:</strong> Seedling distribution starts July 1, 2025. Visit the Seedlings section for
-            more info.</p>
-    </section>
-
     <!-- Welcome Section (Same for both guest and logged-in users) -->
-    <section class="welcome" id="home">
+    <!-- <section class="welcome" id="home">
         <h2>Welcome to AgriSys</h2>
         <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
         <button class="btn-services"
-            onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore
-            Services</button>
+            onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore Services</button>
+    </section> -->
+    <section class="welcome" id="home">
+        <div class="welcome-content">
+            <h2>Welcome to <span class="highlight">AgriSys</span><br>Agriculture System</br></h2>
+            <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
+            <button class="btn-services" onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore Services</button>
+        </div>
+        <div class="welcome-image"></div>
     </section>
+
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+        <img src="../images/logos/cagoFull.png" alt="City Agriculture Office Logo" class="logo-icon">
+        <img src="../images/logos/CityOfSanPedro.jpg" alt="City of San Pedro Logo" class="logo-icon">
+        <h2>City<span class="highlight"> Agriculture Office of San Pedro, Laguna</span></h2>
+        <p class="projects-subtitle">Ongoing and past events and projects of the San Pedro City Agriculture Office dedicated to promoting agricultural growth and community development.</p>
+        
+        <div class="projects-filters">
+            <button class="filter-btn active" data-filter="all">View All</button>
+            <button class="filter-btn" data-filter="garden-care">Announcements</button>
+            <button class="filter-btn" data-filter="lawn-care">Ongoing Events</button>
+            <button class="filter-btn" data-filter="planting">Upcoming Events</button>
+            <button class="filter-btn" data-filter="landscape">Past Events</button>
+        </div>
+        
+        <div class="projects-grid">
+            <!-- Project Card 1 -->
+            <div class="project-card" data-category="garden-care">
+                <img src="../images/projects/1.jpg" alt="Garden Care" class="project-image">
+                <div class="project-content">
+                    <h3>Community Garden Initiative</h3>
+                    <p class="project-description">Urban gardening program bringing together residents to cultivate fresh produce while learning sustainable farming techniques including organic gardening, composting, and water conservation.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">📅 Every Saturday | 8:00 AM - 12:00 PM</div>
+                        <div class="location">📍 San Pedro Community Garden, Brgy. Riverside</div>
+                    </div>
+                    
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">👥</span>
+                                <div class="text">
+                                    <div class="label">Who Can Join</div>
+                                    <div class="value">All residents welcome, families encouraged</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">💰</span>
+                                <div class="text">
+                                    <div class="label">Cost</div>
+                                    <div class="value">Free for all participants</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Card 2 -->
+            <div class="project-card" data-category="landscape">
+                <img src="../images/projects/2.jpg" alt="Landscape" class="project-image">
+                <div class="project-content">
+                    <h3>Green Corridor Project</h3>
+                    <p class="project-description">City-wide landscaping initiative that transformed urban spaces into vibrant green zones. Over 500 native trees planted and pocket gardens created throughout the city to improve air quality and aesthetics.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">✅ Completed: September 2024</div>
+                        <div class="location">📍 12 Barangays across San Pedro City</div>
+                    </div>
+                    
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🌳</span>
+                                <div class="text">
+                                    <div class="label">Achievement</div>
+                                    <div class="value">500+ native trees planted</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🎯</span>
+                                <div class="text">
+                                    <div class="label">Impact</div>
+                                    <div class="value">Improved air quality and urban aesthetics</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Card 3 -->
+            <div class="project-card" data-category="planting">
+                <img src="../images/projects/3.jpg" alt="Planting" class="project-image">
+                <div class="project-content">
+                    <h3>Tree Planting Drive</h3>
+                    <p class="project-description">Annual tree planting event with a goal to plant 1,000 indigenous trees across the city. Volunteers receive free seedlings, refreshments, and certificates of participation.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">🌱 November 15, 2025 | 6:00 AM - 10:00 AM</div>
+                        <div class="location">📍 Various locations citywide</div>
+                    </div>
+                    
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🎁</span>
+                                <div class="text">
+                                    <div class="label">Freebies</div>
+                                    <div class="value">Free seedlings, refreshments, certificate</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">📝</span>
+                                <div class="text">
+                                    <div class="label">Registration</div>
+                                    <div class="value">Contact City Agriculture Office</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Card 4 -->
+            <div class="project-card" data-category="planting">
+                <img src="../images/projects/4.jpg" alt="Planting" class="project-image">
+                <div class="project-content">
+                    <h3>Vegetable Farming Workshop</h3>
+                    <p class="project-description">Expert-led workshops covering advanced vegetable cultivation methods, pest management, and market strategies to help farmers maximize yields while minimizing environmental impact.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">📚 October 28, 2025 | 2:00 PM - 5:00 PM</div>
+                        <div class="location">📍 Agriculture Office Training Center</div>
+                    </div>
+                    
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">👨‍🌾</span>
+                                <div class="text">
+                                    <div class="label">For</div>
+                                    <div class="value">Local farmers and aspiring growers</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🎁</span>
+                                <div class="text">
+                                    <div class="label">Freebies</div>
+                                    <div class="value">Free seeds, tools, and training materials</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Card 5 -->
+            <div class="project-card" data-category="planting">
+                <img src="../images/projects/5.jpg" alt="Planting" class="project-image">
+                <div class="project-content">
+                    <h3>Organic Rice Cultivation</h3>
+                    <p class="project-description">Year-long program supporting farmers transitioning to organic rice farming methods that eliminate harmful pesticides. Includes training, organic fertilizers, and access to premium markets.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">🌾 January - December 2025</div>
+                        <div class="location">📍 All rice farming areas in San Pedro</div>
+                    </div>
+                    
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🌾</span>
+                                <div class="text">
+                                    <div class="label">Support Provided</div>
+                                    <div class="value">Training, organic fertilizers, market access</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🏆</span>
+                                <div class="text">
+                                    <div class="label">Certification</div>
+                                    <div class="value">Organic farming certification assistance</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Card 6 -->
+            <div class="project-card" data-category="lawn-care">
+                <img src="../images/projects/6.jpg" alt="Lawn Care" class="project-image">
+                <div class="project-content">
+                    <h3>Park Maintenance Program</h3>
+                    <p class="project-description">Daily maintenance of city parks through regular mowing, trimming, and landscaping ensuring safe, clean, and beautiful spaces for families and communities.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">🔄 Ongoing | Daily Operations</div>
+                        <div class="location">📍 All public parks across San Pedro</div>
+                    </div>
+                    
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🛠️</span>
+                                <div class="text">
+                                    <div class="label">Services</div>
+                                    <div class="value">Mowing, trimming, landscaping, sanitation</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">📞</span>
+                                <div class="text">
+                                    <div class="label">Report Issues</div>
+                                    <div class="value">Contact City Agriculture Office</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Card 7 -->
+            <div class="project-card" data-category="lawn-care">
+                <img src="../images/projects/7.jpg" alt="Lawn Care" class="project-image">
+                <div class="project-content">
+                    <h3>Sports Field Renovation</h3>
+                    <p class="project-description">Complete overhaul of community sports facilities including new turf installation, modern drainage systems, and efficient irrigation creating world-class venues for youth sports and tournaments.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">⚙️ In Progress | Target: December 2025</div>
+                        <div class="location">📍 San Pedro Sports Complex</div>
+                    </div>
+                    
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">⚽</span>
+                                <div class="text">
+                                    <div class="label">Facilities</div>
+                                    <div class="value">Soccer fields, basketball courts, running tracks</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🔧</span>
+                                <div class="text">
+                                    <div class="label">Upgrades</div>
+                                    <div class="value">New turf, drainage, irrigation, lighting</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Project Card 8 -->
+            <div class="project-card" data-category="garden-care">
+                <img src="../images/projects/8.jpg" alt="Garden Care" class="project-image">
+                <div class="project-content">
+                    <h3>Urban Farming Training</h3>
+                    <p class="project-description">Monthly training on innovative techniques for growing vegetables in small spaces using containers, vertical gardens, and hydroponics. Perfect for apartment dwellers and homeowners.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">🏙️ First Sunday of Every Month | 9:00 AM - 12:00 PM</div>
+                        <div class="location">📍 Agriculture Office Training Center</div>
+                    </div>
+                    
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🌱</span>
+                                <div class="text">
+                                    <div class="label">Techniques</div>
+                                    <div class="value">Container gardening, vertical gardens, hydroponics</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">📦</span>
+                                <div class="text">
+                                    <div class="label">Materials</div>
+                                    <div class="value">All training materials and starter kits provided</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
 
     <!-- Services Section (Always visible) -->
     <section class="services" id="services">
@@ -663,6 +985,8 @@
 
                     <!-- Log In Form (Default) -->
                     <form id="login-form" class="auth-form" style="display: block;">
+                        <h2 class="step-header">Welcome Back!</h2>
+                        <p class="step-description">Sign in to access your agricultural services</p>
                         <div class="form-group">
                             <label for="username">Username or Email</label>
                             <input type="text" id="username" name="username" required
@@ -695,19 +1019,12 @@
                             <span>or</span>
                         </div>
 
-                        <!-- Google Sign In Button -->
-                        <button type="button" class="google-signin-btn" onclick="signInWithGoogle()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" class="google-icon">
-                                <path fill="#4285F4"
-                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                <path fill="#34A853"
-                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                <path fill="#FBBC05"
-                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                <path fill="#EA4335"
-                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                       <!-- Facebook Sign In Button -->
+                        <button type="button" class="facebook-signin-btn" onclick="signInWithFacebook()">
+                            <svg class="facebook-icon" viewBox="0 0 24 24" fill="#1877f2">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                             </svg>
-                            Continue with Google
+                            Continue with Facebook
                         </button>
 
                         <!-- Sign Up Prompt -->
@@ -719,38 +1036,29 @@
 
                     <!-- Simplified Sign Up Form (Hidden by default) -->
                     <div id="signup-form" class="auth-form" style="display: none;">
-                        <!-- Back to Login Button -->
-                        <div class="back-to-login">
-                            <button type="button" onclick="showLogInForm()" class="back-btn">← Back to Sign
-                                In</button>
-                        </div>
-
                         <form id="signup-form-submit">
                             <h2 class="step-header">Create Your Account</h2>
                             <p class="step-description">Fill in the details below to get started</p>
-
-
                             <div class="form-group">
                                 <label for="signup-username">Username</label>
                                 <input type="text" id="signup-username" name="username" required
-                                    placeholder="Choose a username (letters, numbers, underscore only)"
-                                    autocomplete="username" pattern="[a-zA-Z0-9_]+" minlength="5" maxlength="50">
+                                    placeholder="Choose a username"
+                                    autocomplete="username" pattern="^(?![0-9])[a-zA-Z0-9_.]{3,20}$" minlength="3" maxlength="20" oninput="checkUsernameAvailability(this.value)">
                                 <div class="username-status"></div>
-                                <div class="form-text">Username must be characters, letters, numbers, and underscores
-                                    only</div>
+                                <div class="form-text">Username must be 3–20 characters long and contain only letters, numbers, underscores, or dots. Cannot start with a number.</div>
                             </div>
 
                             <div class="form-group">
                                 <label for="signup-email">Email Address</label>
-                                <input type="email" id="signup-email" name="email" required
-                                    placeholder="Enter your email address" autocomplete="email">
+                                <input type="email" id="signup-email" name="email" required  pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                                    placeholder="e.g. juan.farmer@gmail.com" autocomplete="email" maxlength="254">
                             </div>
 
                             <div class="form-group">
                                 <label for="signup-password">Password</label>
                                 <div class="password-input-container">
                                     <input type="password" id="signup-password" name="password" required
-                                        minlength="8" placeholder="Create a strong password"
+                                        minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#!$%^&*()_+\-=\[\]{};':&quot;\\|,.<>\/?]).{8,}" placeholder="Create a strong password"
                                         autocomplete="new-password">
                                     <button type="button" class="password-toggle"
                                         onclick="togglePasswordVisibility('signup-password')">
@@ -796,21 +1104,17 @@
                             <div class="auth-divider">
                                 <span>or</span>
                             </div>
-
-                            <!-- Google Sign Up Button -->
-                            <button type="button" class="google-signin-btn" onclick="signUpWithGoogle()">
-                                <svg width="18" height="18" viewBox="0 0 24 24" class="google-icon">
-                                    <path fill="#4285F4"
-                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                    <path fill="#34A853"
-                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                    <path fill="#FBBC05"
-                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                    <path fill="#EA4335"
-                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                           <!-- Facebook Sign Up Button -->
+                            <button type="button" class="facebook-signin-btn" onclick="signUpWithFacebook()">
+                                <svg class="facebook-icon" viewBox="0 0 24 24" fill="#1877f2">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                                 </svg>
-                                Sign up with Google
+                                Sign up with Facebook
                             </button>
+                             <!-- Back to Login Button -->
+                            <div class="login-prompt">
+                                <p>Already have an account? <a href="#" onclick="showLogInForm(); return false;">Login here</a></p>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -1050,59 +1354,65 @@
         </div>
     </div>
 
-
     <!-- Footer Section -->
     <footer class="footer" id="main-footer">
         <div class="footer-container">
-            <div class="footer-column">
-                <h3>About AgriSys</h3>
-                <p>The Agricultural Service System (AgriSys) is designed to optimize service delivery for the City
-                    Agriculture Office of San Pedro, Laguna. We aim to streamline agricultural services and support
-                    local farmers.</p>
+            <!-- Main content column (left side - like GAEA) -->
+            <div class="footer-main">
+                <div class="footer-logo">
+                    <h2>AgriSys</h2>
+                </div>
+                <p>The Agricultural Service System (AgriSys) is designed to optimize service delivery for the City Agriculture Office of San Pedro, Laguna. We aim to streamline agricultural services and support local farmers.</p>
 
                 <div class="social-links">
-                    <span style="margin-right: 10px; color: #a8e6cf;">Facebook us on Facebook:</span>
+                    <span>Follow us:</span>
                     <a href="https://www.facebook.com/sanpedroagri" target="_blank" title="Facebook">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"
-                            style="opacity: 0.8;">
-                            <path
-                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        <svg width="16" height="16" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                     </a>
                 </div>
             </div>
 
+            <!-- Services column -->
             <div class="footer-column">
                 <h3>Our Services</h3>
                 <ul>
-                    <li><a href="#rsbsa">RSBSA Registration</a></li>
-                    <li><a href="#seedlings">Seedlings Request</a></li>
-                    <li><a href="#fishr">FishR Registration</a></li>
-                    <li><a href="#boatr">BoatR Registration</a></li>
-                    <li><a href="#training">Training Request</a></li>
+                    <li><a href="#services">RSBSA Registration</a></li>
+                    <li><a href="#services">Seedlings Request</a></li>
+                    <li><a href="#services">FishR Registration</a></li>
+                    <li><a href="#services">BoatR Registration</a></li>
+                    <li><a href="#services">Training Request</a></li>
                 </ul>
             </div>
+
+            <!-- Contact column -->
             <div class="footer-column">
                 <h3>Contact Us</h3>
                 <p>City Agriculture Office<br>
-                    San Pedro City Hall<br>
-                    Laguna, Philippines</p>
-                <p>Phone: (123) 456-7890<br>
-                    Email: <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a></p>
+                San Pedro City Hall<br>
+                Laguna, Philippines</p>
+                <p style="margin-top: 12px;">Phone: (123) 456-7890<br>
+                Email: <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a></p>
+            </div>
 
+            <!-- Office Hours column -->
+            <div class="footer-column">
+                <h3>Office Hours</h3>
                 <div class="office-hours">
-                    <strong>Office Hours:</strong><br>
-                    Monday - Friday: 8:00 AM - 5:00 PM<br>
+                    <strong>Monday - Friday</strong><br>
+                    8:00 AM - 5:00 PM
                 </div>
             </div>
         </div>
+
         <div class="footer-bottom">
             <p>© 2025 City Agriculture Office of San Pedro. All rights reserved.</p>
-            <p style="margin-top: 10px; font-size: 0.8rem;">
-                <a href="#privacy" style="color: #ccc;">Privacy Policy</a> |
-                <a href="#terms" style="color: #ccc;">Terms of Service</a> |
-                <a href="#accessibility" style="color: #ccc;">Accessibility</a>
-            </p>
+            <div class="footer-bottom-links">
+                <a href="#privacy" target="_blank">Privacy Policy</a>
+                <a href="#terms" target="_blank">Terms of Service</a>
+                <a href="#accessibility" target="_blank">Accessibility</a>
+            </div>
         </div>
     </footer>
 
