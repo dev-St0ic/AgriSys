@@ -9,27 +9,20 @@ use Carbon\Carbon;
 
 class SeedlingAnalyticsService
 {
-    protected SeedlingDSSService $dssService;
-    protected SeedlingDSSPDFService $pdfService;
-
-    public function __construct(SeedlingDSSService $dssService, SeedlingDSSPDFService $pdfService)
+    public function __construct()
     {
-        $this->dssService = $dssService;
-        $this->pdfService = $pdfService;
+        // Constructor simplified - DSS services removed
     }
 
     /**
-     * Get comprehensive analytics data with DSS insights
+     * Get analytics data with basic insights
      */
     public function getComprehensiveAnalytics(string $startDate = null, string $endDate = null): array
     {
         $analyticsData = $this->getAnalyticsData($startDate, $endDate);
-        $insights = $this->dssService->generateInsights($analyticsData);
-        
+
         return [
             'analytics' => $analyticsData,
-            'insights' => $insights,
-            'dss_recommendations' => $this->generateDSSRecommendations($analyticsData, $insights),
             'performance_metrics' => $this->calculatePerformanceMetrics($analyticsData),
         ];
     }
@@ -65,55 +58,12 @@ class SeedlingAnalyticsService
     }
 
     /**
-     * Generate DSS-specific recommendations
-     */
-    private function generateDSSRecommendations(array $analyticsData, array $insights): array
-    {
-        $overview = $analyticsData['overview'];
-        $recommendations = [];
-
-        // Approval Rate Recommendations
-        if ($overview['approval_rate'] < 70) {
-            $recommendations['approval_rate'] = [
-                'status' => 'critical',
-                'message' => 'Approval rate critically low',
-                'current' => $overview['approval_rate'] . '%',
-                'target' => '85%',
-                'action' => 'Review and streamline approval criteria'
-            ];
-        }
-
-        // Processing Time Recommendations
-        $avgProcessingDays = $analyticsData['processingTimeAnalysis']['avg_processing_days'] ?? 0;
-        if ($avgProcessingDays > 5) {
-            $recommendations['processing_time'] = [
-                'status' => 'warning',
-                'message' => 'Processing time exceeds target',
-                'current' => round($avgProcessingDays, 1) . ' days',
-                'target' => '<3 days',
-                'action' => 'Optimize approval workflow'
-            ];
-        }
-
-        // Barangay Coverage Recommendations
-        $activeBarangays = $overview['active_barangays'];
-        if ($activeBarangays < 10) {
-            $recommendations['coverage'] = [
-                'Expand outreach programs to underserved barangays',
-                'Establish satellite distribution centers',
-                'Partner with local agricultural coordinators'
-            ];
-        }
-
-        return $recommendations;
-    }
-    /**
      * Calculate performance metrics
      */
     private function calculatePerformanceMetrics(array $data): array
     {
         $overview = $data['overview'];
-        
+
         return [
             'overall_score' => $this->calculateOverallScore($data),
             'efficiency_rating' => $this->calculateEfficiencyRating($data),
@@ -132,7 +82,7 @@ class SeedlingAnalyticsService
         $approvedRequests = $requests->where('overall_status', 'approved')->count();
         $partiallyApprovedRequests = $requests->where('overall_status', 'partially_approved')->count();
         $rejectedRequests = $requests->where('overall_status', 'rejected')->count();
-        
+
         $totalQuantity = $requests->sum('total_quantity');
         $uniqueApplicants = $requests->pluck('email')->filter()->unique()->count();
         $activeBarangays = $requests->pluck('barangay')->unique()->count();
@@ -160,7 +110,7 @@ class SeedlingAnalyticsService
         })->map(function($monthRequests) {
             $total = $monthRequests->count();
             $approved = $monthRequests->whereIn('overall_status', ['approved', 'partially_approved'])->count();
-            
+
             return [
                 'total_requests' => $total,
                 'approved_requests' => $approved,
@@ -202,26 +152,26 @@ class SeedlingAnalyticsService
     private function getTopItems(Collection $requests): array
     {
         $items = collect();
-        
+
         // Update to use all 6 categories
         $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
 
         foreach ($requests as $request) {
             foreach ($categories as $category) {
                 $categoryData = $request->$category;
-                
+
                 // Safe JSON decode
                 if (is_string($categoryData)) {
                     $categoryData = json_decode($categoryData, true);
                 }
-                
+
                 if ($categoryData && is_array($categoryData)) {
                     foreach ($categoryData as $item) {
                         $name = is_array($item) ? ($item['name'] ?? '') : $item;
                         $quantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
-                        
+
                         if (empty($name)) continue;
-                        
+
                         $existing = $items->firstWhere('name', $name);
                         if ($existing) {
                             $existing['total_quantity'] += $quantity;
@@ -248,26 +198,26 @@ class SeedlingAnalyticsService
     private function getLeastRequestedItems(Collection $requests): array
     {
         $items = collect();
-        
+
         // Update to use all 6 categories
         $categories = ['seeds', 'seedlings', 'fruits', 'ornamentals', 'fingerlings', 'fertilizers'];
 
         foreach ($requests as $request) {
             foreach ($categories as $category) {
                 $categoryData = $request->$category;
-                
+
                 // Safe JSON decode
                 if (is_string($categoryData)) {
                     $categoryData = json_decode($categoryData, true);
                 }
-                
+
                 if ($categoryData && is_array($categoryData)) {
                     foreach ($categoryData as $item) {
                         $name = is_array($item) ? ($item['name'] ?? '') : $item;
                         $quantity = is_array($item) ? ($item['quantity'] ?? 1) : 1;
-                        
+
                         if (empty($name)) continue;
-                        
+
                         $existing = $items->firstWhere('name', $name);
                         if ($existing) {
                             $existing['total_quantity'] += $quantity;
@@ -319,12 +269,12 @@ class SeedlingAnalyticsService
         foreach ($requests as $request) {
             foreach (array_keys($analysis) as $category) {
                 $categoryData = $request->$category;
-                
+
                 // Safe JSON decode
                 if (is_string($categoryData)) {
                     $categoryData = json_decode($categoryData, true);
                 }
-                
+
                 if ($categoryData && is_array($categoryData) && count($categoryData) > 0) {
                     $analysis[$category]['requests']++;
                     $analysis[$category]['total_items'] += count($categoryData);
@@ -341,7 +291,7 @@ class SeedlingAnalyticsService
     private function getProcessingTimeAnalysis(Collection $requests): array
     {
         $processedRequests = $requests->whereNotIn('overall_status', ['under_review']);
-        
+
         $processingTimes = $processedRequests->map(function($request) {
             return $request->created_at->diffInDays($request->updated_at);
         });
@@ -385,7 +335,7 @@ class SeedlingAnalyticsService
             return [
                 'quarter' => "Q{$quarter}",
                 'total_requests' => $quarterRequests->count(),
-                'approval_rate' => $quarterRequests->count() > 0 ? 
+                'approval_rate' => $quarterRequests->count() > 0 ?
                     round(($quarterRequests->whereIn('overall_status', ['approved', 'partially_approved'])->count() / $quarterRequests->count()) * 100, 2) : 0,
                 'total_quantity' => $quarterRequests->sum('total_quantity'),
             ];
@@ -398,7 +348,7 @@ class SeedlingAnalyticsService
     private function getFarmerDemographics(Collection $requests): array
     {
         $uniqueEmails = $requests->pluck('email')->filter()->unique();
-        
+
         return [
             'total_unique_farmers' => $uniqueEmails->count(),
             'repeat_applicants' => $requests->whereNotNull('email')
@@ -434,7 +384,7 @@ class SeedlingAnalyticsService
     private function calculateEfficiencyRating(array $data): string
     {
         $avgDays = $data['processingTimeAnalysis']['avg_processing_days'];
-        
+
         if ($avgDays <= 2) return 'Excellent';
         if ($avgDays <= 5) return 'Good';
         if ($avgDays <= 10) return 'Fair';
@@ -449,7 +399,7 @@ class SeedlingAnalyticsService
         $overview = $data['overview'];
         $barangayCount = $overview['active_barangays'];
         $approvalRate = $overview['approval_rate'];
-        
+
         return (int) (($barangayCount / 30) * 50 + ($approvalRate / 100) * 50);
     }
 
@@ -460,9 +410,9 @@ class SeedlingAnalyticsService
     {
         $approvalRate = $data['overview']['approval_rate'];
         $avgProcessing = $data['processingTimeAnalysis']['avg_processing_days'];
-        
+
         $score = ($approvalRate * 0.7) + (max(0, (10 - $avgProcessing)) * 3); // Max processing penalty
-        
+
         if ($score >= 80) return 'High';
         if ($score >= 60) return 'Medium';
         return 'Low';
@@ -475,26 +425,11 @@ class SeedlingAnalyticsService
     {
         $totalRequests = $data['overview']['total_requests'];
         $totalQuantity = $data['overview']['total_quantity_requested'];
-        
+
         // Assume optimal utilization is 100 requests per month with 50 average quantity
         $requestUtilization = min(100, ($totalRequests / 100) * 100);
         $quantityUtilization = min(100, ($totalQuantity / 5000) * 100);
-        
-        return (int) (($requestUtilization + $quantityUtilization) / 2);
-    }
 
-    /**
-     * Generate DSS PDF report
-     */
-    public function generateDSSReport(string $startDate = null, string $endDate = null): \Barryvdh\DomPDF\PDF
-    {
-        $data = $this->getComprehensiveAnalytics($startDate, $endDate);
-        
-        return $this->pdfService->generateDSSReport(
-            $data['analytics'],
-            $data['insights'],
-            $startDate,
-            $endDate
-        );
+        return (int) (($requestUtilization + $quantityUtilization) / 2);
     }
 }

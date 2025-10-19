@@ -17,7 +17,7 @@
         // Inline script to apply state before any rendering
         (function() {
             const SIDEBAR_STORAGE_KEY = 'agrisys_sidebar_collapsed';
-            
+
             function getSavedState() {
                 try {
                     return localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1';
@@ -25,7 +25,7 @@
                     return false;
                 }
             }
-            
+
             // Apply CSS class to html element immediately
             if (getSavedState()) {
                 document.documentElement.classList.add('sidebar-collapsed-state');
@@ -366,7 +366,7 @@
     <div class="container-fluid p-0">
         <div class="row g-0">
             @auth
-                @if(auth()->check() && (request()->routeIs('admin.*') || request()->routeIs('dashboard')))
+                @if (auth()->check() && (request()->routeIs('admin.*') || request()->routeIs('dashboard')))
                     <!-- Sidebar Overlay for mobile -->
                     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebarMobile()"></div>
 
@@ -375,7 +375,8 @@
                         <div class="position-sticky pt-3">
                             <!-- Hamburger Toggle Button -->
                             <div class="d-none d-md-block px-2">
-                                <button class="toggle-sidebar-btn tooltip-custom" id="toggleSidebar" onclick="toggleSidebar()" data-tooltip="Toggle Menu">
+                                <button class="toggle-sidebar-btn tooltip-custom" id="toggleSidebar"
+                                    onclick="toggleSidebar()" data-tooltip="Toggle Menu">
                                     <i class="fas fa-bars" id="toggleIcon"></i>
                                     <span class="nav-link-text"></span>
                                 </button>
@@ -424,7 +425,8 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.seedlings.categories.index') ? 'active' : '' }} tooltip-custom"
-                                    href="{{ route('admin.seedlings.categories.index') }}" data-tooltip="Supply Management">
+                                        href="{{ route('admin.seedlings.categories.index') }}"
+                                        data-tooltip="Supply Management">
                                         <i class="fas fa-layer-group me-2"></i>
                                         <span class="nav-link-text">Supply Management</span>
                                     </a>
@@ -445,7 +447,8 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.training.requests') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.training.requests') }}" data-tooltip="Training Registrations">
+                                        href="{{ route('admin.training.requests') }}"
+                                        data-tooltip="Training Registrations">
                                         <i class="fas fa-chalkboard-teacher"></i>
                                         <span class="nav-link-text">Training Registrations</span>
                                     </a>
@@ -462,6 +465,13 @@
                                         href="{{ route('admin.analytics.seedlings') }}" data-tooltip="Analytics">
                                         <i class="fas fa-chart-bar"></i>
                                         <span class="nav-link-text">Analytics</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.dss.*') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.dss.preview') }}" data-tooltip="DSS Report Preview">
+                                        <i class="fas fa-brain"></i>
+                                        <span class="nav-link-text">DSS Report Preview</span>
                                     </a>
                                 </li>
                                 @if (auth()->user()->isSuperAdmin())
@@ -481,7 +491,8 @@
                     <main class="main-content" id="mainContent">
                         <div class="container-fluid px-4">
                             <!-- Top navbar -->
-                            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                            <div
+                                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                                 <h1 class="h2">@yield('page-title', 'Dashboard')</h1>
                                 <div class="btn-toolbar mb-2 mb-md-0">
                                     <div class="dropdown">
@@ -493,7 +504,8 @@
                                             <li>
                                                 <form method="POST" action="{{ route('logout') }}">
                                                     @csrf
-                                                    <button type="button" class="dropdown-item d-flex align-items-center" onclick="confirmLogout()">
+                                                    <button type="button" class="dropdown-item d-flex align-items-center"
+                                                        onclick="confirmLogout()">
                                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                                                     </button>
                                                 </form>
@@ -501,7 +513,8 @@
                                         </ul>
                                     </div>
                                     <!-- Hidden logout form -->
-                                    <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display: none;">
+                                    <form id="logout-form" method="POST" action="{{ route('logout') }}"
+                                        style="display: none;">
                                         @csrf
                                     </form>
                                 </div>
@@ -580,7 +593,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @yield('scripts')
-    
+
     <script>
         // Enhanced persistent sidebar state management
         const SIDEBAR_STORAGE_KEY = 'agrisys_sidebar_collapsed';
@@ -618,13 +631,13 @@
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const toggleIcon = document.getElementById('toggleIcon');
-            
+
             if (!sidebar || !mainContent || !toggleIcon) return;
-            
+
             // Toggle collapsed state
             const isCurrentlyCollapsed = sidebar.classList.contains('collapsed');
             const willBeCollapsed = !isCurrentlyCollapsed;
-            
+
             if (willBeCollapsed) {
                 sidebar.classList.add('collapsed');
                 mainContent.classList.add('sidebar-collapsed');
@@ -634,7 +647,7 @@
                 mainContent.classList.remove('sidebar-collapsed');
                 mainContent.classList.remove('no-sidebar');
             }
-            
+
             // Save the new state (this also updates HTML class)
             saveSidebarState(willBeCollapsed);
         }
@@ -642,16 +655,16 @@
         function applySidebarState() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            
+
             if (!sidebar || !mainContent) return;
-            
+
             // Get saved state
             const shouldBeCollapsed = getSavedSidebarState();
-            
+
             // Remove any existing transition temporarily
             sidebar.style.transition = 'none';
             mainContent.style.transition = 'none';
-            
+
             if (shouldBeCollapsed) {
                 sidebar.classList.add('collapsed');
                 mainContent.classList.add('sidebar-collapsed');
@@ -663,7 +676,7 @@
                 mainContent.classList.remove('no-sidebar');
                 document.documentElement.classList.remove('sidebar-collapsed-state');
             }
-            
+
             // Re-enable transitions after a short delay
             setTimeout(() => {
                 sidebar.style.transition = '';

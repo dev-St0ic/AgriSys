@@ -22,6 +22,7 @@ use App\Http\Controllers\UserRegistrationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\SeedlingCategoryItemController;
 use App\Http\Controllers\UserApplicationsController;
+use App\Http\Controllers\DSSController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -195,14 +196,14 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::put('/categories/{category}', [SeedlingCategoryItemController::class, 'updateCategory'])->name('categories.update');
     Route::delete('/categories/{category}', [SeedlingCategoryItemController::class, 'destroyCategory'])->name('categories.destroy');
     Route::post('/categories/{category}/toggle', [SeedlingCategoryItemController::class, 'toggleCategoryStatus'])->name('categories.toggle');
-    
+
   // Item Management - PUT THE MORE SPECIFIC ROUTES FIRST
     Route::post('/items', [SeedlingCategoryItemController::class, 'storeItem'])->name('items.store');
     Route::post('/items/{item}/toggle', [SeedlingCategoryItemController::class, 'toggleItemStatus'])->name('items.toggle');
     Route::put('/items/{item}', [SeedlingCategoryItemController::class, 'updateItem'])->name('items.update');
     Route::get('/items/{item}', [SeedlingCategoryItemController::class, 'showItem'])->name('items.show');
     Route::delete('/items/{item}', [SeedlingCategoryItemController::class, 'destroyItem'])->name('items.destroy');
-   
+
      // Stock Management
     // Route::post('/items/{item}/stock/add', [SeedlingCategoryItemController::class, 'addStock'])->name('items.stock.add');
     // Route::post('/items/{item}/stock/deduct', [SeedlingCategoryItemController::class, 'deductStock'])->name('items.stock.deduct');
@@ -210,7 +211,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     // Route::get('/items/{item}/stock/logs', [SeedlingCategoryItemController::class, 'getStockLogs'])->name('items.stock.logs');
     // Route::post('/items/{item}/stock/check', [SeedlingCategoryItemController::class, 'checkStockAvailability'])->name('items.stock.check');
     // Route::get('/items/{item}/stock-history', [SeedlingCategoryItemController::class, 'getStockHistory'])->name('items.stock-history');
-    
+
       // Supply Management Routes
     Route::post('/items/{item}/supply/add', [SeedlingCategoryItemController::class, 'addSupply'])->name('items.supply.add');
     Route::post('/items/{item}/supply/adjust', [SeedlingCategoryItemController::class, 'adjustSupply'])->name('items.supply.adjust');
@@ -218,7 +219,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::get('/items/{item}/supply/logs', [SeedlingCategoryItemController::class, 'getSupplyLogs'])->name('items.supply.logs');
     Route::get('/supply/stats', [SeedlingCategoryItemController::class, 'getSupplyStats'])->name('supply.stats');
 });
-  
+
     // ==============================================
     // ANALYTICS ROUTES - SECTION
     // ==============================================
@@ -226,9 +227,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
         // SEEDLING ANALYTICS - EXISTING
         Route::get('/seedlings', [SeedlingAnalyticsController::class, 'index'])->name('seedlings');
         // Route::get('/seedlings/export', [SeedlingAnalyticsController::class, 'export'])->name('seedlings.export');
-        Route::get('/seedlings/dss-report', [SeedlingAnalyticsController::class, 'generateDSSReport'])
-        ->name('seedlings.dss-report');
-        
+
 
          // RSBSA ANALYTICS - NEW SECTION
     Route::get('/rsbsa', [RsbsaAnalyticsController::class, 'index'])->name('rsbsa');
@@ -257,6 +256,17 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
      // User Registration Analytics
     Route::get('/supply-management', [SupplyManagementAnalyticsController::class, 'index'])->name('supply-management');
     Route::get('/supply-management/export', [SupplyManagementAnalyticsController::class, 'export'])->name('supply-management.export');
+    });
+
+    // ==============================================
+    // DECISION SUPPORT SYSTEM (DSS)
+    // ==============================================
+    Route::prefix('admin/dss')->name('admin.dss.')->middleware(['auth'])->group(function () {
+        Route::get('/preview', [DSSController::class, 'preview'])->name('preview');
+        Route::get('/download-pdf', [DSSController::class, 'downloadPDF'])->name('download.pdf');
+        Route::get('/download-word', [DSSController::class, 'downloadWord'])->name('download.word');
+        Route::get('/refresh-data', [DSSController::class, 'refreshData'])->name('refresh.data');
+        Route::get('/available-periods', [DSSController::class, 'getAvailablePeriods'])->name('available.periods');
     });
 
 
@@ -587,7 +597,7 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
         // New endpoint to fetch all applications (RSBSA, Seedlings, FishR, BoatR, Training) in my applications modal
         Route::get('/applications/all', [UserApplicationsController::class, 'getAllApplications'])
             ->name('api.user.applications.all');
-        
+
         // change pass word route
         Route::post('/change-password', [UserRegistrationController::class, 'changePassword'])->name('api.user.change-password');
     });

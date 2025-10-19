@@ -65,34 +65,48 @@ return [
     |
     */
 
-    'anthropic' => [
-        'key' => env('ANTHROPIC_API_KEY'),
-        'model' => 'claude-sonnet-4-5-20250929', //  Best choice
-        'max_tokens' => 8192,  // Enough for detailed prescriptions
-        'temperature' => 0.1,  //  Low = consistent, precise
-        'timeout' => 300,      // Allow time for complex analysis
-        'cache_duration' => 3600, // Cache for 1 hour
-        'api_version' => '2023-06-01'
-    ],
+    //     'timeout' => env('OPENAI_TIMEOUT', 60),
+    // ],
+
     /*
     |--------------------------------------------------------------------------
-    | PDF Generation Configuration
+    | Anthropic Claude Configuration
     |--------------------------------------------------------------------------
     |
-    | Configuration for PDF generation used by the DSS reporting system.
+    | Configuration for Anthropic Claude API integration.
     |
     */
 
-    'pdf' => [
-        'default_font' => env('PDF_DEFAULT_FONT', 'Arial'),
-        'margin' => [
-            'top' => env('PDF_MARGIN_TOP', '15mm'),
-            'right' => env('PDF_MARGIN_RIGHT', '15mm'),
-            'bottom' => env('PDF_MARGIN_BOTTOM', '15mm'),
-            'left' => env('PDF_MARGIN_LEFT', '15mm'),
+    'anthropic' => [
+        'key' => env('ANTHROPIC_API_KEY'),
+        'model' => 'claude-sonnet-4-5-20250929',
+        'max_tokens' => 8192,
+        'temperature' => 0.1,
+        'timeout' => 300,
+        'cache_duration' => 3600,
+        'api_version' => '2023-06-01'
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Laravel Sanctum
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for Laravel Sanctum...
+    |
+    */
+
+    'sanctum' => [
+        'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS',
+            'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1'
+        )),
+        'guard' => ['web'],
+        'expiration' => null,
+        'token_prefix' => env('SANCTUM_TOKEN_PREFIX', ''),
+        'middleware' => [
+            'encrypt_cookies' => App\Http\Middleware\EncryptCookies::class,
+            'validate_csrf_token' => App\Http\Middleware\VerifyCsrfToken::class,
         ],
-        'paper_size' => env('PDF_PAPER_SIZE', 'A4'),
-        'orientation' => env('PDF_ORIENTATION', 'portrait'),
     ],
 
 ];
