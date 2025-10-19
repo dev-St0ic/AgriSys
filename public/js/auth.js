@@ -1925,12 +1925,12 @@ function showNotification(type, message) {
 // PLACEHOLDER FUNCTIONS
 // ==============================================
 
-function signInWithGoogle() {
-    showNotification('info', 'Google Sign In will be implemented soon!');
+function signInWithFacebook() {
+    showNotification('info', 'Facebook Sign In will be implemented soon!');
 }
 
-function signUpWithGoogle() {
-    showNotification('info', 'Google Sign Up will be implemented soon!');
+function signUpWithFacebook() {
+    showNotification('info', 'Facebook Sign Up will be implemented soon!');
 }
 
 function showForgotPassword() {
@@ -2497,8 +2497,8 @@ window.closeAuthModal = closeAuthModal;
 window.showLogInForm = showLogInForm;
 window.showSignUpForm = showSignUpForm;
 window.togglePasswordVisibility = togglePasswordVisibility;
-window.signInWithGoogle = signInWithGoogle;
-window.signUpWithGoogle = signUpWithGoogle;
+window.signInWithFacebook = signInWithFacebook;
+window.signUpWithFacebook = signUpWithFacebook;
 window.showForgotPassword = showForgotPassword;
 window.toggleUserDropdown = toggleUserDropdown;
 window.showMyApplicationsModal = showMyApplicationsModal;

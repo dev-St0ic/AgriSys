@@ -366,14 +366,16 @@
     padding: 25px 30px;
     border-radius: 20px 20px 0 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .auth-modal-header h3 {
     margin: 0;
     font-size: 24px;
     font-weight: 600;
+    align-items: center;
 }
 
 .auth-modal-close {
@@ -388,6 +390,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: absolute;  /* ADD THIS */
+    right: 20px;  /* ADD THIS */
+    top: 25%;  /* ADD THIS */
 }
 
 .auth-modal-close:hover {
@@ -655,8 +660,8 @@
     font-weight: 500;
 }
 
-/* Google Sign In/Up Button */
-.google-signin-btn {
+/* Facebook Sign In/Up Button */
+.facebook-signin-btn {
     width: 100%;
     padding: 14px;
     background: white;
@@ -674,19 +679,21 @@
     margin-bottom: 20px;
 }
 
-.google-signin-btn:hover {
+.facebook-signin-btn:hover {
     border-color: #d1d5db;
     background: #f9fafb;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.google-signin-btn:active {
+.facebook-signin-btn:active {
     transform: translateY(0);
 }
 
-.google-icon {
+.facebook-icon {
     flex-shrink: 0;
+    width: 20px;
+    height: 20px;
 }
 
 /* Sign Up Prompt */
@@ -716,28 +723,29 @@
 }
 
 /* Back to Login Button */
-.back-to-login {
-    margin-bottom: 20px;
+.login-prompt {
+    text-align: center;
+    margin-bottom: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
 }
 
-.back-btn {
-    background: none;
-    border: none;
-    color: #0A6953;
-    cursor: pointer;
+.login-prompt p {
+    margin: 0;
+    color: #6b7280;
     font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    padding: 8px 12px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
 }
 
-.back-btn:hover {
+.login-prompt a {
+    color: #0A6953;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.login-prompt a:hover {
     color: #085a47;
-    background: rgba(10, 105, 83, 0.05);
+    text-decoration: underline;
 }
 
 /* Checkbox Group */
@@ -745,23 +753,26 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .checkbox-group input[type="checkbox"] {
-    width: auto;
+    width: 18px;
+    height: 18px;
     margin: 0;
     margin-top: 2px;
     flex-shrink: 0;
     accent-color: #0A6953;
+    cursor: pointer;
 }
 
 .checkbox-group label {
     margin: 0;
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 14px;
+    line-height: 1.5;
     cursor: pointer;
-    text-align: center;
+    text-align: left;
+    color: #374151;
 }
 
 .checkbox-group a {
