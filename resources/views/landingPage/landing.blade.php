@@ -1042,24 +1042,23 @@
                             <div class="form-group">
                                 <label for="signup-username">Username</label>
                                 <input type="text" id="signup-username" name="username" required
-                                    placeholder="Choose a username (letters, numbers, underscore only)"
-                                    autocomplete="username" pattern="[a-zA-Z0-9_]+" minlength="5" maxlength="50">
+                                    placeholder="Choose a username"
+                                    autocomplete="username" pattern="^(?![0-9])[a-zA-Z0-9_.]{3,20}$" minlength="3" maxlength="20" oninput="checkUsernameAvailability(this.value)">
                                 <div class="username-status"></div>
-                                <div class="form-text">Username must be characters, letters, numbers, and underscores
-                                    only</div>
+                                <div class="form-text">Username must be 3–20 characters long and contain only letters, numbers, underscores, or dots. Cannot start with a number.</div>
                             </div>
 
                             <div class="form-group">
                                 <label for="signup-email">Email Address</label>
-                                <input type="email" id="signup-email" name="email" required
-                                    placeholder="Enter your email address" autocomplete="email">
+                                <input type="email" id="signup-email" name="email" required  pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                                    placeholder="e.g. juan.farmer@gmail.com" autocomplete="email" maxlength="254">
                             </div>
 
                             <div class="form-group">
                                 <label for="signup-password">Password</label>
                                 <div class="password-input-container">
                                     <input type="password" id="signup-password" name="password" required
-                                        minlength="8" placeholder="Create a strong password"
+                                        minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#!$%^&*()_+\-=\[\]{};':&quot;\\|,.<>\/?]).{8,}" placeholder="Create a strong password"
                                         autocomplete="new-password">
                                     <button type="button" class="password-toggle"
                                         onclick="togglePasswordVisibility('signup-password')">

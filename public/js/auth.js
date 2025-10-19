@@ -1619,15 +1619,68 @@ function checkUsernameAvailability(username) {
     const usernameInput = document.getElementById('signup-username');
     const usernameStatus = document.querySelector('.username-status');
 
-    if (!username || username.length < 3) {
+    if (!username || username.trim() === '') {
         if (usernameStatus) {
             usernameStatus.innerHTML = '';
         }
+        usernameInput.classList.remove('is-valid', 'is-invalid');
+        return; // Exit function early - no checking needed
+    }
+
+    // CLIENT-SIDE VALIDATION RULES
+    let errors = [];
+
+    // 1. Length check (3-20 characters)
+    if (username.length < 3) {
+        errors.push('Username must be at least 3 characters');
+    }
+    if (username.length > 20) {
+        errors.push('Username must not exceed 20 characters');
+    }
+
+    // 2. No spaces allowed
+    if (/\s/.test(username)) {
+        errors.push('Username cannot contain spaces');
+    }
+
+    // 3. Only letters, numbers, underscores, and dots allowed
+    if (!/^[a-zA-Z0-9_.]+$/.test(username)) {
+        errors.push('Username can only contain letters, numbers, underscores, and dots');
+    }
+
+    // 4. Cannot start with a number
+    if (/^[0-9]/.test(username)) {
+        errors.push('Username cannot start with a number');
+    }
+
+    // 5. Must contain at least one letter (cannot be only numbers)
+    if (!/[a-zA-Z]/.test(username)) {
+        errors.push('Username must contain at least one letter');
+    }
+
+    // 6. Cannot start or end with underscore or dot
+    if (/^[_.]|[_.]$/.test(username)) {
+        errors.push('Username cannot start or end with underscore or dot');
+    }
+
+    // 7. No consecutive dots or underscores
+    if (/[_.]{2,}/.test(username)) {
+        errors.push('Username cannot have consecutive dots or underscores');
+    }
+
+    // Display validation errors immediately
+    if (errors.length > 0) {
+        if (usernameStatus) {
+            usernameStatus.innerHTML = `<span class="text-danger">✗ ${errors[0]}</span>`;
+        }
+        usernameInput.classList.remove('is-valid');
+        usernameInput.classList.add('is-invalid');
         return;
     }
 
+    // If validation passes, check availability on server
     if (usernameStatus) {
-        usernameStatus.innerHTML = '<span class="text-info">Checking...</span>';
+        usernameStatus.innerHTML = '<span class="text-info">Checking availability...</span>';
     }
 
     usernameCheckTimeout = setTimeout(() => {
@@ -1659,8 +1712,428 @@ function checkUsernameAvailability(username) {
                 usernameStatus.innerHTML = '<span class="text-muted">⚠ Could not check availability</span>';
             }
         });
-    }, 500);
+    }, 500); // Debounce for 500ms
 }
+
+// ==============================================
+// EMAIL VALIDATION FUNCTION
+// ==============================================
+
+/**
+ * Comprehensive email validation
+ * Validates email format according to standard patterns
+ */
+function validateEmail(email) {
+    const validation = {
+        valid: true,
+        error: ''
+    };
+
+    // Check if email is empty
+    if (!email || email.trim() === '') {
+        validation.valid = false;
+        validation.error = 'Email is required';
+        return validation;
+    }
+
+    // Remove whitespace
+    email = email.trim();
+
+    // Check for spaces
+    if (/\s/.test(email)) {
+        validation.valid = false;
+        validation.error = 'Email cannot contain spaces';
+        return validation;
+    }
+
+    // Check length (standard email max is 254 characters)
+    if (email.length > 254) {
+        validation.valid = false;
+        validation.error = 'Email is too long (max 254 characters)';
+        return validation;
+    }
+
+    // Check basic format: must have @ and at least one dot after @
+    if (!email.includes('@') || !email.split('@')[1]?.includes('.')) {
+        validation.valid = false;
+        validation.error = 'Invalid email format (must be name@domain.com)';
+        return validation;
+    }
+
+    // Comprehensive email regex pattern
+    // Allows: letters, numbers, dots, underscores, hyphens
+    // Format: localpart@domain.tld
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    if (!emailPattern.test(email)) {
+        validation.valid = false;
+        validation.error = 'Invalid email format. Use letters, numbers, dots, underscores, or hyphens';
+        return validation;
+    }
+
+    // Split email into local part and domain
+    const [localPart, domain] = email.split('@');
+
+    // Validate local part (before @)
+    if (localPart.length === 0 || localPart.length > 64) {
+        validation.valid = false;
+        validation.error = 'Email username part is invalid (max 64 characters)';
+        return validation;
+    }
+
+    // Check for consecutive dots
+    if (/\.\./.test(email)) {
+        validation.valid = false;
+        validation.error = 'Email cannot have consecutive dots';
+        return validation;
+    }
+
+    // Check if starts or ends with dot, underscore, or hyphen
+    if (/^[._-]|[._-]@/.test(email)) {
+        validation.valid = false;
+        validation.error = 'Email cannot start with a dot, underscore, or hyphen';
+        return validation;
+    }
+
+    // Validate domain part (after @)
+    if (domain.length === 0 || domain.length > 255) {
+        validation.valid = false;
+        validation.error = 'Email domain is invalid';
+        return validation;
+    }
+
+    // Check domain has valid TLD (at least 2 characters)
+    const domainParts = domain.split('.');
+    const tld = domainParts[domainParts.length - 1];
+    if (tld.length < 2) {
+        validation.valid = false;
+        validation.error = 'Email must have a valid domain extension (e.g., .com, .ph)';
+        return validation;
+    }
+
+    return validation;
+}
+
+/**
+ * Real-time email validation for signup form
+ */
+function checkEmailValidity(email) {
+    const emailInput = document.getElementById('signup-email');
+    const validation = validateEmail(email);
+
+    if (!email) {
+        emailInput.classList.remove('is-valid', 'is-invalid');
+        return;
+    }
+
+    if (validation.valid) {
+        emailInput.classList.remove('is-invalid');
+        emailInput.classList.add('is-valid');
+    } else {
+        emailInput.classList.remove('is-valid');
+        emailInput.classList.add('is-invalid');
+        
+        // Show validation message
+        let errorMsg = emailInput.parentElement.querySelector('.email-error');
+        if (!errorMsg) {
+            errorMsg = document.createElement('div');
+            errorMsg.className = 'email-error field-error';
+            errorMsg.style.color = '#dc3545';
+            errorMsg.style.fontSize = '12px';
+            errorMsg.style.marginTop = '4px';
+            emailInput.parentElement.appendChild(errorMsg);
+        }
+        errorMsg.textContent = validation.error;
+    }
+}
+
+// ==============================================
+// PASSWORD VALIDATION FUNCTION
+// ==============================================
+
+/**
+ * Comprehensive password validation
+ * Enforces strong password requirements
+ */
+function validatePassword(password) {
+    const validation = {
+        valid: true,
+        error: '',
+        strength: 0,
+        requirements: {
+            minLength: false,
+            hasUppercase: false,
+            hasLowercase: false,
+            hasNumber: false,
+            hasSpecialChar: false,
+            noSpaces: true
+        }
+    };
+
+    // Check if password is empty
+    if (!password) {
+        validation.valid = false;
+        validation.error = 'Password is required';
+        return validation;
+    }
+
+    // Check for spaces
+    if (/\s/.test(password)) {
+        validation.valid = false;
+        validation.error = 'Password cannot contain spaces';
+        validation.requirements.noSpaces = false;
+        return validation;
+    }
+
+    // Check minimum length (8 characters)
+    if (password.length >= 8) {
+        validation.requirements.minLength = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = 'Password must be at least 8 characters';
+    }
+
+    // Check for at least one uppercase letter
+    if (/[A-Z]/.test(password)) {
+        validation.requirements.hasUppercase = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one uppercase letter';
+    }
+
+    // Check for at least one lowercase letter
+    if (/[a-z]/.test(password)) {
+        validation.requirements.hasLowercase = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one lowercase letter';
+    }
+
+    // Check for at least one number
+    if (/\d/.test(password)) {
+        validation.requirements.hasNumber = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one number';
+    }
+
+    // Check for at least one special character (@, #, !, $, %, ^, &, *, etc.)
+    if (/[@#!$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+        validation.requirements.hasSpecialChar = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one special character (@, #, !, $, etc.)';
+    }
+
+    // Ensure password is not numbers only
+    if (/^\d+$/.test(password)) {
+        validation.valid = false;
+        validation.error = 'Password cannot be numbers only';
+        return validation;
+    }
+
+    // Ensure password is not letters only
+    if (/^[a-zA-Z]+$/.test(password)) {
+        validation.valid = false;
+        validation.error = 'Password cannot be letters only';
+        return validation;
+    }
+
+    return validation;
+}
+
+
+function checkPasswordStrength(password) {
+    const strengthBar = document.querySelector('.strength-fill');
+    const strengthText = document.querySelector('.strength-text');
+
+    if (!strengthBar || !strengthText) return;
+
+    const validation = validatePassword(password);
+    const requirements = validation.requirements;
+
+     // Remove all strength classes
+    strengthBar.className = 'strength-fill';
+
+    if (!password) {
+        strengthText.textContent = 'Password strength';
+        return;
+    }
+
+       // Calculate strength based on requirements met
+    const strength = validation.strength;
+    let strengthLabel = 'Too weak';
+    let strengthClass = 'weak';
+
+    if (strength <= 2) {
+        strengthLabel = 'Weak';
+        strengthClass = 'weak';
+    } else if (strength === 3) {
+        strengthLabel = 'Fair';
+        strengthClass = 'fair';
+    } else if (strength === 4) {
+        strengthLabel = 'Good';
+        strengthClass = 'good';
+    } else if (strength === 5) {
+        strengthLabel = 'Strong';
+        strengthClass = 'strong';
+    }
+
+    strengthBar.classList.add(strengthClass);
+    strengthText.textContent = `Password strength: ${strengthLabel}`;
+
+    // Show detailed requirements below password input
+    showPasswordRequirements(requirements);
+}
+
+/**
+ * Display password requirements checklist
+ */
+function showPasswordRequirements(requirements) {
+    const passwordInput = document.getElementById('signup-password');
+    if (!passwordInput) return;
+
+    let requirementsDiv = document.querySelector('.password-requirements-list');
+    
+    if (!requirementsDiv) {
+        requirementsDiv = document.createElement('div');
+        requirementsDiv.className = 'password-requirements-list';
+        requirementsDiv.style.cssText = `
+            margin-top: 8px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 12px;
+        `;
+        passwordInput.parentElement.appendChild(requirementsDiv);
+    }
+
+    requirementsDiv.innerHTML = `
+        <div style="margin-bottom: 4px; font-weight: 600; color: #374151;">Password must contain:</div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.minLength ? '#10b981' : '#6b7280'};">
+            <span>${requirements.minLength ? '✓' : '○'}</span>
+            <span>At least 8 characters</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.hasUppercase ? '#10b981' : '#6b7280'};">
+            <span>${requirements.hasUppercase ? '✓' : '○'}</span>
+            <span>At least 1 uppercase letter (A-Z)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.hasLowercase ? '#10b981' : '#6b7280'};">
+            <span>${requirements.hasLowercase ? '✓' : '○'}</span>
+            <span>At least 1 lowercase letter (a-z)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.hasNumber ? '#10b981' : '#6b7280'};">
+            <span>${requirements.hasNumber ? '✓' : '○'}</span>
+            <span>At least 1 number (0-9)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: ${requirements.hasSpecialChar ? '#10b981' : '#6b7280'};">
+            <span>${requirements.hasSpecialChar ? '✓' : '○'}</span>
+            <span>At least 1 special character (@, #, !, $, etc.)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; color: ${requirements.noSpaces ? '#10b981' : '#ef4444'};">
+            <span>${requirements.noSpaces ? '✓' : '✗'}</span>
+            <span>No spaces allowed</span>
+        </div>
+    `;
+}
+
+/**
+ * Real-time password validation for signup form
+ */
+function checkPasswordValidity(password) {
+    const passwordInput = document.getElementById('signup-password');
+    if (!passwordInput) return;
+
+    const validation = validatePassword(password);
+
+    if (!password) {
+        passwordInput.classList.remove('is-valid', 'is-invalid');
+        // Remove requirements list if password is empty
+        const requirementsList = document.querySelector('.password-requirements-list');
+        if (requirementsList) requirementsList.remove();
+        return;
+    }
+
+    if (validation.valid) {
+        passwordInput.classList.remove('is-invalid');
+        passwordInput.classList.add('is-valid');
+    } else {
+        passwordInput.classList.remove('is-valid');
+        passwordInput.classList.add('is-invalid');
+    }
+}
+
+// ==============================================
+// CONFIRM PASSWORD VALIDATION
+// ==============================================
+
+/**
+ * Validate password confirmation matches original password
+ */
+function validatePasswordConfirmation(password, confirmPassword) {
+    const validation = {
+        valid: true,
+        error: ''
+    };
+
+    // Check if confirm password is empty
+    if (!confirmPassword) {
+        validation.valid = false;
+        validation.error = 'Please confirm your password';
+        return validation;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+        validation.valid = false;
+        validation.error = 'Passwords do not match';
+        return validation;
+    }
+
+    // Check if confirm password meets the same requirements as password
+    const passwordValidation = validatePassword(confirmPassword);
+    if (!passwordValidation.valid) {
+        validation.valid = false;
+        validation.error = 'Confirmation password must meet password requirements';
+        return validation;
+    }
+
+    return validation;
+}
+
+function checkPasswordMatch(password, confirmPassword) {
+    const matchStatus = document.querySelector('.password-match-status');
+    const confirmInput = document.getElementById('signup-confirm-password');
+
+    if (!matchStatus || !confirmPassword) return;
+
+    // Clear status if confirm password is empty
+    if (!confirmPassword) {
+        matchStatus.innerHTML = '';
+        confirmInput.classList.remove('is-valid', 'is-invalid');
+        return;
+    }
+
+    const validation = validatePasswordConfirmation(password, confirmPassword);
+
+    if (validation.valid) {
+        matchStatus.className = 'password-match-status match';
+        matchStatus.innerHTML = '<span style="color: #10b981;">✓ Passwords match</span>';
+        confirmInput.classList.remove('is-invalid');
+        confirmInput.classList.add('is-valid');
+    } else {
+        matchStatus.className = 'password-match-status no-match';
+        matchStatus.innerHTML = `<span style="color: #ef4444;">✗ ${validation.error}</span>`;
+        confirmInput.classList.remove('is-valid');
+        confirmInput.classList.add('is-invalid');
+    }
+}
+
 
 // ==============================================
 // FORM VALIDATION
@@ -1687,24 +2160,24 @@ function validateBasicSignupForm() {
         isValid = false;
     }
 
-    if (!email) {
-        errors.push('Email is required');
-        isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errors.push('Please enter a valid email address');
-        isValid = false;
-    }
-
-    if (!password) {
-        errors.push('Password is required');
-        isValid = false;
-    } else if (password.length < 8) {
-        errors.push('Password must be at least 8 characters');
+   // Updated email validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+        errors.push(emailValidation.error);
         isValid = false;
     }
 
-    if (password !== confirmPassword) {
-        errors.push('Passwords do not match');
+    // updated password validation
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+        errors.push(passwordValidation.error);
+        isValid = false;
+    }
+
+    // Confirm password validation
+    const confirmValidation = validatePasswordConfirmation(password, confirmPassword);
+    if (!confirmValidation.valid) {
+        errors.push(confirmValidation.error);
         isValid = false;
     }
 
@@ -1727,65 +2200,6 @@ function validateBasicSignupForm() {
 
     return isValid;
 }
-
-function checkPasswordStrength(password) {
-    const strengthBar = document.querySelector('.strength-fill');
-    const strengthText = document.querySelector('.strength-text');
-
-    if (!strengthBar || !strengthText) return;
-
-    let strength = 0;
-    let strengthLabel = 'Too weak';
-
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/\d/.test(password)) strength++;
-    if (/[^a-zA-Z0-9]/.test(password)) strength++;
-
-    strengthBar.className = 'strength-fill';
-
-    switch (strength) {
-        case 0:
-        case 1:
-            strengthBar.classList.add('weak');
-            strengthLabel = 'Weak';
-            break;
-        case 2:
-            strengthBar.classList.add('fair');
-            strengthLabel = 'Fair';
-            break;
-        case 3:
-        case 4:
-            strengthBar.classList.add('good');
-            strengthLabel = 'Good';
-            break;
-        case 5:
-            strengthBar.classList.add('strong');
-            strengthLabel = 'Strong';
-            break;
-    }
-
-    strengthText.textContent = `Password strength: ${strengthLabel}`;
-}
-
-function checkPasswordMatch(password, confirmPassword) {
-    const matchStatus = document.querySelector('.password-match-status');
-
-    if (!matchStatus || !confirmPassword) {
-        if (matchStatus) matchStatus.innerHTML = '';
-        return;
-    }
-
-    if (password === confirmPassword) {
-        matchStatus.className = 'password-match-status match';
-        matchStatus.textContent = 'Passwords match';
-    } else {
-        matchStatus.className = 'password-match-status no-match';
-        matchStatus.textContent = 'Passwords do not match';
-    }
-}
-
 // ==============================================
 // FORM RESET FUNCTION
 // ==============================================
@@ -2296,18 +2710,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Password strength checker
+    // Email validation checker
+    const emailInput = document.getElementById('signup-email');
+    if (emailInput) {
+        emailInput.addEventListener('input', function() {
+            checkEmailValidity(this.value);
+        });
+        
+        // Also validate on blur
+        emailInput.addEventListener('blur', function() {
+            checkEmailValidity(this.value);
+        });
+    }
+
+    // Password strength and validity checker
     const passwordInput = document.getElementById('signup-password');
     if (passwordInput) {
         passwordInput.addEventListener('input', function() {
             checkPasswordStrength(this.value);
+            checkPasswordValidity(this.value);
+
+            // Re-validate confirmation if it has a value
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+        if (confirmPassword) {
+            checkPasswordMatch(this.value, confirmPassword);
+        }
         });
     }
 
-    // Password confirmation checker
+   // Password confirmation checker with validation
     const confirmPasswordInput = document.getElementById('signup-confirm-password');
     if (confirmPasswordInput) {
         confirmPasswordInput.addEventListener('input', function() {
+            const password = document.getElementById('signup-password').value;
+            checkPasswordMatch(password, this.value);
+        });
+        
+        // Also check on blur
+        confirmPasswordInput.addEventListener('blur', function() {
             const password = document.getElementById('signup-password').value;
             checkPasswordMatch(password, this.value);
         });

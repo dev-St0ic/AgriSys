@@ -537,28 +537,52 @@
 
 /* Password Match Status */
 .password-match-status {
-    font-size: 12px;
-    margin-top: 4px;
+    font-size: 13px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #f8f9fa;
+}
+
+.password-match-status.match {
+    background: #d1fae5;
+    border: 1px solid #10b981;
+}
+
+.password-match-status.no-match {
+    background: #fee2e2;
+    border: 1px solid #ef4444;
+}
+
+.password-match-status span {
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
-.password-match-status.match {
-    color: #10b981;
+/* Visual feedback for valid/invalid inputs */
+input.is-valid {
+    border-color: #10b981 !important;
+    background-image: none;
 }
 
-.password-match-status.match::before {
+input.is-invalid {
+    border-color: #ef4444 !important;
+    background-image: none;
+}
+
+/* .password-match-status.match::before {
     content: "✓ ";
-}
-
-.password-match-status.no-match {
-    color: #ef4444;
 }
 
 .password-match-status.no-match::before {
     content: "✗ ";
-}
+} */
+
 
 /* Step Header for Signup */
 .step-header {
@@ -1410,21 +1434,41 @@
 .username-status .text-success {
     color: #10b981;
     font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
 }
 
 .username-status .text-danger {
     color: #ef4444;
     font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
 }
 
 .username-status .text-info {
     color: #3b82f6;
     font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
 }
 
 .username-status .text-muted {
     color: #6b7280;
     font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
 }
 
 .form-text {
