@@ -162,7 +162,7 @@
             <button class="filter-btn" data-filter="landscape">Past Events</button>
         </div>
         
-      <div class="projects-grid">
+        <div class="projects-grid">
             <!-- Project Card 1 -->
             <div class="project-card" data-category="garden-care">
                 <img src="../images/projects/1.jpg" alt="Garden Care" class="project-image">
@@ -175,22 +175,29 @@
                         <div class="location">📍 San Pedro Community Garden, Brgy. Riverside</div>
                     </div>
                     
-                    <ul class="details-list">
-                        <li>
-                            <span class="icon">👥</span>
-                            <div class="text">
-                                <div class="label">Who Can Join</div>
-                                <div class="value">All residents welcome, families encouraged</div>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon">💰</span>
-                            <div class="text">
-                                <div class="label">Cost</div>
-                                <div class="value">Free for all participants</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">👥</span>
+                                <div class="text">
+                                    <div class="label">Who Can Join</div>
+                                    <div class="value">All residents welcome, families encouraged</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">💰</span>
+                                <div class="text">
+                                    <div class="label">Cost</div>
+                                    <div class="value">Free for all participants</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
@@ -206,22 +213,29 @@
                         <div class="location">📍 12 Barangays across San Pedro City</div>
                     </div>
                     
-                    <ul class="details-list">
-                        <li>
-                            <span class="icon">🌳</span>
-                            <div class="text">
-                                <div class="label">Achievement</div>
-                                <div class="value">500+ native trees planted</div>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon">🎯</span>
-                            <div class="text">
-                                <div class="label">Impact</div>
-                                <div class="value">Improved air quality and urban aesthetics</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🌳</span>
+                                <div class="text">
+                                    <div class="label">Achievement</div>
+                                    <div class="value">500+ native trees planted</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🎯</span>
+                                <div class="text">
+                                    <div class="label">Impact</div>
+                                    <div class="value">Improved air quality and urban aesthetics</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
@@ -237,22 +251,29 @@
                         <div class="location">📍 Various locations citywide</div>
                     </div>
                     
-                    <ul class="details-list">
-                        <li>
-                            <span class="icon">🎁</span>
-                            <div class="text">
-                                <div class="label">Freebies</div>
-                                <div class="value">Free seedlings, refreshments, certificate</div>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon">📝</span>
-                            <div class="text">
-                                <div class="label">Registration</div>
-                                <div class="value">Contact City Agriculture Office</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🎁</span>
+                                <div class="text">
+                                    <div class="label">Freebies</div>
+                                    <div class="value">Free seedlings, refreshments, certificate</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">📝</span>
+                                <div class="text">
+                                    <div class="label">Registration</div>
+                                    <div class="value">Contact City Agriculture Office</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
@@ -268,22 +289,29 @@
                         <div class="location">📍 Agriculture Office Training Center</div>
                     </div>
                     
-                    <ul class="details-list">
-                        <li>
-                            <span class="icon">👨‍🌾</span>
-                            <div class="text">
-                                <div class="label">For</div>
-                                <div class="value">Local farmers and aspiring growers</div>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon">🎁</span>
-                            <div class="text">
-                                <div class="label">Freebies</div>
-                                <div class="value">Free seeds, tools, and training materials</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">👨‍🌾</span>
+                                <div class="text">
+                                    <div class="label">For</div>
+                                    <div class="value">Local farmers and aspiring growers</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🎁</span>
+                                <div class="text">
+                                    <div class="label">Freebies</div>
+                                    <div class="value">Free seeds, tools, and training materials</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
@@ -299,22 +327,29 @@
                         <div class="location">📍 All rice farming areas in San Pedro</div>
                     </div>
                     
-                    <ul class="details-list">
-                        <li>
-                            <span class="icon">🌾</span>
-                            <div class="text">
-                                <div class="label">Support Provided</div>
-                                <div class="value">Training, organic fertilizers, market access</div>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon">🏆</span>
-                            <div class="text">
-                                <div class="label">Certification</div>
-                                <div class="value">Organic farming certification assistance</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🌾</span>
+                                <div class="text">
+                                    <div class="label">Support Provided</div>
+                                    <div class="value">Training, organic fertilizers, market access</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🏆</span>
+                                <div class="text">
+                                    <div class="label">Certification</div>
+                                    <div class="value">Organic farming certification assistance</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
@@ -330,22 +365,29 @@
                         <div class="location">📍 All public parks across San Pedro</div>
                     </div>
                     
-                    <ul class="details-list">
-                        <li>
-                            <span class="icon">🛠️</span>
-                            <div class="text">
-                                <div class="label">Services</div>
-                                <div class="value">Mowing, trimming, landscaping, sanitation</div>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon">📞</span>
-                            <div class="text">
-                                <div class="label">Report Issues</div>
-                                <div class="value">Contact City Agriculture Office</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🛠️</span>
+                                <div class="text">
+                                    <div class="label">Services</div>
+                                    <div class="value">Mowing, trimming, landscaping, sanitation</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">📞</span>
+                                <div class="text">
+                                    <div class="label">Report Issues</div>
+                                    <div class="value">Contact City Agriculture Office</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
@@ -361,22 +403,29 @@
                         <div class="location">📍 San Pedro Sports Complex</div>
                     </div>
                     
-                    <ul class="details-list">
-                        <li>
-                            <span class="icon">⚽</span>
-                            <div class="text">
-                                <div class="label">Facilities</div>
-                                <div class="value">Soccer fields, basketball courts, running tracks</div>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon">🔧</span>
-                            <div class="text">
-                                <div class="label">Upgrades</div>
-                                <div class="value">New turf, drainage, irrigation, lighting</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">⚽</span>
+                                <div class="text">
+                                    <div class="label">Facilities</div>
+                                    <div class="value">Soccer fields, basketball courts, running tracks</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🔧</span>
+                                <div class="text">
+                                    <div class="label">Upgrades</div>
+                                    <div class="value">New turf, drainage, irrigation, lighting</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
@@ -392,27 +441,34 @@
                         <div class="location">📍 Agriculture Office Training Center</div>
                     </div>
                     
-                    <ul class="details-list">
-                        <li>
-                            <span class="icon">🌱</span>
-                            <div class="text">
-                                <div class="label">Techniques</div>
-                                <div class="value">Container gardening, vertical gardens, hydroponics</div>
-                            </div>
-                        </li>
-                        <li>
-                            <span class="icon">📦</span>
-                            <div class="text">
-                                <div class="label">Materials</div>
-                                <div class="value">All training materials and starter kits provided</div>
-                            </div>
-                        </li>
-                    </ul>
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+                    
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🌱</span>
+                                <div class="text">
+                                    <div class="label">Techniques</div>
+                                    <div class="value">Container gardening, vertical gardens, hydroponics</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">📦</span>
+                                <div class="text">
+                                    <div class="label">Materials</div>
+                                    <div class="value">All training materials and starter kits provided</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
-   
+    
 
     <!-- Services Section (Always visible) -->
     <section class="services" id="services">

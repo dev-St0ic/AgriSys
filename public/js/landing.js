@@ -379,47 +379,70 @@ function closeForm(formId) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     history.pushState(null, '', '/services');
 }
-
-// Project filtering functionality
+// Project filtering and expand/collapse functionality
+// Project filtering and expand/collapse functionality
 document.addEventListener('DOMContentLoaded', function() {
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            const projectCards = document.querySelectorAll('.project-card');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+    
+    // Filter functionality
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
             
-            // Filter functionality
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const filterValue = this.getAttribute('data-filter');
-                    
-                    projectCards.forEach(card => {
-                        if (filterValue === 'all') {
-                            card.style.display = 'block';
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'scale(1)';
-                            }, 10);
-                        } else {
-                            if (card.getAttribute('data-category') === filterValue) {
-                                card.style.display = 'block';
-                                setTimeout(() => {
-                                    card.style.opacity = '1';
-                                    card.style.transform = 'scale(1)';
-                                }, 10);
-                            } else {
-                                card.style.opacity = '0';
-                                card.style.transform = 'scale(0.8)';
-                                setTimeout(() => {
-                                    card.style.display = 'none';
-                                }, 300);
-                            }
-                        }
-                    });
-                });
+            const filterValue = this.getAttribute('data-filter');
+            
+            projectCards.forEach(card => {
+                if (filterValue === 'all') {
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'scale(1)';
+                    }, 10);
+                } else {
+                    if (card.getAttribute('data-category') === filterValue) {
+                        card.style.display = 'block';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'scale(1)';
+                        }, 10);
+                    } else {
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
+                }
             });
         });
-
+    });
+    
+    // Expand/Collapse functionality
+    projectCards.forEach(card => {
+        const expandBtn = card.querySelector('.expand-btn');
+        const expandableDetails = card.querySelector('.expandable-details');
+        
+        if (expandBtn && expandableDetails) {
+            expandBtn.addEventListener('click', function() {
+                const isExpanded = card.classList.contains('expanded');
+                
+                if (isExpanded) {
+                    // Collapse
+                    card.classList.remove('expanded');
+                    expandableDetails.style.maxHeight = '0';
+                    expandBtn.innerHTML = '<span>View More Details</span> <span class="arrow">▼</span>';
+                } else {
+                    // Expand
+                    card.classList.add('expanded');
+                    expandableDetails.style.maxHeight = expandableDetails.scrollHeight + 'px';
+                    expandBtn.innerHTML = '<span>Hide Details</span> <span class="arrow">▲</span>';
+                }
+            });
+        }
+    });
+});
 // ==============================================
 // RSBSA FORM FUNCTIONS - Moved to rsbsa.js
 // ==============================================
