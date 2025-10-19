@@ -149,21 +149,23 @@
 
     <!-- Projects Section -->
     <section class="projects" id="projects">
-        <h2>Introduce <span class="highlight">Some Project</span></h2>
-        <p class="projects-subtitle">Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a gallery of type and scrambled it to make a type specimen book.</p>
+        <img src="../images/logos/cagoFull.png" alt="City Agriculture Office Logo" class="logo-icon">
+        <img src="../images/logos/CityOfSanPedro.jpg" alt="City of San Pedro Logo" class="logo-icon">
+        <h2>City<span class="highlight"> Agriculture Office of San Pedro, Laguna</span></h2>
+        <p class="projects-subtitle">Ongoing and past events and projects of the San Pedro City Agriculture Office dedicated to promoting agricultural growth and community development.</p>
         
         <div class="projects-filters">
             <button class="filter-btn active" data-filter="all">View All</button>
-            <button class="filter-btn" data-filter="garden-care">Garden Care</button>
-            <button class="filter-btn" data-filter="lawn-care">Lawn Care</button>
-            <button class="filter-btn" data-filter="planting">Planting</button>
-            <button class="filter-btn" data-filter="landscape">Landscape</button>
+            <button class="filter-btn" data-filter="garden-care">Announcements</button>
+            <button class="filter-btn" data-filter="lawn-care">Ongoing Events</button>
+            <button class="filter-btn" data-filter="planting">Upcoming Events</button>
+            <button class="filter-btn" data-filter="landscape">Past Events</button>
         </div>
         
         <div class="projects-grid">
             <!-- Project Card 1 -->
             <div class="project-card" data-category="garden-care">
-                <img src="../images/projects/garden-care-1.jpg" alt="Garden Care" class="project-image">
+                <img src="../images/projects/1.jpg" alt="Garden Care" class="project-image">
                 <div class="project-content">
                     <span class="project-category">Garden Care</span>
                     <h3>Garden Care</h3>
@@ -173,7 +175,7 @@
             
             <!-- Project Card 2 -->
             <div class="project-card" data-category="landscape">
-                <img src="../images/projects/landscape-1.jpg" alt="Landscape" class="project-image">
+                <img src="../images/projects/2.jpg" alt="Landscape" class="project-image">
                 <div class="project-content">
                     <span class="project-category">Landscape</span>
                     <h3>Landscape</h3>
@@ -183,7 +185,7 @@
             
             <!-- Project Card 3 -->
             <div class="project-card" data-category="planting">
-                <img src="../images/projects/planting-1.jpg" alt="Planting" class="project-image">
+                <img src="../images/projects/3.jpg" alt="Planting" class="project-image">
                 <div class="project-content">
                     <span class="project-category">Planting</span>
                     <h3>Planting</h3>
@@ -193,7 +195,7 @@
             
             <!-- Project Card 4 -->
             <div class="project-card" data-category="planting">
-                <img src="../images/projects/planting-2.jpg" alt="Planting" class="project-image">
+                <img src="../images/projects/4.jpg" alt="Planting" class="project-image">
                 <div class="project-content">
                     <span class="project-category">Planting</span>
                     <h3>Planting</h3>
@@ -203,7 +205,7 @@
             
             <!-- Project Card 5 -->
             <div class="project-card" data-category="planting">
-                <img src="../images/projects/planting-3.jpg" alt="Planting" class="project-image">
+                <img src="../images/projects/5.jpg" alt="Planting" class="project-image">
                 <div class="project-content">
                     <span class="project-category">Planting</span>
                     <h3>Planting</h3>
@@ -213,7 +215,7 @@
             
             <!-- Project Card 6 -->
             <div class="project-card" data-category="lawn-care">
-                <img src="../images/projects/lawn-care-1.jpg" alt="Lawn Care" class="project-image">
+                <img src="../images/projects/6.jpg" alt="Lawn Care" class="project-image">
                 <div class="project-content">
                     <span class="project-category">Lawn Care</span>
                     <h3>Lawn Care</h3>
@@ -223,7 +225,7 @@
             
             <!-- Project Card 7 -->
             <div class="project-card" data-category="lawn-care">
-                <img src="../images/projects/lawn-care-2.jpg" alt="Lawn Care" class="project-image">
+                <img src="../images/projects/7.jpg" alt="Lawn Care" class="project-image">
                 <div class="project-content">
                     <span class="project-category">Lawn Care</span>
                     <h3>Lawn Care</h3>
@@ -233,7 +235,7 @@
             
             <!-- Project Card 8 -->
             <div class="project-card" data-category="garden-care">
-                <img src="../images/projects/garden-care-2.jpg" alt="Garden Care" class="project-image">
+                <img src="../images/projects/8.jpg" alt="Garden Care" class="project-image">
                 <div class="project-content">
                     <span class="project-category">Garden Care</span>
                     <h3>Garden Care</h3>
