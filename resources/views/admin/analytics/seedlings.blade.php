@@ -11,7 +11,7 @@
     $barangayPerformance = $barangayPerformance ?? collect();
     $categoryFulfillment = $categoryFulfillment ?? [];
     $processingTimeAnalysis = $processingTimeAnalysis ?? [];
-    
+
     // ADD THESE NEW DEFAULTS FOR FILTER
     $filterType = $filterType ?? 'preset';
     $datePreset = $datePreset ?? 'this_month';
@@ -33,7 +33,7 @@
                     <div class="text-center mb-4">
                         <div>
                             <h4 class="mb-2 text-dark">Seedling Analytics</h4>
-                            <p class="text-muted mb-0">Decision Support Dashboard</p>
+                            <p class="text-muted mb-0">Analytics Dashboard</p>
                         </div>
                         <div class="d-flex justify-content-center">
                             <ul class="nav nav-pills" id="serviceTab" role="tablist">
@@ -100,36 +100,53 @@
                                     <i class="fas fa-filter me-1"></i>Filter Type
                                 </label>
                                 <select class="form-select" id="filter_type" name="filter_type">
-                                    <option value="preset" {{ $filterType === 'preset' ? 'selected' : '' }}>Quick Preset</option>
-                                    <option value="custom" {{ $filterType === 'custom' ? 'selected' : '' }}>Custom Range</option>
+                                    <option value="preset" {{ $filterType === 'preset' ? 'selected' : '' }}>Quick Preset
+                                    </option>
+                                    <option value="custom" {{ $filterType === 'custom' ? 'selected' : '' }}>Custom Range
+                                    </option>
                                 </select>
                             </div>
 
                             <!-- Preset Options (shown when filter_type = preset) -->
-                            <div class="col-lg-3 col-md-6" id="preset_container" style="display: {{ $filterType === 'preset' ? 'block' : 'none' }};">
+                            <div class="col-lg-3 col-md-6" id="preset_container"
+                                style="display: {{ $filterType === 'preset' ? 'block' : 'none' }};">
                                 <label for="date_preset" class="form-label fw-semibold">
                                     <i class="fas fa-calendar-alt me-1"></i>Select Period
                                 </label>
                                 <select class="form-select" id="date_preset" name="date_preset">
                                     <option value="today" {{ $datePreset === 'today' ? 'selected' : '' }}>Today</option>
-                                    <option value="yesterday" {{ $datePreset === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
-                                    <option value="last_7_days" {{ $datePreset === 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
-                                    <option value="last_14_days" {{ $datePreset === 'last_14_days' ? 'selected' : '' }}>Last 14 Days</option>
-                                    <option value="last_30_days" {{ $datePreset === 'last_30_days' ? 'selected' : '' }}>Last 30 Days</option>
-                                    <option value="this_week" {{ $datePreset === 'this_week' ? 'selected' : '' }}>This Week</option>
-                                    <option value="last_week" {{ $datePreset === 'last_week' ? 'selected' : '' }}>Last Week</option>
-                                    <option value="this_month" {{ $datePreset === 'this_month' ? 'selected' : '' }}>This Month</option>
-                                    <option value="last_month" {{ $datePreset === 'last_month' ? 'selected' : '' }}>Last Month</option>
-                                    <option value="this_quarter" {{ $datePreset === 'this_quarter' ? 'selected' : '' }}>This Quarter</option>
-                                    <option value="last_quarter" {{ $datePreset === 'last_quarter' ? 'selected' : '' }}>Last Quarter</option>
-                                    <option value="this_year" {{ $datePreset === 'this_year' ? 'selected' : '' }}>This Year</option>
-                                    <option value="last_year" {{ $datePreset === 'last_year' ? 'selected' : '' }}>Last Year</option>
-                                    <option value="all_time" {{ $datePreset === 'all_time' ? 'selected' : '' }}>All Time</option>
+                                    <option value="yesterday" {{ $datePreset === 'yesterday' ? 'selected' : '' }}>Yesterday
+                                    </option>
+                                    <option value="last_7_days" {{ $datePreset === 'last_7_days' ? 'selected' : '' }}>Last
+                                        7 Days</option>
+                                    <option value="last_14_days" {{ $datePreset === 'last_14_days' ? 'selected' : '' }}>
+                                        Last 14 Days</option>
+                                    <option value="last_30_days" {{ $datePreset === 'last_30_days' ? 'selected' : '' }}>
+                                        Last 30 Days</option>
+                                    <option value="this_week" {{ $datePreset === 'this_week' ? 'selected' : '' }}>This Week
+                                    </option>
+                                    <option value="last_week" {{ $datePreset === 'last_week' ? 'selected' : '' }}>Last Week
+                                    </option>
+                                    <option value="this_month" {{ $datePreset === 'this_month' ? 'selected' : '' }}>This
+                                        Month</option>
+                                    <option value="last_month" {{ $datePreset === 'last_month' ? 'selected' : '' }}>Last
+                                        Month</option>
+                                    <option value="this_quarter" {{ $datePreset === 'this_quarter' ? 'selected' : '' }}>
+                                        This Quarter</option>
+                                    <option value="last_quarter" {{ $datePreset === 'last_quarter' ? 'selected' : '' }}>
+                                        Last Quarter</option>
+                                    <option value="this_year" {{ $datePreset === 'this_year' ? 'selected' : '' }}>This Year
+                                    </option>
+                                    <option value="last_year" {{ $datePreset === 'last_year' ? 'selected' : '' }}>Last Year
+                                    </option>
+                                    <option value="all_time" {{ $datePreset === 'all_time' ? 'selected' : '' }}>All Time
+                                    </option>
                                 </select>
                             </div>
 
                             <!-- Custom Date Range (shown when filter_type = custom) -->
-                            <div class="col-lg-6 col-md-12" id="custom_container" style="display: {{ $filterType === 'custom' ? 'block' : 'none' }};">
+                            <div class="col-lg-6 col-md-12" id="custom_container"
+                                style="display: {{ $filterType === 'custom' ? 'block' : 'none' }};">
                                 <div class="row g-2">
                                     <div class="col-md-6">
                                         <label for="start_date" class="form-label fw-semibold">
@@ -157,10 +174,6 @@
                                     <button type="button" class="btn btn-outline-secondary" id="resetBtn">
                                         <i class="fas fa-redo me-2"></i>Reset
                                     </button>
-                                    <a href="{{ route('admin.analytics.seedlings.dss-report') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
-                                        class="btn btn-info" target="_blank">
-                                        <i class="fas fa-file-pdf"></i> Decision Support Report
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -169,16 +182,17 @@
                         <div class="mt-3 p-3 bg-light rounded" id="filter_summary">
                             <small class="text-muted">
                                 <i class="fas fa-info-circle me-1"></i>
-                                <strong>Current Filter:</strong> 
+                                <strong>Current Filter:</strong>
                                 <span id="filter_display">
-                                    @if($filterType === 'preset')
+                                    @if ($filterType === 'preset')
                                         {{ ucwords(str_replace('_', ' ', $datePreset)) }}
                                     @else
                                         Custom Range
                                     @endif
                                 </span>
                                 <span class="mx-2">|</span>
-                                <span id="date_range_display">{{ date('M d, Y', strtotime($startDate)) }} - {{ date('M d, Y', strtotime($endDate)) }}</span>
+                                <span id="date_range_display">{{ date('M d, Y', strtotime($startDate)) }} -
+                                    {{ date('M d, Y', strtotime($endDate)) }}</span>
                             </small>
                         </div>
                     </form>
@@ -191,7 +205,7 @@
     @php
         $hasAlerts = false;
         $alerts = [];
-        
+
         // Check for low approval rate
         if ($overview['approval_rate'] < 70) {
             $hasAlerts = true;
@@ -200,10 +214,10 @@
                 'icon' => 'fa-exclamation-triangle',
                 'title' => 'Low Approval Rate Alert',
                 'message' => "Only {$overview['approval_rate']}% of requests are approved. Review rejection reasons and adjust supply levels.",
-                'action' => 'Review pending requests'
+                'action' => 'Review pending requests',
             ];
         }
-        
+
         // Check for high pending requests
         if ($overview['pending_requests'] > 10) {
             $hasAlerts = true;
@@ -212,10 +226,10 @@
                 'icon' => 'fa-clock',
                 'title' => 'Pending Requests Need Attention',
                 'message' => "{$overview['pending_requests']} requests are awaiting review. Process them to improve service delivery.",
-                'action' => 'Process pending requests'
+                'action' => 'Process pending requests',
             ];
         }
-        
+
         // Check for low fulfillment rate
         if ($overview['fulfillment_rate'] < 75) {
             $hasAlerts = true;
@@ -224,10 +238,10 @@
                 'icon' => 'fa-chart-line',
                 'title' => 'Low Fulfillment Rate',
                 'message' => "Only {$overview['fulfillment_rate']}% of requested quantities are being fulfilled. Check supply availability.",
-                'action' => 'Review supply levels'
+                'action' => 'Review supply levels',
             ];
         }
-        
+
         // Check for high demand categories
         foreach ($supplyDemandAnalysis as $category => $data) {
             if ($data['total_demand'] > 500) {
@@ -236,56 +250,61 @@
                     'type' => 'primary',
                     'icon' => 'fa-chart-bar',
                     'title' => 'High Demand: ' . ucfirst($category),
-                    'message' => number_format($data['total_demand']) . " items requested. Top item: {$data['top_demand_item']}. Consider increasing stock.",
-                    'action' => 'Increase stock for ' . $category
+                    'message' =>
+                        number_format($data['total_demand']) .
+                        " items requested. Top item: {$data['top_demand_item']}. Consider increasing stock.",
+                    'action' => 'Increase stock for ' . $category,
                 ];
             }
         }
-        
+
         // Check processing time
-        if (isset($processingTimeAnalysis['avg_processing_days']) && $processingTimeAnalysis['avg_processing_days'] > 5) {
+        if (
+            isset($processingTimeAnalysis['avg_processing_days']) &&
+            $processingTimeAnalysis['avg_processing_days'] > 5
+        ) {
             $hasAlerts = true;
             $alerts[] = [
                 'type' => 'warning',
                 'icon' => 'fa-hourglass-half',
                 'title' => 'Slow Processing Time',
                 'message' => "Average processing time is {$processingTimeAnalysis['avg_processing_days']} days. Target is 3 days or less.",
-                'action' => 'Improve processing efficiency'
+                'action' => 'Improve processing efficiency',
             ];
         }
     @endphp
 
-    @if($hasAlerts)
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0 border-start border-warning border-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0 text-dark">
-                        <i class="fas fa-bell me-2 text-warning"></i>Alerts & Recommendations
-                    </h5>
-                    <small class="text-muted">Action items that require your attention</small>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        @foreach(array_slice($alerts, 0, 4) as $alert)
-                        <div class="col-md-6 mb-3">
-                            <div class="alert alert-{{ $alert['type'] }} mb-0 d-flex align-items-start">
-                                <i class="fas {{ $alert['icon'] }} me-3 mt-1 fa-lg"></i>
-                                <div class="flex-grow-1">
-                                    <strong class="d-block mb-1">{{ $alert['title'] }}</strong>
-                                    <p class="mb-2 small">{{ $alert['message'] }}</p>
-                                    <span class="badge bg-{{ $alert['type'] }}">
-                                        <i class="fas fa-arrow-right me-1"></i>{{ $alert['action'] }}
-                                    </span>
+    @if ($hasAlerts)
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-start border-warning border-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0 text-dark">
+                            <i class="fas fa-bell me-2 text-warning"></i>Alerts & Recommendations
+                        </h5>
+                        <small class="text-muted">Action items that require your attention</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach (array_slice($alerts, 0, 4) as $alert)
+                                <div class="col-md-6 mb-3">
+                                    <div class="alert alert-{{ $alert['type'] }} mb-0 d-flex align-items-start">
+                                        <i class="fas {{ $alert['icon'] }} me-3 mt-1 fa-lg"></i>
+                                        <div class="flex-grow-1">
+                                            <strong class="d-block mb-1">{{ $alert['title'] }}</strong>
+                                            <p class="mb-2 small">{{ $alert['message'] }}</p>
+                                            <span class="badge bg-{{ $alert['type'] }}">
+                                                <i class="fas fa-arrow-right me-1"></i>{{ $alert['action'] }}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
-                        @endforeach
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     @endif
 
     <!-- Key Metrics Row -->
@@ -340,7 +359,8 @@
                     </div>
                     <h2 class="text-dark mb-1">{{ $processingTimeAnalysis['avg_processing_days'] ?? 0 }}</h2>
                     <h6 class="text-muted mb-2">Avg. Processing Days</h6>
-                    <small class="text-{{ ($processingTimeAnalysis['avg_processing_days'] ?? 0) <= 3 ? 'success' : 'warning' }}">
+                    <small
+                        class="text-{{ ($processingTimeAnalysis['avg_processing_days'] ?? 0) <= 3 ? 'success' : 'warning' }}">
                         Target: ≤ 3 days
                     </small>
                 </div>
@@ -348,7 +368,7 @@
         </div>
     </div>
 
-    <!-- Decision Support Charts -->
+    <!-- Analytics Charts -->
     <div class="row mb-4">
         <!-- Request Status Distribution -->
         <div class="col-lg-4 mb-4">
@@ -389,36 +409,39 @@
                     <h5 class="mb-0 text-dark">
                         <i class="fas fa-check-double me-2 text-success"></i>Fulfillment Rate by Category
                     </h5>
-                    <small class="text-muted">Shows how well each category is being fulfilled - identify problem areas</small>
+                    <small class="text-muted">Shows how well each category is being fulfilled - identify problem
+                        areas</small>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        @foreach($categoryFulfillment as $category => $data)
-                        <div class="col-lg-4 col-md-6 mb-3">
-                            <div class="p-3 border rounded">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <strong class="text-capitalize">{{ $category }}</strong>
-                                    <span class="badge bg-{{ $data['rate'] >= 80 ? 'success' : ($data['rate'] >= 60 ? 'warning' : 'danger') }}">
-                                        {{ $data['rate'] }}%
-                                    </span>
-                                </div>
-                                <div class="progress mb-2" style="height: 25px;">
-                                    <div class="progress-bar bg-{{ $data['rate'] >= 80 ? 'success' : ($data['rate'] >= 60 ? 'warning' : 'danger') }}" 
-                                         role="progressbar"
-                                         style="width: {{ $data['rate'] }}%"
-                                         aria-valuenow="{{ $data['rate'] }}" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="100">
-                                        <strong>{{ $data['rate'] }}%</strong>
+                        @foreach ($categoryFulfillment as $category => $data)
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <div class="p-3 border rounded">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong class="text-capitalize">{{ $category }}</strong>
+                                        <span
+                                            class="badge bg-{{ $data['rate'] >= 80 ? 'success' : ($data['rate'] >= 60 ? 'warning' : 'danger') }}">
+                                            {{ $data['rate'] }}%
+                                        </span>
                                     </div>
+                                    <div class="progress mb-2" style="height: 25px;">
+                                        <div class="progress-bar bg-{{ $data['rate'] >= 80 ? 'success' : ($data['rate'] >= 60 ? 'warning' : 'danger') }}"
+                                            role="progressbar" style="width: {{ $data['rate'] }}%"
+                                            aria-valuenow="{{ $data['rate'] }}" aria-valuemin="0" aria-valuemax="100">
+                                            <strong>{{ $data['rate'] }}%</strong>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i
+                                            class="fas fa-check-circle text-success me-1"></i>{{ number_format($data['approved']) }}
+                                        approved
+                                        <span class="mx-2">|</span>
+                                        <i
+                                            class="fas fa-list text-primary me-1"></i>{{ number_format($data['requested']) }}
+                                        requested
+                                    </small>
                                 </div>
-                                <small class="text-muted">
-                                    <i class="fas fa-check-circle text-success me-1"></i>{{ number_format($data['approved']) }} approved
-                                    <span class="mx-2">|</span>
-                                    <i class="fas fa-list text-primary me-1"></i>{{ number_format($data['requested']) }} requested
-                                </small>
                             </div>
-                        </div>
                         @endforeach
                     </div>
                 </div>
@@ -503,36 +526,57 @@
                             <tbody>
                                 @foreach ($barangayPerformance->take(15) as $index => $barangay)
                                     @php
-                                        $statusClass = $barangay['score'] >= 80 ? 'success' : ($barangay['score'] >= 60 ? 'warning' : 'danger');
-                                        $priorityLevel = $barangay['score'] >= 80 ? 'High' : ($barangay['score'] >= 60 ? 'Medium' : 'Low');
-                                        $priorityClass = $barangay['score'] >= 80 ? 'success' : ($barangay['score'] >= 60 ? 'warning' : 'danger');
+                                        $statusClass =
+                                            $barangay['score'] >= 80
+                                                ? 'success'
+                                                : ($barangay['score'] >= 60
+                                                    ? 'warning'
+                                                    : 'danger');
+                                        $priorityLevel =
+                                            $barangay['score'] >= 80
+                                                ? 'High'
+                                                : ($barangay['score'] >= 60
+                                                    ? 'Medium'
+                                                    : 'Low');
+                                        $priorityClass =
+                                            $barangay['score'] >= 80
+                                                ? 'success'
+                                                : ($barangay['score'] >= 60
+                                                    ? 'warning'
+                                                    : 'danger');
                                     @endphp
                                     <tr>
                                         <td><strong class="text-primary">#{{ $index + 1 }}</strong></td>
                                         <td><strong>{{ $barangay['barangay'] }}</strong></td>
                                         <td>{{ $barangay['total_requests'] }}</td>
-                                        <td><span class="badge bg-success">{{ round($barangay['total_requests'] * ($barangay['approval_rate']/100)) }}</span></td>
+                                        <td><span
+                                                class="badge bg-success">{{ round($barangay['total_requests'] * ($barangay['approval_rate'] / 100)) }}</span>
+                                        </td>
                                         <td>
-                                            <span class="badge bg-{{ $barangay['approval_rate'] >= 80 ? 'success' : ($barangay['approval_rate'] >= 60 ? 'warning' : 'danger') }}">
+                                            <span
+                                                class="badge bg-{{ $barangay['approval_rate'] >= 80 ? 'success' : ($barangay['approval_rate'] >= 60 ? 'warning' : 'danger') }}">
                                                 {{ $barangay['approval_rate'] }}%
                                             </span>
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="progress flex-grow-1 me-2" style="height: 20px; min-width: 100px;">
-                                                    <div class="progress-bar bg-{{ $statusClass }}" role="progressbar" 
-                                                         style="width: {{ $barangay['score'] }}%" 
-                                                         aria-valuenow="{{ $barangay['score'] }}" 
-                                                         aria-valuemin="0" aria-valuemax="100">
+                                                <div class="progress flex-grow-1 me-2"
+                                                    style="height: 20px; min-width: 100px;">
+                                                    <div class="progress-bar bg-{{ $statusClass }}" role="progressbar"
+                                                        style="width: {{ $barangay['score'] }}%"
+                                                        aria-valuenow="{{ $barangay['score'] }}" aria-valuemin="0"
+                                                        aria-valuemax="100">
                                                         {{ round($barangay['score'], 1) }}
                                                     </div>
                                                 </div>
-                                                <span class="badge bg-{{ $statusClass }}">{{ $barangay['grade'] }}</span>
+                                                <span
+                                                    class="badge bg-{{ $statusClass }}">{{ $barangay['grade'] }}</span>
                                             </div>
                                         </td>
                                         <td>
                                             <span class="badge bg-{{ $priorityClass }}">
-                                                <i class="fas fa-{{ $priorityLevel === 'High' ? 'arrow-up' : ($priorityLevel === 'Medium' ? 'minus' : 'arrow-down') }} me-1"></i>
+                                                <i
+                                                    class="fas fa-{{ $priorityLevel === 'High' ? 'arrow-up' : ($priorityLevel === 'Medium' ? 'minus' : 'arrow-down') }} me-1"></i>
                                                 {{ $priorityLevel }}
                                             </span>
                                         </td>
@@ -541,7 +585,7 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <!-- Performance Legend -->
                     <div class="mt-3 p-3 bg-light rounded">
                         <h6 class="mb-2"><i class="fas fa-info-circle me-2"></i>Performance Scoring Guide</h6>
@@ -560,8 +604,7 @@
                                     <strong>Priority Levels:</strong><br>
                                     <span class="badge bg-success me-1">High</span> Score ≥ 80 - Focus resources here<br>
                                     <span class="badge bg-warning me-1">Medium</span> Score 60-79 - Monitor closely<br>
-                                    <span class="badge bg-danger me-1">Low</span> Score < 60 - Needs intervention
-                                </small>
+                                    <span class="badge bg-danger me-1">Low</span> Score < 60 - Needs intervention </small>
                             </div>
                         </div>
                     </div>
@@ -633,13 +676,15 @@
         }
 
         /* Enhanced Form Styling */
-        .form-select, .form-control {
+        .form-select,
+        .form-control {
             border-radius: 8px;
             border: 1px solid #dee2e6;
             transition: all 0.3s ease;
         }
 
-        .form-select:focus, .form-control:focus {
+        .form-select:focus,
+        .form-control:focus {
             border-color: #007bff;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
         }
@@ -735,7 +780,7 @@
                 let start, end = new Date();
                 const preset = datePreset.value;
 
-                switch(preset) {
+                switch (preset) {
                     case 'today':
                         start = new Date();
                         end = new Date();
@@ -816,7 +861,8 @@
                 if (startDate.value && endDate.value) {
                     const start = new Date(startDate.value);
                     const end = new Date(endDate.value);
-                    dateRangeDisplay.textContent = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+                    dateRangeDisplay.textContent =
+                        `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
                 }
             }
 
@@ -859,14 +905,21 @@
                             position: 'bottom',
                             labels: {
                                 padding: 15,
-                                font: { size: 12, weight: 'bold' }
+                                font: {
+                                    size: 12,
+                                    weight: 'bold'
+                                }
                             }
                         },
                         datalabels: {
                             color: '#fff',
-                            font: { weight: 'bold', size: 14 },
+                            font: {
+                                weight: 'bold',
+                                size: 14
+                            },
                             formatter: (value, ctx) => {
-                                const percentage = statusTotal > 0 ? ((value / statusTotal) * 100).toFixed(1) : '0.0';
+                                const percentage = statusTotal > 0 ? ((value / statusTotal) * 100)
+                                    .toFixed(1) : '0.0';
                                 return `${value}\n(${percentage}%)`;
                             }
                         }
@@ -888,7 +941,9 @@
                     datasets: [{
                         label: 'Total Demand',
                         data: demands,
-                        backgroundColor: [colors.success, colors.info, colors.warning, colors.danger, colors.purple, colors.orange],
+                        backgroundColor: [colors.success, colors.info, colors.warning, colors
+                            .danger, colors.purple, colors.orange
+                        ],
                         borderRadius: 8,
                         borderWidth: 2,
                         borderColor: '#fff'
@@ -898,19 +953,26 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            display: false
+                        },
                         datalabels: {
                             anchor: 'end',
                             align: 'top',
                             color: '#333',
-                            font: { weight: 'bold', size: 12 },
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            },
                             formatter: (value) => value.toLocaleString()
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { callback: (value) => value.toLocaleString() }
+                            ticks: {
+                                callback: (value) => value.toLocaleString()
+                            }
                         }
                     }
                 },
@@ -939,17 +1001,24 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            display: false
+                        },
                         datalabels: {
                             anchor: 'end',
                             align: 'right',
                             color: '#333',
-                            font: { weight: 'bold', size: 11 },
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
                             formatter: (value) => value
                         }
                     },
                     scales: {
-                        x: { beginAtZero: true }
+                        x: {
+                            beginAtZero: true
+                        }
                     }
                 },
                 plugins: [ChartDataLabels]
@@ -960,7 +1029,10 @@
             const monthlyData = @json($monthlyTrends);
             const trendLabels = monthlyData.map(m => {
                 const [year, month] = m.month.split('-');
-                return new Date(year, month - 1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+                return new Date(year, month - 1).toLocaleDateString('en-US', {
+                    month: 'short',
+                    year: '2-digit'
+                });
             });
             const trendValues = monthlyData.map(m => m.total_requests);
 
@@ -984,16 +1056,23 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            display: false
+                        },
                         datalabels: {
                             align: 'top',
                             color: '#333',
-                            font: { weight: 'bold', size: 10 },
+                            font: {
+                                weight: 'bold',
+                                size: 10
+                            },
                             formatter: (value) => value
                         }
                     },
                     scales: {
-                        y: { beginAtZero: true }
+                        y: {
+                            beginAtZero: true
+                        }
                     }
                 },
                 plugins: [ChartDataLabels]
@@ -1020,19 +1099,26 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            display: false
+                        },
                         datalabels: {
                             anchor: 'end',
                             align: 'top',
                             color: '#333',
-                            font: { weight: 'bold', size: 11 },
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
                             formatter: (value) => value.toLocaleString()
                         }
                     },
                     scales: {
-                        y: { 
+                        y: {
                             beginAtZero: true,
-                            ticks: { callback: (value) => value.toLocaleString() }
+                            ticks: {
+                                callback: (value) => value.toLocaleString()
+                            }
                         }
                     }
                 },
