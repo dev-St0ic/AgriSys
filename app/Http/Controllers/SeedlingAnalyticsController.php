@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 use App\Services\SeedlingDSSService;
 
 class SeedlingAnalyticsController extends Controller
-{    
+{
     protected SeedlingAnalyticsService $analyticsService;
 
     public function __construct(SeedlingAnalyticsService $analyticsService)
@@ -27,15 +27,15 @@ class SeedlingAnalyticsController extends Controller
         try {
             // Get filter type and preset
             $filterType = $request->get('filter_type', 'preset');
-            $datePreset = $request->get('date_preset', 'this_month');
-            
+            $datePreset = $request->get('date_preset', 'this_year'); // Changed from 'this_month' to 'this_year'
+
             // Calculate dates based on filter type
             if ($filterType === 'preset') {
                 [$startDate, $endDate] = $this->calculatePresetDates($datePreset);
             } else {
                 $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
                 $endDate = $request->get('end_date', now()->format('Y-m-d'));
-                
+
                 // Validate dates
                 $startDate = Carbon::parse($startDate)->format('Y-m-d');
                 $endDate = Carbon::parse($endDate)->format('Y-m-d');
@@ -46,6 +46,13 @@ class SeedlingAnalyticsController extends Controller
 
             // 1. Overview Statistics with comparisons
             $overview = $this->getOverviewStatistics(clone $baseQuery, $startDate, $endDate);
+
+            // Check if we have sufficient data for meaningful analytics
+            if ($overview['total_requests'] === 0) {
+                session()->flash('warning', 'No seedling requests found for the selected date range. Try expanding the date range or selecting "All Time" to see available data.');
+            } elseif ($overview['total_requests'] < 5) {
+                session()->flash('info', 'Limited data available for the selected period (' . $overview['total_requests'] . ' requests). Consider expanding the date range for more comprehensive analytics.');
+            }
 
             // 2. Request Status Analysis
             $statusAnalysis = $this->getStatusAnalysis(clone $baseQuery);
@@ -91,10 +98,10 @@ class SeedlingAnalyticsController extends Controller
 
             // 16. Geographic Distribution Heat Map Data
             $geoDistribution = $this->getGeographicDistribution(clone $baseQuery);
-            
+
             // NEW: 17. Supply Alerts
             $supplyAlerts = $this->getSupplyAlerts();
-            
+
             // NEW: 18. Rejection Analysis
             $rejectionAnalysis = $this->getRejectionAnalysis(clone $baseQuery);
 
@@ -136,42 +143,42 @@ class SeedlingAnalyticsController extends Controller
     private function calculatePresetDates($preset)
     {
         $today = now();
-        
+
         switch($preset) {
             case 'today':
                 return [$today->format('Y-m-d'), $today->format('Y-m-d')];
-                
+
             case 'yesterday':
                 $yesterday = $today->copy()->subDay();
                 return [$yesterday->format('Y-m-d'), $yesterday->format('Y-m-d')];
-                
+
             case 'last_7_days':
                 return [$today->copy()->subDays(7)->format('Y-m-d'), $today->format('Y-m-d')];
-                
+
             case 'last_14_days':
                 return [$today->copy()->subDays(14)->format('Y-m-d'), $today->format('Y-m-d')];
-                
+
             case 'last_30_days':
                 return [$today->copy()->subDays(30)->format('Y-m-d'), $today->format('Y-m-d')];
-                
+
             case 'this_week':
                 return [$today->copy()->startOfWeek()->format('Y-m-d'), $today->format('Y-m-d')];
-                
+
             case 'last_week':
                 $lastWeekEnd = $today->copy()->startOfWeek()->subDay();
                 $lastWeekStart = $lastWeekEnd->copy()->startOfWeek();
                 return [$lastWeekStart->format('Y-m-d'), $lastWeekEnd->format('Y-m-d')];
-                
+
             case 'this_month':
                 return [$today->copy()->startOfMonth()->format('Y-m-d'), $today->format('Y-m-d')];
-                
+
             case 'last_month':
                 $lastMonth = $today->copy()->subMonth();
                 return [
                     $lastMonth->startOfMonth()->format('Y-m-d'),
                     $lastMonth->endOfMonth()->format('Y-m-d')
                 ];
-                
+
             case 'this_quarter':
                 $quarter = ceil($today->month / 3);
                 $startMonth = ($quarter - 1) * 3 + 1;
@@ -179,7 +186,7 @@ class SeedlingAnalyticsController extends Controller
                     $today->copy()->setMonth($startMonth)->startOfMonth()->format('Y-m-d'),
                     $today->format('Y-m-d')
                 ];
-                
+
             case 'last_quarter':
                 $currentQuarter = ceil($today->month / 3);
                 $lastQuarter = $currentQuarter - 1;
@@ -195,20 +202,20 @@ class SeedlingAnalyticsController extends Controller
                     now()->setYear($year)->setMonth($startMonth)->startOfMonth()->format('Y-m-d'),
                     now()->setYear($year)->setMonth($endMonth)->endOfMonth()->format('Y-m-d')
                 ];
-                
+
             case 'this_year':
                 return [$today->copy()->startOfYear()->format('Y-m-d'), $today->format('Y-m-d')];
-                
+
             case 'last_year':
                 $lastYear = $today->copy()->subYear();
                 return [
                     $lastYear->startOfYear()->format('Y-m-d'),
                     $lastYear->endOfYear()->format('Y-m-d')
                 ];
-                
+
             case 'all_time':
                 return ['2020-01-01', $today->format('Y-m-d')];
-                
+
             default:
                 return [$today->copy()->startOfMonth()->format('Y-m-d'), $today->format('Y-m-d')];
         }
@@ -244,12 +251,12 @@ class SeedlingAnalyticsController extends Controller
             $start = Carbon::parse($startDate);
             $end = Carbon::parse($endDate);
             $daysDiff = $start->diffInDays($end);
-            
+
             $prevStart = $start->copy()->subDays($daysDiff)->format('Y-m-d');
             $prevEnd = $start->copy()->subDay()->format('Y-m-d');
-            
+
             $prevTotal = SeedlingRequest::whereBetween('created_at', [$prevStart . ' 00:00:00', $prevEnd . ' 23:59:59'])->count();
-            
+
             $changePercentage = $prevTotal > 0 ? round((($total - $prevTotal) / $prevTotal) * 100, 1) : 0;
 
             return [
@@ -279,25 +286,25 @@ class SeedlingAnalyticsController extends Controller
     {
         try {
             $requestIds = (clone $baseQuery)->pluck('id');
-            
+
             $analysis = RequestCategory::with('items')
                 ->get()
                 ->mapWithKeys(function ($category) use ($requestIds) {
                     $items = SeedlingRequestItem::whereIn('seedling_request_id', $requestIds)
                         ->where('category_id', $category->id)
                         ->get();
-                    
+
                     $itemDemands = $items->groupBy('item_name')
                         ->map(function ($group) {
                             return $group->sum('requested_quantity');
                         })
                         ->toArray();
-                    
+
                     $totalDemand = array_sum($itemDemands);
-                    $topDemandItem = !empty($itemDemands) 
-                        ? array_keys($itemDemands, max($itemDemands))[0] 
+                    $topDemandItem = !empty($itemDemands)
+                        ? array_keys($itemDemands, max($itemDemands))[0]
                         : 'N/A';
-                    
+
                     return [
                         $category->name => [
                             'total_demand' => $totalDemand,
@@ -308,7 +315,7 @@ class SeedlingAnalyticsController extends Controller
                     ];
                 })
                 ->toArray();
-            
+
             return $analysis;
         } catch (\Exception $e) {
             Log::error('Supply Demand Analysis Error: ' . $e->getMessage());
@@ -323,12 +330,12 @@ class SeedlingAnalyticsController extends Controller
     {
         try {
             $scored = [];
-            
+
             foreach ($barangayAnalysis as $barangay) {
-                $approvalRate = $barangay->total_requests > 0 
-                    ? ($barangay->approved / $barangay->total_requests) * 100 
+                $approvalRate = $barangay->total_requests > 0
+                    ? ($barangay->approved / $barangay->total_requests) * 100
                     : 0;
-                
+
                 // Calculate performance score (0-100)
                 $score = (
                     ($approvalRate * 0.4) + // 40% weight on approval rate
@@ -336,7 +343,7 @@ class SeedlingAnalyticsController extends Controller
                     (min($barangay->unique_applicants / 20, 1) * 20) + // 20% on unique applicants (capped at 20)
                     (min($barangay->total_quantity / 500, 1) * 10) // 10% on quantity (capped at 500)
                 );
-                
+
                 $scored[] = [
                     'barangay' => $barangay->barangay,
                     'score' => round($score, 2),
@@ -345,12 +352,12 @@ class SeedlingAnalyticsController extends Controller
                     'grade' => $this->getPerformanceGrade($score)
                 ];
             }
-            
+
             // Sort by score descending
             usort($scored, function($a, $b) {
                 return $b['score'] <=> $a['score'];
             });
-            
+
             return collect($scored);
         } catch (\Exception $e) {
             Log::error('Barangay Performance Score Error: ' . $e->getMessage());
@@ -382,29 +389,29 @@ class SeedlingAnalyticsController extends Controller
             $requestIds = (clone $baseQuery)
                 ->whereIn('status', ['approved', 'partially_approved'])
                 ->pluck('id');
-            
+
             $fulfillment = RequestCategory::all()
                 ->mapWithKeys(function ($category) use ($requestIds) {
                     $items = SeedlingRequestItem::whereIn('seedling_request_id', $requestIds)
                         ->where('category_id', $category->id)
                         ->get();
-                    
+
                     $totalRequested = $items->sum('requested_quantity');
                     $totalApproved = $items->where('status', 'approved')
                         ->sum('approved_quantity');
-                    
+
                     return [
                         $category->name => [
                             'requested' => $totalRequested,
                             'approved' => $totalApproved,
-                            'rate' => $totalRequested > 0 
-                                ? round(($totalApproved / $totalRequested) * 100, 2) 
+                            'rate' => $totalRequested > 0
+                                ? round(($totalApproved / $totalRequested) * 100, 2)
                                 : 0
                         ]
                     ];
                 })
                 ->toArray();
-            
+
             return $fulfillment;
         } catch (\Exception $e) {
             Log::error('Category Fulfillment Error: ' . $e->getMessage());
@@ -427,26 +434,26 @@ class SeedlingAnalyticsController extends Controller
                 ->groupBy('week')
                 ->orderBy('week')
                 ->get();
-            
+
             $velocity = [];
             $previousCount = null;
-            
+
             foreach ($weeklyData as $index => $week) {
                 $change = 0;
                 if ($previousCount !== null) {
                     $change = $previousCount > 0 ? round((($week->request_count - $previousCount) / $previousCount) * 100, 1) : 0;
                 }
-                
+
                 $velocity[] = [
                     'week' => Carbon::parse($week->week_start)->format('M d'),
                     'count' => $week->request_count,
                     'change' => $change,
                     'trend' => $change > 0 ? 'up' : ($change < 0 ? 'down' : 'stable')
                 ];
-                
+
                 $previousCount = $week->request_count;
             }
-            
+
             return collect($velocity);
         } catch (\Exception $e) {
             Log::error('Request Velocity Error: ' . $e->getMessage());
@@ -471,7 +478,7 @@ class SeedlingAnalyticsController extends Controller
                 ->where('barangay', '!=', '')
                 ->groupBy('barangay')
                 ->get();
-            
+
             return $distribution;
         } catch (\Exception $e) {
             Log::error('Geographic Distribution Error: ' . $e->getMessage());
@@ -577,20 +584,20 @@ class SeedlingAnalyticsController extends Controller
     {
         try {
             $requestIds = (clone $baseQuery)->pluck('id');
-            
+
             $categoryStats = RequestCategory::with('items')
                 ->get()
                 ->mapWithKeys(function ($category) use ($requestIds) {
                     $items = SeedlingRequestItem::whereIn('seedling_request_id', $requestIds)
                         ->where('category_id', $category->id)
                         ->get();
-                    
+
                     $uniqueItems = $items->groupBy('item_name')
                         ->map(function ($group) {
                             return $group->sum('requested_quantity');
                         })
                         ->toArray();
-                    
+
                     return [
                         $category->name => [
                             'requests' => $items->unique('seedling_request_id')->count(),
@@ -615,7 +622,7 @@ class SeedlingAnalyticsController extends Controller
     {
         try {
             $requestIds = (clone $baseQuery)->pluck('id');
-            
+
             $items = SeedlingRequestItem::with(['category', 'categoryItem'])
                 ->whereIn('seedling_request_id', $requestIds)
                 ->select(
@@ -651,7 +658,7 @@ class SeedlingAnalyticsController extends Controller
     {
         try {
             $requestIds = (clone $baseQuery)->pluck('id');
-            
+
             $items = SeedlingRequestItem::with(['category', 'categoryItem'])
                 ->whereIn('seedling_request_id', $requestIds)
                 ->select(
@@ -775,10 +782,10 @@ class SeedlingAnalyticsController extends Controller
                 ->orderBy('current_supply', 'asc')
                 ->get()
                 ->map(function($item) {
-                    $percentage = $item->reorder_point > 0 
+                    $percentage = $item->reorder_point > 0
                         ? round(($item->current_supply / $item->reorder_point) * 100, 1)
                         : 0;
-                        
+
                     return [
                         'name' => $item->name,
                         'category' => $item->category->display_name ?? 'Unknown',
@@ -789,7 +796,7 @@ class SeedlingAnalyticsController extends Controller
                         'status' => $percentage <= 25 ? 'critical' : ($percentage <= 50 ? 'low' : 'warning')
                     ];
                 });
-            
+
             return $lowStockItems;
         } catch (\Exception $e) {
             Log::error('Supply Alerts Error: ' . $e->getMessage());
@@ -804,7 +811,7 @@ class SeedlingAnalyticsController extends Controller
     {
         try {
             $requestIds = (clone $baseQuery)->pluck('id');
-            
+
             $rejectedItems = SeedlingRequestItem::whereIn('seedling_request_id', $requestIds)
                 ->where('status', 'rejected')
                 ->whereNotNull('rejection_reason')
@@ -812,7 +819,7 @@ class SeedlingAnalyticsController extends Controller
                 ->groupBy('rejection_reason')
                 ->orderBy('count', 'desc')
                 ->get();
-            
+
             return $rejectedItems;
         } catch (\Exception $e) {
             Log::error('Rejection Analysis Error: ' . $e->getMessage());
@@ -960,7 +967,7 @@ class SeedlingAnalyticsController extends Controller
             $pdf = $this->analyticsService->generateDSSReport($startDate, $endDate);
 
             // Generate filename with timestamp
-            $filename = 'DSS_Report_' . Carbon::parse($startDate)->format('Ymd') . 
+            $filename = 'DSS_Report_' . Carbon::parse($startDate)->format('Ymd') .
                         '_to_' . Carbon::parse($endDate)->format('Ymd') . '.pdf';
 
             return $pdf->download($filename);
