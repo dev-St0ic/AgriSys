@@ -2081,6 +2081,10 @@ function validatePasswordConfirmation(password, confirmPassword) {
         error: ''
     };
 
+    // Trim both values
+    password = (password || '').trim();
+    confirmPassword = (confirmPassword || '').trim();
+
     // Check if confirm password is empty
     if (!confirmPassword) {
         validation.valid = false;
@@ -2095,14 +2099,6 @@ function validatePasswordConfirmation(password, confirmPassword) {
         return validation;
     }
 
-    // Check if confirm password meets the same requirements as password
-    const passwordValidation = validatePassword(confirmPassword);
-    if (!passwordValidation.valid) {
-        validation.valid = false;
-        validation.error = 'Confirmation password must meet password requirements';
-        return validation;
-    }
-
     return validation;
 }
 
@@ -2110,10 +2106,21 @@ function checkPasswordMatch(password, confirmPassword) {
     const matchStatus = document.querySelector('.password-match-status');
     const confirmInput = document.getElementById('signup-confirm-password');
 
-    if (!matchStatus || !confirmPassword) return;
+    if (!matchStatus) return;
+
+    // Trim both inputs
+    password = (password || '').trim();
+    confirmPassword = (confirmPassword || '').trim();
 
     // Clear status if confirm password is empty
     if (!confirmPassword) {
+        matchStatus.innerHTML = '';
+        confirmInput.classList.remove('is-valid', 'is-invalid');
+        return;
+    }
+
+     // Only show status if BOTH password and confirm password have content
+    if (!password || !confirmPassword) {
         matchStatus.innerHTML = '';
         confirmInput.classList.remove('is-valid', 'is-invalid');
         return;
@@ -2142,8 +2149,8 @@ function checkPasswordMatch(password, confirmPassword) {
 function validateBasicSignupForm() {
     const username = document.getElementById('signup-username').value.trim();
     const email = document.getElementById('signup-email').value.trim();
-    const password = document.getElementById('signup-password').value;
-    const confirmPassword = document.getElementById('signup-confirm-password').value;
+    const password = document.getElementById('signup-password').value.trim();
+    const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
     const agreeTerms = document.getElementById('agree-terms').checked;
 
     let isValid = true;
@@ -2215,6 +2222,7 @@ function resetSignupForm() {
     inputs.forEach(input => {
         input.classList.remove('is-valid', 'is-invalid', 'valid', 'error');
         input.style.borderColor = '';
+        input.value = '';  // CLEAR VALUES
     });
 
     // Clear username status
@@ -2231,6 +2239,12 @@ function resetSignupForm() {
     }
     if (strengthText) {
         strengthText.textContent = 'Password strength';
+    }
+
+    // Clear password requirements
+    const requirementsList = document.querySelector('.password-requirements-list');
+    if (requirementsList) {
+        requirementsList.remove();
     }
 
     // Clear password match
@@ -2264,62 +2278,232 @@ function togglePasswordVisibility(inputId) {
     }
 }
 
+// Enhanced Notification System with Sound Support
 function showNotification(type, message) {
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
+    notification.className = `notification notification-${type} show-notification`;
+    
+    // Create icon based on type
+    let icon = '';
+    switch(type) {
+        case 'success':
+            icon = '✓';
+            break;
+        case 'error':
+            icon = '⚠';
+            break;
+        case 'info':
+            icon = 'ℹ';
+            break;
+        default:
+            icon = '•';
+    }
+    
     notification.innerHTML = `
-        <div class="notification-content">
-            <span class="notification-message">${message}</span>
+        <div class="notification-container">
+            <div class="notification-icon">${icon}</div>
+            <div class="notification-content">
+                <div class="notification-message">${message}</div>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
         </div>
     `;
 
-    if (!document.querySelector('#notification-styles')) {
+    // Add styles if not already present
+    if (!document.querySelector('#enhanced-notification-styles')) {
         const styles = document.createElement('style');
-        styles.id = 'notification-styles';
+        styles.id = 'enhanced-notification-styles';
         styles.textContent = `
-            .notification {
+            /* Enhanced Notification Styles */
+            .show-notification {
                 position: fixed;
-                top: 20px;
-                right: 20px;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0.9);
                 background: white;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                padding: 16px 20px;
-                z-index: 10000;
-                transform: translateX(400px);
-                transition: all 0.3s ease;
-                border-left: 4px solid;
-                min-width: 300px;
+                border-radius: 16px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+                padding: 0;
+                z-index: 10001;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                border-left: 6px solid;
+                min-width: 400px;
+                max-width: 500px;
+                opacity: 0;
+                pointer-events: none;
             }
 
-            .notification.show {
-                transform: translateX(0);
+            .show-notification.notification-success {
+                border-left-color: #10b981;
             }
 
-            .notification-success {
-                border-left-color: #28a745;
-                background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
+            .show-notification.notification-error {
+                border-left-color: #ef4444;
             }
 
-            .notification-error {
-                border-left-color: #dc3545;
-                background: linear-gradient(135deg, #fff8f8 0%, #f5e8e8 100%);
+            .show-notification.notification-info {
+                border-left-color: #3b82f6;
             }
 
-            .notification-info {
-                border-left-color: #17a2b8;
-                background: linear-gradient(135deg, #f8fdff 0%, #e8f5f8 100%);
+            /* Animate in */
+            .show-notification {
+                animation: notificationSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            }
+
+            @keyframes notificationSlideIn {
+                0% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0.8);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+            }
+
+            @keyframes notificationSlideOut {
+                0% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0.8);
+                }
+            }
+
+            .notification-container {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                padding: 24px 28px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .notification-icon {
+                flex-shrink: 0;
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                font-weight: bold;
+            }
+
+            .notification-success .notification-icon {
+                background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+                color: #065f46;
+            }
+
+            .notification-error .notification-icon {
+                background: linear-gradient(135deg, #fee2e2, #fecaca);
+                color: #991b1b;
+            }
+
+            .notification-info .notification-icon {
+                background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+                color: #1e40af;
             }
 
             .notification-content {
-                display: flex;
-                align-items: center;
-                gap: 8px;
+                flex: 1;
+                min-width: 0;
             }
 
             .notification-message {
                 font-weight: 500;
-                color: #333;
+                color: #1f2937;
+                font-size: 16px;
+                line-height: 1.5;
+                word-wrap: break-word;
+            }
+
+            .notification-success .notification-message {
+                color: #065f46;
+            }
+
+            .notification-error .notification-message {
+                color: #7f1d1d;
+            }
+
+            .notification-info .notification-message {
+                color: #1e3a8a;
+            }
+
+            .notification-close {
+                flex-shrink: 0;
+                background: none;
+                border: none;
+                font-size: 28px;
+                color: #d1d5db;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                border-radius: 50%;
+            }
+
+            .notification-close:hover {
+                color: #6b7280;
+                background: #f3f4f6;
+            }
+
+            /* Responsive Design for Mobile */
+            @media (max-width: 768px) {
+                .show-notification {
+                    min-width: 90vw;
+                    max-width: 90vw;
+                    top: 60%;
+                }
+
+                .notification-container {
+                    padding: 20px 20px;
+                }
+
+                .notification-icon {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 20px;
+                }
+
+                .notification-message {
+                    font-size: 15px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .show-notification {
+                    min-width: 85vw;
+                    max-width: 85vw;
+                }
+
+                .notification-container {
+                    padding: 18px 16px;
+                    gap: 12px;
+                }
+
+                .notification-icon {
+                    width: 36px;
+                    height: 36px;
+                    font-size: 18px;
+                }
+
+                .notification-message {
+                    font-size: 14px;
+                }
+
+                .notification-close {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 24px;
+                }
             }
         `;
         document.head.appendChild(styles);
@@ -2327,12 +2511,106 @@ function showNotification(type, message) {
 
     document.body.appendChild(notification);
 
-    setTimeout(() => notification.classList.add('show'), 100);
-
+    // Trigger animation
     setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 4000);
+        notification.style.opacity = '1';
+        notification.style.pointerEvents = 'auto';
+    }, 10);
+
+    // Play notification sound
+    playNotificationSound(type);
+
+    // Auto remove after 5 seconds
+    const timeoutId = setTimeout(() => {
+        notification.style.animation = 'notificationSlideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        setTimeout(() => notification.remove(), 400);
+    }, 5000);
+
+    // Allow manual close
+    notification.querySelector('.notification-close').onclick = () => {
+        clearTimeout(timeoutId);
+        notification.style.animation = 'notificationSlideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+        setTimeout(() => notification.remove(), 400);
+    };
+}
+
+// Notification Sound System
+function playNotificationSound(type) {
+    // Try to use Web Audio API for better compatibility
+    try {
+        playToneNotification(type);
+    } catch (e) {
+        console.log('Web Audio API not available, notification sound skipped');
+    }
+}
+
+function playToneNotification(type) {
+    // Create audio context
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    let frequency, duration;
+    
+    switch(type) {
+        case 'success':
+            // Two ascending tones for success
+            frequency = [523.25, 659.25]; // C5, E5
+            duration = [150, 150];
+            break;
+        case 'error':
+            // Two descending tones for error
+            frequency = [392, 261.63]; // G4, C4
+            duration = [200, 200];
+            break;
+        case 'info':
+            // Single tone for info
+            frequency = [440]; // A4
+            duration = [150];
+            break;
+        default:
+            return;
+    }
+
+    frequency.forEach((freq, index) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = freq;
+        oscillator.type = 'sine';
+        
+        const startTime = audioContext.currentTime + (index > 0 ? duration[index - 1] / 1000 : 0);
+        
+        gainNode.gain.setValueAtTime(0.3, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration[index] / 1000);
+        
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration[index] / 1000);
+    });
+}
+
+// Alternative: Use simple beep with fallback
+function playSimpleBeep() {
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 1000; // 1kHz beep
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+    } catch (e) {
+        // Silently fail if audio not available
+    }
 }
 
 // ==============================================
@@ -2477,8 +2755,8 @@ function handleSignupSubmit(event) {
     const formData = {
         username: document.getElementById('signup-username').value.trim(),
         email: document.getElementById('signup-email').value.trim(),
-        password: document.getElementById('signup-password').value,
-        password_confirmation: document.getElementById('signup-confirm-password').value,
+        password: document.getElementById('signup-password').value.trim(),
+        password_confirmation: document.getElementById('signup-confirm-password').value.trim(),
         terms_accepted: document.getElementById('agree-terms').checked
     };
 
@@ -2509,10 +2787,18 @@ function handleSignupSubmit(event) {
             showAuthSuccess('Account created successfully! Redirecting to login...');
             showNotification('success', 'Account created successfully!');
 
+             // IMPORTANT: Clear all input values immediately to stop validation
+            document.getElementById('signup-username').value = '';
+            document.getElementById('signup-email').value = '';
+            document.getElementById('signup-password').value = '';
+            document.getElementById('signup-confirm-password').value = '';
+            document.getElementById('agree-terms').checked = false;
+
             // Reset form after short delay
             setTimeout(() => {
                 resetSignupForm();
                 hideAuthMessages();
+                clearAllValidationUI();  // NEW: Clear all validation UI elements
 
                 // Auto-redirect to login form after 2 seconds
                 setTimeout(() => {
@@ -2538,6 +2824,59 @@ function handleSignupSubmit(event) {
 
     return false;
 }
+
+// NEW FUNCTION: Clear all validation UI elements
+function clearAllValidationUI() {
+    // Clear username status
+    const usernameStatus = document.querySelector('.username-status');
+    if (usernameStatus) {
+        usernameStatus.innerHTML = '';
+    }
+
+    // Clear email error
+    const emailError = document.querySelector('.email-error');
+    if (emailError) {
+        emailError.remove();
+    }
+
+    // Clear password strength
+    const strengthBar = document.querySelector('.strength-fill');
+    const strengthText = document.querySelector('.strength-text');
+    if (strengthBar) {
+        strengthBar.className = 'strength-fill';
+         strengthBar.style.width = '0%';
+    }
+    if (strengthText) {
+        strengthText.textContent = 'Password strength';
+        strengthText.style.display = 'none'; 
+    }
+
+    // Clear password requirements list
+    const requirementsList = document.querySelector('.password-requirements-list');
+    if (requirementsList) {
+        requirementsList.remove();
+    }
+
+    // Clear password match status
+    const matchStatus = document.querySelector('.password-match-status');
+    if (matchStatus) {
+        matchStatus.innerHTML = '';
+        matchStatus.style.display = 'none';  
+        matchStatus.className = 'password-match-status';  
+    }
+
+    // Clear all input styling
+    const inputs = document.querySelectorAll('#signup-form input');
+    inputs.forEach(input => {
+        input.classList.remove('is-valid', 'is-invalid', 'valid', 'error');
+        input.style.borderColor = '';
+    });
+
+    // Clear any field errors
+    const fieldErrors = document.querySelectorAll('.field-error');
+    fieldErrors.forEach(error => error.remove());
+}
+
 
 function handleValidationErrors(errors) {
     clearValidationErrors();
@@ -2727,14 +3066,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('signup-password');
     if (passwordInput) {
         passwordInput.addEventListener('input', function() {
-            checkPasswordStrength(this.value);
-            checkPasswordValidity(this.value);
+            const trimmedPassword = this.value.trim();  // TRIM 
+            checkPasswordStrength(trimmedPassword);
+            checkPasswordValidity(trimmedPassword);
 
             // Re-validate confirmation if it has a value
-        const confirmPassword = document.getElementById('signup-confirm-password').value;
-        if (confirmPassword) {
-            checkPasswordMatch(this.value, confirmPassword);
-        }
+            const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
+            if (confirmPassword) {
+                checkPasswordMatch(trimmedPassword, confirmPassword);  // USE TRIMMED VALUE
+            }
         });
     }
 
@@ -2742,14 +3082,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmPasswordInput = document.getElementById('signup-confirm-password');
     if (confirmPasswordInput) {
         confirmPasswordInput.addEventListener('input', function() {
-            const password = document.getElementById('signup-password').value;
-            checkPasswordMatch(password, this.value);
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = this.value.trim();  // TRIM HERE
+            checkPasswordMatch(password, confirmPassword);
         });
         
-        // Also check on blur
+        // check on blur
         confirmPasswordInput.addEventListener('blur', function() {
-            const password = document.getElementById('signup-password').value;
-            checkPasswordMatch(password, this.value);
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = this.value.trim();  // TRIM HERE
+            checkPasswordMatch(password, confirmPassword);
         });
     }
 
