@@ -1372,59 +1372,65 @@
         </div>
     </div>
 
-
     <!-- Footer Section -->
     <footer class="footer" id="main-footer">
         <div class="footer-container">
-            <div class="footer-column">
-                <h3>About AgriSys</h3>
-                <p>The Agricultural Service System (AgriSys) is designed to optimize service delivery for the City
-                    Agriculture Office of San Pedro, Laguna. We aim to streamline agricultural services and support
-                    local farmers.</p>
+            <!-- Main content column (left side - like GAEA) -->
+            <div class="footer-main">
+                <div class="footer-logo">
+                    <h2>AgriSys</h2>
+                </div>
+                <p>The Agricultural Service System (AgriSys) is designed to optimize service delivery for the City Agriculture Office of San Pedro, Laguna. We aim to streamline agricultural services and support local farmers.</p>
 
                 <div class="social-links">
-                    <span style="margin-right: 10px; color: #a8e6cf;">Facebook us on Facebook:</span>
+                    <span>Follow us:</span>
                     <a href="https://www.facebook.com/sanpedroagri" target="_blank" title="Facebook">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"
-                            style="opacity: 0.8;">
-                            <path
-                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        <svg width="16" height="16" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                     </a>
                 </div>
             </div>
 
+            <!-- Services column -->
             <div class="footer-column">
                 <h3>Our Services</h3>
                 <ul>
-                    <li><a href="#rsbsa">RSBSA Registration</a></li>
-                    <li><a href="#seedlings">Seedlings Request</a></li>
-                    <li><a href="#fishr">FishR Registration</a></li>
-                    <li><a href="#boatr">BoatR Registration</a></li>
-                    <li><a href="#training">Training Request</a></li>
+                    <li><a href="#services">RSBSA Registration</a></li>
+                    <li><a href="#services">Seedlings Request</a></li>
+                    <li><a href="#services">FishR Registration</a></li>
+                    <li><a href="#services">BoatR Registration</a></li>
+                    <li><a href="#services">Training Request</a></li>
                 </ul>
             </div>
+
+            <!-- Contact column -->
             <div class="footer-column">
                 <h3>Contact Us</h3>
                 <p>City Agriculture Office<br>
-                    San Pedro City Hall<br>
-                    Laguna, Philippines</p>
-                <p>Phone: (123) 456-7890<br>
-                    Email: <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a></p>
+                San Pedro City Hall<br>
+                Laguna, Philippines</p>
+                <p style="margin-top: 12px;">Phone: (123) 456-7890<br>
+                Email: <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a></p>
+            </div>
 
+            <!-- Office Hours column -->
+            <div class="footer-column">
+                <h3>Office Hours</h3>
                 <div class="office-hours">
-                    <strong>Office Hours:</strong><br>
-                    Monday - Friday: 8:00 AM - 5:00 PM<br>
+                    <strong>Monday - Friday</strong><br>
+                    8:00 AM - 5:00 PM
                 </div>
             </div>
         </div>
+
         <div class="footer-bottom">
             <p>© 2025 City Agriculture Office of San Pedro. All rights reserved.</p>
-            <p style="margin-top: 10px; font-size: 0.8rem;">
-                <a href="#privacy" style="color: #ccc;">Privacy Policy</a> |
-                <a href="#terms" style="color: #ccc;">Terms of Service</a> |
-                <a href="#accessibility" style="color: #ccc;">Accessibility</a>
-            </p>
+            <div class="footer-bottom-links">
+                <a href="#privacy" target="_blank">Privacy Policy</a>
+                <a href="#terms" target="_blank">Terms of Service</a>
+                <a href="#accessibility" target="_blank">Accessibility</a>
+            </div>
         </div>
     </footer>
 
