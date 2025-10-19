@@ -1050,7 +1050,7 @@
 
                             <div class="form-group">
                                 <label for="signup-email">Email Address</label>
-                                <input type="email" id="signup-email" name="email" required  pattern="[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                                <input type="email" id="signup-email" name="email" required 
                                     placeholder="e.g. juan.farmer@gmail.com" autocomplete="email" maxlength="254">
                             </div>
 
@@ -1058,7 +1058,7 @@
                                 <label for="signup-password">Password</label>
                                 <div class="password-input-container">
                                     <input type="password" id="signup-password" name="password" required
-                                        minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#!$%^&*()_+\-=\[\]{};':&quot;\\|,.<>\/?]).{8,}" placeholder="Create a strong password"
+                                        minlength="8" placeholder="Create a strong password"
                                         autocomplete="new-password">
                                     <button type="button" class="password-toggle"
                                         onclick="togglePasswordVisibility('signup-password')">

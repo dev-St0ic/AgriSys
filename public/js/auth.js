@@ -244,18 +244,18 @@ function loadProfileData() {
             const totalStat = document.querySelector('.stat-item:nth-child(1) .stat-number');
             const approvedStat = document.querySelector('.stat-item:nth-child(2) .stat-number');
             const pendingStat = document.querySelector('.stat-item:nth-child(3) .stat-number');
-            
+
             if (totalStat) totalStat.textContent = data.total || '0';
             if (approvedStat) {
                 // Calculate approved from all applications
-                const approvedCount = data.applications.filter(app => 
+                const approvedCount = data.applications.filter(app =>
                     app.status.toLowerCase() === 'approved'
                 ).length;
                 approvedStat.textContent = approvedCount || '0';
             }
             if (pendingStat) {
                 // Calculate pending from all applications
-                const pendingCount = data.applications.filter(app => 
+                const pendingCount = data.applications.filter(app =>
                     ['pending', 'under_review', 'processing'].includes(app.status.toLowerCase())
                 ).length;
                 pendingStat.textContent = pendingCount || '0';
@@ -466,7 +466,7 @@ function handleChangePasswordSubmit(event) {
 
     // Get CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    
+
     if (!csrfToken) {
         console.error('❌ CSRF token not found!');
         showNotification('error', 'Security token missing. Please refresh the page.');
@@ -509,7 +509,7 @@ function handleChangePasswordSubmit(event) {
             // Close modal and redirect after short delay
             setTimeout(() => {
                 closeChangePasswordModal();
-                
+
                 // Force logout and redirect to login
                 if (data.redirect) {
                     setTimeout(() => {
@@ -520,14 +520,14 @@ function handleChangePasswordSubmit(event) {
 
         } else {
             console.error('❌ Password change failed:', data);
-            
+
             let errorMessage = data.message || 'Password change failed';
 
             // Handle validation errors
             if (data.errors) {
                 const errorMessages = Object.values(data.errors).flat();
                 errorMessage = errorMessages.join(', ');
-                
+
                 // Highlight specific fields with errors
                 Object.keys(data.errors).forEach(field => {
                     const input = document.getElementById(field.replace('_', '-'));
@@ -1193,7 +1193,7 @@ function loadUserApplicationsInModal() {
     .then(response => response.json())
     .then(data => {
         console.log('Applications loaded:', data);
-        
+
         if (data.success && data.applications) {
             renderApplicationsInModal(data.applications);
         } else {
@@ -1229,9 +1229,9 @@ function renderApplicationsInModal(applications) {
                         <p class="app-number">${app.application_number || app.reference_number || 'N/A'}</p>
                     </div>
                 </div>
-                
+
                 <p class="app-description">${app.description || 'Application submitted'}</p>
-                
+
                 ${app.full_name || app.livelihood || app.barangay ? `
                     <div class="app-details">
                         ${app.full_name ? `<div class="detail-item"><strong>Name:</strong> ${app.full_name}</div>` : ''}
@@ -1239,7 +1239,7 @@ function renderApplicationsInModal(applications) {
                         ${app.barangay ? `<div class="detail-item"><strong>Barangay:</strong> ${app.barangay}</div>` : ''}
                     </div>
                 ` : ''}
-                
+
                 <div class="application-footer">
                     <div class="application-status status-badge-${app.status.toLowerCase().replace(/[_\s]/g, '-')}">
                         ${statusIcon} ${formatApplicationStatus(app.status)}
@@ -1322,7 +1322,7 @@ function formatApplicationDate(dateString) {
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    
+
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -1764,7 +1764,7 @@ function validateEmail(email) {
     // Allows: letters, numbers, dots, underscores, hyphens
     // Format: localpart@domain.tld
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    
+
     if (!emailPattern.test(email)) {
         validation.valid = false;
         validation.error = 'Invalid email format. Use letters, numbers, dots, underscores, or hyphens';
@@ -1832,7 +1832,7 @@ function checkEmailValidity(email) {
     } else {
         emailInput.classList.remove('is-valid');
         emailInput.classList.add('is-invalid');
-        
+
         // Show validation message
         let errorMsg = emailInput.parentElement.querySelector('.email-error');
         if (!errorMsg) {
@@ -1999,7 +1999,7 @@ function showPasswordRequirements(requirements) {
     if (!passwordInput) return;
 
     let requirementsDiv = document.querySelector('.password-requirements-list');
-    
+
     if (!requirementsDiv) {
         requirementsDiv = document.createElement('div');
         requirementsDiv.className = 'password-requirements-list';
@@ -2010,7 +2010,10 @@ function showPasswordRequirements(requirements) {
             border-radius: 6px;
             font-size: 12px;
         `;
-        passwordInput.parentElement.appendChild(requirementsDiv);
+        // Insert after the password-input-container, not inside it
+        const passwordContainer = passwordInput.parentElement;
+        const formGroup = passwordContainer.parentElement;
+        formGroup.appendChild(requirementsDiv);
     }
 
     requirementsDiv.innerHTML = `
@@ -2282,7 +2285,7 @@ function togglePasswordVisibility(inputId) {
 function showNotification(type, message) {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type} show-notification`;
-    
+
     // Create icon based on type
     let icon = '';
     switch(type) {
@@ -2298,7 +2301,7 @@ function showNotification(type, message) {
         default:
             icon = '•';
     }
-    
+
     notification.innerHTML = `
         <div class="notification-container">
             <div class="notification-icon">${icon}</div>
@@ -2547,9 +2550,9 @@ function playNotificationSound(type) {
 function playToneNotification(type) {
     // Create audio context
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    
+
     let frequency, duration;
-    
+
     switch(type) {
         case 'success':
             // Two ascending tones for success
@@ -2573,18 +2576,18 @@ function playToneNotification(type) {
     frequency.forEach((freq, index) => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-        
+
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
-        
+
         oscillator.frequency.value = freq;
         oscillator.type = 'sine';
-        
+
         const startTime = audioContext.currentTime + (index > 0 ? duration[index - 1] / 1000 : 0);
-        
+
         gainNode.gain.setValueAtTime(0.3, startTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration[index] / 1000);
-        
+
         oscillator.start(startTime);
         oscillator.stop(startTime + duration[index] / 1000);
     });
@@ -2596,16 +2599,16 @@ function playSimpleBeep() {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
-        
+
         oscillator.connect(gainNode);
         gainNode.connect(audioContext.destination);
-        
+
         oscillator.frequency.value = 1000; // 1kHz beep
         oscillator.type = 'sine';
-        
+
         gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-        
+
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.2);
     } catch (e) {
@@ -2848,7 +2851,7 @@ function clearAllValidationUI() {
     }
     if (strengthText) {
         strengthText.textContent = 'Password strength';
-        strengthText.style.display = 'none'; 
+        strengthText.style.display = 'none';
     }
 
     // Clear password requirements list
@@ -2861,8 +2864,8 @@ function clearAllValidationUI() {
     const matchStatus = document.querySelector('.password-match-status');
     if (matchStatus) {
         matchStatus.innerHTML = '';
-        matchStatus.style.display = 'none';  
-        matchStatus.className = 'password-match-status';  
+        matchStatus.style.display = 'none';
+        matchStatus.className = 'password-match-status';
     }
 
     // Clear all input styling
@@ -3055,7 +3058,7 @@ document.addEventListener('DOMContentLoaded', function() {
         emailInput.addEventListener('input', function() {
             checkEmailValidity(this.value);
         });
-        
+
         // Also validate on blur
         emailInput.addEventListener('blur', function() {
             checkEmailValidity(this.value);
@@ -3066,7 +3069,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('signup-password');
     if (passwordInput) {
         passwordInput.addEventListener('input', function() {
-            const trimmedPassword = this.value.trim();  // TRIM 
+            const trimmedPassword = this.value.trim();  // TRIM
             checkPasswordStrength(trimmedPassword);
             checkPasswordValidity(trimmedPassword);
 
@@ -3086,7 +3089,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const confirmPassword = this.value.trim();  // TRIM HERE
             checkPasswordMatch(password, confirmPassword);
         });
-        
+
         // check on blur
         confirmPasswordInput.addEventListener('blur', function() {
             const password = document.getElementById('signup-password').value.trim();

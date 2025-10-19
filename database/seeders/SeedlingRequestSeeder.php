@@ -20,14 +20,12 @@ class SeedlingRequestSeeder extends Seeder
     {
         $this->command->info('Creating seedling requests with items...');
 
-        // Ensure we have users in the user_registration table
-        if (UserRegistration::count() < 10) {
-            UserRegistration::factory(20)->create();
+        // Ensure we have users
+        if (UserRegistration::count() < 15) {
+            UserRegistration::factory(25)->create();
         }
 
-        // Ensure at least one user exists
         if (User::count() === 0) {
-            $this->command->info('Creating default users...');
             User::factory()->create([
                 'name' => 'Admin User',
                 'email' => 'admin@agrisys.com',
@@ -43,172 +41,174 @@ class SeedlingRequestSeeder extends Seeder
             return;
         }
 
-        // === 2024 HISTORICAL DATA ===
-        $this->create2024Data($categories);
-
-        // === 2025 CURRENT YEAR DATA ===
-        $this->create2025Data($categories);
+        // Create 1 year of data - October 2024 to October 2025 (120+ requests)
+        $this->createYearlyData($categories);
 
         $this->command->info('Seedling requests seeding completed successfully!');
     }
 
-    private function create2024Data($categories): void
+    private function createYearlyData($categories): void
     {
-        $this->command->info('Creating 2024 historical data...');
+        $this->command->info('Creating yearly data with seasonal patterns...');
 
-        // Q1 2024 (January - March) - Post-holiday slow period
-        $this->createRequests(12, '2024-01-01', 89, 'approved', $categories, 85);
-        $this->createRequests(3, '2024-01-01', 89, 'rejected', $categories, 15);
+        // October 2024 - Start of dry season (good planting)
+        $this->createMonthlyRequests('2024-10', 12, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
 
-        // Q2 2024 (April - June) - Peak planting season
-        $this->createRequests(25, '2024-04-01', 91, 'approved', $categories, 80);
-        $this->createRequests(5, '2024-04-01', 91, 'rejected', $categories, 10);
-        $this->createRequests(5, '2024-04-01', 91, 'partially_approved', $categories, 60);
+        // November 2024 - Cool dry season
+        $this->createMonthlyRequests('2024-11', 10, $categories, ['approved' => 80, 'rejected' => 10, 'partially_approved' => 10]);
 
-        // Q3 2024 (July - September) - Rainy season
-        $this->createRequests(15, '2024-07-01', 92, 'approved', $categories, 75);
-        $this->createRequests(5, '2024-07-01', 92, 'rejected', $categories, 20);
-        $this->createRequests(3, '2024-07-01', 92, 'partially_approved', $categories, 55);
+        // December 2024 - Holiday slowdown
+        $this->createMonthlyRequests('2024-12', 6, $categories, ['approved' => 85, 'rejected' => 10, 'partially_approved' => 5]);
 
-        // Q4 2024 (October - December) - Harvest/preparation season
-        $this->createRequests(18, '2024-10-01', 92, 'approved', $categories, 82);
-        $this->createRequests(4, '2024-10-01', 92, 'rejected', $categories, 12);
-        $this->createRequests(2, '2024-10-01', 92, 'partially_approved', $categories, 65);
+        // January 2025 - New year slow start
+        $this->createMonthlyRequests('2025-01', 8, $categories, ['approved' => 80, 'rejected' => 15, 'partially_approved' => 5]);
+
+        // February 2025 - Picking up
+        $this->createMonthlyRequests('2025-02', 10, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
+
+        // March 2025 - Pre-peak season
+        $this->createMonthlyRequests('2025-03', 14, $categories, ['approved' => 70, 'rejected' => 20, 'partially_approved' => 10]);
+
+        // April 2025 - Peak planting season
+        $this->createMonthlyRequests('2025-04', 18, $categories, ['approved' => 65, 'rejected' => 20, 'partially_approved' => 15]);
+
+        // May 2025 - Continued peak
+        $this->createMonthlyRequests('2025-05', 16, $categories, ['approved' => 70, 'rejected' => 15, 'partially_approved' => 15]);
+
+        // June 2025 - Rainy season starts
+        $this->createMonthlyRequests('2025-06', 12, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
+
+        // July 2025 - Rainy season
+        $this->createMonthlyRequests('2025-07', 10, $categories, ['approved' => 70, 'rejected' => 20, 'partially_approved' => 10]);
+
+        // August 2025 - Heavy rains
+        $this->createMonthlyRequests('2025-08', 8, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
+
+        // September 2025 - End of rainy season
+        $this->createMonthlyRequests('2025-09', 10, $categories, ['approved' => 80, 'rejected' => 10, 'partially_approved' => 10]);
+
+        // October 2025 - Current month with pending requests
+        $this->createMonthlyRequests('2025-10', 8, $categories, ['approved' => 30, 'rejected' => 10, 'partially_approved' => 10, 'pending' => 50]);
     }
 
-    private function create2025Data($categories): void
-    {
-        $this->command->info('Creating 2025 current year data...');
-
-        // Q1 2025 - Growing demand
-        $this->createRequests(18, '2025-01-01', 89, 'approved', $categories, 80);
-        $this->createRequests(4, '2025-01-01', 89, 'rejected', $categories, 15);
-        $this->createRequests(3, '2025-01-01', 89, 'partially_approved', $categories, 58);
-
-        // Q2 2025 - Peak season continues
-        $this->createRequests(28, '2025-04-01', 91, 'approved', $categories, 78);
-        $this->createRequests(6, '2025-04-01', 91, 'rejected', $categories, 12);
-        $this->createRequests(6, '2025-04-01', 91, 'partially_approved', $categories, 62);
-
-        // Q3 2025 (current) - Mix of statuses
-        $this->createRequests(12, '2025-07-01', 58, 'approved', $categories, 70);
-        $this->createRequests(3, '2025-07-01', 58, 'rejected', $categories, 15);
-        $this->createRequests(2, '2025-07-01', 58, 'partially_approved', $categories, 50);
-        
-        // Recent pending requests - show active pipeline
-        $this->createRequests(10, Carbon::now()->subDays(14)->format('Y-m-d'), 14, 'pending', $categories);
-    }
-
-    private function createRequests(
-        int $count, 
-        string $startDate, 
-        int $dayRange, 
-        string $status, 
-        $categories,
-        int $approvalRate = 100
-    ): void
+    private function createMonthlyRequests(string $month, int $count, $categories, array $statusDistribution): void
     {
         $users = User::all();
         $userRegistrations = UserRegistration::all();
 
+        // Check if we have the necessary data
+        if ($users->isEmpty()) {
+            $this->command->error("No users found! Please ensure users exist in the database.");
+            return;
+        }
+
+        if ($userRegistrations->isEmpty()) {
+            $this->command->error("No user registrations found! Please ensure user registrations exist in the database.");
+            return;
+        }
+
         for ($i = 0; $i < $count; $i++) {
-            // More realistic date distribution within the range
-            $daysOffset = $this->getWeightedRandomDay($dayRange);
-            $createdDate = Carbon::parse($startDate)->addDays($daysOffset);
-            
-            // Skip weekends for more realistic data
+            // Random day in the month
+            $day = rand(1, 28);
+            $createdDate = Carbon::parse("{$month}-{$day}");
+
+            // Skip weekends for realistic data
             while ($createdDate->isWeekend()) {
                 $createdDate->addDay();
             }
 
-            $selectedUserRegistration = $userRegistrations->random();
+            // Determine status based on distribution
+            $status = $this->getRandomStatus($statusDistribution);
+            $selectedUser = $userRegistrations->random();
 
-            // Variable processing time based on status
-            $processingHours = match($status) {
-                'approved' => rand(24, 72),
-                'rejected' => rand(12, 48),
-                'partially_approved' => rand(36, 96),
+            // Calculate processing time
+            $processingTime = match($status) {
+                'approved' => rand(1, 3),
+                'rejected' => rand(1, 2),
+                'partially_approved' => rand(2, 4),
                 default => 0
             };
 
-            // Create main request
+            // Create request
             $request = SeedlingRequest::create([
-                'user_id' => $selectedUserRegistration->id,
+                'user_id' => $selectedUser->id,
                 'request_number' => SeedlingRequest::generateRequestNumber(),
                 'first_name' => fake()->firstName(),
                 'middle_name' => rand(0, 1) ? fake()->firstName() : null,
                 'last_name' => fake()->lastName(),
-                'extension_name' => rand(0, 10) > 7 ? ['Jr.', 'Sr.', 'III'][rand(0, 2)] : null,
-                'contact_number' => fake()->phoneNumber(),
+                'extension_name' => rand(0, 10) > 8 ? ['Jr.', 'Sr.', 'III'][rand(0, 2)] : null,
+                'contact_number' => '09' . rand(100000000, 999999999),
                 'email' => fake()->email(),
                 'address' => fake()->streetAddress(),
-                'barangay' => $this->getWeightedBarangay(),
+                'barangay' => $this->getRandomBarangay(),
                 'planting_location' => fake()->address(),
-                'purpose' => $this->getRealisticPurpose(),
+                'purpose' => $this->getRandomPurpose(),
                 'total_quantity' => 0,
                 'approved_quantity' => null,
-                'preferred_delivery_date' => $createdDate->copy()->addDays(rand(7, 30)),
+                'preferred_delivery_date' => $createdDate->copy()->addDays(rand(7, 21)),
                 'status' => $status,
                 'reviewed_by' => $status !== 'pending' ? $users->random()->id : null,
-                'reviewed_at' => $status !== 'pending' ? $createdDate->copy()->addHours($processingHours) : null,
+                'reviewed_at' => $status !== 'pending' ? $createdDate->copy()->addDays($processingTime) : null,
                 'remarks' => $this->getStatusRemarks($status),
-                'approved_at' => $status === 'approved' ? $createdDate->copy()->addHours($processingHours) : null,
-                'rejected_at' => $status === 'rejected' ? $createdDate->copy()->addHours($processingHours) : null,
+                'approved_at' => $status === 'approved' ? $createdDate->copy()->addDays($processingTime) : null,
+                'rejected_at' => $status === 'rejected' ? $createdDate->copy()->addDays($processingTime) : null,
                 'created_at' => $createdDate,
-                'updated_at' => $status !== 'pending' ? $createdDate->copy()->addHours($processingHours) : $createdDate,
+                'updated_at' => $status !== 'pending' ? $createdDate->copy()->addDays($processingTime) : $createdDate,
             ]);
 
-            // Add items to the request
-            $this->addItemsToRequest($request, $categories, $status, $selectedUserRegistration->id, $approvalRate);
+            // Add items to request
+            $this->addItemsToRequest($request, $categories, $status, $selectedUser->id);
 
-            // Update total quantity
+            // Update totals
+            $totalQty = $request->items()->sum('requested_quantity');
+            $approvedQty = $request->items()->sum('approved_quantity');
+
             $request->update([
-                'total_quantity' => $request->items()->sum('requested_quantity'),
-                'approved_quantity' => $status === 'approved' ? $request->items()->sum('approved_quantity') : null,
+                'total_quantity' => $totalQty,
+                'approved_quantity' => $status === 'approved' ? $approvedQty : ($status === 'partially_approved' ? $approvedQty : null),
             ]);
         }
+
+        $this->command->info("Created {$count} requests for {$month}");
     }
 
-    private function addItemsToRequest($request, $categories, $requestStatus, $userId, $approvalRate = 100): void
+    private function addItemsToRequest($request, $categories, $status, $userId): void
     {
-        // More realistic item selection
-        $numCategories = $this->getWeightedCategoryCount();
+        // Check if categories exist
+        if ($categories->isEmpty()) {
+            $this->command->error("No categories found! Cannot create request items.");
+            return;
+        }
+
+        // Select 1-3 categories randomly
+        $numCategories = rand(1, 3);
         $selectedCategories = $categories->random(min($numCategories, $categories->count()));
 
         foreach ($selectedCategories as $category) {
             $categoryItems = $category->items;
             if ($categoryItems->isEmpty()) continue;
 
-            // Realistic item counts per category
-            $itemCount = match($category->name) {
-                'seeds' => rand(2, 4),
-                'seedlings' => rand(2, 5),
-                'fertilizers' => rand(1, 3),
-                'fingerlings' => rand(1, 2),
-                'ornamentals' => rand(2, 4),
-                'fruits' => rand(1, 3),
-                default => rand(1, 3)
-            };
-
+            // Select 1-2 items per category
+            $itemCount = rand(1, 2);
             $selectedItems = $categoryItems->random(min($itemCount, $categoryItems->count()));
 
             foreach ($selectedItems as $categoryItem) {
-                // Realistic quantity ranges per category
+                // Realistic quantities based on category
                 $requestedQty = match($category->name) {
-                    'fingerlings' => rand(100, 500),
-                    'fertilizers' => rand(5, 50),
-                    'seeds' => rand(5, 25),
-                    'seedlings' => rand(5, 20),
-                    'fruits' => rand(3, 15),
-                    'ornamentals' => rand(5, 30),
-                    default => rand(5, 20)
+                    'fingerlings' => rand(50, 300),
+                    'fertilizers' => rand(5, 25),
+                    'seeds' => rand(2, 10),
+                    'seedlings' => rand(3, 15),
+                    'fruits' => rand(1, 8),
+                    'ornamentals' => rand(3, 12),
+                    default => rand(2, 10)
                 };
 
-                // Determine item status with weighted logic
-                $itemStatus = match($requestStatus) {
+                // Determine item status
+                $itemStatus = match($status) {
                     'approved' => 'approved',
                     'rejected' => 'rejected',
-                    'partially_approved' => (rand(1, 100) <= $approvalRate) ? 'approved' : 'rejected',
+                    'partially_approved' => (rand(1, 100) <= 70) ? 'approved' : 'rejected',
                     default => 'pending'
                 };
 
@@ -228,57 +228,39 @@ class SeedlingRequestSeeder extends Seeder
     }
 
     // Helper methods
-    private function getWeightedRandomDay(int $maxDays): int
+    private function getRandomStatus(array $distribution): string
     {
-        // Creates more activity at the beginning and end of periods
-        $random = rand(0, 100);
-        if ($random < 30) return rand(0, (int)($maxDays * 0.25));
-        if ($random < 60) return rand((int)($maxDays * 0.25), (int)($maxDays * 0.75));
-        return rand((int)($maxDays * 0.75), $maxDays);
+        $total = array_sum($distribution);
+        $random = rand(1, $total);
+        $sum = 0;
+
+        foreach ($distribution as $status => $weight) {
+            $sum += $weight;
+            if ($random <= $sum) {
+                return $status;
+            }
+        }
+
+        return 'pending';
     }
 
-    private function getWeightedBarangay(): string
+    private function getRandomBarangay(): string
     {
         $barangays = [
-            'Poblacion' => 20,
-            'San Roque' => 15,
-            'San Antonio' => 15,
-            'Magsaysay' => 12,
-            'Bagong Silang' => 10,
-            'Landayan' => 8,
-            'Pacita 1' => 8,
-            'Pacita 2' => 5,
-            'Riverside' => 4,
-            'San Vicente' => 3,
+            'Poblacion', 'San Roque', 'San Antonio', 'Magsaysay', 'Bagong Silang',
+            'Landayan', 'Pacita 1', 'Pacita 2', 'Riverside', 'San Vicente'
         ];
-        
-        $random = rand(1, array_sum($barangays));
-        $sum = 0;
-        foreach ($barangays as $barangay => $weight) {
-            $sum += $weight;
-            if ($random <= $sum) return $barangay;
-        }
-        return 'Poblacion';
+        return $barangays[array_rand($barangays)];
     }
 
-    private function getRealisticPurpose(): string
+    private function getRandomPurpose(): string
     {
         $purposes = [
-            'Backyard farming' => 30,
-            'Community garden project' => 20,
-            'Livelihood program' => 18,
-            'Food security initiative' => 15,
-            'School project' => 10,
-            'Urban farming' => 7,
+            'Backyard farming', 'Community garden project', 'Livelihood program',
+            'Food security initiative', 'School project', 'Urban farming',
+            'Family consumption', 'Local market selling'
         ];
-        
-        $random = rand(1, array_sum($purposes));
-        $sum = 0;
-        foreach ($purposes as $purpose => $weight) {
-            $sum += $weight;
-            if ($random <= $sum) return $purpose;
-        }
-        return 'Backyard farming';
+        return $purposes[array_rand($purposes)];
     }
 
     private function getStatusRemarks(string $status): ?string
@@ -294,25 +276,15 @@ class SeedlingRequestSeeder extends Seeder
                 'Insufficient stock available.',
                 'Request exceeds allocation limit.',
                 'Incomplete documentation provided.',
-                'Outside service coverage area.',
                 'Unable to fulfill request at this time.',
             ])->random(),
             'partially_approved' => collect([
                 'Some items approved. Others out of stock.',
                 'Partial approval due to limited availability.',
                 'Available items approved. Others pending restock.',
-                'Request partially fulfilled based on current inventory.',
             ])->random(),
             default => null,
         };
-    }
-
-    private function getWeightedCategoryCount(): int
-    {
-        $random = rand(1, 100);
-        if ($random <= 50) return 1; // 50% - single category
-        if ($random <= 80) return 2; // 30% - two categories
-        return 3; // 20% - three categories
     }
 
     private function getRejectionReason(): string
