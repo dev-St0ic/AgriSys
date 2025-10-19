@@ -478,7 +478,7 @@ header {
     background: #f0f8f5;
     padding: 15px;
     border-radius: 8px;
-    border-left: 4px solid #52b788;
+    border-left: 4px solid #2d6a4f;
     margin-bottom: 15px;
 }
 
@@ -639,11 +639,10 @@ header {
         font-size: 0.85rem;
     }
 }
-
 /* --- Services Section --- */
 .services {
     padding: 20px 40px;
-    background-color: #dfffe9;
+    background-color: #ecfff2;
     text-align: center;
 }
 
@@ -686,8 +685,8 @@ header {
 }
 
 .card {
-    background-color: #1a5540;
-    border: 3px solid #52b788;
+    background-color: #ffffff;
+    border: 3px solid #2d6a4f;
     border-radius: 20px;
     padding: 20px;
     width: 100%;
@@ -712,7 +711,7 @@ header {
     max-width: 100%;
     height: 140px;
     margin: 0 auto 15px auto;
-    background-color: white;
+    background-color: #f5f5f5;
     border-radius: 15px;
     display: flex;
     align-items: center;
@@ -729,7 +728,7 @@ header {
 
 .card h3 {
     font-size: 1.5rem;
-    color: white;
+    color: #2d6a4f;
     margin-bottom: 12px;
     font-weight: 700;
     line-height: 1.2;
@@ -737,7 +736,7 @@ header {
 
 .card p {
     font-size: 1rem;
-    color: #e8f5e8;
+    color: #555;
     margin-bottom: 15px;
     flex-grow: 1;
     line-height: 1.4;
@@ -747,8 +746,8 @@ header {
 .card .btn-choice {
     display: inline-block;
     padding: 12px 24px;
-    background-color: white;
-    color: #2d6a4f;
+    background-color: #2d6a4f;
+    color: white;
     text-decoration: none;
     border-radius: 10px;
     border: none;
@@ -762,33 +761,33 @@ header {
 
 .card .btn:hover,
 .card .btn-choice:hover {
-    background-color: #52b788;
+    background-color: #2d6a4f;
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(82, 183, 136, 0.4);
+    box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4);
 }
 
 /* Responsive Design */
 @media (max-width: 1200px) {
     .services-grid {
-        max-width: 1000px; /* CHANGED: Added to further reduce width on smaller desktops */
+        max-width: 1000px;
     }
     
     .row-three {
-        gap: 18px; /* CHANGED: Slightly reduced gap */
+        gap: 18px;
     }
     
     .row-two-centered {
-        gap: 18px; /* CHANGED: Slightly reduced gap */
-        max-width: 700px; /* CHANGED: Further reduced */
+        gap: 18px;
+        max-width: 700px;
     }
 
     .card {
-        max-width: 320px; /* CHANGED: Slightly reduced */
+        max-width: 320px;
     }
 
     .card-image {
-        height: 130px; /* CHANGED: Reduced height */
+        height: 130px;
     }
 }
 
@@ -804,7 +803,7 @@ header {
     }
 
     .card {
-        max-width: 100%; /* CHANGED: Allow cards to fill grid on tablets */
+        max-width: 100%;
     }
 
     .card-image {
@@ -833,7 +832,7 @@ header {
     }
 
     .card {
-        max-width: 400px; /* CHANGED: Added max-width for mobile to prevent too-wide cards */
+        max-width: 400px;
         padding: 20px;
     }
 
@@ -852,8 +851,8 @@ header {
     }
 
     .card {
-        padding: 18px; /* CHANGED: Slightly reduced */
-        max-width: 100%; /* CHANGED: Full width on small phones */
+        padding: 18px;
+        max-width: 100%;
     }
 
     .card-image {
@@ -865,13 +864,13 @@ header {
     }
 
     .card p {
-        font-size: 0.9rem; /* CHANGED: Slightly reduced */
+        font-size: 0.9rem;
     }
 
     .card .btn,
     .card .btn-choice {
-        padding: 12px 20px; /* CHANGED: Reduced padding */
-        font-size: 0.95rem; /* CHANGED: Slightly reduced */
+        padding: 12px 20px;
+        font-size: 0.95rem;
     }
 }
 /* --- How It Works Section --- */
@@ -923,7 +922,7 @@ header {
 .step:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
-    border-color: #52b788;
+    border-color: #2d6a4f;
 }
 
 .step-number {
@@ -974,7 +973,7 @@ header {
     transform: translateX(-50%);
     width: 80%;
     height: 2px;
-    background: linear-gradient(90deg, #52b788, #95d5b2);
+    background: linear-gradient(90deg, #2d6a4f, #95d5b2);
     z-index: 0;
     }
 
