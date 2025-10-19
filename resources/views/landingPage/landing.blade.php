@@ -162,14 +162,35 @@
             <button class="filter-btn" data-filter="landscape">Past Events</button>
         </div>
         
-        <div class="projects-grid">
+      <div class="projects-grid">
             <!-- Project Card 1 -->
             <div class="project-card" data-category="garden-care">
                 <img src="../images/projects/1.jpg" alt="Garden Care" class="project-image">
                 <div class="project-content">
-                    <span class="project-category">Garden Care</span>
-                    <h3>Garden Care</h3>
-                    <p>Lorem ipsum is simply dummy text of the printing and typesetting</p>
+                    <h3>Community Garden Initiative</h3>
+                    <p class="project-description">Urban gardening program bringing together residents to cultivate fresh produce while learning sustainable farming techniques including organic gardening, composting, and water conservation.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">📅 Every Saturday | 8:00 AM - 12:00 PM</div>
+                        <div class="location">📍 San Pedro Community Garden, Brgy. Riverside</div>
+                    </div>
+                    
+                    <ul class="details-list">
+                        <li>
+                            <span class="icon">👥</span>
+                            <div class="text">
+                                <div class="label">Who Can Join</div>
+                                <div class="value">All residents welcome, families encouraged</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">💰</span>
+                            <div class="text">
+                                <div class="label">Cost</div>
+                                <div class="value">Free for all participants</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
             
@@ -177,9 +198,30 @@
             <div class="project-card" data-category="landscape">
                 <img src="../images/projects/2.jpg" alt="Landscape" class="project-image">
                 <div class="project-content">
-                    <span class="project-category">Landscape</span>
-                    <h3>Landscape</h3>
-                    <p>Lorem ipsum is simply dummy text of the printing and typesetting industry. Lorem ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown...</p>
+                    <h3>Green Corridor Project</h3>
+                    <p class="project-description">City-wide landscaping initiative that transformed urban spaces into vibrant green zones. Over 500 native trees planted and pocket gardens created throughout the city to improve air quality and aesthetics.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">✅ Completed: September 2024</div>
+                        <div class="location">📍 12 Barangays across San Pedro City</div>
+                    </div>
+                    
+                    <ul class="details-list">
+                        <li>
+                            <span class="icon">🌳</span>
+                            <div class="text">
+                                <div class="label">Achievement</div>
+                                <div class="value">500+ native trees planted</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">🎯</span>
+                            <div class="text">
+                                <div class="label">Impact</div>
+                                <div class="value">Improved air quality and urban aesthetics</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
             
@@ -187,9 +229,30 @@
             <div class="project-card" data-category="planting">
                 <img src="../images/projects/3.jpg" alt="Planting" class="project-image">
                 <div class="project-content">
-                    <span class="project-category">Planting</span>
-                    <h3>Planting</h3>
-                    <p>Lorem ipsum is simply dummy text of the printing and typesetting</p>
+                    <h3>Tree Planting Drive</h3>
+                    <p class="project-description">Annual tree planting event with a goal to plant 1,000 indigenous trees across the city. Volunteers receive free seedlings, refreshments, and certificates of participation.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">🌱 November 15, 2025 | 6:00 AM - 10:00 AM</div>
+                        <div class="location">📍 Various locations citywide</div>
+                    </div>
+                    
+                    <ul class="details-list">
+                        <li>
+                            <span class="icon">🎁</span>
+                            <div class="text">
+                                <div class="label">Freebies</div>
+                                <div class="value">Free seedlings, refreshments, certificate</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">📝</span>
+                            <div class="text">
+                                <div class="label">Registration</div>
+                                <div class="value">Contact City Agriculture Office</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
             
@@ -197,9 +260,30 @@
             <div class="project-card" data-category="planting">
                 <img src="../images/projects/4.jpg" alt="Planting" class="project-image">
                 <div class="project-content">
-                    <span class="project-category">Planting</span>
-                    <h3>Planting</h3>
-                    <p>Lorem ipsum is simply dummy text of the printing and typesetting</p>
+                    <h3>Vegetable Farming Workshop</h3>
+                    <p class="project-description">Expert-led workshops covering advanced vegetable cultivation methods, pest management, and market strategies to help farmers maximize yields while minimizing environmental impact.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">📚 October 28, 2025 | 2:00 PM - 5:00 PM</div>
+                        <div class="location">📍 Agriculture Office Training Center</div>
+                    </div>
+                    
+                    <ul class="details-list">
+                        <li>
+                            <span class="icon">👨‍🌾</span>
+                            <div class="text">
+                                <div class="label">For</div>
+                                <div class="value">Local farmers and aspiring growers</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">🎁</span>
+                            <div class="text">
+                                <div class="label">Freebies</div>
+                                <div class="value">Free seeds, tools, and training materials</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
             
@@ -207,9 +291,30 @@
             <div class="project-card" data-category="planting">
                 <img src="../images/projects/5.jpg" alt="Planting" class="project-image">
                 <div class="project-content">
-                    <span class="project-category">Planting</span>
-                    <h3>Planting</h3>
-                    <p>Lorem ipsum is simply dummy text of the printing and typesetting</p>
+                    <h3>Organic Rice Cultivation</h3>
+                    <p class="project-description">Year-long program supporting farmers transitioning to organic rice farming methods that eliminate harmful pesticides. Includes training, organic fertilizers, and access to premium markets.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">🌾 January - December 2025</div>
+                        <div class="location">📍 All rice farming areas in San Pedro</div>
+                    </div>
+                    
+                    <ul class="details-list">
+                        <li>
+                            <span class="icon">🌾</span>
+                            <div class="text">
+                                <div class="label">Support Provided</div>
+                                <div class="value">Training, organic fertilizers, market access</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">🏆</span>
+                            <div class="text">
+                                <div class="label">Certification</div>
+                                <div class="value">Organic farming certification assistance</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
             
@@ -217,9 +322,30 @@
             <div class="project-card" data-category="lawn-care">
                 <img src="../images/projects/6.jpg" alt="Lawn Care" class="project-image">
                 <div class="project-content">
-                    <span class="project-category">Lawn Care</span>
-                    <h3>Lawn Care</h3>
-                    <p>Lorem ipsum is simply dummy text of the printing and typesetting</p>
+                    <h3>Park Maintenance Program</h3>
+                    <p class="project-description">Daily maintenance of city parks through regular mowing, trimming, and landscaping ensuring safe, clean, and beautiful spaces for families and communities.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">🔄 Ongoing | Daily Operations</div>
+                        <div class="location">📍 All public parks across San Pedro</div>
+                    </div>
+                    
+                    <ul class="details-list">
+                        <li>
+                            <span class="icon">🛠️</span>
+                            <div class="text">
+                                <div class="label">Services</div>
+                                <div class="value">Mowing, trimming, landscaping, sanitation</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">📞</span>
+                            <div class="text">
+                                <div class="label">Report Issues</div>
+                                <div class="value">Contact City Agriculture Office</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
             
@@ -227,9 +353,30 @@
             <div class="project-card" data-category="lawn-care">
                 <img src="../images/projects/7.jpg" alt="Lawn Care" class="project-image">
                 <div class="project-content">
-                    <span class="project-category">Lawn Care</span>
-                    <h3>Lawn Care</h3>
-                    <p>Lorem ipsum is simply dummy text of the printing and typesetting</p>
+                    <h3>Sports Field Renovation</h3>
+                    <p class="project-description">Complete overhaul of community sports facilities including new turf installation, modern drainage systems, and efficient irrigation creating world-class venues for youth sports and tournaments.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">⚙️ In Progress | Target: December 2025</div>
+                        <div class="location">📍 San Pedro Sports Complex</div>
+                    </div>
+                    
+                    <ul class="details-list">
+                        <li>
+                            <span class="icon">⚽</span>
+                            <div class="text">
+                                <div class="label">Facilities</div>
+                                <div class="value">Soccer fields, basketball courts, running tracks</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">🔧</span>
+                            <div class="text">
+                                <div class="label">Upgrades</div>
+                                <div class="value">New turf, drainage, irrigation, lighting</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
             
@@ -237,21 +384,35 @@
             <div class="project-card" data-category="garden-care">
                 <img src="../images/projects/8.jpg" alt="Garden Care" class="project-image">
                 <div class="project-content">
-                    <span class="project-category">Garden Care</span>
-                    <h3>Garden Care</h3>
-                    <p>Lorem ipsum is simply dummy text of the printing and typesetting</p>
+                    <h3>Urban Farming Training</h3>
+                    <p class="project-description">Monthly training on innovative techniques for growing vegetables in small spaces using containers, vertical gardens, and hydroponics. Perfect for apartment dwellers and homeowners.</p>
+                    
+                    <div class="event-info-box">
+                        <div class="date">🏙️ First Sunday of Every Month | 9:00 AM - 12:00 PM</div>
+                        <div class="location">📍 Agriculture Office Training Center</div>
+                    </div>
+                    
+                    <ul class="details-list">
+                        <li>
+                            <span class="icon">🌱</span>
+                            <div class="text">
+                                <div class="label">Techniques</div>
+                                <div class="value">Container gardening, vertical gardens, hydroponics</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="icon">📦</span>
+                            <div class="text">
+                                <div class="label">Materials</div>
+                                <div class="value">All training materials and starter kits provided</div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
-        
-        <div class="projects-pagination">
-            <button class="pagination-btn" id="prevPage">‹</button>
-            <button class="pagination-btn active">1</button>
-            <button class="pagination-btn">2</button>
-            <button class="pagination-btn">3</button>
-            <button class="pagination-btn" id="nextPage">›</button>
-        </div>
     </section>
+   
 
     <!-- Services Section (Always visible) -->
     <section class="services" id="services">
