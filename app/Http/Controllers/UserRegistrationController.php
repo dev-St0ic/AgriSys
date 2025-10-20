@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\UserRegistration;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -121,6 +124,7 @@ class UserRegistrationController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'password_confirmation' => 'required',
             'terms_accepted' => 'required|boolean',
+            'g-recaptcha-response' => 'required|string',  // NEW: reCAPTCHA token
         ], [
             'username.required' => 'Username is required',
             'username.unique' => 'This username is already taken',
@@ -133,6 +137,7 @@ class UserRegistrationController extends Controller
             'password.min' => 'Password must be at least 8 characters',
             'password.confirmed' => 'Password confirmation does not match',
             'terms_accepted.required' => 'You must accept the Terms of Service',
+            'recaptcha_token.required' => 'Please check the reCAPTCHA box',
         ]);
 
         if ($validator->fails()) {
@@ -144,6 +149,64 @@ class UserRegistrationController extends Controller
                 'message' => 'Please check the form for errors.',
                 'errors' => $validator->errors()
             ], 422);
+        }
+
+          // STEP 2: Verify reCAPTCHA v2 with Google
+        try {
+            $recaptchaSecret = env('RECAPTCHA_SECRET_KEY');
+            $recaptchaToken = $request->input('g-recaptcha-response');
+
+            Log::info('=== reCAPTCHA DEBUG START ===');
+            Log::info('Secret Key Set:', ['exists' => !empty($recaptchaSecret)]);
+            Log::info('Token Received:', ['exists' => !empty($recaptchaToken), 'length' => strlen($recaptchaToken ?? '')]);
+            
+            if (!$recaptchaSecret) {
+                Log::error('RECAPTCHA_SECRET_KEY not set in .env');
+                throw new \Exception('reCAPTCHA configuration missing');
+            }
+
+            if (!$recaptchaToken) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please complete the reCAPTCHA challenge'
+                ], 422);
+            }
+
+            // Send request to Google to verify the token
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $recaptchaSecret,
+                'response' => $recaptchaToken,
+                'remoteip' => $request->ip()
+            ]);
+
+            $recaptchaData = $response->json();
+
+            Log::info('Google Response:', $recaptchaData);
+            Log::info('=== reCAPTCHA DEBUG END ===');
+
+
+            // Check if reCAPTCHA verification was successful
+            if (!isset($recaptchaData['success']) || !$recaptchaData['success']) {
+                Log::warning('reCAPTCHA verification failed', [
+                    'response' => $recaptchaData,
+                    'email' => $request->email
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'reCAPTCHA verification failed. Please try again.',
+                    'error_code' => $recaptchaData['error-codes'][0] ?? 'unknown'
+                ], 422);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('reCAPTCHA verification error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'reCAPTCHA verification error. Please try again.',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
 
         try {
@@ -162,7 +225,7 @@ class UserRegistrationController extends Controller
 
             $registration = UserRegistration::create($registrationData);
 
-            \Log::info('New user registration created', [
+            \Log::info('New user registration created (after reCAPTCHA)', [
                 'id' => $registration->id,
                 'username' => $registration->username,
                 'email' => $registration->email,
