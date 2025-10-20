@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-
+    
     @if (isset($user))
         <script>
             // Pass user data to JavaScript
@@ -1095,6 +1095,11 @@
                                 </div>
                             </div>
 
+                            <!-- Add this before the SIGN UP button -->
+                            <div class="recaptcha-container">
+                                <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                            </div>
+
                             <button type="submit" class="auth-submit-btn">
                                 <span class="btn-text">SIGN UP</span>
                                 <span class="btn-loader" style="display: none;">Creating...</span>
@@ -1431,6 +1436,7 @@
     <script src="{{ asset('js/boatr-autofill.js') }}"></script>
     <script src="{{ asset('js/seedlings-autofill.js') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 
 </html>

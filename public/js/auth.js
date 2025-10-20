@@ -2749,6 +2749,13 @@ function handleSignupSubmit(event) {
         return false;
     }
 
+    // NEW: Check if reCAPTCHA is checked
+    const recaptchaResponse = grecaptcha.getResponse();
+    if (!recaptchaResponse) {
+        showNotification('error', 'Please check the reCAPTCHA box');
+        return false;
+    }
+
     const form = event.target;
     const submitBtn = form.querySelector('.auth-submit-btn');
 
@@ -2760,7 +2767,8 @@ function handleSignupSubmit(event) {
         email: document.getElementById('signup-email').value.trim(),
         password: document.getElementById('signup-password').value.trim(),
         password_confirmation: document.getElementById('signup-confirm-password').value.trim(),
-        terms_accepted: document.getElementById('agree-terms').checked
+        terms_accepted: document.getElementById('agree-terms').checked,
+        'g-recaptcha-response': recaptchaResponse  // NEW: Include token
     };
 
     // Debug: Log what we're sending
@@ -2803,6 +2811,9 @@ function handleSignupSubmit(event) {
                 hideAuthMessages();
                 clearAllValidationUI();  // NEW: Clear all validation UI elements
 
+                // NEW: Reset reCAPTCHA
+                grecaptcha.reset();
+
                 // Auto-redirect to login form after 2 seconds
                 setTimeout(() => {
                     showLogInForm();
@@ -2816,6 +2827,8 @@ function handleSignupSubmit(event) {
                 handleValidationErrors(data.errors);
             }
             // Reset button state after error
+            // NEW: Reset reCAPTCHA on error
+            grecaptcha.reset();
             setTimeout(() => resetButtonState(submitBtn), 1000);
         }
     })

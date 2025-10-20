@@ -2483,6 +2483,20 @@ input.is-invalid {
 }
 
 /* ==============================================
+   RECAPTCHA V2
+   ============================================== */
+.recaptcha-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.g-recaptcha {
+    transform: scale(0.95);
+    transform-origin: 0 0;
+}
+
+/* ==============================================
    VERIFICATION ALERT MODAL STYLES
    ============================================== */
 
