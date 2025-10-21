@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use App\Notifications\EmailVerificationNotification;
 use App\Notifications\RegistrationApprovedNotification;
 use App\Notifications\RegistrationRejectedNotification;
+use Laravel\Socialite\Facades\Socialite;
 
 class UserRegistrationController extends Controller
 {
@@ -1759,5 +1760,153 @@ class UserRegistrationController extends Controller
         }
 
         return $host;
+    }
+
+ /**
+ * Redirect to Facebook OAuth page
+ */
+public function redirectToFacebook()
+{
+    try {
+        return Socialite::driver('facebook')
+            ->scopes(['email', 'public_profile'])
+            ->redirect();
+    } catch (\Exception $e) {
+        \Log::error('Facebook redirect error: ' . $e->getMessage());
+        return redirect('/')->with('error', 'Facebook login is temporarily unavailable. Please try again later.');
+    }
+}
+
+    /**
+     * Handle Facebook OAuth callback
+     */
+    public function handleFacebookCallback(Request $request)
+    {
+        try {
+            // Get Facebook user info
+            $facebookUser = Socialite::driver('facebook')->user();
+            
+            \Log::info('Facebook user data:', [
+                'id' => $facebookUser->id,
+                'email' => $facebookUser->email,
+                'name' => $facebookUser->name
+            ]);
+            
+            // Check if user already exists by email or Facebook ID
+            $userRegistration = UserRegistration::where('email', $facebookUser->email)
+                ->orWhere('facebook_id', $facebookUser->id)
+                ->first();
+            
+            if (!$userRegistration) {
+                // Create new user from Facebook data
+                $username = $this->generateUniqueUsername($facebookUser->name);
+                
+                $userRegistration = UserRegistration::create([
+                    'username' => $username,
+                    'email' => $facebookUser->email,
+                    'password' => Hash::make(Str::random(32)), // Random password (they'll use Facebook login)
+                    'facebook_id' => $facebookUser->id,
+                    'profile_image_url' => $facebookUser->avatar,
+                    'first_name' => explode(' ', $facebookUser->name)[0] ?? $facebookUser->name,
+                    'last_name' => explode(' ', $facebookUser->name)[1] ?? '',
+                    'status' => 'unverified', // Users from social login need verification
+                    'terms_accepted' => true,
+                    'privacy_accepted' => true,
+                    'email_verified_at' => now(), // Facebook emails are verified
+                    'registration_ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'referral_source' => 'facebook',
+                ]);
+                
+                \Log::info('New user created via Facebook', [
+                    'user_id' => $userRegistration->id,
+                    'facebook_id' => $facebookUser->id,
+                    'username' => $username
+                ]);
+                
+            } else {
+                // Update Facebook ID and profile image if not already set
+                if (!$userRegistration->facebook_id) {
+                    $userRegistration->update([
+                        'facebook_id' => $facebookUser->id,
+                        'profile_image_url' => $facebookUser->avatar,
+                        'email_verified_at' => $userRegistration->email_verified_at ?? now(),
+                    ]);
+                }
+                
+                \Log::info('Existing user logged in via Facebook', [
+                    'user_id' => $userRegistration->id,
+                    'facebook_id' => $facebookUser->id
+                ]);
+            }
+            
+            // Store user in session (same structure as regular login)
+            $request->session()->put('user', [
+                'id' => $userRegistration->id,
+                'username' => $userRegistration->username,
+                'email' => $userRegistration->email,
+                'name' => $userRegistration->full_name ?? $userRegistration->username,
+                'user_type' => $userRegistration->user_type,
+                'status' => $userRegistration->status,
+                'profile_image' => $userRegistration->profile_image_url,
+            ]);
+            
+            // Store individual keys for backward compatibility
+            $request->session()->put('user_id', $userRegistration->id);
+            $request->session()->put('user_email', $userRegistration->email);
+            $request->session()->put('user_username', $userRegistration->username);
+            
+            // Update last login
+            $userRegistration->update(['last_login_at' => now()]);
+            
+            // Redirect with appropriate message based on status
+            $message = 'Welcome! Please complete your profile verification to access all services.';
+            
+            if ($userRegistration->status === 'approved' || $userRegistration->status === 'verified') {
+                $message = 'Welcome back!';
+            } elseif ($userRegistration->status === 'pending') {
+                $message = 'Welcome! Your verification is being reviewed.';
+            }
+            
+            return redirect('/')->with('success', $message);
+            
+        } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
+            \Log::error('Facebook OAuth state error: ' . $e->getMessage());
+            return redirect('/')->with('error', 'Login session expired. Please try again.');
+            
+        } catch (\Exception $e) {
+            \Log::error('Facebook callback error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect('/')->with('error', 'Facebook login failed. Please try again or use email login.');
+        }
+    }
+
+    /**
+     * Generate a unique username from Facebook name
+     */
+    private function generateUniqueUsername($name)
+    {
+        // Clean name: lowercase, remove spaces and special characters
+        $baseUsername = strtolower(preg_replace('/[^a-z0-9_]/', '', str_replace(' ', '', $name)));
+        
+        // Ensure it's at least 3 characters
+        if (strlen($baseUsername) < 3) {
+            $baseUsername = 'user' . $baseUsername;
+        }
+        
+        // Truncate to max 17 characters (leaving room for counter)
+        $baseUsername = substr($baseUsername, 0, 17);
+        
+        $username = $baseUsername;
+        $counter = 1;
+        
+        // Check uniqueness and append counter if needed
+        while (UserRegistration::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+        
+        return $username;
     }
 }

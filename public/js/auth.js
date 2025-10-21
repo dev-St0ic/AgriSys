@@ -2621,15 +2621,21 @@ function playSimpleBeep() {
 // ==============================================
 
 function signInWithFacebook() {
-    showNotification('info', 'Facebook Sign In will be implemented soon!');
+    // showNotification('info', 'Facebook Sign In will be implemented soon!');
+     // Redirect to your backend Facebook route
+    window.location.href = '/auth/facebook';
 }
 
 function signUpWithFacebook() {
-    showNotification('info', 'Facebook Sign Up will be implemented soon!');
+    // showNotification('info', 'Facebook Sign Up will be implemented soon!');
+    // Same route handles both login and signup
+    window.location.href = '/auth/facebook';
 }
 
 function showForgotPassword() {
-    showNotification('info', 'Forgot password feature will be available soon!');
+    // showNotification('info', 'Forgot password feature will be available soon!');
+    // Same route handles both login and signup
+    window.location.href = '/auth/facebook';
 }
 
 // ==============================================

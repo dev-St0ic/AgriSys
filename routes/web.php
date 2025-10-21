@@ -535,6 +535,11 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [UserRegistrationController::class, 'login'])->name('auth.login');
     Route::post('/logout', [UserRegistrationController::class, 'logout'])->name('auth.logout');
 
+
+    // Facebook Authentication
+    Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])->name('facebook.redirect');
+    Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])->name('facebook.callback');
+
     // Username availability checking
     Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('auth.check.username');
 
