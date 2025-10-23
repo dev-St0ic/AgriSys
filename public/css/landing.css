@@ -1151,7 +1151,6 @@ header {
         transition: none;
     }
 }
-
 /* ==============================================
    CONTACT MODAL STYLES
    ============================================== */
@@ -1173,7 +1172,7 @@ header {
 .contact-modal-content {
     background: white;
     border-radius: 12px;
-    max-width: 600px;
+    max-width: 500px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
@@ -1187,7 +1186,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #2c5530;
+    background: #40916c;
     color: white;
     border-radius: 12px 12px 0 0;
 }
@@ -1222,76 +1221,80 @@ header {
 }
 
 .contact-info-section {
-    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .contact-info-item {
-    margin-bottom: 15px;
-    padding: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
     background: #f8f9fa;
     border-radius: 8px;
-    border-left: 4px solid #2c5530;
+    border-left: 4px solid #40916c;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.contact-info-item strong {
-    display: block;
-    margin-bottom: 5px;
-    color: #2c5530;
+.contact-info-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(64, 145, 108, 0.1);
+    border-left-color: #2d6a4f;
 }
 
-.contact-info-item a {
-    color: #2c5530;
+.contact-info-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    color: #40916c;
+    transition: color 0.2s;
+}
+
+.contact-info-item:hover .contact-info-icon {
+    color: #2d6a4f;
+}
+
+.contact-info-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.contact-info-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.contact-info-text strong {
+    color: #40916c;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.contact-info-item:hover .contact-info-text strong {
+    color: #2d6a4f;
+}
+
+.contact-info-text a {
+    color: #40916c;
     text-decoration: none;
     font-weight: 500;
+    font-size: 15px;
+    transition: color 0.2s;
 }
 
-.contact-info-item a:hover {
+.contact-info-text a:hover {
     text-decoration: underline;
+    color: #2d6a4f;
 }
 
-.quick-contact-section h4 {
-    margin-bottom: 15px;
-    color: #2c5530;
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 8px;
-}
-
-.contact-form-input,
-.contact-form-select,
-.contact-form-textarea {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-}
-
-.contact-form-input:focus,
-.contact-form-select:focus,
-.contact-form-textarea:focus {
-    outline: none;
-    border-color: #2c5530;
-}
-
-.contact-form-submit {
-    background: #2c5530;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    transition: all 0.2s;
-    width: 100%;
-}
-
-.contact-form-submit:hover {
-    background: #1e3a21;
-    transform: translateY(-2px);
+.contact-info-text span {
+    color: #374151;
+    font-size: 15px;
+    line-height: 1.5;
 }
 
 @keyframes contactModalFadeIn {
@@ -1318,6 +1321,15 @@ header {
 
     .contact-modal-body {
         padding: 20px;
+    }
+
+    .contact-info-item {
+        padding: 12px;
+    }
+
+    .contact-info-icon {
+        width: 20px;
+        height: 20px;
     }
 }
  /* --- Footer Styles --- */

@@ -570,7 +570,7 @@
             <button class="btn-help">Visit Office</button>
         </div>
     </section>
-
+    
     <!-- Contact Modal -->
     <div id="contact-modal" class="contact-modal-overlay" style="display: none;">
         <div class="contact-modal-content">
@@ -581,44 +581,54 @@
             <div class="contact-modal-body">
                 <div class="contact-info-section">
                     <div class="contact-info-item">
-                        <strong>Email:</strong>
-                        <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a>
+                        <div class="contact-info-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info-text">
+                            <strong>Email</strong>
+                            <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a>
+                        </div>
                     </div>
                     <div class="contact-info-item">
-                        <strong>Phone:</strong>
-                        <a href="tel:+631234567890">(049) 123-4567</a>
+                        <div class="contact-info-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info-text">
+                            <strong>Phone</strong>
+                            <a href="tel:+631234567890">(049) 123-4567</a>
+                        </div>
                     </div>
                     <div class="contact-info-item">
-                        <strong>Office Hours:</strong>
-                        Monday - Friday: 8:00 AM - 5:00 PM
+                        <div class="contact-info-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info-text">
+                            <strong>Office Hours</strong>
+                            <span>Monday - Friday: 8:00 AM - 5:00 PM</span>
+                        </div>
                     </div>
                     <div class="contact-info-item">
-                        <strong>Address:</strong>
-                        City Agriculture Office<br>
-                        San Pedro City Hall, Laguna
+                        <div class="contact-info-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info-text">
+                            <strong>Address</strong>
+                            <span>City Agriculture Office<br>San Pedro City Hall, Laguna</span>
+                        </div>
                     </div>
-                </div>
-
-                <div class="quick-contact-section">
-                    <h4>Send Quick Message</h4>
-                    <form id="quick-contact-form">
-                        <input type="text" placeholder="Your Name" required class="contact-form-input">
-                        <input type="email" placeholder="Your Email" required class="contact-form-input">
-                        <select required class="contact-form-select">
-                            <option value="">Select Issue Type</option>
-                            <option value="application">Application Status</option>
-                            <option value="emergency">Emergency Agricultural Concern</option>
-                            <option value="general">General Inquiry</option>
-                            <option value="technical">Technical Support</option>
-                        </select>
-                        <textarea placeholder="Your Message" rows="4" required class="contact-form-textarea"></textarea>
-                        <button type="submit" class="contact-form-submit">Send Message</button>
-                    </form>
                 </div>
             </div>
         </div>
     </div>
-
     @if (isset($user))
         <!-- USER PROFILE MODAL -->
         <div id="profile-modal" class="modal-overlay" style="display: none;">
