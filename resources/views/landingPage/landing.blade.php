@@ -149,28 +149,28 @@
         <div class="welcome-image"></div>
     </section>
 
-    <!-- Projects Section -->
-    <section class="projects" id="projects">
+  <!-- Events Section -->
+    <section class="events" id="events">
         <img src="../images/logos/cagoFull.png" alt="City Agriculture Office Logo" class="logo-icon">
         <img src="../images/logos/CityOfSanPedro.jpg" alt="City of San Pedro Logo" class="logo-icon">
         <h2>City<span class="highlight"> Agriculture Office of San Pedro, Laguna</span></h2>
-        <p class="projects-subtitle">Ongoing and past events and projects of the San Pedro City Agriculture Office dedicated to promoting agricultural growth and community development.</p>
+        <p class="events-subtitle">Ongoing and past events and initiatives of the San Pedro City Agriculture Office dedicated to promoting agricultural growth and community development.</p>
         
-        <div class="projects-filters">
+        <div class="events-filters">
             <button class="filter-btn active" data-filter="all">View All</button>
-            <button class="filter-btn" data-filter="garden-care">Announcements</button>
-            <button class="filter-btn" data-filter="lawn-care">Ongoing Events</button>
-            <button class="filter-btn" data-filter="planting">Upcoming Events</button>
-            <button class="filter-btn" data-filter="landscape">Past Events</button>
+            <button class="filter-btn" data-filter="announcement">Announcements</button>
+            <button class="filter-btn" data-filter="ongoing">Ongoing Events</button>
+            <button class="filter-btn" data-filter="upcoming">Upcoming Events</button>
+            <button class="filter-btn" data-filter="past">Past Events</button>
         </div>
         
-        <div class="projects-grid">
-            <!-- Project Card 1 -->
-            <div class="project-card" data-category="garden-care">
-                <img src="../images/projects/1.jpg" alt="Garden Care" class="project-image">
-                <div class="project-content">
+        <div class="events-grid">
+            <!-- Event Card 1 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/1.jpg" alt="Garden Care" class="event-image">
+                <div class="event-content">
                     <h3>Community Garden Initiative</h3>
-                    <p class="project-description">Urban gardening program bringing together residents to cultivate fresh produce while learning sustainable farming techniques including organic gardening, composting, and water conservation.</p>
+                    <p class="event-description">Urban gardening program bringing together residents to cultivate fresh produce while learning sustainable farming techniques including organic gardening, composting, and water conservation.</p>
                     
                     <div class="event-info-box">
                         <div class="date">📅 Every Saturday | 8:00 AM - 12:00 PM</div>
@@ -203,12 +203,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 2 -->
-            <div class="project-card" data-category="landscape">
-                <img src="../images/projects/2.jpg" alt="Landscape" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 2 -->
+            <div class="event-card" data-category="past">
+                <img src="../images/events/2.jpg" alt="Landscape" class="event-image">
+                <div class="event-content">
                     <h3>Green Corridor Project</h3>
-                    <p class="project-description">City-wide landscaping initiative that transformed urban spaces into vibrant green zones. Over 500 native trees planted and pocket gardens created throughout the city to improve air quality and aesthetics.</p>
+                    <p class="event-description">City-wide landscaping initiative that transformed urban spaces into vibrant green zones. Over 500 native trees planted and pocket gardens created throughout the city to improve air quality and aesthetics.</p>
                     
                     <div class="event-info-box">
                         <div class="date">✅ Completed: September 2024</div>
@@ -241,12 +241,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 3 -->
-            <div class="project-card" data-category="planting">
-                <img src="../images/projects/3.jpg" alt="Planting" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 3 -->
+            <div class="event-card" data-category="upcoming">
+                <img src="../images/events/3.jpg" alt="Planting" class="event-image">
+                <div class="event-content">
                     <h3>Tree Planting Drive</h3>
-                    <p class="project-description">Annual tree planting event with a goal to plant 1,000 indigenous trees across the city. Volunteers receive free seedlings, refreshments, and certificates of participation.</p>
+                    <p class="event-description">Annual tree planting event with a goal to plant 1,000 indigenous trees across the city. Volunteers receive free seedlings, refreshments, and certificates of participation.</p>
                     
                     <div class="event-info-box">
                         <div class="date">🌱 November 15, 2025 | 6:00 AM - 10:00 AM</div>
@@ -279,12 +279,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 4 -->
-            <div class="project-card" data-category="planting">
-                <img src="../images/projects/4.jpg" alt="Planting" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 4 -->
+            <div class="event-card" data-category="upcoming">
+                <img src="../images/events/4.jpg" alt="Workshop" class="event-image">
+                <div class="event-content">
                     <h3>Vegetable Farming Workshop</h3>
-                    <p class="project-description">Expert-led workshops covering advanced vegetable cultivation methods, pest management, and market strategies to help farmers maximize yields while minimizing environmental impact.</p>
+                    <p class="event-description">Expert-led workshops covering advanced vegetable cultivation methods, pest management, and market strategies to help farmers maximize yields while minimizing environmental impact.</p>
                     
                     <div class="event-info-box">
                         <div class="date">📚 October 28, 2025 | 2:00 PM - 5:00 PM</div>
@@ -317,12 +317,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 5 -->
-            <div class="project-card" data-category="planting">
-                <img src="../images/projects/5.jpg" alt="Planting" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 5 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/5.jpg" alt="Organic Rice" class="event-image">
+                <div class="event-content">
                     <h3>Organic Rice Cultivation</h3>
-                    <p class="project-description">Year-long program supporting farmers transitioning to organic rice farming methods that eliminate harmful pesticides. Includes training, organic fertilizers, and access to premium markets.</p>
+                    <p class="event-description">Year-long program supporting farmers transitioning to organic rice farming methods that eliminate harmful pesticides. Includes training, organic fertilizers, and access to premium markets.</p>
                     
                     <div class="event-info-box">
                         <div class="date">🌾 January - December 2025</div>
@@ -355,12 +355,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 6 -->
-            <div class="project-card" data-category="lawn-care">
-                <img src="../images/projects/6.jpg" alt="Lawn Care" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 6 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/6.jpg" alt="Park Maintenance" class="event-image">
+                <div class="event-content">
                     <h3>Park Maintenance Program</h3>
-                    <p class="project-description">Daily maintenance of city parks through regular mowing, trimming, and landscaping ensuring safe, clean, and beautiful spaces for families and communities.</p>
+                    <p class="event-description">Daily maintenance of city parks through regular mowing, trimming, and landscaping ensuring safe, clean, and beautiful spaces for families and communities.</p>
                     
                     <div class="event-info-box">
                         <div class="date">🔄 Ongoing | Daily Operations</div>
@@ -393,12 +393,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 7 -->
-            <div class="project-card" data-category="lawn-care">
-                <img src="../images/projects/7.jpg" alt="Lawn Care" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 7 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/7.jpg" alt="Sports Field" class="event-image">
+                <div class="event-content">
                     <h3>Sports Field Renovation</h3>
-                    <p class="project-description">Complete overhaul of community sports facilities including new turf installation, modern drainage systems, and efficient irrigation creating world-class venues for youth sports and tournaments.</p>
+                    <p class="event-description">Complete overhaul of community sports facilities including new turf installation, modern drainage systems, and efficient irrigation creating world-class venues for youth sports and tournaments.</p>
                     
                     <div class="event-info-box">
                         <div class="date">⚙️ In Progress | Target: December 2025</div>
@@ -431,12 +431,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 8 -->
-            <div class="project-card" data-category="garden-care">
-                <img src="../images/projects/8.jpg" alt="Garden Care" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 8 -->
+            <div class="event-card" data-category="announcement">
+                <img src="../images/events/8.jpg" alt="Urban Farming" class="event-image">
+                <div class="event-content">
                     <h3>Urban Farming Training</h3>
-                    <p class="project-description">Monthly training on innovative techniques for growing vegetables in small spaces using containers, vertical gardens, and hydroponics. Perfect for apartment dwellers and homeowners.</p>
+                    <p class="event-description">Monthly training on innovative techniques for growing vegetables in small spaces using containers, vertical gardens, and hydroponics. Perfect for apartment dwellers and homeowners.</p>
                     
                     <div class="event-info-box">
                         <div class="date">🏙️ First Sunday of Every Month | 9:00 AM - 12:00 PM</div>

@@ -514,7 +514,7 @@ function showTrainingMessage(message, type = 'info') {
 function hideAllMainSections() {
     const sections = [
         'home',
-        '.announcement',
+        'events',
         'services',
         'how-it-works',
         '.help-section'

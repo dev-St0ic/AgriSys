@@ -748,7 +748,7 @@ function handlePopState(event) {
 function hideAllMainSections() {
     const sections = [
         'home',
-        '.announcement',
+        'events',
         'services',
         'how-it-works',
         '.help-section'

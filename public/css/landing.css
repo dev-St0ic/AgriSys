@@ -360,8 +360,8 @@ header {
         font-size: 0.85rem;
     }
 }
-/* --- Projects Section --- */
-.projects {
+/* --- Events Section --- */
+.events {
     padding: 80px 40px;
     background: linear-gradient(to bottom, #ffffff 0%, #f0f8f5 50%, #e8f5e9 100%);
     text-align: center;
@@ -376,14 +376,14 @@ header {
 }
 
 
-.projects h2 {
+.events h2 {
     font-size: 3rem;
     margin-bottom: 15px;
     color: #2d6a4f;
     font-weight: 700;
 }
 
-.projects-subtitle {
+.events-subtitle {
     font-size: 1.2rem;
     color: #555;
     margin-bottom: 30px;
@@ -393,7 +393,7 @@ header {
     line-height: 1.6;
 }
 
-.projects-filters {
+.events-filters {
     display: flex;
     justify-content: center;
     gap: 15px;
@@ -428,7 +428,7 @@ header {
     box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
 }
 
-.projects-grid {
+.events-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 30px;
@@ -436,7 +436,7 @@ header {
     margin: 0 auto;
 }
 
-.project-card {
+.event-card {
     background: white;
     border-radius: 12px;
     overflow: hidden;
@@ -444,31 +444,31 @@ header {
     transition: all 0.3s ease;
 }
 
-.project-card:hover {
+.event-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
-.project-image {
+.event-image {
     width: 100%;
     height: 220px;
     object-fit: cover;
     display: block;
 }
 
-.project-content {
+.event-content {
     padding: 25px;
     text-align: left;
 }
 
-.project-content h3 {
+.event-content h3 {
     font-size: 1.5rem;
     color: #2d6a4f;
     margin-bottom: 12px;
     font-weight: 700;
 }
 
-.project-description {
+.event-description {
     font-size: 1rem;
     color: #555;
     line-height: 1.7;
@@ -574,7 +574,7 @@ header {
     transition: transform 0.3s ease;
 }
 
-.project-card.expanded .expand-btn .arrow {
+.event-card.expanded .expand-btn .arrow {
     transform: rotate(180deg);
 }
 
@@ -585,21 +585,21 @@ header {
     transition: max-height 0.4s ease-in-out;
 }
 
-.project-card.expanded .expandable-details {
+.event-card.expanded .expandable-details {
     margin-top: 15px;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .projects {
+    .events {
         padding: 60px 20px;
     }
 
-        .projects h2 {
+    .events h2 {
         font-size: 2.5rem;
     }
 
-    .projects-filters {
+    .events-filters {
         gap: 10px;
     }
 
@@ -608,30 +608,30 @@ header {
         font-size: 0.9rem;
     }
 
-    .projects-grid {
+    .events-grid {
         grid-template-columns: 1fr;
         gap: 25px;
     }
 
-    .project-image {
+    .event-image {
         height: 200px;
     }
 
-    .project-content {
+    .event-content {
         padding: 20px;
     }
 
-    .project-content h3 {
+    .event-content h3 {
         font-size: 1.3rem;
     }
 }
 
 @media (max-width: 480px) {
-    .projects {
+    .events {
         padding: 40px 15px;
     }
 
-    .projects h2 {
+    .events h2 {
         font-size: 2rem;
     }
 
