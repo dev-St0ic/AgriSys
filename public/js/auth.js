@@ -1265,11 +1265,15 @@ function renderEmptyApplications() {
 
     grid.innerHTML = `
         <div class="empty-applications">
-            <div class="empty-icon">📋</div>
-            <h4>No Applications Yet</h4>
-            <p>You haven't submitted any applications yet. Browse our services to get started!</p>
+            <div class="empty-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+            </div>
+            <h4>No Applications Submitted</h4>
+            <p>Start your journey by exploring our available services and programs designed for farmers and fisherfolks.</p>
             <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
-                <span>🌾</span> Browse Services
+                View Available Services
             </button>
         </div>
     `;
