@@ -1567,17 +1567,6 @@ if (!document.getElementById('application-cards-styles')) {
 
 console.log('✅ Updated My Applications with RSBSA integration loaded');
 
-function accountSettings() {
-    // Open account settings in new tab
-    window.open('/account/settings', '_blank');
-
-    // Close dropdown
-    const dropdown = document.getElementById('user-dropdown');
-    if (dropdown) {
-        dropdown.classList.remove('show');
-    }
-}
-
 function logoutUser() {
     if (confirm('Are you sure you want to log out?')) {
         fetch('/auth/logout', {

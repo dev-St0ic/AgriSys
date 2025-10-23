@@ -1094,6 +1094,8 @@ input.is-invalid {
     text-transform: uppercase;
 }
 
+/* DROP DOWN MENU ITEMS */
+
 .dropdown-menu {
     padding: 10px 0;
 }
@@ -1120,7 +1122,7 @@ input.is-invalid {
 }
 
 .dropdown-icon {
-    font-size: 16px;
+    font-size: 20px;
     width: 20px;
     text-align: center;
 }
