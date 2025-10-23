@@ -650,7 +650,6 @@
                                 <h4>{{ $user['name'] ?? $user['username'] }}</h4>
                                 <p class="profile-email">{{ $user['email'] }}</p>
                                 <div class="profile-status-badge status-{{ $status }}">
-
                                     {{ ucfirst($user['status'] ?? 'Active') }}
                                 </div>
                             </div>
@@ -670,13 +669,11 @@
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Member Since:</span>
-                                    <span
-                                        class="info-value">{{ isset($user['created_at']) ? date('M Y', strtotime($user['created_at'])) : 'N/A' }}</span>
+                                    <span class="info-value">{{ isset($user['created_at']) ? date('M Y', strtotime($user['created_at'])) : 'N/A' }}</span>
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Account Status:</span>
-                                    <span
-                                        class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
+                                    <span class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
                                 </div>
                             </div>
 
@@ -701,48 +698,68 @@
 
                         <!-- Profile Actions -->
                         <div class="profile-actions">
-                            {{-- Server-rendered verification button to match backend status --}}
                             @php
-                                // Normalize status for rendering
                                 $s = $status;
                             @endphp
 
                             @if (in_array($s, ['verified', 'approved']))
                                 <button class="profile-action-btn verified" id="verify-action-btn" disabled>
-                                    <span class="btn-icon">✅</span>
-                                    Verified
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>Verified</span>
                                 </button>
                             @elseif(in_array($s, ['pending', 'pending_verification']))
                                 <button class="profile-action-btn pending" id="verify-action-btn" disabled>
-                                    <span class="btn-icon">⏳</span>
-                                    Pending Verification
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 6v6l4 2"/>
+                                    </svg>
+                                    <span>Pending Verification</span>
                                 </button>
                             @elseif($s === 'rejected')
-                                <button class="profile-action-btn rejected" id="verify-action-btn"
-                                    onclick="showVerificationModal()">
-                                    <span class="btn-icon">🔄</span>
-                                    Retry Verification
+                                <button class="profile-action-btn rejected" id="verify-action-btn" onclick="showVerificationModal()">
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
+                                        <polyline points="16 6 12 2 8 6"/>
+                                        <line x1="12" y1="2" x2="12" y2="15"/>
+                                    </svg>
+                                    <span>Retry Verification</span>
                                 </button>
                             @else
-                                <button class="profile-action-btn primary" id="verify-action-btn"
-                                    onclick="showVerificationModal()">
-                                    <span class="btn-icon">✅</span>
-                                    Verify Now
+                                <button class="profile-action-btn primary" id="verify-action-btn" onclick="showVerificationModal()">
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>Verify Account</span>
                                 </button>
                             @endif
 
                             <button class="profile-action-btn secondary" onclick="editProfile()">
-                                <span class="btn-icon">✏️</span>
-                                Edit Profile
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                                <span>Edit Profile</span>
                             </button>
+                            
                             <button class="profile-action-btn secondary" onclick="changePassword()">
-                                <span class="btn-icon">🔒</span>
-                                Change Password
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0110 0v4"/>
+                                </svg>
+                                <span>Change Password</span>
                             </button>
-                            <button class="profile-action-btn secondary"
-                                onclick="showMyApplicationsModal(); closeProfileModal();">
-                                <span class="btn-icon">📋</span>
-                                View Applications
+                            
+                            <button class="profile-action-btn secondary" onclick="showMyApplicationsModal(); closeProfileModal();">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10 9 9 9 8 9"/>
+                                </svg>
+                                <span>View Applications</span>
                             </button>
                         </div>
 
@@ -750,7 +767,9 @@
                         <div class="recent-activity">
                             <h5>Recent Activity</h5>
                             <div class="activity-list" id="recent-activity-list">
-                                <!-- Will be populated by JavaScript -->
+                                <div class="activity-placeholder">
+                                    <p>No recent activity to display</p>
+                                </div>
                             </div>
                         </div>
                     </div>
