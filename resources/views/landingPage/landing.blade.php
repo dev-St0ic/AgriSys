@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/rsbsa.css') }}">
     <link rel="stylesheet" href="{{ asset('css/training.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/toast-notifications.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
     
@@ -33,14 +34,26 @@
 <body>
     <!-- Success/Error Messages -->
     @if (session('success'))
-        <div class="alert alert-success">
+        <div class="alert alert-success" style="display: none;">
             {{ session('success') }}
         </div>
     @endif
 
     @if (session('error'))
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" style="display: none;">
             {{ session('error') }}
+        </div>
+    @endif
+
+        @if (session('warning'))
+        <div class="alert alert-warning" style="display: none;">
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    @if (session('info'))
+        <div class="alert alert-info" style="display: none;">
+            {{ session('info') }}
         </div>
     @endif
 
@@ -1467,6 +1480,7 @@
     <script src="{{ asset('js/boatr-autofill.js') }}"></script>
     <script src="{{ asset('js/seedlings-autofill.js') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}"></script>
+    <script src="{{ asset('js/toast-notifications.js') }}"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 
