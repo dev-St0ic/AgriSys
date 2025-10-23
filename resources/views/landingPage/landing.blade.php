@@ -681,10 +681,6 @@
                                     <span class="info-value">{{ $user['email'] }}</span>
                                 </div>
                                 <div class="info-row">
-                                    <span class="info-label">Member Since:</span>
-                                    <span class="info-value">{{ isset($user['created_at']) ? date('M Y', strtotime($user['created_at'])) : 'N/A' }}</span>
-                                </div>
-                                <div class="info-row">
                                     <span class="info-label">Account Status:</span>
                                     <span class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
                                 </div>
@@ -1311,7 +1307,6 @@
             </div>
         </div>
     </div>
-
     <!-- CHANGE PASSWORD MODAL -->
     <div id="change-password-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content change-password-modal">
@@ -1322,17 +1317,19 @@
 
             <div class="modal-body">
                 <div class="change-password-content">
-                    <div class="password-requirements">
-                        <h5>Password Requirements</h5>
-                        <ul>
-                            <li>At least 8 characters long</li>
-                            <li>Mix of uppercase and lowercase letters</li>
-                            <li>Include numbers and special characters</li>
-                            <li>Different from your current password</li>
-                        </ul>
+                    <!-- Security Info Banner - Replaces password requirements -->
+                    <div class="security-info-banner">
+                        <div class="banner-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                        </div>
+                        <p>Choose a strong password that you haven't used elsewhere. You'll need to log in again after changing it.</p>
                     </div>
 
-                    <!--  Prevent default form submission -->
+                    <!-- Prevent default form submission -->
                     <form id="change-password-form" onsubmit="return handleChangePasswordSubmit(event)">
                         <div class="form-group">
                             <label for="current-password">Current Password *</label>
@@ -1363,6 +1360,7 @@
                                 </div>
                                 <div class="strength-text">Password strength</div>
                             </div>
+                            <!-- Password requirements checklist will be inserted here dynamically -->
                         </div>
 
                         <div class="form-group">
@@ -1379,15 +1377,6 @@
                             <div class="password-match-status confirm-new-password-match"></div>
                         </div>
 
-                        <div class="security-notice">
-                            <div class="notice-icon">🔒</div>
-                            <div class="notice-content">
-                                <h6>Security Tip</h6>
-                                <p>For your security, you will be logged out after changing your password and will need
-                                    to log in again with your new password.</p>
-                            </div>
-                        </div>
-
                         <div class="modal-actions">
                             <button type="button" class="btn-secondary" onclick="closeChangePasswordModal()">
                                 Cancel
@@ -1402,7 +1391,6 @@
             </div>
         </div>
     </div>
-
     <!-- Footer Section -->
     <footer class="footer" id="main-footer">
         <div class="footer-container">

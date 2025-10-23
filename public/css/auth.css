@@ -1624,7 +1624,7 @@ input.is-invalid {
 .modal-header h3 {
     font-size: 20px;
     font-weight: 600;
-    color: #1f2937;
+    color: #f7f7f7;
     margin: 0;
 }
 
@@ -2834,45 +2834,88 @@ input.is-invalid {
         justify-content: center;
     }
 }
+/* ==============================================
+   CHANGE PASSWORD MODAL STYLES
+   ============================================== */
 
-
-/* Change Password Modal Styles */
+/* Modal Container */
 .change-password-modal {
     max-width: 550px;
     width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
-.password-requirements {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    padding: 20px;
+/* Modal Header - Centered */
+.change-password-modal .modal-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+}
+
+.change-password-modal .modal-header h3 {
+    color: #1f2937;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    text-align: center;
+}
+
+.change-password-modal .modal-close {
+    position: absolute;
+    right: 24px;
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+}
+
+.change-password-modal .modal-close:hover {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Security Info Banner - Replaces Password Requirements */
+.security-info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    padding: 16px;
     border-radius: 8px;
     margin-bottom: 24px;
     border-left: 4px solid #3b82f6;
 }
 
-.password-requirements h5 {
-    margin: 0 0 12px 0;
+.security-info-banner .banner-icon {
+    flex-shrink: 0;
     color: #1e40af;
-    font-size: 16px;
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
 }
 
-.password-requirements ul {
+.security-info-banner p {
     margin: 0;
-    padding-left: 20px;
-}
-
-.password-requirements li {
     color: #1e3a8a;
-    font-size: 14px;
-    margin-bottom: 8px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
-.password-requirements li:last-child {
-    margin-bottom: 0;
-}
-
+/* Form Groups */
 .change-password-content .form-group {
     margin-bottom: 20px;
 }
@@ -2880,80 +2923,148 @@ input.is-invalid {
 .change-password-content label {
     display: block;
     margin-bottom: 8px;
-    font-weight: 500;
-    color: #333;
+    font-weight: 600;
+    color: #1f2937;
     font-size: 14px;
 }
 
-.change-password-content input {
+/* Password Input Container */
+.change-password-content .password-input-container {
+    position: relative;
+    display: block;
     width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #d1d5db;
+    isolation: isolate;
+}
+
+.change-password-content .password-input-container input {
+    width: 100%;
+    padding: 12px 70px 12px 16px;
+    border: 2px solid #d1d5db;
     border-radius: 8px;
     font-size: 14px;
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
-.change-password-content input:focus {
+.change-password-content .password-input-container input:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #0A6953;
+    box-shadow: 0 0 0 3px rgba(10, 105, 83, 0.1);
 }
 
+.change-password-content .password-input-container input.error {
+    border-color: #ef4444;
+}
+
+/* Password Toggle Button */
+.change-password-content .password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 10px;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    line-height: 1;
+    white-space: nowrap;
+    z-index: 100;
+}
+
+.change-password-content .password-toggle:hover {
+    color: #0A6953;
+    background: rgba(10, 105, 83, 0.08);
+}
+
+/* Password Strength Indicator */
 .new-password-strength {
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
+.new-password-strength .strength-bar {
+    height: 5px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.new-password-strength .strength-fill {
+    height: 100%;
+    width: 0;
+    transition: all 0.4s ease;
+    border-radius: 3px;
+}
+
+.new-password-strength .strength-fill.weak {
+    width: 25%;
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+.new-password-strength .strength-fill.fair {
+    width: 50%;
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.new-password-strength .strength-fill.good {
+    width: 75%;
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.new-password-strength .strength-fill.strong {
+    width: 100%;
+    background: linear-gradient(90deg, #059669 0%, #047857 100%);
+}
+
+.new-password-strength .strength-text {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Password Match Status */
 .confirm-new-password-match {
     margin-top: 8px;
     font-size: 13px;
-    font-weight: 500;
-    padding: 4px 0;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: inline-block;
 }
 
 .confirm-new-password-match.match {
-    color: #10b981;
+    color: #059669;
+    background: #d1fae5;
+    border: 1px solid #a7f3d0;
 }
 
 .confirm-new-password-match.no-match {
-    color: #ef4444;
+    color: #dc2626;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
 }
 
-.security-notice {
-    display: flex;
-    gap: 12px;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 24px;
-    border-left: 4px solid #f59e0b;
+/* Password Requirements List (Dynamic) */
+.new-password-requirements-list {
+    position: relative;
+    z-index: 1;
 }
 
-.security-notice .notice-icon {
-    font-size: 24px;
-    line-height: 1;
-}
-
-.security-notice .notice-content h6 {
-    margin: 0 0 4px 0;
-    color: #92400e;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.security-notice .notice-content p {
-    margin: 0;
-    color: #78350f;
-    font-size: 13px;
-    line-height: 1.5;
-}
-
+/* Modal Actions */
 .modal-actions {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
+    margin-top: 24px;
 }
 
+/* Buttons */
 .btn-secondary,
 .btn-primary {
     padding: 12px 24px;
@@ -2963,26 +3074,34 @@ input.is-invalid {
     cursor: pointer;
     transition: all 0.3s ease;
     border: none;
+    font-family: inherit;
 }
 
 .btn-secondary {
     background: #f3f4f6;
     color: #374151;
+    border: 1px solid #d1d5db;
 }
 
 .btn-secondary:hover {
     background: #e5e7eb;
+    border-color: #9ca3af;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #0A6953 0%, #085d47 100%);
     color: white;
+    box-shadow: 0 2px 4px rgba(10, 105, 83, 0.2);
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #085d47 0%, #064e3b 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
 }
 
 .btn-primary:disabled {
@@ -2991,6 +3110,7 @@ input.is-invalid {
     transform: none;
 }
 
+/* Loading State */
 .change-password-submit-btn .btn-loader {
     display: none;
 }
@@ -3003,6 +3123,61 @@ input.is-invalid {
     display: inline;
 }
 
+/* Responsive Design */
+@media (max-width: 640px) {
+    .change-password-modal {
+        width: 95%;
+        max-width: none;
+    }
+
+    .change-password-modal .modal-header {
+        padding: 16px 20px;
+    }
+
+    .change-password-modal .modal-header h3 {
+        font-size: 18px;
+    }
+
+    .change-password-modal .modal-close {
+        right: 20px;
+    }
+
+    .security-info-banner {
+        padding: 12px;
+    }
+
+    .security-info-banner p {
+        font-size: 12px;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-secondary,
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Accessibility */
+.change-password-content input:focus-visible {
+    outline: 2px solid #0A6953;
+    outline-offset: 2px;
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid #0A6953;
+    outline-offset: 2px;
+}
+
+/* Print styles - hide modal when printing */
+@media print {
+    .change-password-modal {
+        display: none !important;
+    }
+}
 /* ==============================================
    RECAPTCHA V2
    ============================================== */
