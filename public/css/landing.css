@@ -1228,7 +1228,7 @@ header {
 
 .contact-info-item {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 15px;
     padding: 15px;
     background: #f8f9fa;

@@ -2497,9 +2497,9 @@ input.is-invalid {
     transform: scale(0.95);
     transform-origin: 0 0;
 }
-
 /* ==============================================
    VERIFICATION ALERT MODAL STYLES
+   User-Friendly Design for Farmers & Fisherfolks
    ============================================== */
 
 .verification-alert-modal {
@@ -2508,8 +2508,8 @@ input.is-invalid {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(5px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2517,6 +2517,7 @@ input.is-invalid {
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 20px;
 }
 
 .verification-alert-modal.show {
@@ -2526,13 +2527,13 @@ input.is-invalid {
 
 .verification-alert-modal .modal-content {
     background: #ffffff;
-    border-radius: 16px;
-    max-width: 500px;
-    width: 90%;
+    border-radius: 20px;
+    max-width: 560px;
+    width: 100%;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    transform: translateY(20px) scale(0.95);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(30px) scale(0.9);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -2540,114 +2541,150 @@ input.is-invalid {
     transform: translateY(0) scale(1);
 }
 
+/* Modal Header - More prominent with green theme */
 .verification-alert-modal .modal-header {
-    padding: 24px 24px 0 24px;
+    background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+    padding: 26px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: none;
+    border-radius: 20px 20px 0 0;
 }
 
 .verification-alert-modal .modal-header h3 {
-    color: #1f2937;
-    font-size: 20px;
-    font-weight: 600;
+    color: #ffffff;
+    font-size: 1.4rem;
+    font-weight: 700;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    flex: 1;
+    justify-content: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .verification-alert-modal .modal-header h3 i {
-    color: #f59e0b;
-    font-size: 22px;
+    color: #aca21e;
+    font-size: 1.6rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .verification-alert-modal .close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #9ca3af;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    font-size: 1.8rem;
+    color: #ffffff;
     cursor: pointer;
     padding: 4px;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    font-weight: bold;
+    line-height: 1;
 }
 
 .verification-alert-modal .close-btn:hover {
-    color: #374151;
-    background: #f3f4f6;
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: rotate(90deg);
 }
 
+/* Modal Body - Clear and spacious */
 .verification-alert-modal .modal-body {
-    padding: 20px 24px 24px 24px;
+    padding: 32px 28px;
     text-align: center;
 }
 
+/* Alert Icon - Larger and more prominent */
 .verification-alert-modal .alert-icon {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #fef3c7, #fed7aa);
+    background: linear-gradient(135deg, #ffd60a 0%, #ffc300 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 20px;
+    margin: 0 auto 24px;
+    box-shadow: 0 6px 20px rgba(255, 214, 10, 0.35);
+    border: 4px solid #fff8dc;
 }
 
 .verification-alert-modal .alert-icon i {
-    font-size: 36px;
-    color: #d97706;
+    font-size: 2.8rem;
+    color: #ffffff;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .verification-alert-modal .alert-icon.pending {
-    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    background: linear-gradient(135deg, #4895ef 0%, #3a7dd8 100%);
+    border-color: #d0e7ff;
+    box-shadow: 0 6px 20px rgba(72, 149, 239, 0.35);
 }
 
 .verification-alert-modal .alert-icon.pending i {
-    color: #2563eb;
+    color: #ffffff;
 }
 
 .verification-alert-modal .alert-icon.rejected {
-    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    background: linear-gradient(135deg, #e63946 0%, #d62839 100%);
+    border-color: #ffe0e3;
+    box-shadow: 0 6px 20px rgba(230, 57, 70, 0.35);
 }
 
 .verification-alert-modal .alert-icon.rejected i {
-    color: #dc2626;
+    color: #ffffff;
 }
 
+/* Headings and Text - Larger and easier to read */
 .verification-alert-modal h4 {
-    color: #111827;
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 12px 0;
+    color: #1b4332;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    line-height: 1.3;
 }
 
 .verification-alert-modal p {
-    color: #4b5563;
-    font-size: 15px;
-    line-height: 1.6;
-    margin: 0 0 16px 0;
+    color: #52796f;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin: 0 0 18px 0;
 }
 
+.verification-alert-modal p strong {
+    color: #2d6a4f;
+    font-weight: 700;
+}
+
+/* Verification Steps - Clear visual steps */
 .verification-alert-modal .verification-steps {
-    background: #f9fafb;
-    border-radius: 12px;
-    padding: 20px;
-    margin: 20px 0;
+    background: linear-gradient(135deg, #f1faee 0%, #d8f3dc 100%);
+    border-radius: 14px;
+    padding: 24px;
+    margin: 24px 0;
     text-align: left;
+    border: 2px solid #b7e4c7;
 }
 
 .verification-alert-modal .step {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding: 14px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease;
+}
+
+.verification-alert-modal .step:hover {
+    transform: translateX(4px);
 }
 
 .verification-alert-modal .step:last-child {
@@ -2655,172 +2692,344 @@ input.is-invalid {
 }
 
 .verification-alert-modal .step-number {
-    width: 28px;
-    height: 28px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #0A6953, #2d6a4f);
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
+    background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(64, 145, 108, 0.3);
 }
 
 .verification-alert-modal .step-text {
-    color: #374151;
-    font-size: 14px;
-    font-weight: 500;
+    color: #2d6a4f;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.4;
 }
 
+/* Status Info - Clear status display */
 .verification-alert-modal .status-info {
-    background: #f3f4f6;
-    border-radius: 8px;
-    padding: 16px;
-    margin: 16px 0;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
     text-align: left;
+    border-left: 5px solid #40916c;
 }
 
 .verification-alert-modal .status-info p {
-    margin: 0 0 8px 0;
-    font-size: 14px;
+    margin: 0 0 10px 0;
+    font-size: 1.05rem;
 }
 
 .verification-alert-modal .status-info p:last-child {
     margin-bottom: 0;
 }
 
+.verification-alert-modal .status-info em {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
 .verification-alert-modal .status-badge {
     display: inline-flex;
     align-items: center;
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .verification-alert-modal .status-badge.pending {
-    background: #dbeafe;
-    color: #1e40af;
+    background: linear-gradient(135deg, #caf0f8 0%, #ade8f4 100%);
+    color: #023e8a;
+    border: 2px solid #90e0ef;
 }
 
 .verification-alert-modal .status-badge.rejected {
-    background: #fee2e2;
-    color: #dc2626;
+    background: linear-gradient(135deg, #ffccd5 0%, #ffb3c1 100%);
+    color: #9d0208;
+    border: 2px solid #ff8fa3;
 }
 
+/* Modal Actions - Large, clear buttons */
 .verification-alert-modal .modal-actions {
-    padding: 0 24px 24px 24px;
+    padding: 0 28px 28px 28px;
     display: flex;
+    flex-direction: column;
     gap: 12px;
     justify-content: center;
 }
 
+/* Primary Action Button - Green gradient */
 .verification-alert-modal .btn-verify-now {
-    background: linear-gradient(135deg, #0A6953, #2d6a4f);
-    color: white;
+    background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+    color: #ffffff;
     border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    padding: 18px 32px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    min-width: 140px;
     justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 6px 20px rgba(64, 145, 108, 0.3);
+    width: 100%;
 }
 
 .verification-alert-modal .btn-verify-now:hover {
-    background: linear-gradient(135deg, #064e3b, #1e3a2f);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.3);
+    background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(64, 145, 108, 0.4);
 }
 
+.verification-alert-modal .btn-verify-now:active {
+    transform: translateY(-1px);
+}
+
+.verification-alert-modal .btn-verify-now i {
+    font-size: 1.2rem;
+}
+
+/* Primary Button (for understood/confirmation) */
 .verification-alert-modal .btn-primary {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: white;
+    background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+    color: #ffffff;
     border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    padding: 18px 32px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.2s ease;
-    min-width: 120px;
     justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 6px 20px rgba(64, 145, 108, 0.3);
+    width: 100%;
 }
 
 .verification-alert-modal .btn-primary:hover {
-    background: linear-gradient(135deg, #1d4ed8, #1e40af);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(64, 145, 108, 0.4);
 }
 
+.verification-alert-modal .btn-primary:active {
+    transform: translateY(-1px);
+}
+
+.verification-alert-modal .btn-primary i {
+    font-size: 1.2rem;
+}
+
+/* Cancel Button - Subtle but clear */
 .verification-alert-modal .btn-cancel {
-    background: #f3f4f6;
-    color: #6b7280;
-    border: 1px solid #d1d5db;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
+    background: transparent;
+    color: #52796f;
+    border: 2px solid #95d5b2;
+    padding: 16px 32px;
+    border-radius: 50px;
+    font-size: 1.05rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-    min-width: 100px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
 }
 
 .verification-alert-modal .btn-cancel:hover {
-    background: #e5e7eb;
-    color: #374151;
-    border-color: #9ca3af;
+    background: #52796f;
+    color: #ffffff;
+    border-color: #52796f;
+    transform: translateY(-2px);
 }
 
 /* Responsive Design for Verification Modal */
 @media (max-width: 768px) {
+    .verification-alert-modal {
+        padding: 15px;
+    }
+
     .verification-alert-modal .modal-content {
-        max-width: 95%;
-        margin: 0 10px;
+        max-width: 100%;
+        border-radius: 16px;
     }
 
-    .verification-alert-modal .modal-header,
-    .verification-alert-modal .modal-body,
-    .verification-alert-modal .modal-actions {
-        padding-left: 20px;
-        padding-right: 20px;
+    .verification-alert-modal .modal-header {
+        padding: 22px 20px;
+        border-radius: 16px 16px 0 0;
     }
 
-    .verification-alert-modal .modal-actions {
-        flex-direction: column;
-        gap: 8px;
+    .verification-alert-modal .modal-header h3 {
+        font-size: 1.2rem;
     }
 
-    .verification-alert-modal .btn-verify-now,
-    .verification-alert-modal .btn-primary,
-    .verification-alert-modal .btn-cancel {
-        width: 100%;
-        min-width: auto;
+    .verification-alert-modal .modal-header h3 i {
+        font-size: 1.4rem;
+    }
+
+    .verification-alert-modal .close-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 1.6rem;
+    }
+
+    .verification-alert-modal .modal-body {
+        padding: 24px 20px;
     }
 
     .verification-alert-modal .alert-icon {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 16px;
+        width: 75px;
+        height: 75px;
+        margin-bottom: 20px;
+        border-width: 3px;
     }
 
     .verification-alert-modal .alert-icon i {
-        font-size: 28px;
+        font-size: 2.3rem;
+    }
+
+    .verification-alert-modal h4 {
+        font-size: 1.3rem;
+    }
+
+    .verification-alert-modal p {
+        font-size: 1.05rem;
+    }
+
+    .verification-alert-modal .verification-steps {
+        padding: 18px;
+        margin: 20px 0;
+    }
+
+    .verification-alert-modal .step {
+        padding: 12px;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .verification-alert-modal .step-number {
+        width: 36px;
+        height: 36px;
+        font-size: 1.1rem;
+    }
+
+    .verification-alert-modal .step-text {
+        font-size: 1rem;
+    }
+
+    .verification-alert-modal .status-info {
+        padding: 16px;
+    }
+
+    .verification-alert-modal .status-info p {
+        font-size: 1rem;
+    }
+
+    .verification-alert-modal .modal-actions {
+        padding: 0 20px 20px 20px;
+        gap: 10px;
+    }
+
+    .verification-alert-modal .btn-verify-now,
+    .verification-alert-modal .btn-primary {
+        padding: 16px 28px;
+        font-size: 1.05rem;
+    }
+
+    .verification-alert-modal .btn-cancel {
+        padding: 14px 28px;
+        font-size: 1rem;
     }
 }
 
+@media (max-width: 480px) {
+    .verification-alert-modal .modal-header {
+        padding: 18px 16px;
+    }
+
+    .verification-alert-modal .modal-header h3 {
+        font-size: 1.1rem;
+        gap: 8px;
+    }
+
+    .verification-alert-modal .modal-header h3 i {
+        font-size: 1.2rem;
+    }
+
+    .verification-alert-modal .modal-body {
+        padding: 20px 16px;
+    }
+
+    .verification-alert-modal .alert-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .verification-alert-modal .alert-icon i {
+        font-size: 2rem;
+    }
+
+    .verification-alert-modal h4 {
+        font-size: 1.2rem;
+    }
+
+    .verification-alert-modal p {
+        font-size: 1rem;
+    }
+
+    .verification-alert-modal .verification-steps {
+        padding: 16px;
+    }
+
+    .verification-alert-modal .step {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .verification-alert-modal .step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .verification-alert-modal .step-text {
+        font-size: 0.95rem;
+    }
+
+    .verification-alert-modal .modal-actions {
+        padding: 0 16px 16px 16px;
+    }
+
+    .verification-alert-modal .btn-verify-now,
+    .verification-alert-modal .btn-primary {
+        padding: 14px 24px;
+        font-size: 1rem;
+    }
+
+    .verification-alert-modal .btn-cancel {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+    }
+}
 @media (prefers-reduced-motion: reduce) {
     .auth-modal-overlay,
     .modal-overlay,
