@@ -29,10 +29,8 @@ function openFormSeedlings(event) {
     const choice = document.getElementById('seedlings-choice');
     if (choice) {
         choice.style.display = 'block';
-        setTimeout(() => {
-            choice.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            setupCategoryToggle(); // Initialize category toggle
-        }, 100);
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     history.pushState(null, '', '/services/seedlings');
 }
@@ -473,9 +471,8 @@ function showSeedlingsTab(tabId, event) {
     const selectedTab = document.getElementById(tabId);
     if (selectedTab) {
         selectedTab.style.display = 'block';
-        setTimeout(() => {
-            selectedTab.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 50);
+        //scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 

@@ -362,6 +362,13 @@ function populateEditForm(user) {
     document.getElementById('edit-barangay').value = user.barangay || '';
 }
 
+// ==============================================
+// CHANGE PASSWORD FUNCTIONS WITH VALIDATION
+// ==============================================
+
+/**
+ * Open change password modal
+ */
 function changePassword() {
     const modal = document.getElementById('change-password-modal');
     if (!modal) {
@@ -376,6 +383,9 @@ function changePassword() {
     closeProfileModal();
 }
 
+/**
+ * Close change password modal
+ */
 function closeChangePasswordModal() {
     const modal = document.getElementById('change-password-modal');
     if (modal) {
@@ -389,11 +399,14 @@ function closeChangePasswordModal() {
         form.reset();
     }
 
-    // Clear any validation messages
-    clearPasswordValidation();
+    // Clear all validation
+    clearChangePasswordValidation();
 }
 
-function clearPasswordValidation() {
+/**
+ * Clear all password validation UI
+ */
+function clearChangePasswordValidation() {
     const inputs = document.querySelectorAll('#change-password-form input');
     inputs.forEach(input => {
         input.classList.remove('error', 'invalid', 'valid');
@@ -416,172 +429,110 @@ function clearPasswordValidation() {
     if (matchStatus) {
         matchStatus.innerHTML = '';
     }
+
+    // Remove requirements list if exists
+    const requirementsList = document.querySelector('.new-password-requirements-list');
+    if (requirementsList) {
+        requirementsList.remove();
+    }
 }
 
 /**
- *Handle change password form submission
- * Prevents default form submission that causes GET request
+ * Comprehensive password validation
  */
-function handleChangePasswordSubmit(event) {
-    // Prevent default form submission
-    event.preventDefault();
-    event.stopPropagation();
-
-    const form = event.target;
-    const currentPassword = document.getElementById('current-password').value;
-    const newPassword = document.getElementById('new-password').value;
-    const confirmNewPassword = document.getElementById('confirm-new-password').value;
-    const submitBtn = form.querySelector('.change-password-submit-btn');
-
-    console.log('🔐 Password change initiated');
-
-    // Client-side validation (UX improvement)
-    let errors = [];
-
-    if (!currentPassword) {
-        errors.push('Current password is required');
-    }
-
-    if (!newPassword) {
-        errors.push('New password is required');
-    } else if (newPassword.length < 8) {
-        errors.push('New password must be at least 8 characters');
-    }
-
-    if (newPassword !== confirmNewPassword) {
-        errors.push('New passwords do not match');
-    }
-
-    if (currentPassword === newPassword) {
-        errors.push('New password must be different from current password');
-    }
-
-    if (errors.length > 0) {
-        showNotification('error', errors.join(', '));
-        return false; // CRITICAL: Return false to prevent submission
-    }
-
-    // Set button to loading state
-    setButtonLoading(submitBtn, 'Changing Password...');
-
-    // Get CSRF token
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-    if (!csrfToken) {
-        console.error('❌ CSRF token not found!');
-        showNotification('error', 'Security token missing. Please refresh the page.');
-        resetButtonState(submitBtn);
-        return false;
-    }
-
-    console.log('📤 Sending password change request...');
-
-    // Submit password change via AJAX/Fetch
-    fetch('/api/user/change-password', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            current_password: currentPassword,
-            new_password: newPassword,
-            new_password_confirmation: confirmNewPassword
-        }),
-        credentials: 'same-origin'
-    })
-    .then(response => {
-        console.log('📥 Response status:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('📦 Response data:', data);
-
-        if (data.success) {
-            setButtonLoading(submitBtn, 'Password Changed!');
-            showNotification('success', data.message || 'Password changed successfully!');
-
-            // Clear form
-            form.reset();
-            clearPasswordValidation();
-
-            // Close modal and redirect after short delay
-            setTimeout(() => {
-                closeChangePasswordModal();
-
-                // Force logout and redirect to login
-                if (data.redirect) {
-                    setTimeout(() => {
-                        window.location.href = data.redirect;
-                    }, 1000);
-                }
-            }, 1500);
-
-        } else {
-            console.error('❌ Password change failed:', data);
-
-            let errorMessage = data.message || 'Password change failed';
-
-            // Handle validation errors
-            if (data.errors) {
-                const errorMessages = Object.values(data.errors).flat();
-                errorMessage = errorMessages.join(', ');
-
-                // Highlight specific fields with errors
-                Object.keys(data.errors).forEach(field => {
-                    const input = document.getElementById(field.replace('_', '-'));
-                    if (input) {
-                        input.style.borderColor = '#dc2626';
-                        input.classList.add('error');
-                    }
-                });
-            }
-
-            showNotification('error', errorMessage);
-            resetButtonState(submitBtn);
+function validateChangePassword(password) {
+    const validation = {
+        valid: true,
+        error: '',
+        strength: 0,
+        requirements: {
+            minLength: false,
+            hasUppercase: false,
+            hasLowercase: false,
+            hasNumber: false,
+            hasSpecialChar: false,
+            noSpaces: true
         }
-    })
-    .catch(error => {
-        console.error('❌ Network error:', error);
-        showNotification('error', 'Network error. Please check your connection and try again.');
-        resetButtonState(submitBtn);
-    });
+    };
 
-    // CRITICAL: Return false to prevent any form submission
-    return false;
+    if (!password) {
+        validation.valid = false;
+        validation.error = 'Password is required';
+        return validation;
+    }
+
+    // Check for spaces
+    if (/\s/.test(password)) {
+        validation.valid = false;
+        validation.error = 'Password cannot contain spaces';
+        validation.requirements.noSpaces = false;
+        return validation;
+    }
+
+    // Check minimum length (8 characters)
+    if (password.length >= 8) {
+        validation.requirements.minLength = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = 'Password must be at least 8 characters';
+    }
+
+    // Check for uppercase letter
+    if (/[A-Z]/.test(password)) {
+        validation.requirements.hasUppercase = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one uppercase letter';
+    }
+
+    // Check for lowercase letter
+    if (/[a-z]/.test(password)) {
+        validation.requirements.hasLowercase = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one lowercase letter';
+    }
+
+    // Check for number
+    if (/\d/.test(password)) {
+        validation.requirements.hasNumber = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one number';
+    }
+
+    // Check for special character
+    if (/[@#!$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+        validation.requirements.hasSpecialChar = true;
+        validation.strength++;
+    } else {
+        validation.valid = false;
+        validation.error = validation.error || 'Password must contain at least one special character';
+    }
+
+    // Prevent numbers only
+    if (/^\d+$/.test(password)) {
+        validation.valid = false;
+        validation.error = 'Password cannot be numbers only';
+        return validation;
+    }
+
+    // Prevent letters only
+    if (/^[a-zA-Z]+$/.test(password)) {
+        validation.valid = false;
+        validation.error = 'Password cannot be letters only';
+        return validation;
+    }
+
+    return validation;
 }
 
 /**
- * Clear password validation UI
- */
-function clearPasswordValidation() {
-    const inputs = document.querySelectorAll('#change-password-form input');
-    inputs.forEach(input => {
-        input.classList.remove('error', 'invalid', 'valid');
-        input.style.borderColor = '';
-    });
-
-    const errorMessages = document.querySelectorAll('.password-error');
-    errorMessages.forEach(msg => msg.remove());
-
-    const strengthBar = document.querySelector('.new-password-strength .strength-fill');
-    const strengthText = document.querySelector('.new-password-strength .strength-text');
-    if (strengthBar) {
-        strengthBar.className = 'strength-fill';
-    }
-    if (strengthText) {
-        strengthText.textContent = 'Password strength';
-    }
-
-    const matchStatus = document.querySelector('.confirm-new-password-match');
-    if (matchStatus) {
-        matchStatus.innerHTML = '';
-    }
-}
-
-/**
- * Check new password strength
+ * Check new password strength with visual feedback
  */
 function checkNewPasswordStrength(password) {
     const strengthBar = document.querySelector('.new-password-strength .strength-fill');
@@ -589,39 +540,101 @@ function checkNewPasswordStrength(password) {
 
     if (!strengthBar || !strengthText) return;
 
-    let strength = 0;
-    let strengthLabel = 'Too weak';
+    const validation = validateChangePassword(password);
+    const requirements = validation.requirements;
 
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/\d/.test(password)) strength++;
-    if (/[^a-zA-Z0-9]/.test(password)) strength++;
-
+    // Remove all strength classes
     strengthBar.className = 'strength-fill';
 
-    switch (strength) {
-        case 0:
-        case 1:
-            strengthBar.classList.add('weak');
-            strengthLabel = 'Weak';
-            break;
-        case 2:
-            strengthBar.classList.add('fair');
-            strengthLabel = 'Fair';
-            break;
-        case 3:
-        case 4:
-            strengthBar.classList.add('good');
-            strengthLabel = 'Good';
-            break;
-        case 5:
-            strengthBar.classList.add('strong');
-            strengthLabel = 'Strong';
-            break;
+    if (!password) {
+        strengthText.textContent = 'Password strength';
+        showNewPasswordRequirements(requirements);
+        return;
     }
 
+    // Calculate strength based on requirements met
+    const strength = validation.strength;
+    let strengthLabel = 'Too weak';
+    let strengthClass = 'weak';
+
+    if (strength <= 2) {
+        strengthLabel = 'Weak';
+        strengthClass = 'weak';
+    } else if (strength === 3) {
+        strengthLabel = 'Fair';
+        strengthClass = 'fair';
+    } else if (strength === 4) {
+        strengthLabel = 'Good';
+        strengthClass = 'good';
+    } else if (strength === 5) {
+        strengthLabel = 'Strong';
+        strengthClass = 'strong';
+    }
+
+    strengthBar.classList.add(strengthClass);
     strengthText.textContent = `Password strength: ${strengthLabel}`;
+
+    // Show detailed requirements
+    showNewPasswordRequirements(requirements);
+}
+
+/**
+ * Display password requirements checklist
+ */
+function showNewPasswordRequirements(requirements) {
+    const passwordInput = document.getElementById('new-password');
+    if (!passwordInput) return;
+
+    let requirementsDiv = document.querySelector('.new-password-requirements-list');
+
+    if (!requirementsDiv) {
+        requirementsDiv = document.createElement('div');
+        requirementsDiv.className = 'new-password-requirements-list';
+        requirementsDiv.style.cssText = `
+            margin-top: 10px;
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 13px;
+            border: 1px solid #e5e7eb;
+        `;
+        // Insert after the password strength indicator
+        const passwordStrength = passwordInput.closest('.form-group').querySelector('.new-password-strength');
+        if (passwordStrength) {
+            passwordStrength.parentNode.insertBefore(requirementsDiv, passwordStrength.nextSibling);
+        }
+    }
+
+    const checkIcon = '✓';
+    const uncheckIcon = '○';
+
+    requirementsDiv.innerHTML = `
+        <div style="margin-bottom: 8px; font-weight: 600; color: #374151;">Password must contain:</div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; color: ${requirements.minLength ? '#10b981' : '#6b7280'};">
+            <span style="font-weight: bold;">${requirements.minLength ? checkIcon : uncheckIcon}</span>
+            <span>At least 8 characters</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; color: ${requirements.hasUppercase ? '#10b981' : '#6b7280'};">
+            <span style="font-weight: bold;">${requirements.hasUppercase ? checkIcon : uncheckIcon}</span>
+            <span>At least 1 uppercase letter (A-Z)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; color: ${requirements.hasLowercase ? '#10b981' : '#6b7280'};">
+            <span style="font-weight: bold;">${requirements.hasLowercase ? checkIcon : uncheckIcon}</span>
+            <span>At least 1 lowercase letter (a-z)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; color: ${requirements.hasNumber ? '#10b981' : '#6b7280'};">
+            <span style="font-weight: bold;">${requirements.hasNumber ? checkIcon : uncheckIcon}</span>
+            <span>At least 1 number (0-9)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; color: ${requirements.hasSpecialChar ? '#10b981' : '#6b7280'};">
+            <span style="font-weight: bold;">${requirements.hasSpecialChar ? checkIcon : uncheckIcon}</span>
+            <span>At least 1 special character (@, #, !, $, etc.)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; color: ${requirements.noSpaces ? '#10b981' : '#ef4444'};">
+            <span style="font-weight: bold;">${requirements.noSpaces ? checkIcon : '✗'}</span>
+            <span>No spaces allowed</span>
+        </div>
+    `;
 }
 
 /**
@@ -641,6 +654,141 @@ function checkNewPasswordMatch(newPassword, confirmPassword) {
     } else {
         matchStatus.className = 'confirm-new-password-match no-match';
         matchStatus.textContent = '✗ Passwords do not match';
+    }
+}
+
+/**
+ * Handle change password form submission
+ */
+function handleChangePasswordSubmit(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const form = event.target;
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmNewPassword = document.getElementById('confirm-new-password').value;
+    const submitBtn = form.querySelector('.change-password-submit-btn');
+
+    console.log('Password change initiated');
+
+    // Validate current password
+    if (!currentPassword) {
+        showNotification('error', 'Please enter your current password');
+        return false;
+    }
+
+    // Validate new password using comprehensive validation
+    const passwordValidation = validateChangePassword(newPassword);
+    if (!passwordValidation.valid) {
+        showNotification('error', passwordValidation.error);
+        document.getElementById('new-password').style.borderColor = '#ef4444';
+        return false;
+    }
+
+    // Check if passwords match
+    if (newPassword !== confirmNewPassword) {
+        showNotification('error', 'New passwords do not match');
+        document.getElementById('confirm-new-password').style.borderColor = '#ef4444';
+        return false;
+    }
+
+    // Check if new password is different from current
+    if (currentPassword === newPassword) {
+        showNotification('error', 'New password must be different from current password');
+        document.getElementById('new-password').style.borderColor = '#ef4444';
+        return false;
+    }
+
+    // Set button to loading state
+    setButtonLoading(submitBtn, 'Changing Password...');
+
+    // Get CSRF token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    if (!csrfToken) {
+        console.error('CSRF token not found!');
+        showNotification('error', 'Security token missing. Please refresh the page.');
+        resetButtonState(submitBtn);
+        return false;
+    }
+
+    // Submit password change via fetch
+    fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            current_password: currentPassword,
+            new_password: newPassword,
+            new_password_confirmation: confirmNewPassword
+        }),
+        credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            setButtonLoading(submitBtn, 'Password Changed!');
+            showNotification('success', data.message || 'Password changed successfully!');
+
+            form.reset();
+            clearChangePasswordValidation();
+
+            setTimeout(() => {
+                closeChangePasswordModal();
+
+                if (data.redirect) {
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                }
+            }, 1500);
+
+        } else {
+            let errorMessage = data.message || 'Password change failed';
+
+            if (data.errors) {
+                const errorMessages = Object.values(data.errors).flat();
+                errorMessage = errorMessages.join(', ');
+
+                Object.keys(data.errors).forEach(field => {
+                    const input = document.getElementById(field.replace('_', '-'));
+                    if (input) {
+                        input.style.borderColor = '#ef4444';
+                        input.classList.add('error');
+                    }
+                });
+            }
+
+            showNotification('error', errorMessage);
+            resetButtonState(submitBtn);
+        }
+    })
+    .catch(error => {
+        console.error('Network error:', error);
+        showNotification('error', 'Network error. Please check your connection and try again.');
+        resetButtonState(submitBtn);
+    });
+
+    return false;
+}
+
+/**
+ * Toggle password visibility
+ */
+function togglePasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = 'Hide';
+    } else {
+        input.type = 'password';
+        button.textContent = 'Show';
     }
 }
 
@@ -1163,10 +1311,16 @@ function loadUserApplicationsInModal() {
     if (!window.userData) {
         grid.innerHTML = `
             <div class="empty-applications">
+                <div class="empty-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </div>
                 <h4>Please Log In</h4>
                 <p>You need to be logged in to view your applications.</p>
                 <button class="quick-action-btn" onclick="closeApplicationsModal(); openAuthModal('login');">
-                    <span>🔐</span> Log In
+                    Log In
                 </button>
             </div>
         `;
@@ -1217,41 +1371,58 @@ function renderApplicationsInModal(applications) {
 
     grid.innerHTML = applications.map(app => {
         const statusClass = getApplicationStatusClass(app.status);
-        const statusIcon = getApplicationStatusIcon(app.status);
-        const typeIcon = getApplicationTypeIcon(app.type);
+        const statusLabel = formatApplicationStatus(app.status);
 
         return `
             <div class="application-card ${statusClass}">
                 <div class="application-header">
-                    <div class="app-icon">${typeIcon}</div>
-                    <div class="app-info">
-                        <h4>${app.type}</h4>
-                        <p class="app-number">${app.application_number || app.reference_number || 'N/A'}</p>
+                    <div class="app-type-badge">${app.type}</div>
+                    <div class="app-status-tag status-${app.status.toLowerCase().replace(/[_\s]/g, '-')}">
+                        ${statusLabel}
                     </div>
                 </div>
 
-                <p class="app-description">${app.description || 'Application submitted'}</p>
+                <div class="app-reference">
+                    <span class="label">Reference:</span>
+                    <span class="value">${app.application_number || app.reference_number || 'N/A'}</span>
+                </div>
+
+                <p class="app-description">${app.description || 'Application submitted successfully'}</p>
 
                 ${app.full_name || app.livelihood || app.barangay ? `
                     <div class="app-details">
-                        ${app.full_name ? `<div class="detail-item"><strong>Name:</strong> ${app.full_name}</div>` : ''}
-                        ${app.livelihood ? `<div class="detail-item"><strong>Livelihood:</strong> ${app.livelihood}</div>` : ''}
-                        ${app.barangay ? `<div class="detail-item"><strong>Barangay:</strong> ${app.barangay}</div>` : ''}
+                        ${app.full_name ? `
+                            <div class="detail-row">
+                                <span class="detail-label">Name:</span>
+                                <span class="detail-value">${app.full_name}</span>
+                            </div>
+                        ` : ''}
+                        ${app.livelihood ? `
+                            <div class="detail-row">
+                                <span class="detail-label">Livelihood:</span>
+                                <span class="detail-value">${app.livelihood}</span>
+                            </div>
+                        ` : ''}
+                        ${app.barangay ? `
+                            <div class="detail-row">
+                                <span class="detail-label">Barangay:</span>
+                                <span class="detail-value">${app.barangay}</span>
+                            </div>
+                        ` : ''}
                     </div>
                 ` : ''}
 
                 <div class="application-footer">
-                    <div class="application-status status-badge-${app.status.toLowerCase().replace(/[_\s]/g, '-')}">
-                        ${statusIcon} ${formatApplicationStatus(app.status)}
-                    </div>
                     <div class="application-date">
-                        ${formatApplicationDate(app.submitted_at || app.date || app.created_at)}
+                        <span class="date-label">Submitted:</span>
+                        <span class="date-value">${formatApplicationDate(app.submitted_at || app.date || app.created_at)}</span>
                     </div>
                 </div>
 
                 ${app.remarks ? `
                     <div class="app-remarks">
-                        <strong>Remarks:</strong> ${app.remarks}
+                        <div class="remarks-label">Remarks:</div>
+                        <div class="remarks-text">${app.remarks}</div>
                     </div>
                 ` : ''}
             </div>
@@ -1265,11 +1436,15 @@ function renderEmptyApplications() {
 
     grid.innerHTML = `
         <div class="empty-applications">
-            <div class="empty-icon">📋</div>
-            <h4>No Applications Yet</h4>
-            <p>You haven't submitted any applications yet. Browse our services to get started!</p>
+            <div class="empty-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+            </div>
+            <h4>No Applications Submitted</h4>
+            <p>Start your journey by exploring our available services and programs designed for farmers and fisherfolks.</p>
             <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
-                <span>🌾</span> Browse Services
+                View Available Services
             </button>
         </div>
     `;
@@ -1279,29 +1454,6 @@ function renderEmptyApplications() {
 function getApplicationStatusClass(status) {
     const normalized = status.toLowerCase().replace(/[_\s]/g, '-');
     return `app-status-${normalized}`;
-}
-
-function getApplicationStatusIcon(status) {
-    const icons = {
-        'pending': '⏳',
-        'under_review': '🔍',
-        'processing': '⚙️',
-        'approved': '✅',
-        'rejected': '❌',
-        'cancelled': '🚫'
-    };
-    return icons[status.toLowerCase()] || '📄';
-}
-
-function getApplicationTypeIcon(type) {
-    const icons = {
-        'RSBSA Registration': '📋',
-        'Seedlings Request': '🌱',
-        'FishR Registration': '🐟',
-        'BoatR Registration': '⛵',
-        'Training Request': '📚'
-    };
-    return icons[type] || '📄';
 }
 
 function formatApplicationStatus(status) {
@@ -1330,253 +1482,6 @@ function formatApplicationDate(dateString) {
     });
 }
 
-// Add CSS for improved application cards (inject once)
-if (!document.getElementById('application-cards-styles')) {
-    const styles = document.createElement('style');
-    styles.id = 'application-cards-styles';
-    styles.textContent = `
-        .application-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border-left: 4px solid #dee2e6;
-        }
-
-        .application-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        }
-
-        .application-card.app-status-pending {
-            border-left-color: #ffc107;
-        }
-
-        .application-card.app-status-under-review,
-        .application-card.app-status-processing {
-            border-left-color: #17a2b8;
-        }
-
-        .application-card.app-status-approved {
-            border-left-color: #28a745;
-        }
-
-        .application-card.app-status-rejected {
-            border-left-color: #dc3545;
-        }
-
-        .application-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .app-icon {
-            font-size: 32px;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .app-info h4 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .app-number {
-            margin: 4px 0 0 0;
-            font-size: 12px;
-            color: #6c757d;
-            font-family: 'Courier New', monospace;
-        }
-
-        .app-description {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 12px;
-        }
-
-        .app-details {
-            background: #f8f9fa;
-            padding: 10px 12px;
-            border-radius: 6px;
-            margin-bottom: 12px;
-        }
-
-        .detail-item {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 4px;
-        }
-
-        .detail-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .detail-item strong {
-            color: #333;
-            font-weight: 600;
-        }
-
-        .application-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .application-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .status-badge-pending {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-badge-under-review,
-        .status-badge-processing {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .status-badge-approved {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-badge-rejected {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .application-date {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .app-remarks {
-            margin-top: 12px;
-            padding: 10px 12px;
-            background: #fff3cd;
-            border-radius: 6px;
-            font-size: 13px;
-            color: #856404;
-        }
-
-        .app-remarks strong {
-            font-weight: 600;
-        }
-
-        .empty-applications {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .empty-applications h4 {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 12px;
-        }
-
-        .empty-applications p {
-            color: #666;
-            margin-bottom: 24px;
-            font-size: 16px;
-        }
-
-        .quick-action-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .quick-action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .loading-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(styles);
-}
-
-console.log('✅ Updated My Applications with RSBSA integration loaded');
-
-function accountSettings() {
-    // Open account settings in new tab
-    window.open('/account/settings', '_blank');
-
-    // Close dropdown
-    const dropdown = document.getElementById('user-dropdown');
-    if (dropdown) {
-        dropdown.classList.remove('show');
-    }
-}
 
 function logoutUser() {
     if (confirm('Are you sure you want to log out?')) {
@@ -2621,15 +2526,21 @@ function playSimpleBeep() {
 // ==============================================
 
 function signInWithFacebook() {
-    showNotification('info', 'Facebook Sign In will be implemented soon!');
+    // showNotification('info', 'Facebook Sign In will be implemented soon!');
+     // Redirect to your backend Facebook route
+    window.location.href = '/auth/facebook';
 }
 
 function signUpWithFacebook() {
-    showNotification('info', 'Facebook Sign Up will be implemented soon!');
+    // showNotification('info', 'Facebook Sign Up will be implemented soon!');
+    // Same route handles both login and signup
+    window.location.href = '/auth/facebook';
 }
 
 function showForgotPassword() {
-    showNotification('info', 'Forgot password feature will be available soon!');
+    // showNotification('info', 'Forgot password feature will be available soon!');
+    // Same route handles both login and signup
+    window.location.href = '/auth/facebook';
 }
 
 // ==============================================

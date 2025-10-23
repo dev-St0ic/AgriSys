@@ -42,13 +42,8 @@ function openFormTraining(event) {
             history.pushState({page: 'training'}, 'Training Application', '/services/training');
         }
 
-        // Scroll to the training form smoothly
-        setTimeout(() => {
-            trainingForm.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }, 100);
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 
         console.log('Training form opened successfully');
     } else {
@@ -514,7 +509,7 @@ function showTrainingMessage(message, type = 'info') {
 function hideAllMainSections() {
     const sections = [
         'home',
-        '.announcement',
+        'events',
         'services',
         'how-it-works',
         '.help-section'

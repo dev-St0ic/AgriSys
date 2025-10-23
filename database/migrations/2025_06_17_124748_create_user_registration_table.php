@@ -17,6 +17,11 @@ return new class extends Migration
             // ===== BASIC SIGNUP INFO (REQUIRED FOR INITIAL REGISTRATION) =====
             $table->string('username', 50)->unique();
             $table->string('email')->unique();
+              // ===== FACEBOOK AUTHENTICATION FIELDS =====
+            $table->string('facebook_id')->nullable();
+            $table->string('profile_image_url')->nullable();
+             // ===== END FACEBOOK FIELDS =====
+             
             $table->string('password');
             $table->enum('status', ['unverified', 'pending', 'approved', 'rejected'])->default('unverified');
             $table->boolean('terms_accepted')->default(false);
@@ -103,12 +108,16 @@ return new class extends Migration
             $table->index(['referral_source'], 'idx_referral_analytics'); // Traffic source analysis
             $table->index(['registration_ip'], 'idx_registration_ip'); // IP tracking/security
             $table->index(['last_login_at'], 'idx_last_login_activity'); // Activity tracking
+
+            // Facebook ID lookups
+            $table->index(['facebook_id'], 'idx_facebook_id');
             
             // Composite Indexes for Complex Queries
             $table->index(['status', 'user_type', 'created_at'], 'idx_admin_dashboard_combo'); // Main admin dashboard query
             $table->index(['email_verified_at', 'status'], 'idx_verification_status_combo'); // Verification + status
             $table->index(['created_at', 'status', 'user_type'], 'idx_date_status_type_reports'); // Reporting queries
             
+
             // Soft Delete Support
             $table->index(['deleted_at'], 'idx_soft_delete'); // For soft delete queries
         });

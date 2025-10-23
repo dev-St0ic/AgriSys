@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/rsbsa.css') }}">
     <link rel="stylesheet" href="{{ asset('css/training.css') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/toast-notifications.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
     
@@ -33,14 +34,26 @@
 <body>
     <!-- Success/Error Messages -->
     @if (session('success'))
-        <div class="alert alert-success">
+        <div class="alert alert-success" style="display: none;">
             {{ session('success') }}
         </div>
     @endif
 
     @if (session('error'))
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" style="display: none;">
             {{ session('error') }}
+        </div>
+    @endif
+
+        @if (session('warning'))
+        <div class="alert alert-warning" style="display: none;">
+            {{ session('warning') }}
+        </div>
+    @endif
+
+    @if (session('info'))
+        <div class="alert alert-info" style="display: none;">
+            {{ session('info') }}
         </div>
     @endif
 
@@ -103,20 +116,22 @@
 
                             <div class="dropdown-menu">
                                 <a href="#" class="dropdown-item" onclick="showMyApplicationsModal()">
-                                    <span class="dropdown-icon">📋</span>
+                                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
                                     My Applications
                                 </a>
                                 <a href="#" class="dropdown-item" onclick="showProfileModal()">
-                                    <span class="dropdown-icon">👤</span>
+                                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
                                     View Profile
-                                </a>
-                                <a href="#" class="dropdown-item" onclick="accountSettings()">
-                                    <span class="dropdown-icon">⚙️</span>
-                                    Account Settings
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a href="#" class="dropdown-item logout" onclick="logoutUser()">
-                                    <span class="dropdown-icon">🚪</span>
+                                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                    </svg>
                                     Log Out
                                 </a>
                             </div>
@@ -147,28 +162,28 @@
         <div class="welcome-image"></div>
     </section>
 
-    <!-- Projects Section -->
-    <section class="projects" id="projects">
+  <!-- Events Section -->
+    <section class="events" id="events">
         <img src="../images/logos/cagoFull.png" alt="City Agriculture Office Logo" class="logo-icon">
         <img src="../images/logos/CityOfSanPedro.jpg" alt="City of San Pedro Logo" class="logo-icon">
         <h2>City<span class="highlight"> Agriculture Office of San Pedro, Laguna</span></h2>
-        <p class="projects-subtitle">Ongoing and past events and projects of the San Pedro City Agriculture Office dedicated to promoting agricultural growth and community development.</p>
+        <p class="events-subtitle">Ongoing and past events and initiatives of the San Pedro City Agriculture Office dedicated to promoting agricultural growth and community development.</p>
         
-        <div class="projects-filters">
+        <div class="events-filters">
             <button class="filter-btn active" data-filter="all">View All</button>
-            <button class="filter-btn" data-filter="garden-care">Announcements</button>
-            <button class="filter-btn" data-filter="lawn-care">Ongoing Events</button>
-            <button class="filter-btn" data-filter="planting">Upcoming Events</button>
-            <button class="filter-btn" data-filter="landscape">Past Events</button>
+            <button class="filter-btn" data-filter="announcement">Announcements</button>
+            <button class="filter-btn" data-filter="ongoing">Ongoing Events</button>
+            <button class="filter-btn" data-filter="upcoming">Upcoming Events</button>
+            <button class="filter-btn" data-filter="past">Past Events</button>
         </div>
         
-        <div class="projects-grid">
-            <!-- Project Card 1 -->
-            <div class="project-card" data-category="garden-care">
-                <img src="../images/projects/1.jpg" alt="Garden Care" class="project-image">
-                <div class="project-content">
+        <div class="events-grid">
+            <!-- Event Card 1 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/1.jpg" alt="Garden Care" class="event-image">
+                <div class="event-content">
                     <h3>Community Garden Initiative</h3>
-                    <p class="project-description">Urban gardening program bringing together residents to cultivate fresh produce while learning sustainable farming techniques including organic gardening, composting, and water conservation.</p>
+                    <p class="event-description">Urban gardening program bringing together residents to cultivate fresh produce while learning sustainable farming techniques including organic gardening, composting, and water conservation.</p>
                     
                     <div class="event-info-box">
                         <div class="date">📅 Every Saturday | 8:00 AM - 12:00 PM</div>
@@ -201,12 +216,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 2 -->
-            <div class="project-card" data-category="landscape">
-                <img src="../images/projects/2.jpg" alt="Landscape" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 2 -->
+            <div class="event-card" data-category="past">
+                <img src="../images/events/2.jpg" alt="Landscape" class="event-image">
+                <div class="event-content">
                     <h3>Green Corridor Project</h3>
-                    <p class="project-description">City-wide landscaping initiative that transformed urban spaces into vibrant green zones. Over 500 native trees planted and pocket gardens created throughout the city to improve air quality and aesthetics.</p>
+                    <p class="event-description">City-wide landscaping initiative that transformed urban spaces into vibrant green zones. Over 500 native trees planted and pocket gardens created throughout the city to improve air quality and aesthetics.</p>
                     
                     <div class="event-info-box">
                         <div class="date">✅ Completed: September 2024</div>
@@ -239,12 +254,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 3 -->
-            <div class="project-card" data-category="planting">
-                <img src="../images/projects/3.jpg" alt="Planting" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 3 -->
+            <div class="event-card" data-category="upcoming">
+                <img src="../images/events/3.jpg" alt="Planting" class="event-image">
+                <div class="event-content">
                     <h3>Tree Planting Drive</h3>
-                    <p class="project-description">Annual tree planting event with a goal to plant 1,000 indigenous trees across the city. Volunteers receive free seedlings, refreshments, and certificates of participation.</p>
+                    <p class="event-description">Annual tree planting event with a goal to plant 1,000 indigenous trees across the city. Volunteers receive free seedlings, refreshments, and certificates of participation.</p>
                     
                     <div class="event-info-box">
                         <div class="date">🌱 November 15, 2025 | 6:00 AM - 10:00 AM</div>
@@ -277,12 +292,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 4 -->
-            <div class="project-card" data-category="planting">
-                <img src="../images/projects/4.jpg" alt="Planting" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 4 -->
+            <div class="event-card" data-category="upcoming">
+                <img src="../images/events/4.jpg" alt="Workshop" class="event-image">
+                <div class="event-content">
                     <h3>Vegetable Farming Workshop</h3>
-                    <p class="project-description">Expert-led workshops covering advanced vegetable cultivation methods, pest management, and market strategies to help farmers maximize yields while minimizing environmental impact.</p>
+                    <p class="event-description">Expert-led workshops covering advanced vegetable cultivation methods, pest management, and market strategies to help farmers maximize yields while minimizing environmental impact.</p>
                     
                     <div class="event-info-box">
                         <div class="date">📚 October 28, 2025 | 2:00 PM - 5:00 PM</div>
@@ -315,12 +330,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 5 -->
-            <div class="project-card" data-category="planting">
-                <img src="../images/projects/5.jpg" alt="Planting" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 5 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/5.jpg" alt="Organic Rice" class="event-image">
+                <div class="event-content">
                     <h3>Organic Rice Cultivation</h3>
-                    <p class="project-description">Year-long program supporting farmers transitioning to organic rice farming methods that eliminate harmful pesticides. Includes training, organic fertilizers, and access to premium markets.</p>
+                    <p class="event-description">Year-long program supporting farmers transitioning to organic rice farming methods that eliminate harmful pesticides. Includes training, organic fertilizers, and access to premium markets.</p>
                     
                     <div class="event-info-box">
                         <div class="date">🌾 January - December 2025</div>
@@ -353,12 +368,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 6 -->
-            <div class="project-card" data-category="lawn-care">
-                <img src="../images/projects/6.jpg" alt="Lawn Care" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 6 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/6.jpg" alt="Park Maintenance" class="event-image">
+                <div class="event-content">
                     <h3>Park Maintenance Program</h3>
-                    <p class="project-description">Daily maintenance of city parks through regular mowing, trimming, and landscaping ensuring safe, clean, and beautiful spaces for families and communities.</p>
+                    <p class="event-description">Daily maintenance of city parks through regular mowing, trimming, and landscaping ensuring safe, clean, and beautiful spaces for families and communities.</p>
                     
                     <div class="event-info-box">
                         <div class="date">🔄 Ongoing | Daily Operations</div>
@@ -391,12 +406,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 7 -->
-            <div class="project-card" data-category="lawn-care">
-                <img src="../images/projects/7.jpg" alt="Lawn Care" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 7 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/7.jpg" alt="Sports Field" class="event-image">
+                <div class="event-content">
                     <h3>Sports Field Renovation</h3>
-                    <p class="project-description">Complete overhaul of community sports facilities including new turf installation, modern drainage systems, and efficient irrigation creating world-class venues for youth sports and tournaments.</p>
+                    <p class="event-description">Complete overhaul of community sports facilities including new turf installation, modern drainage systems, and efficient irrigation creating world-class venues for youth sports and tournaments.</p>
                     
                     <div class="event-info-box">
                         <div class="date">⚙️ In Progress | Target: December 2025</div>
@@ -429,12 +444,12 @@
                 </div>
             </div>
             
-            <!-- Project Card 8 -->
-            <div class="project-card" data-category="garden-care">
-                <img src="../images/projects/8.jpg" alt="Garden Care" class="project-image">
-                <div class="project-content">
+            <!-- Event Card 8 -->
+            <div class="event-card" data-category="announcement">
+                <img src="../images/events/8.jpg" alt="Urban Farming" class="event-image">
+                <div class="event-content">
                     <h3>Urban Farming Training</h3>
-                    <p class="project-description">Monthly training on innovative techniques for growing vegetables in small spaces using containers, vertical gardens, and hydroponics. Perfect for apartment dwellers and homeowners.</p>
+                    <p class="event-description">Monthly training on innovative techniques for growing vegetables in small spaces using containers, vertical gardens, and hydroponics. Perfect for apartment dwellers and homeowners.</p>
                     
                     <div class="event-info-box">
                         <div class="date">🏙️ First Sunday of Every Month | 9:00 AM - 12:00 PM</div>
@@ -568,7 +583,7 @@
             <button class="btn-help">Visit Office</button>
         </div>
     </section>
-
+    
     <!-- Contact Modal -->
     <div id="contact-modal" class="contact-modal-overlay" style="display: none;">
         <div class="contact-modal-content">
@@ -579,44 +594,54 @@
             <div class="contact-modal-body">
                 <div class="contact-info-section">
                     <div class="contact-info-item">
-                        <strong>Email:</strong>
-                        <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a>
+                        <div class="contact-info-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info-text">
+                            <strong>Email</strong>
+                            <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a>
+                        </div>
                     </div>
                     <div class="contact-info-item">
-                        <strong>Phone:</strong>
-                        <a href="tel:+631234567890">(049) 123-4567</a>
+                        <div class="contact-info-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info-text">
+                            <strong>Phone</strong>
+                            <a href="tel:+631234567890">(049) 123-4567</a>
+                        </div>
                     </div>
                     <div class="contact-info-item">
-                        <strong>Office Hours:</strong>
-                        Monday - Friday: 8:00 AM - 5:00 PM
+                        <div class="contact-info-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info-text">
+                            <strong>Office Hours</strong>
+                            <span>Monday - Friday: 8:00 AM - 5:00 PM</span>
+                        </div>
                     </div>
                     <div class="contact-info-item">
-                        <strong>Address:</strong>
-                        City Agriculture Office<br>
-                        San Pedro City Hall, Laguna
+                        <div class="contact-info-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info-text">
+                            <strong>Address</strong>
+                            <span>City Agriculture Office<br>San Pedro City Hall, Laguna</span>
+                        </div>
                     </div>
-                </div>
-
-                <div class="quick-contact-section">
-                    <h4>Send Quick Message</h4>
-                    <form id="quick-contact-form">
-                        <input type="text" placeholder="Your Name" required class="contact-form-input">
-                        <input type="email" placeholder="Your Email" required class="contact-form-input">
-                        <select required class="contact-form-select">
-                            <option value="">Select Issue Type</option>
-                            <option value="application">Application Status</option>
-                            <option value="emergency">Emergency Agricultural Concern</option>
-                            <option value="general">General Inquiry</option>
-                            <option value="technical">Technical Support</option>
-                        </select>
-                        <textarea placeholder="Your Message" rows="4" required class="contact-form-textarea"></textarea>
-                        <button type="submit" class="contact-form-submit">Send Message</button>
-                    </form>
                 </div>
             </div>
         </div>
     </div>
-
     @if (isset($user))
         <!-- USER PROFILE MODAL -->
         <div id="profile-modal" class="modal-overlay" style="display: none;">
@@ -638,7 +663,6 @@
                                 <h4>{{ $user['name'] ?? $user['username'] }}</h4>
                                 <p class="profile-email">{{ $user['email'] }}</p>
                                 <div class="profile-status-badge status-{{ $status }}">
-
                                     {{ ucfirst($user['status'] ?? 'Active') }}
                                 </div>
                             </div>
@@ -657,14 +681,8 @@
                                     <span class="info-value">{{ $user['email'] }}</span>
                                 </div>
                                 <div class="info-row">
-                                    <span class="info-label">Member Since:</span>
-                                    <span
-                                        class="info-value">{{ isset($user['created_at']) ? date('M Y', strtotime($user['created_at'])) : 'N/A' }}</span>
-                                </div>
-                                <div class="info-row">
                                     <span class="info-label">Account Status:</span>
-                                    <span
-                                        class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
+                                    <span class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
                                 </div>
                             </div>
 
@@ -689,48 +707,68 @@
 
                         <!-- Profile Actions -->
                         <div class="profile-actions">
-                            {{-- Server-rendered verification button to match backend status --}}
                             @php
-                                // Normalize status for rendering
                                 $s = $status;
                             @endphp
 
                             @if (in_array($s, ['verified', 'approved']))
                                 <button class="profile-action-btn verified" id="verify-action-btn" disabled>
-                                    <span class="btn-icon">✅</span>
-                                    Verified
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>Verified</span>
                                 </button>
                             @elseif(in_array($s, ['pending', 'pending_verification']))
                                 <button class="profile-action-btn pending" id="verify-action-btn" disabled>
-                                    <span class="btn-icon">⏳</span>
-                                    Pending Verification
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 6v6l4 2"/>
+                                    </svg>
+                                    <span>Pending Verification</span>
                                 </button>
                             @elseif($s === 'rejected')
-                                <button class="profile-action-btn rejected" id="verify-action-btn"
-                                    onclick="showVerificationModal()">
-                                    <span class="btn-icon">🔄</span>
-                                    Retry Verification
+                                <button class="profile-action-btn rejected" id="verify-action-btn" onclick="showVerificationModal()">
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
+                                        <polyline points="16 6 12 2 8 6"/>
+                                        <line x1="12" y1="2" x2="12" y2="15"/>
+                                    </svg>
+                                    <span>Retry Verification</span>
                                 </button>
                             @else
-                                <button class="profile-action-btn primary" id="verify-action-btn"
-                                    onclick="showVerificationModal()">
-                                    <span class="btn-icon">✅</span>
-                                    Verify Now
+                                <button class="profile-action-btn primary" id="verify-action-btn" onclick="showVerificationModal()">
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>Verify Account</span>
                                 </button>
                             @endif
 
                             <button class="profile-action-btn secondary" onclick="editProfile()">
-                                <span class="btn-icon">✏️</span>
-                                Edit Profile
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                                <span>Edit Profile</span>
                             </button>
+                            
                             <button class="profile-action-btn secondary" onclick="changePassword()">
-                                <span class="btn-icon">🔒</span>
-                                Change Password
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0110 0v4"/>
+                                </svg>
+                                <span>Change Password</span>
                             </button>
-                            <button class="profile-action-btn secondary"
-                                onclick="showMyApplicationsModal(); closeProfileModal();">
-                                <span class="btn-icon">📋</span>
-                                View Applications
+                            
+                            <button class="profile-action-btn secondary" onclick="showMyApplicationsModal(); closeProfileModal();">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10 9 9 9 8 9"/>
+                                </svg>
+                                <span>View Applications</span>
                             </button>
                         </div>
 
@@ -738,7 +776,9 @@
                         <div class="recent-activity">
                             <h5>Recent Activity</h5>
                             <div class="activity-list" id="recent-activity-list">
-                                <!-- Will be populated by JavaScript -->
+                                <div class="activity-placeholder">
+                                    <p>No recent activity to display</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1267,7 +1307,6 @@
             </div>
         </div>
     </div>
-
     <!-- CHANGE PASSWORD MODAL -->
     <div id="change-password-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content change-password-modal">
@@ -1278,17 +1317,19 @@
 
             <div class="modal-body">
                 <div class="change-password-content">
-                    <div class="password-requirements">
-                        <h5>Password Requirements</h5>
-                        <ul>
-                            <li>At least 8 characters long</li>
-                            <li>Mix of uppercase and lowercase letters</li>
-                            <li>Include numbers and special characters</li>
-                            <li>Different from your current password</li>
-                        </ul>
+                    <!-- Security Info Banner - Replaces password requirements -->
+                    <div class="security-info-banner">
+                        <div class="banner-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                        </div>
+                        <p>Choose a strong password that you haven't used elsewhere. You'll need to log in again after changing it.</p>
                     </div>
 
-                    <!--  Prevent default form submission -->
+                    <!-- Prevent default form submission -->
                     <form id="change-password-form" onsubmit="return handleChangePasswordSubmit(event)">
                         <div class="form-group">
                             <label for="current-password">Current Password *</label>
@@ -1319,6 +1360,7 @@
                                 </div>
                                 <div class="strength-text">Password strength</div>
                             </div>
+                            <!-- Password requirements checklist will be inserted here dynamically -->
                         </div>
 
                         <div class="form-group">
@@ -1335,15 +1377,6 @@
                             <div class="password-match-status confirm-new-password-match"></div>
                         </div>
 
-                        <div class="security-notice">
-                            <div class="notice-icon">🔒</div>
-                            <div class="notice-content">
-                                <h6>Security Tip</h6>
-                                <p>For your security, you will be logged out after changing your password and will need
-                                    to log in again with your new password.</p>
-                            </div>
-                        </div>
-
                         <div class="modal-actions">
                             <button type="button" class="btn-secondary" onclick="closeChangePasswordModal()">
                                 Cancel
@@ -1358,7 +1391,6 @@
             </div>
         </div>
     </div>
-
     <!-- Footer Section -->
     <footer class="footer" id="main-footer">
         <div class="footer-container">
@@ -1436,6 +1468,7 @@
     <script src="{{ asset('js/boatr-autofill.js') }}"></script>
     <script src="{{ asset('js/seedlings-autofill.js') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}"></script>
+    <script src="{{ asset('js/toast-notifications.js') }}"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 

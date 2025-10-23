@@ -257,7 +257,7 @@ function checkAuthBeforeService(serviceName, originalFunction, event) {
 function showAllMainSections() {
     const sections = [
         'home',
-        '.announcement',
+        'events',
         'services',
         'how-it-works',
         '.help-section'
@@ -274,7 +274,7 @@ function showAllMainSections() {
 function hideAllMainSections() {
     const sections = [
         'home',
-        '.announcement',
+        'events',
         'services',
         'how-it-works',
         '.help-section'
@@ -290,7 +290,7 @@ function hideAllMainSections() {
 
 function hideAllForms() {
     const formIds = [
-        'rsbsa-choice', 'new-rsbsa', 'old-rsbsa',
+        'rsbsa-choice', 'new-rsbsa', 
         'seedlings-choice', 'seedlings-form',
         'fishr-form', 'boatr-form', 'training-form'
     ];
@@ -379,11 +379,11 @@ function closeForm(formId) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     history.pushState(null, '', '/services');
 }
-// Project filtering and expand/collapse functionality
-// Project filtering and expand/collapse functionality
+
+// Event filtering and expand/collapse functionality for event cards
 document.addEventListener('DOMContentLoaded', function() {
     const filterButtons = document.querySelectorAll('.filter-btn');
-    const projectCards = document.querySelectorAll('.project-card');
+    const eventCards = document.querySelectorAll('.event-card');
     
     // Filter functionality
     filterButtons.forEach(button => {
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const filterValue = this.getAttribute('data-filter');
             
-            projectCards.forEach(card => {
+            eventCards.forEach(card => {
                 if (filterValue === 'all') {
                     card.style.display = 'block';
                     setTimeout(() => {
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Expand/Collapse functionality
-    projectCards.forEach(card => {
+    eventCards.forEach(card => {
         const expandBtn = card.querySelector('.expand-btn');
         const expandableDetails = card.querySelector('.expandable-details');
         
@@ -514,14 +514,6 @@ function handlePopState() {
             if (form) {
                 form.style.display = 'block';
                 activateApplicationTab('new-rsbsa');
-            }
-        },
-        '/services/rsbsa/old': () => {
-            hideAllMainSections();
-            const form = document.getElementById('old-rsbsa');
-            if (form) {
-                form.style.display = 'block';
-                activateApplicationTab('old-rsbsa');
             }
         },
         '/services/seedlings': () => {

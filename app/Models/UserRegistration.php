@@ -34,6 +34,9 @@ class UserRegistration extends Model
         'age',
         'date_of_birth',
         'gender',
+
+        // facebook oauth fields
+        'facebook_id',
         
         // Document paths
         'location_document_path', // UPDATED: location_document_path instead of place_document_path
