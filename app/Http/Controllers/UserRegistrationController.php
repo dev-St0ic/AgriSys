@@ -450,10 +450,22 @@ class UserRegistrationController extends Controller
             'middleName' => 'nullable|string|max:100',
             'extensionName' => 'nullable|string|max:20',
             'role' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
-            'contactNumber' => 'required|string|max:20',
+            'contactNumber' => [
+            'required',
+            'string',
+            'max:20',
+            'regex:/^(\+639|09)\d{9}$/' // Array syntax prevents pipe conflicts
+            ],
             'dateOfBirth' => 'required|date|before:today|after:' . now()->subYears(100)->toDateString(),
             'barangay' => 'required|string|max:100',
             'completeAddress' => 'required|string',
+            'emergencyContactName' => 'required|string|max:100',
+            'emergencyContactPhone' =>  [
+            'required',
+            'string',
+            'max:20',
+            'regex:/^(\+639|09)\d{9}$/' // Array syntax prevents pipe conflicts
+            ],
             'idFront' => 'required|file|image|max:5120', // 5MB max
             'idBack' => 'required|file|image|max:5120',
             'locationProof' => 'required|file|image|max:5120',
@@ -467,7 +479,9 @@ class UserRegistrationController extends Controller
             'dateOfBirth.before' => 'Date of birth must be before today',
             'dateOfBirth.after' => 'Please enter a valid date of birth',
             'barangay.required' => 'Barangay is required',
-            'completeAddress.required' => 'Complete address is required',
+            'emergencyContactName.required' => 'Emergency contact name is required',
+            'emergencyContactPhone.required' => 'Emergency contact phone is required',
+            'emergencyContactPhone' => 'Emergency contact phone is required',
             'idFront.required' => 'ID front image is required',
             'idFront.image' => 'ID front must be an image file',
             'idFront.max' => 'ID front image must be less than 5MB',
@@ -576,6 +590,9 @@ class UserRegistrationController extends Controller
                 'age' => $age, // Calculated from date_of_birth
                 'barangay' => $request->barangay,
                 'complete_address' => trim($request->completeAddress),
+                // FIXED: Properly handle emergency contact fields
+                'emergency_contact_name' => $request->emergencyContactName ? trim($request->emergencyContactName) : null,
+                'emergency_contact_phone' => $request->emergencyContactPhone ? trim($request->emergencyContactPhone) : null,
                 'status' => 'pending', // Change status to pending review
                 // Clear any previous rejection data when resubmitting
                 'rejection_reason' => null,
@@ -658,6 +675,14 @@ class UserRegistrationController extends Controller
             ], 404);
         }
 
+            // ✅ LOG BEFORE RETURN
+        \Log::info('Emergency contact data for registration ' . $id, [
+            'emergency_contact_name' => $registration->emergency_contact_name,
+            'emergency_contact_phone' => $registration->emergency_contact_phone,
+            'raw_attributes' => $registration->getAttributes() // See ALL fields
+        ]);
+
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -679,6 +704,8 @@ class UserRegistrationController extends Controller
                 'gender' => $registration->gender,
                 'occupation' => $registration->occupation,
                 'organization' => $registration->organization,
+
+                // Emergency contact details
                 'emergency_contact_name' => $registration->emergency_contact_name,
                 'emergency_contact_phone' => $registration->emergency_contact_phone,
 

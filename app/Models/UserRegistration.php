@@ -35,8 +35,17 @@ class UserRegistration extends Model
         'date_of_birth',
         'gender',
 
+        // Additional profile fields
+        'banned_at',
+        'ban_reason',
+
+        // Emergency contact fields 
+        'emergency_contact_name',
+        'emergency_contact_phone',
+
         // facebook oauth fields
         'facebook_id',
+        'profile_image_url',
         
         // Document paths
         'location_document_path', // UPDATED: location_document_path instead of place_document_path
@@ -66,6 +75,7 @@ class UserRegistration extends Model
         'email_verified_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
+        'banned_at' => 'datetime',  // ADD THIS
         'date_of_birth' => 'date',
         'last_login_at' => 'datetime',
         'terms_accepted' => 'boolean',

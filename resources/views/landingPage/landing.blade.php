@@ -805,8 +805,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- PROFILE VERIFICATION MODAL - UPDATED TO MATCH BACKEND -->
+<!-- PROFILE VERIFICATION MODAL - UPDATED WITH AGE AND EMERGENCY CONTACT -->
         <div id="verification-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content verification-modal">
             <div class="modal-header">
@@ -878,23 +877,32 @@
                                     <input type="date" id="dateOfBirth" name="dateOfBirth" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="contactNumber">Contact Number</label>
-                                    <input type="tel" id="contactNumber" name="contactNumber" required
-                                        placeholder="Enter your 11-digit mobile number (e.g. 09123456789)" pattern="[0-9]{11}">
+                                    <label for="age">Age</label>
+                                    <input type="number" id="age" name="age" min="18" max="100" readonly
+                                        placeholder="Auto-calculated">
+                                    <small>Calculated automatically from date of birth</small>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="role">Role</label>
-                                <select id="role" name="role" required>
-                                    <option value="" disabled selected>Select your role</option>
-                                    <option value="farmer">Farmer</option>
-                                    <option value="fisherfolk">Fisherfolk</option>
-                                    <option value="general">General Public</option>
-                                    <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
-                                    <option value="cooperative-member">Cooperative Member</option>
-                                    <option value="government-employee">Government Employee</option>
-                                </select>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="contactNumber">Contact Number</label>
+                                    <input type="tel" id="contactNumber" name="contactNumber" required
+                                        placeholder="09123456789" pattern="[0-9]{11}">
+                                    <small>11-digit Philippine mobile number</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="role">Role</label>
+                                    <select id="role" name="role" required>
+                                        <option value="" disabled selected>Select your role</option>
+                                        <option value="farmer">Farmer</option>
+                                        <option value="fisherfolk">Fisherfolk</option>
+                                        <option value="general">General Public</option>
+                                        <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
+                                        <option value="cooperative-member">Cooperative Member</option>
+                                        <option value="government-employee">Government Employee</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
@@ -946,6 +954,31 @@
                                 <label for="completeAddress">Complete Address</label>
                                 <textarea id="completeAddress" name="completeAddress" required rows="3"
                                     placeholder="Enter your complete address (House No., Street, Subdivision, etc.)"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact Information -->
+                        <div class="verification-section">
+                            <div class="section-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                                <h5>Emergency Contact</h5>
+                            </div>
+                            <p class="section-description">Provide a contact person we can reach in case of emergency</p>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="emergencyContactName">Emergency Contact Name</label>
+                                    <input type="text" id="emergencyContactName" name="emergencyContactName" required
+                                        placeholder="Full name of emergency contact">
+                                </div>
+                                <div class="form-group">
+                                    <label for="emergencyContactPhone">Emergency Contact Phone</label>
+                                    <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone" required
+                                        placeholder="09123456789" pattern="[0-9]{11}">
+                                    <small>11-digit Philippine mobile number</small>
+                                </div>
                             </div>
                         </div>
 

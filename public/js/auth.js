@@ -886,6 +886,8 @@ function handleVerificationSubmit(event) {
         { name: 'dateOfBirth', label: 'Date of Birth' }, // ADDED: Required by backend
         { name: 'barangay', label: 'Barangay' },
         { name: 'completeAddress', label: 'Complete Address' },
+        { name: 'emergencyContactName', label: 'Emergency Contact Name' },
+        { name: 'emergencyContactPhone', label: 'Emergency Contact Phone' },
         { name: 'idFront', label: 'ID Front', type: 'file' },
         { name: 'idBack', label: 'ID Back', type: 'file' },
         { name: 'locationProof', label: 'Location Proof', type: 'file' }
@@ -945,6 +947,17 @@ function handleVerificationSubmit(event) {
         }
     }
 
+    // Validate emergency contact phone
+    const emergencyPhone = form.querySelector('[name="emergencyContactPhone"]').value;
+    if (emergencyPhone) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(emergencyPhone)) {
+            isValid = false;
+            showNotification('error', 'Please enter a valid Philippine mobile number for emergency contact (09XXXXXXXXX).');
+            return false;
+        }
+    }
+
     if (!isValid) {
         showNotification('error', `Please complete all required fields: ${missingFields.join(', ')}`);
         return false;
@@ -966,6 +979,10 @@ function handleVerificationSubmit(event) {
     formData.append('dateOfBirth', form.querySelector('[name="dateOfBirth"]').value);
     formData.append('barangay', form.querySelector('[name="barangay"]').value);
     formData.append('completeAddress', form.querySelector('[name="completeAddress"]').value.trim());
+
+    // Add emergency contact fields
+formData.append('emergencyContactName', form.querySelector('[name="emergencyContactName"]').value.trim());
+formData.append('emergencyContactPhone', form.querySelector('[name="emergencyContactPhone"]').value.trim());
 
     // Add file uploads - EXACT names expected by backend
     const idFrontFile = form.querySelector('[name="idFront"]').files[0];
@@ -1040,6 +1057,25 @@ function handleVerificationSubmit(event) {
     return false;
 }
 
+// Date of birth change handler to auto-calculate age (for verification form)
+const verificationDobInput = document.getElementById('dateOfBirth');
+if (verificationDobInput) {
+    verificationDobInput.addEventListener('change', function() {
+        const dob = new Date(this.value);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+
+        const ageInput = document.getElementById('age');
+        if (ageInput && age >= 0) {
+            ageInput.value = age;
+        }
+    });
+}
 // ==============================================
 // EDIT PROFILE FORM HANDLER
 // ==============================================
@@ -2581,9 +2617,8 @@ function signUpWithFacebook() {
 }
 
 function showForgotPassword() {
-    // showNotification('info', 'Forgot password feature will be available soon!');
+     showNotification('info', 'Forgot password feature will be available soon!');
     // Same route handles both login and signup
-    window.location.href = '/auth/facebook';
 }
 
 // ==============================================
