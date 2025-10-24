@@ -1332,21 +1332,27 @@ function loadUserApplicationsInModal() {
 
     // Check if user is logged in
     if (!window.userData) {
-        grid.innerHTML = `
-            <div class="empty-applications">
-                <div class="empty-icon">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                </div>
-                <h4>Please Log In</h4>
-                <p>You need to be logged in to view your applications.</p>
-                <button class="quick-action-btn" onclick="closeApplicationsModal(); openAuthModal('login');">
-                    Log In
-                </button>
+       grid.innerHTML = `
+        <div class="empty-applications">
+            <div class="empty-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <polyline points="17 11 19 13 23 9"/>
+                </svg>
             </div>
-        `;
+            <h4>Please Log In</h4>
+            <p>You need to be logged in to view your applications.</p>
+            <button class="quick-action-btn" onclick="closeApplicationsModal(); openAuthModal('login');">
+                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                Log In
+            </button>
+        </div>
+    `;
         return;
     }
 
@@ -1383,6 +1389,18 @@ function loadUserApplicationsInModal() {
     });
 }
 
+
+// Function to remove emojis from text
+function removeEmojis(text) {
+    if (!text) return '';
+    return text
+        .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Emoji ranges
+        .replace(/[\u{2600}-\u{27BF}]/gu, '')   // Miscellaneous Symbols
+        .replace(/[\u{2300}-\u{23FF}]/gu, '')   // Miscellaneous Technical
+        .replace(/[\u{2000}-\u{206F}]/gu, '')   // General Punctuation
+        .trim();
+}
+// aplication modal 
 function renderApplicationsInModal(applications) {
     const grid = document.getElementById('applications-modal-grid');
     if (!grid) return;
@@ -1395,6 +1413,10 @@ function renderApplicationsInModal(applications) {
     grid.innerHTML = applications.map(app => {
         const statusClass = getApplicationStatusClass(app.status);
         const statusLabel = formatApplicationStatus(app.status);
+
+        // Remove emojis from app.type
+        const cleanType = removeEmojis(app.type);
+
 
         return `
             <div class="application-card ${statusClass}">
@@ -1458,19 +1480,26 @@ function renderEmptyApplications() {
     if (!grid) return;
 
     grid.innerHTML = `
-        <div class="empty-applications">
-            <div class="empty-icon">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-            </div>
-            <h4>No Applications Submitted</h4>
-            <p>Start your journey by exploring our available services and programs designed for farmers and fisherfolks.</p>
-            <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
-                View Available Services
-            </button>
+    <div class="empty-applications">
+        <div class="empty-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
         </div>
-    `;
+        <h4>No Applications Yet</h4>
+        <p>Start your journey by exploring our available services and programs designed for farmers and fisherfolks.</p>
+        <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
+            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+            </svg>
+            View Available Services
+        </button>
+    </div>
+`;
 }
 
 // Helper functions for application display

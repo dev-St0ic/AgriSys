@@ -65,6 +65,45 @@
     cursor: default;
 }
 
+/* no applications yet empty my application */
+
+/* Button Icons for Action Buttons */
+.quick-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #0A6953, #2d6a4f);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.3);
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(10, 105, 83, 0.4);
+}
+
+.quick-action-btn .btn-icon {
+    flex-shrink: 0;
+}
+
+/* Empty State Icons */
+.empty-applications .empty-icon {
+    margin-bottom: 20px;
+    color: #9ca3af;
+}
+
+.empty-applications .empty-icon svg {
+    stroke: currentColor;
+}
+
 /* Status Badge Colors */
 .status-unverified {
     background: #fef3c7;
@@ -918,9 +957,9 @@ input.is-invalid {
     border: 1px solid #fecaca;
 }
 
-.auth-error::before {
+/* .auth-error::before {
     content: "⚠";
-}
+} */
 
 .auth-success {
     background: #f0fdf4;
@@ -928,9 +967,9 @@ input.is-invalid {
     border: 1px solid #bbf7d0;
 }
 
-.auth-success::before {
+/* .auth-success::before {
     content: "✅";
-}
+} */
 
 /* ==============================================
    USER PROFILE STYLES
