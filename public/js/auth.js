@@ -152,7 +152,12 @@ function refreshProfileVerifyButton() {
             // Verified state: green, disabled, with checkmark
             verifyBtn.disabled = true;
             verifyBtn.classList.add('verified');
-            verifyBtn.innerHTML = '<span class="btn-icon">✅</span> Verified';
+            verifyBtn.innerHTML = `
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Account Verified</span>
+            `;
             break;
 
         case 'pending':
@@ -160,14 +165,27 @@ function refreshProfileVerifyButton() {
             // Pending state: neutral colors, disabled, with clock
             verifyBtn.disabled = true;
             verifyBtn.classList.add('pending');
-            verifyBtn.innerHTML = '<span class="btn-icon">⏳</span> Pending Verification';
+            verifyBtn.innerHTML = `
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                <span>Under Review</span>
+            `;
             break;
 
         case 'rejected':
             // Rejected state: can retry verification (orange/amber styling)
             verifyBtn.disabled = false;
             verifyBtn.classList.add('rejected');
-            verifyBtn.innerHTML = '<span class="btn-icon">🔄</span> Retry Verification';
+            verifyBtn.innerHTML = `
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
+                    <polyline points="16 6 12 2 8 6"/>
+                    <line x1="12" y1="2" x2="12" y2="15"/>
+                </svg>
+                <span>Verify Again</span>
+            `;
             verifyBtn.onclick = () => showVerificationModal();
             break;
 
@@ -180,7 +198,12 @@ function refreshProfileVerifyButton() {
             // Unverified/default state: can start verification
             verifyBtn.disabled = false;
             verifyBtn.classList.remove('pending', 'verified', 'rejected');
-            verifyBtn.innerHTML = '<span class="btn-icon">✅</span> Verify Now';
+            verifyBtn.innerHTML = `
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Verify Account</span>
+            `;
             verifyBtn.onclick = () => showVerificationModal();
             break;
     }
