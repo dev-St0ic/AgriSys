@@ -819,36 +819,19 @@ function togglePasswordVisibility(inputId) {
 // PROFILE VERIFICATION MODAL FUNCTIONS
 // ==============================================
 
-function showVerificationModal() {
-    const modal = document.getElementById('verification-modal');
-    if (!modal) {
-        console.error('Verification modal not found');
-        return;
-    }
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-
-    // Close profile modal if open
-    closeProfileModal();
-}
-
 function closeVerificationModal() {
     const modal = document.getElementById('verification-modal');
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
-
-    // Reset form
+    
     const form = document.getElementById('verification-form');
     if (form) {
         form.reset();
     }
-
-    // Clear preview images
+    
     clearImagePreviews();
-    resetButtonStates();
 }
 
 function clearImagePreviews() {
@@ -866,13 +849,21 @@ function previewImage(input, previewId) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             preview.style.display = 'block';
         };
         reader.readAsDataURL(file);
     } else {
         preview.innerHTML = '';
         preview.style.display = 'none';
+    }
+}
+
+function showVerificationModal() {
+    const modal = document.getElementById('verification-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
 }
 

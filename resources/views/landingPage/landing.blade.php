@@ -808,205 +808,242 @@
 
         <!-- PROFILE VERIFICATION MODAL - UPDATED TO MATCH BACKEND -->
         <div id="verification-modal" class="modal-overlay" style="display: none;">
-            <div class="modal-content verification-modal">
-                <div class="modal-header">
-                    <h3>Profile Verification</h3>
-                    <span class="modal-close" onclick="closeVerificationModal()">&times;</span>
-                </div>
+        <div class="modal-content verification-modal">
+            <div class="modal-header">
+                <h3>Profile Verification</h3>
+                <span class="modal-close" onclick="closeVerificationModal()">&times;</span>
+            </div>
 
-                <div class="modal-body">
-                    <div class="verification-content">
-                        <div class="verification-header">
-                            <h4>Complete Your Profile Verification</h4>
-                            <p>Please provide the following information to verify your account and access all services.
-                            </p>
+            <div class="modal-body">
+                <div class="verification-content">
+                    <div class="verification-header">
+                        <div class="verification-header-icon">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20-8.95-20-20-20z" stroke="#0A6953" stroke-width="2" fill="none"/>
+                                <path d="M20 32l-6-6 1.41-1.41L20 29.18l10.59-10.59L32 20l-12 12z" fill="#0A6953"/>
+                            </svg>
+                        </div>
+                        <h4>Complete Your Profile Verification</h4>
+                        <p>Please provide the following information to verify your account and access all services.
+                        </p>
+                    </div>
+
+                    <form id="verification-form">
+                        <!-- Personal Information -->
+                        <div class="verification-section">
+                            <div class="section-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                <h5>Personal Information</h5>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" id="firstName" name="firstName" required
+                                        placeholder="Enter your first name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="middleName">Middle Name (Optional)</label>
+                                    <input type="text" id="middleName" name="middleName"
+                                        placeholder="Enter your middle name">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" id="lastName" name="lastName" required
+                                        placeholder="Enter your last name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="extensionName">Name Extension</label>
+                                    <select id="extensionName" name="extensionName">
+                                        <option value="">None</option>
+                                        <option value="Jr.">Jr.</option>
+                                        <option value="Sr.">Sr.</option>
+                                        <option value="II">II</option>
+                                        <option value="III">III</option>
+                                        <option value="IV">IV</option>
+                                        <option value="V">V</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dateOfBirth">Date of Birth</label>
+                                    <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactNumber">Contact Number</label>
+                                    <input type="tel" id="contactNumber" name="contactNumber" required
+                                        placeholder="Enter your 11-digit mobile number (e.g. 09123456789)" pattern="[0-9]{11}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="role">Role</label>
+                                <select id="role" name="role" required>
+                                    <option value="" disabled selected>Select your role</option>
+                                    <option value="farmer">Farmer</option>
+                                    <option value="fisherfolk">Fisherfolk</option>
+                                    <option value="general">General Public</option>
+                                    <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
+                                    <option value="cooperative-member">Cooperative Member</option>
+                                    <option value="government-employee">Government Employee</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <form id="verification-form">
-                            <!-- Personal Information -->
-                            <div class="verification-section">
-                                <h5>Personal Information</h5>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="firstName">First Name *</label>
-                                        <input type="text" id="firstName" name="firstName" required
-                                            placeholder="Enter your first name">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="middleName">Middle Name (Optional)</label>
-                                        <input type="text" id="middleName" name="middleName"
-                                            placeholder="Enter your middle name">
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="lastName">Last Name *</label>
-                                        <input type="text" id="lastName" name="lastName" required
-                                            placeholder="Enter your last name">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="extensionName">Name Extension</label>
-                                        <select id="extensionName" name="extensionName">
-                                            <option value="">None</option>
-                                            <option value="Jr.">Jr.</option>
-                                            <option value="Sr.">Sr.</option>
-                                            <option value="II">II</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
-                                            <option value="V">V</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- ADDED: Date of Birth field (REQUIRED by backend) -->
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="dateOfBirth">Date of Birth *</label>
-                                        <input type="date" id="dateOfBirth" name="dateOfBirth" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="contactNumber">Contact Number *</label>
-                                        <input type="tel" id="contactNumber" name="contactNumber" required
-                                            placeholder="09XXXXXXXXX" pattern="[0-9]{11}">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="role">Role *</label>
-                                    <select id="role" name="role" required>
-                                        <option value="" disabled selected>Select your role</option>
-                                        <option value="farmer">Farmer</option>
-                                        <option value="fisherfolk">Fisherfolk</option>
-                                        <option value="general">General Public</option>
-                                        <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
-                                        <option value="cooperative-member">Cooperative Member</option>
-                                        <option value="government-employee">Government Employee</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Address Information -->
-                            <div class="verification-section">
+                        <!-- Address Information -->
+                        <div class="verification-section">
+                            <div class="section-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
                                 <h5>Address Information</h5>
-
-                                <div class="form-group">
-                                    <label for="barangay">Barangay *</label>
-                                    <select id="barangay" name="barangay" required>
-                                        <option value="" disabled selected>Select Barangay</option>
-                                        <option value="Bagong Silang">Bagong Silang</option>
-                                        <option value="Cuyab">Cuyab</option>
-                                        <option value="Estrella">Estrella</option>
-                                        <option value="G.S.I.S.">G.S.I.S.</option>
-                                        <option value="Landayan">Landayan</option>
-                                        <option value="Langgam">Langgam</option>
-                                        <option value="Laram">Laram</option>
-                                        <option value="Magsaysay">Magsaysay</option>
-                                        <option value="Nueva">Nueva</option>
-                                        <option value="Poblacion">Poblacion</option>
-                                        <option value="Riverside">Riverside</option>
-                                        <option value="San Antonio">San Antonio</option>
-                                        <option value="San Roque">San Roque</option>
-                                        <option value="San Vicente">San Vicente</option>
-                                        <option value="Santo Niño">Santo Niño</option>
-                                        <option value="United Bayanihan">United Bayanihan</option>
-                                        <option value="United Better Living">United Better Living</option>
-                                        <option value="Sampaguita Village">Sampaguita Village</option>
-                                        <option value="Calendola">Calendola</option>
-                                        <option value="Narra">Narra</option>
-                                        <option value="Chrysanthemum">Chrysanthemum</option>
-                                        <option value="Fatima">Fatima</option>
-                                        <option value="Maharlika">Maharlika</option>
-                                        <option value="Pacita 1">Pacita 1</option>
-                                        <option value="Pacita 2">Pacita 2</option>
-                                        <option value="Rosario">Rosario</option>
-                                        <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="completeAddress">Complete Address *</label>
-                                    <textarea id="completeAddress" name="completeAddress" required rows="3"
-                                        placeholder="Enter your complete address (House No., Street, Subdivision, etc.)"></textarea>
-                                </div>
                             </div>
 
-                            <!-- Document Uploads -->
-                            <div class="verification-section">
+                            <div class="form-group">
+                                <label for="barangay">Barangay</label>
+                                <select id="barangay" name="barangay" required>
+                                    <option value="" disabled selected>Select Barangay</option>
+                                    <option value="Bagong Silang">Bagong Silang</option>
+                                    <option value="Cuyab">Cuyab</option>
+                                    <option value="Estrella">Estrella</option>
+                                    <option value="G.S.I.S.">G.S.I.S.</option>
+                                    <option value="Landayan">Landayan</option>
+                                    <option value="Langgam">Langgam</option>
+                                    <option value="Laram">Laram</option>
+                                    <option value="Magsaysay">Magsaysay</option>
+                                    <option value="Nueva">Nueva</option>
+                                    <option value="Poblacion">Poblacion</option>
+                                    <option value="Riverside">Riverside</option>
+                                    <option value="San Antonio">San Antonio</option>
+                                    <option value="San Roque">San Roque</option>
+                                    <option value="San Vicente">San Vicente</option>
+                                    <option value="Santo Niño">Santo Niño</option>
+                                    <option value="United Bayanihan">United Bayanihan</option>
+                                    <option value="United Better Living">United Better Living</option>
+                                    <option value="Sampaguita Village">Sampaguita Village</option>
+                                    <option value="Calendola">Calendola</option>
+                                    <option value="Narra">Narra</option>
+                                    <option value="Chrysanthemum">Chrysanthemum</option>
+                                    <option value="Fatima">Fatima</option>
+                                    <option value="Maharlika">Maharlika</option>
+                                    <option value="Pacita 1">Pacita 1</option>
+                                    <option value="Pacita 2">Pacita 2</option>
+                                    <option value="Rosario">Rosario</option>
+                                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="completeAddress">Complete Address</label>
+                                <textarea id="completeAddress" name="completeAddress" required rows="3"
+                                    placeholder="Enter your complete address (House No., Street, Subdivision, etc.)"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Document Uploads -->
+                        <div class="verification-section">
+                            <div class="section-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
                                 <h5>Required Documents</h5>
-                                <p class="section-description">Please upload clear, high-quality images of the required
-                                    documents.</p>
+                            </div>
+                            <p class="section-description">Please upload clear, high-quality images of the required documents. Supported formats: JPG, PNG, PDF (Max 5MB)</p>
 
-                                <div class="form-row">
-                                    <div class="form-group file-upload-group">
-                                        <label for="idFront">Government ID (Front) *</label>
-                                        <input type="file" id="idFront" name="idFront" required
-                                            accept="image/*" class="file-input">
-                                        <div class="file-upload-area"
-                                            onclick="document.getElementById('idFront').click()">
-                                            <div class="upload-icon">📄</div>
-                                            <div class="upload-text">Click to upload ID front</div>
-                                            <div class="upload-subtext">Supported: JPG, PNG, PDF (Max 5MB)</div>
+                            <div class="form-row">
+                                <div class="form-group file-upload-group">
+                                    <label for="idFront">Government ID (Front)</label>
+                                    <input type="file" id="idFront" name="idFront" required
+                                        accept="image/*" class="file-input" onchange="previewImage(this, 'idFrontPreview')">
+                                    <div class="file-upload-area"
+                                        onclick="document.getElementById('idFront').click()">
+                                        <div class="upload-icon">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="4" width="18" height="14" rx="2"></rect>
+                                                <path d="M3 18h18"></path>
+                                            </svg>
                                         </div>
-                                        <div id="idFrontPreview" class="image-preview" style="display: none;"></div>
+                                        <div class="upload-text">Click to upload ID front</div>
                                     </div>
-
-                                    <div class="form-group file-upload-group">
-                                        <label for="idBack">Government ID (Back) *</label>
-                                        <input type="file" id="idBack" name="idBack" required
-                                            accept="image/*" class="file-input">
-                                        <div class="file-upload-area"
-                                            onclick="document.getElementById('idBack').click()">
-                                            <div class="upload-icon">📄</div>
-                                            <div class="upload-text">Click to upload ID back</div>
-                                            <div class="upload-subtext">Supported: JPG, PNG, PDF (Max 5MB)</div>
-                                        </div>
-                                        <div id="idBackPreview" class="image-preview" style="display: none;"></div>
-                                    </div>
+                                    <div id="idFrontPreview" class="image-preview" style="display: none;"></div>
                                 </div>
 
                                 <div class="form-group file-upload-group">
-                                    <label for="locationProof">Location/Role Proof *</label>
-                                    <input type="file" id="locationProof" name="locationProof" required
-                                        accept="image/*" class="file-input">
+                                    <label for="idBack">Government ID (Back)</label>
+                                    <input type="file" id="idBack" name="idBack" required
+                                        accept="image/*" class="file-input" onchange="previewImage(this, 'idBackPreview')">
                                     <div class="file-upload-area"
-                                        onclick="document.getElementById('locationProof').click()">
-                                        <div class="upload-icon">📍</div>
-                                        <div class="upload-text">Click to upload location/role proof</div>
-                                        <div class="upload-subtext">Farm photo, fishing area, business permit, etc.
-                                            (Max 5MB)</div>
+                                        onclick="document.getElementById('idBack').click()">
+                                        <div class="upload-icon">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="4" width="18" height="14" rx="2"></rect>
+                                                <path d="M3 18h18"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="upload-text">Click to upload ID back</div>
                                     </div>
-                                    <div id="locationProofPreview" class="image-preview" style="display: none;">
-                                    </div>
-                                    <div class="form-text">
-                                        For farmers: Photo of your farm or agricultural land<br>
-                                        For fisherfolk: Photo of fishing area or boat<br>
-                                        For others: Relevant business permit or location proof
-                                    </div>
+                                    <div id="idBackPreview" class="image-preview" style="display: none;"></div>
                                 </div>
                             </div>
 
-                            <!-- Verification Notice -->
-                            <div class="verification-notice">
-                                <div class="notice-icon">⚠️</div>
-                                <div class="notice-content">
-                                    <h6>Verification Process</h6>
-                                    <p>Your submitted documents will be reviewed by our admin team within 2-3 business
-                                        days. You will receive an email notification once your verification is approved
-                                        or if additional documents are needed.</p>
+                            <div class="form-group file-upload-group">
+                                <label for="locationProof">Location/Role Proof</label>
+                                <input type="file" id="locationProof" name="locationProof" required
+                                    accept="image/*" class="file-input" onchange="previewImage(this, 'locationProofPreview')">
+                                <div class="file-upload-area"
+                                    onclick="document.getElementById('locationProof').click()">
+                                    <div class="upload-icon">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                    </div>
+                                    <div class="upload-text">Click to upload location/role proof</div>
+                                </div>
+                                <div id="locationProofPreview" class="image-preview" style="display: none;"></div>
+                                <div class="form-text">
+                                    <strong>For farmers:</strong> Photo of your farm or agricultural land<br>
+                                    <strong>For fisherfolk:</strong> Photo of fishing area or boat<br>
+                                    <strong>For others:</strong> Relevant business permit or location proof
                                 </div>
                             </div>
+                        </div>
 
-                            <button type="submit" class="verification-submit-btn">
-                                <span class="btn-text">Submit for Verification</span>
-                                <span class="btn-loader" style="display: none;">Submitting...</span>
-                            </button>
-                        </form>
-                    </div>
+                        <!-- Verification Notice -->
+                        <div class="verification-notice">
+                            <div class="notice-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
+                            </div>
+                            <div class="notice-content">
+                                <h6>Verification Process</h6>
+                                <p>Your submitted documents will be reviewed by our admin team within 2-3 business days. You will receive an email notification once your verification is approved or if additional documents are needed.</p>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="verification-submit-btn">
+                            <span class="btn-text">Submit for Verification</span>
+                            <span class="btn-loader" style="display: none;">Submitting...</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
+
     @endif
 
     @if (!isset($user))
