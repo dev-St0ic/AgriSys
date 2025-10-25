@@ -152,7 +152,12 @@ function refreshProfileVerifyButton() {
             // Verified state: green, disabled, with checkmark
             verifyBtn.disabled = true;
             verifyBtn.classList.add('verified');
-            verifyBtn.innerHTML = '<span class="btn-icon">✅</span> Verified';
+            verifyBtn.innerHTML = `
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Account Verified</span>
+            `;
             break;
 
         case 'pending':
@@ -160,14 +165,27 @@ function refreshProfileVerifyButton() {
             // Pending state: neutral colors, disabled, with clock
             verifyBtn.disabled = true;
             verifyBtn.classList.add('pending');
-            verifyBtn.innerHTML = '<span class="btn-icon">⏳</span> Pending Verification';
+            verifyBtn.innerHTML = `
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+                <span>Under Review</span>
+            `;
             break;
 
         case 'rejected':
             // Rejected state: can retry verification (orange/amber styling)
             verifyBtn.disabled = false;
             verifyBtn.classList.add('rejected');
-            verifyBtn.innerHTML = '<span class="btn-icon">🔄</span> Retry Verification';
+            verifyBtn.innerHTML = `
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
+                    <polyline points="16 6 12 2 8 6"/>
+                    <line x1="12" y1="2" x2="12" y2="15"/>
+                </svg>
+                <span>Verify Again</span>
+            `;
             verifyBtn.onclick = () => showVerificationModal();
             break;
 
@@ -180,7 +198,12 @@ function refreshProfileVerifyButton() {
             // Unverified/default state: can start verification
             verifyBtn.disabled = false;
             verifyBtn.classList.remove('pending', 'verified', 'rejected');
-            verifyBtn.innerHTML = '<span class="btn-icon">✅</span> Verify Now';
+            verifyBtn.innerHTML = `
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>Verify Account</span>
+            `;
             verifyBtn.onclick = () => showVerificationModal();
             break;
     }
@@ -796,36 +819,19 @@ function togglePasswordVisibility(inputId) {
 // PROFILE VERIFICATION MODAL FUNCTIONS
 // ==============================================
 
-function showVerificationModal() {
-    const modal = document.getElementById('verification-modal');
-    if (!modal) {
-        console.error('Verification modal not found');
-        return;
-    }
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-
-    // Close profile modal if open
-    closeProfileModal();
-}
-
 function closeVerificationModal() {
     const modal = document.getElementById('verification-modal');
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
-
-    // Reset form
+    
     const form = document.getElementById('verification-form');
     if (form) {
         form.reset();
     }
-
-    // Clear preview images
+    
     clearImagePreviews();
-    resetButtonStates();
 }
 
 function clearImagePreviews() {
@@ -843,13 +849,21 @@ function previewImage(input, previewId) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             preview.style.display = 'block';
         };
         reader.readAsDataURL(file);
     } else {
         preview.innerHTML = '';
         preview.style.display = 'none';
+    }
+}
+
+function showVerificationModal() {
+    const modal = document.getElementById('verification-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
 }
 
@@ -872,6 +886,8 @@ function handleVerificationSubmit(event) {
         { name: 'dateOfBirth', label: 'Date of Birth' }, // ADDED: Required by backend
         { name: 'barangay', label: 'Barangay' },
         { name: 'completeAddress', label: 'Complete Address' },
+        { name: 'emergencyContactName', label: 'Emergency Contact Name' },
+        { name: 'emergencyContactPhone', label: 'Emergency Contact Phone' },
         { name: 'idFront', label: 'ID Front', type: 'file' },
         { name: 'idBack', label: 'ID Back', type: 'file' },
         { name: 'locationProof', label: 'Location Proof', type: 'file' }
@@ -931,6 +947,17 @@ function handleVerificationSubmit(event) {
         }
     }
 
+    // Validate emergency contact phone
+    const emergencyPhone = form.querySelector('[name="emergencyContactPhone"]').value;
+    if (emergencyPhone) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(emergencyPhone)) {
+            isValid = false;
+            showNotification('error', 'Please enter a valid Philippine mobile number for emergency contact (09XXXXXXXXX).');
+            return false;
+        }
+    }
+
     if (!isValid) {
         showNotification('error', `Please complete all required fields: ${missingFields.join(', ')}`);
         return false;
@@ -952,6 +979,10 @@ function handleVerificationSubmit(event) {
     formData.append('dateOfBirth', form.querySelector('[name="dateOfBirth"]').value);
     formData.append('barangay', form.querySelector('[name="barangay"]').value);
     formData.append('completeAddress', form.querySelector('[name="completeAddress"]').value.trim());
+
+    // Add emergency contact fields
+formData.append('emergencyContactName', form.querySelector('[name="emergencyContactName"]').value.trim());
+formData.append('emergencyContactPhone', form.querySelector('[name="emergencyContactPhone"]').value.trim());
 
     // Add file uploads - EXACT names expected by backend
     const idFrontFile = form.querySelector('[name="idFront"]').files[0];
@@ -1026,6 +1057,25 @@ function handleVerificationSubmit(event) {
     return false;
 }
 
+// Date of birth change handler to auto-calculate age (for verification form)
+const verificationDobInput = document.getElementById('dateOfBirth');
+if (verificationDobInput) {
+    verificationDobInput.addEventListener('change', function() {
+        const dob = new Date(this.value);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+
+        const ageInput = document.getElementById('age');
+        if (ageInput && age >= 0) {
+            ageInput.value = age;
+        }
+    });
+}
 // ==============================================
 // EDIT PROFILE FORM HANDLER
 // ==============================================
@@ -1309,21 +1359,27 @@ function loadUserApplicationsInModal() {
 
     // Check if user is logged in
     if (!window.userData) {
-        grid.innerHTML = `
-            <div class="empty-applications">
-                <div class="empty-icon">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                </div>
-                <h4>Please Log In</h4>
-                <p>You need to be logged in to view your applications.</p>
-                <button class="quick-action-btn" onclick="closeApplicationsModal(); openAuthModal('login');">
-                    Log In
-                </button>
+       grid.innerHTML = `
+        <div class="empty-applications">
+            <div class="empty-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <polyline points="17 11 19 13 23 9"/>
+                </svg>
             </div>
-        `;
+            <h4>Please Log In</h4>
+            <p>You need to be logged in to view your applications.</p>
+            <button class="quick-action-btn" onclick="closeApplicationsModal(); openAuthModal('login');">
+                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                Log In
+            </button>
+        </div>
+    `;
         return;
     }
 
@@ -1360,6 +1416,18 @@ function loadUserApplicationsInModal() {
     });
 }
 
+
+// Function to remove emojis from text
+function removeEmojis(text) {
+    if (!text) return '';
+    return text
+        .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Emoji ranges
+        .replace(/[\u{2600}-\u{27BF}]/gu, '')   // Miscellaneous Symbols
+        .replace(/[\u{2300}-\u{23FF}]/gu, '')   // Miscellaneous Technical
+        .replace(/[\u{2000}-\u{206F}]/gu, '')   // General Punctuation
+        .trim();
+}
+// aplication modal 
 function renderApplicationsInModal(applications) {
     const grid = document.getElementById('applications-modal-grid');
     if (!grid) return;
@@ -1372,6 +1440,10 @@ function renderApplicationsInModal(applications) {
     grid.innerHTML = applications.map(app => {
         const statusClass = getApplicationStatusClass(app.status);
         const statusLabel = formatApplicationStatus(app.status);
+
+        // Remove emojis from app.type
+        const cleanType = removeEmojis(app.type);
+
 
         return `
             <div class="application-card ${statusClass}">
@@ -1435,19 +1507,26 @@ function renderEmptyApplications() {
     if (!grid) return;
 
     grid.innerHTML = `
-        <div class="empty-applications">
-            <div class="empty-icon">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-            </div>
-            <h4>No Applications Submitted</h4>
-            <p>Start your journey by exploring our available services and programs designed for farmers and fisherfolks.</p>
-            <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
-                View Available Services
-            </button>
+    <div class="empty-applications">
+        <div class="empty-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
         </div>
-    `;
+        <h4>No Applications Yet</h4>
+        <p>Start your journey by exploring our available services and programs designed for farmers and fisherfolks.</p>
+        <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
+            <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+            </svg>
+            View Available Services
+        </button>
+    </div>
+`;
 }
 
 // Helper functions for application display
@@ -2538,9 +2617,8 @@ function signUpWithFacebook() {
 }
 
 function showForgotPassword() {
-    // showNotification('info', 'Forgot password feature will be available soon!');
+     showNotification('info', 'Forgot password feature will be available soon!');
     // Same route handles both login and signup
-    window.location.href = '/auth/facebook';
 }
 
 // ==============================================
