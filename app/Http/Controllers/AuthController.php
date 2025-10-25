@@ -78,24 +78,19 @@ class AuthController extends Controller
         $totalSuperAdmins = User::where('role', 'superadmin')->count();
         $totalUsers = User::where('role', 'user')->count();
 
-        // Inventory statistics disabled for new supply management
-        // Set default values to prevent dashboard errors
-        $lowStockItems = 0;
-        $outOfStockItems = 0;
-        $totalInventoryItems = 0;
-
         // Analytics data
         $analyticsData = $this->getAnalyticsData();
+
+        // analytics for supply management
+        $supplyData = $this->getSupplyData();
 
         return view('admin.dashboard', compact(
             'user',
             'totalAdmins',
             'totalSuperAdmins',
             'totalUsers',
-            'lowStockItems',
-            'outOfStockItems',
-            'totalInventoryItems',
-            'analyticsData'
+            'analyticsData',
+            'supplyData' 
         ));
     }
 
@@ -253,4 +248,29 @@ class AuthController extends Controller
             'recent_activity' => $recentApplications
         ];
     }
+
+       /**
+     * Get supply management statistics
+     */
+    private function getSupplyData()
+    {
+        $totalCategories = \App\Models\RequestCategory::count();
+        $activeCategories = \App\Models\RequestCategory::where('is_active', true)->count();
+        $totalItems = \App\Models\CategoryItem::count();
+        $activeItems = \App\Models\CategoryItem::where('is_active', true)->count();
+        $lowSupplyItems = \App\Models\CategoryItem::lowSupply()->count();
+        $outOfSupplyItems = \App\Models\CategoryItem::outOfSupply()->count();
+        $totalSupply = \App\Models\CategoryItem::sum('current_supply');
+
+        return [
+            'total_categories' => $totalCategories,
+            'active_categories' => $activeCategories,
+            'total_items' => $totalItems,
+            'active_items' => $activeItems,
+            'low_supply_items' => $lowSupplyItems,
+            'out_of_supply_items' => $outOfSupplyItems,
+            'total_supply' => $totalSupply,
+        ];
+    }
+
 }
