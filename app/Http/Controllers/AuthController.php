@@ -77,13 +77,6 @@ class AuthController extends Controller
         $totalAdmins = User::where('role', 'admin')->count();
         $totalSuperAdmins = User::where('role', 'superadmin')->count();
         $totalUsers = User::where('role', 'user')->count();
-        
-
-        // supply statistics disabled for new supply management
-        // Set default values to prevent dashboard errors
-        $lowStockItems = 0;
-        $outOfStockItems = 0;
-        $totalSupplyItems = 0;
 
         // Analytics data
         $analyticsData = $this->getAnalyticsData();
@@ -96,9 +89,6 @@ class AuthController extends Controller
             'totalAdmins',
             'totalSuperAdmins',
             'totalUsers',
-            'lowStockItems',
-            'outOfStockItems',
-            'totalSupplyItems',
             'analyticsData',
             'supplyData' 
         ));
