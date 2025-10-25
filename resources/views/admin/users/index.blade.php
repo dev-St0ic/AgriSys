@@ -1716,11 +1716,17 @@
                 });
         }
 
-        // Update registration status function
+        // REPLACE updateRegistrationStatus() with this ENHANCED version with better error handling
+
         function updateRegistrationStatus() {
             const id = document.getElementById('updateRegistrationId').value;
             const newStatus = document.getElementById('newStatus').value;
             const remarks = document.getElementById('remarks').value;
+
+            console.log('=== Update Status Debug ===');
+            console.log('Registration ID:', id);
+            console.log('New Status:', newStatus);
+            console.log('Remarks:', remarks);
 
             if (!newStatus) {
                 showAlert('error', 'Please select a status');
@@ -1770,6 +1776,10 @@
                 remarks: remarks
             };
 
+            console.log('Sending request to:', endpoint);
+            console.log('Request data:', requestData);
+            console.log('CSRF Token:', getCSRFToken());
+
             fetch(endpoint, {
                     method: 'POST',
                     headers: {
@@ -1780,27 +1790,79 @@
                     body: JSON.stringify(requestData)
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
+                    console.log('Response Status:', response.status);
+                    console.log('Response Status Text:', response.statusText);
+                    console.log('Response Headers:', {
+                        'Content-Type': response.headers.get('Content-Type'),
+                        'X-Requested-With': response.headers.get('X-Requested-With')
+                    });
+
+                    // Clone response to read body multiple times if needed
+                    const clonedResponse = response.clone();
+
+                    // First, try to parse as JSON to see error details
+                    return clonedResponse.json().then(jsonData => {
+                        console.log('Response JSON:', jsonData);
+                        return {
+                            status: response.status,
+                            ok: response.ok,
+                            data: jsonData
+                        };
+                    }).catch(jsonError => {
+                        console.warn('Could not parse JSON response:', jsonError);
+                        // If JSON parsing fails, get text instead
+                        return response.text().then(textData => {
+                            console.log('Response Text:', textData);
+                            return {
+                                status: response.status,
+                                ok: response.ok,
+                                text: textData
+                            };
+                        });
+                    });
                 })
-                .then(response => {
-                    if (response.success) {
+                .then(result => {
+                    console.log('Processing result:', result);
+
+                    if (!result.ok) {
+                        // Error response - show detailed error
+                        let errorMessage = `Server Error (${result.status}): `;
+                        
+                        if (result.data && result.data.message) {
+                            errorMessage += result.data.message;
+                            if (result.data.errors) {
+                                console.error('Validation errors:', result.data.errors);
+                                errorMessage += '\n\nValidation errors:\n' + JSON.stringify(result.data.errors, null, 2);
+                            }
+                        } else if (result.text) {
+                            errorMessage += result.text.slice(0, 200);
+                        } else {
+                            errorMessage += result.statusText || 'Unknown error';
+                        }
+                        
+                        throw new Error(errorMessage);
+                    }
+
+                    // Success response
+                    if (result.data && result.data.success) {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
                         modal.hide();
-                        showAlert('success', response.message);
+                        showAlert('success', result.data.message);
 
+                        console.log('Update successful, reloading...');
+                        
                         // Auto-refresh the page
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
                     } else {
-                        throw new Error(response.message || 'Error updating status');
+                        throw new Error(result.data?.message || 'Unknown error occurred');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Complete error object:', error);
+                    console.error('Error message:', error.message);
+                    console.error('Error stack:', error.stack);
                     showAlert('error', 'Error updating registration status: ' + error.message);
                 })
                 .finally(() => {
@@ -1808,7 +1870,6 @@
                     updateButton.disabled = false;
                 });
         }
-
         // Delete registration
         function deleteRegistration(id) {
             if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
