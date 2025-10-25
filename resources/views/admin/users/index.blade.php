@@ -1716,7 +1716,7 @@
                 });
         }
 
-        // REPLACE updateRegistrationStatus() with this ENHANCED version with better error handling
+        // enhance version
 
         function updateRegistrationStatus() {
             const id = document.getElementById('updateRegistrationId').value;
