@@ -91,26 +91,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                Rejected
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="rejected-count">
-                                {{ $stats['rejected'] ?? 0 }}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Enhanced Filters Section -->
@@ -119,9 +99,6 @@
             <h6 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-filter me-2"></i>Filters & Search
             </h6>
-            <button type="button" class="btn btn-sm btn-info" onclick="testConnection()">
-                <i class="fas fa-network-wired me-1"></i>Test Connection
-            </button>
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('admin.registrations.index') }}" id="filterForm">
@@ -315,45 +292,22 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td>
-                                    <div class="d-flex flex-wrap gap-1">
-                                        <!-- Location Document -->
-                                        @if ($registration->location_document_path)
-                                            <span class="badge bg-success fs-6 cursor-pointer"
-                                                title="Location Document Uploaded - Click to View"
-                                                onclick="viewDocumentDirect({{ $registration->id }}, 'location')">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                            </span>
+                               <td>
+                                    @php
+                                        $docCount = 0;
+                                        if ($registration->location_document_path) $docCount++;
+                                        if ($registration->id_front_path) $docCount++;
+                                        if ($registration->id_back_path) $docCount++;
+                                    @endphp
+                                    <div id="documents-cell-{{ $registration->id }}">
+                                        @if ($docCount > 0)
+                                            <button class="btn btn-sm btn-info"
+                                                onclick="viewDocuments({{ $registration->id }})">
+                                                <i class="fas fa-file-alt"></i>
+                                                View ({{ $docCount }})
+                                            </button>
                                         @else
-                                            <span class="badge bg-secondary fs-6" title="Location Document Missing">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                            </span>
-                                        @endif
-
-                                        <!-- ID Front -->
-                                        @if ($registration->id_front_path)
-                                            <span class="badge bg-success fs-6 cursor-pointer"
-                                                title="ID Front Uploaded - Click to View"
-                                                onclick="viewDocumentDirect({{ $registration->id }}, 'id_front')">
-                                                <i class="fas fa-id-card"></i>
-                                            </span>
-                                        @else
-                                            <span class="badge bg-secondary fs-6" title="ID Front Missing">
-                                                <i class="fas fa-id-card"></i>
-                                            </span>
-                                        @endif
-
-                                        <!-- ID Back -->
-                                        @if ($registration->id_back_path)
-                                            <span class="badge bg-success fs-6 cursor-pointer"
-                                                title="ID Back Uploaded - Click to View"
-                                                onclick="viewDocumentDirect({{ $registration->id }}, 'id_back')">
-                                                <i class="fas fa-id-card-alt"></i>
-                                            </span>
-                                        @else
-                                            <span class="badge bg-secondary fs-6" title="ID Back Missing">
-                                                <i class="fas fa-id-card-alt"></i>
-                                            </span>
+                                            <span class="badge bg-secondary">No documents</span>
                                         @endif
                                     </div>
                                 </td>
@@ -573,8 +527,14 @@
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body text-center" id="documentModalBody">
-                    <!-- Document content will be loaded here -->
+                <div class="modal-body" id="documentModalBody">
+                    <div id="documentViewerLoading" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading documents...</p>
+                    </div>
+                    <div id="documentViewer" style="display: none;"></div>
                 </div>
                 <div class="modal-footer">
                     <div class="btn-group">
@@ -744,6 +704,30 @@
             opacity: 0.8;
             transform: scale(1.1);
             transition: all 0.2s ease;
+        }
+
+        /* Fix for lingering modal backdrop */
+        .modal-backdrop {
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.fade {
+            opacity: 0;
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.5;
+        }
+
+        /* Ensure body scrolling is restored */
+        body {
+            overflow: auto !important;
+            padding-right: 0 !important;
+        }
+
+        body.modal-open {
+            overflow: hidden;
         }
 
         /* Enhanced visual feedback for changed fields */
@@ -934,35 +918,6 @@
         // Submit filter form when dropdowns change
         function submitFilterForm() {
             document.getElementById('filterForm').submit();
-        }
-
-        // Test connection function
-        function testConnection() {
-            console.log('Testing connection to server...');
-
-            fetch('/admin/debug/auth', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    console.log('Test response status:', response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Test response data:', data);
-                    alert('Connection test successful!\nServer is responding and authentication is working.');
-                })
-                .catch(error => {
-                    console.error('Connection test failed:', error);
-                    alert('Connection test failed: ' + error.message +
-                        '\n\nPlease check:\n1. Is the server running?\n2. Are you logged in as admin?\n3. Check browser console for details.'
-                        );
-                });
         }
 
         // Helper function to get status display text
@@ -1483,6 +1438,152 @@
             }
         }
 
+        // Enhanced view documents function for User Registrations - FIXED
+        function viewDocuments(id) {
+            currentRegistrationId = id;
+            
+            const documentModal = new bootstrap.Modal(document.getElementById('documentModal'));
+            
+            // Show loading state - make sure these elements exist
+            let loadingDiv = document.getElementById('documentViewerLoading');
+            let viewerDiv = document.getElementById('documentViewer');
+            
+            // If they don't exist, create them
+            if (!loadingDiv) {
+                const modalBody = document.querySelector('#documentModal .modal-body');
+                if (modalBody) {
+                    modalBody.innerHTML = `
+                        <div id="documentViewerLoading" class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading documents...</p>
+                        </div>
+                        <div id="documentViewer" style="display: none;"></div>
+                    `;
+                    loadingDiv = document.getElementById('documentViewerLoading');
+                    viewerDiv = document.getElementById('documentViewer');
+                }
+            }
+            
+            // Show loading, hide viewer
+            if (loadingDiv) loadingDiv.style.display = 'block';
+            if (viewerDiv) viewerDiv.style.display = 'none';
+            
+            // Show modal
+            documentModal.show();
+            
+            // Update modal title
+            const modalTitle = document.getElementById('documentModalTitle');
+            if (modalTitle) {
+                modalTitle.innerHTML = '<i class="fas fa-file-alt me-2"></i>User Documents';
+            }
+
+            console.log('Fetching documents for registration:', id);
+
+            // Fetch registration details to get documents
+            fetch(`/admin/registrations/${id}/details`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    console.log('Registration data received:', response);
+                    
+                    if (!response.success) {
+                        throw new Error(response.message || 'Failed to load documents');
+                    }
+
+                    const data = response.data;
+                    
+                    // Hide loading
+                    if (loadingDiv) loadingDiv.style.display = 'none';
+                    if (viewerDiv) viewerDiv.style.display = 'block';
+
+                    let documentsHtml = '<div class="row">';
+
+                    // Build documents array
+                    const docs = [];
+                    if (data.location_document_path) {
+                        docs.push({
+                            type: 'location', 
+                            name: 'Location Proof Document'
+                        });
+                    }
+                    if (data.id_front_path) {
+                        docs.push({
+                            type: 'id_front', 
+                            name: 'Government ID - Front'
+                        });
+                    }
+                    if (data.id_back_path) {
+                        docs.push({
+                            type: 'id_back', 
+                            name: 'Government ID - Back'
+                        });
+                    }
+
+                    console.log('Documents found:', docs);
+
+                    if (docs.length > 0) {
+                        documentsHtml += '<div class="col-12"><div class="card"><div class="card-body">';
+                        docs.forEach(doc => {
+                            documentsHtml += `
+                                <div class="document-item mb-3 p-3 border rounded">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">${doc.name}</h6>
+                                            <small class="text-muted">Click to preview</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-info" onclick="viewDocumentDirect(${id}, '${doc.type}')">
+                                            <i class="fas fa-eye me-1"></i> View
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        documentsHtml += '</div></div></div>';
+                    } else {
+                        documentsHtml += `
+                            <div class="col-12">
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    No documents uploaded yet.
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    documentsHtml += '</div>';
+                    
+                    if (viewerDiv) {
+                        viewerDiv.innerHTML = documentsHtml;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading documents:', error);
+                    
+                    // Hide loading
+                    if (loadingDiv) loadingDiv.style.display = 'none';
+                    if (viewerDiv) {
+                        viewerDiv.style.display = 'block';
+                        viewerDiv.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Error loading documents:</strong> ${error.message}
+                            </div>
+                        `;
+                    }
+                });
+        }
         // Quick status update functions
         function quickUpdateStatus(newStatus) {
             if (!currentRegistrationId) {
@@ -1615,11 +1716,17 @@
                 });
         }
 
-        // Update registration status function
+        // enhance version
+
         function updateRegistrationStatus() {
             const id = document.getElementById('updateRegistrationId').value;
             const newStatus = document.getElementById('newStatus').value;
             const remarks = document.getElementById('remarks').value;
+
+            console.log('=== Update Status Debug ===');
+            console.log('Registration ID:', id);
+            console.log('New Status:', newStatus);
+            console.log('Remarks:', remarks);
 
             if (!newStatus) {
                 showAlert('error', 'Please select a status');
@@ -1669,6 +1776,10 @@
                 remarks: remarks
             };
 
+            console.log('Sending request to:', endpoint);
+            console.log('Request data:', requestData);
+            console.log('CSRF Token:', getCSRFToken());
+
             fetch(endpoint, {
                     method: 'POST',
                     headers: {
@@ -1679,27 +1790,79 @@
                     body: JSON.stringify(requestData)
                 })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
+                    console.log('Response Status:', response.status);
+                    console.log('Response Status Text:', response.statusText);
+                    console.log('Response Headers:', {
+                        'Content-Type': response.headers.get('Content-Type'),
+                        'X-Requested-With': response.headers.get('X-Requested-With')
+                    });
+
+                    // Clone response to read body multiple times if needed
+                    const clonedResponse = response.clone();
+
+                    // First, try to parse as JSON to see error details
+                    return clonedResponse.json().then(jsonData => {
+                        console.log('Response JSON:', jsonData);
+                        return {
+                            status: response.status,
+                            ok: response.ok,
+                            data: jsonData
+                        };
+                    }).catch(jsonError => {
+                        console.warn('Could not parse JSON response:', jsonError);
+                        // If JSON parsing fails, get text instead
+                        return response.text().then(textData => {
+                            console.log('Response Text:', textData);
+                            return {
+                                status: response.status,
+                                ok: response.ok,
+                                text: textData
+                            };
+                        });
+                    });
                 })
-                .then(response => {
-                    if (response.success) {
+                .then(result => {
+                    console.log('Processing result:', result);
+
+                    if (!result.ok) {
+                        // Error response - show detailed error
+                        let errorMessage = `Server Error (${result.status}): `;
+                        
+                        if (result.data && result.data.message) {
+                            errorMessage += result.data.message;
+                            if (result.data.errors) {
+                                console.error('Validation errors:', result.data.errors);
+                                errorMessage += '\n\nValidation errors:\n' + JSON.stringify(result.data.errors, null, 2);
+                            }
+                        } else if (result.text) {
+                            errorMessage += result.text.slice(0, 200);
+                        } else {
+                            errorMessage += result.statusText || 'Unknown error';
+                        }
+                        
+                        throw new Error(errorMessage);
+                    }
+
+                    // Success response
+                    if (result.data && result.data.success) {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
                         modal.hide();
-                        showAlert('success', response.message);
+                        showAlert('success', result.data.message);
 
+                        console.log('Update successful, reloading...');
+                        
                         // Auto-refresh the page
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
                     } else {
-                        throw new Error(response.message || 'Error updating status');
+                        throw new Error(result.data?.message || 'Unknown error occurred');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Complete error object:', error);
+                    console.error('Error message:', error.message);
+                    console.error('Error stack:', error.stack);
                     showAlert('error', 'Error updating registration status: ' + error.message);
                 })
                 .finally(() => {
@@ -1707,7 +1870,6 @@
                     updateButton.disabled = false;
                 });
         }
-
         // Delete registration
         function deleteRegistration(id) {
             if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
@@ -1984,6 +2146,57 @@
                 }
             });
         });
+
+        // Fix modal backdrop lingering issue
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all modals
+            const modals = document.querySelectorAll('.modal');
+            
+            modals.forEach(modal => {
+                // Handle modal hidden event
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Remove any lingering backdrops
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => backdrop.remove());
+                    
+                    // Remove modal-open class from body
+                    document.body.classList.remove('modal-open');
+                    
+                    // Reset scroll
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                    
+                    console.log('Modal cleaned up:', this.id);
+                });
+            });
+        });
+
+        // Alternative: More aggressive cleanup for documentModal specifically
+        const documentModal = document.getElementById('documentModal');
+        if (documentModal) {
+            documentModal.addEventListener('hidden.bs.modal', function() {
+                // Remove backdrop
+                const backdrop = document.querySelector('.modal-backdrop.fade.show');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                
+                // Remove all backdrops as fallback
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                
+                // Ensure body is scrollable
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                // Force remove modal-open if no other modals are open
+                const openModals = document.querySelectorAll('.modal.show');
+                if (openModals.length === 0) {
+                    document.body.classList.remove('modal-open');
+                }
+                
+                console.log('Document modal cleaned up');
+            });
+        }
 
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
     </script>

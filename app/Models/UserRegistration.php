@@ -35,10 +35,6 @@ class UserRegistration extends Model
         'date_of_birth',
         'gender',
 
-        // Additional profile fields
-        'banned_at',
-        'ban_reason',
-
         // Emergency contact fields 
         'emergency_contact_name',
         'emergency_contact_phone',
