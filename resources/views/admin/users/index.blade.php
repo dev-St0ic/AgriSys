@@ -99,9 +99,6 @@
             <h6 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-filter me-2"></i>Filters & Search
             </h6>
-            <button type="button" class="btn btn-sm btn-info" onclick="testConnection()">
-                <i class="fas fa-network-wired me-1"></i>Test Connection
-            </button>
         </div>
         <div class="card-body">
             <form method="GET" action="{{ route('admin.registrations.index') }}" id="filterForm">
@@ -914,35 +911,6 @@
         // Submit filter form when dropdowns change
         function submitFilterForm() {
             document.getElementById('filterForm').submit();
-        }
-
-        // Test connection function
-        function testConnection() {
-            console.log('Testing connection to server...');
-
-            fetch('/admin/debug/auth', {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    console.log('Test response status:', response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Test response data:', data);
-                    alert('Connection test successful!\nServer is responding and authentication is working.');
-                })
-                .catch(error => {
-                    console.error('Connection test failed:', error);
-                    alert('Connection test failed: ' + error.message +
-                        '\n\nPlease check:\n1. Is the server running?\n2. Are you logged in as admin?\n3. Check browser console for details.'
-                        );
-                });
         }
 
         // Helper function to get status display text

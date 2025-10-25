@@ -478,16 +478,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Main user management interface
     Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
 
-    // Debug route to test authentication
-    Route::get('/debug/auth', function () {
-        return response()->json([
-            'success' => true,
-            'message' => 'Authentication working',
-            'user' => auth()->user(),
-            'timestamp' => now()->toISOString()
-        ]);
-    })->name('debug.auth');
-
     // Individual registration management
     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
     Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
