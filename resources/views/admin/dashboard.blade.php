@@ -280,18 +280,17 @@
                                 </div>
                             </a>
                         </div>
-                        {{-- Inventory quick action disabled for new supply management --}}
-                        {{-- <div class="col-lg-3 col-md-6">
-                            <a href="{{ route('admin.inventory.index') }}" class="action-card-small btn-secondary">
+                       <div class="col-lg-3 col-md-6">
+                            <a href="{{ route('admin.seedlings.categories.index') }}" class="action-card-small btn-info">
                                 <div class="action-icon-small">
-                                    <i class="fas fa-warehouse"></i>
+                                    <i class="fas fa-layer-group"></i>
                                 </div>
                                 <div class="action-content-small">
-                                    <h6 class="action-title-small">Inventory</h6>
-                                    <small class="action-desc-small">Stock</small>
+                                    <h6 class="action-title-small">Supply</h6>
+                                    <small class="action-desc-small">Management</small>
                                 </div>
                             </a>
-                        </div> --}}
+                        </div>
                         <div class="col-lg-3 col-md-6">
                             <a href="{{ route('admin.seedlings.requests') }}" class="action-card-small btn-success">
                                 <div class="action-icon-small">
