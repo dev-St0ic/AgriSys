@@ -76,12 +76,30 @@
                         </div>
                         <div class="ms-3 flex-grow-1">
                             <div class="metric-label">Supply Management</div>
-                            <div class="metric-value text-info">Coming Soon</div>
-                            {{-- Inventory system disabled for new supply management --}}
-                            <div class="metric-trend">
-                                <i class="fas fa-check-circle text-success me-1"></i>
-                                <small class="text-success">Ready for new system</small>
-                            </div>
+                            @if($supplyData['total_categories'] > 0)
+                                <div class="metric-value text-info">
+                                    {{ $supplyData['active_categories'] }}/{{ $supplyData['total_categories'] }}
+                                </div>
+                                <div class="metric-trend">
+                                    @if($supplyData['low_supply_items'] > 0 || $supplyData['out_of_supply_items'] > 0)
+                                        <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                        <small class="text-warning">
+                                            {{ $supplyData['low_supply_items'] + $supplyData['out_of_supply_items'] }} alerts
+                                        </small>
+                                    @else
+                                        <i class="fas fa-check-circle text-success me-1"></i>
+                                        <small class="text-success">
+                                            {{ number_format($supplyData['total_supply']) }} items in stock
+                                        </small>
+                                    @endif
+                                </div>
+                            @else
+                                <div class="metric-value text-info">0 Categories</div>
+                                <div class="metric-trend">
+                                    <i class="fas fa-info-circle text-muted me-1"></i>
+                                    <small class="text-muted">Setup your supply categories</small>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
