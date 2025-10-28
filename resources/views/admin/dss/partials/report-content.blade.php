@@ -25,11 +25,68 @@
                                     };
                                 @endphp
                                 <span class="badge bg-{{ $ratingColor }} fs-6">
+
                                     Overall Rating:
                                     {{ $report['report_data']['performance_assessment']['overall_rating'] }}
                                 </span>
-                                <span class="badge bg-info fs-6">
-                                    Confidence: {{ $report['report_data']['confidence_level'] ?? 'Medium' }}
+                                @php
+                                    $confidence = $report['report_data']['confidence_level'] ?? 'Medium';
+                                    $confidenceScore = $report['report_data']['confidence_score'] ?? null;
+                                    $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
+
+                                    if ($confidenceScore) {
+                                        $confidenceDisplay = $confidenceScore . '%';
+                                        // More granular color coding based on confidence score
+                                        if ($confidenceScore >= 90) {
+                                            $confidenceColor = 'success';
+                                        } elseif ($confidenceScore >= 80) {
+                                            $confidenceColor = 'primary';
+                                        } elseif ($confidenceScore >= 70) {
+                                            $confidenceColor = 'info';
+                                        } elseif ($confidenceScore >= 60) {
+                                            $confidenceColor = 'warning';
+                                        } elseif ($confidenceScore >= 50) {
+                                            $confidenceColor = 'secondary';
+                                        } else {
+                                            $confidenceColor = 'danger';
+                                        }
+
+                                        // Add source title for tooltip
+                                        $sourceTitle =
+                                            $confidenceSource === 'llm'
+                                                ? 'AI-assessed confidence'
+                                                : 'Data-quality confidence';
+                                    } else {
+                                        // Fallback for text-based confidence levels
+                                        $confidenceMapping = [
+                                            'high' => [
+                                                'score' => 85,
+                                                'color' => 'success',
+                                            ],
+                                            'medium' => [
+                                                'score' => 70,
+                                                'color' => 'info',
+                                            ],
+                                            'fair' => [
+                                                'score' => 55,
+                                                'color' => 'warning',
+                                            ],
+                                            'low' => [
+                                                'score' => 40,
+                                                'color' => 'danger',
+                                            ],
+                                        ];
+
+                                        $confidenceLower = strtolower($confidence);
+                                        $mapping = $confidenceMapping[$confidenceLower] ?? $confidenceMapping['medium'];
+
+                                        $confidenceDisplay = $mapping['score'] . '%';
+                                        $confidenceColor = $mapping['color'];
+                                        $sourceTitle = 'Estimated confidence';
+                                    }
+                                @endphp
+                                <span class="badge bg-{{ $confidenceColor }} fs-6" title="{{ $sourceTitle }}">
+                                    Confidence: {{ $confidenceDisplay }}
                                 </span>
                                 <span class="badge bg-secondary fs-6">
                                     Source: {{ ucfirst($report['source']) }}
@@ -42,7 +99,8 @@
                             <div class="row g-2">
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
-                                        <div class="h4 text-primary mb-0">{{ $data['requests_data']['total_requests'] }}
+                                        <div class="h4 text-primary mb-0">
+                                            {{ $data['requests_data']['total_requests'] }}
                                         </div>
                                         <small class="text-muted">Total Requests</small>
                                     </div>
@@ -56,6 +114,7 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
+
                                         <div class="h4 text-warning mb-0">
                                             {{ count($data['shortage_analysis']['shortages']) }}</div>
                                         <small class="text-muted">Critical Shortages</small>
@@ -63,6 +122,7 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="bg-light rounded p-2">
+
                                         <div class="h4 text-info mb-0">
                                             {{ count($data['barangay_analysis']['barangay_details']) }}</div>
                                         <small class="text-muted">Active Barangays</small>
@@ -139,40 +199,36 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <h6 class="text-danger">
                                 <i class="fas fa-bolt me-1"></i>Immediate Actions
                             </h6>
                             <ul class="list-unstyled">
-                                @foreach ($report['report_data']['recommendations']['immediate_actions'] as $action)
-                                    <li class="mb-2">
-                                        <span class="badge bg-danger me-2">NOW</span>{{ $action }}
-                                    </li>
-                                @endforeach
+                                @if (isset($report['report_data']['recommendations']['immediate_actions']))
+                                    @foreach ($report['report_data']['recommendations']['immediate_actions'] as $action)
+                                        <li class="mb-2">
+                                            <span class="badge bg-danger me-2">NOW</span>{{ $action }}
+                                        </li>
+                                    @endforeach
+                                @else
+                                    <li class="mb-2 text-muted">No immediate actions identified.</li>
+                                @endif
                             </ul>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <h6 class="text-warning">
                                 <i class="fas fa-calendar-week me-1"></i>Short-term Strategies
                             </h6>
                             <ul class="list-unstyled">
-                                @foreach ($report['report_data']['recommendations']['short_term_strategies'] as $strategy)
-                                    <li class="mb-2">
-                                        <span class="badge bg-warning me-2">1-3M</span>{{ $strategy }}
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
-                        <div class="col-md-4">
-                            <h6 class="text-success">
-                                <i class="fas fa-calendar-alt me-1"></i>Long-term Improvements
-                            </h6>
-                            <ul class="list-unstyled">
-                                @foreach ($report['report_data']['recommendations']['long_term_improvements'] as $improvement)
-                                    <li class="mb-2">
-                                        <span class="badge bg-success me-2">3-6M</span>{{ $improvement }}
-                                    </li>
-                                @endforeach
+                                @if (isset($report['report_data']['recommendations']['short_term_strategies']))
+                                    @foreach ($report['report_data']['recommendations']['short_term_strategies'] as $strategy)
+                                        <li class="mb-2">
+                                            <span class="badge bg-warning me-2">1-3M</span>{{ $strategy }}
+                                        </li>
+                                    @endforeach
+                                @else
+                                    <li class="mb-2 text-muted">No short-term strategies available.</li>
+                                @endif
                             </ul>
                         </div>
                     </div>

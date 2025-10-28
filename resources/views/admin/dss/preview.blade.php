@@ -7,7 +7,7 @@
     <div class="container-fluid">
         <!-- Loading Overlay -->
         <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
-            style="background: rgba(255,255,255,0.9); z-index: 9999;">
+                style="background: rgba(255,255,255,0.9); z-index: 9999;">
             <div class="d-flex justify-content-center align-items-center h-100">
                 <div class="text-center">
                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -36,14 +36,16 @@
                                     <i class="fas fa-sync-alt me-1"></i>Refresh Data
                                 </button>
                                 <div class="dropdown">
-                                    <button class="btn btn-success dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown">
+                                    <button
+                                        class="btn btn-success dropdown-toggle"
+                                        type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-download me-1"></i>Export Report
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li><a class="dropdown-item" href="#" id="downloadPdf">
                                                 <i class="fas fa-file-pdf me-2 text-danger"></i>Download PDF
-                                            </a></li>
+                                            </a>
+                                        </li>
                                         <li><a class="dropdown-item" href="#" id="downloadWord">
                                                 <i class="fas fa-file-word me-2 text-primary"></i>Download Word
                                             </a></li>
@@ -104,10 +106,8 @@
                                 <span class="visually-hidden">Loading...</span>
                             </div>
                             <h5>Generating DSS Report...</h5>
-                            <p class="text-muted">Analyzing data for {{ now()->format('F Y') }}...</p>
                             <div class="progress mt-3" style="height: 6px;">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%">
-                                </div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
@@ -215,7 +215,8 @@
                 const currentYear = year || document.getElementById('yearSelect').value;
 
                 const progressInterval = showLoading(
-                    `Generating DSS Report for ${getMonthName(currentMonth)} ${currentYear}...`);
+                    `Generating DSS Report for ${getMonthName(currentMonth)} ${currentYear}...`
+                );
 
                 try {
                     const response = await fetch(
@@ -241,14 +242,13 @@
                     hideLoading(progressInterval);
                     showNoData();
                     showToast('Failed to load DSS data: ' + error.message, 'error');
-                    console.error('DSS loading error:', error);
+                    console.error('DSS loading error: ', error);
                 }
             }
 
             function getMonthName(monthNum) {
                 const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'
-                ];
+                    'July', 'August', 'September', 'October', 'November', 'December'];
                 return months[parseInt(monthNum) - 1];
             }
 
@@ -256,7 +256,8 @@
                 const toast = document.createElement('div');
                 toast.className =
                     `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
-                toast.style.cssText = 'top: 20px; right: 20px; z-index: 10000; min-width: 300px;';
+                toast.style.cssText =
+                    'top: 20px; right: 20px; z-index: 10000; min-width: 300px;';
                 toast.innerHTML = `
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -284,11 +285,13 @@
                 const year = document.getElementById('yearSelect').value;
 
                 refreshBtn.disabled = true;
-                refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
+                refreshBtn.innerHTML =
+                    '<i class="fas fa-spinner fa-spin me-1"></i>Refreshing...';
 
                 try {
                     const response = await fetch(
-                        `{{ route('admin.dss.refresh.data') }}?month=${month}&year=${year}`);
+                        `{{ route('admin.dss.refresh.data') }}?month=${month}&year=${year}`
+                    );
                     const data = await response.json();
 
                     if (data.success) {
@@ -301,7 +304,8 @@
                     showToast('Failed to refresh data: ' + error.message, 'error');
                 } finally {
                     refreshBtn.disabled = false;
-                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Refresh Data';
+                    refreshBtn.innerHTML =
+                        '<i class="fas fa-sync-alt me-1"></i>Refresh Data';
                 }
             });
 
@@ -310,7 +314,9 @@
                 e.preventDefault();
                 const month = document.getElementById('monthSelect').value;
                 const year = document.getElementById('yearSelect').value;
-                window.open(`{{ route('admin.dss.download.pdf') }}?month=${month}&year=${year}`, '_blank');
+                window.open(
+                    `{{ route('admin.dss.download.pdf') }}?month=${month}&year=${year}`,
+                    '_blank');
             });
 
             // Download Word
@@ -318,8 +324,9 @@
                 e.preventDefault();
                 const month = document.getElementById('monthSelect').value;
                 const year = document.getElementById('yearSelect').value;
-                window.open(`{{ route('admin.dss.download.word') }}?month=${month}&year=${year}`,
-                '_blank');
+                window.open(
+                    `{{ route('admin.dss.download.word') }}?month=${month}&year=${year}`,
+                    '_blank');
             });
         });
     </script>

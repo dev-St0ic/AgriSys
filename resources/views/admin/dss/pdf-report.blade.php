@@ -321,14 +321,6 @@
                         @endforeach
                     </ul>
                 </div>
-                <div class="rec-column">
-                    <h4 class="long-term">🎯 Long-term Improvements</h4>
-                    <ul>
-                        @foreach ($report['report_data']['recommendations']['long_term_improvements'] as $improvement)
-                            <li><span class="badge badge-success">3-6M</span>{{ $improvement }}</li>
-                        @endforeach
-                    </ul>
-                </div>
             </div>
         </div>
     @endif
