@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 class SeedlingRequest extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'user_id', // Foreign key to user_registration table
@@ -44,6 +43,14 @@ class SeedlingRequest extends Model
         'total_quantity' => 'integer',
         'approved_quantity' => 'integer'
     ];
+
+    /**
+     * Relationship: Seedling request belongs to a user
+     */
+    public function user()
+    {
+        return $this->belongsTo(UserRegistration::class, 'user_id');
+    }
 
     /**
      * Get all request items
@@ -106,7 +113,7 @@ class SeedlingRequest extends Model
     public function updateOverallStatus(): void
     {
         $items = $this->items;
-        
+
         if ($items->isEmpty()) {
             $this->update(['status' => 'pending']);
             return;
@@ -141,9 +148,9 @@ class SeedlingRequest extends Model
     }
 
     /**
-     * Check supply availability for all items
+     * Check inventory availability for all items
      */
-    public function checkSupplyAvailability(): array
+    public function checkInventoryAvailability(): array
     {
         $results = [];
         $canFulfill = true;
@@ -152,13 +159,13 @@ class SeedlingRequest extends Model
 
         foreach ($this->items as $item) {
             if ($item->categoryItem) {
-                $check = $item->categoryItem->checkSupplyAvailability($item->requested_quantity);
-                
+                $check = $item->categoryItem->checkInventoryAvailability($item->requested_quantity);
+
                 $itemData = [
                     'name' => $item->item_name,
                     'category' => $item->category->display_name,
                     'needed' => $item->requested_quantity,
-                    'available' => $check['current_supply']
+                    'available' => $check['current_stock']
                 ];
 
                 if ($check['available']) {
@@ -181,66 +188,68 @@ class SeedlingRequest extends Model
     }
 
     /**
-     * Distribute supplies (automatic on approval)
+     * Deduct items from inventory - DISABLED FOR NEW SUPPLY MANAGEMENT
      */
-    public function distributeSupplies(): bool
-    {
-        \DB::beginTransaction();
+    // public function deductFromInventory(): bool
+    // {
+    //     \DB::beginTransaction();
 
-        try {
-            foreach ($this->approvedItems as $item) {
-                if (!$item->categoryItem) continue;
+    //     try {
+    //         foreach ($this->approvedItems as $item) {
+    //             if (!$item->categoryItem) continue;
 
-                $success = $item->categoryItem->distributeSupply(
-                    $item->approved_quantity ?? $item->requested_quantity,
-                    auth()->id(),
-                    "Distributed for approved request #{$this->request_number} - {$this->full_name}",
-                    'SeedlingRequest',
-                    $this->id
-                );
+    //             $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$item->item_name}%")
+    //                 ->where('category', $item->category->getInventoryCategoryName())
+    //                 ->where('is_active', true)
+    //                 ->first();
 
-                if (!$success) {
-                    throw new \Exception("Failed to distribute supply for {$item->item_name}");
-                }
-            }
+    //             if ($inventory && $inventory->current_stock >= $item->approved_quantity) {
+    //                 $inventory->decrement('current_stock', $item->approved_quantity);
+    //                 $inventory->update(['updated_by' => auth()->id()]);
+    //             } else {
+    //                 throw new \Exception("Insufficient stock for {$item->item_name}");
+    //             }
+    //         }
 
-            \DB::commit();
-            return true;
-        } catch (\Exception $e) {
-            \DB::rollback();
-            \Log::error("Supply distribution failed: " . $e->getMessage());
-            return false;
-        }
-    }
+    //         \DB::commit();
+    //         return true;
+    //     } catch (\Exception $e) {
+    //         \DB::rollback();
+    //         \Log::error("Inventory deduction failed: " . $e->getMessage());
+    //         return false;
+    //     }
+    // }
 
     /**
-     * Return supplies to pool (for cancelled/rejected requests)
+     * Restore items to inventory - DISABLED FOR NEW SUPPLY MANAGEMENT
      */
-    public function returnSupplies(): bool
-    {
-        \DB::beginTransaction();
+    // public function restoreToInventory(): bool
+    // {
+    //     \DB::beginTransaction();
 
-        try {
-            foreach ($this->approvedItems as $item) {
-                if (!$item->categoryItem) continue;
+    //     try {
+    //         foreach ($this->approvedItems as $item) {
+    //             if (!$item->categoryItem) continue;
 
-                $item->categoryItem->returnSupply(
-                    $item->approved_quantity ?? $item->requested_quantity,
-                    auth()->id(),
-                    "Returned from request #{$this->request_number} - {$this->full_name}",
-                    'SeedlingRequest',
-                    $this->id
-                );
-            }
+    //             $inventory = \App\Models\Inventory::where('item_name', 'LIKE', "%{$item->item_name}%")
+    //                 ->where('category', $item->category->getInventoryCategoryName())
+    //                 ->where('is_active', true)
+    //                 ->first();
 
-            \DB::commit();
-            return true;
-        } catch (\Exception $e) {
-            \DB::rollback();
-            \Log::error("Supply return failed: " . $e->getMessage());
-            return false;
-        }
-    }
+    //             if ($inventory) {
+    //                 $inventory->increment('current_stock', $item->approved_quantity);
+    //                 $inventory->update(['updated_by' => auth()->id()]);
+    //             }
+    //         }
+
+    //         \DB::commit();
+    //         return true;
+    //     } catch (\Exception $e) {
+    //         \DB::rollback();
+    //         \Log::error("Inventory restoration failed: " . $e->getMessage());
+    //         return false;
+    //     }
+    // }
 
     /**
      * Document methods

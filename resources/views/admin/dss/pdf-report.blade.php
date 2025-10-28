@@ -25,21 +25,25 @@
         .header h1 {
             color: #2E7D32;
             font-size: 24px;
+
             margin: 0;
         }
 
         .header h2 {
             color: #4CAF50;
             font-size: 18px;
+
             margin: 5px 0;
         }
 
         .header p {
             color: #666;
+
             margin: 5px 0;
         }
 
         .section {
+
             margin-bottom: 25px;
         }
 
@@ -56,7 +60,8 @@
         .summary-stats {
             display: flex;
             justify-content: space-around;
-            margin: 20px 0;
+            margin:
+                20px 0;
             text-align: center;
         }
 
@@ -64,23 +69,25 @@
             flex: 1;
             padding: 15px;
             margin: 0 5px;
-            background-color: #f9f9f9;
+            background- color: #f9f9f9;
             border-radius: 5px;
         }
 
         .stat-number {
             font-size: 18px;
+
             font-weight: bold;
             color: #2E7D32;
         }
 
         .stat-label {
-            font-size: 11px;
+            font-size: 11p x;
             color: #666;
             margin-top: 5px;
         }
 
         .recommendations {
+
             display: flex;
             justify-content: space-between;
         }
@@ -92,18 +99,21 @@
 
         .rec-column h4 {
             font-size: 13px;
-            margin-bottom: 10px;
+            margin-b ottom: 10px;
+
             padding: 5px;
-            border-radius: 3px;
+
+            border-radi u s:
+                3px;
         }
 
         .immediate {
-            background-color: #ffebee;
-            color: #c62828;
+            backgroun d -color: #ffebee;
+            c olor: #c62828;
         }
 
         .short-term {
-            background-color: #fff3e0;
+            backgro u nd-color: #fff3 e 0;
             color: #ef6c00;
         }
 
@@ -113,13 +123,14 @@
         }
 
         .rec-column ul {
+
             list-style: none;
             padding: 0;
             margin: 0;
         }
 
         .rec-column li {
-            padding: 5px 0;
+            paddi ng: 5px 0;
             font-size: 11px;
             border-bottom: 1px solid #eee;
         }
@@ -128,23 +139,27 @@
             display: inline-block;
             padding: 2px 6px;
             border-radius: 3px;
-            font-size: 9px;
-            font-weight: bold;
+
+            font-size:
+                9px;
+            font-wei g ht: bold;
+
+
             margin-right: 5px;
         }
 
-        .badge-danger {
-            background-color: #f44336;
-            color: white;
+        .badg e -danger {
+            bac kg round-color: #f44336;
+            col o r: white;
         }
 
-        .badge-warning {
-            background-color: #ff9800;
-            color: white;
+        .badg e -warning {
+            ba c k ground-color: #ff9800;
+            co l or: white;
         }
 
-        .badge-success {
-            background-color: #4caf50;
+        .bad g e-success {
+            b a ck ground-color: #4caf50;
             color: white;
         }
 
@@ -153,7 +168,8 @@
             color: white;
         }
 
-        .table {
+        .t able {
+
             width: 100%;
             border-collapse: collapse;
             margin: 15px 0;
@@ -161,26 +177,28 @@
 
         .table th,
         .table td {
-            border: 1px solid #ddd;
+            bor der: 1px solid #ddd;
             padding: 8px;
             text-align: left;
-            font-size: 11px;
+            font-siz e: 11px;
         }
 
         .table th {
             background-color: #f5f5f5;
-            font-weight: bold;
+            font-weight: bo ld;
         }
 
         .findings-issues {
             display: flex;
-            justify-content: space-between;
+            jus tify-content: space-be t ween;
         }
 
         .findings,
         .issues {
             flex: 1;
+
             margin: 0 10px;
+
         }
 
         .findings ul,
@@ -190,9 +208,11 @@
         }
 
         .findings li,
-        .issues li {
-            padding: 5px 0;
-            font-size: 11px;
+        .issues l i {
+
+            p adding: 5px 0;
+
+            font-size: 1 1px;
             border-bottom: 1px solid #eee;
         }
 
@@ -205,9 +225,10 @@
         }
 
         .footer {
-            margin-top: 30px;
+            margin-to p: 30px;
             padding-top: 20px;
             border-top: 1px solid #ddd;
+
             font-size: 10px;
             color: #666;
         }
@@ -246,12 +267,12 @@
                 <div class="stat-label">Critical Shortages</div>
             </div>
             <div class="stat-box">
-                <div class="stat-number">{{ $data['barangay_analysis']['total_barangays'] }}</div>
+                <div clas s="stat-number">{{ $data['barangay_analysis']['total_barangays'] }}</div>
                 <div class="stat-label">Active Barangays</div>
             </div>
         </div>
 
-        @if (isset($report['report_data']['performance_assessment']))
+        @if (isset($report['report_ data']['performance_assessment']))
             @php
                 $rating = $report['report_data']['performance_assessment']['overall_rating'] ?? '';
                 $ratingClass = match (strtolower($rating)) {
@@ -267,14 +288,19 @@
                     {{ $report['report_data']['performance_assessment']['overall_rating'] }}
                 </span>
             </p>
-            <p><strong>Confidence Level:</strong> {{ $report['report_data']['confidence_level'] ?? 'Medium' }}</p>
+            <p><strong>Confidence Level:</strong>
+                {{ $report['report_data']['confidence_level'] ?? 'Medium' }}
+                @if (isset($report['report_data']['confidence_score']))
+                    ({{ $report['report_data']['confidence_score'] }}%)
+                @endif
+            </p>
         @endif
     </div>
 
     <!-- Key Findings and Critical Issues -->
-    <div class="section">
+    <div class="secti on">
         <div class="section-title">Key Findings & Critical Issues</div>
-        <div class="findings-issues">
+        <div class="findin gs-issues">
             <div class="findings">
                 <h4>✓ Key Findings</h4>
                 @if (isset($report['report_data']['key_findings']))
@@ -303,22 +329,30 @@
     <!-- Recommendations -->
     @if (isset($report['report_data']['recommendations']))
         <div class="section">
-            <div class="section-title">AI-Generated Recommendations</div>
+            <div class="section-title">AI -Generated Recommendations</div>
             <div class="recommendations">
                 <div class="rec-column">
                     <h4 class="immediate">⚡ Immediate Actions</h4>
                     <ul>
-                        @foreach ($report['report_data']['recommendations']['immediate_actions'] as $action)
-                            <li><span class="badge badge-danger">NOW</span>{{ $action }}</li>
-                        @endforeach
+                        @if (isset($report['report_data']['recommendations']['immediate_actions']))
+                            @foreach ($report['report_data']['recommendations']['immediate_actions'] as $action)
+                                <li><span class="badge badge-danger">NOW</span>{{ $action }}</li>
+                            @endforeach
+                        @else
+                            <li>No immediate actions identified.</li>
+                        @endif
                     </ul>
                 </div>
                 <div class="rec-column">
                     <h4 class="short-term">📅 Short-term Strategies</h4>
                     <ul>
-                        @foreach ($report['report_data']['recommendations']['short_term_strategies'] as $strategy)
-                            <li><span class="badge badge-warning">1-3M</span>{{ $strategy }}</li>
-                        @endforeach
+                        @if (isset($report['report_data']['recommendations']['short_term_strategies']))
+                            @foreach ($report['report_data']['recommendations']['short_term_strategies'] as $strategy)
+                                <li><span class="badge badge-warning">1-3M</span>{{ $strategy }}</li>
+                            @endforeach
+                        @else
+                            <li>No short-term strategies available.</li>
+                        @endif
                     </ul>
                 </div>
             </div>
@@ -340,19 +374,25 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (array_slice($data['barangay_analysis']['barangay_details'], 0, 10) as $barangay)
+                @if (isset($data['barangay_analysis']['barangay_details']) && is_array($data['barangay_analysis']['barangay_details']))
+                    @foreach (array_slice($data['barangay_analysis']['barangay_details'], 0, 10) as $barangay)
+                        <tr>
+                            <td>{{ $barangay['name'] ?? 'Unknown' }}</td>
+                            <td>{{ $barangay['requests'] ?? 0 }}</td>
+                            <td>{{ $barangay['total_quantity'] ?? 0 }}</td>
+                            <td>
+                                <span
+                                    class="badge badge-{{ ($barangay['priority_level'] ?? 'LOW') == 'HIGH' ? 'danger' : (($barangay['priority_level'] ?? 'LOW') == 'MEDIUM' ? 'warning' : 'success') }}">
+                                    {{ $barangay['priority_level'] ?? 'LOW' }}
+                                </span>
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
                     <tr>
-                        <td>{{ $barangay['name'] }}</td>
-                        <td>{{ $barangay['requests'] }}</td>
-                        <td>{{ $barangay['total_quantity'] }}</td>
-                        <td>
-                            <span
-                                class="badge badge-{{ $barangay['priority_level'] == 'HIGH' ? 'danger' : ($barangay['priority_level'] == 'MEDIUM' ? 'warning' : 'success') }}">
-                                {{ $barangay['priority_level'] }}
-                            </span>
-                        </td>
+                        <td colspan="4">No barangay data available</td>
                     </tr>
-                @endforeach
+                @endif
             </tbody>
         </table>
 
@@ -368,20 +408,26 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (array_slice($data['shortage_analysis']['shortages'], 0, 10) as $shortage)
+                @if (isset($data['shortage_analysis']['shortages']) && is_array($data['shortage_analysis']['shortages']))
+                    @foreach (array_slice($data['shortage_analysis']['shortages'], 0, 10) as $shortage)
+                        <tr>
+                            <td>{{ $shortage['item'] ?? 'Unknown' }}</td>
+                            <td>{{ $shortage['demanded'] ?? 0 }}</td>
+                            <td>{{ $shortage['available'] ?? 0 }}</td>
+                            <td style="color: #f44336;">{{ $shortage['shortage'] ?? 0 }}</td>
+                            <td>
+                                <span
+                                    class="badge badge-{{ ($shortage['severity'] ?? 'MEDIUM') == 'CRITICAL' ? 'danger' : (($shortage['severity'] ?? 'MEDIUM') == 'HIGH' ? 'warning' : 'primary') }}">
+                                    {{ $shortage['severity'] ?? 'MEDIUM' }}
+                                </span>
+                            </td>
+                        </tr>
+                    @endforeach
+                @else
                     <tr>
-                        <td>{{ $shortage['item'] }}</td>
-                        <td>{{ $shortage['demanded'] }}</td>
-                        <td>{{ $shortage['available'] }}</td>
-                        <td style="color: #f44336;">{{ $shortage['shortage'] }}</td>
-                        <td>
-                            <span
-                                class="badge badge-{{ $shortage['severity'] == 'CRITICAL' ? 'danger' : ($shortage['severity'] == 'HIGH' ? 'warning' : 'primary') }}">
-                                {{ $shortage['severity'] }}
-                            </span>
-                        </td>
+                        <td colspan="5">No shortage data available</td>
                     </tr>
-                @endforeach
+                @endif
             </tbody>
         </table>
     </div>
@@ -391,24 +437,25 @@
         <div class="section">
             <div class="section-title">Performance Assessment</div>
             <p><strong>Approval Efficiency:</strong>
-                {{ $report['report_data']['performance_assessment']['approval_efficiency'] }}</p>
+                {{ $report['report_data']['performance_assessment']['approval_efficiency'] ?? 'Not assessed' }}</p>
             <p><strong>Supply Adequacy:</strong>
-                {{ $report['report_data']['performance_assessment']['supply_adequacy'] }}</p>
+                {{ $report['report_data']['performance_assessment']['supply_adequacy'] ?? 'Not assessed' }}</p>
             <p><strong>Geographic Coverage:</strong>
-                {{ $report['report_data']['performance_assessment']['geographic_coverage'] }}</p>
+                {{ $report['report_data']['performance_assessment']['geographic_coverage'] ?? 'Not assessed' }}</p>
         </div>
     @endif
 
     <!-- Footer -->
     <div class="footer">
         <p><strong>Report Details:</strong></p>
-        <p>Generated: {{ $report['generated_at'] }}</p>
-        <p>Analysis Source: {{ ucfirst($report['source']) }}
-            @if ($report['source'] === 'llm')
-                ({{ $report['model_used'] }})
+        <p>Generated: {{ $report['generated_at'] ?? now() }}</p>
+        <p>Analysis Source: {{ ucfirst($report['source'] ?? 'system') }}
+            @if (isset($report['source']) && $report['source'] === 'llm')
+                ({{ $report['model_used'] ?? 'AI Model' }})
             @endif
         </p>
-        <p>Data Period: {{ $data['period']['start_date'] }} to {{ $data['period']['end_date'] }}</p>
+        <p>Data Period: {{ $data['period']['start_date'] ?? 'Unknown' }} to
+            {{ $data['period']['end_date'] ?? 'Unknown' }}</p>
         <p>AgriSys - Agricultural Management System | City Agriculture Office, San Pedro, Laguna</p>
     </div>
 </body>

@@ -1,499 +1,425 @@
 // ==============================================
-// MODERN SEEDLINGS MODULE - Enhanced UI/UX
+// SEEDLINGS MODULE - Updated for 6 Categories
 // ==============================================
 
-// Global variables
+// Global variable to store user selections
 window._seedlingsChoices = null;
-let selectedItems = new Map(); // itemId -> {name, quantity, categoryName}
+
+// Global set to track selected item IDs
+const selectedItems = new Set();
 
 // ==============================================
 // MAIN NAVIGATION FUNCTIONS
 // ==============================================
 
+// Opens the seedlings choice form (first step)
 function openFormSeedlings(event) {
-    if (event && typeof event.preventDefault === 'function') {
-        event.preventDefault();
-    }
+    event.preventDefault();
 
     // Check authentication before allowing access
-    if (!showAuthRequired('Seedlings Request')) {
+    if (!showAuthRequired('Seedlings')) {
         return false;
     }
 
-    console.log('Opening Seedlings form');
+    // Check if seedlings form elements exist (for authenticated users)
+    const choice = document.getElementById('seedlings-choice');
+    if (!choice) {
+        console.error('Seedlings choice element not found - user may not be authenticated');
+        return false;
+    }
 
+    // Perform reset before opening form
     performCompleteReset();
+
     hideAllMainSections();
     hideAllForms();
-    
-    const choice = document.getElementById('seedlings-choice');
-    if (choice) {
-        choice.style.display = 'block';
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+
+    choice.style.display = 'block';
+
+    // Scroll to the seedlings choice form smoothly
+    setTimeout(() => {
+        const seedlingsChoice = document.getElementById('seedlings-choice');
+        if (seedlingsChoice) {
+            seedlingsChoice.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings');
 }
 
+// Closes seedlings forms and returns to main services
 function closeFormSeedlings() {
+    // Perform complete reset when closing
     performCompleteReset();
+
     hideAllForms();
     showAllMainSections();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     history.pushState(null, '', '/services');
 }
 
+// Goes back to seedlings choice from application form
 function backToSeedlingsChoice() {
     hideAllForms();
     const choice = document.getElementById('seedlings-choice');
+
     if (choice) {
         choice.style.display = 'block';
         restorePreviousSelections();
-        setTimeout(() => {
-            choice.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
     }
-    history.pushState(null, '', '/services/seedlings');
-}
 
-// ==============================================
-// CATEGORY SHOW MORE/LESS FUNCTIONALITY
-// ==============================================
-
-function initializeCategoryTabs() {
-    const categoryTabs = document.querySelector('.seedlings-category-tabs');
-    if (!categoryTabs) return;
-    
-    // Remove existing toggle button if any
-    const existingToggle = categoryTabs.querySelector('.category-toggle-btn');
-    if (existingToggle) {
-        existingToggle.remove();
-    }
-    
-    const allTabs = Array.from(categoryTabs.querySelectorAll('.seedlings-category-tab:not(.category-toggle-btn)'));
-    const MAX_VISIBLE = 8; // Including "All Items" button
-    
-    // Only add show more/less if there are more than MAX_VISIBLE tabs
-    if (allTabs.length <= MAX_VISIBLE) {
-        // Remove hidden class from all tabs if less than max
-        allTabs.forEach(tab => {
-            tab.classList.remove('category-tab-hidden');
-        });
-        return;
-    }
-    
-    // Hide tabs beyond the first MAX_VISIBLE
-    allTabs.forEach((tab, index) => {
-        if (index >= MAX_VISIBLE) {
-            tab.classList.add('category-tab-hidden');
-        } else {
-            tab.classList.remove('category-tab-hidden');
-        }
-    });
-    
-    // Create Show More/Less button
-    const toggleButton = document.createElement('button');
-    toggleButton.className = 'seedlings-category-tab category-toggle-btn';
-    toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
-    toggleButton.setAttribute('data-expanded', 'false');
-    toggleButton.type = 'button';
-    
-    toggleButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        const isExpanded = this.getAttribute('data-expanded') === 'true';
-        
-        if (isExpanded) {
-            // Collapse - hide extra tabs
-            allTabs.forEach((tab, index) => {
-                if (index >= MAX_VISIBLE) {
-                    tab.classList.add('category-tab-hidden');
-                }
-            });
-            this.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
-            this.setAttribute('data-expanded', 'false');
-        } else {
-            // Expand - show all tabs
-            allTabs.forEach(tab => {
-                tab.classList.remove('category-tab-hidden');
-            });
-            this.innerHTML = '<i class="fas fa-chevron-up"></i> Show Less';
-            this.setAttribute('data-expanded', 'true');
-        }
-    });
-    
-    // Append toggle button to category tabs
-    categoryTabs.appendChild(toggleButton);
-}
-
-function setupCategoryToggle() {
-    // Wait a bit to ensure all categories are rendered
+    // Scroll to the seedlings choice form smoothly
     setTimeout(() => {
-        initializeCategoryTabs();
-    }, 100);
-}
-
-// ==============================================
-// FILTERING AND SEARCH FUNCTIONS
-// ==============================================
-
-function filterByCategory(categoryName) {
-    // Update active tab
-    document.querySelectorAll('.seedlings-category-tab:not(.category-toggle-btn)').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    // Filter items
-    const items = document.querySelectorAll('.seedlings-item-card');
-    let visibleCount = 0;
-    
-    items.forEach(item => {
-        const itemCategory = item.dataset.category;
-        if (categoryName === 'all' || itemCategory === categoryName) {
-            item.classList.remove('hidden');
-            visibleCount++;
-        } else {
-            item.classList.add('hidden');
+        const choice = document.getElementById('seedlings-choice');
+        if (choice) {
+            choice.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
         }
-    });
-    
-    updateNoResultsDisplay(visibleCount);
-}
-
-function searchItems() {
-    const searchTerm = document.getElementById('seedlings-search').value.toLowerCase();
-    const items = document.querySelectorAll('.seedlings-item-card');
-    let visibleCount = 0;
-    
-    items.forEach(item => {
-        const itemName = item.dataset.itemName;
-        const isVisible = itemName.includes(searchTerm);
-        
-        if (isVisible && !item.classList.contains('hidden')) {
-            item.style.display = 'flex';
-            visibleCount++;
-        } else if (isVisible) {
-            // Item matches search but may be hidden by category filter
-            if (!item.classList.contains('hidden')) {
-                item.style.display = 'flex';
-                visibleCount++;
-            }
-        } else {
-            item.style.display = 'none';
-        }
-    });
-    
-    updateNoResultsDisplay(visibleCount);
-}
-
-function filterByStock() {
-    const stockFilter = document.getElementById('stock-filter').value;
-    const items = document.querySelectorAll('.seedlings-item-card');
-    let visibleCount = 0;
-    
-    items.forEach(item => {
-        const stockStatus = item.dataset.stockStatus;
-        let shouldShow = false;
-        
-        switch(stockFilter) {
-            case 'all':
-                shouldShow = true;
-                break;
-            case 'in-stock':
-                shouldShow = stockStatus === 'in_stock';
-                break;
-            case 'low-stock':
-                shouldShow = stockStatus === 'low_stock';
-                break;
-            case 'out-of-stock':
-                shouldShow = stockStatus === 'out_of_stock';
-                break;
-        }
-        
-        if (shouldShow && item.style.display !== 'none') {
-            item.classList.remove('hidden');
-            visibleCount++;
-        } else {
-            item.classList.add('hidden');
-        }
-    });
-    
-    updateNoResultsDisplay(visibleCount);
-}
-
-function sortItems() {
-    const sortBy = document.getElementById('sort-by').value;
-    const grid = document.getElementById('items-grid');
-    const items = Array.from(document.querySelectorAll('.seedlings-item-card'));
-    
-    items.sort((a, b) => {
-        switch(sortBy) {
-            case 'name-asc':
-                return a.dataset.itemName.localeCompare(b.dataset.itemName);
-            case 'name-desc':
-                return b.dataset.itemName.localeCompare(a.dataset.itemName);
-            case 'stock-high':
-                return parseInt(b.dataset.stock) - parseInt(a.dataset.stock);
-            case 'stock-low':
-                return parseInt(a.dataset.stock) - parseInt(b.dataset.stock);
-            default:
-                return 0;
-        }
-    });
-    
-    // Re-append items in sorted order
-    items.forEach(item => grid.appendChild(item));
-}
-
-function updateNoResultsDisplay(visibleCount) {
-    const noResults = document.getElementById('no-results');
-    if (visibleCount === 0) {
-        noResults.style.display = 'block';
-    } else {
-        noResults.style.display = 'none';
-    }
+    }, 100); // Small delay to ensure form is visible
+    history.pushState(null, '', '/services/seedlings');
 }
 
 // ==============================================
 // SELECTION MANAGEMENT
 // ==============================================
 
-function toggleItemSelection(checkbox, itemId) {
-    const qtyWrapper = document.getElementById(`qty-wrapper-${itemId}`);
-    const qtyInput = document.getElementById(`qty-${itemId}`);
-    
-    if (checkbox.checked) {
-        // Show quantity input
-        qtyWrapper.style.display = 'flex';
-        
-        // Add to selection
-        const itemName = checkbox.value;
-        const categoryName = checkbox.name;
-        const quantity = parseInt(qtyInput.value) || 1;
-        
-        selectedItems.set(itemId, {
-            id: itemId,
-            name: itemName,
-            categoryName: categoryName,
-            quantity: quantity
-        });
-    } else {
-        // Hide quantity input
-        qtyWrapper.style.display = 'none';
-        
-        // Remove from selection
-        selectedItems.delete(itemId);
-    }
-    
-    updateSelectionSummary();
-    updateProceedButton();
-}
-
-function incrementQty(itemId) {
-    const input = document.getElementById(`qty-${itemId}`);
-    const max = parseInt(input.max);
-    let value = parseInt(input.value) || 1;
-    
-    if (value < max) {
-        input.value = value + 1;
-        updateQuantity(itemId);
+// Toggles quantity input field visibility when checkbox is selected
+function toggleQuantity(checkbox, quantityId) {
+    const quantityDiv = document.getElementById(quantityId);
+    if (quantityDiv) {
+        quantityDiv.style.display = checkbox.checked ? 'flex' : 'none';
     }
 }
 
-function decrementQty(itemId) {
-    const input = document.getElementById(`qty-${itemId}`);
-    const min = parseInt(input.min) || 1;
-    let value = parseInt(input.value) || 1;
-    
-    if (value > min) {
-        input.value = value - 1;
-        updateQuantity(itemId);
-    }
-}
-
-function updateQuantity(itemId) {
-    const qtyInput = document.getElementById(`qty-${itemId}`);
-    const quantity = parseInt(qtyInput.value) || 1;
-    
-    // Update in selected items map
-    if (selectedItems.has(itemId)) {
-        const item = selectedItems.get(itemId);
-        item.quantity = quantity;
-        selectedItems.set(itemId, item);
-    }
-    
-    updateSelectionSummary();
-}
-
-function updateSelectionSummary() {
-    const summaryDiv = document.getElementById('selection-summary');
-    const countSpan = document.getElementById('selected-count');
-    
-    const totalItems = selectedItems.size;
-    
-    if (totalItems > 0) {
-        summaryDiv.style.display = 'flex';
-        countSpan.textContent = totalItems;
-    } else {
-        summaryDiv.style.display = 'none';
-    }
-    
-    // Update the tab button badge
-    updateSummaryTabBadge();
-}
-
-function updateSummaryTabBadge() {
-    const summaryBtn = document.querySelector('.seedlings-tab-btn[onclick*="seedlings-summary-tab"]');
-    if (summaryBtn) {
-        const badge = summaryBtn.querySelector('.tab-badge');
-        if (selectedItems.size > 0) {
-            if (badge) {
-                badge.textContent = selectedItems.size;
-            }
-        }
-    }
-}
-
-function updateProceedButton() {
-    const proceedBtn = document.getElementById('proceed-btn');
-    if (selectedItems.size > 0) {
-        proceedBtn.disabled = false;
-    } else {
-        proceedBtn.disabled = true;
-    }
-}
-
-function clearAllSelections() {
-    // Uncheck all checkboxes
-    document.querySelectorAll('.seedlings-item-card input[type="checkbox"]').forEach(checkbox => {
-        checkbox.checked = false;
-        const itemId = checkbox.dataset.itemId;
-        const qtyWrapper = document.getElementById(`qty-wrapper-${itemId}`);
-        if (qtyWrapper) {
-            qtyWrapper.style.display = 'none';
-        }
-    });
-    
-    // Clear selected items
-    selectedItems.clear();
-    
-    // Update UI
-    updateSelectionSummary();
-    updateProceedButton();
-}
-
-// ==============================================
-// PROCEED TO FORM
-// ==============================================
-
+// Processes user selections and proceeds to application form
 function proceedToSeedlingsForm() {
-    if (selectedItems.size === 0) {
-        alert('Please select at least one item.');
+    const form = document.getElementById('seedlings-choice-form');
+    if (!form) {
+        console.error('Seedlings choice form not found');
         return;
     }
-    
-    // Organize selections by category
-    const selections = {};
-    let totalQuantity = 0;
-    
-    selectedItems.forEach(item => {
-        if (!selections[item.categoryName]) {
-            selections[item.categoryName] = [];
-        }
-        selections[item.categoryName].push({
-            id: item.id,
-            name: item.name,
-            quantity: item.quantity
-        });
-        totalQuantity += item.quantity;
-    });
-    
-    // Store in global variable
-    window._seedlingsChoices = {
-        selections: selections,
-        totalQuantity: totalQuantity
-    };
-    
-    // Go directly to form (no alert popup)
+
+    // Collect selections with quantities
+    const selections = collectUserSelections(form);
+
+    // Validate selections
+    if (!validateSelections(selections)) {
+        alert('Please select at least one item from any category.');
+        return;
+    }
+
+    // Calculate total quantity
+    const totalQuantity = calculateTotalQuantity(selections);
+    selections.totalQuantity = totalQuantity;
+
+    // Show summary to user
+    showSelectionSummary(selections);
+
+    // Save selections globally
+    window._seedlingsChoices = selections;
+
+    // Show application form
     showApplicationForm();
 }
 
+// Collects all user selections with quantities for all 6 categories
+function collectUserSelections(form) {
+    const seeds = [];
+    const seedlings = []; // Changed from vegetables to match HTML
+    const fruits = [];
+    const ornamentals = [];
+    const fingerlings = [];
+    const fertilizers = [];
+
+    // Collect seeds
+    form.querySelectorAll('input[name="seeds"]:checked').forEach(cb => {
+        const quantity = getQuantityForItem(form, cb.value);
+        const itemId = cb.getAttribute('data-item-id');
+        seeds.push({
+            id: itemId,
+            name: cb.value,
+            quantity: quantity
+        });
+    });
+
+    // Collect seedlings (changed from vegetables)
+    form.querySelectorAll('input[name="seedlings"]:checked').forEach(cb => {
+        const quantity = getQuantityForItem(form, cb.value);
+        const itemId = cb.getAttribute('data-item-id');
+        seedlings.push({
+            id: itemId,
+            name: cb.value,
+            quantity: quantity
+        });
+    });
+
+    // Collect fruits
+    form.querySelectorAll('input[name="fruits"]:checked').forEach(cb => {
+        const quantity = getQuantityForItem(form, cb.value);
+        const itemId = cb.getAttribute('data-item-id');
+        fruits.push({
+            id: itemId,
+            name: cb.value,
+            quantity: quantity
+        });
+    });
+
+    // Collect ornamentals
+    form.querySelectorAll('input[name="ornamentals"]:checked').forEach(cb => {
+        const quantity = getQuantityForItem(form, cb.value);
+        const itemId = cb.getAttribute('data-item-id');
+        ornamentals.push({
+            id: itemId,
+            name: cb.value,
+            quantity: quantity
+        });
+    });
+
+    // Collect fingerlings
+    form.querySelectorAll('input[name="fingerlings"]:checked').forEach(cb => {
+        const quantity = getQuantityForItem(form, cb.value);
+        const itemId = cb.getAttribute('data-item-id');
+        fingerlings.push({
+            id: itemId,
+            name: cb.value,
+            quantity: quantity
+        });
+    });
+
+    // Collect fertilizers
+    form.querySelectorAll('input[name="fertilizers"]:checked').forEach(cb => {
+        const quantity = getQuantityForItem(form, cb.value);
+        const itemId = cb.getAttribute('data-item-id');
+        fertilizers.push({
+            id: itemId,
+            name: cb.value,
+            quantity: quantity
+        });
+    });
+
+    return { seeds, seedlings, fruits, ornamentals, fingerlings, fertilizers };
+}
+
+// Gets quantity for a specific item
+function getQuantityForItem(form, itemName) {
+    // Create a mapping for complex item names to their quantity field names
+    const quantityFieldMap = {
+        'Emerald Bitter Gourd Seeds': 'emerald_bitter_gourd_seeds_quantity',
+        'Golden Harvest Rice Seeds': 'golden_harvest_rice_seeds_quantity',
+        'Green Gem String Bean Seeds': 'green_gem_string_bean_seeds_quantity',
+        'Okra Seeds': 'okra_seeds_quantity',
+        'Pioneer Hybrid Corn Seeds': 'pioneer_hybrid_corn_seeds_quantity',
+        'Red Ruby Tomato Seeds': 'red_ruby_tomato_seeds_quantity',
+        'Sunshine Carrot Seeds': 'sunshine_carrot_seeds_quantity',
+        'Yellow Pearl Squash Seeds': 'yellow_pearl_squash_seeds_quantity',
+        'Avocado Seedling': 'avocado_seedling_quantity',
+        'Calamansi Seedling': 'calamansi_seedling_quantity',
+        'Guava Seedling': 'guava_seedling_quantity',
+        'Guyabano Seedling': 'guyabano_seedling_quantity',
+        'Mango Seedling': 'mango_seedling_quantity',
+        'Papaya Seedling': 'papaya_seedling_quantity',
+        'Santol Seedling': 'santol_seedling_quantity',
+        'Dwarf Coconut Tree': 'dwarf_coconut_tree_quantity',
+        'Lakatan Banana Tree': 'lakatan_banana_tree_quantity',
+        'Rambutan Tree': 'rambutan_tree_quantity',
+        'Star Apple Tree': 'star_apple_tree_quantity',
+        'Anthurium': 'anthurium_quantity',
+        'Bougainvillea': 'bougainvillea_quantity',
+        'Fortune Plant': 'fortune_plant_quantity',
+        'Gumamela (Hibiscus)': 'gumamela_quantity',
+        'Sansevieria (Snake Plant)': 'sansevieria_quantity',
+        'Catfish Fingerling': 'catfish_fingerling_quantity',
+        'Milkfish (Bangus) Fingerling': 'milkfish_fingerling_quantity',
+        'Tilapia Fingerlings': 'tilapia_fingerlings_quantity',
+        'Ammonium Sulfate (21-0-0)': 'ammonium_sulfate_quantity',
+        'Humic Acid': 'humic_acid_quantity',
+        'Pre-processed Chicken Manure': 'pre_processed_chicken_manure_quantity',
+        'Urea (46-0-0)': 'urea_quantity',
+        'Vermicast Fertilizer': 'vermicast_fertilizer_quantity'
+    };
+
+    // Use the mapped field name if available, otherwise create one from the item name
+    const fieldName = quantityFieldMap[itemName] || itemName.replace(/[\s\(\)\-]/g, '_').toLowerCase() + '_quantity';
+    const quantityInput = form.querySelector(`input[name="${fieldName}"]`);
+    return quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+}
+
+// Validates that at least one item is selected
+function validateSelections(selections) {
+    return selections.seeds.length > 0 ||
+           selections.seedlings.length > 0 ||
+           selections.fruits.length > 0 ||
+           selections.ornamentals.length > 0 ||
+           selections.fingerlings.length > 0 ||
+           selections.fertilizers.length > 0;
+}
+
+// Calculates total quantity across all selections
+function calculateTotalQuantity(selections) {
+    return [...selections.seeds, ...selections.seedlings, ...selections.fruits,
+            ...selections.ornamentals, ...selections.fingerlings, ...selections.fertilizers]
+        .reduce((sum, item) => sum + item.quantity, 0);
+}
+
+// Shows summary alert to user
+function showSelectionSummary(selections) {
+    let summary = 'You have chosen:\n\n';
+
+    if (selections.seeds.length) {
+        summary += '🌾 Seeds:\n';
+        selections.seeds.forEach(s => summary += `  • ${s.name}: ${s.quantity} pcs\n`);
+        summary += '\n';
+    }
+
+    if (selections.seedlings.length) {
+        summary += '🌱 Seedlings:\n';
+        selections.seedlings.forEach(v => summary += `  • ${v.name}: ${v.quantity} pcs\n`);
+        summary += '\n';
+    }
+
+    if (selections.fruits.length) {
+        summary += '🍎 Fruit-bearing Trees:\n';
+        selections.fruits.forEach(f => summary += `  • ${f.name}: ${f.quantity} pcs\n`);
+        summary += '\n';
+    }
+
+    if (selections.ornamentals.length) {
+        summary += '🌺 Ornamentals:\n';
+        selections.ornamentals.forEach(o => summary += `  • ${o.name}: ${o.quantity} pcs\n`);
+        summary += '\n';
+    }
+
+    if (selections.fingerlings.length) {
+        summary += '🐟 Fingerlings:\n';
+        selections.fingerlings.forEach(f => summary += `  • ${f.name}: ${f.quantity} pcs\n`);
+        summary += '\n';
+    }
+
+    if (selections.fertilizers.length) {
+        summary += '🌿 Fertilizers:\n';
+        selections.fertilizers.forEach(fert => summary += `  • ${fert.name}: ${fert.quantity} pcs\n`);
+        summary += '\n';
+    }
+
+    summary += `Total Quantity: ${selections.totalQuantity} pcs\n\n`;
+    alert(summary);
+}
+
+// Shows the application form with proper setup
 function showApplicationForm() {
     hideAllForms();
-    
+
     const appForm = document.getElementById('seedlings-form');
     if (appForm) {
         appForm.style.display = 'block';
+
+        // Setup supporting documents requirement
         toggleSupportingDocuments(window._seedlingsChoices.totalQuantity);
-        
-        populateSeedlingsSummary();
-        
+
+        // Show summary in form
+        const summaryDiv = document.getElementById('seedlings-summary');
+        if (summaryDiv) {
+            summaryDiv.style.display = 'block';
+            populateSeedlingsSummary();
+        }
+
+        // Activate first tab
         showSeedlingsTab('seedlings-form-tab', null);
-        
-        setTimeout(() => {
-            appForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
     }
+
+    // Scroll to the application form smoothly
+    setTimeout(() => {
+        const appForm = document.getElementById('seedlings-form');
+        if (appForm) {
+            appForm.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }, 100); // Small delay to ensure form is visible
     history.pushState(null, '', '/services/seedlings/form');
 }
 
-// ==============================================
-// TAB SWITCHING
-// ==============================================
-
+/**
+ * Main tab switching function for Seedlings form
+ * This is the function your HTML onclick events are calling
+ */
 function showSeedlingsTab(tabId, event) {
+    console.log('Switching to Seedlings tab:', tabId);
+
+    // Prevent default button behavior
     if (event) {
         event.preventDefault();
     }
-    
+
+    // Get the parent section containing all tabs
     const parentSection = document.getElementById('seedlings-form');
-    if (!parentSection) return;
-    
-    // Remove active class from all buttons
-    parentSection.querySelectorAll('.seedlings-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
+    if (!parentSection) {
+        console.error('Parent section not found for Seedlings tab switching');
+        return;
+    }
+
+    // Remove active class from all tab buttons
+    const tabButtons = parentSection.querySelectorAll('.seedlings-tab-btn');
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+
     // Hide all tab content
-    parentSection.querySelectorAll('.seedlings-tab-content').forEach(content => {
-        content.style.display = 'none';
-    });
-    
-    // Activate clicked button
+    const tabContents = parentSection.querySelectorAll('.seedlings-tab-content');
+    tabContents.forEach(content => content.style.display = 'none');
+
+    // Add active class to clicked button
     if (event && event.target) {
         event.target.classList.add('active');
     } else {
+        // If no event (programmatic call), activate the first button
         const firstButton = parentSection.querySelector('.seedlings-tab-btn');
-        if (firstButton) firstButton.classList.add('active');
+        if (firstButton) {
+            firstButton.classList.add('active');
+        }
     }
-    
-    // Show selected tab
+
+    // Show the selected tab content
     const selectedTab = document.getElementById(tabId);
     if (selectedTab) {
         selectedTab.style.display = 'block';
-        //scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        console.log('Seedlings tab switched successfully to:', tabId);
+         // Auto-scroll to the active tab content
+        setTimeout(() => {
+            selectedTab.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }, 50); // Small delay for smooth transition
+    } else {
+        console.error('Tab content not found:', tabId);
     }
 }
 
 // ==============================================
-// SUPPORTING DOCUMENTS
+// SUPPORTING DOCUMENTS LOGIC
 // ==============================================
 
+// Shows/hides supporting documents field based on quantity
 function toggleSupportingDocuments(totalQuantity) {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
     const docsLabel = document.querySelector('label[for="seedlings-docs"]');
     const docsSmall = docsInput ? docsInput.nextElementSibling : null;
-    
+
     if (totalQuantity >= 100) {
+        // Require supporting documents for large orders
         if (docsField) docsField.style.display = 'block';
         if (docsInput) docsInput.setAttribute('required', 'required');
         if (docsLabel) docsLabel.innerHTML = 'Supporting Documents (Required)';
         if (docsSmall) {
-            docsSmall.innerHTML = 'Required: Proof of planting area (land title, lease agreement, barangay certification, photos of planting area, etc.). Multiple files allowed.';
+            docsSmall.innerHTML = 'Required: Proof of planting area (land title, lease agreement, barangay certification of available land, photos of planting area, etc.). Multiple files allowed.';
         }
     } else {
+        // Hide for smaller orders
         if (docsField) docsField.style.display = 'none';
         if (docsInput) docsInput.removeAttribute('required');
     }
@@ -503,63 +429,221 @@ function toggleSupportingDocuments(totalQuantity) {
 // SUMMARY DISPLAY
 // ==============================================
 
+// Populates the summary section in the application form
 function populateSeedlingsSummary() {
-    const summaryContainer = document.getElementById('seedlings-summary-tab');
+    const summaryContainer = document.getElementById('seedlings-summary');
     if (!summaryContainer || !window._seedlingsChoices) return;
-    
-    let summaryHTML = `
-        <div class="summary-content">
-            <h3><i class="fas fa-shopping-cart"></i> Selected Items (${window._seedlingsChoices.totalQuantity} total)</h3>
-    `;
-    
-    Object.entries(window._seedlingsChoices.selections).forEach(([category, items]) => {
-        if (items.length > 0) {
-            const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
-            summaryHTML += `<div class="summary-category">`;
-            summaryHTML += `<strong>${categoryDisplay}:</strong>`;
-            summaryHTML += '<ul>';
-            items.forEach(item => {
-                summaryHTML += `<li>${item.name} - <span class="qty-highlight">${item.quantity} units</span></li>`;
-            });
-            summaryHTML += '</ul></div>';
-        }
-    });
-    
-    summaryHTML += `</div>`;
+
+    let summaryHTML = '<h3 style="color: #40916c; margin-bottom: 15px;">📋 Your Selected Items:</h3>';
+
+    // Add all 6 categories
+    if (window._seedlingsChoices.seeds.length > 0) {
+        summaryHTML += buildSummarySection('🌾 Seeds:', window._seedlingsChoices.seeds);
+    }
+
+    if (window._seedlingsChoices.seedlings.length > 0) {
+        summaryHTML += buildSummarySection('🌱 Seedlings:', window._seedlingsChoices.seedlings);
+    }
+
+    if (window._seedlingsChoices.fruits.length > 0) {
+        summaryHTML += buildSummarySection('🍎 Fruit-bearing Trees:', window._seedlingsChoices.fruits);
+    }
+
+    if (window._seedlingsChoices.ornamentals.length > 0) {
+        summaryHTML += buildSummarySection('🌺 Ornamentals:', window._seedlingsChoices.ornamentals);
+    }
+
+    if (window._seedlingsChoices.fingerlings.length > 0) {
+        summaryHTML += buildSummarySection('🐟 Fingerlings:', window._seedlingsChoices.fingerlings);
+    }
+
+    if (window._seedlingsChoices.fertilizers.length > 0) {
+        summaryHTML += buildSummarySection('🌿 Fertilizers:', window._seedlingsChoices.fertilizers);
+    }
+
+    // Add total quantity display
+    summaryHTML += buildTotalQuantitySection();
+
     summaryContainer.innerHTML = summaryHTML;
 }
 
+// Builds HTML for a summary section
+function buildSummarySection(title, items) {
+    let html = `<div style="margin-bottom: 15px;"><strong style="color: #2d6a4f;">${title}</strong>`;
+    html += '<ul style="margin: 8px 0; padding-left: 20px;">';
+
+    items.forEach(item => {
+        html += `<li style="margin: 4px 0;">${item.name} - <span style="color: #40916c; font-weight: bold;">${item.quantity} pcs</span></li>`;
+    });
+
+    html += '</ul></div>';
+    return html;
+}
+
+// Builds the total quantity section
+function buildTotalQuantitySection() {
+    let html = '<div style="margin-top: 20px; padding: 15px; background-color: #e8f5e8; border-radius: 8px; border-left: 4px solid #40916c;">';
+    html += `<strong style="color: #2d6a4f;">Total Quantity: <span style="color: #40916c; font-size: 1.2em;">${window._seedlingsChoices.totalQuantity} pcs</span></strong>`;
+    html += '</div>';
+    return html;
+}
+
 // ==============================================
-// FORM SUBMISSION
+// STATE RESTORATION
 // ==============================================
 
+// Restores previous selections when going back
+function restorePreviousSelections() {
+    if (!window._seedlingsChoices) return;
+
+    const form = document.getElementById('seedlings-choice-form');
+    if (!form) return;
+
+    // Restore all 6 categories
+    restoreItemSelections(form, 'seeds', window._seedlingsChoices.seeds);
+    restoreItemSelections(form, 'seedlings', window._seedlingsChoices.seedlings);
+    restoreItemSelections(form, 'fruits', window._seedlingsChoices.fruits);
+    restoreItemSelections(form, 'ornamentals', window._seedlingsChoices.ornamentals);
+    restoreItemSelections(form, 'fingerlings', window._seedlingsChoices.fingerlings);
+    restoreItemSelections(form, 'fertilizers', window._seedlingsChoices.fertilizers);
+}
+
+// Restores selections for a specific item type
+function restoreItemSelections(form, itemType, items) {
+    items.forEach(item => {
+        const checkbox = form.querySelector(`input[name="${itemType}"][value="${item.name}"]`);
+        if (checkbox) {
+            checkbox.checked = true;
+
+            // Show quantity field and restore value
+            const quantityId = getQuantityIdForItem(item.name);
+            toggleQuantity(checkbox, quantityId);
+
+            const quantityFieldName = getQuantityFieldName(item.name);
+            const quantityInput = form.querySelector(`input[name="${quantityFieldName}"]`);
+            if (quantityInput) quantityInput.value = item.quantity;
+        }
+    });
+}
+
+// Helper function to get quantity ID for an item
+function getQuantityIdForItem(itemName) {
+    const quantityIdMap = {
+        'Emerald Bitter Gourd Seeds': 'emerald-bitter-gourd-seeds-qty',
+        'Golden Harvest Rice Seeds': 'golden-harvest-rice-seeds-qty',
+        'Green Gem String Bean Seeds': 'green-gem-string-bean-seeds-qty',
+        'Okra Seeds': 'okra-seeds-qty',
+        'Pioneer Hybrid Corn Seeds': 'pioneer-hybrid-corn-seeds-qty',
+        'Red Ruby Tomato Seeds': 'red-ruby-tomato-seeds-qty',
+        'Sunshine Carrot Seeds': 'sunshine-carrot-seeds-qty',
+        'Yellow Pearl Squash Seeds': 'yellow-pearl-squash-seeds-qty',
+        'Avocado Seedling': 'avocado-seedling-qty',
+        'Calamansi Seedling': 'calamansi-seedling-qty',
+        'Guava Seedling': 'guava-seedling-qty',
+        'Guyabano Seedling': 'guyabano-seedling-qty',
+        'Mango Seedling': 'mango-seedling-qty',
+        'Papaya Seedling': 'papaya-seedling-qty',
+        'Santol Seedling': 'santol-seedling-qty',
+        'Dwarf Coconut Tree': 'dwarf-coconut-tree-qty',
+        'Lakatan Banana Tree': 'lakatan-banana-tree-qty',
+        'Rambutan Tree': 'rambutan-tree-qty',
+        'Star Apple Tree': 'star-apple-tree-qty',
+        'Anthurium': 'anthurium-qty',
+        'Bougainvillea': 'bougainvillea-qty',
+        'Fortune Plant': 'fortune-plant-qty',
+        'Gumamela (Hibiscus)': 'gumamela-qty',
+        'Sansevieria (Snake Plant)': 'sansevieria-qty',
+        'Catfish Fingerling': 'catfish-fingerling-qty',
+        'Milkfish (Bangus) Fingerling': 'milkfish-fingerling-qty',
+        'Tilapia Fingerlings': 'tilapia-fingerlings-qty',
+        'Ammonium Sulfate (21-0-0)': 'ammonium-sulfate-qty',
+        'Humic Acid': 'humic-acid-qty',
+        'Pre-processed Chicken Manure': 'pre-processed-chicken-manure-qty',
+        'Urea (46-0-0)': 'urea-qty',
+        'Vermicast Fertilizer': 'vermicast-fertilizer-qty'
+    };
+
+    return quantityIdMap[itemName] || itemName.replace(/[\s\(\)\-]/g, '-').toLowerCase() + '-qty';
+}
+
+// Helper function to get quantity field name for an item
+function getQuantityFieldName(itemName) {
+    const quantityFieldMap = {
+        'Emerald Bitter Gourd Seeds': 'emerald_bitter_gourd_seeds_quantity',
+        'Golden Harvest Rice Seeds': 'golden_harvest_rice_seeds_quantity',
+        'Green Gem String Bean Seeds': 'green_gem_string_bean_seeds_quantity',
+        'Okra Seeds': 'okra_seeds_quantity',
+        'Pioneer Hybrid Corn Seeds': 'pioneer_hybrid_corn_seeds_quantity',
+        'Red Ruby Tomato Seeds': 'red_ruby_tomato_seeds_quantity',
+        'Sunshine Carrot Seeds': 'sunshine_carrot_seeds_quantity',
+        'Yellow Pearl Squash Seeds': 'yellow_pearl_squash_seeds_quantity',
+        'Avocado Seedling': 'avocado_seedling_quantity',
+        'Calamansi Seedling': 'calamansi_seedling_quantity',
+        'Guava Seedling': 'guava_seedling_quantity',
+        'Guyabano Seedling': 'guyabano_seedling_quantity',
+        'Mango Seedling': 'mango_seedling_quantity',
+        'Papaya Seedling': 'papaya_seedling_quantity',
+        'Santol Seedling': 'santol_seedling_quantity',
+        'Dwarf Coconut Tree': 'dwarf_coconut_tree_quantity',
+        'Lakatan Banana Tree': 'lakatan_banana_tree_quantity',
+        'Rambutan Tree': 'rambutan_tree_quantity',
+        'Star Apple Tree': 'star_apple_tree_quantity',
+        'Anthurium': 'anthurium_quantity',
+        'Bougainvillea': 'bougainvillea_quantity',
+        'Fortune Plant': 'fortune_plant_quantity',
+        'Gumamela (Hibiscus)': 'gumamela_quantity',
+        'Sansevieria (Snake Plant)': 'sansevieria_quantity',
+        'Catfish Fingerling': 'catfish_fingerling_quantity',
+        'Milkfish (Bangus) Fingerling': 'milkfish_fingerling_quantity',
+        'Tilapia Fingerlings': 'tilapia_fingerlings_quantity',
+        'Ammonium Sulfate (21-0-0)': 'ammonium_sulfate_quantity',
+        'Humic Acid': 'humic_acid_quantity',
+        'Pre-processed Chicken Manure': 'pre_processed_chicken_manure_quantity',
+        'Urea (46-0-0)': 'urea_quantity',
+        'Vermicast Fertilizer': 'vermicast_fertilizer_quantity'
+    };
+
+    return quantityFieldMap[itemName] || itemName.replace(/[\s\(\)\-]/g, '_').toLowerCase() + '_quantity';
+}
+
+// ==============================================
+// ENHANCED FORM SUBMISSION WITH COMPLETE RESET
+// ==============================================
+
+// Handles seedlings request form submission with complete reset
 function submitSeedlingsRequest(event) {
     event.preventDefault();
-    
-    const form = document.getElementById('seedlings-request-form');
-    if (!form) {
-        console.error('Form not found');
+
+    // Check authentication before submitting
+    if (!isUserAuthenticatedAndVerified()) {
+        showAuthRequired('Seedlings');
         return false;
     }
-    
+
+    const form = document.getElementById('seedlings-request-form');
+    if (!form) {
+        console.error('Seedlings request form not found');
+        return false;
+    }
+
+    // Show loading state
     const submitBtn = form.querySelector('.seedlings-submit-btn');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Submitting...';
     submitBtn.disabled = true;
-    
+
+    // Prepare form data
     const formData = new FormData(form);
-    
+
+    // Add selected seedlings data
     if (window._seedlingsChoices) {
         formData.append('selected_seedlings', JSON.stringify(window._seedlingsChoices));
-    } else {
-        alert('Please select items first');
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-        return;
     }
-    
+
+    // Get CSRF token
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
+
+    // Submit via AJAX
     fetch('/apply/seedlings', {
         method: 'POST',
         body: formData,
@@ -571,19 +655,17 @@ function submitSeedlingsRequest(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // Show success message
             alert('✅ ' + data.message);
+
+            // COMPLETE RESET FOR NEXT USER
             performCompleteReset();
+
+            // Return to main services page
             closeFormSeedlings();
         } else {
-            if (data.errors) {
-                let errorMsg = 'Validation errors:\n';
-                for (let field in data.errors) {
-                    errorMsg += `${field}: ${data.errors[field].join(', ')}\n`;
-                }
-                alert(errorMsg);
-            } else {
-                alert('❌ ' + (data.message || 'There was an error submitting your request.'));
-            }
+            // Show error message
+            alert('❌ ' + (data.message || 'There was an error submitting your request.'));
         }
     })
     .catch(error => {
@@ -591,130 +673,537 @@ function submitSeedlingsRequest(event) {
         alert('❌ There was an error submitting your request. Please try again.');
     })
     .finally(() => {
+        // Reset button state
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
     });
 }
 
 // ==============================================
-// RESET FUNCTIONS
+// COMPLETE RESET FUNCTION
 // ==============================================
 
 function performCompleteReset() {
+    // Check if seedlings elements exist (safety check for authentication)
+    const seedlingsChoice = document.getElementById('seedlings-choice');
+    if (!seedlingsChoice) {
+        console.log('Seedlings elements not found - user may not be authenticated');
+        return;
+    }
+
+    // 1. Reset global seedlings choices
     window._seedlingsChoices = null;
-    selectedItems.clear();
-    
-    // Reset application form
+
+    // 2. Reset the main application form with enhanced field handling
     const applicationForm = document.getElementById('seedlings-request-form');
     if (applicationForm) {
         applicationForm.reset();
+
+        // Manually reset select fields (especially barangay)
         applicationForm.querySelectorAll('select').forEach(select => {
             select.selectedIndex = 0;
             select.value = '';
         });
+
+        // Special handling for barangay field
+        const barangaySelect = applicationForm.querySelector('select[name="barangay"]');
+        if (barangaySelect) {
+            barangaySelect.selectedIndex = 0;
+            barangaySelect.value = '';
+            barangaySelect.dispatchEvent(new Event('change'));
+        }
     }
-    
-    // Reset choice form
-    clearAllSelections();
-    
-    // Clear summary
-    const summaryContainer = document.getElementById('seedlings-summary-tab');
+
+    // 3. Reset the choice form (checkboxes and quantities)
+    resetChoiceForm();
+
+    // 4. Clear summary display
+    clearSummaryDisplay();
+
+    // 5. Reset supporting documents field
+    resetSupportingDocuments();
+
+    // 6. Reset any file inputs
+    resetFileInputs();
+
+    console.log('Complete seedlings form reset performed');
+}
+
+// ==============================================
+// INDIVIDUAL RESET FUNCTIONS
+// ==============================================
+
+function resetChoiceForm() {
+    const choiceForm = document.getElementById('seedlings-choice-form');
+    if (!choiceForm) return;
+
+    // Reset all checkboxes
+    choiceForm.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+
+    // Reset all quantity inputs and hide quantity fields
+    choiceForm.querySelectorAll('input[type="number"]').forEach(input => {
+        input.value = '1'; // Reset to default value
+    });
+
+    // Hide all quantity divs
+    choiceForm.querySelectorAll('[id$="-qty"]').forEach(qtyDiv => {
+        qtyDiv.style.display = 'none';
+    });
+
+    // Reset the entire form to be safe
+    choiceForm.reset();
+}
+
+function clearSummaryDisplay() {
+    const summaryContainer = document.getElementById('seedlings-summary');
     if (summaryContainer) {
         summaryContainer.innerHTML = '';
+        summaryContainer.style.display = 'none';
     }
-    
-    // Reset supporting documents
-    resetSupportingDocuments();
-    
-    // Reset filters
-    const searchInput = document.getElementById('seedlings-search');
-    const stockFilter = document.getElementById('stock-filter');
-    const sortBy = document.getElementById('sort-by');
-    
-    if (searchInput) searchInput.value = '';
-    if (stockFilter) stockFilter.value = 'all';
-    if (sortBy) sortBy.value = 'name-asc';
-    
-    // Reset category filter
-    const allTab = document.querySelector('[data-category="all"]');
-    if (allTab) {
-        allTab.click();
-    }
-    
-    console.log('Complete reset performed');
 }
 
 function resetSupportingDocuments() {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
-    
-    if (docsField) docsField.style.display = 'none';
+    const docsLabel = document.querySelector('label[for="seedlings-docs"]');
+    const docsSmall = docsInput ? docsInput.nextElementSibling : null;
+
+    // Hide the supporting documents field
+    if (docsField) {
+        docsField.style.display = 'none';
+    }
+
+    // Remove required attribute
     if (docsInput) {
         docsInput.removeAttribute('required');
-        docsInput.value = '';
+        docsInput.value = ''; // Clear any selected files
+    }
+
+    // Reset label text
+    if (docsLabel) {
+        docsLabel.innerHTML = 'Supporting Documents';
+    }
+
+    // Reset help text
+    if (docsSmall) {
+        docsSmall.innerHTML = 'Upload supporting documents if required.';
     }
 }
 
-function restorePreviousSelections() {
-    if (!window._seedlingsChoices) return;
-    
-    Object.entries(window._seedlingsChoices.selections).forEach(([category, items]) => {
-        items.forEach(item => {
-            const checkbox = document.querySelector(`input[data-item-id="${item.id}"]`);
-            if (checkbox) {
-                checkbox.checked = true;
-                toggleItemSelection(checkbox, item.id);
-                
-                const qtyInput = document.getElementById(`qty-${item.id}`);
-                if (qtyInput) {
-                    qtyInput.value = item.quantity;
-                }
-            }
-        });
+function resetFileInputs() {
+    // Reset all file inputs in the forms
+    document.querySelectorAll('#seedlings-form input[type="file"], #seedlings-choice input[type="file"]').forEach(fileInput => {
+        fileInput.value = '';
+
+        // If there's a custom file display, reset it
+        const fileDisplay = fileInput.parentElement.querySelector('.file-display');
+        if (fileDisplay) {
+            fileDisplay.innerHTML = '';
+        }
     });
 }
 
 // ==============================================
-// INITIALIZATION
+// BROWSER REFRESH/NAVIGATION RESET
 // ==============================================
 
+// Reset data when page loads (in case of browser refresh)
 document.addEventListener('DOMContentLoaded', function() {
+    // Reset on page load to ensure clean state
     window._seedlingsChoices = null;
-    selectedItems.clear();
-    
+
+    // Set up form submission handler
     const form = document.getElementById('seedlings-request-form');
     if (form) {
         form.addEventListener('submit', submitSeedlingsRequest);
     }
-    
+
+    // Handle browser back/forward buttons
     window.addEventListener('popstate', function() {
+        // Reset data when navigating with browser buttons
         performCompleteReset();
     });
-    
-    // Initialize category show more/less
-    setupCategoryToggle();
 });
 
 // ==============================================
-// GLOBAL EXPORTS
+// ADDITIONAL RESET TRIGGER FUNCTIONS
 // ==============================================
 
+// Function to manually trigger reset (useful for testing or other scenarios)
+function manualReset() {
+    performCompleteReset();
+    console.log('Manual reset performed');
+}
+
+// Gathers all form data
+function gatherFormData(form) {
+    return {
+        firstName: form.first_name?.value || '',
+        middleName: form.middle_name?.value || '',
+        lastName: form.last_name?.value || '',
+        mobile: form.mobile?.value || '',
+        email: form.email?.value || '',
+        barangay: form.barangay?.value || '',
+        address: form.address?.value || '',
+        selections: window._seedlingsChoices
+    };
+}
+
+// Shows final summary before submission
+function showFinalSummary(formData) {
+    const { selections } = formData;
+    let summary = 'You have chosen:\n';
+
+    if (selections.seeds.length) {
+        summary += '- Seeds: ' + selections.seeds.map(s => `${s.name} (${s.quantity})`).join(', ') + '\n';
+    }
+    if (selections.seedlings.length) {
+        summary += '- Seedlings: ' + selections.seedlings.map(v => `${v.name} (${v.quantity})`).join(', ') + '\n';
+    }
+    if (selections.fruits.length) {
+        summary += '- Fruit-bearing Trees: ' + selections.fruits.map(f => `${f.name} (${f.quantity})`).join(', ') + '\n';
+    }
+    if (selections.ornamentals.length) {
+        summary += '- Ornamentals: ' + selections.ornamentals.map(o => `${o.name} (${o.quantity})`).join(', ') + '\n';
+    }
+    if (selections.fingerlings.length) {
+        summary += '- Fingerlings: ' + selections.fingerlings.map(f => `${f.name} (${f.quantity})`).join(', ') + '\n';
+    }
+    if (selections.fertilizers.length) {
+        summary += '- Fertilizers: ' + selections.fertilizers.map(fert => `${fert.name} (${fert.quantity})`).join(', ') + '\n';
+    }
+
+    summary += '\nApplicant Details:\n';
+    summary += `Name: ${formData.firstName} ${formData.middleName} ${formData.lastName}\n`;
+    summary += `Mobile: ${formData.mobile}\nEmail: ${formData.email}\nBarangay: ${formData.barangay}\nAddress: ${formData.address}`;
+
+    alert(summary);
+}
+
+// ==============================================
+// MISSING FUNCTIONS - Safety implementations
+// ==============================================
+
+function clearAllSelections() {
+    // Check if elements exist before trying to access them
+    const summaryDiv = document.getElementById('selection-summary');
+    if (!summaryDiv) {
+        console.log('Selection summary not found - user may not be authenticated');
+        return;
+    }
+
+    // Clear all selections
+    selectedItems.clear();
+
+    // Update UI elements if they exist
+    summaryDiv.style.display = 'none';
+
+    const countSpan = document.getElementById('selected-count');
+    if (countSpan) {
+        countSpan.textContent = '0';
+    }
+
+    // Uncheck all checkboxes
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.checked = false;
+        const itemId = checkbox.dataset.itemId;
+        if (itemId) {
+            const qtyWrapper = document.getElementById(`qty-wrapper-${itemId}`);
+            if (qtyWrapper) {
+                qtyWrapper.style.display = 'none';
+            }
+        }
+    });
+
+    updateProceedButton();
+}
+
+function updateSelectionSummary() {
+    const summaryDiv = document.getElementById('selection-summary');
+    if (!summaryDiv) {
+        console.log('Selection summary not found - user may not be authenticated');
+        return;
+    }
+
+    const countSpan = document.getElementById('selected-count');
+    if (!countSpan) {
+        console.log('Selected count span not found');
+        return;
+    }
+
+    const totalItems = selectedItems.size;
+
+    if (totalItems > 0) {
+        if (summaryDiv) summaryDiv.style.display = 'flex';
+        if (countSpan) countSpan.textContent = totalItems;
+    } else {
+        if (summaryDiv) summaryDiv.style.display = 'none';
+    }
+}
+
+function updateProceedButton() {
+    const proceedBtn = document.getElementById('proceed-btn');
+    if (!proceedBtn) {
+        console.log('Proceed button not found - user may not be authenticated');
+        return;
+    }
+
+    if (selectedItems.size > 0) {
+        proceedBtn.disabled = false;
+    } else {
+        proceedBtn.disabled = true;
+    }
+}
+
+// ==============================================
+// MISSING INTERACTIVE FUNCTIONS
+// ==============================================
+
+// Toggle item selection (called from checkbox onchange)
+function toggleItemSelection(checkbox, itemId) {
+    // Check authentication first
+    if (!isAuthenticated()) {
+        showAuthRequired();
+        return;
+    }
+
+    const qtyWrapper = document.getElementById(`qty-wrapper-${itemId}`);
+    if (!qtyWrapper) {
+        console.log('Quantity wrapper not found for item:', itemId);
+        return;
+    }
+
+    if (checkbox.checked) {
+        qtyWrapper.style.display = 'flex';
+        const qtyInput = document.getElementById(`qty-${itemId}`);
+        if (qtyInput) {
+            const minQty = parseInt(qtyInput.getAttribute('min')) || 1;
+            qtyInput.value = minQty;
+        }
+        selectedItems.add(itemId);
+    } else {
+        qtyWrapper.style.display = 'none';
+        selectedItems.delete(itemId);
+    }
+
+    updateSelectionSummary();
+}
+
+// Update quantity when input changes
+function updateQuantity(itemId) {
+    // Check authentication first
+    if (!isAuthenticated()) {
+        showAuthRequired();
+        return;
+    }
+
+    const qtyInput = document.getElementById(`qty-${itemId}`);
+    if (!qtyInput) {
+        console.log('Quantity input not found for item:', itemId);
+        return;
+    }
+
+    const quantity = parseInt(qtyInput.value) || 0;
+    const minQty = parseInt(qtyInput.getAttribute('min')) || 1;
+    const maxQty = parseInt(qtyInput.getAttribute('max')) || 999;
+
+    // Validate quantity range
+    if (quantity < minQty) {
+        qtyInput.value = minQty;
+    } else if (quantity > maxQty) {
+        qtyInput.value = maxQty;
+    }
+
+    updateSelectionSummary();
+}
+
+// Decrement quantity button
+function decrementQty(itemId) {
+    // Check authentication first
+    if (!isAuthenticated()) {
+        showAuthRequired();
+        return;
+    }
+
+    const qtyInput = document.getElementById(`qty-${itemId}`);
+    if (!qtyInput) {
+        console.log('Quantity input not found for item:', itemId);
+        return;
+    }
+
+    const currentQty = parseInt(qtyInput.value) || 1;
+    const minQty = parseInt(qtyInput.getAttribute('min')) || 1;
+
+    if (currentQty > minQty) {
+        qtyInput.value = currentQty - 1;
+        updateSelectionSummary();
+    }
+}
+
+// Increment quantity button
+function incrementQty(itemId) {
+    // Check authentication first
+    if (!isAuthenticated()) {
+        showAuthRequired();
+        return;
+    }
+
+    const qtyInput = document.getElementById(`qty-${itemId}`);
+    if (!qtyInput) {
+        console.log('Quantity input not found for item:', itemId);
+        return;
+    }
+
+    const currentQty = parseInt(qtyInput.value) || 1;
+    const maxQty = parseInt(qtyInput.getAttribute('max')) || 999;
+
+    if (currentQty < maxQty) {
+        qtyInput.value = currentQty + 1;
+        updateSelectionSummary();
+    }
+}
+
+// Filter items by stock status
+function filterByStock() {
+    const filterSelect = document.getElementById('stock-filter');
+    if (!filterSelect) {
+        console.log('Stock filter not found');
+        return;
+    }
+
+    const filterValue = filterSelect.value;
+    const items = document.querySelectorAll('.seedlings-item-card');
+
+    items.forEach(item => {
+        const stockStatus = item.getAttribute('data-stock-status');
+        let show = true;
+
+        if (filterValue === 'in-stock' && stockStatus !== 'in_stock') {
+            show = false;
+        } else if (filterValue === 'low-stock' && stockStatus !== 'low_stock') {
+            show = false;
+        } else if (filterValue === 'out-of-stock' && stockStatus !== 'out_of_stock') {
+            show = false;
+        }
+
+        item.style.display = show ? 'block' : 'none';
+    });
+
+    checkNoResults();
+}
+
+// Sort items
+function sortItems() {
+    const sortSelect = document.getElementById('sort-by');
+    if (!sortSelect) {
+        console.log('Sort select not found');
+        return;
+    }
+
+    const sortValue = sortSelect.value;
+    const itemsGrid = document.getElementById('items-grid');
+    if (!itemsGrid) {
+        console.log('Items grid not found');
+        return;
+    }
+
+    const items = Array.from(itemsGrid.querySelectorAll('.seedlings-item-card'));
+
+    items.sort((a, b) => {
+        switch (sortValue) {
+            case 'name-asc':
+                return a.getAttribute('data-item-name').localeCompare(b.getAttribute('data-item-name'));
+            case 'name-desc':
+                return b.getAttribute('data-item-name').localeCompare(a.getAttribute('data-item-name'));
+            case 'stock-high':
+                return parseInt(b.getAttribute('data-stock')) - parseInt(a.getAttribute('data-stock'));
+            case 'stock-low':
+                return parseInt(a.getAttribute('data-stock')) - parseInt(b.getAttribute('data-stock'));
+            default:
+                return 0;
+        }
+    });
+
+    // Re-append sorted items
+    items.forEach(item => itemsGrid.appendChild(item));
+}
+
+// Search items
+function searchItems() {
+    const searchInput = document.getElementById('seedlings-search');
+    if (!searchInput) {
+        console.log('Search input not found');
+        return;
+    }
+
+    const searchTerm = searchInput.value.toLowerCase();
+    const items = document.querySelectorAll('.seedlings-item-card');
+
+    items.forEach(item => {
+        const itemName = item.getAttribute('data-item-name') || '';
+        const category = item.getAttribute('data-category') || '';
+
+        const matchesSearch = itemName.includes(searchTerm) || category.toLowerCase().includes(searchTerm);
+        item.style.display = matchesSearch ? 'block' : 'none';
+    });
+
+    checkNoResults();
+}
+
+// Helper function to check if any items are visible
+function checkNoResults() {
+    const items = document.querySelectorAll('.seedlings-item-card');
+    const visibleItems = Array.from(items).filter(item => item.style.display !== 'none');
+
+    const noResultsDiv = document.getElementById('no-results');
+    if (noResultsDiv) {
+        noResultsDiv.style.display = visibleItems.length === 0 ? 'block' : 'none';
+    }
+}
+
+// Helper function to check authentication
+function isAuthenticated() {
+    return window.userData &&
+           window.userData.status === 'approved' &&
+           window.userData.verification_status === 'verified';
+}
+
+// Helper function to show authentication required message
+function showAuthRequired() {
+    // Show login modal instead of alert
+    if (typeof openAuthModal === 'function') {
+        openAuthModal('login');
+    } else {
+        // Fallback if openAuthModal is not available
+        console.log('Authentication required - please log in');
+    }
+}
+
+// ==============================================
+// GLOBAL FUNCTIONS FOR COMPATIBILITY
+// ==============================================
+
+// Make functions available globally for HTML onclick handlers
 window.openFormSeedlings = openFormSeedlings;
 window.closeFormSeedlings = closeFormSeedlings;
 window.proceedToSeedlingsForm = proceedToSeedlingsForm;
 window.showSeedlingsTab = showSeedlingsTab;
 window.backToSeedlingsChoice = backToSeedlingsChoice;
+window.toggleQuantity = toggleQuantity;
+window.submitSeedlingsRequest = submitSeedlingsRequest;
+window.manualReset = manualReset;
+window.clearAllSelections = clearAllSelections;
+window.updateSelectionSummary = updateSelectionSummary;
+window.updateProceedButton = updateProceedButton;
+window.performCompleteReset = performCompleteReset;
 window.toggleItemSelection = toggleItemSelection;
-window.incrementQty = incrementQty;
-window.decrementQty = decrementQty;
 window.updateQuantity = updateQuantity;
-window.filterByCategory = filterByCategory;
-window.searchItems = searchItems;
+window.decrementQty = decrementQty;
+window.incrementQty = incrementQty;
 window.filterByStock = filterByStock;
 window.sortItems = sortItems;
-window.clearAllSelections = clearAllSelections;
-window.submitSeedlingsRequest = submitSeedlingsRequest;
-window.initializeCategoryTabs = initializeCategoryTabs;
-window.setupCategoryToggle = setupCategoryToggle;
+window.searchItems = searchItems;
 
-console.log('Modern Seedlings module loaded successfully');
+console.log('Seedlings module loaded successfully - 6 categories supported with complete functionality');

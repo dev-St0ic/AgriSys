@@ -74,7 +74,7 @@ class InventoryManager {
      */
     initializePagination() {
         const paginationLinks = document.querySelectorAll('.pagination .page-link');
-        
+
         paginationLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 if (link.getAttribute('href') && !link.closest('.page-item').classList.contains('disabled')) {
@@ -89,17 +89,17 @@ class InventoryManager {
      */
     initializeModals() {
         const stockModals = document.querySelectorAll('[id^="adjustStockModal"]');
-        
+
         stockModals.forEach(modal => {
             const adjustmentType = modal.querySelector('select[name="adjustment_type"]');
             const quantityInput = modal.querySelector('input[name="quantity"]');
             const alertElement = modal.querySelector('.alert');
-            
+
             if (adjustmentType && quantityInput && alertElement) {
                 adjustmentType.addEventListener('change', () => {
                     const currentStockMatch = alertElement.textContent.match(/\d+/);
                     const currentStock = currentStockMatch ? parseInt(currentStockMatch[0]) : 0;
-                    
+
                     this.updateQuantityInput(adjustmentType.value, quantityInput, currentStock);
                 });
             }
@@ -141,12 +141,12 @@ class InventoryManager {
      */
     animateStatsCards() {
         const statsCards = document.querySelectorAll('.stats-card');
-        
+
         statsCards.forEach((card, index) => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
             card.style.transition = 'all 0.5s ease';
-            
+
             setTimeout(() => {
                 card.style.opacity = '1';
                 card.style.transform = 'translateY(0)';
@@ -168,7 +168,7 @@ class InventoryManager {
                     searchInput.select();
                 }
             }
-            
+
             // Ctrl/Cmd + N to add new item
             if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
                 e.preventDefault();
@@ -188,7 +188,7 @@ class InventoryManager {
         button.innerHTML = loadingContent;
         button.style.pointerEvents = 'none';
         button.disabled = true;
-        
+
         // Restore after timeout or page navigation
         setTimeout(() => {
             button.innerHTML = originalText;
@@ -203,7 +203,7 @@ class InventoryManager {
     exportInventory() {
         const searchParams = new URLSearchParams(window.location.search);
         const exportUrl = `${window.location.pathname}?${searchParams.toString()}&export=csv`;
-        
+
         // Create and trigger download
         const link = document.createElement('a');
         link.href = exportUrl;
@@ -211,11 +211,11 @@ class InventoryManager {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
+
         // Show notification
         this.showNotification(
-            'Export Started', 
-            'Your inventory data is being prepared for download.', 
+            'Export Started',
+            'Your inventory data is being prepared for download.',
             'success'
         );
     }
@@ -235,7 +235,7 @@ class InventoryManager {
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         `;
-        
+
         // Get or create toast container
         let toastContainer = document.querySelector('.toast-container');
         if (!toastContainer) {
@@ -243,15 +243,15 @@ class InventoryManager {
             toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
             document.body.appendChild(toastContainer);
         }
-        
+
         toastContainer.appendChild(toast);
-        
+
         // Show and auto-hide
         if (typeof bootstrap !== 'undefined') {
             const bsToast = new bootstrap.Toast(toast);
             bsToast.show();
         }
-        
+
         setTimeout(() => {
             if (toast.parentNode) {
                 toast.remove();
@@ -265,7 +265,7 @@ class InventoryManager {
     refreshData() {
         const loadingOverlay = this.createLoadingOverlay();
         document.body.appendChild(loadingOverlay);
-        
+
         setTimeout(() => {
             window.location.reload();
         }, 500);

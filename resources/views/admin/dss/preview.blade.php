@@ -7,7 +7,7 @@
     <div class="container-fluid">
         <!-- Loading Overlay -->
         <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
-                style="background: rgba(255,255,255,0.9); z-index: 9999;">
+            style="background: rgba(255,255,255,0.9); z-index: 9999;">
             <div class="d-flex justify-content-center align-items-center h-100">
                 <div class="text-center">
                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -36,9 +36,8 @@
                                     <i class="fas fa-sync-alt me-1"></i>Refresh Data
                                 </button>
                                 <div class="dropdown">
-                                    <button
-                                        class="btn btn-success dropdown-toggle"
-                                        type="button" data-bs-toggle="dropdown">
+                                    <button class="btn btn-success dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown">
                                         <i class="fas fa-download me-1"></i>Export Report
                                     </button>
                                     <ul class="dropdown-menu">
@@ -107,7 +106,8 @@
                             </div>
                             <h5>Generating DSS Report...</h5>
                             <div class="progress mt-3" style="height: 6px;">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -248,7 +248,8 @@
 
             function getMonthName(monthNum) {
                 const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'];
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
                 return months[parseInt(monthNum) - 1];
             }
 
