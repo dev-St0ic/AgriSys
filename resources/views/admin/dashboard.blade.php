@@ -10,15 +10,21 @@
             <div class="welcome-banner card shadow-lg border-0 bg-gradient-primary text-white">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center">
-                        <div class="flex-grow-1">
-                            <h2 class="mb-1 font-weight-bold">Welcome back, {{ $user->name }}! 👋</h2>
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <h2 class="mb-1 font-weight-bold"style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                @php
+                                    $hour = now()->format('H');
+                                    $greeting = $hour < 12 ? 'Good Morning' : ($hour < 18 ? 'Good Afternoon' : 'Good Evening');
+                                @endphp
+                                {{ $greeting }}, {{ $user->name }}
+                            </h2>
                             <p class="mb-0 opacity-75">
                                 <i class="fas fa-clock me-2"></i>{{ now()->format('l, F j, Y • g:i A') }}
                             </p>
                         </div>
-                        <div class="d-none d-md-block">
+                        {{--<div class="d-none d-md-block">
                             <i class="fas fa-chart-line fa-3x opacity-50"></i>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -504,7 +510,7 @@
             position: relative;
         }
 
-        .welcome-banner::before {
+        /* .welcome-banner::before {
             content: '';
             position: absolute;
             top: 0;
@@ -514,7 +520,7 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
             transform: translate(20px, -20px);
-        }
+        } */
 
         /* Metric Cards */
         .metric-card {

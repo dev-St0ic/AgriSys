@@ -35,7 +35,16 @@ class AdminProfileController extends Controller
             'contact_number' => ['nullable', 'string', 'max:20'],
             'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'current_password' => ['required_with:password', 'nullable'],
-            'password' => ['nullable', 'confirmed', Password::min(8)],
+            'password' => [
+                'nullable',
+                'confirmed',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
+            ],
         ]);
 
         try {
@@ -74,6 +83,11 @@ class AdminProfileController extends Controller
                 // Verify current password
                 if (!Hash::check($request->current_password, $user->password)) {
                     return back()->withErrors(['current_password' => 'The current password is incorrect.'])->withInput();
+                }
+
+                // Check if new password is same as current password
+                if (Hash::check($request->password, $user->password)) {
+                    return back()->withErrors(['password' => 'New password must be different from current password.'])->withInput();
                 }
 
                 $user->password = Hash::make($request->password);

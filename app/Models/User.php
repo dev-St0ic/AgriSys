@@ -54,8 +54,17 @@ class User extends Authenticatable
      */
     public function getProfilePhotoUrlAttribute()
     {
-        if ($this->profile_photo && Storage::disk('public')->exists($this->profile_photo)) {
-            return Storage::disk('public')->url($this->profile_photo);
+        if ($this->profile_photo) {
+            // Try direct public URL first
+            $publicPath = public_path('storage/' . $this->profile_photo);
+            if (file_exists($publicPath)) {
+                return asset('storage/' . $this->profile_photo);
+            }
+            
+            // Fallback to storage disk URL
+            if (Storage::disk('public')->exists($this->profile_photo)) {
+                return Storage::disk('public')->url($this->profile_photo);
+            }
         }
         return null;
     }
