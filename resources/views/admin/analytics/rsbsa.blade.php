@@ -11,41 +11,43 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <div class="text-center mb-3">
-                        <h4 class="mb-2 fw-bold">RSBSA Analytics Dashboard</h4>
-                        <p class="text-muted mb-0">Comprehensive insights into Registry System for Basic Sectors in Agriculture</p>
+                    <!-- Title and Description -->
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold mb-2">RSBSA Analytics Dashboard</h4>
+                        <p class="text-muted mb-0">Comprehensive insights into Registry System for Basic Sectors in
+                            Agriculture</p>
                     </div>
-                    <!-- Service Tabs -->
+
+                    <!-- Service Navigation Tabs -->
                     <div class="d-flex justify-content-center">
-                        <ul class="nav nav-pills" id="serviceTab" role="tablist">
+                        <ul class="nav nav-pills service-nav" id="serviceTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.seedlings') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                                    <i class="fas fa-seedling me-1"></i> Seedlings
+                                    <i class="fas fa-seedling me-2"></i>Seedlings
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.rsbsa') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                                    <i class="fas fa-user-check me-1"></i> RSBSA
+                                <a href="{{ route('admin.analytics.rsbsa') }}" class="nav-link active">
+                                    <i class="fas fa-user-check me-2"></i>RSBSA
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.fishr') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                                    <i class="fas fa-fish me-1"></i> FISHR
+                                    <i class="fas fa-fish me-2"></i>FISHR
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.boatr') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                                    <i class="fas fa-ship me-1"></i> BOATR
+                                    <i class="fas fa-ship me-2"></i>BOATR
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.training') }}" 
-                                class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                                    <i class="fas fa-graduation-cap me-1"></i> Training
+                                <a href="{{ route('admin.analytics.training') }}"
+                                    class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                                    <i class="fas fa-graduation-cap me-2"></i>Training
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
@@ -57,7 +59,7 @@
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.user-registration') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                                    <i class="fas fa-user-plus me-1"></i> User Registration
+                                    <i class="fas fa-user-plus me-2"></i>User Registration
                                 </a>
                             </li>
                         </ul>
@@ -73,28 +75,34 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <form method="GET" action="{{ route('admin.analytics.rsbsa') }}" class="row g-3 align-items-end">
-                        <div class="col-md-3">
-                            <label for="start_date" class="form-label fw-semibold">Start Date</label>
+                        <div class="col-lg-3 col-md-6">
+                            <label for="start_date" class="form-label fw-semibold">
+                                <i class="fas fa-calendar-alt text-primary me-1"></i>Start Date
+                            </label>
                             <input type="date" class="form-control" id="start_date" name="start_date"
                                 value="{{ $startDate }}">
                         </div>
-                        <div class="col-md-3">
-                            <label for="end_date" class="form-label fw-semibold">End Date</label>
+                        <div class="col-lg-3 col-md-6">
+                            <label for="end_date" class="form-label fw-semibold">
+                                <i class="fas fa-calendar-check text-primary me-1"></i>End Date
+                            </label>
                             <input type="date" class="form-control" id="end_date" name="end_date"
                                 value="{{ $endDate }}">
                         </div>
-                        <div class="col-md-6">
-                            <button type="submit" class="btn btn-primary me-2">
-                                <i class="fas fa-filter me-1"></i> Apply Filter
-                            </button>
-                            <a href="{{ route('admin.analytics.rsbsa.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
-                                class="btn btn-success me-2">
-                                <i class="fas fa-download me-1"></i> Export
-                            </a>
-                            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal"
-                                data-bs-target="#rsbsaInsightsModal">
-                                <i class="fas fa-lightbulb me-1"></i> AI Insights
-                            </button>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-filter me-2"></i>Apply Filter
+                                </button>
+                                <a href="{{ route('admin.analytics.rsbsa.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
+                                    class="btn btn-success px-4">
+                                    <i class="fas fa-download me-2"></i>Export Data
+                                </a>
+                                <button type="button" class="btn btn-outline-info px-4" data-bs-toggle="modal"
+                                    data-bs-target="#rsbsaInsightsModal">
+                                    <i class="fas fa-lightbulb me-2"></i>AI Insights
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -102,82 +110,78 @@
         </div>
     </div>
 
-    <!-- Key Metrics Row -->
+    <!-- Key Metrics Cards -->
     <div class="row mb-4 g-3">
-        <!-- Total Applications Card -->
+        <!-- Total Applications -->
         <div class="col-lg-3 col-md-6">
-            <div class="metric-card card border-0 shadow-sm h-100">
-                <div class="card-body text-white" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="metric-label mb-2">Total Applications</p>
+                            <p class="metric-label text-muted mb-2">Total Applications</p>
                             <h2 class="metric-value mb-1">{{ number_format($overview['total_applications']) }}</h2>
-                            <small class="metric-subtitle">
-                                <i class="fas fa-users me-1"></i>{{ $overview['unique_applicants'] }} unique farmers
-                            </small>
+                            <span class="badge badge-success-soft">
+                                <i class="fas fa-users me-1"></i>{{ $overview['unique_applicants'] }} farmers
+                            </span>
                         </div>
-                        <div class="metric-icon">
-                            <i class="fas fa-file-alt fa-2x"></i>
+                        <div class="metric-icon bg-primary-soft">
+                            <i class="fas fa-file-alt text-primary"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Approval Rate Card -->
+        <!-- Approval Rate -->
         <div class="col-lg-3 col-md-6">
-            <div class="metric-card card border-0 shadow-sm h-100">
-                <div class="card-body text-white" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="metric-label mb-2">Approval Rate</p>
+                            <p class="metric-label text-muted mb-2">Approval Rate</p>
                             <h2 class="metric-value mb-1">{{ $overview['approval_rate'] }}%</h2>
-                            <small class="metric-subtitle">
-                                {{ number_format($overview['approved_applications']) }} approved applications
-                            </small>
+                            <small class="text-muted">{{ number_format($overview['approved_applications']) }}
+                                approved</small>
                         </div>
-                        <div class="metric-icon">
-                            <i class="fas fa-check-circle fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Agricultural Impact Card -->
-        <div class="col-lg-3 col-md-6">
-            <div class="metric-card card border-0 shadow-sm h-100">
-                <div class="card-body text-white" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="metric-label mb-2">Total Land Coverage</p>
-                            <h2 class="metric-value mb-1">{{ number_format($overview['total_land_area'], 1) }} ha</h2>
-                            <small class="metric-subtitle">
-                                Across {{ $overview['active_barangays'] }} barangays
-                            </small>
-                        </div>
-                        <div class="metric-icon">
-                            <i class="fas fa-map-marked-alt fa-2x"></i>
+                        <div class="metric-icon bg-success-soft">
+                            <i class="fas fa-check-circle text-success"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Processing Efficiency Card -->
+        <!-- Agricultural Impact -->
         <div class="col-lg-3 col-md-6">
-            <div class="metric-card card border-0 shadow-sm h-100">
-                <div class="card-body text-white" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="metric-label mb-2">Avg Processing Time</p>
-                            <h2 class="metric-value mb-1">{{ $processingTimeAnalysis['avg_processing_days'] }} days</h2>
-                            <small class="metric-subtitle">
-                                Median: {{ $processingTimeAnalysis['median_processing_days'] }} days
-                            </small>
+                            <p class="metric-label text-muted mb-2">Total Land Coverage</p>
+                            <h2 class="metric-value mb-1">{{ number_format($overview['total_land_area'], 1) }}ha</h2>
+                            <small class="text-muted">{{ $overview['active_barangays'] }} barangays</small>
                         </div>
-                        <div class="metric-icon">
-                            <i class="fas fa-clock fa-2x"></i>
+                        <div class="metric-icon bg-purple-soft">
+                            <i class="fas fa-map-marked-alt text-purple"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Efficiency -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="metric-label text-muted mb-2">Processing Time</p>
+                            <h2 class="metric-value mb-1">{{ $processingTimeAnalysis['avg_processing_days'] }}d</h2>
+                            <small class="text-muted">{{ $processingTimeAnalysis['median_processing_days'] }}d
+                                median</small>
+                        </div>
+                        <div class="metric-icon bg-warning-soft">
+                            <i class="fas fa-clock text-warning"></i>
                         </div>
                     </div>
                 </div>
@@ -186,47 +190,51 @@
     </div>
 
     <!-- Main Analytics Section -->
-    <div class="row g-3 mb-4">
-        <!-- Application Trends Chart -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-chart-line me-2 text-primary"></i>Application Trends & Performance
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="rsbsaTrendsChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Status Distribution -->
+    <div class="row mb-4 g-3">
+        <!-- Application Status Distribution -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-tasks me-2 text-success"></i>Application Status
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>Application Status
                     </h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="rsbsaStatusChart"></canvas>
-                    <div class="mt-3">
+                    <div class="status-chart-container mb-3">
+                        <canvas id="rsbsaStatusChart" height="220"></canvas>
+                    </div>
+                    <div class="status-legends">
                         @foreach ($statusAnalysis['counts'] as $status => $count)
-                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded status-item">
-                                <span class="d-flex align-items-center">
-                                    <i class="fas fa-circle me-2 {{ $status === 'approved' ? 'text-success' : ($status === 'rejected' ? 'text-danger' : 'text-warning') }}"></i>
-                                    {{ ucfirst(str_replace('_', ' ', $status)) }}
-                                </span>
+                            <div class="legend-item d-flex justify-content-between align-items-center mb-2 p-2 rounded">
+                                <div class="d-flex align-items-center">
+                                    <span
+                                        class="legend-dot bg-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }} me-2"></span>
+                                    <span class="fw-medium">{{ ucfirst(str_replace('_', ' ', $status)) }}</span>
+                                </div>
                                 <div>
-                                    <span class="badge bg-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }}">
+                                    <span
+                                        class="badge bg-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }}-soft text-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }}">
                                         {{ $count }}
                                     </span>
-                                    <small class="text-muted ms-1">({{ $statusAnalysis['percentages'][$status] }}%)</small>
+                                    <span class="text-muted ms-2">{{ $statusAnalysis['percentages'][$status] }}%</span>
                                 </div>
                             </div>
                         @endforeach
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Trends -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-chart-line text-info me-2"></i>Application Trends
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="rsbsaTrendsChart" height="220"></canvas>
                 </div>
             </div>
         </div>
@@ -247,7 +255,8 @@
                         <div class="commodity-item mb-3 p-3 rounded">
                             <div class="d-flex align-items-center">
                                 <div class="commodity-rank me-3">
-                                    <div class="badge bg-success rounded-circle p-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                    <div class="badge bg-success rounded-circle p-2"
+                                        style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
                                         <strong>{{ $index + 1 }}</strong>
                                     </div>
                                 </div>
@@ -294,7 +303,8 @@
                                 style="width: {{ $performanceMetrics['completion_rate'] }}%"></div>
                         </div>
                         <small class="text-muted d-block mt-1">
-                            {{ $processingTimeAnalysis['processed_count'] }} of {{ $overview['total_applications'] }} processed
+                            {{ $processingTimeAnalysis['processed_count'] }} of {{ $overview['total_applications'] }}
+                            processed
                         </small>
                     </div>
 
@@ -302,7 +312,8 @@
                     <div class="metric-item mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h6 class="mb-0 fw-semibold">Quality Score</h6>
-                            <span class="badge bg-{{ $performanceMetrics['quality_score'] > 80 ? 'success' : ($performanceMetrics['quality_score'] > 60 ? 'warning' : 'danger') }} fs-6">
+                            <span
+                                class="badge bg-{{ $performanceMetrics['quality_score'] > 80 ? 'success' : ($performanceMetrics['quality_score'] > 60 ? 'warning' : 'danger') }} fs-6">
                                 {{ $performanceMetrics['quality_score'] }}%
                             </span>
                         </div>
@@ -332,7 +343,8 @@
                     <div class="metric-item">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h6 class="mb-0 fw-semibold">Avg Land per Farmer</h6>
-                            <span class="badge bg-success fs-6">{{ number_format($overview['avg_land_area'], 2) }} ha</span>
+                            <span class="badge bg-success fs-6">{{ number_format($overview['avg_land_area'], 2) }}
+                                ha</span>
                         </div>
                         <div class="progress" style="height: 10px;">
                             <div class="progress-bar bg-success"
@@ -374,7 +386,8 @@
                                 @foreach ($barangayAnalysis->take(10) as $index => $barangay)
                                     <tr>
                                         <td>
-                                            <div class="badge {{ $index < 3 ? ($index === 0 ? 'bg-warning' : ($index === 1 ? 'bg-secondary' : 'bg-info')) : 'bg-light text-dark' }} rounded-pill px-3">
+                                            <div
+                                                class="badge {{ $index < 3 ? ($index === 0 ? 'bg-warning' : ($index === 1 ? 'bg-secondary' : 'bg-info')) : 'bg-light text-dark' }} rounded-pill px-3">
                                                 #{{ $index + 1 }}
                                             </div>
                                         </td>
@@ -387,16 +400,20 @@
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="progress flex-grow-1 me-2" style="height: 8px; max-width: 100px;">
+                                                <div class="progress flex-grow-1 me-2"
+                                                    style="height: 8px; max-width: 100px;">
                                                     <div class="progress-bar bg-success"
                                                         style="width: {{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%">
                                                     </div>
                                                 </div>
-                                                <small class="fw-semibold">{{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%</small>
+                                                <small
+                                                    class="fw-semibold">{{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%</small>
                                             </div>
                                         </td>
                                         <td class="text-center">
-                                            <span class="text-success fw-semibold">{{ round($barangay->total_land_area, 1) }} ha</span>
+                                            <span
+                                                class="text-success fw-semibold">{{ round($barangay->total_land_area, 1) }}
+                                                ha</span>
                                         </td>
                                         <td class="text-center">
                                             <span class="badge bg-info">{{ $barangay->commodities_grown }}</span>
@@ -427,7 +444,8 @@
                             <div class="col-6">
                                 <div class="gender-card p-4 rounded text-center h-100"
                                     style="background: linear-gradient(135deg, {{ $gender->sex === 'Male' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(236, 72, 153, 0.1)' }} 0%, {{ $gender->sex === 'Male' ? 'rgba(59, 130, 246, 0.05)' : 'rgba(236, 72, 153, 0.05)' }} 100%);">
-                                    <i class="fas fa-{{ $gender->sex === 'Male' ? 'mars' : 'venus' }} fa-3x mb-3 text-{{ $gender->sex === 'Male' ? 'primary' : 'pink' }}"></i>
+                                    <i
+                                        class="fas fa-{{ $gender->sex === 'Male' ? 'mars' : 'venus' }} fa-3x mb-3 text-{{ $gender->sex === 'Male' ? 'primary' : 'pink' }}"></i>
                                     <h3 class="mb-2 fw-bold text-{{ $gender->sex === 'Male' ? 'primary' : 'pink' }}">
                                         {{ $gender->total_applications }}
                                     </h3>
@@ -435,11 +453,14 @@
                                     <div class="small text-muted">
                                         <div class="mb-1">
                                             <i class="fas fa-percentage me-1"></i>
-                                            <span class="fw-semibold">{{ $genderAnalysis['percentages'][$gender->sex] ?? 0 }}%</span> of total
+                                            <span
+                                                class="fw-semibold">{{ $genderAnalysis['percentages'][$gender->sex] ?? 0 }}%</span>
+                                            of total
                                         </div>
                                         <div>
                                             <i class="fas fa-map me-1"></i>
-                                            <span class="fw-semibold">{{ round($gender->total_land_area, 1) }} ha</span> land area
+                                            <span class="fw-semibold">{{ round($gender->total_land_area, 1) }} ha</span>
+                                            land area
                                         </div>
                                     </div>
                                 </div>
@@ -463,7 +484,8 @@
                         <div class="livelihood-item mb-3 p-3 rounded">
                             <div class="d-flex align-items-center">
                                 <div class="livelihood-rank me-3">
-                                    <div class="badge bg-success rounded-circle p-2" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                                    <div class="badge bg-success rounded-circle p-2"
+                                        style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
                                         <strong>{{ $index + 1 }}</strong>
                                     </div>
                                 </div>
@@ -477,7 +499,8 @@
                                     <div class="d-flex justify-content-between small">
                                         <span class="text-muted">{{ $livelihood->total_applications }} applications</span>
                                         <span class="text-success fw-semibold">
-                                            {{ round(($livelihood->approved / max(1, $livelihood->total_applications)) * 100, 1) }}% approval
+                                            {{ round(($livelihood->approved / max(1, $livelihood->total_applications)) * 100, 1) }}%
+                                            approval
                                         </span>
                                     </div>
                                 </div>
@@ -490,93 +513,85 @@
     </div>
 
     <!-- AI Insights Modal -->
-    <div class="modal fade" id="rsbsaInsightsModal" tabindex="-1" aria-labelledby="rsbsaInsightsModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header border-0" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
-                    <h5 class="modal-title text-white fw-bold" id="rsbsaInsightsModalLabel">
-                        <i class="fas fa-lightbulb me-2"></i>AI-Powered Analytics Insights
+    <div class="modal fade" id="rsbsaInsightsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-gradient-primary text-white border-0">
+                    <h5 class="modal-title fw-semibold">
+                        <i class="fas fa-robot me-2"></i>RSBSA AI-Powered Insights
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <!-- Key Performance Insights -->
-                    <div class="insight-card mb-4 p-4 rounded" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(8, 145, 178, 0.05) 100%);">
-                        <h6 class="fw-bold mb-3">
-                            <i class="fas fa-chart-line me-2 text-info"></i>Key Performance Insights
-                        </h6>
-                        <ul class="mb-0 ps-3">
-                            <li class="mb-2">
-                                <strong>Approval Efficiency:</strong> Current approval rate of {{ $overview['approval_rate'] }}%
-                                {{ $overview['approval_rate'] > 80 ? 'indicates excellent processing efficiency' : ($overview['approval_rate'] > 60 ? 'shows good performance with room for improvement' : 'suggests need for process optimization') }}.
-                            </li>
-                            <li class="mb-2">
-                                <strong>Agricultural Impact:</strong> {{ number_format($overview['total_land_area'], 1) }} hectares under RSBSA registration represents significant agricultural coverage across {{ $overview['active_barangays'] }} barangays.
-                            </li>
-                            <li class="mb-2">
-                                <strong>Document Compliance:</strong> {{ $documentAnalysis['submission_rate'] }}% document submission rate
-                                {{ $documentAnalysis['submission_rate'] > 70 ? 'shows good farmer compliance' : 'indicates need for better guidance on documentation' }}.
-                            </li>
-                        </ul>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="insight-section">
+                                <h6 class="fw-semibold mb-3">
+                                    <i class="fas fa-chart-line text-success me-2"></i>Growth Opportunities
+                                </h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-arrow-up text-success me-2 mt-1"></i>
+                                        <span>Expand agricultural coverage to reach
+                                            {{ 26 - $overview['active_barangays'] }} remaining barangays for complete
+                                            city-wide registration</span>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-seedling text-info me-2 mt-1"></i>
+                                        <span>Promote crop diversification among farmers currently growing only
+                                            {{ $overview['unique_commodities'] }} commodity types</span>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-chart-bar text-warning me-2 mt-1"></i>
+                                        <span>Implement digital application system to improve
+                                            {{ $documentAnalysis['submission_rate'] }}% document submission rate</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="insight-section">
+                                <h6 class="fw-semibold mb-3">
+                                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Areas for Improvement
+                                </h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-balance-scale text-warning me-2 mt-1"></i>
+                                        <span>Address gender disparity in agricultural registration through targeted
+                                            outreach programs</span>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-tachometer-alt text-info me-2 mt-1"></i>
+                                        <span>{{ $processingTimeAnalysis['avg_processing_days'] > 7 ? 'Reduce processing time to improve farmer experience' : 'Maintain current processing efficiency for quality service' }}</span>
+                                    </li>
+                                    <li class="mb-3 d-flex">
+                                        <i class="fas fa-map-marker-alt text-success me-2 mt-1"></i>
+                                        <span>Focus on underperforming barangays to ensure equitable agricultural support
+                                            distribution</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Agricultural Trends -->
-                    <div class="insight-card mb-4 p-4 rounded" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(4, 120, 87, 0.05) 100%);">
-                        <h6 class="fw-bold mb-3">
-                            <i class="fas fa-seedling me-2 text-success"></i>Agricultural Trends
-                        </h6>
-                        <ul class="mb-0 ps-3">
-                            <li class="mb-2">
-                                <strong>Crop Diversity:</strong> {{ $overview['unique_commodities'] }} different commodities registered shows
-                                {{ $overview['unique_commodities'] > 10 ? 'excellent agricultural diversification' : 'moderate crop variety' }}.
-                            </li>
-                            <li class="mb-2">
-                                <strong>Land Utilization:</strong> Average {{ number_format($overview['avg_land_area'], 2) }} hectares per farmer indicates
-                                {{ $overview['avg_land_area'] > 2 ? 'larger scale farming operations' : 'small-scale agricultural practices' }}.
-                            </li>
-                            <li class="mb-2">
-                                <strong>Geographic Coverage:</strong> {{ $overview['active_barangays'] }} barangays participating demonstrates wide program reach.
-                            </li>
-                        </ul>
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-primary border-0 bg-primary-soft">
+                                <div class="d-flex">
+                                    <i class="fas fa-lightbulb text-primary me-3 mt-1 fs-5"></i>
+                                    <div>
+                                        <h6 class="fw-semibold mb-2 text-primary">Strategic Recommendation</h6>
+                                        <p class="mb-0 text-muted">
+                                            Consider implementing a mobile registration unit for remote agricultural areas
+                                            and conducting farmer education campaigns about RSBSA benefits to increase
+                                            participation from {{ number_format($overview['total_land_area'], 1) }}ha to
+                                            the full agricultural potential of San Pedro, Laguna.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- Recommendations -->
-                    <div class="insight-card p-4 rounded" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%);">
-                        <h6 class="fw-bold mb-3">
-                            <i class="fas fa-lightbulb me-2 text-warning"></i>Strategic Recommendations
-                        </h6>
-                        <ul class="mb-0 ps-3">
-                            @if ($processingTimeAnalysis['avg_processing_days'] > 10)
-                                <li class="mb-2">
-                                    <strong>Processing Time:</strong> Average {{ $processingTimeAnalysis['avg_processing_days'] }} days processing time could be improved through workflow optimization.
-                                </li>
-                            @endif
-                            @if ($documentAnalysis['submission_rate'] < 70)
-                                <li class="mb-2">
-                                    <strong>Documentation:</strong> Consider implementing better guidance systems to improve {{ $documentAnalysis['submission_rate'] }}% document submission rate.
-                                </li>
-                            @endif
-                            <li class="mb-2">
-                                <strong>Outreach:</strong> Focus on underperforming barangays to improve overall program participation and coverage.
-                            </li>
-                            <li class="mb-2">
-                                <strong>Support:</strong> Provide targeted assistance to farmers with smaller land areas to maximize agricultural productivity.
-                            </li>
-                            <li class="mb-2">
-                                <strong>Quality Improvement:</strong> Current quality score of {{ $performanceMetrics['quality_score'] }}% suggests
-                                {{ $performanceMetrics['quality_score'] > 80 ? 'maintaining excellent standards' : 'opportunities for process enhancement' }}.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <a href="{{ route('admin.analytics.rsbsa.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
-                        class="btn btn-success">
-                        <i class="fas fa-download me-1"></i>Export Full Report
-                    </a>
                 </div>
             </div>
         </div>
@@ -586,65 +601,232 @@
 
 @section('styles')
     <style>
-        /* Global Styles */
-        body {
-            background-color: #f8f9fa;
+        /* Custom Color Variables */
+        :root {
+            --primary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #0ea5e9;
+            --purple-color: #8b5cf6;
+            --dark-color: #1f2937;
         }
 
-        /* Card Styles */
-        .card {
-            border-radius: 12px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        /* Service Navigation */
+        .service-nav {
+            background: #f8fafc;
+            padding: 0.5rem;
+            border-radius: 50px;
+            display: inline-flex;
         }
 
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+        .service-nav .nav-link {
+            border-radius: 30px;
+            padding: 0.5rem 1.25rem;
+            margin: 0 0.25rem;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .service-nav .nav-link:hover {
+            color: var(--primary-color);
+            background: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
+
+        .service-nav .nav-link.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
         /* Metric Cards */
-        .metric-card .card-body {
+        .metric-card {
+            transition: all 0.3s ease;
             border-radius: 12px;
-            position: relative;
             overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
         }
 
         .metric-label {
             font-size: 0.875rem;
-            opacity: 0.9;
-            font-weight: 600;
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .metric-value {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
-            line-height: 1;
-        }
-
-        .metric-subtitle {
-            opacity: 0.85;
-            font-size: 0.875rem;
+            color: var(--dark-color);
         }
 
         .metric-icon {
-            opacity: 0.2;
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.5rem;
         }
 
-        /* Status Items */
-        .status-item {
+        /* Soft Background Colors */
+        .bg-primary-soft {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .bg-success-soft {
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+
+        .bg-warning-soft {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+
+        .bg-danger-soft {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .bg-info-soft {
+            background-color: rgba(14, 165, 233, 0.1);
+        }
+
+        .bg-purple-soft {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+
+        .text-purple {
+            color: var(--purple-color);
+        }
+
+        /* Badge Soft Colors */
+        .badge-success-soft {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        /* Card Styles */
+        .card {
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1.25rem;
+        }
+
+        /* Gradient Backgrounds */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        /* Status Legend */
+        .status-legends .legend-item {
             transition: all 0.2s ease;
-            background-color: #f8f9fa;
+            background: #f8fafc;
         }
 
-        .status-item:hover {
-            background-color: #e9ecef;
+        .status-legends .legend-item:hover {
+            background: #f1f5f9;
             transform: translateX(5px);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Progress Bars */
+        .progress {
+            border-radius: 10px;
+            background-color: #f1f5f9;
+        }
+
+        .progress-bar {
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+
+        /* Metric Items */
+        .metric-item {
+            padding: 1rem;
+            border-radius: 10px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        .metric-item:hover {
+            background: #f1f5f9;
+            transform: scale(1.02);
+        }
+
+        /* Table Styles */
+        .table-hover tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8fafc;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Chart Containers */
+        .status-chart-container {
+            position: relative;
+            height: 220px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .service-nav {
+                flex-wrap: wrap;
+                border-radius: 12px;
+                padding: 0.25rem;
+            }
+
+            .service-nav .nav-link {
+                font-size: 0.875rem;
+                padding: 0.5rem 0.75rem;
+                margin: 0.25rem;
+            }
+
+            .metric-value {
+                font-size: 1.5rem;
+            }
+
+            .metric-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeInUp 0.5s ease;
         }
 
         /* Commodity Items */
@@ -687,77 +869,35 @@
             color: #ec4899 !important;
         }
 
-        /* Progress Bars */
-        .progress {
+        /* Scrollbar Styling */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f5f9;
             border-radius: 10px;
-            background-color: rgba(0, 0, 0, 0.05);
         }
 
-        .progress-bar {
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
             border-radius: 10px;
-            transition: width 0.6s ease;
         }
 
-        /* Table Styles */
-        .table {
-            font-size: 0.9rem;
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
-        .table thead th {
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            color: #6b7280;
-            border-bottom: 2px solid #e5e7eb;
+        /* Focus States */
+        .btn:focus,
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .table tbody tr {
-            transition: all 0.2s ease;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f9fafb;
-            transform: scale(1.01);
-        }
-
-        /* Navigation Pills */
-        .nav-pills .nav-link {
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1.25rem;
-            font-weight: 500;
-        }
-
-        .nav-pills .nav-link:hover:not(.active) {
-            background-color: #f3f4f6;
-            transform: translateY(-2px);
-        }
-
-        .nav-pills .nav-link.active {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Card Headers */
-        .card-header {
-            padding: 1.25rem 1.5rem;
-        }
-
-        .card-header h5 {
-            font-size: 1.1rem;
-        }
-
-        /* Badge Styles */
-        .badge {
-            font-weight: 600;
-            padding: 0.4em 0.8em;
-            font-size: 0.875em;
-        }
-
-        /* Chart Container */
-        canvas {
-            max-height: 350px;
+        /* Loading State */
+        .card.loading {
+            opacity: 0.6;
+            pointer-events: none;
         }
 
         /* Insight Cards */
@@ -771,67 +911,11 @@
 
         /* Modal Styles */
         .modal-content {
-            border-radius: 15px;
+            border-radius: 16px;
         }
 
         .modal-header {
-            border-radius: 15px 15px 0 0;
-        }
-
-        /* Metric Item Styles */
-        .metric-item .progress {
-            border-radius: 10px;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .metric-value {
-                font-size: 2rem;
-            }
-
-            .metric-label {
-                font-size: 0.75rem;
-            }
-
-            .nav-pills .nav-link {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.875rem;
-            }
-
-            .table {
-                font-size: 0.8rem;
-            }
-
-            .commodity-item,
-            .livelihood-item {
-                margin-bottom: 0.75rem !important;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .card-body {
-                padding: 1rem;
-            }
-
-            .metric-icon {
-                display: none;
-            }
-        }
-
-        /* Animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
-            animation: fadeInUp 0.5s ease-out;
+            border-radius: 16px 16px 0 0;
         }
     </style>
 @endsection
@@ -840,209 +924,308 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Chart.js Global Configuration
-            Chart.defaults.font.family = "'Inter', 'Segoe UI', 'Roboto', sans-serif";
-            Chart.defaults.color = '#6b7280';
-            Chart.defaults.plugins.legend.labels.usePointStyle = true;
-            Chart.defaults.plugins.legend.labels.padding = 15;
+            // Chart instances
+            let chartInstances = {};
 
-            // Status Distribution Donut Chart
-            const statusCtx = document.getElementById('rsbsaStatusChart').getContext('2d');
-            new Chart(statusCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: [
-                        @foreach ($statusAnalysis['counts'] as $status => $count)
-                            '{{ ucfirst(str_replace('_', ' ', $status)) }}',
-                        @endforeach
-                    ],
-                    datasets: [{
-                        data: [
-                            @foreach ($statusAnalysis['counts'] as $count)
-                                {{ $count }},
+            // Chart.js default configuration
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            // Initialize Status Chart
+            initializeStatusChart();
+
+            // Initialize Trends Chart
+            initializeTrendsChart();
+
+            /**
+             * Status Distribution Doughnut Chart
+             */
+            function initializeStatusChart() {
+                const ctx = document.getElementById('rsbsaStatusChart');
+                if (!ctx) return;
+
+                chartInstances.statusChart = new Chart(ctx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: [
+                            @foreach ($statusAnalysis['counts'] as $status => $count)
+                                '{{ ucfirst(str_replace('_', ' ', $status)) }}',
                             @endforeach
                         ],
-                        backgroundColor: [
-                            '#10b981', // approved - green
-                            '#ef4444', // rejected - red
-                            '#f59e0b'  // pending - yellow
-                        ],
-                        borderWidth: 4,
-                        borderColor: '#fff',
-                        hoverOffset: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 1.2,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            cornerRadius: 8,
-                            titleFont: {
-                                size: 14,
-                                weight: 'bold'
-                            },
-                            bodyFont: {
-                                size: 13
-                            },
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    let value = context.parsed || 0;
-                                    let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    let percentage = ((value / total) * 100).toFixed(1);
-                                    return label + ': ' + value + ' (' + percentage + '%)';
-                                }
-                            }
-                        }
-                    },
-                    cutout: '65%'
-                }
-            });
-
-            // Monthly Trends Chart
-            const trendsCtx = document.getElementById('rsbsaTrendsChart').getContext('2d');
-            new Chart(trendsCtx, {
-                type: 'line',
-                data: {
-                    labels: [
-                        @foreach ($monthlyTrends as $trend)
-                            '{{ date('M Y', strtotime($trend->month . '-01')) }}',
-                        @endforeach
-                    ],
-                    datasets: [
-                        {
-                            label: 'Total Applications',
-                            data: [
-                                @foreach ($monthlyTrends as $trend)
-                                    {{ $trend->total_applications }},
-                                @endforeach
+                        datasets: [{
+                            data: [{{ implode(',', $statusAnalysis['counts']) }}],
+                            backgroundColor: [
+                                '#10b981', // Green for approved
+                                '#ef4444', // Red for rejected
+                                '#f59e0b' // Amber for under_review
                             ],
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            pointBackgroundColor: '#3b82f6',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2
-                        },
-                        {
-                            label: 'Approved',
-                            data: [
-                                @foreach ($monthlyTrends as $trend)
-                                    {{ $trend->approved }},
-                                @endforeach
-                            ],
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            pointBackgroundColor: '#10b981',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2
-                        },
-                        {
-                            label: 'Land Area (ha)',
-                            data: [
-                                @foreach ($monthlyTrends as $trend)
-                                    {{ $trend->total_land_area }},
-                                @endforeach
-                            ],
-                            borderColor: '#8b5cf6',
-                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                            tension: 0.4,
-                            fill: true,
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            pointBackgroundColor: '#8b5cf6',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 2.5,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
+                            borderWidth: 0,
+                            cutout: '75%',
+                            spacing: 2
+                        }]
                     },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                padding: 20,
-                                font: {
-                                    size: 12,
-                                    weight: '600'
-                                }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            cornerRadius: 8,
-                            titleFont: {
-                                size: 14,
-                                weight: 'bold'
-                            },
-                            bodyFont: {
-                                size: 13
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'Applications',
-                                font: {
-                                    weight: '600',
-                                    size: 12
-                                }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)'
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'Land Area (ha)',
-                                font: {
-                                    weight: '600',
-                                    size: 12
-                                }
-                            },
-                            grid: {
-                                drawOnChartArea: false,
-                            }
-                        },
-                        x: {
-                            grid: {
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
                                 display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                cornerRadius: 8,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    size: 13
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
                             }
                         }
                     }
-                }
+                });
+            }
+
+            /**
+             * Monthly Trends Line Chart
+             */
+            function initializeTrendsChart() {
+                const ctx = document.getElementById('rsbsaTrendsChart');
+                if (!ctx) return;
+
+                chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: [
+                            @foreach ($monthlyTrends as $trend)
+                                '{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}',
+                            @endforeach
+                        ],
+                        datasets: [{
+                                label: 'Total Applications',
+                                data: [
+                                    {{ $monthlyTrends->pluck('total_applications')->implode(',') }}],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#3b82f6',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointHoverBorderWidth: 3
+                            },
+                            {
+                                label: 'Approved',
+                                data: [{{ $monthlyTrends->pluck('approved')->implode(',') }}],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#10b981',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointHoverBorderWidth: 3
+                            },
+                            {
+                                label: 'Land Area (ha)',
+                                data: [{{ $monthlyTrends->pluck('total_land_area')->implode(',') }}],
+                                borderColor: '#8b5cf6',
+                                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.4,
+                                fill: false,
+                                pointBackgroundColor: '#8b5cf6',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    },
+                                    color: '#64748b'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    },
+                                    color: '#64748b',
+                                    padding: 10
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Applications',
+                                    font: {
+                                        weight: '600',
+                                        size: 12
+                                    }
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                beginAtZero: true,
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    },
+                                    color: '#64748b'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Land Area (ha)',
+                                    font: {
+                                        weight: '600',
+                                        size: 12
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                align: 'end',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: {
+                                        size: 13,
+                                        weight: '500'
+                                    },
+                                    color: '#64748b'
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: 'white',
+                                bodyColor: 'white',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                cornerRadius: 8,
+                                padding: 12,
+                                displayColors: true,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    size: 13
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            /**
+             * Cleanup function
+             */
+            window.destroyCharts = function() {
+                Object.values(chartInstances).forEach(chart => {
+                    if (chart) {
+                        chart.destroy();
+                    }
+                });
+                chartInstances = {};
+            };
+
+            /**
+             * Add smooth animations on scroll
+             */
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+
+            /**
+             * Add loading state to form submission
+             */
+            const filterForm = document.querySelector('form[action*="analytics.rsbsa"]');
+            if (filterForm) {
+                filterForm.addEventListener('submit', function() {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                        submitBtn.disabled = true;
+                    }
+                });
+            }
+
+            /**
+             * Add animation to metric cards
+             */
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
             });
         });
     </script>
