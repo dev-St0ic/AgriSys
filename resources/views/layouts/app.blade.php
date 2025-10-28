@@ -516,22 +516,22 @@
                                         </button>
 
                                         <!-- Profile Dropdown -->
-                                        <div class="dropdown">
-                                            <button class="btn btn-link text-dark p-0 d-flex align-items-center" type="button"
-                                                data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; gap: 0.75rem;">
-                                                <!-- Profile Picture -->
-                                                @if(auth()->user()->profile_photo_url)
-                                                    <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile" 
-                                                        class="rounded-circle" width="40" height="40">
-                                                @else
-                                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold" 
-                                                        style="width: 40px; height: 40px; font-size: 16px;">
-                                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                                    </div>
-                                                @endif
-                                                <!-- Name -->
-                                                <span class="fw-semibold">{{ auth()->user()->name }}</span>
-                                                <!-- Three Dots -->
+                                        <div class="dropdown d-flex align-items-center" style="gap: 0.75rem;">
+                                            <!-- Profile Picture (non-clickable) -->
+                                            @if(auth()->user()->profile_photo_url)
+                                                <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile" 
+                                                    class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                                            @else
+                                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold" 
+                                                    style="width: 40px; height: 40px; font-size: 16px;">
+                                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                                </div>
+                                            @endif
+                                            <!-- Name (non-clickable) -->
+                                                <span class="fw-semibold text-dark" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->name }}</span>
+                                            <!-- Three Dots Button (clickable dropdown) -->
+                                            <button class="btn btn-link text-dark p-0" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none;">
                                                 <i class="fas fa-ellipsis-v"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
