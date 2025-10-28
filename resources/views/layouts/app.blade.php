@@ -359,6 +359,17 @@
             padding-right: 15px;
             padding-left: 15px;
         }
+        .profile-section {
+            gap: 1.5rem;
+        }
+
+        .profile-section .btn-link {
+            text-decoration: none;
+        }
+
+        .profile-section .dropdown button:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -495,22 +506,50 @@
                                 class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                                 <h1 class="h2">@yield('page-title', 'Dashboard')</h1>
                                 <div class="btn-toolbar mb-2 mb-md-0">
-                                    <div class="dropdown">
-                                        <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="fas fa-user me-2"></i>{{ auth()->user()->name }}
+                                    <div class="d-flex align-items-center profile-section">
+                                        <!-- Notification Bell -->
+                                        <button class="btn btn-link text-dark position-relative p-0" type="button">
+                                            <i class="fas fa-bell fs-5"></i>
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                                                3
+                                            </span>
                                         </button>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <form method="POST" action="{{ route('logout') }}">
-                                                    @csrf
+
+                                        <!-- Profile Dropdown -->
+                                        <div class="dropdown">
+                                            <button class="btn btn-link text-dark p-0 d-flex align-items-center" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; gap: 0.75rem;">
+                                                <!-- Profile Picture -->
+                                                @if(auth()->user()->profile_photo_url)
+                                                    <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile" 
+                                                        class="rounded-circle" width="40" height="40">
+                                                @else
+                                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold" 
+                                                        style="width: 40px; height: 40px; font-size: 16px;">
+                                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                                    </div>
+                                                @endif
+                                                <!-- Name -->
+                                                <span class="fw-semibold">{{ auth()->user()->name }}</span>
+                                                <!-- Three Dots -->
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item d-flex align-items-center" 
+                                                    href="{{ route('admin.profile.edit') }}">
+                                                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                                                    </a>
+                                                </li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
                                                     <button type="button" class="dropdown-item d-flex align-items-center"
                                                         onclick="confirmLogout()">
                                                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                                                     </button>
-                                                </form>
-                                            </li>
-                                        </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                     <!-- Hidden logout form -->
                                     <form id="logout-form" method="POST" action="{{ route('logout') }}"
@@ -519,7 +558,6 @@
                                     </form>
                                 </div>
                             </div>
-
                             <!-- Flash messages -->
                             @if (session('success'))
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
