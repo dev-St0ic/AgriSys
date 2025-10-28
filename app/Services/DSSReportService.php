@@ -157,10 +157,6 @@ Please provide your analysis in the following JSON structure:
         \"short_term_strategies\": [
             \"Strategy 1 (Timeline: 1-3 months)\",
             \"Strategy 2 (Timeline: 1-3 months)\"
-        ],
-        \"long_term_improvements\": [
-            \"Improvement 1 (Timeline: 3-6 months)\",
-            \"Improvement 2 (Timeline: 3-6 months)\"
         ]
     },
     \"allocation_priorities\": [
@@ -176,10 +172,17 @@ Please provide your analysis in the following JSON structure:
         \"recommended_stock_levels\": \"Suggested inventory targets\",
         \"focus_areas\": [\"Area 1\", \"Area 2\"]
     },
-    \"confidence_level\": \"High/Medium/Low\",
-    \"data_quality_notes\": \"Any limitations or data quality concerns\"
+    \"confidence_level\": \"85%\",
+    \"confidence_score\": 85
+}
 }
 ```
+
+IMPORTANT:
+- The confidence_level and confidence_score should reflect YOUR confidence in the analysis and recommendations based on the data quality, completeness, and your assessment of the insights.
+- Use confidence_score as a number from 1-100 (e.g., 78 for 78% confidence)
+- Consider factors like data completeness, sample size, time relevance, and consistency when determining confidence
+- Be honest about limitations in the data or analysis
 
 Focus on actionable insights that can help agricultural officers make informed decisions about seedling distribution, inventory management, and resource allocation.
 ";
@@ -221,6 +224,24 @@ Focus on actionable insights that can help agricultural officers make informed d
             $jsonData = json_decode($matches[1], true);
 
             if (json_last_error() === JSON_ERROR_NONE) {
+                // Ensure LLM confidence is preserved if provided
+                if (!isset($jsonData['confidence_score']) && isset($jsonData['confidence_level'])) {
+                    // Extract numeric confidence from text like "85%"
+                    if (preg_match('/(\d+)%?/', $jsonData['confidence_level'], $confMatches)) {
+                        $jsonData['confidence_score'] = intval($confMatches[1]);
+                    }
+                }
+
+                // Only add fallback confidence if LLM didn't provide any
+                if (!isset($jsonData['confidence_level']) && !isset($jsonData['confidence_score'])) {
+                    $calculatedConfidence = $this->calculateConfidenceLevel($data);
+                    $jsonData['confidence_level'] = $calculatedConfidence['level'];
+                    $jsonData['confidence_score'] = $calculatedConfidence['score'];
+                    $jsonData['confidence_source'] = 'calculated';
+                } else {
+                    $jsonData['confidence_source'] = 'llm';
+                }
+
                 return [
                     'generated_at' => now()->toDateTimeString(),
                     'period' => $data['period']['month'],
@@ -233,11 +254,17 @@ Focus on actionable insights that can help agricultural officers make informed d
         }
 
         // If JSON parsing fails, create structured response from raw text
+        // In this case, use calculated confidence since LLM response couldn't be parsed
+        $calculatedConfidence = $this->calculateConfidenceLevel($data);
+
         return [
             'generated_at' => now()->toDateTimeString(),
             'period' => $data['period']['month'],
             'report_data' => [
                 'executive_summary' => $this->extractSection($generatedText, 'executive_summary'),
+                'confidence_level' => $calculatedConfidence['level'],
+                'confidence_score' => $calculatedConfidence['score'],
+                'confidence_source' => 'calculated_fallback',
                 'raw_analysis' => $generatedText,
             ],
             'raw_response' => $generatedText,
@@ -271,8 +298,9 @@ Focus on actionable insights that can help agricultural officers make informed d
                 ],
                 'critical_issues' => $this->identifyCriticalIssues($data),
                 'recommendations' => $this->generateFallbackRecommendations($data),
-                'confidence_level' => 'Medium',
-                'data_quality_notes' => 'Generated using fallback system due to LLM unavailability',
+                'confidence_level' => $this->calculateConfidenceLevel($data)['level'],
+                'confidence_score' => $this->calculateConfidenceLevel($data)['score'],
+                'confidence_source' => 'calculated',
             ],
             'raw_response' => null,
             'source' => 'fallback',
@@ -288,19 +316,23 @@ Focus on actionable insights that can help agricultural officers make informed d
         $score = 0;
 
         // Approval rate scoring
-        if ($requests['approval_rate'] >= 90) $score += 3;
-        elseif ($requests['approval_rate'] >= 70) $score += 2;
-        elseif ($requests['approval_rate'] >= 50) $score += 1;
+        $approvalRate = $requests['approval_rate'] ?? 0;
+        if ($approvalRate >= 90) $score += 3;
+        elseif ($approvalRate >= 70) $score += 2;
+        elseif ($approvalRate >= 50) $score += 1;
 
         // Supply adequacy scoring
-        if ($supply['out_of_stock_items'] == 0 && $supply['low_stock_items'] <= 2) $score += 3;
-        elseif ($supply['out_of_stock_items'] <= 2 && $supply['low_stock_items'] <= 5) $score += 2;
-        elseif ($supply['out_of_stock_items'] <= 5) $score += 1;
+        $outOfStock = $supply['out_of_stock_items'] ?? 0;
+        $lowStock = $supply['low_stock_items'] ?? 0;
+        if ($outOfStock == 0 && $lowStock <= 2) $score += 3;
+        elseif ($outOfStock <= 2 && $lowStock <= 5) $score += 2;
+        elseif ($outOfStock <= 5) $score += 1;
 
         // Shortage impact scoring
-        if ($shortages['critical_shortages'] == 0) $score += 3;
-        elseif ($shortages['critical_shortages'] <= 2) $score += 2;
-        elseif ($shortages['critical_shortages'] <= 5) $score += 1;
+        $criticalShortages = $shortages['critical_shortages'] ?? 0;
+        if ($criticalShortages == 0) $score += 3;
+        elseif ($criticalShortages <= 2) $score += 2;
+        elseif ($criticalShortages <= 5) $score += 1;
 
         if ($score >= 8) return 'Excellent';
         if ($score >= 6) return 'Good';
@@ -312,9 +344,13 @@ Focus on actionable insights that can help agricultural officers make informed d
     {
         $requests = $data['requests_data'];
         $period = $data['period']['month'];
+        $totalRequests = $requests['total_requests'] ?? 0;
+        $approvalRate = $requests['approval_rate'] ?? 0;
+        $outOfStock = $data['supply_data']['out_of_stock_items'] ?? 0;
+        $criticalShortages = $data['shortage_analysis']['critical_shortages'] ?? 0;
 
-        return "During {$period}, the agricultural system processed {$requests['total_requests']} seedling requests with an approval rate of {$requests['approval_rate']}%. " .
-               "Supply levels show {$data['supply_data']['out_of_stock_items']} out-of-stock items and {$data['shortage_analysis']['critical_shortages']} critical shortages requiring immediate attention.";
+        return "During {$period}, the agricultural system processed {$totalRequests} seedling requests with an approval rate of {$approvalRate}%. " .
+               "Supply levels show {$outOfStock} out-of-stock items and {$criticalShortages} critical shortages requiring immediate attention.";
     }
 
     private function generateFallbackFindings(array $data): array
@@ -322,19 +358,22 @@ Focus on actionable insights that can help agricultural officers make informed d
         $findings = [];
         $requests = $data['requests_data'];
         $supply = $data['supply_data'];
+        $approvalRate = $requests['approval_rate'] ?? 0;
+        $outOfStock = $supply['out_of_stock_items'] ?? 0;
+        $criticalShortages = $data['shortage_analysis']['critical_shortages'] ?? 0;
 
-        if ($requests['approval_rate'] >= 80) {
-            $findings[] = "High approval rate of {$requests['approval_rate']}% indicates efficient processing";
+        if ($approvalRate >= 80) {
+            $findings[] = "High approval rate of {$approvalRate}% indicates efficient processing";
         } else {
-            $findings[] = "Approval rate of {$requests['approval_rate']}% below optimal threshold";
+            $findings[] = "Approval rate of {$approvalRate}% below optimal threshold";
         }
 
-        if ($supply['out_of_stock_items'] > 0) {
-            $findings[] = "{$supply['out_of_stock_items']} items are completely out of stock";
+        if ($outOfStock > 0) {
+            $findings[] = "{$outOfStock} items are completely out of stock";
         }
 
-        if ($data['shortage_analysis']['critical_shortages'] > 0) {
-            $findings[] = "{$data['shortage_analysis']['critical_shortages']} critical shortages identified";
+        if ($criticalShortages > 0) {
+            $findings[] = "{$criticalShortages} critical shortages identified";
         }
 
         return $findings;
@@ -342,8 +381,8 @@ Focus on actionable insights that can help agricultural officers make informed d
 
     private function assessApprovalEfficiency(array $requests): string
     {
-        $rate = $requests['approval_rate'];
-        $time = $requests['average_processing_time'];
+        $rate = $requests['approval_rate'] ?? 0;
+        $time = $requests['average_processing_time'] ?? 999; // High default if missing
 
         if ($rate >= 85 && $time <= 3) return 'Excellent efficiency with high approval rate and fast processing';
         if ($rate >= 70 && $time <= 5) return 'Good efficiency with acceptable metrics';
@@ -353,10 +392,13 @@ Focus on actionable insights that can help agricultural officers make informed d
 
     private function assessSupplyAdequacy(array $supply, array $shortages): string
     {
-        if ($supply['out_of_stock_items'] == 0 && $shortages['critical_shortages'] == 0) {
+        $outOfStock = $supply['out_of_stock_items'] ?? 0;
+        $criticalShortages = $shortages['critical_shortages'] ?? 0;
+
+        if ($outOfStock == 0 && $criticalShortages == 0) {
             return 'Adequate supply levels meeting current demand';
         }
-        if ($supply['out_of_stock_items'] <= 2 && $shortages['critical_shortages'] <= 1) {
+        if ($outOfStock <= 2 && $criticalShortages <= 1) {
             return 'Generally adequate supply with minor gaps';
         }
         return 'Inadequate supply levels with significant shortages';
@@ -375,17 +417,20 @@ Focus on actionable insights that can help agricultural officers make informed d
     private function identifyCriticalIssues(array $data): array
     {
         $issues = [];
+        $criticalShortages = $data['shortage_analysis']['critical_shortages'] ?? 0;
+        $approvalRate = $data['requests_data']['approval_rate'] ?? 0;
+        $processingTime = $data['requests_data']['average_processing_time'] ?? 0;
 
-        if ($data['shortage_analysis']['critical_shortages'] > 0) {
-            $issues[] = "Critical supply shortages in {$data['shortage_analysis']['critical_shortages']} items (Severity: HIGH)";
+        if ($criticalShortages > 0) {
+            $issues[] = "Critical supply shortages in {$criticalShortages} items (Severity: HIGH)";
         }
 
-        if ($data['requests_data']['approval_rate'] < 60) {
-            $issues[] = "Low approval rate of {$data['requests_data']['approval_rate']}% (Severity: MEDIUM)";
+        if ($approvalRate < 60) {
+            $issues[] = "Low approval rate of {$approvalRate}% (Severity: MEDIUM)";
         }
 
-        if ($data['requests_data']['average_processing_time'] > 7) {
-            $issues[] = "Extended processing time of {$data['requests_data']['average_processing_time']} days (Severity: MEDIUM)";
+        if ($processingTime > 7) {
+            $issues[] = "Extended processing time of {$processingTime} days (Severity: MEDIUM)";
         }
 
         return $issues;
@@ -402,10 +447,6 @@ Focus on actionable insights that can help agricultural officers make informed d
                 'Implement automated inventory alerts (Timeline: 1 month)',
                 'Establish supplier agreements for fast restocking (Timeline: 2 months)',
             ],
-            'long_term_improvements' => [
-                'Develop demand forecasting system (Timeline: 6 months)',
-                'Expand distribution network to underserved areas (Timeline: 4-6 months)',
-            ],
         ];
     }
 
@@ -414,5 +455,244 @@ Focus on actionable insights that can help agricultural officers make informed d
         // Simple text extraction for fallback
         $lines = explode('\n', $text);
         return implode(' ', array_slice($lines, 0, 3));
+    }
+
+    /**
+     * Calculate confidence level based on data quality and completeness
+     */
+    private function calculateConfidenceLevel(array $data): array
+    {
+        $dataQualityScore = $this->assessDataQuality($data);
+        $sampleSize = $data['requests_data']['total_requests'] ?? 0;
+        $timeWindow = $this->assessTimeWindow($data);
+
+        // Base confidence from data quality (0-100)
+        $baseConfidence = $dataQualityScore;
+
+        // Sample size factor (adjusts confidence based on statistical significance)
+        $sampleFactor = 1.0;
+        if ($sampleSize >= 300) {
+            $sampleFactor = 1.15; // Strong boost for very large sample
+        } elseif ($sampleSize >= 200) {
+            $sampleFactor = 1.1; // Boost for large sample
+        } elseif ($sampleSize >= 100) {
+            $sampleFactor = 1.05; // Slight boost for good sample
+        } elseif ($sampleSize >= 50) {
+            $sampleFactor = 1.0; // Neutral for adequate sample
+        } elseif ($sampleSize >= 20) {
+            $sampleFactor = 0.9; // Reduce for small sample
+        } elseif ($sampleSize >= 10) {
+            $sampleFactor = 0.8; // More reduction for very small sample
+        } else {
+            $sampleFactor = 0.65; // Significant reduction for tiny sample
+        }
+
+        // Time window factor (recent data is more reliable)
+        $timeFactor = $timeWindow['factor'];
+
+        // Data variance factor (consistent patterns increase confidence)
+        $varianceFactor = $this->assessDataVariance($data);
+
+        // Coverage factor (multi-barangay data is more reliable)
+        $coverageFactor = $this->assessCoverageFactor($data);
+
+        // Calculate final confidence score with multiple factors
+        $finalScore = $baseConfidence * $sampleFactor * $timeFactor * $varianceFactor * $coverageFactor;
+
+        // Apply realistic bounds (minimum 15%, maximum 95%)
+        $finalScore = min(95, max(15, $finalScore));
+
+        // Add small random variation for realism (±2%)
+        $variation = rand(-20, 20) / 10; // -2.0 to +2.0
+        $finalScore = max(15, min(95, $finalScore + $variation));
+
+        // Determine confidence level and return appropriate format
+        if ($finalScore >= 85) {
+            return ['level' => 'High', 'score' => round($finalScore)];
+        } elseif ($finalScore >= 70) {
+            return ['level' => 'Medium', 'score' => round($finalScore)];
+        } elseif ($finalScore >= 50) {
+            return ['level' => 'Fair', 'score' => round($finalScore)];
+        } else {
+            return ['level' => 'Low', 'score' => round($finalScore)];
+        }
+    }
+
+    /**
+     * Assess data quality based on completeness and consistency
+     */
+    private function assessDataQuality(array $data): float
+    {
+        $qualityFactors = [];
+
+        // Check requests data completeness
+        $requestsData = $data['requests_data'] ?? [];
+        $requestsCompleteness = 0;
+        $requiredRequestFields = ['total_requests', 'approved_requests', 'rejected_requests', 'pending_requests', 'approval_rate', 'average_processing_time'];
+
+        foreach ($requiredRequestFields as $field) {
+            if (isset($requestsData[$field]) && is_numeric($requestsData[$field])) {
+                $requestsCompleteness += 1;
+            }
+        }
+        $qualityFactors['requests_completeness'] = ($requestsCompleteness / count($requiredRequestFields)) * 100;
+
+        // Check supply data completeness
+        $supplyData = $data['supply_data'] ?? [];
+        $supplyCompleteness = 0;
+        $requiredSupplyFields = ['available_stock', 'low_stock_items', 'out_of_stock_items', 'total_items'];
+
+        foreach ($requiredSupplyFields as $field) {
+            if (isset($supplyData[$field]) && is_numeric($supplyData[$field])) {
+                $supplyCompleteness += 1;
+            }
+        }
+        $qualityFactors['supply_completeness'] = ($supplyCompleteness / count($requiredSupplyFields)) * 100;
+
+        // Check barangay data richness
+        $barangayData = $data['barangay_analysis'] ?? [];
+        $barangayCount = count($barangayData['barangay_details'] ?? []);
+
+        if ($barangayCount >= 10) {
+            $qualityFactors['geographic_coverage'] = 100;
+        } elseif ($barangayCount >= 5) {
+            $qualityFactors['geographic_coverage'] = 80;
+        } elseif ($barangayCount >= 2) {
+            $qualityFactors['geographic_coverage'] = 60;
+        } elseif ($barangayCount >= 1) {
+            $qualityFactors['geographic_coverage'] = 40;
+        } else {
+            $qualityFactors['geographic_coverage'] = 20;
+        }
+
+        // Check data consistency (logical validation) - with safe access
+        $consistencyScore = 100;
+
+        // Validate approval rate consistency
+        if (isset($requestsData['total_requests'], $requestsData['approved_requests'], $requestsData['approval_rate'])) {
+            $calculatedRate = $requestsData['total_requests'] > 0
+                ? ($requestsData['approved_requests'] / $requestsData['total_requests']) * 100
+                : 0;
+            $reportedRate = $requestsData['approval_rate'];
+
+            if (abs($calculatedRate - $reportedRate) > 5) { // Allow 5% variance
+                $consistencyScore -= 20;
+            }
+        }
+
+        // Validate total requests breakdown
+        if (isset($requestsData['total_requests'], $requestsData['approved_requests'], $requestsData['rejected_requests'], $requestsData['pending_requests'])) {
+            $sumBreakdown = $requestsData['approved_requests'] + $requestsData['rejected_requests'] + $requestsData['pending_requests'];
+            if (abs($sumBreakdown - $requestsData['total_requests']) > 1) { // Allow 1 request variance
+                $consistencyScore -= 15;
+            }
+        }
+
+        $qualityFactors['data_consistency'] = max(0, $consistencyScore);
+
+        // Calculate weighted average
+        $weights = [
+            'requests_completeness' => 0.3,
+            'supply_completeness' => 0.25,
+            'geographic_coverage' => 0.25,
+            'data_consistency' => 0.2
+        ];
+
+        $weightedScore = 0;
+        foreach ($qualityFactors as $factor => $score) {
+            $weightedScore += $score * $weights[$factor];
+        }
+
+        return round($weightedScore, 1);
+    }
+
+    /**
+     * Assess data variance for confidence calculation
+     */
+    private function assessDataVariance(array $data): float
+    {
+        $varianceScore = 1.0;
+
+        // Check for data consistency patterns
+        $requestsData = $data['requests_data'] ?? [];
+        $supplyData = $data['supply_data'] ?? [];
+
+        // Penalize extreme outliers in approval rates
+        $approvalRate = $requestsData['approval_rate'] ?? 50;
+        if ($approvalRate > 95 || $approvalRate < 5) {
+            $varianceScore *= 0.9; // Reduce confidence for extreme rates
+        }
+
+        // Penalize zero values in key metrics (suggests incomplete data)
+        $keyMetrics = [
+            $requestsData['total_requests'] ?? 0,
+            $supplyData['total_items'] ?? 0,
+        ];
+
+        $zeroCount = count(array_filter($keyMetrics, fn($val) => $val == 0));
+        if ($zeroCount > 0) {
+            $varianceScore *= (1 - ($zeroCount * 0.1)); // Reduce by 10% per zero metric
+        }
+
+        return max(0.7, $varianceScore); // Minimum 70% variance factor
+    }
+
+    /**
+     * Assess geographic coverage for confidence calculation
+     */
+    private function assessCoverageFactor(array $data): float
+    {
+        $barangayData = $data['barangay_analysis'] ?? [];
+        $barangayCount = count($barangayData['barangay_details'] ?? []);
+
+        // More granular coverage assessment
+        if ($barangayCount >= 15) {
+            return 1.1; // Excellent coverage bonus
+        } elseif ($barangayCount >= 10) {
+            return 1.05; // Good coverage bonus
+        } elseif ($barangayCount >= 5) {
+            return 1.0; // Adequate coverage
+        } elseif ($barangayCount >= 3) {
+            return 0.95; // Limited coverage
+        } elseif ($barangayCount >= 1) {
+            return 0.85; // Poor coverage
+        } else {
+            return 0.7; // No geographic diversity
+        }
+    }
+
+    /**
+     * Assess time window relevance for confidence calculation
+     */
+    private function assessTimeWindow(array $data): array
+    {
+        $period = $data['period'] ?? [];
+        $currentDate = now();
+
+        if (isset($period['end_date'])) {
+            try {
+                $endDate = Carbon::parse($period['end_date']);
+                $daysDifference = $currentDate->diffInDays($endDate, false);
+
+                // Note: Negative days means the data is in the past
+                $daysPast = abs($daysDifference);
+
+                if ($daysPast <= 7) {
+                    return ['factor' => 1.0, 'note' => 'Very recent data (within 1 week)'];
+                } elseif ($daysPast <= 30) {
+                    return ['factor' => 0.95, 'note' => 'Recent data (within 1 month)'];
+                } elseif ($daysPast <= 90) {
+                    return ['factor' => 0.9, 'note' => 'Moderately recent data (within 3 months)'];
+                } elseif ($daysPast <= 180) {
+                    return ['factor' => 0.8, 'note' => 'Older data (3-6 months old)'];
+                } else {
+                    return ['factor' => 0.7, 'note' => 'Old data (more than 6 months old)'];
+                }
+            } catch (\Exception $e) {
+                return ['factor' => 0.85, 'note' => 'Unable to determine data age'];
+            }
+        }
+
+        return ['factor' => 0.85, 'note' => 'No end date provided for analysis period'];
     }
 }

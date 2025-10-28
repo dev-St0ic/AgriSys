@@ -246,8 +246,10 @@ class DSSController extends Controller
             <h4>Immediate Actions</h4>
             <ul>";
 
-        foreach ($reportData['recommendations']['immediate_actions'] as $action) {
-            $html .= "<li>{$action}</li>";
+        if (isset($reportData['recommendations']['immediate_actions'])) {
+            foreach ($reportData['recommendations']['immediate_actions'] as $action) {
+                $html .= "<li>{$action}</li>";
+            }
         }
 
         $html .= "</ul>
@@ -255,17 +257,10 @@ class DSSController extends Controller
             <h4>Short-term Strategies</h4>
             <ul>";
 
-        foreach ($reportData['recommendations']['short_term_strategies'] as $strategy) {
-            $html .= "<li>{$strategy}</li>";
-        }
-
-        $html .= "</ul>
-
-            <h4>Long-term Improvements</h4>
-            <ul>";
-
-        foreach ($reportData['recommendations']['long_term_improvements'] as $improvement) {
-            $html .= "<li>{$improvement}</li>";
+        if (isset($reportData['recommendations']['short_term_strategies'])) {
+            foreach ($reportData['recommendations']['short_term_strategies'] as $strategy) {
+                $html .= "<li>{$strategy}</li>";
+            }
         }
 
         $html .= "</ul>
@@ -274,7 +269,8 @@ class DSSController extends Controller
             <p style='font-size: 12px; color: #666;'>
                 Report generated on " . now()->format('F j, Y \a\t g:i A') . "<br>
                 Source: {$report['source']}<br>
-                Confidence Level: {$reportData['confidence_level']}
+                Confidence Level: {$reportData['confidence_level']}" .
+                (isset($reportData['confidence_score']) ? " ({$reportData['confidence_score']}%)" : "") . "
             </p>
         </body>
         </html>";
