@@ -23,6 +23,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\SeedlingCategoryItemController;
 use App\Http\Controllers\UserApplicationsController;
 use App\Http\Controllers\DSSController;
+use App\Http\Controllers\AdminProfileController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -92,6 +93,12 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 Route::middleware('admin')->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
+
+    // edit admin profile
+
+    Route::get('/admin/profile/edit', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
+    Route::put('/admin/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+    Route::delete('/admin/profile/photo', [AdminProfileController::class, 'deletePhoto'])->name('admin.profile.deletePhoto');
 
     // ==============================================
     // RSBSA APPLICATIONS MANAGEMENT
