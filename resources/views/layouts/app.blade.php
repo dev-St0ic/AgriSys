@@ -75,9 +75,7 @@
 
         html.sidebar-collapsed-state .nav-link-text,
         html.sidebar-collapsed-state .sidebar-brand-text {
-            opacity: 0 !important;
-            width: 0 !important;
-            margin-left: 0 !important;
+            display: none !important;
         }
 
         html.sidebar-collapsed-state .sidebar-brand h4 {
@@ -88,6 +86,7 @@
         html.sidebar-collapsed-state .nav-link i,
         html.sidebar-collapsed-state .toggle-sidebar-btn i {
             margin: 0 !important;
+            min-width: auto !important;
         }
 
         html.sidebar-collapsed-state .toggle-sidebar-btn {
@@ -126,9 +125,7 @@
         }
 
         .sidebar.collapsed .nav-link-text {
-            opacity: 0;
-            width: 0;
-            margin-left: 0;
+            display: none;
         }
 
         .sidebar .nav-link-text {
@@ -147,6 +144,7 @@
 
         .sidebar.collapsed .nav-link i {
             margin: 0;
+            min-width: auto;
         }
 
         .sidebar.collapsed .sidebar-brand h4 {
@@ -405,7 +403,7 @@
                                 </div>
                             </div>
 
-                            <ul class="nav flex-column px-2">
+                            <ul class="nav flex-column">
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.dashboard') }}" data-tooltip="Dashboard">
