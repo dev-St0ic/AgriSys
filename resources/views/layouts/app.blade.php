@@ -61,6 +61,13 @@
             width: 80px;
         }
 
+                /* Override collapsed state when no sidebar exists */
+        html.sidebar-collapsed-state .main-content.no-sidebar {
+            margin-left: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+        }
+
         html.sidebar-collapsed-state .main-content {
             margin-left: 80px !important;
             width: calc(100vw - 80px) !important;
