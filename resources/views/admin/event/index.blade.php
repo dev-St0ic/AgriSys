@@ -149,7 +149,7 @@
                         </thead>
                         <tbody id="eventsTableBody">
                             @forelse($events as $event)
-                                <tr class="event-row" data-category="{{ $event->category }}">
+                                <tr class="event-row" data-category="{{ $event->category }}" data-event-id="{{ $event->id }}">
                                     <td>
                                         @if ($event->image_path)
                                             <img src="{{ Storage::url($event->image_path) }}"
@@ -166,7 +166,7 @@
                                         <strong>{{ $event->title }}</strong><br>
                                         <small class="text-muted">{{ Str::limit($event->description, 60) }}</small>
                                     </td>
-                                   <td>
+                                    <td>
                                         @php
                                             $categoryColors = [
                                                 'announcement' => 'info',
@@ -181,8 +181,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <span
-                                            class="badge bg-{{ $event->is_active ? 'success' : 'secondary' }}">
+                                        <span class="badge bg-{{ $event->is_active ? 'success' : 'secondary' }}">
                                             {{ $event->is_active ? 'Active' : 'Inactive' }}
                                         </span>
                                     </td>
@@ -460,7 +459,6 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         let currentFilter = 'all';
 
-        // Category color mapping
         function getCategoryColor(category) {
             const colors = {
                 'announcement': 'info',
@@ -471,7 +469,6 @@
             return colors[category] || 'primary';
         }
 
-        // Filter events
         function filterEvents(category) {
             currentFilter = category;
             const rows = document.querySelectorAll('.event-row');
@@ -484,41 +481,37 @@
                 }
             });
 
-            // Update active button
             document.querySelectorAll('.card-body .btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
         }
 
-        // Add detail row
         function addDetailRow(type = 'create') {
             const container = type === 'create' ? document.getElementById('detailsContainer') : document
                 .getElementById('editDetailsContainer');
             const row = document.createElement('div');
             row.className = 'detail-row mb-2';
             row.innerHTML = `
-        <div class="row">
-            <div class="col-md-6">
-                <input type="text" class="form-control form-control-sm detail-key" placeholder="Detail name">
-            </div>
-            <div class="col-md-6">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control detail-value" placeholder="Detail value">
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDetailRow(this)">Remove</button>
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control form-control-sm detail-key" placeholder="Detail name">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control detail-value" placeholder="Detail value">
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDetailRow(this)">Remove</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    `;
+            `;
             container.appendChild(row);
         }
 
-        // Remove detail row
         function removeDetailRow(btn) {
             btn.closest('.detail-row').remove();
         }
 
-        // Collect details
         function collectDetails(container) {
             const details = {};
             const rows = container.querySelectorAll('.detail-row');
@@ -535,7 +528,6 @@
             return details;
         }
 
-        // Show error
         function showError(message) {
             const openModals = document.querySelectorAll('.modal.show');
             openModals.forEach(modal => {
@@ -549,7 +541,6 @@
             }, 300);
         }
 
-        // Show success
         function showSuccess(message) {
             const openModals = document.querySelectorAll('.modal.show');
             openModals.forEach(modal => {
@@ -609,7 +600,8 @@
             try {
                 const response = await fetch(`/admin/events/${eventId}`, {
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
                     }
                 });
 
@@ -618,7 +610,6 @@
 
                 const event = data.event;
 
-                // Populate form
                 document.getElementById('edit_event_id').value = event.id;
                 document.getElementById('edit_title').value = event.title;
                 document.getElementById('edit_description').value = event.description;
@@ -627,19 +618,17 @@
                 document.getElementById('edit_date').value = event.date || '';
                 document.getElementById('edit_location').value = event.location || '';
 
-                // Show current image
                 const imagePreview = document.getElementById('current_event_image');
                 if (event.image) {
                     imagePreview.innerHTML = `
-                <label class="form-label">Current Image:</label><br>
-                <img src="${event.image}" alt="${event.title}" class="rounded" 
-                     style="width: 100px; height: 100px; object-fit: cover;">
-            `;
+                        <label class="form-label">Current Image:</label><br>
+                        <img src="${event.image}" alt="${event.title}" class="rounded" 
+                             style="width: 100px; height: 100px; object-fit: cover;">
+                    `;
                 } else {
                     imagePreview.innerHTML = '';
                 }
 
-                // Populate details
                 const detailsContainer = document.getElementById('editDetailsContainer');
                 detailsContainer.innerHTML = '';
 
@@ -648,18 +637,18 @@
                         const row = document.createElement('div');
                         row.className = 'detail-row mb-2';
                         row.innerHTML = `
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input type="text" class="form-control form-control-sm detail-key" value="${key}">
-                        </div>
-                        <div class="col-md-6">
-                            <div class="input-group input-group-sm">
-                                <input type="text" class="form-control detail-value" value="${value}">
-                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDetailRow(this)">Remove</button>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control form-control-sm detail-key" value="${key}">
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control detail-value" value="${value}">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDetailRow(this)">Remove</button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                `;
+                        `;
                         detailsContainer.appendChild(row);
                     }
                 }
@@ -713,24 +702,25 @@
             }
         });
 
-        // Toggle event status
+        // Toggle event status - FIXED
         async function toggleEvent(eventId) {
-            if (!confirm('Toggle event status?')) return;
-
             try {
-                const response = await fetch(`/admin/events/${eventId}/toggle`, {
-                    method: 'POST',
+                const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
+                    method: 'PATCH',
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json'
+                        'Accept': 'application/json'
                     }
                 });
 
                 const data = await response.json();
 
-                if (!response.ok) throw new Error(data.message || 'Failed to toggle event');
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to update status');
+                }
 
-                showSuccess(data.message);
+                showSuccess(data.message || 'Event status updated successfully');
             } catch (error) {
                 showError(error.message);
             }
@@ -745,7 +735,8 @@
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     }
                 });
 
@@ -766,7 +757,8 @@
                     method: 'PATCH',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({
                         display_order: parseInt(order)
@@ -777,7 +769,6 @@
 
                 if (!response.ok) throw new Error(data.message || 'Failed to update order');
 
-                // Show toast notification
                 const toast = document.createElement('div');
                 toast.className = 'alert alert-success alert-dismissible fade show position-fixed bottom-0 end-0 m-3';
                 toast.style.zIndex = '9999';

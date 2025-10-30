@@ -608,28 +608,44 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| EVENTS route
+| EVENTS ROUTES - FIXED
 |--------------------------------------------------------------------------
 */
+
 // Admin routes with authentication
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::prefix('events')->name('event.')->group(function () {
+        // List all events
         Route::get('/', [EventController::class, 'index'])->name('index');
+        
+        // Create new event
         Route::post('/', [EventController::class, 'store'])->name('store');
-        Route::get('{event}', [EventController::class, 'show'])->name('show');
-        Route::put('{event}', [EventController::class, 'update'])->name('update');
-        Route::post('{event}', [EventController::class, 'update']); // For form compatibility
-        Route::delete('{event}', [EventController::class, 'destroy'])->name('destroy');
-        Route::post('{event}/toggle', [EventController::class, 'toggleStatus'])->name('toggle');
-        Route::patch('{event}/order', [EventController::class, 'updateOrder'])->name('update-order');
+        
+        // Show single event
+        Route::get('/{event}', [EventController::class, 'show'])->name('show');
+        
+        // Update event (support both PUT and POST with _method)
+        Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])->name('update');
+        Route::post('/{event}/update', [EventController::class, 'update'])->name('update.post');
+        
+        // Delete event
+        Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy');
+        
+        // Toggle status - FIXED: Use PATCH instead of POST
+        Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])->name('toggle');
+        
+        // Update display order
+        Route::patch('/{event}/order', [EventController::class, 'updateOrder'])->name('update-order');
+        
+        // Get statistics
+        Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
     });
 });
 
 // PUBLIC API ROUTES - These don't require authentication
 Route::prefix('api')->group(function () {
-    // Get events for landing page/frontend
+    // Get all events or by category
     Route::get('/events', [EventController::class, 'getEvents'])->name('api.events.public');
-    Route::get('/events/{category}', [EventController::class, 'getEvents']);
 });
 /*
 |--------------------------------------------------------------------------

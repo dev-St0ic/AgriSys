@@ -65,16 +65,27 @@ class Event extends Model
         return $query->orderBy('display_order')->orderBy('created_at', 'desc');
     }
 
-    // Accessors
+    // Accessors - FIXED
     public function getImageUrlAttribute()
     {
-        if ($this->image_path) {
-            // Check if it's a base64 image
-            if (strpos($this->image_path, 'data:image') === 0) {
-                return $this->image_path;
-            }
-            return Storage::url($this->image_path);
+        // If no image path, return null
+        if (!$this->image_path) {
+            return null;
         }
+
+        // Check if it's already a full URL (base64 or external)
+        if (strpos($this->image_path, 'data:image') === 0 || 
+            strpos($this->image_path, 'http://') === 0 || 
+            strpos($this->image_path, 'https://') === 0) {
+            return $this->image_path;
+        }
+
+        // Check if file exists in storage
+        if (Storage::disk('public')->exists($this->image_path)) {
+            return asset('storage/' . $this->image_path);
+        }
+
+        // Fallback to null if file doesn't exist
         return null;
     }
 
