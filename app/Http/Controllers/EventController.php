@@ -51,15 +51,18 @@ class EventController extends Controller
     /**
      * Get all events as JSON (for API/AJAX)
      */
+    /**
+ * Get all events as JSON (for API/AJAX) - PUBLIC ENDPOINT
+ */
     public function getEvents(Request $request)
     {
         try {
+            \Log::info('📡 Events API called - Category: ' . ($request->get('category') ?? 'all'));
+            
             $query = Event::query();
             
             // Only show active events for non-admin users
-            if (!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin')) {
-                $query->where('is_active', true);
-            }
+            $query->where('is_active', true);
             
             $query->ordered();
 
@@ -67,35 +70,40 @@ class EventController extends Controller
                 $query->where('category', $request->category);
             }
 
-            $events = $query->get()->map(function($event) {
+            $events = $query->get();
+            
+            \Log::info('✅ Events found: ' . $events->count());
+
+            $formattedEvents = $events->map(function($event) {
                 return [
                     'id' => $event->id,
                     'title' => $event->title,
                     'description' => $event->description,
                     'category' => $event->category,
-                    'image' => $event->image_url,
-                    'date' => $event->date,
-                    'location' => $event->location,
+                    'image' => $event->image_url ?? null,  // Make sure this accessor exists in Event model
+                    'date' => $event->date ?? 'Date TBA',
+                    'location' => $event->location ?? 'Location TBA',
                     'details' => $event->details ?? [],
-                    'is_active' => $event->is_active,
+                    'is_active' => (bool) $event->is_active,
                     'display_order' => $event->display_order,
                     'created_at' => $event->created_at->toIso8601String(),
-                    'updated_at' => $event->updated_at->toIso8601String()
                 ];
             });
 
             return response()->json([
                 'success' => true,
-                'events' => $events
+                'events' => $formattedEvents,
+                'count' => $formattedEvents->count()
             ], 200);
 
         } catch (\Exception $e) {
-            \Log::error('Events API Error: ' . $e->getMessage());
+            \Log::error('❌ Events API Error: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
             
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to load events',
-                'error' => $e->getMessage()
+                'message' => 'Failed to load events: ' . $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         }
     }
