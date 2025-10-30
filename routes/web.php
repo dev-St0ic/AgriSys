@@ -642,9 +642,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 });
 
-// PUBLIC API ROUTES - These don't require authentication
+// ============================================
+// PUBLIC API ROUTES - For landing page
+// ============================================
 Route::prefix('api')->group(function () {
-    // Get all events or by category
+    // Get all events - PUBLIC (no authentication required)
     Route::get('/events', [EventController::class, 'getEvents'])->name('api.events.public');
 });
 /*

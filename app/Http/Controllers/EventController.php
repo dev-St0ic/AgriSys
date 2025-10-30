@@ -54,7 +54,14 @@ class EventController extends Controller
     public function getEvents(Request $request)
     {
         try {
-            $query = Event::active()->ordered();
+            $query = Event::query();
+            
+            // Only show active events for non-admin users
+            if (!auth()->check() || (auth()->check() && auth()->user()->role !== 'admin')) {
+                $query->where('is_active', true);
+            }
+            
+            $query->ordered();
 
             if ($request->has('category') && $request->category !== 'all') {
                 $query->where('category', $request->category);
@@ -69,7 +76,7 @@ class EventController extends Controller
                     'image' => $event->image_url,
                     'date' => $event->date,
                     'location' => $event->location,
-                    'details' => $event->details,
+                    'details' => $event->details ?? [],
                     'is_active' => $event->is_active,
                     'display_order' => $event->display_order,
                     'created_at' => $event->created_at->toIso8601String(),
@@ -80,13 +87,15 @@ class EventController extends Controller
             return response()->json([
                 'success' => true,
                 'events' => $events
-            ]);
+            ], 200);
 
         } catch (\Exception $e) {
-            Log::error('Failed to fetch events: ' . $e->getMessage());
+            \Log::error('Events API Error: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to fetch events'
+                'message' => 'Failed to load events',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
