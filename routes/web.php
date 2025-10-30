@@ -611,11 +611,9 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
 | EVENTS route
 |--------------------------------------------------------------------------
 */
-// routes/web.php
-
+// Admin routes with authentication
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Events Management
-    Route::prefix('event')->name('event.')->group(function () {
+    Route::prefix('events')->name('event.')->group(function () {
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
         Route::get('{event}', [EventController::class, 'show'])->name('show');
@@ -626,17 +624,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::patch('{event}/order', [EventController::class, 'updateOrder'])->name('update-order');
     });
 });
-// routes/api.php
 
-Route::prefix('event')->group(function () {
-    // Public routes - Get events for landing page
-    Route::get('/', [EventController::class, 'getEvents']);
-    Route::get('/{category}', [EventController::class, 'getEvents']);
+// PUBLIC API ROUTES - These don't require authentication
+Route::prefix('api')->group(function () {
+    // Get events for landing page/frontend
+    Route::get('/events', [EventController::class, 'getEvents'])->name('api.events.public');
+    Route::get('/events/{category}', [EventController::class, 'getEvents']);
 });
-
-// Public API route for frontend
-Route::get('/api/event', [EventController::class, 'getEvents'])->name('api.events.public');
-
 /*
 |--------------------------------------------------------------------------
 | Public API Routes (for AJAX calls)

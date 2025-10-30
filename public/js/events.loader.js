@@ -23,6 +23,7 @@ async function loadEvents() {
             renderEvents(allEvents);
         } else {
             console.error('Invalid response format:', data);
+            showEventLoadError();
         }
     } catch (error) {
         console.error('Error loading events:', error);
