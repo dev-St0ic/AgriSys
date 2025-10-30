@@ -24,6 +24,7 @@ use App\Http\Controllers\SeedlingCategoryItemController;
 use App\Http\Controllers\UserApplicationsController;
 use App\Http\Controllers\DSSController;
 use App\Http\Controllers\AdminProfileController;
+use App\Http\Controllers\EventController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -86,11 +87,11 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     }
 })->name('api.validate-fishr');
 
-// ==============================================
-// ADMIN PROTECTED ROUTES
-// ==============================================
+    // ==============================================
+    // ADMIN PROTECTED ROUTES
+    // ==============================================
 
-Route::middleware('admin')->group(function () {
+    Route::middleware('admin')->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -604,6 +605,37 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
         Route::post('/change-password', [UserRegistrationController::class, 'changePassword'])->name('api.user.change-password');
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| EVENTS route
+|--------------------------------------------------------------------------
+*/
+// routes/web.php
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Events Management
+    Route::prefix('event')->name('event.')->group(function () {
+        Route::get('/', [EventController::class, 'index'])->name('index');
+        Route::post('/', [EventController::class, 'store'])->name('store');
+        Route::get('{event}', [EventController::class, 'show'])->name('show');
+        Route::put('{event}', [EventController::class, 'update'])->name('update');
+        Route::post('{event}', [EventController::class, 'update']); // For form compatibility
+        Route::delete('{event}', [EventController::class, 'destroy'])->name('destroy');
+        Route::post('{event}/toggle', [EventController::class, 'toggleStatus'])->name('toggle');
+        Route::patch('{event}/order', [EventController::class, 'updateOrder'])->name('update-order');
+    });
+});
+// routes/api.php
+
+Route::prefix('event')->group(function () {
+    // Public routes - Get events for landing page
+    Route::get('/', [EventController::class, 'getEvents']);
+    Route::get('/{category}', [EventController::class, 'getEvents']);
+});
+
+// Public API route for frontend
+Route::get('/api/event', [EventController::class, 'getEvents'])->name('api.events.public');
 
 /*
 |--------------------------------------------------------------------------

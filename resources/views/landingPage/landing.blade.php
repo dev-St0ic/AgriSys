@@ -162,7 +162,7 @@
         <div class="welcome-image"></div>
     </section>
 
-  <!-- Events Section -->
+    <!-- Events Section - Updated to load dynamically -->
     <section class="events" id="events">
         <img src="../images/logos/cagoFull.png" alt="City Agriculture Office Logo" class="logo-icon">
         <img src="../images/logos/CityOfSanPedro.jpg" alt="City of San Pedro Logo" class="logo-icon">
@@ -177,312 +177,18 @@
             <button class="filter-btn" data-filter="past">Past Events</button>
         </div>
         
+        <!-- Events Grid - Will be populated by JavaScript -->
         <div class="events-grid">
-            <!-- Event Card 1 -->
-            <div class="event-card" data-category="ongoing">
-                <img src="../images/events/1.jpg" alt="Garden Care" class="event-image">
-                <div class="event-content">
-                    <h3>Community Garden Initiative</h3>
-                    <p class="event-description">Urban gardening program bringing together residents to cultivate fresh produce while learning sustainable farming techniques including organic gardening, composting, and water conservation.</p>
-                    
-                    <div class="event-info-box">
-                        <div class="date">📅 Every Saturday | 8:00 AM - 12:00 PM</div>
-                        <div class="location">📍 San Pedro Community Garden, Brgy. Riverside</div>
-                    </div>
-                    
-                    <button class="expand-btn">
-                        <span>View More Details</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    
-                    <div class="expandable-details">
-                        <ul class="details-list">
-                            <li>
-                                <span class="icon">👥</span>
-                                <div class="text">
-                                    <div class="label">Who Can Join</div>
-                                    <div class="value">All residents welcome, families encouraged</div>
-                                </div>
-                            </li>
-                            <li>
-                                <span class="icon">💰</span>
-                                <div class="text">
-                                    <div class="label">Cost</div>
-                                    <div class="value">Free for all participants</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading events...</span>
                 </div>
-            </div>
-            
-            <!-- Event Card 2 -->
-            <div class="event-card" data-category="past">
-                <img src="../images/events/2.jpg" alt="Landscape" class="event-image">
-                <div class="event-content">
-                    <h3>Green Corridor Project</h3>
-                    <p class="event-description">City-wide landscaping initiative that transformed urban spaces into vibrant green zones. Over 500 native trees planted and pocket gardens created throughout the city to improve air quality and aesthetics.</p>
-                    
-                    <div class="event-info-box">
-                        <div class="date">✅ Completed: September 2024</div>
-                        <div class="location">📍 12 Barangays across San Pedro City</div>
-                    </div>
-                    
-                    <button class="expand-btn">
-                        <span>View More Details</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    
-                    <div class="expandable-details">
-                        <ul class="details-list">
-                            <li>
-                                <span class="icon">🌳</span>
-                                <div class="text">
-                                    <div class="label">Achievement</div>
-                                    <div class="value">500+ native trees planted</div>
-                                </div>
-                            </li>
-                            <li>
-                                <span class="icon">🎯</span>
-                                <div class="text">
-                                    <div class="label">Impact</div>
-                                    <div class="value">Improved air quality and urban aesthetics</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Event Card 3 -->
-            <div class="event-card" data-category="upcoming">
-                <img src="../images/events/3.jpg" alt="Planting" class="event-image">
-                <div class="event-content">
-                    <h3>Tree Planting Drive</h3>
-                    <p class="event-description">Annual tree planting event with a goal to plant 1,000 indigenous trees across the city. Volunteers receive free seedlings, refreshments, and certificates of participation.</p>
-                    
-                    <div class="event-info-box">
-                        <div class="date">🌱 November 15, 2025 | 6:00 AM - 10:00 AM</div>
-                        <div class="location">📍 Various locations citywide</div>
-                    </div>
-                    
-                    <button class="expand-btn">
-                        <span>View More Details</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    
-                    <div class="expandable-details">
-                        <ul class="details-list">
-                            <li>
-                                <span class="icon">🎁</span>
-                                <div class="text">
-                                    <div class="label">Freebies</div>
-                                    <div class="value">Free seedlings, refreshments, certificate</div>
-                                </div>
-                            </li>
-                            <li>
-                                <span class="icon">📝</span>
-                                <div class="text">
-                                    <div class="label">Registration</div>
-                                    <div class="value">Contact City Agriculture Office</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Event Card 4 -->
-            <div class="event-card" data-category="upcoming">
-                <img src="../images/events/4.jpg" alt="Workshop" class="event-image">
-                <div class="event-content">
-                    <h3>Vegetable Farming Workshop</h3>
-                    <p class="event-description">Expert-led workshops covering advanced vegetable cultivation methods, pest management, and market strategies to help farmers maximize yields while minimizing environmental impact.</p>
-                    
-                    <div class="event-info-box">
-                        <div class="date">📚 October 28, 2025 | 2:00 PM - 5:00 PM</div>
-                        <div class="location">📍 Agriculture Office Training Center</div>
-                    </div>
-                    
-                    <button class="expand-btn">
-                        <span>View More Details</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    
-                    <div class="expandable-details">
-                        <ul class="details-list">
-                            <li>
-                                <span class="icon">👨‍🌾</span>
-                                <div class="text">
-                                    <div class="label">For</div>
-                                    <div class="value">Local farmers and aspiring growers</div>
-                                </div>
-                            </li>
-                            <li>
-                                <span class="icon">🎁</span>
-                                <div class="text">
-                                    <div class="label">Freebies</div>
-                                    <div class="value">Free seeds, tools, and training materials</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Event Card 5 -->
-            <div class="event-card" data-category="ongoing">
-                <img src="../images/events/5.jpg" alt="Organic Rice" class="event-image">
-                <div class="event-content">
-                    <h3>Organic Rice Cultivation</h3>
-                    <p class="event-description">Year-long program supporting farmers transitioning to organic rice farming methods that eliminate harmful pesticides. Includes training, organic fertilizers, and access to premium markets.</p>
-                    
-                    <div class="event-info-box">
-                        <div class="date">🌾 January - December 2025</div>
-                        <div class="location">📍 All rice farming areas in San Pedro</div>
-                    </div>
-                    
-                    <button class="expand-btn">
-                        <span>View More Details</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    
-                    <div class="expandable-details">
-                        <ul class="details-list">
-                            <li>
-                                <span class="icon">🌾</span>
-                                <div class="text">
-                                    <div class="label">Support Provided</div>
-                                    <div class="value">Training, organic fertilizers, market access</div>
-                                </div>
-                            </li>
-                            <li>
-                                <span class="icon">🏆</span>
-                                <div class="text">
-                                    <div class="label">Certification</div>
-                                    <div class="value">Organic farming certification assistance</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Event Card 6 -->
-            <div class="event-card" data-category="ongoing">
-                <img src="../images/events/6.jpg" alt="Park Maintenance" class="event-image">
-                <div class="event-content">
-                    <h3>Park Maintenance Program</h3>
-                    <p class="event-description">Daily maintenance of city parks through regular mowing, trimming, and landscaping ensuring safe, clean, and beautiful spaces for families and communities.</p>
-                    
-                    <div class="event-info-box">
-                        <div class="date">🔄 Ongoing | Daily Operations</div>
-                        <div class="location">📍 All public parks across San Pedro</div>
-                    </div>
-                    
-                    <button class="expand-btn">
-                        <span>View More Details</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    
-                    <div class="expandable-details">
-                        <ul class="details-list">
-                            <li>
-                                <span class="icon">🛠️</span>
-                                <div class="text">
-                                    <div class="label">Services</div>
-                                    <div class="value">Mowing, trimming, landscaping, sanitation</div>
-                                </div>
-                            </li>
-                            <li>
-                                <span class="icon">📞</span>
-                                <div class="text">
-                                    <div class="label">Report Issues</div>
-                                    <div class="value">Contact City Agriculture Office</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Event Card 7 -->
-            <div class="event-card" data-category="ongoing">
-                <img src="../images/events/7.jpg" alt="Sports Field" class="event-image">
-                <div class="event-content">
-                    <h3>Sports Field Renovation</h3>
-                    <p class="event-description">Complete overhaul of community sports facilities including new turf installation, modern drainage systems, and efficient irrigation creating world-class venues for youth sports and tournaments.</p>
-                    
-                    <div class="event-info-box">
-                        <div class="date">⚙️ In Progress | Target: December 2025</div>
-                        <div class="location">📍 San Pedro Sports Complex</div>
-                    </div>
-                    
-                    <button class="expand-btn">
-                        <span>View More Details</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    
-                    <div class="expandable-details">
-                        <ul class="details-list">
-                            <li>
-                                <span class="icon">⚽</span>
-                                <div class="text">
-                                    <div class="label">Facilities</div>
-                                    <div class="value">Soccer fields, basketball courts, running tracks</div>
-                                </div>
-                            </li>
-                            <li>
-                                <span class="icon">🔧</span>
-                                <div class="text">
-                                    <div class="label">Upgrades</div>
-                                    <div class="value">New turf, drainage, irrigation, lighting</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Event Card 8 -->
-            <div class="event-card" data-category="announcement">
-                <img src="../images/events/8.jpg" alt="Urban Farming" class="event-image">
-                <div class="event-content">
-                    <h3>Urban Farming Training</h3>
-                    <p class="event-description">Monthly training on innovative techniques for growing vegetables in small spaces using containers, vertical gardens, and hydroponics. Perfect for apartment dwellers and homeowners.</p>
-                    
-                    <div class="event-info-box">
-                        <div class="date">🏙️ First Sunday of Every Month | 9:00 AM - 12:00 PM</div>
-                        <div class="location">📍 Agriculture Office Training Center</div>
-                    </div>
-                    
-                    <button class="expand-btn">
-                        <span>View More Details</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    
-                    <div class="expandable-details">
-                        <ul class="details-list">
-                            <li>
-                                <span class="icon">🌱</span>
-                                <div class="text">
-                                    <div class="label">Techniques</div>
-                                    <div class="value">Container gardening, vertical gardens, hydroponics</div>
-                                </div>
-                            </li>
-                            <li>
-                                <span class="icon">📦</span>
-                                <div class="text">
-                                    <div class="label">Materials</div>
-                                    <div class="value">All training materials and starter kits provided</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                <p class="text-muted mt-3">Loading events...</p>
             </div>
         </div>
     </section>
+
+
     
 
     <!-- Services Section (Always visible) -->
@@ -1540,6 +1246,7 @@
     <script src="{{ asset('js/my-applications-modal.js') }}"></script>
     <script src="{{ asset('js/toast-notifications.js') }}"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="{{ asset('js/events-loader.js') }}"></script>
 </body>
 
 </html>
