@@ -72,6 +72,9 @@ function showSignUpForm() {
     setTimeout(() => {
         const firstInput = signupForm.querySelector('input');
         if (firstInput) firstInput.focus();
+
+        // Render reCAPTCHA explicitly when form is shown
+        renderRecaptcha();
     }, 100);
 }
 
@@ -805,7 +808,7 @@ function handleChangePasswordSubmit(event) {
 function togglePasswordVisibility(inputId) {
     const input = document.getElementById(inputId);
     const button = input.nextElementSibling;
-    
+
     if (input.type === 'password') {
         input.type = 'text';
         button.textContent = 'Hide';
@@ -825,12 +828,12 @@ function closeVerificationModal() {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
-    
+
     const form = document.getElementById('verification-form');
     if (form) {
         form.reset();
     }
-    
+
     clearImagePreviews();
 }
 
@@ -1427,7 +1430,7 @@ function removeEmojis(text) {
         .replace(/[\u{2000}-\u{206F}]/gu, '')   // General Punctuation
         .trim();
 }
-// aplication modal 
+// aplication modal
 function renderApplicationsInModal(applications) {
     const grid = document.getElementById('applications-modal-grid');
     if (!grid) return;
@@ -2739,9 +2742,18 @@ function handleSignupSubmit(event) {
     }
 
     // NEW: Check if reCAPTCHA is checked
-    const recaptchaResponse = grecaptcha.getResponse();
-    if (!recaptchaResponse) {
-        showNotification('error', 'Please check the reCAPTCHA box');
+    let recaptchaResponse = '';
+
+    // Check if grecaptcha is loaded
+    if (typeof grecaptcha !== 'undefined' && grecaptcha.getResponse) {
+        recaptchaResponse = grecaptcha.getResponse(recaptchaWidgetId);
+        if (!recaptchaResponse) {
+            showNotification('error', 'Please check the reCAPTCHA box');
+            return false;
+        }
+    } else {
+        console.warn('reCAPTCHA API not loaded');
+        showNotification('error', 'reCAPTCHA is still loading. Please wait a moment and try again.');
         return false;
     }
 
@@ -2801,7 +2813,9 @@ function handleSignupSubmit(event) {
                 clearAllValidationUI();  // NEW: Clear all validation UI elements
 
                 // NEW: Reset reCAPTCHA
-                grecaptcha.reset();
+                if (typeof grecaptcha !== 'undefined' && grecaptcha.reset && recaptchaWidgetId !== null) {
+                    grecaptcha.reset(recaptchaWidgetId);
+                }
 
                 // Auto-redirect to login form after 2 seconds
                 setTimeout(() => {
@@ -2817,7 +2831,9 @@ function handleSignupSubmit(event) {
             }
             // Reset button state after error
             // NEW: Reset reCAPTCHA on error
-            grecaptcha.reset();
+            if (typeof grecaptcha !== 'undefined' && grecaptcha.reset && recaptchaWidgetId !== null) {
+                grecaptcha.reset(recaptchaWidgetId);
+            }
             setTimeout(() => resetButtonState(submitBtn), 1000);
         }
     })
@@ -3275,6 +3291,58 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ==============================================
+// RECAPTCHA MANAGEMENT
+// ==============================================
+
+let recaptchaWidgetId = null;
+
+function renderRecaptcha() {
+    // Check if reCAPTCHA API is loaded
+    if (typeof grecaptcha === 'undefined') {
+        console.warn('reCAPTCHA API not yet loaded, trying again in 500ms...');
+        setTimeout(renderRecaptcha, 500);
+        return;
+    }
+
+    const recaptchaContainer = document.querySelector('.g-recaptcha');
+    if (!recaptchaContainer) {
+        console.warn('reCAPTCHA container not found');
+        return;
+    }
+
+    // Reset the container if already rendered
+    if (recaptchaWidgetId !== null) {
+        try {
+            grecaptcha.reset(recaptchaWidgetId);
+        } catch (e) {
+            console.warn('Error resetting reCAPTCHA:', e);
+        }
+    }
+
+    // Clear the container
+    recaptchaContainer.innerHTML = '';
+
+    try {
+        // Render the reCAPTCHA
+        recaptchaWidgetId = grecaptcha.render(recaptchaContainer, {
+            'sitekey': recaptchaContainer.dataset.sitekey,
+            'callback': function(response) {
+                console.log('reCAPTCHA completed:', response ? 'Success' : 'Failed');
+            },
+            'expired-callback': function() {
+                console.log('reCAPTCHA expired');
+            },
+            'error-callback': function() {
+                console.log('reCAPTCHA error');
+            }
+        });
+        console.log('reCAPTCHA rendered successfully with widget ID:', recaptchaWidgetId);
+    } catch (error) {
+        console.error('Error rendering reCAPTCHA:', error);
+    }
+}
+
+// ==============================================
 // GLOBAL FUNCTION EXPORTS
 // ==============================================
 
@@ -3300,12 +3368,11 @@ window.loadCurrentProfileData = loadCurrentProfileData;
 window.populateEditForm = populateEditForm;
 window.handleEditProfileSubmit = handleEditProfileSubmit;
 window.changePassword = changePassword;
-window.accountSettings = accountSettings;
 window.logoutUser = logoutUser;
+window.renderRecaptcha = renderRecaptcha;
 window.showNotification = showNotification;
 window.previewImage = previewImage;
 window.refreshProfileVerifyButton = refreshProfileVerifyButton;
-window.changePassword = changePassword;
 window.closeChangePasswordModal = closeChangePasswordModal;
 window.handleChangePasswordSubmit = handleChangePasswordSubmit;
 window.checkNewPasswordStrength = checkNewPasswordStrength;

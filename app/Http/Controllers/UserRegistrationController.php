@@ -154,13 +154,9 @@ class UserRegistrationController extends Controller
 
           // STEP 2: Verify reCAPTCHA v2 with Google
         try {
-            $recaptchaSecret = env('RECAPTCHA_SECRET_KEY');
+            $recaptchaSecret = config('recaptcha.secret_key');
             $recaptchaToken = $request->input('g-recaptcha-response');
 
-            Log::info('=== reCAPTCHA DEBUG START ===');
-            Log::info('Secret Key Set:', ['exists' => !empty($recaptchaSecret)]);
-            Log::info('Token Received:', ['exists' => !empty($recaptchaToken), 'length' => strlen($recaptchaToken ?? '')]);
-            
             if (!$recaptchaSecret) {
                 Log::error('RECAPTCHA_SECRET_KEY not set in .env');
                 throw new \Exception('reCAPTCHA configuration missing');
@@ -181,9 +177,6 @@ class UserRegistrationController extends Controller
             ]);
 
             $recaptchaData = $response->json();
-
-            Log::info('Google Response:', $recaptchaData);
-            Log::info('=== reCAPTCHA DEBUG END ===');
 
 
             // Check if reCAPTCHA verification was successful
@@ -1701,7 +1694,7 @@ class UserRegistrationController extends Controller
 
         try {
             $userRegistration = UserRegistration::find($userId);
-            
+
             if (!$userRegistration) {
                 return response()->json([
                     'success' => false,
@@ -1812,22 +1805,22 @@ public function redirectToFacebook()
         try {
             // Get Facebook user info
             $facebookUser = Socialite::driver('facebook')->user();
-            
+
             \Log::info('Facebook user data:', [
                 'id' => $facebookUser->id,
                 'email' => $facebookUser->email,
                 'name' => $facebookUser->name
             ]);
-            
+
             // Check if user already exists by email or Facebook ID
             $userRegistration = UserRegistration::where('email', $facebookUser->email)
                 ->orWhere('facebook_id', $facebookUser->id)
                 ->first();
-            
+
             if (!$userRegistration) {
                 // Create new user from Facebook data
                 $username = $this->generateUniqueUsername($facebookUser->name);
-                
+
                 $userRegistration = UserRegistration::create([
                     'username' => $username,
                     'email' => $facebookUser->email,
@@ -1844,13 +1837,13 @@ public function redirectToFacebook()
                     'user_agent' => $request->userAgent(),
                     'referral_source' => 'facebook',
                 ]);
-                
+
                 \Log::info('New user created via Facebook', [
                     'user_id' => $userRegistration->id,
                     'facebook_id' => $facebookUser->id,
                     'username' => $username
                 ]);
-                
+
             } else {
                 // Update Facebook ID and profile image if not already set
                 if (!$userRegistration->facebook_id) {
@@ -1860,13 +1853,13 @@ public function redirectToFacebook()
                         'email_verified_at' => $userRegistration->email_verified_at ?? now(),
                     ]);
                 }
-                
+
                 \Log::info('Existing user logged in via Facebook', [
                     'user_id' => $userRegistration->id,
                     'facebook_id' => $facebookUser->id
                 ]);
             }
-            
+
             // Store user in session (same structure as regular login)
             $request->session()->put('user', [
                 'id' => $userRegistration->id,
@@ -1877,30 +1870,30 @@ public function redirectToFacebook()
                 'status' => $userRegistration->status,
                 'profile_image' => $userRegistration->profile_image_url,
             ]);
-            
+
             // Store individual keys for backward compatibility
             $request->session()->put('user_id', $userRegistration->id);
             $request->session()->put('user_email', $userRegistration->email);
             $request->session()->put('user_username', $userRegistration->username);
-            
+
             // Update last login
             $userRegistration->update(['last_login_at' => now()]);
-            
+
             // Redirect with appropriate message based on status
             $message = 'Welcome! Please complete your profile verification to access all services.';
-            
+
             if ($userRegistration->status === 'approved' || $userRegistration->status === 'verified') {
                 $message = 'Welcome back!';
             } elseif ($userRegistration->status === 'pending') {
                 $message = 'Welcome! Your verification is being reviewed.';
             }
-            
+
             return redirect('/')->with('success', $message);
-            
+
         } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
             \Log::error('Facebook OAuth state error: ' . $e->getMessage());
             return redirect('/')->with('error', 'Login session expired. Please try again.');
-            
+
         } catch (\Exception $e) {
             \Log::error('Facebook callback error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
@@ -1916,24 +1909,24 @@ public function redirectToFacebook()
     {
         // Clean name: lowercase, remove spaces and special characters
         $baseUsername = strtolower(preg_replace('/[^a-z0-9_]/', '', str_replace(' ', '', $name)));
-        
+
         // Ensure it's at least 3 characters
         if (strlen($baseUsername) < 3) {
             $baseUsername = 'user' . $baseUsername;
         }
-        
+
         // Truncate to max 17 characters (leaving room for counter)
         $baseUsername = substr($baseUsername, 0, 17);
-        
+
         $username = $baseUsername;
         $counter = 1;
-        
+
         // Check uniqueness and append counter if needed
         while (UserRegistration::where('username', $username)->exists()) {
             $username = $baseUsername . $counter;
             $counter++;
         }
-        
+
         return $username;
     }
 }
