@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{{ asset('css/toast-notifications.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
-    
+
     @if (isset($user))
         <script>
             // Pass user data to JavaScript
@@ -45,7 +45,7 @@
         </div>
     @endif
 
-        @if (session('warning'))
+    @if (session('warning'))
         <div class="alert alert-warning" style="display: none;">
             {{ session('warning') }}
         </div>
@@ -117,20 +117,24 @@
                             <div class="dropdown-menu">
                                 <a href="#" class="dropdown-item" onclick="showMyApplicationsModal()">
                                     <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                     My Applications
                                 </a>
                                 <a href="#" class="dropdown-item" onclick="showProfileModal()">
                                     <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
                                     View Profile
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a href="#" class="dropdown-item logout" onclick="logoutUser()">
-                                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                    <svg class="dropdown-icon" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                     </svg>
                                     Log Out
                                 </a>
@@ -157,18 +161,25 @@
         <div class="welcome-content">
             <h2>Welcome to <span class="highlight">AgriSys</span><br>Agriculture System</br></h2>
             <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
-            <button class="btn-services" onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore Services</button>
+            <button class="btn-services"
+                onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore
+                Services</button>
         </div>
         <div class="welcome-image"></div>
     </section>
 
+add/composer-spatie/laravel-activitylog
+    <!-- Events Section -->
+
     <!-- Events Section - Updated to load dynamically -->
+    main
     <section class="events" id="events">
         <img src="../images/logos/cagoFull.png" alt="City Agriculture Office Logo" class="logo-icon">
         <img src="../images/logos/CityOfSanPedro.jpg" alt="City of San Pedro Logo" class="logo-icon">
         <h2>City<span class="highlight"> Agriculture Office of San Pedro, Laguna</span></h2>
-        <p class="events-subtitle">Ongoing and past events and initiatives of the San Pedro City Agriculture Office dedicated to promoting agricultural growth and community development.</p>
-        
+        <p class="events-subtitle">Ongoing and past events and initiatives of the San Pedro City Agriculture Office
+            dedicated to promoting agricultural growth and community development.</p>
+
         <div class="events-filters">
             <button class="filter-btn active" data-filter="all">View All</button>
             <button class="filter-btn" data-filter="announcement">Announcements</button>
@@ -176,20 +187,343 @@
             <button class="filter-btn" data-filter="upcoming">Upcoming Events</button>
             <button class="filter-btn" data-filter="past">Past Events</button>
         </div>
+ add/composer-spatie/laravel-activitylog
+
+        <div class="events-grid">
+            <!-- Event Card 1 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/1.jpg" alt="Garden Care" class="event-image">
+                <div class="event-content">
+                    <h3>Community Garden Initiative</h3>
+                    <p class="event-description">Urban gardening program bringing together residents to cultivate fresh
+                        produce while learning sustainable farming techniques including organic gardening, composting,
+                        and water conservation.</p>
+
+                    <div class="event-info-box">
+                        <div class="date">📅 Every Saturday | 8:00 AM - 12:00 PM</div>
+                        <div class="location">📍 San Pedro Community Garden, Brgy. Riverside</div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">👥</span>
+                                <div class="text">
+                                    <div class="label">Who Can Join</div>
+                                    <div class="value">All residents welcome, families encouraged</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">💰</span>
+                                <div class="text">
+                                    <div class="label">Cost</div>
+                                    <div class="value">Free for all participants</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 2 -->
+            <div class="event-card" data-category="past">
+                <img src="../images/events/2.jpg" alt="Landscape" class="event-image">
+                <div class="event-content">
+                    <h3>Green Corridor Project</h3>
+                    <p class="event-description">City-wide landscaping initiative that transformed urban spaces into
+                        vibrant green zones. Over 500 native trees planted and pocket gardens created throughout the
+                        city to improve air quality and aesthetics.</p>
+
+                    <div class="event-info-box">
+                        <div class="date">✅ Completed: September 2024</div>
+                        <div class="location">📍 12 Barangays across San Pedro City</div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🌳</span>
+                                <div class="text">
+                                    <div class="label">Achievement</div>
+                                    <div class="value">500+ native trees planted</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🎯</span>
+                                <div class="text">
+                                    <div class="label">Impact</div>
+                                    <div class="value">Improved air quality and urban aesthetics</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 3 -->
+            <div class="event-card" data-category="upcoming">
+                <img src="../images/events/3.jpg" alt="Planting" class="event-image">
+                <div class="event-content">
+                    <h3>Tree Planting Drive</h3>
+                    <p class="event-description">Annual tree planting event with a goal to plant 1,000 indigenous trees
+                        across the city. Volunteers receive free seedlings, refreshments, and certificates of
+                        participation.</p>
+
+                    <div class="event-info-box">
+                        <div class="date">🌱 November 15, 2025 | 6:00 AM - 10:00 AM</div>
+                        <div class="location">📍 Various locations citywide</div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🎁</span>
+                                <div class="text">
+                                    <div class="label">Freebies</div>
+                                    <div class="value">Free seedlings, refreshments, certificate</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">📝</span>
+                                <div class="text">
+                                    <div class="label">Registration</div>
+                                    <div class="value">Contact City Agriculture Office</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 4 -->
+            <div class="event-card" data-category="upcoming">
+                <img src="../images/events/4.jpg" alt="Workshop" class="event-image">
+                <div class="event-content">
+                    <h3>Vegetable Farming Workshop</h3>
+                    <p class="event-description">Expert-led workshops covering advanced vegetable cultivation methods,
+                        pest management, and market strategies to help farmers maximize yields while minimizing
+                        environmental impact.</p>
+
+                    <div class="event-info-box">
+                        <div class="date">📚 October 28, 2025 | 2:00 PM - 5:00 PM</div>
+                        <div class="location">📍 Agriculture Office Training Center</div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">👨‍🌾</span>
+                                <div class="text">
+                                    <div class="label">For</div>
+                                    <div class="value">Local farmers and aspiring growers</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🎁</span>
+                                <div class="text">
+                                    <div class="label">Freebies</div>
+                                    <div class="value">Free seeds, tools, and training materials</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 5 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/5.jpg" alt="Organic Rice" class="event-image">
+                <div class="event-content">
+                    <h3>Organic Rice Cultivation</h3>
+                    <p class="event-description">Year-long program supporting farmers transitioning to organic rice
+                        farming methods that eliminate harmful pesticides. Includes training, organic fertilizers, and
+                        access to premium markets.</p>
+
+                    <div class="event-info-box">
+                        <div class="date">🌾 January - December 2025</div>
+                        <div class="location">📍 All rice farming areas in San Pedro</div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🌾</span>
+                                <div class="text">
+                                    <div class="label">Support Provided</div>
+                                    <div class="value">Training, organic fertilizers, market access</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🏆</span>
+                                <div class="text">
+                                    <div class="label">Certification</div>
+                                    <div class="value">Organic farming certification assistance</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 6 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/6.jpg" alt="Park Maintenance" class="event-image">
+                <div class="event-content">
+                    <h3>Park Maintenance Program</h3>
+                    <p class="event-description">Daily maintenance of city parks through regular mowing, trimming, and
+                        landscaping ensuring safe, clean, and beautiful spaces for families and communities.</p>
+
+                    <div class="event-info-box">
+                        <div class="date">🔄 Ongoing | Daily Operations</div>
+                        <div class="location">📍 All public parks across San Pedro</div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🛠️</span>
+                                <div class="text">
+                                    <div class="label">Services</div>
+                                    <div class="value">Mowing, trimming, landscaping, sanitation</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">📞</span>
+                                <div class="text">
+                                    <div class="label">Report Issues</div>
+                                    <div class="value">Contact City Agriculture Office</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 7 -->
+            <div class="event-card" data-category="ongoing">
+                <img src="../images/events/7.jpg" alt="Sports Field" class="event-image">
+                <div class="event-content">
+                    <h3>Sports Field Renovation</h3>
+                    <p class="event-description">Complete overhaul of community sports facilities including new turf
+                        installation, modern drainage systems, and efficient irrigation creating world-class venues for
+                        youth sports and tournaments.</p>
+
+                    <div class="event-info-box">
+                        <div class="date">⚙️ In Progress | Target: December 2025</div>
+                        <div class="location">📍 San Pedro Sports Complex</div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">⚽</span>
+                                <div class="text">
+                                    <div class="label">Facilities</div>
+                                    <div class="value">Soccer fields, basketball courts, running tracks</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">🔧</span>
+                                <div class="text">
+                                    <div class="label">Upgrades</div>
+                                    <div class="value">New turf, drainage, irrigation, lighting</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Card 8 -->
+            <div class="event-card" data-category="announcement">
+                <img src="../images/events/8.jpg" alt="Urban Farming" class="event-image">
+                <div class="event-content">
+                    <h3>Urban Farming Training</h3>
+                    <p class="event-description">Monthly training on innovative techniques for growing vegetables in
+                        small spaces using containers, vertical gardens, and hydroponics. Perfect for apartment dwellers
+                        and homeowners.</p>
+
+                    <div class="event-info-box">
+                        <div class="date">🏙️ First Sunday of Every Month | 9:00 AM - 12:00 PM</div>
+                        <div class="location">📍 Agriculture Office Training Center</div>
+                    </div>
+
+                    <button class="expand-btn">
+                        <span>View More Details</span>
+                        <span class="arrow">▼</span>
+                    </button>
+
+                    <div class="expandable-details">
+                        <ul class="details-list">
+                            <li>
+                                <span class="icon">🌱</span>
+                                <div class="text">
+                                    <div class="label">Techniques</div>
+                                    <div class="value">Container gardening, vertical gardens, hydroponics</div>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="icon">📦</span>
+                                <div class="text">
+                                    <div class="label">Materials</div>
+                                    <div class="value">All training materials and starter kits provided</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
         
         <!-- Events Grid - Will be populated by JavaScript -->
         <div class="events-grid">
             <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
                 <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading events...</span>
+ main
                 </div>
                 <p class="text-muted mt-3">Loading events...</p>
             </div>
         </div>
     </section>
 
+ add/composer-spatie/laravel-activitylog
+
 
     
+ main
 
     <!-- Services Section (Always visible) -->
     <section class="services" id="services">
@@ -289,7 +623,7 @@
             <button class="btn-help">Visit Office</button>
         </div>
     </section>
-    
+
     <!-- Contact Modal -->
     <div id="contact-modal" class="contact-modal-overlay" style="display: none;">
         <div class="contact-modal-content">
@@ -302,7 +636,8 @@
                     <div class="contact-info-item">
                         <div class="contact-info-icon">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                         </div>
                         <div class="contact-info-text">
@@ -313,7 +648,8 @@
                     <div class="contact-info-item">
                         <div class="contact-info-icon">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                         </div>
                         <div class="contact-info-text">
@@ -324,7 +660,8 @@
                     <div class="contact-info-item">
                         <div class="contact-info-icon">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                         <div class="contact-info-text">
@@ -335,8 +672,10 @@
                     <div class="contact-info-item">
                         <div class="contact-info-icon">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                         </div>
                         <div class="contact-info-text">
@@ -388,7 +727,8 @@
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Account Status:</span>
-                                    <span class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
+                                    <span
+                                        class="info-value status-text">{{ ucfirst($user['status'] ?? 'Active') }}</span>
                                 </div>
                             </div>
 
@@ -419,60 +759,71 @@
 
                             @if (in_array($s, ['verified', 'approved']))
                                 <button class="profile-action-btn verified" id="verify-action-btn" disabled>
-                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <span>Verified</span>
                                 </button>
                             @elseif(in_array($s, ['pending', 'pending_verification']))
                                 <button class="profile-action-btn pending" id="verify-action-btn" disabled>
-                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <path d="M12 6v6l4 2"/>
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <path d="M12 6v6l4 2" />
                                     </svg>
                                     <span>Pending Verification</span>
                                 </button>
                             @elseif($s === 'rejected')
-                                <button class="profile-action-btn rejected" id="verify-action-btn" onclick="showVerificationModal()">
-                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
-                                        <polyline points="16 6 12 2 8 6"/>
-                                        <line x1="12" y1="2" x2="12" y2="15"/>
+                                <button class="profile-action-btn rejected" id="verify-action-btn"
+                                    onclick="showVerificationModal()">
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+                                        <polyline points="16 6 12 2 8 6" />
+                                        <line x1="12" y1="2" x2="12" y2="15" />
                                     </svg>
                                     <span>Retry Verification</span>
                                 </button>
                             @else
-                                <button class="profile-action-btn primary" id="verify-action-btn" onclick="showVerificationModal()">
-                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                <button class="profile-action-btn primary" id="verify-action-btn"
+                                    onclick="showVerificationModal()">
+                                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <span>Verify Account</span>
                                 </button>
                             @endif
 
                             <button class="profile-action-btn secondary" onclick="editProfile()">
-                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                                 </svg>
                                 <span>Edit Profile</span>
                             </button>
-                            
+
                             <button class="profile-action-btn secondary" onclick="changePassword()">
-                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                    <path d="M7 11V7a5 5 0 0110 0v4"/>
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2"
+                                        ry="2" />
+                                    <path d="M7 11V7a5 5 0 0110 0v4" />
                                 </svg>
                                 <span>Change Password</span>
                             </button>
-                            
-                            <button class="profile-action-btn secondary" onclick="showMyApplicationsModal(); closeProfileModal();">
-                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                                    <polyline points="14 2 14 8 20 8"/>
-                                    <line x1="16" y1="13" x2="8" y2="13"/>
-                                    <line x1="16" y1="17" x2="8" y2="17"/>
-                                    <polyline points="10 9 9 9 8 9"/>
+
+                            <button class="profile-action-btn secondary"
+                                onclick="showMyApplicationsModal(); closeProfileModal();">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                    <polyline points="10 9 9 9 8 9" />
                                 </svg>
                                 <span>View Applications</span>
                             </button>
@@ -511,277 +862,300 @@
                 </div>
             </div>
         </div>
-<!-- PROFILE VERIFICATION MODAL - UPDATED WITH AGE AND EMERGENCY CONTACT -->
+        <!-- PROFILE VERIFICATION MODAL - UPDATED WITH AGE AND EMERGENCY CONTACT -->
         <div id="verification-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content verification-modal">
-            <div class="modal-header">
-                <h3>Profile Verification</h3>
-                <span class="modal-close" onclick="closeVerificationModal()">&times;</span>
-            </div>
+            <div class="modal-content verification-modal">
+                <div class="modal-header">
+                    <h3>Profile Verification</h3>
+                    <span class="modal-close" onclick="closeVerificationModal()">&times;</span>
+                </div>
 
-            <div class="modal-body">
-                <div class="verification-content">
-                    <div class="verification-header">
-                        <div class="verification-header-icon">
-                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20-8.95-20-20-20z" stroke="#0A6953" stroke-width="2" fill="none"/>
-                                <path d="M20 32l-6-6 1.41-1.41L20 29.18l10.59-10.59L32 20l-12 12z" fill="#0A6953"/>
-                            </svg>
+                <div class="modal-body">
+                    <div class="verification-content">
+                        <div class="verification-header">
+                            <div class="verification-header-icon">
+                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20-8.95-20-20-20z"
+                                        stroke="#0A6953" stroke-width="2" fill="none" />
+                                    <path d="M20 32l-6-6 1.41-1.41L20 29.18l10.59-10.59L32 20l-12 12z"
+                                        fill="#0A6953" />
+                                </svg>
+                            </div>
+                            <h4>Complete Your Profile Verification</h4>
+                            <p>Please provide the following information to verify your account and access all services.
+                            </p>
                         </div>
-                        <h4>Complete Your Profile Verification</h4>
-                        <p>Please provide the following information to verify your account and access all services.
-                        </p>
+
+                        <form id="verification-form">
+                            <!-- Personal Information -->
+                            <div class="verification-section">
+                                <div class="section-header">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    <h5>Personal Information</h5>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" id="firstName" name="firstName" required
+                                            placeholder="Enter your first name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="middleName">Middle Name (Optional)</label>
+                                        <input type="text" id="middleName" name="middleName"
+                                            placeholder="Enter your middle name">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name</label>
+                                        <input type="text" id="lastName" name="lastName" required
+                                            placeholder="Enter your last name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="extensionName">Name Extension</label>
+                                        <select id="extensionName" name="extensionName">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="dateOfBirth">Date of Birth</label>
+                                        <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="age">Age</label>
+                                        <input type="number" id="age" name="age" min="18"
+                                            max="100" readonly placeholder="Auto-calculated">
+                                        <small>Calculated automatically from date of birth</small>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="contactNumber">Contact Number</label>
+                                        <input type="tel" id="contactNumber" name="contactNumber" required
+                                            placeholder="09123456789" pattern="[0-9]{11}">
+                                        <small>11-digit Philippine mobile number</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="role">Role</label>
+                                        <select id="role" name="role" required>
+                                            <option value="" disabled selected>Select your role</option>
+                                            <option value="farmer">Farmer</option>
+                                            <option value="fisherfolk">Fisherfolk</option>
+                                            <option value="general">General Public</option>
+                                            <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
+                                            <option value="cooperative-member">Cooperative Member</option>
+                                            <option value="government-employee">Government Employee</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Address Information -->
+                            <div class="verification-section">
+                                <div class="section-header">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                        <circle cx="12" cy="10" r="3"></circle>
+                                    </svg>
+                                    <h5>Address Information</h5>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="barangay">Barangay</label>
+                                    <select id="barangay" name="barangay" required>
+                                        <option value="" disabled selected>Select Barangay</option>
+                                        <option value="Bagong Silang">Bagong Silang</option>
+                                        <option value="Cuyab">Cuyab</option>
+                                        <option value="Estrella">Estrella</option>
+                                        <option value="G.S.I.S.">G.S.I.S.</option>
+                                        <option value="Landayan">Landayan</option>
+                                        <option value="Langgam">Langgam</option>
+                                        <option value="Laram">Laram</option>
+                                        <option value="Magsaysay">Magsaysay</option>
+                                        <option value="Nueva">Nueva</option>
+                                        <option value="Poblacion">Poblacion</option>
+                                        <option value="Riverside">Riverside</option>
+                                        <option value="San Antonio">San Antonio</option>
+                                        <option value="San Roque">San Roque</option>
+                                        <option value="San Vicente">San Vicente</option>
+                                        <option value="Santo Niño">Santo Niño</option>
+                                        <option value="United Bayanihan">United Bayanihan</option>
+                                        <option value="United Better Living">United Better Living</option>
+                                        <option value="Sampaguita Village">Sampaguita Village</option>
+                                        <option value="Calendola">Calendola</option>
+                                        <option value="Narra">Narra</option>
+                                        <option value="Chrysanthemum">Chrysanthemum</option>
+                                        <option value="Fatima">Fatima</option>
+                                        <option value="Maharlika">Maharlika</option>
+                                        <option value="Pacita 1">Pacita 1</option>
+                                        <option value="Pacita 2">Pacita 2</option>
+                                        <option value="Rosario">Rosario</option>
+                                        <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="completeAddress">Complete Address</label>
+                                    <textarea id="completeAddress" name="completeAddress" required rows="3"
+                                        placeholder="Enter your complete address (House No., Street, Subdivision, etc.)"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Emergency Contact Information -->
+                            <div class="verification-section">
+                                <div class="section-header">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2">
+                                        <path
+                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                                        </path>
+                                    </svg>
+                                    <h5>Emergency Contact</h5>
+                                </div>
+                                <p class="section-description">Provide a contact person we can reach in case of
+                                    emergency</p>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="emergencyContactName">Emergency Contact Name</label>
+                                        <input type="text" id="emergencyContactName" name="emergencyContactName"
+                                            required placeholder="Full name of emergency contact">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="emergencyContactPhone">Emergency Contact Phone</label>
+                                        <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone"
+                                            required placeholder="09123456789" pattern="[0-9]{11}">
+                                        <small>11-digit Philippine mobile number</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Document Uploads -->
+                            <div class="verification-section">
+                                <div class="section-header">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    <h5>Required Documents</h5>
+                                </div>
+                                <p class="section-description">Please upload clear, high-quality images of the required
+                                    documents. Supported formats: JPG, PNG, PDF (Max 5MB)</p>
+
+                                <div class="form-row">
+                                    <div class="form-group file-upload-group">
+                                        <label for="idFront">Government ID (Front)</label>
+                                        <input type="file" id="idFront" name="idFront" required
+                                            accept="image/*" class="file-input"
+                                            onchange="previewImage(this, 'idFrontPreview')">
+                                        <div class="file-upload-area"
+                                            onclick="document.getElementById('idFront').click()">
+                                            <div class="upload-icon">
+                                                <svg width="32" height="32" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <rect x="3" y="4" width="18" height="14" rx="2">
+                                                    </rect>
+                                                    <path d="M3 18h18"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="upload-text">Click to upload ID front</div>
+                                        </div>
+                                        <div id="idFrontPreview" class="image-preview" style="display: none;"></div>
+                                    </div>
+
+                                    <div class="form-group file-upload-group">
+                                        <label for="idBack">Government ID (Back)</label>
+                                        <input type="file" id="idBack" name="idBack" required
+                                            accept="image/*" class="file-input"
+                                            onchange="previewImage(this, 'idBackPreview')">
+                                        <div class="file-upload-area"
+                                            onclick="document.getElementById('idBack').click()">
+                                            <div class="upload-icon">
+                                                <svg width="32" height="32" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2">
+                                                    <rect x="3" y="4" width="18" height="14" rx="2">
+                                                    </rect>
+                                                    <path d="M3 18h18"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="upload-text">Click to upload ID back</div>
+                                        </div>
+                                        <div id="idBackPreview" class="image-preview" style="display: none;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group file-upload-group">
+                                    <label for="locationProof">Location/Role Proof</label>
+                                    <input type="file" id="locationProof" name="locationProof" required
+                                        accept="image/*" class="file-input"
+                                        onchange="previewImage(this, 'locationProofPreview')">
+                                    <div class="file-upload-area"
+                                        onclick="document.getElementById('locationProof').click()">
+                                        <div class="upload-icon">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                                <circle cx="12" cy="10" r="3"></circle>
+                                            </svg>
+                                        </div>
+                                        <div class="upload-text">Click to upload location/role proof</div>
+                                    </div>
+                                    <div id="locationProofPreview" class="image-preview" style="display: none;">
+                                    </div>
+                                    <div class="form-text">
+                                        <strong>For farmers:</strong> Photo of your farm or agricultural land<br>
+                                        <strong>For fisherfolk:</strong> Photo of fishing area or boat<br>
+                                        <strong>For others:</strong> Relevant business permit or location proof
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Verification Notice -->
+                            <div class="verification-notice">
+                                <div class="notice-icon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                    </svg>
+                                </div>
+                                <div class="notice-content">
+                                    <h6>Verification Process</h6>
+                                    <p>Your submitted documents will be reviewed by our admin team within 2-3 business
+                                        days. You will receive an email notification once your verification is approved
+                                        or if additional documents are needed.</p>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="verification-submit-btn">
+                                <span class="btn-text">Submit for Verification</span>
+                                <span class="btn-loader" style="display: none;">Submitting...</span>
+                            </button>
+                        </form>
                     </div>
-
-                    <form id="verification-form">
-                        <!-- Personal Information -->
-                        <div class="verification-section">
-                            <div class="section-header">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                                <h5>Personal Information</h5>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="firstName">First Name</label>
-                                    <input type="text" id="firstName" name="firstName" required
-                                        placeholder="Enter your first name">
-                                </div>
-                                <div class="form-group">
-                                    <label for="middleName">Middle Name (Optional)</label>
-                                    <input type="text" id="middleName" name="middleName"
-                                        placeholder="Enter your middle name">
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="lastName">Last Name</label>
-                                    <input type="text" id="lastName" name="lastName" required
-                                        placeholder="Enter your last name">
-                                </div>
-                                <div class="form-group">
-                                    <label for="extensionName">Name Extension</label>
-                                    <select id="extensionName" name="extensionName">
-                                        <option value="">None</option>
-                                        <option value="Jr.">Jr.</option>
-                                        <option value="Sr.">Sr.</option>
-                                        <option value="II">II</option>
-                                        <option value="III">III</option>
-                                        <option value="IV">IV</option>
-                                        <option value="V">V</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="dateOfBirth">Date of Birth</label>
-                                    <input type="date" id="dateOfBirth" name="dateOfBirth" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="age">Age</label>
-                                    <input type="number" id="age" name="age" min="18" max="100" readonly
-                                        placeholder="Auto-calculated">
-                                    <small>Calculated automatically from date of birth</small>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="contactNumber">Contact Number</label>
-                                    <input type="tel" id="contactNumber" name="contactNumber" required
-                                        placeholder="09123456789" pattern="[0-9]{11}">
-                                    <small>11-digit Philippine mobile number</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="role">Role</label>
-                                    <select id="role" name="role" required>
-                                        <option value="" disabled selected>Select your role</option>
-                                        <option value="farmer">Farmer</option>
-                                        <option value="fisherfolk">Fisherfolk</option>
-                                        <option value="general">General Public</option>
-                                        <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
-                                        <option value="cooperative-member">Cooperative Member</option>
-                                        <option value="government-employee">Government Employee</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Address Information -->
-                        <div class="verification-section">
-                            <div class="section-header">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                </svg>
-                                <h5>Address Information</h5>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="barangay">Barangay</label>
-                                <select id="barangay" name="barangay" required>
-                                    <option value="" disabled selected>Select Barangay</option>
-                                    <option value="Bagong Silang">Bagong Silang</option>
-                                    <option value="Cuyab">Cuyab</option>
-                                    <option value="Estrella">Estrella</option>
-                                    <option value="G.S.I.S.">G.S.I.S.</option>
-                                    <option value="Landayan">Landayan</option>
-                                    <option value="Langgam">Langgam</option>
-                                    <option value="Laram">Laram</option>
-                                    <option value="Magsaysay">Magsaysay</option>
-                                    <option value="Nueva">Nueva</option>
-                                    <option value="Poblacion">Poblacion</option>
-                                    <option value="Riverside">Riverside</option>
-                                    <option value="San Antonio">San Antonio</option>
-                                    <option value="San Roque">San Roque</option>
-                                    <option value="San Vicente">San Vicente</option>
-                                    <option value="Santo Niño">Santo Niño</option>
-                                    <option value="United Bayanihan">United Bayanihan</option>
-                                    <option value="United Better Living">United Better Living</option>
-                                    <option value="Sampaguita Village">Sampaguita Village</option>
-                                    <option value="Calendola">Calendola</option>
-                                    <option value="Narra">Narra</option>
-                                    <option value="Chrysanthemum">Chrysanthemum</option>
-                                    <option value="Fatima">Fatima</option>
-                                    <option value="Maharlika">Maharlika</option>
-                                    <option value="Pacita 1">Pacita 1</option>
-                                    <option value="Pacita 2">Pacita 2</option>
-                                    <option value="Rosario">Rosario</option>
-                                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="completeAddress">Complete Address</label>
-                                <textarea id="completeAddress" name="completeAddress" required rows="3"
-                                    placeholder="Enter your complete address (House No., Street, Subdivision, etc.)"></textarea>
-                            </div>
-                        </div>
-
-                        <!-- Emergency Contact Information -->
-                        <div class="verification-section">
-                            <div class="section-header">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                                </svg>
-                                <h5>Emergency Contact</h5>
-                            </div>
-                            <p class="section-description">Provide a contact person we can reach in case of emergency</p>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="emergencyContactName">Emergency Contact Name</label>
-                                    <input type="text" id="emergencyContactName" name="emergencyContactName" required
-                                        placeholder="Full name of emergency contact">
-                                </div>
-                                <div class="form-group">
-                                    <label for="emergencyContactPhone">Emergency Contact Phone</label>
-                                    <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone" required
-                                        placeholder="09123456789" pattern="[0-9]{11}">
-                                    <small>11-digit Philippine mobile number</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Document Uploads -->
-                        <div class="verification-section">
-                            <div class="section-header">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                </svg>
-                                <h5>Required Documents</h5>
-                            </div>
-                            <p class="section-description">Please upload clear, high-quality images of the required documents. Supported formats: JPG, PNG, PDF (Max 5MB)</p>
-
-                            <div class="form-row">
-                                <div class="form-group file-upload-group">
-                                    <label for="idFront">Government ID (Front)</label>
-                                    <input type="file" id="idFront" name="idFront" required
-                                        accept="image/*" class="file-input" onchange="previewImage(this, 'idFrontPreview')">
-                                    <div class="file-upload-area"
-                                        onclick="document.getElementById('idFront').click()">
-                                        <div class="upload-icon">
-                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <rect x="3" y="4" width="18" height="14" rx="2"></rect>
-                                                <path d="M3 18h18"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="upload-text">Click to upload ID front</div>
-                                    </div>
-                                    <div id="idFrontPreview" class="image-preview" style="display: none;"></div>
-                                </div>
-
-                                <div class="form-group file-upload-group">
-                                    <label for="idBack">Government ID (Back)</label>
-                                    <input type="file" id="idBack" name="idBack" required
-                                        accept="image/*" class="file-input" onchange="previewImage(this, 'idBackPreview')">
-                                    <div class="file-upload-area"
-                                        onclick="document.getElementById('idBack').click()">
-                                        <div class="upload-icon">
-                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <rect x="3" y="4" width="18" height="14" rx="2"></rect>
-                                                <path d="M3 18h18"></path>
-                                            </svg>
-                                        </div>
-                                        <div class="upload-text">Click to upload ID back</div>
-                                    </div>
-                                    <div id="idBackPreview" class="image-preview" style="display: none;"></div>
-                                </div>
-                            </div>
-
-                            <div class="form-group file-upload-group">
-                                <label for="locationProof">Location/Role Proof</label>
-                                <input type="file" id="locationProof" name="locationProof" required
-                                    accept="image/*" class="file-input" onchange="previewImage(this, 'locationProofPreview')">
-                                <div class="file-upload-area"
-                                    onclick="document.getElementById('locationProof').click()">
-                                    <div class="upload-icon">
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                            <circle cx="12" cy="10" r="3"></circle>
-                                        </svg>
-                                    </div>
-                                    <div class="upload-text">Click to upload location/role proof</div>
-                                </div>
-                                <div id="locationProofPreview" class="image-preview" style="display: none;"></div>
-                                <div class="form-text">
-                                    <strong>For farmers:</strong> Photo of your farm or agricultural land<br>
-                                    <strong>For fisherfolk:</strong> Photo of fishing area or boat<br>
-                                    <strong>For others:</strong> Relevant business permit or location proof
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Verification Notice -->
-                        <div class="verification-notice">
-                            <div class="notice-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                </svg>
-                            </div>
-                            <div class="notice-content">
-                                <h6>Verification Process</h6>
-                                <p>Your submitted documents will be reviewed by our admin team within 2-3 business days. You will receive an email notification once your verification is approved or if additional documents are needed.</p>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="verification-submit-btn">
-                            <span class="btn-text">Submit for Verification</span>
-                            <span class="btn-loader" style="display: none;">Submitting...</span>
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>
-    </div>
 
     @endif
 
@@ -835,10 +1209,11 @@
                             <span>or</span>
                         </div>
 
-                       <!-- Facebook Sign In Button -->
+                        <!-- Facebook Sign In Button -->
                         <button type="button" class="facebook-signin-btn" onclick="signInWithFacebook()">
                             <svg class="facebook-icon" viewBox="0 0 24 24" fill="#1877f2">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                             </svg>
                             Continue with Facebook
                         </button>
@@ -858,15 +1233,17 @@
                             <div class="form-group">
                                 <label for="signup-username">Username</label>
                                 <input type="text" id="signup-username" name="username" required
-                                    placeholder="Choose a username"
-                                    autocomplete="username" pattern="^(?![0-9])[a-zA-Z0-9_.]{3,20}$" minlength="3" maxlength="20" oninput="checkUsernameAvailability(this.value)">
+                                    placeholder="Choose a username" autocomplete="username"
+                                    pattern="^(?![0-9])[a-zA-Z0-9_.]{3,20}$" minlength="3" maxlength="20"
+                                    oninput="checkUsernameAvailability(this.value)">
                                 <div class="username-status"></div>
-                                <div class="form-text">Username must be 3–20 characters long and contain only letters, numbers, underscores, or dots. Cannot start with a number.</div>
+                                <div class="form-text">Username must be 3–20 characters long and contain only letters,
+                                    numbers, underscores, or dots. Cannot start with a number.</div>
                             </div>
 
                             <div class="form-group">
                                 <label for="signup-email">Email Address</label>
-                                <input type="email" id="signup-email" name="email" required 
+                                <input type="email" id="signup-email" name="email" required
                                     placeholder="e.g. juan.farmer@gmail.com" autocomplete="email" maxlength="254">
                             </div>
 
@@ -913,7 +1290,7 @@
 
                             <!-- Add this before the SIGN UP button -->
                             <div class="recaptcha-container">
-                                <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                                <div class="g-recaptcha" data-sitekey="{{ config('recaptcha.site_key') }}"></div>
                             </div>
 
                             <button type="submit" class="auth-submit-btn">
@@ -925,16 +1302,18 @@
                             <div class="auth-divider">
                                 <span>or</span>
                             </div>
-                           <!-- Facebook Sign Up Button -->
+                            <!-- Facebook Sign Up Button -->
                             <button type="button" class="facebook-signin-btn" onclick="signUpWithFacebook()">
                                 <svg class="facebook-icon" viewBox="0 0 24 24" fill="#1877f2">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                    <path
+                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                                 </svg>
                                 Sign up with Facebook
                             </button>
-                             <!-- Back to Login Button -->
+                            <!-- Back to Login Button -->
                             <div class="login-prompt">
-                                <p>Already have an account? <a href="#" onclick="showLogInForm(); return false;">Login here</a></p>
+                                <p>Already have an account? <a href="#"
+                                        onclick="showLogInForm(); return false;">Login here</a></p>
                             </div>
                         </form>
                     </div>
@@ -1009,8 +1388,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="edit-age">Age</label>
-                                <input type="number" id="edit-age" name="age" min="18" max="100"
-                                    readonly>
+                                <input type="number" id="edit-age" name="age" min="18"
+                                    max="100" readonly>
                                 <small>Calculated automatically from date of birth</small>
                             </div>
                         </div>
@@ -1096,13 +1475,16 @@
                     <!-- Security Info Banner - Replaces password requirements -->
                     <div class="security-info-banner">
                         <div class="banner-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="12" y1="16" x2="12" y2="12"></line>
                                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
                             </svg>
                         </div>
-                        <p>Choose a strong password that you haven't used elsewhere. You'll need to log in again after changing it.</p>
+                        <p>Choose a strong password that you haven't used elsewhere. You'll need to log in again after
+                            changing it.</p>
                     </div>
 
                     <!-- Prevent default form submission -->
@@ -1122,8 +1504,9 @@
                         <div class="form-group">
                             <label for="new-password">New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="new-password" name="new_password" required minlength="8"
-                                    autocomplete="new-password" placeholder="Enter your new password"
+                                <input type="password" id="new-password" name="new_password" required
+                                    minlength="8" autocomplete="new-password"
+                                    placeholder="Enter your new password"
                                     oninput="checkNewPasswordStrength(this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('new-password')">
@@ -1142,8 +1525,8 @@
                         <div class="form-group">
                             <label for="confirm-new-password">Confirm New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="confirm-new-password" name="confirm_new_password" required
-                                    autocomplete="new-password" placeholder="Confirm your new password"
+                                <input type="password" id="confirm-new-password" name="confirm_new_password"
+                                    required autocomplete="new-password" placeholder="Confirm your new password"
                                     oninput="checkNewPasswordMatch(document.getElementById('new-password').value, this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('confirm-new-password')">
@@ -1175,13 +1558,16 @@
                 <div class="footer-logo">
                     <h2>AgriSys</h2>
                 </div>
-                <p>The Agricultural Service System (AgriSys) is designed to optimize service delivery for the City Agriculture Office of San Pedro, Laguna. We aim to streamline agricultural services and support local farmers.</p>
+                <p>The Agricultural Service System (AgriSys) is designed to optimize service delivery for the City
+                    Agriculture Office of San Pedro, Laguna. We aim to streamline agricultural services and support
+                    local farmers.</p>
 
                 <div class="social-links">
                     <span>Follow us:</span>
                     <a href="https://www.facebook.com/sanpedroagri" target="_blank" title="Facebook">
                         <svg width="16" height="16" viewBox="0 0 24 24">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            <path
+                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                     </a>
                 </div>
@@ -1203,10 +1589,10 @@
             <div class="footer-column">
                 <h3>Contact Us</h3>
                 <p>City Agriculture Office<br>
-                San Pedro City Hall<br>
-                Laguna, Philippines</p>
+                    San Pedro City Hall<br>
+                    Laguna, Philippines</p>
                 <p style="margin-top: 12px;">Phone: (123) 456-7890<br>
-                Email: <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a></p>
+                    Email: <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a></p>
             </div>
 
             <!-- Office Hours column -->
@@ -1245,8 +1631,35 @@
     <script src="{{ asset('js/seedlings-autofill.js') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}"></script>
     <script src="{{ asset('js/toast-notifications.js') }}"></script>
+ add/composer-spatie/laravel-activitylog
+
+    <!-- reCAPTCHA initialization callback -->
+    <script>
+        // Global callback function for when reCAPTCHA is loaded
+        window.onRecaptchaLoad = function() {
+            console.log('reCAPTCHA API loaded successfully');
+            window.recaptchaLoaded = true;
+        };
+
+        // Fallback check if callback doesn't fire
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if reCAPTCHA is loaded after page load
+            setTimeout(function() {
+                if (typeof grecaptcha !== 'undefined') {
+                    window.recaptchaLoaded = true;
+                    console.log('reCAPTCHA API detected after DOM load');
+                } else {
+                    console.warn('reCAPTCHA API not loaded after 1 second');
+                }
+            }, 1000);
+        });
+    </script>
+
+    <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
+
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="{{ asset('js/events-loader.js') }}"></script>
+ main
 </body>
 
 </html>
