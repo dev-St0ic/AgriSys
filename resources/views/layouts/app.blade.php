@@ -419,6 +419,13 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.event.*') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.event.index') }}" data-tooltip="Event Management">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span class="nav-link-text">Events</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.registrations.index') }}" data-tooltip="User Registrations">
                                         <i class="fas fa-user-edit"></i>
@@ -469,13 +476,13 @@
                                         <span class="nav-link-text">Training Registrations</span>
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <!-- <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.inventory.index') }}" data-tooltip="Inventory Management">
                                         <i class="fas fa-warehouse"></i>
                                         <span class="nav-link-text">Inventory Management</span>
                                     </a>
-                                </li>
+                                </li> -->
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.analytics.analytics') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.analytics.seedlings') }}" data-tooltip="Analytics">
