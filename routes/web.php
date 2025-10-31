@@ -24,6 +24,7 @@ use App\Http\Controllers\SeedlingCategoryItemController;
 use App\Http\Controllers\UserApplicationsController;
 use App\Http\Controllers\DSSController;
 use App\Http\Controllers\AdminProfileController;
+use App\Http\Controllers\EventController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -86,11 +87,11 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     }
 })->name('api.validate-fishr');
 
-// ==============================================
-// ADMIN PROTECTED ROUTES
-// ==============================================
+    // ==============================================
+    // ADMIN PROTECTED ROUTES
+    // ==============================================
 
-Route::middleware('admin')->group(function () {
+    Route::middleware('admin')->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -605,6 +606,49 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| EVENTS ROUTES - FIXED
+|--------------------------------------------------------------------------
+*/
+
+// Admin routes with authentication
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('events')->name('event.')->group(function () {
+        // List all events
+        Route::get('/', [EventController::class, 'index'])->name('index');
+        
+        // Create new event
+        Route::post('/', [EventController::class, 'store'])->name('store');
+        
+        // Show single event
+        Route::get('/{event}', [EventController::class, 'show'])->name('show');
+        
+        // Update event (support both PUT and POST with _method)
+        Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])->name('update');
+        Route::post('/{event}/update', [EventController::class, 'update'])->name('update.post');
+        
+        // Delete event
+        Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy');
+        
+        // Toggle status - FIXED: Use PATCH instead of POST
+        Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])->name('toggle');
+        
+        // Update display order
+        Route::patch('/{event}/order', [EventController::class, 'updateOrder'])->name('update-order');
+        
+        // Get statistics
+        Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
+    });
+});
+
+// ============================================
+// PUBLIC API ROUTES - For landing page
+// ============================================
+Route::prefix('api')->group(function () {
+    // Get all events - PUBLIC (no authentication required)
+    Route::get('/events', [EventController::class, 'getEvents'])->name('api.events.public');
+});
 /*
 |--------------------------------------------------------------------------
 | Public API Routes (for AJAX calls)
