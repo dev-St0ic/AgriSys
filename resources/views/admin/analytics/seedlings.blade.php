@@ -290,7 +290,7 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="alert alert-{{ $alert['type'] }} mb-0 d-flex align-items-start">
                                         <i class="fas {{ $alert['icon'] }} me-3 mt-1 fa-lg"></i>
-                                        <div class="flex-grow-1">
+                                        <div class="grow">
                                             <strong class="d-block mb-1">{{ $alert['title'] }}</strong>
                                             <p class="mb-2 small">{{ $alert['message'] }}</p>
                                             <span class="badge bg-{{ $alert['type'] }}">
@@ -560,8 +560,7 @@
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="progress flex-grow-1 me-2"
-                                                    style="height: 20px; min-width: 100px;">
+                                                <div class="progress grow me-2" style="height: 20px; min-width: 100px;">
                                                     <div class="progress-bar bg-{{ $statusClass }}" role="progressbar"
                                                         style="width: {{ $barangay['score'] }}%"
                                                         aria-valuenow="{{ $barangay['score'] }}" aria-valuemin="0"

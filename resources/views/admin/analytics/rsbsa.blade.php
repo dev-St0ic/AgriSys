@@ -1,4 +1,4 @@
-{{-- resources/views/admin/analytics/rsbsa.blade.php --}}
+﻿{{-- resources/views/admin/analytics/rsbsa.blade.php --}}
 
 @extends('layouts.app')
 
@@ -98,10 +98,6 @@
                                     class="btn btn-success px-4">
                                     <i class="fas fa-download me-2"></i>Export Data
                                 </a>
-                                <button type="button" class="btn btn-outline-info px-4" data-bs-toggle="modal"
-                                    data-bs-target="#rsbsaInsightsModal">
-                                    <i class="fas fa-lightbulb me-2"></i>AI Insights
-                                </button>
                             </div>
                         </div>
                     </form>
@@ -205,6 +201,17 @@
                     </div>
                     <div class="status-legends">
                         @foreach ($statusAnalysis['counts'] as $status => $count)
+                            @php
+                                $dotColor = match ($status) {
+                                    'approved' => '#10b981',
+                                    'rejected' => '#ef4444',
+                                    'under_review', 'pending' => '#f59e0b',
+                                    'cancelled', 'withdrawn' => '#6b7280',
+                                    'processing' => '#3b82f6',
+                                    'on_hold' => '#8b5cf6',
+                                    default => '#64748b',
+                                };
+                            @endphp
                             <div class="legend-item d-flex justify-content-between align-items-center mb-2 p-2 rounded">
                                 <div class="d-flex align-items-center">
                                     <span
@@ -212,11 +219,10 @@
                                     <span class="fw-medium">{{ ucfirst(str_replace('_', ' ', $status)) }}</span>
                                 </div>
                                 <div>
-                                    <span
-                                        class="badge bg-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }}-soft text-{{ $status === 'approved' ? 'success' : ($status === 'rejected' ? 'danger' : 'warning') }}">
+                                    <span class="badge text-white me-2" style="background-color: {{ $dotColor }};">
                                         {{ $count }}
                                     </span>
-                                    <span class="text-muted ms-2">{{ $statusAnalysis['percentages'][$status] }}%</span>
+                                    <span class="text-muted">{{ $statusAnalysis['percentages'][$status] }}%</span>
                                 </div>
                             </div>
                         @endforeach
@@ -252,108 +258,57 @@
                 </div>
                 <div class="card-body">
                     @foreach ($commodityAnalysis->take(5) as $index => $commodity)
-                        <div class="commodity-item mb-3 p-3 rounded">
-                            <div class="d-flex align-items-center">
-                                <div class="commodity-rank me-3">
-                                    <div class="badge bg-success rounded-circle p-2"
-                                        style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                                        <strong>{{ $index + 1 }}</strong>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 fw-semibold">{{ ucfirst($commodity->commodity) }}</h6>
-                                    <div class="progress mb-2" style="height: 8px;">
-                                        <div class="progress-bar bg-success" role="progressbar"
-                                            style="width: {{ ($commodity->total_applications / $commodityAnalysis->first()->total_applications) * 100 }}%">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between small">
-                                        <span class="text-muted">
-                                            <i class="fas fa-users me-1"></i>{{ $commodity->total_applications }} farmers
-                                        </span>
-                                        <span class="text-success fw-semibold">
-                                            <i class="fas fa-map me-1"></i>{{ round($commodity->total_land_area, 1) }} ha
-                                        </span>
-                                    </div>
-                                </div>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0 fw-semibold">{{ ucfirst($commodity->commodity) }}</h6>
+                                <span
+                                    class="badge bg-primary text-white rounded-pill px-3">{{ $commodity->total_applications }}</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-primary"
+                                    style="width: {{ ($commodity->total_applications / $commodityAnalysis->first()->total_applications) * 100 }}%"
+                                    role="progressbar"></div>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted">
+                                <span>Approval:
+                                    {{ round(($commodity->approved / max(1, $commodity->total_applications)) * 100, 1) }}%</span>
+                                <span>Avg: {{ round($commodity->total_land_area, 1) }}ha ×
+                                    {{ $commodity->unique_barangays }} barangays</span>
                             </div>
                         </div>
                     @endforeach
                 </div>
             </div>
-        </div>
-
-        <!-- Performance Metrics -->
+        </div> <!-- Main Livelihood Distribution -->
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-0 pt-3">
                     <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-tachometer-alt me-2 text-info"></i>Key Performance Indicators
+                        <i class="fas fa-briefcase me-2 text-success"></i>Main Livelihood Distribution
                     </h5>
                 </div>
                 <div class="card-body">
-                    <!-- Completion Rate -->
-                    <div class="metric-item mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0 fw-semibold">Completion Rate</h6>
-                            <span class="badge bg-info fs-6">{{ $performanceMetrics['completion_rate'] }}%</span>
+                    @foreach ($livelihoodAnalysis->take(5) as $index => $livelihood)
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0 fw-semibold">{{ ucfirst($livelihood->main_livelihood) }}</h6>
+                                <span
+                                    class="badge bg-primary text-white rounded-pill px-3">{{ $livelihood->total_applications }}</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-primary"
+                                    style="width: {{ ($livelihood->total_applications / $livelihoodAnalysis->first()->total_applications) * 100 }}%"
+                                    role="progressbar"></div>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted">
+                                <span>Approval:
+                                    {{ round(($livelihood->approved / max(1, $livelihood->total_applications)) * 100, 1) }}%</span>
+                                <span>Share:
+                                    {{ round(($livelihood->total_applications / $livelihoodAnalysis->sum('total_applications')) * 100, 1) }}%
+                                    of total</span>
+                            </div>
                         </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-info" role="progressbar"
-                                style="width: {{ $performanceMetrics['completion_rate'] }}%"></div>
-                        </div>
-                        <small class="text-muted d-block mt-1">
-                            {{ $processingTimeAnalysis['processed_count'] }} of {{ $overview['total_applications'] }}
-                            processed
-                        </small>
-                    </div>
-
-                    <!-- Quality Score -->
-                    <div class="metric-item mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0 fw-semibold">Quality Score</h6>
-                            <span
-                                class="badge bg-{{ $performanceMetrics['quality_score'] > 80 ? 'success' : ($performanceMetrics['quality_score'] > 60 ? 'warning' : 'danger') }} fs-6">
-                                {{ $performanceMetrics['quality_score'] }}%
-                            </span>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-{{ $performanceMetrics['quality_score'] > 80 ? 'success' : ($performanceMetrics['quality_score'] > 60 ? 'warning' : 'danger') }}"
-                                style="width: {{ $performanceMetrics['quality_score'] }}%"></div>
-                        </div>
-                        <small class="text-muted d-block mt-1">Based on approval rate & documentation</small>
-                    </div>
-
-                    <!-- Document Submission -->
-                    <div class="metric-item mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0 fw-semibold">Document Submission</h6>
-                            <span class="badge bg-primary fs-6">{{ $documentAnalysis['submission_rate'] }}%</span>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-primary" role="progressbar"
-                                style="width: {{ $documentAnalysis['submission_rate'] }}%"></div>
-                        </div>
-                        <small class="text-muted d-block mt-1">
-                            {{ $documentAnalysis['with_documents'] }} with supporting documents
-                        </small>
-                    </div>
-
-                    <!-- Agricultural Impact -->
-                    <div class="metric-item">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0 fw-semibold">Avg Land per Farmer</h6>
-                            <span class="badge bg-success fs-6">{{ number_format($overview['avg_land_area'], 2) }}
-                                ha</span>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-success"
-                                style="width: {{ min(100, ($overview['avg_land_area'] / 10) * 100) }}%"></div>
-                        </div>
-                        <small class="text-muted d-block mt-1">
-                            {{ $overview['unique_commodities'] }} different crops registered
-                        </small>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -400,8 +355,7 @@
                                         </td>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <div class="progress flex-grow-1 me-2"
-                                                    style="height: 8px; max-width: 100px;">
+                                                <div class="progress grow me-2" style="height: 8px; max-width: 100px;">
                                                     <div class="progress-bar bg-success"
                                                         style="width: {{ round(($barangay->approved / max(1, $barangay->total_applications)) * 100, 1) }}%">
                                                     </div>
@@ -428,805 +382,761 @@
         </div>
     </div>
 
-    <!-- Gender & Livelihood Analysis -->
-    <div class="row g-3 mb-4">
-        <!-- Gender Distribution -->
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-venus-mars me-2 text-primary"></i>Gender Distribution
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        @foreach ($genderAnalysis['stats'] as $gender)
-                            <div class="col-6">
-                                <div class="gender-card p-4 rounded text-center h-100"
-                                    style="background: linear-gradient(135deg, {{ $gender->sex === 'Male' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(236, 72, 153, 0.1)' }} 0%, {{ $gender->sex === 'Male' ? 'rgba(59, 130, 246, 0.05)' : 'rgba(236, 72, 153, 0.05)' }} 100%);">
-                                    <i
-                                        class="fas fa-{{ $gender->sex === 'Male' ? 'mars' : 'venus' }} fa-3x mb-3 text-{{ $gender->sex === 'Male' ? 'primary' : 'pink' }}"></i>
-                                    <h3 class="mb-2 fw-bold text-{{ $gender->sex === 'Male' ? 'primary' : 'pink' }}">
-                                        {{ $gender->total_applications }}
-                                    </h3>
-                                    <p class="mb-2 fw-semibold">{{ $gender->sex }} Farmers</p>
-                                    <div class="small text-muted">
-                                        <div class="mb-1">
-                                            <i class="fas fa-percentage me-1"></i>
-                                            <span
-                                                class="fw-semibold">{{ $genderAnalysis['percentages'][$gender->sex] ?? 0 }}%</span>
-                                            of total
-                                        </div>
-                                        <div>
-                                            <i class="fas fa-map me-1"></i>
-                                            <span class="fw-semibold">{{ round($gender->total_land_area, 1) }} ha</span>
-                                            land area
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Livelihoods -->
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-briefcase me-2 text-success"></i>Main Livelihood Distribution
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @foreach ($livelihoodAnalysis->take(5) as $index => $livelihood)
-                        <div class="livelihood-item mb-3 p-3 rounded">
-                            <div class="d-flex align-items-center">
-                                <div class="livelihood-rank me-3">
-                                    <div class="badge bg-success rounded-circle p-2"
-                                        style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
-                                        <strong>{{ $index + 1 }}</strong>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1 fw-semibold">{{ ucfirst($livelihood->main_livelihood) }}</h6>
-                                    <div class="progress mb-2" style="height: 6px;">
-                                        <div class="progress-bar bg-success"
-                                            style="width: {{ ($livelihood->total_applications / $livelihoodAnalysis->first()->total_applications) * 100 }}%">
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between small">
-                                        <span class="text-muted">{{ $livelihood->total_applications }} applications</span>
-                                        <span class="text-success fw-semibold">
-                                            {{ round(($livelihood->approved / max(1, $livelihood->total_applications)) * 100, 1) }}%
-                                            approval
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- AI Insights Modal -->
     <div class="modal fade" id="rsbsaInsightsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-gradient-primary text-white border-0">
-                    <h5 class="modal-title fw-semibold">
-                        <i class="fas fa-robot me-2"></i>RSBSA AI-Powered Insights
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="insight-section">
-                                <h6 class="fw-semibold mb-3">
-                                    <i class="fas fa-chart-line text-success me-2"></i>Growth Opportunities
-                                </h6>
-                                <ul class="list-unstyled">
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-arrow-up text-success me-2 mt-1"></i>
-                                        <span>Expand agricultural coverage to reach
-                                            {{ 26 - $overview['active_barangays'] }} remaining barangays for complete
-                                            city-wide registration</span>
-                                    </li>
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-seedling text-info me-2 mt-1"></i>
-                                        <span>Promote crop diversification among farmers currently growing only
-                                            {{ $overview['unique_commodities'] }} commodity types</span>
-                                    </li>
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-chart-bar text-warning me-2 mt-1"></i>
-                                        <span>Implement digital application system to improve
-                                            {{ $documentAnalysis['submission_rate'] }}% document submission rate</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="insight-section">
-                                <h6 class="fw-semibold mb-3">
-                                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>Areas for Improvement
-                                </h6>
-                                <ul class="list-unstyled">
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-balance-scale text-warning me-2 mt-1"></i>
-                                        <span>Address gender disparity in agricultural registration through targeted
-                                            outreach programs</span>
-                                    </li>
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-tachometer-alt text-info me-2 mt-1"></i>
-                                        <span>{{ $processingTimeAnalysis['avg_processing_days'] > 7 ? 'Reduce processing time to improve farmer experience' : 'Maintain current processing efficiency for quality service' }}</span>
-                                    </li>
-                                    <li class="mb-3 d-flex">
-                                        <i class="fas fa-map-marker-alt text-success me-2 mt-1"></i>
-                                        <span>Focus on underperforming barangays to ensure equitable agricultural support
-                                            distribution</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+            @endsection
 
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <div class="alert alert-primary border-0 bg-primary-soft">
-                                <div class="d-flex">
-                                    <i class="fas fa-lightbulb text-primary me-3 mt-1 fs-5"></i>
-                                    <div>
-                                        <h6 class="fw-semibold mb-2 text-primary">Strategic Recommendation</h6>
-                                        <p class="mb-0 text-muted">
-                                            Consider implementing a mobile registration unit for remote agricultural areas
-                                            and conducting farmer education campaigns about RSBSA benefits to increase
-                                            participation from {{ number_format($overview['total_land_area'], 1) }}ha to
-                                            the full agricultural potential of San Pedro, Laguna.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            @section('styles')
+                <style>
+                    /* Custom Color Variables */
+                    :root {
+                        --primary-color: #3b82f6;
+                        --success-color: #10b981;
+                        --warning-color: #f59e0b;
+                        --danger-color: #ef4444;
+                        --info-color: #0ea5e9;
+                        --purple-color: #8b5cf6;
+                        --dark-color: #1f2937;
+                    }
 
-@endsection
+                    /* Service Navigation */
+                    .service-nav {
+                        background: #f8fafc;
+                        padding: 0.5rem;
+                        border-radius: 50px;
+                        display: inline-flex;
+                    }
 
-@section('styles')
-    <style>
-        /* Custom Color Variables */
-        :root {
-            --primary-color: #3b82f6;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #0ea5e9;
-            --purple-color: #8b5cf6;
-            --dark-color: #1f2937;
-        }
+                    .service-nav .nav-link {
+                        border-radius: 30px;
+                        padding: 0.5rem 1.25rem;
+                        margin: 0 0.25rem;
+                        font-weight: 500;
+                        color: #64748b;
+                        transition: all 0.3s ease;
+                        border: none;
+                    }
 
-        /* Service Navigation */
-        .service-nav {
-            background: #f8fafc;
-            padding: 0.5rem;
-            border-radius: 50px;
-            display: inline-flex;
-        }
+                    .service-nav .nav-link:hover {
+                        color: var(--primary-color);
+                        background: white;
+                        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+                    }
 
-        .service-nav .nav-link {
-            border-radius: 30px;
-            padding: 0.5rem 1.25rem;
-            margin: 0 0.25rem;
-            font-weight: 500;
-            color: #64748b;
-            transition: all 0.3s ease;
-            border: none;
-        }
+                    .service-nav .nav-link.active {
+                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                        color: white;
+                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                    }
 
-        .service-nav .nav-link:hover {
-            color: var(--primary-color);
-            background: white;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-        }
+                    /* Metric Cards */
+                    .metric-card {
+                        transition: all 0.3s ease;
+                        border-radius: 12px;
+                        overflow: hidden;
+                    }
 
-        .service-nav .nav-link.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
+                    .metric-card:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+                    }
 
-        /* Metric Cards */
-        .metric-card {
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            overflow: hidden;
-        }
+                    .metric-label {
+                        font-size: 0.875rem;
+                        font-weight: 500;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
 
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-        }
+                    .metric-value {
+                        font-size: 2rem;
+                        font-weight: 700;
+                        color: var(--dark-color);
+                    }
 
-        .metric-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+                    .metric-icon {
+                        width: 56px;
+                        height: 56px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 12px;
+                        font-size: 1.5rem;
+                    }
 
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark-color);
-        }
+                    /* Soft Background Colors */
+                    .bg-primary-soft {
+                        background-color: rgba(59, 130, 246, 0.1);
+                    }
 
-        .metric-icon {
-            width: 56px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            font-size: 1.5rem;
-        }
+                    .bg-success-soft {
+                        background-color: rgba(16, 185, 129, 0.1);
+                    }
 
-        /* Soft Background Colors */
-        .bg-primary-soft {
-            background-color: rgba(59, 130, 246, 0.1);
-        }
+                    .bg-warning-soft {
+                        background-color: rgba(245, 158, 11, 0.1);
+                    }
 
-        .bg-success-soft {
-            background-color: rgba(16, 185, 129, 0.1);
-        }
+                    .bg-danger-soft {
+                        background-color: rgba(239, 68, 68, 0.1);
+                    }
 
-        .bg-warning-soft {
-            background-color: rgba(245, 158, 11, 0.1);
-        }
+                    .bg-info-soft {
+                        background-color: rgba(14, 165, 233, 0.1);
+                    }
 
-        .bg-danger-soft {
-            background-color: rgba(239, 68, 68, 0.1);
-        }
+                    .bg-purple-soft {
+                        background-color: rgba(139, 92, 246, 0.1);
+                    }
 
-        .bg-info-soft {
-            background-color: rgba(14, 165, 233, 0.1);
-        }
+                    .text-purple {
+                        color: var(--purple-color);
+                    }
 
-        .bg-purple-soft {
-            background-color: rgba(139, 92, 246, 0.1);
-        }
+                    /* Badge Soft Colors */
+                    .badge-success-soft {
+                        background-color: rgba(16, 185, 129, 0.1);
+                        color: var(--success-color);
+                    }
 
-        .text-purple {
-            color: var(--purple-color);
-        }
+                    /* Card Styles */
+                    .card {
+                        border-radius: 12px;
+                        transition: all 0.3s ease;
+                    }
 
-        /* Badge Soft Colors */
-        .badge-success-soft {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
+                    .card-header {
+                        border-radius: 12px 12px 0 0 !important;
+                        padding: 1.25rem;
+                    }
 
-        /* Card Styles */
-        .card {
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
+                    /* Gradient Backgrounds */
+                    .bg-gradient-primary {
+                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                    }
 
-        .card-header {
-            border-radius: 12px 12px 0 0 !important;
-            padding: 1.25rem;
-        }
+                    /* Status Legend */
+                    .status-legends .legend-item {
+                        transition: all 0.2s ease;
+                        background: #f8fafc;
+                    }
 
-        /* Gradient Backgrounds */
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
+                    .status-legends .legend-item:hover {
+                        background: #f1f5f9;
+                        transform: translateX(5px);
+                    }
 
-        /* Status Legend */
-        .status-legends .legend-item {
-            transition: all 0.2s ease;
-            background: #f8fafc;
-        }
+                    .legend-dot {
+                        width: 12px;
+                        height: 12px;
+                        border-radius: 50%;
+                        display: inline-block;
+                    }
 
-        .status-legends .legend-item:hover {
-            background: #f1f5f9;
-            transform: translateX(5px);
-        }
+                    /* Progress Bars */
+                    .progress {
+                        border-radius: 10px;
+                        background-color: #f1f5f9;
+                    }
 
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
+                    .progress-bar {
+                        border-radius: 10px;
+                        transition: width 0.6s ease;
+                    }
 
-        /* Progress Bars */
-        .progress {
-            border-radius: 10px;
-            background-color: #f1f5f9;
-        }
+                    /* Metric Items */
+                    .metric-item {
+                        padding: 1rem;
+                        border-radius: 10px;
+                        background: #f8fafc;
+                        transition: all 0.3s ease;
+                    }
 
-        .progress-bar {
-            border-radius: 10px;
-            transition: width 0.6s ease;
-        }
+                    .metric-item:hover {
+                        background: #f1f5f9;
+                        transform: scale(1.02);
+                    }
 
-        /* Metric Items */
-        .metric-item {
-            padding: 1rem;
-            border-radius: 10px;
-            background: #f8fafc;
-            transition: all 0.3s ease;
-        }
+                    /* Table Styles */
+                    .table-hover tbody tr {
+                        transition: all 0.2s ease;
+                    }
 
-        .metric-item:hover {
-            background: #f1f5f9;
-            transform: scale(1.02);
-        }
+                    .table-hover tbody tr:hover {
+                        background-color: #f8fafc;
+                        transform: scale(1.01);
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                    }
 
-        /* Table Styles */
-        .table-hover tbody tr {
-            transition: all 0.2s ease;
-        }
+                    /* Chart Containers */
+                    .status-chart-container {
+                        position: relative;
+                        height: 220px;
+                    }
 
-        .table-hover tbody tr:hover {
-            background-color: #f8fafc;
-            transform: scale(1.01);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
+                    /* Responsive Adjustments */
+                    @media (max-width: 768px) {
+                        .service-nav {
+                            flex-wrap: wrap;
+                            border-radius: 12px;
+                            padding: 0.25rem;
+                        }
 
-        /* Chart Containers */
-        .status-chart-container {
-            position: relative;
-            height: 220px;
-        }
+                        .service-nav .nav-link {
+                            font-size: 0.875rem;
+                            padding: 0.5rem 0.75rem;
+                            margin: 0.25rem;
+                        }
 
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .service-nav {
-                flex-wrap: wrap;
-                border-radius: 12px;
-                padding: 0.25rem;
-            }
+                        .metric-value {
+                            font-size: 1.5rem;
+                        }
 
-            .service-nav .nav-link {
-                font-size: 0.875rem;
-                padding: 0.5rem 0.75rem;
-                margin: 0.25rem;
-            }
-
-            .metric-value {
-                font-size: 1.5rem;
-            }
-
-            .metric-icon {
-                width: 48px;
-                height: 48px;
-                font-size: 1.25rem;
-            }
-        }
-
-        /* Animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
-            animation: fadeInUp 0.5s ease;
-        }
-
-        /* Commodity Items */
-        .commodity-item {
-            background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
-            border-left: 4px solid #10b981;
-            transition: all 0.2s ease;
-        }
-
-        .commodity-item:hover {
-            background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.04) 100%);
-            transform: translateX(5px);
-        }
-
-        /* Livelihood Items */
-        .livelihood-item {
-            background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
-            border-left: 4px solid #10b981;
-            transition: all 0.2s ease;
-        }
-
-        .livelihood-item:hover {
-            background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.04) 100%);
-            transform: translateX(5px);
-        }
-
-        /* Gender Cards */
-        .gender-card {
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .gender-card:hover {
-            border-color: rgba(59, 130, 246, 0.3);
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .text-pink {
-            color: #ec4899 !important;
-        }
-
-        /* Scrollbar Styling */
-        .table-responsive::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 10px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Focus States */
-        .btn:focus,
-        .form-control:focus {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        /* Loading State */
-        .card.loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        /* Insight Cards */
-        .insight-card {
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .insight-card ul li {
-            line-height: 1.6;
-        }
-
-        /* Modal Styles */
-        .modal-content {
-            border-radius: 16px;
-        }
-
-        .modal-header {
-            border-radius: 16px 16px 0 0;
-        }
-    </style>
-@endsection
-
-@section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Chart instances
-            let chartInstances = {};
-
-            // Chart.js default configuration
-            Chart.defaults.font.family = "'Inter', sans-serif";
-            Chart.defaults.color = '#64748b';
-
-            // Initialize Status Chart
-            initializeStatusChart();
-
-            // Initialize Trends Chart
-            initializeTrendsChart();
-
-            /**
-             * Status Distribution Doughnut Chart
-             */
-            function initializeStatusChart() {
-                const ctx = document.getElementById('rsbsaStatusChart');
-                if (!ctx) return;
-
-                chartInstances.statusChart = new Chart(ctx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: [
-                            @foreach ($statusAnalysis['counts'] as $status => $count)
-                                '{{ ucfirst(str_replace('_', ' ', $status)) }}',
-                            @endforeach
-                        ],
-                        datasets: [{
-                            data: [{{ implode(',', $statusAnalysis['counts']) }}],
-                            backgroundColor: [
-                                '#10b981', // Green for approved
-                                '#ef4444', // Red for rejected
-                                '#f59e0b' // Amber for under_review
-                            ],
-                            borderWidth: 0,
-                            cutout: '75%',
-                            spacing: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: 12,
-                                cornerRadius: 8,
-                                titleFont: {
-                                    size: 14,
-                                    weight: 'bold'
-                                },
-                                bodyFont: {
-                                    size: 13
-                                },
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return `${label}: ${value} (${percentage}%)`;
-                                    }
-                                }
-                            }
+                        .metric-icon {
+                            width: 48px;
+                            height: 48px;
+                            font-size: 1.25rem;
                         }
                     }
-                });
-            }
 
-            /**
-             * Monthly Trends Line Chart
-             */
-            function initializeTrendsChart() {
-                const ctx = document.getElementById('rsbsaTrendsChart');
-                if (!ctx) return;
+                    /* Animation */
+                    @keyframes fadeInUp {
+                        from {
+                            opacity: 0;
+                            transform: translateY(20px);
+                        }
 
-                chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: [
-                            @foreach ($monthlyTrends as $trend)
-                                '{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}',
-                            @endforeach
-                        ],
-                        datasets: [{
-                                label: 'Total Applications',
-                                data: [
-                                    {{ $monthlyTrends->pluck('total_applications')->implode(',') }}],
-                                borderColor: '#3b82f6',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                fill: true,
-                                pointBackgroundColor: '#3b82f6',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5,
-                                pointHoverRadius: 7,
-                                pointHoverBorderWidth: 3
-                            },
-                            {
-                                label: 'Approved',
-                                data: [{{ $monthlyTrends->pluck('approved')->implode(',') }}],
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                fill: true,
-                                pointBackgroundColor: '#10b981',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5,
-                                pointHoverRadius: 7,
-                                pointHoverBorderWidth: 3
-                            },
-                            {
-                                label: 'Land Area (ha)',
-                                data: [{{ $monthlyTrends->pluck('total_land_area')->implode(',') }}],
-                                borderColor: '#8b5cf6',
-                                backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                                borderWidth: 2,
-                                tension: 0.4,
-                                fill: false,
-                                pointBackgroundColor: '#8b5cf6',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6,
-                                yAxisID: 'y1'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        scales: {
-                            x: {
-                                grid: {
-                                    display: false,
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 12,
-                                        weight: '500'
-                                    },
-                                    color: '#64748b'
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)',
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 12,
-                                        weight: '500'
-                                    },
-                                    color: '#64748b',
-                                    padding: 10
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Applications',
-                                    font: {
-                                        weight: '600',
-                                        size: 12
-                                    }
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                beginAtZero: true,
-                                grid: {
-                                    drawOnChartArea: false,
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 12,
-                                        weight: '500'
-                                    },
-                                    color: '#64748b'
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Land Area (ha)',
-                                    font: {
-                                        weight: '600',
-                                        size: 12
-                                    }
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                align: 'end',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20,
-                                    font: {
-                                        size: 13,
-                                        weight: '500'
-                                    },
-                                    color: '#64748b'
-                                }
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                titleColor: 'white',
-                                bodyColor: 'white',
-                                borderColor: 'rgba(255, 255, 255, 0.1)',
-                                borderWidth: 1,
-                                cornerRadius: 8,
-                                padding: 12,
-                                displayColors: true,
-                                titleFont: {
-                                    size: 14,
-                                    weight: 'bold'
-                                },
-                                bodyFont: {
-                                    size: 13
-                                }
-                            }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
                         }
                     }
-                });
-            }
 
-            /**
-             * Cleanup function
-             */
-            window.destroyCharts = function() {
-                Object.values(chartInstances).forEach(chart => {
-                    if (chart) {
-                        chart.destroy();
+                    .card {
+                        animation: fadeInUp 0.5s ease;
                     }
-                });
-                chartInstances = {};
-            };
 
-            /**
-             * Add smooth animations on scroll
-             */
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
+                    /* Commodity Items */
+                    .commodity-item {
+                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+                        border-left: 4px solid #10b981;
+                        transition: all 0.2s ease;
                     }
-                });
-            }, observerOptions);
 
-            document.querySelectorAll('.card').forEach(card => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                observer.observe(card);
-            });
-
-            /**
-             * Add loading state to form submission
-             */
-            const filterForm = document.querySelector('form[action*="analytics.rsbsa"]');
-            if (filterForm) {
-                filterForm.addEventListener('submit', function() {
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
-                        submitBtn.disabled = true;
+                    .commodity-item:hover {
+                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.04) 100%);
+                        transform: translateX(5px);
                     }
-                });
-            }
 
-            /**
-             * Add animation to metric cards
-             */
-            const metricCards = document.querySelectorAll('.metric-card');
-            metricCards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-        });
-    </script>
-@endsection
+                    /* Livelihood Items */
+                    .livelihood-item {
+                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+                        border-left: 4px solid #10b981;
+                        transition: all 0.2s ease;
+                    }
+
+                    .livelihood-item:hover {
+                        background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0.04) 100%);
+                        transform: translateX(5px);
+                    }
+
+                    /* Gender Cards */
+                    .gender-card {
+                        transition: all 0.3s ease;
+                        border: 2px solid transparent;
+                    }
+
+                    .gender-card:hover {
+                        border-color: rgba(59, 130, 246, 0.3);
+                        transform: translateY(-5px);
+                        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .text-pink {
+                        color: #ec4899 !important;
+                    }
+
+                    /* Scrollbar Styling */
+                    .table-responsive::-webkit-scrollbar {
+                        height: 8px;
+                    }
+
+                    .table-responsive::-webkit-scrollbar-track {
+                        background: #f1f5f9;
+                        border-radius: 10px;
+                    }
+
+                    .table-responsive::-webkit-scrollbar-thumb {
+                        background: #cbd5e1;
+                        border-radius: 10px;
+                    }
+
+                    .table-responsive::-webkit-scrollbar-thumb:hover {
+                        background: #94a3b8;
+                    }
+
+                    /* Focus States */
+                    .btn:focus,
+                    .form-control:focus {
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                    }
+
+                    /* Loading State */
+                    .card.loading {
+                        opacity: 0.6;
+                        pointer-events: none;
+                    }
+
+                    /* Insight Cards */
+                    .insight-card {
+                        border: 1px solid rgba(0, 0, 0, 0.05);
+                    }
+
+                    .insight-card ul li {
+                        line-height: 1.6;
+                    }
+
+                    /* Modal Styles */
+                    .modal-content {
+                        border-radius: 16px;
+                    }
+
+                    .modal-header {
+                        border-radius: 16px 16px 0 0;
+                    }
+                </style>
+            @endsection
+
+            @section('scripts')
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Chart instances
+                        let chartInstances = {};
+
+                        // Chart.js default configuration
+                        Chart.defaults.font.family = "'Inter', sans-serif";
+                        Chart.defaults.color = '#64748b';
+
+                        // Initialize Status Chart
+                        initializeStatusChart();
+
+                        // Initialize Trends Chart
+                        initializeTrendsChart();
+
+                        /**
+                         * Status Distribution Doughnut Chart
+                         */
+                        function initializeStatusChart() {
+                            const ctx = document.getElementById('rsbsaStatusChart');
+                            if (!ctx) return;
+
+                            const statusData = [{{ implode(',', $statusAnalysis['counts']) }}];
+                            const statusLabels = [
+                                @foreach ($statusAnalysis['counts'] as $status => $count)
+                                    '{{ ucfirst(str_replace('_', ' ', $status)) }}',
+                                @endforeach
+                            ];
+
+                            // Define status colors based on status type
+                            const statusColors = [];
+                            const statusNames = [
+                                @foreach ($statusAnalysis['counts'] as $status => $count)
+                                    '{{ $status }}',
+                                @endforeach
+                            ];
+
+                            statusNames.forEach(status => {
+                                switch (status) {
+                                    case 'approved':
+                                        statusColors.push('#10b981'); // Green
+                                        break;
+                                    case 'rejected':
+                                        statusColors.push('#ef4444'); // Red
+                                        break;
+                                    case 'under_review':
+                                    case 'pending':
+                                        statusColors.push('#f59e0b'); // Amber
+                                        break;
+                                    case 'cancelled':
+                                    case 'withdrawn':
+                                        statusColors.push('#6b7280'); // Gray
+                                        break;
+                                    case 'processing':
+                                        statusColors.push('#3b82f6'); // Blue
+                                        break;
+                                    case 'on_hold':
+                                        statusColors.push('#8b5cf6'); // Purple
+                                        break;
+                                    default:
+                                        statusColors.push('#64748b'); // Default gray
+                                }
+                            });
+
+                            chartInstances.statusChart = new Chart(ctx.getContext('2d'), {
+                                type: 'doughnut',
+                                data: {
+                                    labels: statusLabels,
+                                    datasets: [{
+                                        data: statusData,
+                                        backgroundColor: statusColors,
+                                        borderWidth: 3,
+                                        borderColor: '#ffffff',
+                                        cutout: '65%',
+                                        spacing: 4
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        tooltip: {
+                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                            padding: 12,
+                                            cornerRadius: 8,
+                                            titleFont: {
+                                                size: 14,
+                                                weight: 'bold'
+                                            },
+                                            bodyFont: {
+                                                size: 13
+                                            },
+                                            callbacks: {
+                                                label: function(context) {
+                                                    const label = context.label || '';
+                                                    const value = context.parsed;
+                                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                    const percentage = ((value / total) * 100).toFixed(1);
+                                                    return `${label}: ${value} (${percentage}%)`;
+                                                }
+                                            }
+                                        },
+                                        // Custom plugin to display percentages inside the doughnut
+                                        datalabels: false
+                                    },
+                                    animation: {
+                                        animateRotate: true,
+                                        duration: 1000
+                                    }
+                                },
+                                plugins: [{
+                                    id: 'centerText',
+                                    beforeDraw: function(chart) {
+                                        const ctx = chart.ctx;
+                                        const chartArea = chart.chartArea;
+                                        const centerX = (chartArea.left + chartArea.right) / 2;
+                                        const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+                                        // Get the total
+                                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
+                                        0);
+
+                                        // Draw center text
+                                        ctx.save();
+                                        ctx.font = 'bold 24px Inter';
+                                        ctx.fillStyle = '#1f2937';
+                                        ctx.textAlign = 'center';
+                                        ctx.textBaseline = 'middle';
+                                        ctx.fillText(total.toLocaleString(), centerX, centerY - 10);
+
+                                        ctx.font = '14px Inter';
+                                        ctx.fillStyle = '#64748b';
+                                        ctx.fillText('Total Applications', centerX, centerY + 15);
+                                        ctx.restore();
+                                    },
+                                    afterDraw: function(chart) {
+                                        const ctx = chart.ctx;
+                                        const meta = chart.getDatasetMeta(0);
+                                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
+                                        0);
+
+                                        ctx.save();
+                                        ctx.font = 'bold 14px Inter, sans-serif';
+                                        ctx.textAlign = 'center';
+                                        ctx.textBaseline = 'middle';
+
+                                        chart.data.datasets[0].data.forEach((value, index) => {
+                                            if (value > 0) {
+                                                const percentage = ((value / total) * 100).toFixed(
+                                                    1);
+
+                                                // Only show percentage if slice is large enough
+                                                if (percentage > 5) {
+                                                    const element = meta.data[index];
+
+                                                    // Calculate the middle angle of the segment
+                                                    const startAngle = element.startAngle;
+                                                    const endAngle = element.endAngle;
+                                                    const midAngle = (startAngle + endAngle) / 2;
+
+                                                    // Calculate position based on the segment's center point
+                                                    const chartArea = chart.chartArea;
+                                                    const centerX = (chartArea.left + chartArea
+                                                        .right) / 2;
+                                                    const centerY = (chartArea.top + chartArea
+                                                        .bottom) / 2;
+
+                                                    // Position the text at 70% of the radius from center
+                                                    const radius = (element.outerRadius - element
+                                                            .innerRadius) * 0.7 + element
+                                                        .innerRadius;
+                                                    const x = centerX + Math.cos(midAngle) * radius;
+                                                    const y = centerY + Math.sin(midAngle) * radius;
+
+                                                    const text = `${percentage}%`;
+
+                                                    ctx.fillStyle = '#ffffff';
+                                                    ctx.strokeStyle = '#000000';
+                                                    ctx.lineWidth = 3;
+                                                    ctx.textAlign = 'center';
+                                                    ctx.textBaseline = 'middle';
+                                                    ctx.strokeText(text, x, y);
+                                                    ctx.fillText(text, x, y);
+                                                }
+                                            }
+                                        });
+
+                                        ctx.restore();
+                                    }
+                                }]
+                            });
+                        }
+
+                        /**
+                         * Monthly Trends Line Chart
+                         */
+                        function initializeTrendsChart() {
+                            const ctx = document.getElementById('rsbsaTrendsChart');
+                            if (!ctx) return;
+
+                            chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
+                                type: 'line',
+                                data: {
+                                    labels: [
+                                        @foreach ($monthlyTrends as $trend)
+                                            '{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}',
+                                        @endforeach
+                                    ],
+                                    datasets: [{
+                                            label: 'Total Applications',
+                                            data: [
+                                                {{ $monthlyTrends->pluck('total_applications')->implode(',') }}
+                                            ],
+                                            borderColor: '#3b82f6',
+                                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                            borderWidth: 3,
+                                            tension: 0.4,
+                                            fill: true,
+                                            pointBackgroundColor: '#3b82f6',
+                                            pointBorderColor: '#ffffff',
+                                            pointBorderWidth: 2,
+                                            pointRadius: 5,
+                                            pointHoverRadius: 7,
+                                            pointHoverBorderWidth: 3
+                                        },
+                                        {
+                                            label: 'Approved',
+                                            data: [{{ $monthlyTrends->pluck('approved')->implode(',') }}],
+                                            borderColor: '#10b981',
+                                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                            borderWidth: 3,
+                                            tension: 0.4,
+                                            fill: true,
+                                            pointBackgroundColor: '#10b981',
+                                            pointBorderColor: '#ffffff',
+                                            pointBorderWidth: 2,
+                                            pointRadius: 5,
+                                            pointHoverRadius: 7,
+                                            pointHoverBorderWidth: 3
+                                        },
+                                        {
+                                            label: 'Land Area (ha)',
+                                            data: [{{ $monthlyTrends->pluck('total_land_area')->implode(',') }}],
+                                            borderColor: '#8b5cf6',
+                                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                            borderWidth: 2,
+                                            tension: 0.4,
+                                            fill: false,
+                                            pointBackgroundColor: '#8b5cf6',
+                                            pointBorderColor: '#ffffff',
+                                            pointBorderWidth: 2,
+                                            pointRadius: 4,
+                                            pointHoverRadius: 6,
+                                            yAxisID: 'y1'
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    interaction: {
+                                        mode: 'index',
+                                        intersect: false,
+                                    },
+                                    scales: {
+                                        x: {
+                                            grid: {
+                                                display: false,
+                                                drawBorder: false
+                                            },
+                                            ticks: {
+                                                font: {
+                                                    size: 12,
+                                                    weight: '500'
+                                                },
+                                                color: '#64748b'
+                                            }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            grid: {
+                                                color: 'rgba(0, 0, 0, 0.05)',
+                                                drawBorder: false
+                                            },
+                                            ticks: {
+                                                font: {
+                                                    size: 12,
+                                                    weight: '500'
+                                                },
+                                                color: '#64748b',
+                                                padding: 10
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: 'Applications',
+                                                font: {
+                                                    weight: '600',
+                                                    size: 12
+                                                }
+                                            }
+                                        },
+                                        y1: {
+                                            type: 'linear',
+                                            display: true,
+                                            position: 'right',
+                                            beginAtZero: true,
+                                            grid: {
+                                                drawOnChartArea: false,
+                                            },
+                                            ticks: {
+                                                font: {
+                                                    size: 12,
+                                                    weight: '500'
+                                                },
+                                                color: '#64748b'
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: 'Land Area (ha)',
+                                                font: {
+                                                    weight: '600',
+                                                    size: 12
+                                                }
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            position: 'top',
+                                            align: 'end',
+                                            labels: {
+                                                usePointStyle: true,
+                                                padding: 20,
+                                                font: {
+                                                    size: 13,
+                                                    weight: '500'
+                                                },
+                                                color: '#64748b'
+                                            }
+                                        },
+                                        tooltip: {
+                                            mode: 'index',
+                                            intersect: false,
+                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                            titleColor: 'white',
+                                            bodyColor: 'white',
+                                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                                            borderWidth: 1,
+                                            cornerRadius: 8,
+                                            padding: 12,
+                                            displayColors: true,
+                                            titleFont: {
+                                                size: 14,
+                                                weight: 'bold'
+                                            },
+                                            bodyFont: {
+                                                size: 13
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        /**
+                         * Cleanup function
+                         */
+                        window.destroyCharts = function() {
+                            Object.values(chartInstances).forEach(chart => {
+                                if (chart) {
+                                    chart.destroy();
+                                }
+                            });
+                            chartInstances = {};
+                        };
+
+                        /**
+                         * Add smooth animations on scroll
+                         */
+                        const observerOptions = {
+                            threshold: 0.1,
+                            rootMargin: '0px 0px -50px 0px'
+                        };
+
+                        const observer = new IntersectionObserver(function(entries) {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    entry.target.style.opacity = '1';
+                                    entry.target.style.transform = 'translateY(0)';
+                                }
+                            });
+                        }, observerOptions);
+
+                        document.querySelectorAll('.card').forEach(card => {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                            observer.observe(card);
+                        });
+
+                        /**
+                         * Add loading state to form submission
+                         */
+                        const filterForm = document.querySelector('form[action*="analytics.rsbsa"]');
+                        if (filterForm) {
+                            filterForm.addEventListener('submit', function() {
+                                const submitBtn = this.querySelector('button[type="submit"]');
+                                if (submitBtn) {
+                                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                                    submitBtn.disabled = true;
+                                }
+                            });
+                        }
+
+                        /**
+                         * Add animation to metric cards
+                         */
+                        const metricCards = document.querySelectorAll('.metric-card');
+                        metricCards.forEach((card, index) => {
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, index * 100);
+                        });
+                    });
+                </script>
+            @endsection

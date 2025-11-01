@@ -61,7 +61,7 @@
             width: 80px;
         }
 
-                /* Override collapsed state when no sidebar exists */
+        /* Override collapsed state when no sidebar exists */
         html.sidebar-collapsed-state .main-content.no-sidebar {
             margin-left: 0 !important;
             width: 100vw !important;
@@ -364,6 +364,7 @@
             padding-right: 15px;
             padding-left: 15px;
         }
+
         .profile-section {
             gap: 1.5rem;
         }
@@ -470,13 +471,6 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.inventory.index') }}" data-tooltip="Inventory Management">
-                                        <i class="fas fa-warehouse"></i>
-                                        <span class="nav-link-text">Inventory Management</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.analytics.analytics') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.analytics.seedlings') }}" data-tooltip="Analytics">
                                         <i class="fas fa-chart-bar"></i>
@@ -515,7 +509,9 @@
                                         <!-- Notification Bell -->
                                         <button class="btn btn-link text-dark position-relative p-0" type="button">
                                             <i class="fas fa-bell fs-5"></i>
-                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                                style="font-size: 0.6rem;">
                                                 3
                                             </span>
                                         </button>
@@ -523,30 +519,35 @@
                                         <!-- Profile Dropdown -->
                                         <div class="dropdown d-flex align-items-center" style="gap: 0.75rem;">
                                             <!-- Profile Picture (non-clickable) -->
-                                            @if(auth()->user()->profile_photo_url)
-                                                <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile" 
-                                                    class="rounded-circle" width="40" height="40" style="object-fit: cover;">
+                                            @if (auth()->user()->profile_photo_url)
+                                                <img src="{{ auth()->user()->profile_photo_url }}" alt="Profile"
+                                                    class="rounded-circle" width="40" height="40"
+                                                    style="object-fit: cover;">
                                             @else
-                                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold" 
+                                                <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white fw-bold"
                                                     style="width: 40px; height: 40px; font-size: 16px;">
                                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                                 </div>
                                             @endif
                                             <!-- Name (non-clickable) -->
-                                                <span class="fw-semibold text-dark" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->name }}</span>
+                                            <span class="fw-semibold text-dark"
+                                                style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ auth()->user()->name }}</span>
                                             <!-- Three Dots Button (clickable dropdown) -->
                                             <button class="btn btn-link text-dark p-0" type="button"
-                                                data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none;">
+                                                data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="text-decoration: none;">
                                                 <i class="fas fa-ellipsis-v"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a class="dropdown-item d-flex align-items-center" 
-                                                    href="{{ route('admin.profile.edit') }}">
+                                                    <a class="dropdown-item d-flex align-items-center"
+                                                        href="{{ route('admin.profile.edit') }}">
                                                         <i class="fas fa-user-edit me-2"></i>Edit Profile
                                                     </a>
                                                 </li>
-                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
                                                 <li>
                                                     <button type="button" class="dropdown-item d-flex align-items-center"
                                                         onclick="confirmLogout()">
