@@ -11,10 +11,12 @@
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1" style="min-width: 0;">
-                            <h2 class="mb-1 font-weight-bold"style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <h2
+                                class="mb-1 font-weight-bold"style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                 @php
                                     $hour = now()->format('H');
-                                    $greeting = $hour < 12 ? 'Good Morning' : ($hour < 18 ? 'Good Afternoon' : 'Good Evening');
+                                    $greeting =
+                                        $hour < 12 ? 'Good Morning' : ($hour < 18 ? 'Good Afternoon' : 'Good Evening');
                                 @endphp
                                 {{ $greeting }}, {{ $user->name }}
                             </h2>
@@ -22,7 +24,7 @@
                                 <i class="fas fa-clock me-2"></i>{{ now()->format('l, F j, Y • g:i A') }}
                             </p>
                         </div>
-                        {{--<div class="d-none d-md-block">
+                        {{-- <div class="d-none d-md-block">
                             <i class="fas fa-chart-line fa-3x opacity-50"></i>
                         </div> --}}
                     </div>
@@ -82,15 +84,16 @@
                         </div>
                         <div class="ms-3 flex-grow-1">
                             <div class="metric-label">Supply Management</div>
-                            @if($supplyData['total_categories'] > 0)
+                            @if ($supplyData['total_categories'] > 0)
                                 <div class="metric-value text-info">
                                     {{ $supplyData['active_categories'] }}/{{ $supplyData['total_categories'] }}
                                 </div>
                                 <div class="metric-trend">
-                                    @if($supplyData['low_supply_items'] > 0 || $supplyData['out_of_supply_items'] > 0)
+                                    @if ($supplyData['low_supply_items'] > 0 || $supplyData['out_of_supply_items'] > 0)
                                         <i class="fas fa-exclamation-triangle text-warning me-1"></i>
                                         <small class="text-warning">
-                                            {{ $supplyData['low_supply_items'] + $supplyData['out_of_supply_items'] }} alerts
+                                            {{ $supplyData['low_supply_items'] + $supplyData['out_of_supply_items'] }}
+                                            alerts
                                         </small>
                                     @else
                                         <i class="fas fa-check-circle text-success me-1"></i>
@@ -221,46 +224,6 @@
         </div>
     </div>
 
-    {{-- Inventory Alerts - Disabled for new supply management --}}
-    {{-- @if ($lowStockItems > 0 || $outOfStockItems > 0)
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="alert alert-modern alert-warning d-flex align-items-center" role="alert">
-                    <div class="alert-icon me-3">
-                        <i class="fas fa-exclamation-triangle fa-2x"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h5 class="alert-heading mb-2">
-                            <i class="fas fa-warehouse me-2"></i>Inventory Alerts
-                        </h5>
-                        @if ($outOfStockItems > 0)
-                            <div class="alert-item mb-1">
-                                <i class="fas fa-times-circle text-danger me-2"></i>
-                                <strong>{{ $outOfStockItems }} item(s) are out of stock</strong>
-                            </div>
-                        @endif
-                        @if ($lowStockItems > 0)
-                            <div class="alert-item mb-1">
-                                <i class="fas fa-exclamation-circle text-warning me-2"></i>
-                                <strong>{{ $lowStockItems }} item(s) have low stock</strong>
-                            </div>
-                        @endif
-                        <p class="mb-0">
-                            <small class="opacity-75">
-                                Review your inventory to ensure seedling requests can be fulfilled.
-                            </small>
-                        </p>
-                    </div>
-                    <div class="alert-action">
-                        <a href="{{ route('admin.inventory.index') }}" class="btn btn-warning btn-modern">
-                            <i class="fas fa-eye me-2"></i>View Inventory
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif --}}
-
     <!-- Quick Actions Section -->
     <div class="row mb-4">
         <div class="col-12">
@@ -286,7 +249,7 @@
                                 </div>
                             </a>
                         </div>
-                       <div class="col-lg-3 col-md-6">
+                        <div class="col-lg-3 col-md-6">
                             <a href="{{ route('admin.seedlings.categories.index') }}" class="action-card-small btn-info">
                                 <div class="action-icon-small">
                                     <i class="fas fa-layer-group"></i>
@@ -511,16 +474,16 @@
         }
 
         /* .welcome-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transform: translate(20px, -20px);
-        } */
+                content: '';
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 100px;
+                height: 100px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 50%;
+                transform: translate(20px, -20px);
+            } */
 
         /* Metric Cards */
         .metric-card {

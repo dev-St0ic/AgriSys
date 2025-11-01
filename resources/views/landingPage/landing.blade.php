@@ -168,14 +168,10 @@
         <div class="welcome-image"></div>
     </section>
 
-add/composer-spatie/laravel-activitylog
-    <!-- Events Section -->
-
     <!-- Events Section - Updated to load dynamically -->
-    main
     <section class="events" id="events">
-        <img src="../images/logos/cagoFull.png" alt="City Agriculture Office Logo" class="logo-icon">
-        <img src="../images/logos/CityOfSanPedro.jpg" alt="City of San Pedro Logo" class="logo-icon">
+        <img src="{{ asset('images/logos/cagoFull.png') }}" alt="City Agriculture Office Logo" class="logo-icon">
+        <img src="{{ asset('images/logos/CityOfSanPedro.jpg') }}" alt="City of San Pedro Logo" class="logo-icon">
         <h2>City<span class="highlight"> Agriculture Office of San Pedro, Laguna</span></h2>
         <p class="events-subtitle">Ongoing and past events and initiatives of the San Pedro City Agriculture Office
             dedicated to promoting agricultural growth and community development.</p>
@@ -187,12 +183,11 @@ add/composer-spatie/laravel-activitylog
             <button class="filter-btn" data-filter="upcoming">Upcoming Events</button>
             <button class="filter-btn" data-filter="past">Past Events</button>
         </div>
- add/composer-spatie/laravel-activitylog
 
         <div class="events-grid">
             <!-- Event Card 1 -->
             <div class="event-card" data-category="ongoing">
-                <img src="../images/events/1.jpg" alt="Garden Care" class="event-image">
+                <img src="{{ asset('images/events/1.jpg') }}" alt="Garden Care" class="event-image">
                 <div class="event-content">
                     <h3>Community Garden Initiative</h3>
                     <p class="event-description">Urban gardening program bringing together residents to cultivate fresh
@@ -232,7 +227,7 @@ add/composer-spatie/laravel-activitylog
 
             <!-- Event Card 2 -->
             <div class="event-card" data-category="past">
-                <img src="../images/events/2.jpg" alt="Landscape" class="event-image">
+                <img src="{{ asset('images/events/2.jpg') }}" alt="Landscape" class="event-image">
                 <div class="event-content">
                     <h3>Green Corridor Project</h3>
                     <p class="event-description">City-wide landscaping initiative that transformed urban spaces into
@@ -272,7 +267,7 @@ add/composer-spatie/laravel-activitylog
 
             <!-- Event Card 3 -->
             <div class="event-card" data-category="upcoming">
-                <img src="../images/events/3.jpg" alt="Planting" class="event-image">
+                <img src="{{ asset('images/events/3.jpg') }}" alt="Planting" class="event-image">
                 <div class="event-content">
                     <h3>Tree Planting Drive</h3>
                     <p class="event-description">Annual tree planting event with a goal to plant 1,000 indigenous trees
@@ -312,7 +307,7 @@ add/composer-spatie/laravel-activitylog
 
             <!-- Event Card 4 -->
             <div class="event-card" data-category="upcoming">
-                <img src="../images/events/4.jpg" alt="Workshop" class="event-image">
+                <img src="{{ asset('images/events/4.jpg') }}" alt="Workshop" class="event-image">
                 <div class="event-content">
                     <h3>Vegetable Farming Workshop</h3>
                     <p class="event-description">Expert-led workshops covering advanced vegetable cultivation methods,
@@ -352,7 +347,7 @@ add/composer-spatie/laravel-activitylog
 
             <!-- Event Card 5 -->
             <div class="event-card" data-category="ongoing">
-                <img src="../images/events/5.jpg" alt="Organic Rice" class="event-image">
+                <img src="{{ asset('images/events/5.jpg') }}" alt="Organic Rice" class="event-image">
                 <div class="event-content">
                     <h3>Organic Rice Cultivation</h3>
                     <p class="event-description">Year-long program supporting farmers transitioning to organic rice
@@ -392,7 +387,7 @@ add/composer-spatie/laravel-activitylog
 
             <!-- Event Card 6 -->
             <div class="event-card" data-category="ongoing">
-                <img src="../images/events/6.jpg" alt="Park Maintenance" class="event-image">
+                <img src="{{ asset('images/events/6.jpg') }}" alt="Park Maintenance" class="event-image">
                 <div class="event-content">
                     <h3>Park Maintenance Program</h3>
                     <p class="event-description">Daily maintenance of city parks through regular mowing, trimming, and
@@ -431,7 +426,7 @@ add/composer-spatie/laravel-activitylog
 
             <!-- Event Card 7 -->
             <div class="event-card" data-category="ongoing">
-                <img src="../images/events/7.jpg" alt="Sports Field" class="event-image">
+                <img src="{{ asset('images/events/7.jpg') }}" alt="Sports Field" class="event-image">
                 <div class="event-content">
                     <h3>Sports Field Renovation</h3>
                     <p class="event-description">Complete overhaul of community sports facilities including new turf
@@ -471,7 +466,7 @@ add/composer-spatie/laravel-activitylog
 
             <!-- Event Card 8 -->
             <div class="event-card" data-category="announcement">
-                <img src="../images/events/8.jpg" alt="Urban Farming" class="event-image">
+                <img src="{{ asset('images/events/8.jpg') }}" alt="Urban Farming" class="event-image">
                 <div class="event-content">
                     <h3>Urban Farming Training</h3>
                     <p class="event-description">Monthly training on innovative techniques for growing vegetables in
@@ -507,23 +502,17 @@ add/composer-spatie/laravel-activitylog
                         </ul>
                     </div>
 
-        
-        <!-- Events Grid - Will be populated by JavaScript -->
-        <div class="events-grid">
-            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
-                <div class="spinner-border text-primary" role="status">
- main
-                </div>
-                <p class="text-muted mt-3">Loading events...</p>
-            </div>
-        </div>
+
+                    <!-- Events Grid - Will be populated by JavaScript -->
+                    <div class="events-grid">
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+                            <div class="spinner-border text-primary" role="status">
+                                main
+                            </div>
+                            <p class="text-muted mt-3">Loading events...</p>
+                        </div>
+                    </div>
     </section>
-
- add/composer-spatie/laravel-activitylog
-
-
-    
- main
 
     <!-- Services Section (Always visible) -->
     <section class="services" id="services">
@@ -536,7 +525,7 @@ add/composer-spatie/laravel-activitylog
             <div class="row-three">
                 <div class="card">
                     <div class="card-image">
-                        <img src="../images/services/ServicesRSBSATemporary.jpg" alt="RSBSA Service">
+                        <img src="{{ asset('images/services/ServicesRSBSATemporary.jpg') }}" alt="RSBSA Service">
                     </div>
                     <h3>RSBSA Registration</h3>
                     <p>Register your details for the Registry System for Basic Sectors in Agriculture (RSBSA).</p>
@@ -544,7 +533,8 @@ add/composer-spatie/laravel-activitylog
                 </div>
                 <div class="card">
                     <div class="card-image">
-                        <img src="../images/services/ServicesSeedlingsTemporary.jpg" alt="Seedlings Service">
+                        <img src="{{ asset('images/services/ServicesSeedlingsTemporary.jpg') }}"
+                            alt="Seedlings Service">
                     </div>
                     <h3>Seedlings Request</h3>
                     <p>Request free seedlings to support your agricultural livelihood.</p>
@@ -552,7 +542,7 @@ add/composer-spatie/laravel-activitylog
                 </div>
                 <div class="card">
                     <div class="card-image">
-                        <img src="../images/services/ServicesFishrTemporary.jpg" alt="Fishr Service">
+                        <img src="{{ asset('images/services/ServicesFishrTemporary.jpg') }}" alt="Fishr Service">
                     </div>
                     <h3>FishR Registration</h3>
                     <p>Register in the FishR system for fisherfolk support and services.</p>
@@ -563,7 +553,7 @@ add/composer-spatie/laravel-activitylog
             <div class="row-two-centered">
                 <div class="card">
                     <div class="card-image">
-                        <img src="../images/services/ServicesBoatrTemporary.jpg" alt="Boatr Service">
+                        <img src="{{ asset('images/services/ServicesBoatrTemporary.jpg') }}" alt="Boatr Service">
                     </div>
                     <h3>BoatR Registration</h3>
                     <p>Apply for registration and assistance for your fishing boats.</p>
@@ -571,7 +561,8 @@ add/composer-spatie/laravel-activitylog
                 </div>
                 <div class="card">
                     <div class="card-image">
-                        <img src="../images/services/ServicesTrainingTemporary.jpg" alt="Training Service">
+                        <img src="{{ asset('images/services/ServicesTrainingTemporary.jpg') }}"
+                            alt="Training Service">
                     </div>
                     <h3>Training Request</h3>
                     <p>Apply for agricultural training programs to enhance your farming skills and knowledge.</p>
@@ -1631,7 +1622,6 @@ add/composer-spatie/laravel-activitylog
     <script src="{{ asset('js/seedlings-autofill.js') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}"></script>
     <script src="{{ asset('js/toast-notifications.js') }}"></script>
- add/composer-spatie/laravel-activitylog
 
     <!-- reCAPTCHA initialization callback -->
     <script>
@@ -1639,6 +1629,16 @@ add/composer-spatie/laravel-activitylog
         window.onRecaptchaLoad = function() {
             console.log('reCAPTCHA API loaded successfully');
             window.recaptchaLoaded = true;
+
+            // Try to render reCAPTCHA immediately if container exists
+            setTimeout(() => {
+                const recaptchaContainer = document.querySelector('.g-recaptcha');
+                if (recaptchaContainer && recaptchaContainer.children.length === 0) {
+                    if (typeof window.renderRecaptcha === 'function') {
+                        window.renderRecaptcha();
+                    }
+                }
+            }, 100);
         };
 
         // Fallback check if callback doesn't fire
@@ -1648,6 +1648,14 @@ add/composer-spatie/laravel-activitylog
                 if (typeof grecaptcha !== 'undefined') {
                     window.recaptchaLoaded = true;
                     console.log('reCAPTCHA API detected after DOM load');
+
+                    // Try to render if container exists and not already rendered
+                    const recaptchaContainer = document.querySelector('.g-recaptcha');
+                    if (recaptchaContainer && recaptchaContainer.children.length === 0) {
+                        if (typeof window.renderRecaptcha === 'function') {
+                            window.renderRecaptcha();
+                        }
+                    }
                 } else {
                     console.warn('reCAPTCHA API not loaded after 1 second');
                 }
@@ -1656,10 +1664,8 @@ add/composer-spatie/laravel-activitylog
     </script>
 
     <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
-
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="{{ asset('js/events-loader.js') }}"></script>
- main
+    main
 </body>
 
 </html>

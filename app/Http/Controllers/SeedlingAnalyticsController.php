@@ -80,8 +80,8 @@ class SeedlingAnalyticsController extends Controller
             // 10. Monthly Barangay Analysis
             $monthlyBarangayAnalysis = $this->getMonthlyBarangayAnalysis($startDate, $endDate);
 
-            // 11. Inventory Impact Analysis
-            $inventoryImpact = $this->getInventoryImpactAnalysis(clone $baseQuery);
+            // 11. Supply Impact Analysis
+            $supplyImpact = $this->getSupplyImpactAnalysis(clone $baseQuery);
 
             // 12. Supply vs Demand Analysis
             $supplyDemandAnalysis = $this->getSupplyDemandAnalysis(clone $baseQuery);
@@ -115,7 +115,7 @@ class SeedlingAnalyticsController extends Controller
                 'processingTimeAnalysis',
                 'seasonalAnalysis',
                 'monthlyBarangayAnalysis',
-                'inventoryImpact',
+                'supplyImpact',
                 'supplyDemandAnalysis',
                 'barangayPerformance',
                 'categoryFulfillment',
@@ -889,28 +889,28 @@ class SeedlingAnalyticsController extends Controller
     }
 
     /**
-     * Get inventory impact analysis
+     * Get supply impact analysis
      */
-    private function getInventoryImpactAnalysis($baseQuery)
+    private function getSupplyImpactAnalysis($baseQuery)
     {
         try {
             $approvedRequests = (clone $baseQuery)->where('status', 'approved')->get();
 
-            $inventoryImpact = [
+            $supplyImpact = [
                 'total_items_distributed' => 0,
                 'requests_fulfilled' => $approvedRequests->count(),
                 'avg_fulfillment_quantity' => 0
             ];
 
             $totalDistributed = $approvedRequests->sum('approved_quantity') ?: 0;
-            $inventoryImpact['total_items_distributed'] = $totalDistributed;
-            $inventoryImpact['avg_fulfillment_quantity'] = $approvedRequests->count() > 0
+            $supplyImpact['total_items_distributed'] = $totalDistributed;
+            $supplyImpact['avg_fulfillment_quantity'] = $approvedRequests->count() > 0
                 ? round($totalDistributed / $approvedRequests->count(), 2)
                 : 0;
 
-            return $inventoryImpact;
+            return $supplyImpact;
         } catch (\Exception $e) {
-            Log::error('Inventory Impact Error: ' . $e->getMessage());
+            Log::error('Supply Impact Error: ' . $e->getMessage());
             return [
                 'total_items_distributed' => 0,
                 'requests_fulfilled' => 0,

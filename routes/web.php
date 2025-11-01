@@ -174,13 +174,6 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 //     Route::delete('/seedlings/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('admin.seedlings.destroy');
 //     Route::patch('/requests/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
 //     Route::patch('/requests/{seedlingRequest}/items', [SeedlingRequestController::class, 'updateItems'])->name('update-items');
-//     Route::get('/requests/{seedlingRequest}/inventory-status', [SeedlingRequestController::class, 'getInventoryStatus'])->name('inventory-status');
-//     Route::get('/category-stats', [SeedlingRequestController::class, 'getCategoryStats'])->name('category-stats');
-// });
-
-
-
-
 // Seedling Requests Routes
 Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])->group(function () {
      Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');
@@ -602,26 +595,26 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::prefix('events')->name('event.')->group(function () {
         // List all events
         Route::get('/', [EventController::class, 'index'])->name('index');
-        
+
         // Create new event
         Route::post('/', [EventController::class, 'store'])->name('store');
-        
+
         // Show single event
         Route::get('/{event}', [EventController::class, 'show'])->name('show');
-        
+
         // Update event (support both PUT and POST with _method)
         Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])->name('update');
         Route::post('/{event}/update', [EventController::class, 'update'])->name('update.post');
-        
+
         // Delete event
         Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy');
-        
+
         // Toggle status - FIXED: Use PATCH instead of POST
         Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])->name('toggle');
-        
+
         // Update display order
         Route::patch('/{event}/order', [EventController::class, 'updateOrder'])->name('update-order');
-        
+
         // Get statistics
         Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
     });
