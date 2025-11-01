@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class UserRegistration extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $table = 'user_registration';
 
@@ -299,5 +301,13 @@ class UserRegistration extends Model
     public function latestRsbsaApplication()
     {
         return $this->hasOne(RsbsaApplication::class, 'user_id')->latestOfMany();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'email_verified_at', 'approved_at', 'approved_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

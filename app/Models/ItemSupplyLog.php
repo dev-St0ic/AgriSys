@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class ItemSupplyLog extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'category_item_id',
@@ -152,5 +154,13 @@ class ItemSupplyLog extends Model
     public function scopeByUser($query, int $userId)
     {
         return $query->where('performed_by', $userId);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['transaction_type', 'quantity', 'old_supply', 'new_supply'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class FishrApplication extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'user_id', // Foreign key to user_registration table
@@ -182,5 +184,13 @@ class FishrApplication extends Model
     public function isDocumentPdf()
     {
         return $this->document_extension === 'pdf';
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'remarks', 'updated_by'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }
