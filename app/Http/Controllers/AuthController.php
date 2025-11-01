@@ -7,6 +7,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\TrainingApplication;
+use App\Models\RequestCategory;
+use App\Models\CategoryItem;
+use App\Models\SeedlingRequest;
+use App\Models\RsbsaApplication;
+use App\Models\FishrRequest;
+use App\Models\BoatrRequest;
+use App\Models\TrainingRequest;
 
 class AuthController extends Controller
 {
@@ -99,6 +106,9 @@ class AuthController extends Controller
      */
     private function getAnalyticsData()
     {
+        // Get supply data first
+        $supplyData = $this->getSupplyData();
+
         // RSBSA Applications Statistics
         $rsbsaApproved = \App\Models\RsbsaApplication::where('status', 'approved')->count();
         $rsbsaPending = \App\Models\RsbsaApplication::whereIn('status', ['pending', 'under_review'])->count();
@@ -192,6 +202,15 @@ class AuthController extends Controller
 
         return [
             'services' => [
+                'supply' => [
+                    'name' => 'Supply Management',
+                    'total' => $supplyData['total_items'],
+                    'approved' => $supplyData['active_items'],
+                    'pending' => $supplyData['low_supply_items'],
+                    'rejected' => $supplyData['out_of_supply_items'],
+                    'icon' => 'fas fa-warehouse',
+                    'color' => 'info'
+                ],
                 'rsbsa' => [
                     'name' => 'RSBSA Applications',
                     'total' => $rsbsaTotal,
