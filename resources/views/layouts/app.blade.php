@@ -50,15 +50,54 @@
             width: 250px;
             overflow-x: hidden;
             overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
         }
 
         .sidebar.collapsed {
-            width: 80px;
+            width:780px;
+        }
+
+        /* Cabinet drawer effect */
+`        .sidebar.collapsed::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, 
+                transparent 0%, 
+                rgba(255,255,255,0.1) 10%, 
+                rgba(255,255,255,0.1) 90%, 
+                transparent 100%);
+        }
+
+        /* Sidebar scrollbar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Update toggle icon rotation */
+        .toggle-icon {
+            transition: transform 0.3s ease;
         }
 
         /* Apply collapsed state from HTML class */
         html.sidebar-collapsed-state .sidebar {
-            width: 80px;
+            width: 70px;
         }
 
         /* Override collapsed state when no sidebar exists */
@@ -69,9 +108,9 @@
         }
 
         html.sidebar-collapsed-state .main-content {
-            margin-left: 80px !important;
-            width: calc(100vw - 80px) !important;
-            max-width: calc(100vw - 80px) !important;
+            margin-left: 70px !important;
+            width: calc(100vw - 70px) !important;
+            max-width: calc(100vw - 70px) !important;
         }
 
         html.sidebar-collapsed-state .nav-link {
@@ -100,6 +139,10 @@
             justify-content: center !important;
             text-align: center !important;
             padding: 0.75rem !important;
+        }
+
+        html.sidebar-collapsed-state .toggle-icon {
+            transform: rotate(180deg);
         }
 
         .sidebar .nav-link {
@@ -188,9 +231,9 @@
         }
 
         .main-content.sidebar-collapsed {
-            margin-left: 80px;
-            width: calc(100vw - 80px);
-            max-width: calc(100vw - 80px);
+            margin-left: 70px;
+            width: calc(100vw - 70px);
+            max-width: calc(100vw - 70px);
         }
 
         .main-content.no-sidebar {

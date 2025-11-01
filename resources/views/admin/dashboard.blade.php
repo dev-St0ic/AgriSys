@@ -352,22 +352,21 @@
                                 <div class="card service-card flex-fill border-0 shadow-sm position-relative">
                                     <div class="service-header bg-{{ $service['color'] }}"></div>
                                     <div class="card-body p-4 d-flex flex-column">
-                                        <div class="d-flex align-items-center mb-3">
+                                        <div class="d-flex align-items-center justify-content-center mb-3">
                                             <div class="service-icon bg-{{ $service['color'] }}-light">
                                                 <i class="{{ $service['icon'] }} text-{{ $service['color'] }}"></i>
                                             </div>
                                             <div class="ms-3">
-                                                <h6 class="mb-1 font-weight-bold text-{{ $service['color'] }}">
+                                                <h6 class="mb-0 font-weight-bold text-{{ $service['color'] }}">
                                                     {{ $service['name'] }}
                                                 </h6>
-                                                <small class="text-muted">Service Management</small>
                                             </div>
                                         </div>
 
-                                        <div class="text-center mb-3">
+                                       <div class="text-center mb-3">
                                             <h2 class="mb-0 font-weight-bold text-dark counter-number"
                                                 data-target="{{ $service['total'] }}">0</h2>
-                                            <small class="text-muted">Total Applications</small>
+                                            <small class="text-muted">{{ $serviceKey === 'supply' ? 'Total Items' : 'Total Applications' }}</small>
                                         </div>
 
                                         <!-- Status Breakdown with enhanced design -->
@@ -378,7 +377,7 @@
                                                         {{ $service['approved'] }}</div>
                                                     <div class="status-label">
                                                         <i class="fas fa-check-circle text-success me-1"></i>
-                                                        <small class="text-muted">Approved</small>
+                                                        <small class="text-muted">{{ $serviceKey === 'supply' ? 'Active' : 'Approved' }}</small>
                                                     </div>
                                                 </div>
                                             </div>
@@ -387,8 +386,8 @@
                                                     <div class="status-number text-warning font-weight-bold">
                                                         {{ $service['pending'] }}</div>
                                                     <div class="status-label">
-                                                        <i class="fas fa-clock text-warning me-1"></i>
-                                                        <small class="text-muted">Pending</small>
+                                                        <i class="fas fa-{{ $serviceKey === 'supply' ? 'exclamation-triangle' : 'clock' }} text-warning me-1"></i>
+                                                        <small class="text-muted">{{ $serviceKey === 'supply' ? 'Low Stock' : 'Pending' }}</small>
                                                     </div>
                                                 </div>
                                             </div>
@@ -398,7 +397,7 @@
                                                         {{ $service['rejected'] }}</div>
                                                     <div class="status-label">
                                                         <i class="fas fa-times-circle text-danger me-1"></i>
-                                                        <small class="text-muted">Rejected</small>
+                                                        <small class="text-muted">{{ $serviceKey === 'supply' ? 'Out of Stock' : 'Rejected' }}</small>
                                                     </div>
                                                 </div>
                                             </div>
@@ -428,7 +427,7 @@
                                                     <small class="text-success font-weight-bold">
                                                         {{ round(($service['approved'] / $service['total']) * 100, 1) }}%
                                                     </small>
-                                                    <small class="text-muted">Approval Rate</small>
+                                                    <small class="text-muted">{{ $serviceKey === 'supply' ? 'Active Rate' : 'Approval Rate' }}</small>
                                                 </div>
                                             </div>
                                         @else
@@ -833,6 +832,34 @@
         }
 
         /* Color Utilities */
+        .bg-primary {
+            background-color: var(--primary-color);
+        }
+
+        .bg-success {
+            background-color: var(--success-color);
+        }
+
+        .bg-info {
+            background-color: var(--info-color);
+        }
+
+        .bg-warning {
+            background-color: var(--warning-color);
+        }
+
+        .bg-danger {
+            background-color: var(--danger-color);
+        }
+
+        .bg-purple {
+            background-color: var(--purple-color);
+        }
+
+        .bg-dark {
+            background-color: var(--dark-color);
+        }
+
         .bg-primary-light {
             background-color: rgba(78, 115, 223, 0.1);
         }
@@ -855,20 +882,6 @@
 
         .bg-purple-light {
             background-color: rgba(111, 66, 193, 0.1);
-        }
-
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
-        }
-
-        .bg-gradient-dark {
-            background: linear-gradient(135deg, var(--dark-color) 0%, #3d3e46 100%);
-        }
-
-        .badge-light-primary {
-            background-color: rgba(78, 115, 223, 0.1);
-            color: var(--primary-color);
-            font-weight: 600;
         }
 
         /* Counter Animation */

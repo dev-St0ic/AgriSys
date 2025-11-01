@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\TrainingApplication;
+use App\Models\RequestCategory;
+use App\Models\CategoryItem;
+use App\Models\SeedlingRequest;
+use App\Models\RsbsaApplication;
+use App\Models\FishrApplication;
+use App\Models\BoatrApplication;
+use App\Models\TrainingRequest;
+
 
 class AuthController extends Controller
 {
@@ -99,35 +107,38 @@ class AuthController extends Controller
      */
     private function getAnalyticsData()
     {
+        // Get supply data first
+        $supplyData = $this->getSupplyData();
+
         // RSBSA Applications Statistics
-        $rsbsaApproved = \App\Models\RsbsaApplication::where('status', 'approved')->count();
-        $rsbsaPending = \App\Models\RsbsaApplication::whereIn('status', ['pending', 'under_review'])->count();
-        $rsbsaRejected = \App\Models\RsbsaApplication::where('status', 'rejected')->count();
-        $rsbsaTotal = \App\Models\RsbsaApplication::count();
+        $rsbsaApproved = RsbsaApplication::where('status', 'approved')->count();
+        $rsbsaPending = RsbsaApplication::whereIn('status', ['pending', 'under_review'])->count();
+        $rsbsaRejected = RsbsaApplication::where('status', 'rejected')->count();
+        $rsbsaTotal = RsbsaApplication::count();
 
         // Seedling Requests Statistics
-        $seedlingApproved = \App\Models\SeedlingRequest::where('status', 'approved')->count();
-        $seedlingPending = \App\Models\SeedlingRequest::whereIn('status', ['under_review', 'partially_approved'])->count();
-        $seedlingRejected = \App\Models\SeedlingRequest::where('status', 'rejected')->count();
-        $seedlingTotal = \App\Models\SeedlingRequest::count();
+        $seedlingApproved =SeedlingRequest::where('status', 'approved')->count();
+        $seedlingPending = SeedlingRequest::whereIn('status', ['under_review', 'partially_approved'])->count();
+        $seedlingRejected =SeedlingRequest::where('status', 'rejected')->count();
+        $seedlingTotal = SeedlingRequest::count();
 
         // FishR Applications Statistics
-        $fishrApproved = \App\Models\FishrApplication::where('status', 'approved')->count();
-        $fishrPending = \App\Models\FishrApplication::whereIn('status', ['pending', 'under_review', 'inspection_scheduled', 'inspection_required', 'documents_pending'])->count();
-        $fishrRejected = \App\Models\FishrApplication::where('status', 'rejected')->count();
-        $fishrTotal = \App\Models\FishrApplication::count();
+        $fishrApproved = FishrApplication::where('status', 'approved')->count();
+        $fishrPending = FishrApplication::whereIn('status', ['pending', 'under_review', 'inspection_scheduled', 'inspection_required', 'documents_pending'])->count();
+        $fishrRejected = FishrApplication::where('status', 'rejected')->count();
+        $fishrTotal = FishrApplication::count();
 
         // BoatR Applications Statistics
-        $boatrApproved = \App\Models\BoatrApplication::where('status', 'approved')->count();
-        $boatrPending = \App\Models\BoatrApplication::whereIn('status', ['pending', 'under_review', 'inspection_scheduled', 'inspection_required', 'documents_pending'])->count();
-        $boatrRejected = \App\Models\BoatrApplication::where('status', 'rejected')->count();
-        $boatrTotal = \App\Models\BoatrApplication::count();
+        $boatrApproved = BoatrApplication::where('status', 'approved')->count();
+        $boatrPending = BoatrApplication::whereIn('status', ['pending', 'under_review', 'inspection_scheduled', 'inspection_required', 'documents_pending'])->count();
+        $boatrRejected = BoatrApplication::where('status', 'rejected')->count();
+        $boatrTotal = BoatrApplication::count();
 
         // Training Applications Statistics
-        $trainingApproved = \App\Models\TrainingApplication::where('status', 'approved')->count();
-        $trainingPending = \App\Models\TrainingApplication::whereIn('status', ['pending', 'under_review'])->count();
-        $trainingRejected = \App\Models\TrainingApplication::where('status', 'rejected')->count();
-        $trainingTotal = \App\Models\TrainingApplication::count();
+        $trainingApproved = TrainingApplication::where('status', 'approved')->count();
+        $trainingPending = TrainingApplication::whereIn('status', ['pending', 'under_review'])->count();
+        $trainingRejected =TrainingApplication::where('status', 'rejected')->count();
+        $trainingTotal = TrainingApplication::count();
 
         // Calculate totals
         $totalApplications = $rsbsaTotal + $seedlingTotal + $fishrTotal + $boatrTotal + $trainingTotal;
@@ -144,11 +155,11 @@ class AuthController extends Controller
 
             $monthlyData[] = [
                 'month' => $month->format('M Y'),
-                'rsbsa' => \App\Models\RsbsaApplication::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
-                'seedling' => \App\Models\SeedlingRequest::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
-                'fishr' => \App\Models\FishrApplication::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
-                'boatr' => \App\Models\BoatrApplication::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
-                'training' => \App\Models\TrainingApplication::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
+                'rsbsa' => RsbsaApplication::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
+                'seedling' => SeedlingRequest::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
+                'fishr' => FishrApplication::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
+                'boatr' => BoatrApplication::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
+                'training' => TrainingApplication::whereBetween('created_at', [$monthStart, $monthEnd])->count(),
             ];
         }
 
@@ -156,7 +167,7 @@ class AuthController extends Controller
         $recentApplications = collect();
 
         // Get recent RSBSA applications
-        $recentRsbsa = \App\Models\RsbsaApplication::latest()->take(2)->get()->map(function($app) {
+        $recentRsbsa = RsbsaApplication::latest()->take(2)->get()->map(function($app) {
             return [
                 'type' => 'RSBSA Application',
                 'name' => $app->full_name,
@@ -167,7 +178,7 @@ class AuthController extends Controller
         });
 
         // Get recent seedling requests
-        $recentSeedling = \App\Models\SeedlingRequest::latest()->take(2)->get()->map(function($app) {
+        $recentSeedling = SeedlingRequest::latest()->take(2)->get()->map(function($app) {
             return [
                 'type' => 'Seedling Request',
                 'name' => $app->first_name . ' ' . $app->last_name,
@@ -178,7 +189,7 @@ class AuthController extends Controller
         });
 
         // Get recent training applications
-        $recentTraining = \App\Models\TrainingApplication::latest()->take(1)->get()->map(function($app) {
+        $recentTraining = TrainingApplication::latest()->take(1)->get()->map(function($app) {
             return [
                 'type' => 'Training Application',
                 'name' => $app->first_name . ' ' . $app->last_name,
@@ -192,6 +203,15 @@ class AuthController extends Controller
 
         return [
             'services' => [
+                'supply' => [
+                    'name' => 'Supply Management',
+                    'total' => $supplyData['total_items'],
+                    'approved' => $supplyData['active_items'],
+                    'pending' => $supplyData['low_supply_items'],
+                    'rejected' => $supplyData['out_of_supply_items'],
+                    'icon' => 'fas fa-warehouse',
+                    'color' => 'info'
+                ],
                 'rsbsa' => [
                     'name' => 'RSBSA Applications',
                     'total' => $rsbsaTotal,
@@ -254,13 +274,13 @@ class AuthController extends Controller
      */
     private function getSupplyData()
     {
-        $totalCategories = \App\Models\RequestCategory::count();
-        $activeCategories = \App\Models\RequestCategory::where('is_active', true)->count();
-        $totalItems = \App\Models\CategoryItem::count();
-        $activeItems = \App\Models\CategoryItem::where('is_active', true)->count();
-        $lowSupplyItems = \App\Models\CategoryItem::lowSupply()->count();
-        $outOfSupplyItems = \App\Models\CategoryItem::outOfSupply()->count();
-        $totalSupply = \App\Models\CategoryItem::sum('current_supply');
+        $totalCategories = RequestCategory::count();
+        $activeCategories = RequestCategory::where('is_active', true)->count();
+        $totalItems = CategoryItem::count();
+        $activeItems = CategoryItem::where('is_active', true)->count();
+        $lowSupplyItems =CategoryItem::lowSupply()->count();
+        $outOfSupplyItems = CategoryItem::outOfSupply()->count();
+        $totalSupply = CategoryItem::sum('current_supply');
 
         return [
             'total_categories' => $totalCategories,
