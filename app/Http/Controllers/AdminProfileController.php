@@ -33,7 +33,7 @@ class AdminProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'contact_number' => ['nullable', 'string', 'max:20'],
-            'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:5120'], // Changed to 5120 KB (5MB)
             'current_password' => ['required_with:password', 'nullable'],
             'password' => [
                 'nullable',

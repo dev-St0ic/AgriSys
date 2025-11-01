@@ -72,7 +72,7 @@
 
                                 <small class="text-muted d-block">
                                     <strong>Allowed:</strong> JPG, PNG, GIF<br/>
-                                    <strong>Max size:</strong> 2MB
+                                    <strong>Max size:</strong> 5MB
                                 </small>
                             </div>
                         </div>
