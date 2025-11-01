@@ -477,16 +477,6 @@
                                         <span class="nav-link-text">Training Registrations</span>
                                     </a>
                                 </li>
-feature/improve-analytics-ui-rsbsa-fishr-boatr-training
-=======
-                                <!-- <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.inventory.index') }}" data-tooltip="Inventory Management">
-                                        <i class="fas fa-warehouse"></i>
-                                        <span class="nav-link-text">Inventory Management</span>
-                                    </a>
-                                </li> -->
- main
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.analytics.analytics') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.analytics.seedlings') }}" data-tooltip="Analytics">

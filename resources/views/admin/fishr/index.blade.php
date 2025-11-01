@@ -722,7 +722,7 @@
 
         let searchTimeout;
 
-        // Auto search functionality (matches inventory)
+        // Auto search functionality
         function autoSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
@@ -730,7 +730,7 @@
             }, 500); // Wait 500ms after user stops typing
         }
 
-        // Submit filter form when dropdowns change (matches inventory)
+        // Submit filter form when dropdowns change
         function submitFilterForm() {
             document.getElementById('filterForm').submit();
         }

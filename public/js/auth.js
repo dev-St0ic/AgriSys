@@ -73,8 +73,11 @@ function showSignUpForm() {
         const firstInput = signupForm.querySelector('input');
         if (firstInput) firstInput.focus();
 
-        // Render reCAPTCHA explicitly when form is shown
-        renderRecaptcha();
+        // Only render reCAPTCHA if not already rendered
+        const recaptchaContainer = document.querySelector('.g-recaptcha');
+        if (recaptchaContainer && recaptchaContainer.children.length === 0) {
+            renderRecaptcha();
+        }
     }, 100);
 }
 
@@ -3310,23 +3313,34 @@ function renderRecaptcha() {
         return;
     }
 
+    // Check if reCAPTCHA is already rendered in this container
+    if (recaptchaContainer.children.length > 0 && recaptchaWidgetId !== null) {
+        console.log('reCAPTCHA already rendered, skipping...');
+        return;
+    }
+
     // Reset the container if already rendered
     if (recaptchaWidgetId !== null) {
         try {
             grecaptcha.reset(recaptchaWidgetId);
+            console.log('reCAPTCHA reset successfully');
         } catch (e) {
             console.warn('Error resetting reCAPTCHA:', e);
+            // If reset fails, clear the widget ID to force re-render
+            recaptchaWidgetId = null;
         }
     }
 
-    // Clear the container
-    recaptchaContainer.innerHTML = '';
+    // Only clear and re-render if not already rendered
+    if (recaptchaWidgetId === null) {
+        // Clear the container
+        recaptchaContainer.innerHTML = '';
 
-    try {
-        // Render the reCAPTCHA
-        recaptchaWidgetId = grecaptcha.render(recaptchaContainer, {
-            'sitekey': recaptchaContainer.dataset.sitekey,
-            'callback': function(response) {
+        try {
+            // Render the reCAPTCHA
+            recaptchaWidgetId = grecaptcha.render(recaptchaContainer, {
+                'sitekey': recaptchaContainer.dataset.sitekey,
+                'callback': function(response) {
                 console.log('reCAPTCHA completed:', response ? 'Success' : 'Failed');
             },
             'expired-callback': function() {
@@ -3337,8 +3351,9 @@ function renderRecaptcha() {
             }
         });
         console.log('reCAPTCHA rendered successfully with widget ID:', recaptchaWidgetId);
-    } catch (error) {
-        console.error('Error rendering reCAPTCHA:', error);
+        } catch (error) {
+            console.error('Error rendering reCAPTCHA:', error);
+        }
     }
 }
 

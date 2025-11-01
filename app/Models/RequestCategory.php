@@ -66,9 +66,9 @@ class RequestCategory extends Model
     }
 
     /**
-     * Get inventory category name for mapping
+     * Get supply category name for mapping
      */
-    public function getInventoryCategoryName(): string
+    public function getSupplyCategoryName(): string
     {
         $mapping = [
             'seeds' => 'Seeds',

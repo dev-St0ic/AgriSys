@@ -13,7 +13,7 @@
                 <div class="card-body">
                     <div class="text-center mb-3">
                         <h4 class="mb-2 fw-bold">Supply Management Analytics Dashboard</h4>
-                        <p class="text-muted mb-0">Comprehensive insights into inventory levels, supply trends, and
+                        <p class="text-muted mb-0">Comprehensive insights into supply levels, supply trends, and
                             fulfillment metrics</p>
                     </div>
                     <!-- Service Tabs -->
@@ -549,7 +549,7 @@
                                         <strong>{{ $index + 1 }}</strong>
                                     </div>
                                 </div>
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <h6 class="mb-1 fw-semibold">{{ $item->name }}</h6>
                                     <div class="small text-muted">
                                         <i class="fas fa-box me-1"></i>{{ number_format($item->total_requested) }}
@@ -586,7 +586,7 @@
                                         <strong>{{ $index + 1 }}</strong>
                                     </div>
                                 </div>
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <h6 class="mb-1 fw-semibold">{{ $item->name }}</h6>
                                     <div class="small text-muted">
                                         <i class="fas fa-box me-1"></i>{{ number_format($item->total_supplied) }}
@@ -624,7 +624,7 @@
                                         <strong>{{ $index + 1 }}</strong>
                                     </div>
                                 </div>
-                                <div class="flex-grow-1">
+                                <div class="grow">
                                     <h6 class="mb-1 fw-semibold">{{ $item->name }}</h6>
                                     <div class="small text-muted">
                                         <i class="fas fa-box me-1"></i>{{ number_format($item->total_loss) }}

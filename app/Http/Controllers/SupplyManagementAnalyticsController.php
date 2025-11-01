@@ -22,47 +22,47 @@ class SupplyManagementAnalyticsController extends Controller
             // Date range filter with better defaults
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
+
             // 1. Overview Statistics
             $overview = $this->getOverviewStatistics();
-            
+
             // 2. Supply Level Analysis
             $supplyLevelAnalysis = $this->getSupplyLevelAnalysis();
-            
+
             // 3. Supply Trends (Monthly)
             $supplyTrends = $this->getSupplyTrends($startDate, $endDate);
-            
+
             // 4. Transaction Analysis
             $transactionAnalysis = $this->getTransactionAnalysis($startDate, $endDate);
-            
+
             // 5. Category Performance
             $categoryPerformance = $this->getCategoryPerformance();
-            
+
             // 6. Top Items Analysis
             $topItemsAnalysis = $this->getTopItemsAnalysis($startDate, $endDate);
-            
+
             // 7. Supply Alerts
             $supplyAlerts = $this->getSupplyAlerts();
-            
+
             // 8. Fulfillment Analysis
             $fulfillmentAnalysis = $this->getFulfillmentAnalysis($startDate, $endDate);
-            
+
             // 9. Supply Efficiency Metrics
             $efficiencyMetrics = $this->getEfficiencyMetrics($startDate, $endDate);
-            
+
             // 10. Turnover Analysis
             $turnoverAnalysis = $this->getTurnoverAnalysis($startDate, $endDate);
-            
+
             // 11. Loss and Waste Analysis
             $lossAnalysis = $this->getLossAnalysis($startDate, $endDate);
-            
+
             // 12. Restock Recommendations
             $restockRecommendations = $this->getRestockRecommendations();
-            
+
             return view('admin.analytics.supply-management', compact(
                 'overview',
                 'supplyLevelAnalysis',
@@ -86,7 +86,7 @@ class SupplyManagementAnalyticsController extends Controller
             return back()->with('error', 'Error loading supply analytics data. Please try again.');
         }
     }
-    
+
     /**
      * Get overview statistics
      */
@@ -98,29 +98,29 @@ class SupplyManagementAnalyticsController extends Controller
             $totalSupply = CategoryItem::sum('current_supply');
             $totalCategories = RequestCategory::count();
             $activeCategories = RequestCategory::where('is_active', true)->count();
-            
+
             // Supply status counts
             $lowSupplyItems = CategoryItem::where('supply_alert_enabled', true)
                 ->whereColumn('current_supply', '<=', 'reorder_point')
                 ->where('current_supply', '>', 0)
                 ->count();
-                
+
             $outOfStockItems = CategoryItem::where('current_supply', 0)->count();
-            
+
             $healthyStockItems = CategoryItem::where('current_supply', '>', 0)
                 ->where(function($q) {
                     $q->where('supply_alert_enabled', false)
                       ->orWhereColumn('current_supply', '>', 'reorder_point');
                 })
                 ->count();
-            
+
             // Average supply per item
             $avgSupplyPerItem = $activeItems > 0 ? round($totalSupply / $activeItems, 2) : 0;
-            
+
             // Total value estimate (if you have price field)
             $itemsWithMinSupply = CategoryItem::where('minimum_supply', '>', 0)->count();
             $itemsWithMaxSupply = CategoryItem::where('maximum_supply', '>', 0)->count();
-            
+
             // Supply health score (0-100)
             $healthScore = $this->calculateSupplyHealthScore(
                 $totalItems,
@@ -128,7 +128,7 @@ class SupplyManagementAnalyticsController extends Controller
                 $lowSupplyItems,
                 $outOfStockItems
             );
-            
+
             return [
                 'total_items' => $totalItems,
                 'active_items' => $activeItems,
@@ -149,24 +149,24 @@ class SupplyManagementAnalyticsController extends Controller
             return $this->getDefaultOverview();
         }
     }
-    
+
     /**
      * Calculate supply health score
      */
     private function calculateSupplyHealthScore($total, $healthy, $low, $outOfStock)
     {
         if ($total == 0) return 0;
-        
+
         // Weighted scoring
         $healthyScore = ($healthy / $total) * 100 * 1.0;
         $lowPenalty = ($low / $total) * 100 * 0.5;
         $outOfStockPenalty = ($outOfStock / $total) * 100 * 1.0;
-        
+
         $score = $healthyScore - $lowPenalty - $outOfStockPenalty;
-        
+
         return round(max(0, min(100, $score)), 2);
     }
-    
+
     /**
      * Get supply level analysis
      */
@@ -187,7 +187,7 @@ class SupplyManagementAnalyticsController extends Controller
                     'is_active'
                 ])
                 ->get();
-            
+
             $supplyLevels = [
                 'critical' => [],
                 'low' => [],
@@ -195,12 +195,12 @@ class SupplyManagementAnalyticsController extends Controller
                 'optimal' => [],
                 'overstocked' => []
             ];
-            
+
             foreach ($items as $item) {
                 $status = $this->determineSupplyStatus($item);
                 $supplyLevels[$status][] = $item;
             }
-            
+
             return [
                 'levels' => $supplyLevels,
                 'counts' => [
@@ -219,7 +219,7 @@ class SupplyManagementAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Determine supply status for an item
      */
@@ -228,14 +228,14 @@ class SupplyManagementAnalyticsController extends Controller
         if ($item->current_supply == 0) {
             return 'critical';
         }
-        
+
         if ($item->reorder_point > 0 && $item->current_supply <= $item->reorder_point) {
             return 'low';
         }
-        
+
         if ($item->maximum_supply > 0) {
             $percentOfMax = ($item->current_supply / $item->maximum_supply) * 100;
-            
+
             if ($percentOfMax > 100) {
                 return 'overstocked';
             } elseif ($percentOfMax >= 70) {
@@ -246,10 +246,10 @@ class SupplyManagementAnalyticsController extends Controller
                 return 'low';
             }
         }
-        
+
         return 'adequate';
     }
-    
+
     /**
      * Get supply trends over time
      */
@@ -269,14 +269,14 @@ class SupplyManagementAnalyticsController extends Controller
                 ->groupBy('month')
                 ->orderBy('month')
                 ->get();
-                
+
             return $trends;
         } catch (\Exception $e) {
             Log::error('Supply Trends Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get transaction analysis
      */
@@ -293,16 +293,16 @@ class SupplyManagementAnalyticsController extends Controller
                 )
                 ->groupBy('transaction_type')
                 ->get();
-            
+
             $total = $transactions->sum('transaction_count');
-            
+
             $percentages = [];
             foreach ($transactions as $transaction) {
-                $percentages[$transaction->transaction_type] = $total > 0 
-                    ? round(($transaction->transaction_count / $total) * 100, 2) 
+                $percentages[$transaction->transaction_type] = $total > 0
+                    ? round(($transaction->transaction_count / $total) * 100, 2)
                     : 0;
             }
-            
+
             return [
                 'transactions' => $transactions,
                 'percentages' => $percentages,
@@ -317,7 +317,7 @@ class SupplyManagementAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get category performance
      */
@@ -337,7 +337,7 @@ class SupplyManagementAnalyticsController extends Controller
                     return $item->current_supply <= $item->reorder_point && $item->current_supply > 0;
                 })->count();
                 $outOfStockCount = $category->items->where('current_supply', 0)->count();
-                
+
                 return [
                     'id' => $category->id,
                     'name' => $category->display_name,
@@ -349,14 +349,14 @@ class SupplyManagementAnalyticsController extends Controller
                     'is_active' => $category->is_active
                 ];
             });
-            
+
             return $categories;
         } catch (\Exception $e) {
             Log::error('Category Performance Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get top items analysis
      */
@@ -381,7 +381,7 @@ class SupplyManagementAnalyticsController extends Controller
                 ->orderBy('request_count', 'desc')
                 ->limit(10)
                 ->get();
-            
+
             // Most supplied items
             $mostSupplied = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->where('transaction_type', 'add_supply')
@@ -398,7 +398,7 @@ class SupplyManagementAnalyticsController extends Controller
                 ->orderBy('total_supplied', 'desc')
                 ->limit(10)
                 ->get();
-            
+
             // Items with highest loss
             $highestLoss = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->where('transaction_type', 'loss')
@@ -415,7 +415,7 @@ class SupplyManagementAnalyticsController extends Controller
                 ->orderBy('total_loss', 'desc')
                 ->limit(10)
                 ->get();
-            
+
             return [
                 'most_requested' => $mostRequested,
                 'most_supplied' => $mostSupplied,
@@ -430,7 +430,7 @@ class SupplyManagementAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get supply alerts
      */
@@ -441,19 +441,19 @@ class SupplyManagementAnalyticsController extends Controller
                 ->where('is_active', true)
                 ->with('category')
                 ->get();
-            
+
             $lowSupplyItems = CategoryItem::where('supply_alert_enabled', true)
                 ->whereColumn('current_supply', '<=', 'reorder_point')
                 ->where('current_supply', '>', 0)
                 ->with('category')
                 ->orderBy('current_supply', 'asc')
                 ->get();
-            
+
             $overstockedItems = CategoryItem::where('maximum_supply', '>', 0)
                 ->whereColumn('current_supply', '>', 'maximum_supply')
                 ->with('category')
                 ->get();
-            
+
             return [
                 'critical' => $criticalItems,
                 'low_supply' => $lowSupplyItems,
@@ -470,7 +470,7 @@ class SupplyManagementAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get fulfillment analysis
      */
@@ -490,15 +490,15 @@ class SupplyManagementAnalyticsController extends Controller
                     DB::raw('SUM(CASE WHEN sri.quantity_approved = 0 THEN 1 ELSE 0 END) as not_fulfilled')
                 )
                 ->first();
-            
-            $fulfillmentRate = $fulfillment->total_requested > 0 
+
+            $fulfillmentRate = $fulfillment->total_requested > 0
                 ? round(($fulfillment->total_approved / $fulfillment->total_requested) * 100, 2)
                 : 0;
-            
+
             $fullFulfillmentRate = $fulfillment->total_items > 0
                 ? round(($fulfillment->fully_fulfilled / $fulfillment->total_items) * 100, 2)
                 : 0;
-            
+
             return [
                 'total_items' => $fulfillment->total_items,
                 'total_requested' => $fulfillment->total_requested,
@@ -523,7 +523,7 @@ class SupplyManagementAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get efficiency metrics
      */
@@ -533,20 +533,20 @@ class SupplyManagementAnalyticsController extends Controller
             $supplyAdded = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->where('transaction_type', 'add_supply')
                 ->sum('quantity');
-            
+
             $supplyDeducted = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->where('transaction_type', 'deduct_supply')
                 ->sum('quantity');
-            
+
             $supplyLost = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->where('transaction_type', 'loss')
                 ->sum('quantity');
-            
+
             $netSupplyChange = $supplyAdded - $supplyDeducted - $supplyLost;
-            
+
             $lossRate = $supplyAdded > 0 ? round(($supplyLost / $supplyAdded) * 100, 2) : 0;
             $utilizationRate = $supplyAdded > 0 ? round(($supplyDeducted / $supplyAdded) * 100, 2) : 0;
-            
+
             return [
                 'supply_added' => $supplyAdded,
                 'supply_deducted' => $supplyDeducted,
@@ -567,7 +567,7 @@ class SupplyManagementAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get turnover analysis
      */
@@ -582,15 +582,15 @@ class SupplyManagementAnalyticsController extends Controller
                         ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                         ->where('transaction_type', 'add_supply')
                         ->sum('quantity');
-                    
+
                     $deducted = ItemSupplyLog::where('category_item_id', $item->id)
                         ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                         ->where('transaction_type', 'deduct_supply')
                         ->sum('quantity');
-                    
-                    $avgInventory = ($item->current_supply + $supplied) / 2;
-                    $turnoverRate = $avgInventory > 0 ? round($deducted / $avgInventory, 2) : 0;
-                    
+
+                    $avgSupply = ($item->current_supply + $supplied) / 2;
+                    $turnoverRate = $avgSupply > 0 ? round($deducted / $avgSupply, 2) : 0;
+
                     return [
                         'item_id' => $item->id,
                         'item_name' => $item->name,
@@ -603,14 +603,14 @@ class SupplyManagementAnalyticsController extends Controller
                 })
                 ->sortByDesc('turnover_rate')
                 ->take(15);
-            
+
             return $items;
         } catch (\Exception $e) {
             Log::error('Turnover Analysis Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Get loss and waste analysis
      */
@@ -621,10 +621,10 @@ class SupplyManagementAnalyticsController extends Controller
                 ->where('transaction_type', 'loss')
                 ->with('categoryItem.category')
                 ->get();
-            
+
             $totalLoss = $lossLogs->sum('quantity');
             $lossCount = $lossLogs->count();
-            
+
             $lossByItem = $lossLogs->groupBy('category_item_id')
                 ->map(function($logs, $itemId) {
                     $firstLog = $logs->first();
@@ -640,7 +640,7 @@ class SupplyManagementAnalyticsController extends Controller
                 })
                 ->sortByDesc('total_loss')
                 ->values();
-            
+
             return [
                 'total_loss' => $totalLoss,
                 'loss_incidents' => $lossCount,
@@ -657,7 +657,7 @@ class SupplyManagementAnalyticsController extends Controller
             ];
         }
     }
-    
+
     /**
      * Get restock recommendations
      */
@@ -671,7 +671,7 @@ class SupplyManagementAnalyticsController extends Controller
                     $status = $this->determineSupplyStatus($item);
                     $priority = $this->calculateRestockPriority($item, $status);
                     $recommendedQuantity = $this->calculateRecommendedRestock($item);
-                    
+
                     return [
                         'item' => $item,
                         'status' => $status,
@@ -685,34 +685,34 @@ class SupplyManagementAnalyticsController extends Controller
                 })
                 ->sortByDesc('priority')
                 ->values();
-            
+
             return $items;
         } catch (\Exception $e) {
             Log::error('Restock Recommendations Error: ' . $e->getMessage());
             return collect([]);
         }
     }
-    
+
     /**
      * Calculate restock priority
      */
     private function calculateRestockPriority($item, $status)
     {
         $priority = 0;
-        
+
         // Status priority
         if ($status === 'critical') $priority += 100;
         elseif ($status === 'low') $priority += 70;
-        
+
         // Active item priority
         if ($item->is_active) $priority += 20;
-        
+
         // Alert enabled priority
         if ($item->supply_alert_enabled) $priority += 10;
-        
+
         return $priority;
     }
-    
+
     /**
      * Calculate recommended restock quantity
      */
@@ -721,14 +721,14 @@ class SupplyManagementAnalyticsController extends Controller
         if ($item->maximum_supply > 0) {
             return $item->maximum_supply - $item->current_supply;
         }
-        
+
         if ($item->reorder_point > 0) {
             return max(0, ($item->reorder_point * 2) - $item->current_supply);
         }
-        
+
         return 0;
     }
-    
+
     /**
      * Get urgency level
      */
@@ -739,7 +739,7 @@ class SupplyManagementAnalyticsController extends Controller
         if ($priority >= 50) return 'medium';
         return 'low';
     }
-    
+
     /**
      * Get default overview when errors occur
      */
@@ -761,7 +761,7 @@ class SupplyManagementAnalyticsController extends Controller
             'supply_health_score' => 0
         ];
     }
-    
+
     /**
      * Export analytics data
      */
@@ -770,11 +770,11 @@ class SupplyManagementAnalyticsController extends Controller
         try {
             $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->format('Y-m-d'));
-            
+
             // Validate dates
             $startDate = Carbon::parse($startDate)->format('Y-m-d');
             $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            
+
             $data = [
                 'export_info' => [
                     'generated_at' => now()->format('Y-m-d H:i:s'),
@@ -797,9 +797,9 @@ class SupplyManagementAnalyticsController extends Controller
                 'loss_analysis' => $this->getLossAnalysis($startDate, $endDate),
                 'restock_recommendations' => $this->getRestockRecommendations()->toArray()
             ];
-            
+
             $filename = 'supply-management-analytics-' . $startDate . '-to-' . $endDate . '.json';
-            
+
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'

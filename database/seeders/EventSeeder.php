@@ -24,10 +24,11 @@ class EventSeeder extends Seeder
         $events = [
             [
                 'title' => 'Community Garden Initiative',
-                'description' => 'Urban gardening program bringing together residents to cultivate fresh produce while learning sustainable farming techniques including organic gardening, composting, and water conservation.',
+                'description' => 'Urban gardening program bringing together residents to cultivate fresh produce while learning sustainable farming techniques. Participants receive free seedlings, tools, and expert guidance throughout the growing season.',
                 'category' => 'ongoing',
                 'date' => 'Every Saturday | 8:00 AM - 12:00 PM',
                 'location' => 'San Pedro Community Garden, Brgy. Riverside',
+                'image_path' => 'events/placeholder-1.jpg',
                 'details' => [
                     'participants' => 'All residents welcome, families encouraged',
                     'cost' => 'Free for all participants',
@@ -43,6 +44,7 @@ class EventSeeder extends Seeder
                 'category' => 'past',
                 'date' => '✅ Completed: September 2024',
                 'location' => '12 Barangays across San Pedro City',
+                'image_path' => 'events/placeholder-2.jpg',
                 'details' => [
                     'achievement' => '500+ native trees planted',
                     'impact' => 'Improved air quality and urban aesthetics',
@@ -57,6 +59,7 @@ class EventSeeder extends Seeder
                 'category' => 'upcoming',
                 'date' => '🌱 November 15, 2025 | 6:00 AM - 10:00 AM',
                 'location' => 'Various locations citywide',
+                'image_path' => 'events/placeholder-3.jpg',
                 'details' => [
                     'freebies' => 'Free seedlings, refreshments, certificate',
                     'registration' => 'Contact City Agriculture Office',
@@ -71,6 +74,7 @@ class EventSeeder extends Seeder
                 'category' => 'upcoming',
                 'date' => '📚 October 28, 2025 | 2:00 PM - 5:00 PM',
                 'location' => 'Agriculture Office Training Center',
+                'image_path' => 'events/placeholder-4.jpg',
                 'details' => [
                     'for' => 'Local farmers and aspiring growers',
                     'freebies' => 'Free seeds, tools, and training materials',
@@ -85,6 +89,7 @@ class EventSeeder extends Seeder
                 'category' => 'ongoing',
                 'date' => '🌾 January - December 2025',
                 'location' => 'All rice farming areas in San Pedro',
+                'image_path' => 'events/placeholder-5.jpg',
                 'details' => [
                     'support' => 'Training, organic fertilizers, market access',
                     'certification' => 'Organic farming certification assistance',
@@ -99,6 +104,7 @@ class EventSeeder extends Seeder
                 'category' => 'ongoing',
                 'date' => '🔄 Ongoing | Daily Operations',
                 'location' => 'All public parks across San Pedro',
+                'image_path' => 'events/placeholder-6.jpg',
                 'details' => [
                     'services' => 'Mowing, trimming, landscaping, sanitation',
                     'report' => 'Contact City Agriculture Office',
@@ -113,6 +119,7 @@ class EventSeeder extends Seeder
                 'category' => 'ongoing',
                 'date' => '⚙️ In Progress | Target: December 2025',
                 'location' => 'San Pedro Sports Complex',
+                'image_path' => 'events/placeholder-7.jpg',
                 'details' => [
                     'facilities' => 'Soccer fields, basketball courts, running tracks',
                     'upgrades' => 'New turf, drainage, irrigation, lighting',
@@ -127,6 +134,7 @@ class EventSeeder extends Seeder
                 'category' => 'announcement',
                 'date' => '🏙️ First Sunday of Every Month | 9:00 AM - 12:00 PM',
                 'location' => 'Agriculture Office Training Center',
+                'image_path' => 'events/placeholder-8.jpg',
                 'details' => [
                     'techniques' => 'Container gardening, vertical gardens, hydroponics',
                     'materials' => 'All training materials and starter kits provided',

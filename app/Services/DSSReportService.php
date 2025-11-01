@@ -169,7 +169,7 @@ Please provide your analysis in the following JSON structure:
     ],
     \"next_month_forecast\": {
         \"expected_demand\": \"Predicted demand based on trends\",
-        \"recommended_stock_levels\": \"Suggested inventory targets\",
+        \"recommended_stock_levels\": \"Suggested supply targets\",
         \"focus_areas\": [\"Area 1\", \"Area 2\"]
     },
     \"confidence_level\": \"85%\",
@@ -184,7 +184,7 @@ IMPORTANT:
 - Consider factors like data completeness, sample size, time relevance, and consistency when determining confidence
 - Be honest about limitations in the data or analysis
 
-Focus on actionable insights that can help agricultural officers make informed decisions about seedling distribution, inventory management, and resource allocation.
+Focus on actionable insights that can help agricultural officers make informed decisions about seedling distribution, supply management, and resource allocation.
 ";
     }
 
@@ -444,7 +444,7 @@ Focus on actionable insights that can help agricultural officers make informed d
                 'Process pending requests within 3 days',
             ],
             'short_term_strategies' => [
-                'Implement automated inventory alerts (Timeline: 1 month)',
+                'Implement automated supply alerts (Timeline: 1 month)',
                 'Establish supplier agreements for fast restocking (Timeline: 2 months)',
             ],
         ];
