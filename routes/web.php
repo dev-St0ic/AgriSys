@@ -9,13 +9,11 @@ use App\Http\Controllers\FishRController;
 use App\Http\Controllers\BoatRController;
 use App\Http\Controllers\RsbsaController;
 use App\Http\Controllers\TrainingController;
-use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\SeedlingAnalyticsController;
 use App\Http\Controllers\FishrAnalyticsController;
 use App\Http\Controllers\BoatrAnalyticsController;
 use App\Http\Controllers\RsbsaAnalyticsController;
 use App\Http\Controllers\TrainingAnalyticsController;
-use App\Http\Controllers\InventoryAnalyticsController;
 use App\Http\Controllers\UserRegistrationAnalyticsController;
 use App\Http\Controllers\SupplyManagementAnalyticsController;
 use App\Http\Controllers\UserRegistrationController;
@@ -253,10 +251,6 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::get('/training', [TrainingAnalyticsController::class, 'index'])->name('training');
     Route::get('/training/export', [TrainingAnalyticsController::class, 'export'])->name('training.export');
 
-    // INVENTORY ANALYTICS - NEW SECTION
-    Route::get('/inventory', [InventoryAnalyticsController::class, 'index'])->name('inventory');
-    Route::get('/inventory/export', [InventoryAnalyticsController::class, 'export'])->name('inventory.export');
-
      // User Registration Analytics
     Route::get('/user-registration', [UserRegistrationAnalyticsController::class, 'index'])->name('user-registration');
     Route::get('/user-registration/export', [UserRegistrationAnalyticsController::class, 'export'])->name('user-registration.export');
@@ -278,15 +272,6 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     });
 
 
-
-    // ==============================================
-    // INVENTORY MANAGEMENT
-    // ==============================================
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('inventory', InventoryController::class);
-        Route::post('inventory/{inventory}/adjust-stock', [InventoryController::class, 'adjustStock'])
-            ->name('inventory.adjust-stock');
-    });
 
     // ==============================================
     // ADMIN MANAGEMENT (SuperAdmin only)

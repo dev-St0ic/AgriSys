@@ -1,4 +1,4 @@
-{{-- resources/views/admin/analytics/boatr.blade.php --}}
+﻿{{-- resources/views/admin/analytics/boatr.blade.php --}}
 
 @extends('layouts.app')
 
@@ -97,10 +97,6 @@
                                     class="btn btn-success px-4">
                                     <i class="fas fa-download me-2"></i>Export Data
                                 </a>
-                                <button type="button" class="btn btn-outline-info px-4" data-bs-toggle="modal"
-                                    data-bs-target="#boatrInsightsModal">
-                                    <i class="fas fa-lightbulb me-2"></i>AI Insights
-                                </button>
                             </div>
                         </div>
                     </form>
@@ -157,7 +153,7 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="metric-label text-muted mb-2">Registered Fleet</p>
+                            <p class="metric-label text-muted mb-2">Registered Boat</p>
                             <h2 class="metric-value mb-1">{{ $overview['unique_vessels'] }}</h2>
                             <small class="text-muted">{{ $overview['unique_boat_types'] }} boat types</small>
                         </div>
@@ -210,23 +206,34 @@
                                 'rejected' => 'danger',
                                 'under_review' => 'warning',
                                 'inspection_scheduled' => 'info',
-                                'inspection_required' => 'primary',
-                                'documents_pending' => 'secondary',
+                                'inspection_required' => 'purple',
+                                'documents_pending' => 'primary',
                                 'pending' => 'secondary',
+                            ];
+                            $statusBgColors = [
+                                'approved' => '#10b981',
+                                'rejected' => '#ef4444',
+                                'under_review' => '#f59e0b',
+                                'inspection_scheduled' => '#0ea5e9',
+                                'inspection_required' => '#8b5cf6',
+                                'documents_pending' => '#6366f1',
+                                'pending' => '#64748b',
                             ];
                         @endphp
                         @foreach ($statusAnalysis['counts'] as $status => $count)
                             <div class="legend-item d-flex justify-content-between align-items-center mb-2 p-2 rounded">
                                 <div class="d-flex align-items-center">
-                                    <span class="legend-dot bg-{{ $statusColors[$status] ?? 'secondary' }} me-2"></span>
+                                    <span class="legend-dot me-2"
+                                        style="background-color: {{ $statusBgColors[$status] ?? '#64748b' }}"></span>
                                     <span class="fw-medium">{{ ucfirst(str_replace('_', ' ', $status)) }}</span>
                                 </div>
                                 <div>
-                                    <span
-                                        class="badge bg-{{ $statusColors[$status] ?? 'secondary' }}-soft text-{{ $statusColors[$status] ?? 'secondary' }}">
+                                    <span class="badge text-white"
+                                        style="background-color: {{ $statusBgColors[$status] ?? '#64748b' }}">
                                         {{ $count }}
                                     </span>
-                                    <span class="text-muted ms-2">{{ $statusAnalysis['percentages'][$status] }}%</span>
+                                    <span
+                                        class="text-muted ms-2 fw-semibold">{{ $statusAnalysis['percentages'][$status] }}%</span>
                                 </div>
                             </div>
                         @endforeach
@@ -340,7 +347,6 @@
                         <div class="boat-type-item">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center">
-                                    <span class="rank-badge">{{ $index + 1 }}</span>
                                     <span class="fw-semibold">{{ ucfirst($boatType->boat_type) }}</span>
                                 </div>
                                 <span class="badge bg-primary">{{ $boatType->total_applications }}</span>
@@ -372,51 +378,178 @@
                     <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-clipboard-check text-primary me-2"></i>Inspection Overview
                     </h5>
+                    <small class="text-muted">Comprehensive inspection tracking and analysis</small>
                 </div>
                 <div class="card-body">
+                    <!-- Inspection Stats Grid -->
                     <div class="row g-3 mb-4">
                         <div class="col-6">
-                            <div class="inspection-stat bg-success-subtle p-3 rounded text-center">
-                                <h3 class="text-success mb-1">{{ $inspectionAnalysis['inspections_completed'] }}</h3>
-                                <small class="text-muted">Completed</small>
+                            <div
+                                class="inspection-stat-enhanced bg-success bg-opacity-10 p-3 rounded-3 text-center border border-success border-opacity-20">
+                                <div class="inspection-icon mb-2">
+                                    <i class="fas fa-check-circle text-success fa-lg"></i>
+                                </div>
+                                <h3 class="text-success mb-1 fw-bold">{{ $inspectionAnalysis['inspections_completed'] }}
+                                </h3>
+                                <small class="text-success fw-medium">Completed</small>
+                                @php
+                                    $totalInspections =
+                                        $inspectionAnalysis['inspections_completed'] +
+                                        $inspectionAnalysis['inspections_scheduled'] +
+                                        $inspectionAnalysis['inspections_required'];
+                                    $completedRate =
+                                        $totalInspections > 0
+                                            ? round(
+                                                ($inspectionAnalysis['inspections_completed'] / $totalInspections) *
+                                                    100,
+                                                1,
+                                            )
+                                            : 0;
+                                @endphp
+                                <div class="progress mt-2" style="height: 4px;">
+                                    <div class="progress-bar bg-success" style="width: {{ $completedRate }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $completedRate }}% of total</small>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="inspection-stat bg-warning-subtle p-3 rounded text-center">
-                                <h3 class="text-warning mb-1">{{ $inspectionAnalysis['inspections_scheduled'] }}</h3>
-                                <small class="text-muted">Scheduled</small>
+                            <div
+                                class="inspection-stat-enhanced bg-warning bg-opacity-10 p-3 rounded-3 text-center border border-warning border-opacity-20">
+                                <div class="inspection-icon mb-2">
+                                    <i class="fas fa-calendar-alt text-warning fa-lg"></i>
+                                </div>
+                                <h3 class="text-warning mb-1 fw-bold">{{ $inspectionAnalysis['inspections_scheduled'] }}
+                                </h3>
+                                <small class="text-warning fw-medium">Scheduled</small>
+                                @php
+                                    $scheduledRate =
+                                        $totalInspections > 0
+                                            ? round(
+                                                ($inspectionAnalysis['inspections_scheduled'] / $totalInspections) *
+                                                    100,
+                                                1,
+                                            )
+                                            : 0;
+                                @endphp
+                                <div class="progress mt-2" style="height: 4px;">
+                                    <div class="progress-bar bg-warning" style="width: {{ $scheduledRate }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $scheduledRate }}% of total</small>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="inspection-stat bg-danger-subtle p-3 rounded text-center">
-                                <h3 class="text-danger mb-1">{{ $inspectionAnalysis['inspections_required'] }}</h3>
-                                <small class="text-muted">Required</small>
+                            <div
+                                class="inspection-stat-enhanced bg-danger bg-opacity-10 p-3 rounded-3 text-center border border-danger border-opacity-20">
+                                <div class="inspection-icon mb-2">
+                                    <i class="fas fa-exclamation-triangle text-danger fa-lg"></i>
+                                </div>
+                                <h3 class="text-danger mb-1 fw-bold">{{ $inspectionAnalysis['inspections_required'] }}
+                                </h3>
+                                <small class="text-danger fw-medium">Required</small>
+                                @php
+                                    $requiredRate =
+                                        $totalInspections > 0
+                                            ? round(
+                                                ($inspectionAnalysis['inspections_required'] / $totalInspections) * 100,
+                                                1,
+                                            )
+                                            : 0;
+                                @endphp
+                                <div class="progress mt-2" style="height: 4px;">
+                                    <div class="progress-bar bg-danger" style="width: {{ $requiredRate }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ $requiredRate }}% of total</small>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="inspection-stat bg-info-subtle p-3 rounded text-center">
-                                <h3 class="text-info mb-1">{{ $inspectionAnalysis['avg_inspection_time'] }}d</h3>
-                                <small class="text-muted">Avg Time</small>
+                            <div
+                                class="inspection-stat-enhanced bg-info bg-opacity-10 p-3 rounded-3 text-center border border-info border-opacity-20">
+                                <div class="inspection-icon mb-2">
+                                    <i class="fas fa-clock text-info fa-lg"></i>
+                                </div>
+                                <h3 class="text-info mb-1 fw-bold">{{ $inspectionAnalysis['avg_inspection_time'] }}d</h3>
+                                <small class="text-info fw-medium">Avg Time</small>
+                                <div class="progress mt-2" style="height: 4px;">
+                                    <div class="progress-bar bg-info"
+                                        style="width: {{ max(10, min(100, ((21 - $inspectionAnalysis['avg_inspection_time']) / 21) * 100)) }}%">
+                                    </div>
+                                </div>
+                                <small class="text-muted">Target: ≤14 days</small>
                             </div>
                         </div>
                     </div>
 
                     @if ($inspectionAnalysis['inspector_workload']->isNotEmpty())
-                        <h6 class="mb-3 fw-semibold">Inspector Workload</h6>
-                        @foreach ($inspectionAnalysis['inspector_workload']->take(5) as $inspector)
-                            <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="inspector-section">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0 fw-semibold text-dark">
+                                    <i class="fas fa-users text-primary me-2"></i>Inspector Workload
+                                </h6>
                                 <span
-                                    class="text-truncate">{{ $inspector->inspector->name ?? 'Inspector #' . $inspector->inspected_by }}</span>
-                                <div class="d-flex align-items-center">
-                                    <div class="progress me-2" style="width: 80px; height: 6px;">
-                                        <div class="progress-bar bg-info"
-                                            style="width: {{ ($inspector->inspections_count / $inspectionAnalysis['inspector_workload']->first()->inspections_count) * 100 }}%">
+                                    class="badge bg-primary bg-opacity-10 text-primary">{{ $inspectionAnalysis['inspector_workload']->count() }}
+                                    Inspectors</span>
+                            </div>
+                            @php
+                                $maxInspections =
+                                    $inspectionAnalysis['inspector_workload']->max('inspections_count') ?: 1;
+                                $totalInspections =
+                                    $inspectionAnalysis['inspector_workload']->sum('inspections_count') ?: 1;
+                            @endphp
+                            @foreach ($inspectionAnalysis['inspector_workload']->take(5) as $index => $inspector)
+                                <div class="inspector-item mb-3 p-2 bg-light bg-opacity-50 rounded">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="inspector-rank bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                style="width: 24px; height: 24px; font-size: 12px; font-weight: bold;">
+                                                {{ $index + 1 }}
+                                            </div>
+                                            <div>
+                                                <span class="fw-medium text-truncate d-block" style="max-width: 120px;"
+                                                    title="{{ $inspector->inspector->name ?? 'Inspector #' . $inspector->inspected_by }}">
+                                                    {{ $inspector->inspector->name ?? 'Inspector #' . $inspector->inspected_by }}
+                                                </span>
+                                                <small class="text-muted">{{ $inspector->inspections_count }}
+                                                    inspections</small>
+                                            </div>
+                                        </div>
+                                        <span
+                                            class="badge bg-info text-white">{{ round(($inspector->inspections_count / $totalInspections) * 100, 1) }}%</span>
+                                    </div>
+                                    @php
+                                        $progressWidth = round(
+                                            ($inspector->inspections_count / $maxInspections) * 100,
+                                            2,
+                                        );
+                                        $progressWidth = max(2, min(100, $progressWidth)); // Ensure minimum 2% and maximum 100%
+                                    @endphp
+                                    <div class="progress"
+                                        style="height: 8px; background-color: rgba(0,0,0,0.1); border-radius: 10px;">
+                                        <div class="progress-bar"
+                                            style="width: {{ $progressWidth }}%;
+                                                    background: linear-gradient(90deg, #3b82f6 0%, #0ea5e9 100%);
+                                                    border-radius: 10px;
+                                                    transition: width 0.6s ease;">
                                         </div>
                                     </div>
-                                    <span class="badge bg-info">{{ $inspector->inspections_count }}</span>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+
+                            @if ($inspectionAnalysis['inspector_workload']->count() > 5)
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-plus-circle me-1"></i>
+                                        {{ $inspectionAnalysis['inspector_workload']->count() - 5 }} more inspectors
+                                    </small>
+                                </div>
+                            @endif
+                        </div>
+                    @else
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-list fa-2x text-muted mb-3"></i>
+                            <h6 class="text-muted">No Inspector Data</h6>
+                            <p class="text-muted mb-0 small">Inspector workload information will appear here once
+                                inspections are assigned.</p>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -529,790 +662,914 @@
                         <small class="text-muted">{{ $documentAnalysis['inspection_doc_submission_rate'] }}% submission
                             rate</small>
                     </div>
-
-                    <div class="alert alert-info mb-0">
-                        <i class="fas fa-lightbulb me-2"></i>
-                        <strong>Key Insight:</strong> Applications with documents have
-                        {{ $documentAnalysis['approval_rate_with_user_docs'] - $documentAnalysis['approval_rate_without_user_docs'] }}%
-                        higher approval rate.
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Key Insights Banner -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card-body">
-                <h5 class="mb-3 fw-bold">
-                    <i class="fas fa-chart-pie me-2"></i>Key Performance Insights
-                </h5>
-                <div class="row g-4">
-                    <div class="col-md-3">
-                        <div class="insight-box">
-                            <div class="insight-icon bg-success bg-opacity-25 mb-2">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <h6 class="fw-bold">{{ $overview['approval_rate'] }}% Approval Rate</h6>
-                            <p class="mb-0 small opacity-75">{{ $overview['approved_applications'] }} approved out of
-                                {{ $overview['total_applications'] }} total applications</p>
-                        </div>
-                    </div>
 
-                    <div class="col-md-3">
-                        <div class="insight-box">
-                            <div class="insight-icon bg-info bg-opacity-25 mb-2">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <h6 class="fw-bold">{{ $processingTimeAnalysis['avg_processing_days'] }}d Processing</h6>
-                            <p class="mb-0 small opacity-75">Average time from submission to decision</p>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <div class="insight-box">
-                            <div class="insight-icon bg-warning bg-opacity-25 mb-2">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <h6 class="fw-bold">{{ $documentAnalysis['user_doc_submission_rate'] }}% Doc Rate</h6>
-                            <p class="mb-0 small opacity-75">
-                                {{ $documentAnalysis['approval_rate_with_user_docs'] - $documentAnalysis['approval_rate_without_user_docs'] }}%
-                                higher approval with documents</p>
-                        </div>
-                    </div>
-
-                    <div class="col-md-3">
-                        <div class="insight-box">
-                            <div class="insight-icon bg-primary bg-opacity-25 mb-2">
-                                <i class="fas fa-ship"></i>
-                            </div>
-                            <h6 class="fw-bold">{{ $overview['unique_boat_types'] }} Boat Types</h6>
-                            <p class="mb-0 small opacity-75">Diverse fleet with {{ $overview['unique_vessels'] }}
-                                registered vessels</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <!-- AI Insights Modal -->
     <div class="modal fade" id="boatrInsightsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-gradient-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-robot me-2"></i>BOATR AI-Powered Insights
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="fw-bold mb-3"><i class="fas fa-chart-line text-success me-2"></i>Growth
-                                Opportunities</h6>
-                            <ul class="list-unstyled">
-                                <li class="mb-3">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    <strong>Streamline Processing:</strong> Current
-                                    {{ $processingTimeAnalysis['avg_processing_days'] }}d average can be reduced
-                                </li>
-                                <li class="mb-3">
-                                    <i class="fas fa-file-alt text-info me-2"></i>
-                                    <strong>Digital Documents:</strong>
-                                    {{ 100 - $documentAnalysis['user_doc_submission_rate'] }}% applications lack documents
-                                </li>
-                                <li class="mb-3">
-                                    <i class="fas fa-ship text-primary me-2"></i>
-                                    <strong>Fleet Diversity:</strong> Focus on
-                                    {{ $boatTypeAnalysis->first()->boat_type ?? 'primary' }} type optimization
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="fw-bold mb-3"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Areas
-                                for Improvement</h6>
-                            <ul class="list-unstyled">
-                                <li class="mb-3">
-                                    <i class="fas fa-clock text-warning me-2"></i>
-                                    <strong>Processing Speed:</strong>
-                                    {{ $processingTimeAnalysis['avg_processing_days'] > 10 ? 'Reduce processing time to under 10 days' : 'Maintain current processing efficiency' }}
-                                </li>
-                                <li class="mb-3">
-                                    <i class="fas fa-clipboard-check text-info me-2"></i>
-                                    <strong>Inspection Rate:</strong>
-                                    {{ $inspectionAnalysis['completion_rate'] < 80 ? 'Improve completion to 80%+' : 'Maintain inspection quality standards' }}
-                                </li>
-                                <li class="mb-3">
-                                    <i class="fas fa-balance-scale text-success me-2"></i>
-                                    <strong>Gear Balance:</strong> Ensure fair distribution across fishing gear types
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="alert alert-primary mb-0">
-                        <h6 class="fw-bold mb-2"><i class="fas fa-lightbulb me-2"></i>Strategic Recommendation</h6>
-                        <p class="mb-2">Based on current data analysis:</p>
-                        <ul class="mb-0">
-                            <li>Implement mobile inspection units for remote coastal areas</li>
-                            <li>Develop digital checklist system to standardize inspections</li>
-                            <li>Create document submission awareness campaign
-                                ({{ 100 - $documentAnalysis['user_doc_submission_rate'] }}% gap)</li>
-                            <li>Establish fast-track processing for complete applications</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
-
-@section('styles')
-    <style>
-        /* Custom Color Variables */
-        :root {
-            --primary-color: #3b82f6;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #0ea5e9;
-            --purple-color: #8b5cf6;
-            --dark-color: #1f2937;
-        }
-
-        /* Service Navigation */
-        .service-nav {
-            background: #f8fafc;
-            padding: 0.5rem;
-            border-radius: 50px;
-            display: inline-flex;
-        }
-
-        .service-nav .nav-link {
-            border-radius: 30px;
-            padding: 0.5rem 1.25rem;
-            margin: 0 0.25rem;
-            font-weight: 500;
-            color: #64748b;
-            transition: all 0.3s ease;
-            border: none;
-        }
-
-        .service-nav .nav-link:hover {
-            color: var(--primary-color);
-            background: white;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-        }
-
-        .service-nav .nav-link.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        /* Metric Cards */
-        .metric-card {
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
-        }
-
-        .metric-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark-color);
-        }
-
-        .metric-icon {
-            width: 56px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            font-size: 1.5rem;
-        }
-
-        /* Soft Background Colors */
-        .bg-primary-soft {
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-
-        .bg-success-soft {
-            background-color: rgba(16, 185, 129, 0.1);
-        }
-
-        .bg-warning-soft {
-            background-color: rgba(245, 158, 11, 0.1);
-        }
-
-        .bg-danger-soft {
-            background-color: rgba(239, 68, 68, 0.1);
-        }
-
-        .bg-info-soft {
-            background-color: rgba(14, 165, 233, 0.1);
-        }
-
-        .bg-purple-soft {
-            background-color: rgba(139, 92, 246, 0.1);
-        }
-
-        .bg-secondary-soft {
-            background-color: rgba(107, 114, 128, 0.1);
-        }
-
-        .text-purple {
-            color: var(--purple-color);
-        }
-
-        /* Badge Soft Colors */
-        .badge-success-soft {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-
-        /* Card Styles */
-        .card {
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .card-header {
-            border-radius: 12px 12px 0 0 !important;
-            padding: 1.25rem;
-        }
-
-        /* Gradient Backgrounds */
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-
-        /* Status Legend */
-        .status-legends .legend-item {
-            transition: all 0.2s ease;
-            background: #f8fafc;
-        }
-
-        .status-legends .legend-item:hover {
-            background: #f1f5f9;
-            transform: translateX(5px);
-        }
-
-        .legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        /* Progress Bars */
-        .progress {
-            border-radius: 10px;
-            background-color: #f1f5f9;
-        }
-
-        .progress-bar {
-            border-radius: 10px;
-            transition: width 0.6s ease;
-        }
-
-        /* Metric Items */
-        .metric-item {
-            padding: 1rem;
-            border-radius: 10px;
-            background: #f8fafc;
-            transition: all 0.3s ease;
-        }
-
-        .metric-item:hover {
-            background: #f1f5f9;
-            transform: scale(1.02);
-        }
-
-        /* Performance Metrics */
-        .performance-metric {
-            padding: 1rem;
-            border-radius: 10px;
-            background: #f8fafc;
-            transition: all 0.3s ease;
-        }
-
-        .performance-metric:hover {
-            background: #f1f5f9;
-            transform: scale(1.02);
-        }
-
-        /* Boat Type Items */
-        .boat-type-item {
-            padding: 12px 0;
-        }
-
-        .rank-badge {
-            width: 32px;
-            height: 32px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            border-radius: 8px;
-            font-weight: 700;
-            margin-right: 12px;
-            font-size: 14px;
-        }
-
-        /* Inspection Stats */
-        .inspection-stat {
-            transition: transform 0.2s ease;
-        }
-
-        .inspection-stat:hover {
-            transform: scale(1.05);
-        }
-
-        .inspection-stat h3 {
-            font-size: 28px;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        /* Table Styles */
-        .table-hover tbody tr {
-            transition: all 0.2s ease;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: #f8fafc;
-            transform: scale(1.01);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Chart Containers */
-        .status-chart-container {
-            position: relative;
-            height: 220px;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .service-nav {
-                flex-wrap: wrap;
-                border-radius: 12px;
-                padding: 0.25rem;
-            }
-
-            .service-nav .nav-link {
-                font-size: 0.875rem;
-                padding: 0.5rem 0.75rem;
-                margin: 0.25rem;
-            }
-
-            .metric-value {
-                font-size: 1.5rem;
-            }
-
-            .metric-icon {
-                width: 48px;
-                height: 48px;
-                font-size: 1.25rem;
-            }
-
-            .rank-badge {
-                width: 28px;
-                height: 28px;
-            }
-        }
-
-        /* Animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
-            animation: fadeInUp 0.5s ease;
-        }
-
-        /* Scrollbar Styling */
-        .table-responsive::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 10px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Focus States */
-        .btn:focus,
-        .form-control:focus {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        /* Loading State */
-        .card.loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        /* Insight Boxes */
-        .insight-box {
-            padding: 8px;
-        }
-
-        .insight-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .insight-icon i {
-            font-size: 24px;
-        }
-
-        /* Modal Styles */
-        .modal-content {
-            border-radius: 16px;
-        }
-
-        .modal-header {
-            border-radius: 16px 16px 0 0;
-        }
-    </style>
-@endsection
-
-@section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Chart instances
-            let chartInstances = {};
-
-            // Chart.js default configuration
-            Chart.defaults.font.family = "'Inter', sans-serif";
-            Chart.defaults.color = '#64748b';
-
-            // Initialize Status Chart
-            initializeStatusChart();
-
-            // Initialize Trends Chart
-            initializeTrendsChart();
-
-            /**
-             * Status Distribution Doughnut Chart
-             */
-            function initializeStatusChart() {
-                const ctx = document.getElementById('boatrStatusChart');
-                if (!ctx) return;
-
-                chartInstances.statusChart = new Chart(ctx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: [
-                            @foreach ($statusAnalysis['counts'] as $status => $count)
-                                '{{ ucfirst(str_replace('_', ' ', $status)) }}',
-                            @endforeach
-                        ],
-                        datasets: [{
-                            data: [{{ implode(',', $statusAnalysis['counts']) }}],
-                            backgroundColor: [
-                                '#10b981', // approved - green
-                                '#ef4444', // rejected - red
-                                '#f59e0b', // under_review - amber
-                                '#0ea5e9', // inspection_scheduled - blue
-                                '#3b82f6', // inspection_required - indigo
-                                '#6b7280', // documents_pending - gray
-                                '#6b7280' // pending - gray
-                            ],
-                            borderWidth: 0,
-                            cutout: '75%',
-                            spacing: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                padding: 12,
-                                cornerRadius: 8,
-                                titleFont: {
-                                    size: 14,
-                                    weight: 'bold'
+            @endsection
+
+            @section('styles')
+                <style>
+                    /* Custom Color Variables */
+                    :root {
+                        --primary-color: #3b82f6;
+                        --success-color: #10b981;
+                        --warning-color: #f59e0b;
+                        --danger-color: #ef4444;
+                        --info-color: #0ea5e9;
+                        --purple-color: #8b5cf6;
+                        --dark-color: #1f2937;
+                    }
+
+                    /* Service Navigation */
+                    .service-nav {
+                        background: #f8fafc;
+                        padding: 0.5rem;
+                        border-radius: 50px;
+                        display: inline-flex;
+                    }
+
+                    .service-nav .nav-link {
+                        border-radius: 30px;
+                        padding: 0.5rem 1.25rem;
+                        margin: 0 0.25rem;
+                        font-weight: 500;
+                        color: #64748b;
+                        transition: all 0.3s ease;
+                        border: none;
+                    }
+
+                    .service-nav .nav-link:hover {
+                        color: var(--primary-color);
+                        background: white;
+                        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+                    }
+
+                    .service-nav .nav-link.active {
+                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                        color: white;
+                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                    }
+
+                    /* Metric Cards */
+                    .metric-card {
+                        transition: all 0.3s ease;
+                        border-radius: 12px;
+                        overflow: hidden;
+                    }
+
+                    .metric-card:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+                    }
+
+                    .metric-label {
+                        font-size: 0.875rem;
+                        font-weight: 500;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .metric-value {
+                        font-size: 2rem;
+                        font-weight: 700;
+                        color: var(--dark-color);
+                    }
+
+                    .metric-icon {
+                        width: 56px;
+                        height: 56px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 12px;
+                        font-size: 1.5rem;
+                    }
+
+                    /* Soft Background Colors */
+                    .bg-primary-soft {
+                        background-color: rgba(59, 130, 246, 0.1);
+                    }
+
+                    .bg-success-soft {
+                        background-color: rgba(16, 185, 129, 0.1);
+                    }
+
+                    .bg-warning-soft {
+                        background-color: rgba(245, 158, 11, 0.1);
+                    }
+
+                    .bg-danger-soft {
+                        background-color: rgba(239, 68, 68, 0.1);
+                    }
+
+                    .bg-info-soft {
+                        background-color: rgba(14, 165, 233, 0.1);
+                    }
+
+                    .bg-purple-soft {
+                        background-color: rgba(139, 92, 246, 0.1);
+                    }
+
+                    .bg-secondary-soft {
+                        background-color: rgba(107, 114, 128, 0.1);
+                    }
+
+                    .text-purple {
+                        color: var(--purple-color);
+                    }
+
+                    /* Badge Soft Colors */
+                    .badge-success-soft {
+                        background-color: rgba(16, 185, 129, 0.1);
+                        color: var(--success-color);
+                    }
+
+                    .bg-purple {
+                        background-color: var(--purple-color);
+                    }
+
+                    /* Chart Enhancements */
+                    .status-chart-container {
+                        position: relative;
+                        height: 220px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    #boatrStatusChart {
+                        max-height: 220px;
+                        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+                    }
+
+                    /* Card Styles */
+                    .card {
+                        border-radius: 12px;
+                        transition: all 0.3s ease;
+                    }
+
+                    .card-header {
+                        border-radius: 12px 12px 0 0 !important;
+                        padding: 1.25rem;
+                    }
+
+                    /* Gradient Backgrounds */
+                    .bg-gradient-primary {
+                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                    }
+
+                    /* Status Legend */
+                    .status-legends .legend-item {
+                        transition: all 0.2s ease;
+                        background: #f8fafc;
+                        border: 1px solid transparent;
+                    }
+
+                    .status-legends .legend-item:hover {
+                        background: #f1f5f9;
+                        transform: translateX(5px);
+                        border-color: #e2e8f0;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+                    }
+
+                    .legend-dot {
+                        width: 14px;
+                        height: 14px;
+                        border-radius: 50%;
+                        display: inline-block;
+                        border: 2px solid #ffffff;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                    }
+
+                    /* Progress Bars */
+                    .progress {
+                        border-radius: 10px;
+                        background-color: #f1f5f9;
+                    }
+
+                    .progress-bar {
+                        border-radius: 10px;
+                        transition: width 0.6s ease;
+                    }
+
+                    /* Metric Items */
+                    .metric-item {
+                        padding: 1rem;
+                        border-radius: 10px;
+                        background: #f8fafc;
+                        transition: all 0.3s ease;
+                    }
+
+                    .metric-item:hover {
+                        background: #f1f5f9;
+                        transform: scale(1.02);
+                    }
+
+                    /* Performance Metrics */
+                    .performance-metric {
+                        padding: 1rem;
+                        border-radius: 10px;
+                        background: #f8fafc;
+                        transition: all 0.3s ease;
+                    }
+
+                    .performance-metric:hover {
+                        background: #f1f5f9;
+                        transform: scale(1.02);
+                    }
+
+                    /* Boat Type Items */
+                    .boat-type-item {
+                        padding: 12px 0;
+                    }
+
+                    .rank-badge {
+                        width: 32px;
+                        height: 32px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                        color: white;
+                        border-radius: 8px;
+                        font-weight: 700;
+                        margin-right: 12px;
+                        font-size: 14px;
+                    }
+
+                    /* Inspection Stats */
+                    .inspection-stat {
+                        transition: transform 0.2s ease;
+                    }
+
+                    .inspection-stat:hover {
+                        transform: scale(1.05);
+                    }
+
+                    .inspection-stat h3 {
+                        font-size: 28px;
+                        font-weight: 700;
+                        margin: 0;
+                    }
+
+                    /* Enhanced Inspection Stats */
+                    .inspection-stat-enhanced {
+                        transition: all 0.3s ease;
+                        cursor: pointer;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .inspection-stat-enhanced:hover {
+                        transform: translateY(-3px);
+                        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .inspection-stat-enhanced::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                        transition: left 0.6s ease;
+                    }
+
+                    .inspection-stat-enhanced:hover::before {
+                        left: 100%;
+                    }
+
+                    .inspection-icon {
+                        transition: transform 0.3s ease;
+                    }
+
+                    .inspection-stat-enhanced:hover .inspection-icon i {
+                        transform: scale(1.2);
+                    }
+
+                    /* Inspector Section */
+                    .inspector-item {
+                        transition: all 0.2s ease;
+                        border: 1px solid transparent;
+                    }
+
+                    .inspector-item:hover {
+                        background-color: rgba(59, 130, 246, 0.05) !important;
+                        border-color: rgba(59, 130, 246, 0.2);
+                        transform: translateX(5px);
+                    }
+
+                    .inspector-rank {
+                        transition: all 0.2s ease;
+                    }
+
+                    .inspector-item:hover .inspector-rank {
+                        transform: scale(1.1);
+                        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+                    }
+
+                    /* Insight Icons */
+                    .insight-icon-sm {
+                        width: 36px;
+                        height: 36px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.2s ease;
+                    }
+
+                    .alert:hover .insight-icon-sm {
+                        transform: scale(1.1);
+                    }
+
+                    /* Progress Bar Enhancements */
+                    .progress {
+                        background-color: rgba(0, 0, 0, 0.05);
+                        border-radius: 10px;
+                        overflow: hidden;
+                    }
+
+                    .progress-bar {
+                        border-radius: 10px;
+                        transition: width 0.6s ease;
+                        position: relative;
+                    }
+
+                    .bg-gradient {
+                        background: linear-gradient(90deg, #3b82f6 0%, #0ea5e9 100%) !important;
+                    }
+
+                    /* Responsive Enhancements */
+                    @media (max-width: 768px) {
+                        .inspection-stat-enhanced h3 {
+                            font-size: 24px;
+                        }
+
+                        .inspector-item {
+                            margin-bottom: 12px !important;
+                        }
+                    }
+
+                    /* Table Styles */
+                    .table-hover tbody tr {
+                        transition: all 0.2s ease;
+                    }
+
+                    .table-hover tbody tr:hover {
+                        background-color: #f8fafc;
+                        transform: scale(1.01);
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                    }
+
+                    /* Chart Containers - Enhanced */
+                    .status-chart-container {
+                        position: relative;
+                        height: 220px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    #boatrStatusChart {
+                        max-height: 220px;
+                        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+                    }
+
+                    /* Responsive Adjustments */
+                    @media (max-width: 768px) {
+                        .service-nav {
+                            flex-wrap: wrap;
+                            border-radius: 12px;
+                            padding: 0.25rem;
+                        }
+
+                        .service-nav .nav-link {
+                            font-size: 0.875rem;
+                            padding: 0.5rem 0.75rem;
+                            margin: 0.25rem;
+                        }
+
+                        .metric-value {
+                            font-size: 1.5rem;
+                        }
+
+                        .metric-icon {
+                            width: 48px;
+                            height: 48px;
+                            font-size: 1.25rem;
+                        }
+
+                        .rank-badge {
+                            width: 28px;
+                            height: 28px;
+                        }
+                    }
+
+                    /* Animation */
+                    @keyframes fadeInUp {
+                        from {
+                            opacity: 0;
+                            transform: translateY(20px);
+                        }
+
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+
+                    .card {
+                        animation: fadeInUp 0.5s ease;
+                    }
+
+                    /* Scrollbar Styling */
+                    .table-responsive::-webkit-scrollbar {
+                        height: 8px;
+                    }
+
+                    .table-responsive::-webkit-scrollbar-track {
+                        background: #f1f5f9;
+                        border-radius: 10px;
+                    }
+
+                    .table-responsive::-webkit-scrollbar-thumb {
+                        background: #cbd5e1;
+                        border-radius: 10px;
+                    }
+
+                    .table-responsive::-webkit-scrollbar-thumb:hover {
+                        background: #94a3b8;
+                    }
+
+                    /* Focus States */
+                    .btn:focus,
+                    .form-control:focus {
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                    }
+
+                    /* Loading State */
+                    .card.loading {
+                        opacity: 0.6;
+                        pointer-events: none;
+                    }
+
+                    /* Insight Boxes */
+                    .insight-box {
+                        padding: 8px;
+                    }
+
+                    .insight-icon {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    .insight-icon i {
+                        font-size: 24px;
+                    }
+
+                    /* Modal Styles */
+                    .modal-content {
+                        border-radius: 16px;
+                    }
+
+                    .modal-header {
+                        border-radius: 16px 16px 0 0;
+                    }
+                </style>
+            @endsection
+
+            @section('scripts')
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Chart instances
+                        let chartInstances = {};
+
+                        // Chart.js default configuration
+                        Chart.defaults.font.family = "'Inter', sans-serif";
+                        Chart.defaults.color = '#64748b';
+
+                        // Initialize Status Chart
+                        initializeStatusChart();
+
+                        // Initialize Trends Chart
+                        initializeTrendsChart();
+
+                        /**
+                         * Status Distribution Doughnut Chart
+                         */
+                        function initializeStatusChart() {
+                            const ctx = document.getElementById('boatrStatusChart');
+                            if (!ctx) return;
+
+                            // Define status color mapping
+                            const statusColorMap = {
+                                'approved': '#10b981', // emerald
+                                'rejected': '#ef4444', // red
+                                'under_review': '#f59e0b', // amber
+                                'inspection_scheduled': '#0ea5e9', // sky blue
+                                'inspection_required': '#8b5cf6', // violet
+                                'documents_pending': '#6366f1', // indigo
+                                'pending': '#64748b' // slate
+                            };
+
+                            // Get status data and create dynamic colors array
+                            const statusData = [{{ implode(',', $statusAnalysis['counts']) }}];
+                            const statusKeys = [
+                                @foreach ($statusAnalysis['counts'] as $status => $count)
+                                    '{{ $status }}',
+                                @endforeach
+                            ];
+                            const statusLabels = [
+                                @foreach ($statusAnalysis['counts'] as $status => $count)
+                                    '{{ ucfirst(str_replace('_', ' ', $status)) }}',
+                                @endforeach
+                            ];
+
+                            // Create colors array in the same order as data
+                            const chartColors = statusKeys.map(status => statusColorMap[status] || '#64748b');
+                            const totalApplications = statusData.reduce((a, b) => a + b, 0);
+
+                            chartInstances.statusChart = new Chart(ctx.getContext('2d'), {
+                                type: 'doughnut',
+                                data: {
+                                    labels: statusLabels,
+                                    datasets: [{
+                                        data: statusData,
+                                        backgroundColor: chartColors,
+                                        borderWidth: 3,
+                                        borderColor: '#ffffff',
+                                        cutout: '70%',
+                                        spacing: 4
+                                    }]
                                 },
-                                bodyFont: {
-                                    size: 13
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        tooltip: {
+                                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                                            padding: 16,
+                                            cornerRadius: 12,
+                                            titleFont: {
+                                                size: 15,
+                                                weight: 'bold'
+                                            },
+                                            bodyFont: {
+                                                size: 14
+                                            },
+                                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                                            borderWidth: 1,
+                                            callbacks: {
+                                                label: function(context) {
+                                                    const label = context.label || '';
+                                                    const value = context.parsed;
+                                                    const percentage = ((value / totalApplications) * 100).toFixed(
+                                                        1);
+                                                    return `${label}: ${value} applications (${percentage}%)`;
+                                                }
+                                            }
+                                        }
+                                    },
+                                    onHover: (event, activeElements) => {
+                                        event.native.target.style.cursor = activeElements.length > 0 ? 'pointer' :
+                                            'default';
+                                    }
                                 },
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed;
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                        const percentage = ((value / total) * 100).toFixed(1);
-                                        return `${label}: ${value} (${percentage}%)`;
+                                plugins: [{
+                                    id: 'centerText',
+                                    beforeDraw: function(chart) {
+                                        const ctx = chart.ctx;
+                                        const chartArea = chart.chartArea;
+                                        const centerX = (chartArea.left + chartArea.right) / 2;
+                                        const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+                                        ctx.save();
+                                        ctx.textAlign = 'center';
+                                        ctx.textBaseline = 'middle';
+
+                                        // Draw total applications count
+                                        ctx.font = 'bold 28px Inter, sans-serif';
+                                        ctx.fillStyle = '#1f2937';
+                                        ctx.fillText(totalApplications.toLocaleString(), centerX, centerY -
+                                            10);
+                                    }
+                                }, {
+                                    id: 'segmentLabels',
+                                    afterDatasetsDraw: function(chart) {
+                                        const ctx = chart.ctx;
+                                        const meta = chart.getDatasetMeta(0);
+
+                                        ctx.save();
+                                        ctx.font = 'bold 14px Inter, sans-serif';
+                                        ctx.textAlign = 'center';
+                                        ctx.textBaseline = 'middle';
+                                        ctx.fillStyle = '#ffffff';
+
+                                        meta.data.forEach((element, index) => {
+                                            const value = statusData[index];
+                                            const percentage = ((value / totalApplications) * 100)
+                                                .toFixed(1);
+
+                                            // Only show percentage if it's greater than 5% to avoid cluttering
+                                            if (percentage > 5) {
+                                                // Calculate the middle angle of the segment
+                                                const startAngle = element.startAngle;
+                                                const endAngle = element.endAngle;
+                                                const midAngle = (startAngle + endAngle) / 2;
+
+                                                // Calculate position based on the segment's center point
+                                                const chartArea = chart.chartArea;
+                                                const centerX = (chartArea.left + chartArea.right) /
+                                                    2;
+                                                const centerY = (chartArea.top + chartArea.bottom) /
+                                                    2;
+
+                                                // Position the text at 70% of the radius from center
+                                                const radius = (element.outerRadius - element
+                                                    .innerRadius) * 0.7 + element.innerRadius;
+                                                const x = centerX + Math.cos(midAngle) * radius;
+                                                const y = centerY + Math.sin(midAngle) * radius;
+
+                                                const text = `${percentage}%`;
+
+                                                ctx.fillStyle = '#ffffff';
+                                                ctx.strokeStyle = '#000000';
+                                                ctx.lineWidth = 3;
+                                                ctx.strokeText(text, x, y);
+                                                ctx.fillText(text, x, y);
+                                            }
+                                        });
+
+                                        ctx.restore();
+                                    }
+                                }, {
+                                    id: 'centerTextLabel',
+                                    afterDatasetsDraw: function(chart) {
+                                        const ctx = chart.ctx;
+                                        const chartArea = chart.chartArea;
+                                        const centerX = (chartArea.left + chartArea.right) / 2;
+                                        const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+                                        ctx.save();
+                                        ctx.textAlign = 'center';
+                                        ctx.textBaseline = 'middle';
+
+                                        // Draw label
+                                        ctx.font = '500 14px Inter, sans-serif';
+                                        ctx.fillStyle = '#64748b';
+                                        ctx.fillText('Total Applications', centerX, centerY + 15);
+
+                                        ctx.restore();
+                                    }
+                                }]
+                            });
+
+                            // Add percentage labels on hover
+                            const canvas = ctx;
+                            canvas.addEventListener('mousemove', function(event) {
+                                const points = chartInstances.statusChart.getElementsAtEventForMode(event, 'nearest', {
+                                    intersect: true
+                                }, true);
+                                if (points.length) {
+                                    const firstPoint = points[0];
+                                    const value = statusData[firstPoint.index];
+                                    const percentage = ((value / totalApplications) * 100).toFixed(1);
+                                    canvas.title = `${statusLabels[firstPoint.index]}: ${percentage}%`;
+                                }
+                            });
+                        }
+
+                        /**
+                         * Monthly Trends Line Chart
+                         */
+                        function initializeTrendsChart() {
+                            const ctx = document.getElementById('boatrTrendsChart');
+                            if (!ctx) return;
+
+                            chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
+                                type: 'line',
+                                data: {
+                                    labels: [
+                                        @foreach ($monthlyTrends as $trend)
+                                            '{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}',
+                                        @endforeach
+                                    ],
+                                    datasets: [{
+                                            label: 'Total Applications',
+                                            data: [
+                                                {{ $monthlyTrends->pluck('total_applications')->implode(',') }}
+                                            ],
+                                            borderColor: '#3b82f6',
+                                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                            borderWidth: 3,
+                                            tension: 0.4,
+                                            fill: true,
+                                            pointBackgroundColor: '#3b82f6',
+                                            pointBorderColor: '#ffffff',
+                                            pointBorderWidth: 2,
+                                            pointRadius: 5,
+                                            pointHoverRadius: 7,
+                                            pointHoverBorderWidth: 3
+                                        },
+                                        {
+                                            label: 'Approved',
+                                            data: [{{ $monthlyTrends->pluck('approved')->implode(',') }}],
+                                            borderColor: '#10b981',
+                                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                            borderWidth: 3,
+                                            tension: 0.4,
+                                            fill: true,
+                                            pointBackgroundColor: '#10b981',
+                                            pointBorderColor: '#ffffff',
+                                            pointBorderWidth: 2,
+                                            pointRadius: 5,
+                                            pointHoverRadius: 7,
+                                            pointHoverBorderWidth: 3
+                                        },
+                                        {
+                                            label: 'Inspections',
+                                            data: [
+                                                {{ $monthlyTrends->pluck('inspections_completed')->implode(',') }}
+                                            ],
+                                            borderColor: '#f59e0b',
+                                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                            borderWidth: 2,
+                                            tension: 0.4,
+                                            fill: false,
+                                            pointBackgroundColor: '#f59e0b',
+                                            pointBorderColor: '#ffffff',
+                                            pointBorderWidth: 2,
+                                            pointRadius: 4,
+                                            pointHoverRadius: 6
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    interaction: {
+                                        mode: 'index',
+                                        intersect: false,
+                                    },
+                                    scales: {
+                                        x: {
+                                            grid: {
+                                                display: false,
+                                                drawBorder: false
+                                            },
+                                            ticks: {
+                                                font: {
+                                                    size: 12,
+                                                    weight: '500'
+                                                },
+                                                color: '#64748b'
+                                            }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            grid: {
+                                                color: 'rgba(0, 0, 0, 0.05)',
+                                                drawBorder: false
+                                            },
+                                            ticks: {
+                                                font: {
+                                                    size: 12,
+                                                    weight: '500'
+                                                },
+                                                color: '#64748b',
+                                                padding: 10
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            position: 'top',
+                                            align: 'end',
+                                            labels: {
+                                                usePointStyle: true,
+                                                padding: 20,
+                                                font: {
+                                                    size: 13,
+                                                    weight: '500'
+                                                },
+                                                color: '#64748b'
+                                            }
+                                        },
+                                        tooltip: {
+                                            mode: 'index',
+                                            intersect: false,
+                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                            titleColor: 'white',
+                                            bodyColor: 'white',
+                                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                                            borderWidth: 1,
+                                            cornerRadius: 8,
+                                            padding: 12,
+                                            displayColors: true,
+                                            titleFont: {
+                                                size: 14,
+                                                weight: 'bold'
+                                            },
+                                            bodyFont: {
+                                                size: 13
+                                            }
+                                        }
                                     }
                                 }
-                            }
+                            });
                         }
-                    }
-                });
-            }
 
-            /**
-             * Monthly Trends Line Chart
-             */
-            function initializeTrendsChart() {
-                const ctx = document.getElementById('boatrTrendsChart');
-                if (!ctx) return;
-
-                chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: [
-                            @foreach ($monthlyTrends as $trend)
-                                '{{ \Carbon\Carbon::createFromFormat('Y-m', $trend->month)->format('M Y') }}',
-                            @endforeach
-                        ],
-                        datasets: [{
-                                label: 'Total Applications',
-                                data: [
-                                    {{ $monthlyTrends->pluck('total_applications')->implode(',') }}],
-                                borderColor: '#3b82f6',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                fill: true,
-                                pointBackgroundColor: '#3b82f6',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5,
-                                pointHoverRadius: 7,
-                                pointHoverBorderWidth: 3
-                            },
-                            {
-                                label: 'Approved',
-                                data: [{{ $monthlyTrends->pluck('approved')->implode(',') }}],
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                fill: true,
-                                pointBackgroundColor: '#10b981',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 5,
-                                pointHoverRadius: 7,
-                                pointHoverBorderWidth: 3
-                            },
-                            {
-                                label: 'Inspections',
-                                data: [
-                                    {{ $monthlyTrends->pluck('inspections_completed')->implode(',') }}],
-                                borderColor: '#f59e0b',
-                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                                borderWidth: 2,
-                                tension: 0.4,
-                                fill: false,
-                                pointBackgroundColor: '#f59e0b',
-                                pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        scales: {
-                            x: {
-                                grid: {
-                                    display: false,
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 12,
-                                        weight: '500'
-                                    },
-                                    color: '#64748b'
+                        /**
+                         * Cleanup function
+                         */
+                        window.destroyCharts = function() {
+                            Object.values(chartInstances).forEach(chart => {
+                                if (chart) {
+                                    chart.destroy();
                                 }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)',
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 12,
-                                        weight: '500'
-                                    },
-                                    color: '#64748b',
-                                    padding: 10
+                            });
+                            chartInstances = {};
+                        };
+
+                        /**
+                         * Add smooth animations on scroll
+                         */
+                        const observerOptions = {
+                            threshold: 0.1,
+                            rootMargin: '0px 0px -50px 0px'
+                        };
+
+                        const observer = new IntersectionObserver(function(entries) {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    entry.target.style.opacity = '1';
+                                    entry.target.style.transform = 'translateY(0)';
                                 }
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                align: 'end',
-                                labels: {
-                                    usePointStyle: true,
-                                    padding: 20,
-                                    font: {
-                                        size: 13,
-                                        weight: '500'
-                                    },
-                                    color: '#64748b'
-                                }
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                titleColor: 'white',
-                                bodyColor: 'white',
-                                borderColor: 'rgba(255, 255, 255, 0.1)',
-                                borderWidth: 1,
-                                cornerRadius: 8,
-                                padding: 12,
-                                displayColors: true,
-                                titleFont: {
-                                    size: 14,
-                                    weight: 'bold'
-                                },
-                                bodyFont: {
-                                    size: 13
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+                            });
+                        }, observerOptions);
 
-            /**
-             * Cleanup function
-             */
-            window.destroyCharts = function() {
-                Object.values(chartInstances).forEach(chart => {
-                    if (chart) {
-                        chart.destroy();
-                    }
-                });
-                chartInstances = {};
-            };
-
-            /**
-             * Add smooth animations on scroll
-             */
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver(function(entries) {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.card').forEach(card => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                observer.observe(card);
-            });
-
-            /**
-             * Add loading state to form submission
-             */
-            const filterForm = document.querySelector('form[action*="analytics.boatr"]');
-            if (filterForm) {
-                filterForm.addEventListener('submit', function() {
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    if (submitBtn) {
-                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
-                        submitBtn.disabled = true;
-                    }
-                });
-            }
-
-            /**
-             * Add animation to metric cards
-             */
-            const metricCards = document.querySelectorAll('.metric-card');
-            metricCards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-
-            /**
-             * Smooth scroll for navigation
-             */
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
+                        document.querySelectorAll('.card').forEach(card => {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                            observer.observe(card);
                         });
-                    }
-                });
-            });
-        });
-    </script>
-@endsection
+
+                        /**
+                         * Add loading state to form submission
+                         */
+                        const filterForm = document.querySelector('form[action*="analytics.boatr"]');
+                        if (filterForm) {
+                            filterForm.addEventListener('submit', function() {
+                                const submitBtn = this.querySelector('button[type="submit"]');
+                                if (submitBtn) {
+                                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                                    submitBtn.disabled = true;
+                                }
+                            });
+                        }
+
+                        /**
+                         * Add animation to metric cards
+                         */
+                        const metricCards = document.querySelectorAll('.metric-card');
+                        metricCards.forEach((card, index) => {
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, index * 100);
+                        });
+
+                        /**
+                         * Smooth scroll for navigation
+                         */
+                        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                            anchor.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                const target = document.querySelector(this.getAttribute('href'));
+                                if (target) {
+                                    target.scrollIntoView({
+                                        behavior: 'smooth',
+                                        block: 'start'
+                                    });
+                                }
+                            });
+                        });
+                    });
+                </script>
+            @endsection

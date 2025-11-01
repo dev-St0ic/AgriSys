@@ -86,31 +86,7 @@ return new class extends Migration
             }
         });
 
-        // 3. Create inventory_transactions table for better inventory tracking (if it doesn't exist)
-        if (!Schema::hasTable('inventory_transactions')) {
-            Schema::create('inventory_transactions', function (Blueprint $table) {
-                $table->id();
-                $table->unsignedBigInteger('inventory_id');
-                $table->unsignedBigInteger('seedling_request_id')->nullable();
-                $table->enum('transaction_type', ['deduction', 'addition', 'adjustment']);
-                $table->integer('quantity');
-                $table->string('reason')->nullable();
-                $table->unsignedBigInteger('performed_by')->nullable();
-                $table->timestamps();
-
-                // Foreign key constraints
-                $table->foreign('inventory_id')->references('id')->on('inventories')->onDelete('cascade');
-                $table->foreign('seedling_request_id')->references('id')->on('seedling_requests')->onDelete('set null');
-                $table->foreign('performed_by')->references('id')->on('users')->onDelete('set null');
-
-                // Indexes for better performance (with shorter names)
-                $table->index(['inventory_id', 'created_at'], 'inv_trans_inv_created_idx');
-                $table->index(['seedling_request_id', 'transaction_type'], 'inv_trans_seed_type_idx');
-                $table->index(['transaction_type', 'created_at'], 'inv_trans_type_created_idx');
-            });
-        }
-
-        // 4. Add cross-application relationship (BoatR requires FishR)
+        // 3. Add cross-application relationship (BoatR requires FishR)
         Schema::table('boatr_applications', function (Blueprint $table) use ($foreignKeyExists, $indexExists) {
             if (!Schema::hasColumn('boatr_applications', 'barangay_id')) {
                 $table->unsignedBigInteger('barangay_id')->nullable()->after('email');
@@ -170,9 +146,6 @@ return new class extends Migration
             $table->dropForeign(['fishr_application_id']);
             $table->dropColumn('fishr_application_id');
         });
-
-        // 3. Drop inventory_transactions table
-        Schema::dropIfExists('inventory_transactions');
 
         // 2. Remove user foreign keys
         Schema::table('fishr_applications', function (Blueprint $table) {
