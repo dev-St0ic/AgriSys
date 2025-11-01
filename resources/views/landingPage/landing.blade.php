@@ -168,7 +168,11 @@
         <div class="welcome-image"></div>
     </section>
 
+add/composer-spatie/laravel-activitylog
     <!-- Events Section -->
+
+    <!-- Events Section - Updated to load dynamically -->
+    main
     <section class="events" id="events">
         <img src="../images/logos/cagoFull.png" alt="City Agriculture Office Logo" class="logo-icon">
         <img src="../images/logos/CityOfSanPedro.jpg" alt="City of San Pedro Logo" class="logo-icon">
@@ -183,6 +187,7 @@
             <button class="filter-btn" data-filter="upcoming">Upcoming Events</button>
             <button class="filter-btn" data-filter="past">Past Events</button>
         </div>
+ add/composer-spatie/laravel-activitylog
 
         <div class="events-grid">
             <!-- Event Card 1 -->
@@ -501,11 +506,24 @@
                             </li>
                         </ul>
                     </div>
+
+        
+        <!-- Events Grid - Will be populated by JavaScript -->
+        <div class="events-grid">
+            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+                <div class="spinner-border text-primary" role="status">
+ main
                 </div>
+                <p class="text-muted mt-3">Loading events...</p>
             </div>
         </div>
     </section>
 
+ add/composer-spatie/laravel-activitylog
+
+
+    
+ main
 
     <!-- Services Section (Always visible) -->
     <section class="services" id="services">
@@ -1613,6 +1631,7 @@
     <script src="{{ asset('js/seedlings-autofill.js') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}"></script>
     <script src="{{ asset('js/toast-notifications.js') }}"></script>
+ add/composer-spatie/laravel-activitylog
 
     <!-- reCAPTCHA initialization callback -->
     <script>
@@ -1637,6 +1656,10 @@
     </script>
 
     <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="{{ asset('js/events-loader.js') }}"></script>
+ main
 </body>
 
 </html>
