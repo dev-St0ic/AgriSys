@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class SeedlingRequest extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'user_id', // Foreign key to user_registration table
@@ -290,5 +292,13 @@ class SeedlingRequest extends Model
                 $model->request_number = self::generateRequestNumber();
             }
         });
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'approved_quantity', 'reviewed_by', 'request_number'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

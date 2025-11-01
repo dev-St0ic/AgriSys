@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class TrainingApplication extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'user_id', // Foreign key to user_registration table
@@ -189,5 +191,13 @@ class TrainingApplication extends Model
     public function isFirstDocumentPdf()
     {
         return $this->first_document_extension === 'pdf';
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'training_type', 'updated_by', 'remarks'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

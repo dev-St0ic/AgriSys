@@ -23,6 +23,7 @@ use App\Http\Controllers\UserApplicationsController;
 use App\Http\Controllers\DSSController;
 use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\ActivityLogController;
 
 // ==============================================
 // PUBLIC ROUTES
@@ -217,6 +218,34 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::post('/items/{item}/supply/loss', [SeedlingCategoryItemController::class, 'recordLoss'])->name('items.supply.loss');
     Route::get('/items/{item}/supply/logs', [SeedlingCategoryItemController::class, 'getSupplyLogs'])->name('items.supply.logs');
     Route::get('/supply/stats', [SeedlingCategoryItemController::class, 'getSupplyStats'])->name('supply.stats');
+});
+
+    // ==============================================
+    // ACTIVITY LOGS 
+    // ==============================================
+// Activity Logs Routes (Admin only)
+
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])
+        ->name('activity-logs.index');
+    
+    // PUT EXPORT BEFORE {id} TO AVOID CONFLICT
+    Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])
+        ->name('activity-logs.export');
+    
+    Route::get('/activity-logs/model/{type}/{id}', [ActivityLogController::class, 'forModel'])
+        ->name('activity-logs.for-model');
+    
+    Route::get('/activity-logs/user/{userId}', [ActivityLogController::class, 'byUser'])
+        ->name('activity-logs.by-user');
+    
+    Route::post('/activity-logs/clear-old', [ActivityLogController::class, 'clearOld'])
+        ->name('activity-logs.clear-old');
+    
+    // PUT {id} ROUTE LAST
+    Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show'])
+        ->name('activity-logs.show');
 });
 
     // ==============================================

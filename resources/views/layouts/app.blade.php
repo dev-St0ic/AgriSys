@@ -491,6 +491,13 @@
                                         <span class="nav-link-text">DSS Report Preview</span>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.activity-logs.index') }}" data-tooltip="Activity Logs">
+                                        <i class="fas fa-history"></i>
+                                        <span class="nav-link-text">Activity Logs</span>
+                                    </a>
+                                </li>
                                 @if (auth()->user()->isSuperAdmin())
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }} tooltip-custom"
