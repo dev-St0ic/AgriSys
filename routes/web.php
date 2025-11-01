@@ -224,30 +224,45 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     // ACTIVITY LOGS 
     // ==============================================
 // Activity Logs Routes (Admin only)
-
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    // Activity Logs Routes - Specific routes BEFORE generic ones
     
-    Route::get('/activity-logs', [ActivityLogController::class, 'index'])
-        ->name('activity-logs.index');
+    // Export route (must be before /{id})
+    Route::get('activity-logs/export', [ActivityLogController::class, 'export'])
+        ->name('admin.activity-logs.export');
     
-    // PUT EXPORT BEFORE {id} TO AVOID CONFLICT
-    Route::get('/activity-logs/export', [ActivityLogController::class, 'export'])
-        ->name('activity-logs.export');
+    // Audit summary route (must be before /{id})
+    Route::get('activity-logs/audit-summary', [ActivityLogController::class, 'auditSummary'])
+        ->name('admin.activity-logs.audit-summary');
     
-    Route::get('/activity-logs/model/{type}/{id}', [ActivityLogController::class, 'forModel'])
-        ->name('activity-logs.for-model');
+    // Compliance report route (must be before /{id})
+    Route::get('activity-logs/compliance-report', [ActivityLogController::class, 'complianceReport'])
+        ->name('admin.activity-logs.compliance-report');
     
-    Route::get('/activity-logs/user/{userId}', [ActivityLogController::class, 'byUser'])
-        ->name('activity-logs.by-user');
+    // Model logs route (must be before /{id})
+    Route::get('activity-logs/model/{modelType}/{modelId}', [ActivityLogController::class, 'forModel'])
+        ->name('admin.activity-logs.for-model');
     
-    Route::post('/activity-logs/clear-old', [ActivityLogController::class, 'clearOld'])
-        ->name('activity-logs.clear-old');
+    // User logs route (must be before /{id})
+    Route::get('activity-logs/user/{userId}', [ActivityLogController::class, 'byUser'])
+        ->name('admin.activity-logs.by-user');
     
-    // PUT {id} ROUTE LAST
-    Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show'])
-        ->name('activity-logs.show');
+    // Archive route (POST)
+    Route::post('activity-logs/archive', [ActivityLogController::class, 'archiveOld'])
+        ->name('admin.activity-logs.archive');
+    
+    // Clear route (DELETE)
+    Route::delete('activity-logs/clear', [ActivityLogController::class, 'clearOld'])
+        ->name('admin.activity-logs.clear');
+    
+    // List all activity logs (must be LAST before /{id})
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])
+        ->name('admin.activity-logs.index');
+    
+    // View specific log (MUST BE LAST - generic catch-all)
+    Route::get('activity-logs/{id}', [ActivityLogController::class, 'show'])
+        ->name('admin.activity-logs.show');
 });
-
     // ==============================================
     // ANALYTICS ROUTES - SECTION
     // ==============================================
