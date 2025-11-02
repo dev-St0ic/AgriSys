@@ -353,42 +353,50 @@
             </div>
         </div>
 
-        <!-- User Demographics -->
+        <!-- User Type Distribution -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0 fw-semibold">
-                        <i class="fas fa-users me-2 text-secondary"></i>User Demographics
+                        <i class="fas fa-users me-2 text-info"></i>Top User Types
                     </h5>
                 </div>
                 <div class="card-body">
-                    <!-- Gender Distribution -->
-                    <div class="row mb-3">
-                        @foreach ($genderAnalysis['stats'] as $gender)
-                            <div class="col-6">
-                                <div
-                                    class="text-center p-3 rounded demographic-card demographic-{{ strtolower($gender->gender) }}">
-                                    <h3 class="mb-1">{{ $gender->total_registrations }}</h3>
-                                    <p class="mb-1 fw-bold">{{ $gender->gender }}</p>
-                                    <small>{{ $genderAnalysis['percentages'][$gender->gender] ?? 0 }}%</small>
-                                    <div class="mt-2">
-                                        <small class="text-muted">Avg Age: {{ round($gender->avg_age ?? 0, 1) }}</small>
-                                    </div>
+                    @foreach ($userTypeAnalysis->take(6) as $index => $userType)
+                        @php
+                            $totalUsers = $userTypeAnalysis->sum('total_registrations');
+                            $percentage =
+                                $totalUsers > 0 ? round(($userType->total_registrations / $totalUsers) * 100, 1) : 0;
+                            $approvalRate =
+                                $userType->total_registrations > 0
+                                    ? round((($userType->approved_count ?? 0) / $userType->total_registrations) * 100)
+                                    : 0;
+                        @endphp
+                        <div class="user-type-item mb-3 p-3 rounded bg-light">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1 fw-bold">{{ ucfirst(str_replace('_', ' ', $userType->user_type)) }}
+                                    </h6>
+                                    <small class="text-muted">Approval: {{ $approvalRate }}%</small>
                                 </div>
+                                <span
+                                    class="badge bg-info text-white px-2 py-1">{{ $userType->total_registrations }}</span>
                             </div>
-                        @endforeach
-                    </div>
 
-                    <!-- User Type Summary -->
-                    <div class="mt-3">
-                        <h6 class="small fw-semibold mb-2">Top User Types</h6>
-                        @foreach ($userTypeAnalysis->take(3) as $userType)
-                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded bg-light">
-                                <span class="small">{{ ucfirst($userType->user_type) }}</span>
-                                <span class="badge bg-primary">{{ $userType->total_registrations }}</span>
+                            <!-- Progress Bar for User Type Distribution -->
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-primary" style="width: {{ $percentage }}%"
+                                    title="{{ $percentage }}% of total users"></div>
                             </div>
-                        @endforeach
-                    </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ $percentage }}% of total registrations</small>
+                                @if (isset($userType->avg_age))
+                                    <small class="text-muted">Avg: {{ round($userType->avg_age, 1) }} years</small>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -406,51 +414,53 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
-                            <thead>
+                            <thead class="table-light">
                                 <tr>
-                                    <th width="80">Rank</th>
+                                    <th class="text-center" style="width: 80px;">Rank</th>
                                     <th>Barangay</th>
-                                    <th class="text-center" width="120">Total</th>
-                                    <th class="text-center" width="120">Approved</th>
-                                    <th width="200">Approval Rate</th>
-                                    <th class="text-center" width="120">Verified</th>
+                                    <th class="text-center">Total</th>
+                                    <th class="text-center">Approved</th>
+                                    <th class="text-center">Approval Rate</th>
+                                    <th class="text-center">Verified</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($barangayAnalysis->take(10) as $index => $barangay)
                                     <tr>
-                                        <td>
-                                            <div class="rank-badge rank-{{ $index + 1 }}">
-                                                @if ($index === 0)
-                                                    <i class="fas fa-crown"></i>
-                                                @elseif($index === 1)
+                                        <td class="text-center">
+                                            @if ($index < 3)
+                                                <div class="rank-badge rank-{{ $index + 1 }}">
                                                     <i class="fas fa-medal"></i>
-                                                @elseif($index === 2)
-                                                    <i class="fas fa-award"></i>
-                                                @endif
-                                                <span>{{ $index + 1 }}</span>
-                                            </div>
+                                                    <span>{{ $index + 1 }}</span>
+                                                </div>
+                                            @else
+                                                <span class="badge bg-light text-dark">#{{ $index + 1 }}</span>
+                                            @endif
                                         </td>
                                         <td><strong>{{ $barangay->barangay }}</strong></td>
-                                        <td class="text-center"><span
-                                                class="badge bg-secondary">{{ $barangay->total_registrations }}</span>
+                                        <td class="text-center">
+                                            <span
+                                                class="badge bg-primary text-white px-2 py-1">{{ $barangay->total_registrations }}</span>
                                         </td>
-                                        <td class="text-center"><span
-                                                class="badge bg-success">{{ $barangay->approved }}</span></td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="progress grow" style="height: 8px;">
+                                        <td class="text-center">
+                                            <span
+                                                class="badge bg-success text-white px-2 py-1">{{ $barangay->approved }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <div class="progress me-2" style="width: 60px; height: 6px;">
                                                     <div class="progress-bar bg-success"
                                                         style="width: {{ round(($barangay->approved / max(1, $barangay->total_registrations)) * 100, 1) }}%">
                                                     </div>
                                                 </div>
-                                                <small class="fw-semibold" style="min-width: 45px;">
-                                                    {{ round(($barangay->approved / max(1, $barangay->total_registrations)) * 100, 1) }}%
-                                                </small>
+                                                <small
+                                                    class="fw-semibold">{{ round(($barangay->approved / max(1, $barangay->total_registrations)) * 100, 1) }}%</small>
                                             </div>
                                         </td>
-                                        <td class="text-center"><span
-                                                class="badge bg-info">{{ $barangay->email_verified }}</span></td>
+                                        <td class="text-center">
+                                            <span
+                                                class="badge bg-info text-white px-2 py-1">{{ $barangay->email_verified }}</span>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -635,6 +645,35 @@
 
                     .metric-item:last-child {
                         margin-bottom: 0;
+                    }
+
+                    /* User Type Items */
+                    .user-type-item {
+                        transition: all 0.3s ease;
+                        border-left: 3px solid transparent;
+                        border-radius: 8px !important;
+                    }
+
+                    .user-type-item:hover {
+                        border-left-color: var(--info-color);
+                        transform: translateX(5px);
+                        background: #f1f5f9 !important;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .user-type-item:last-child {
+                        margin-bottom: 0 !important;
+                    }
+
+                    .user-type-item .progress {
+                        height: 8px !important;
+                        border-radius: 6px;
+                        background-color: #e2e8f0;
+                    }
+
+                    .user-type-item .progress-bar {
+                        border-radius: 6px;
+                        background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
                     }
 
                     /* Verification Grid */
@@ -950,15 +989,14 @@
                                             @endforeach
                                         ],
                                         backgroundColor: [
-                                            '#6b7280', // unverified
-                                            '#f59e0b', // pending
-                                            '#10b981', // approved
-                                            '#ef4444', // rejected
-                                            '#1f2937' // banned
+                                            @foreach ($statusAnalysis['counts'] as $status => $count)
+                                                '{{ $status === 'approved' ? '#10b981' : ($status === 'rejected' ? '#ef4444' : ($status === 'pending' ? '#f59e0b' : ($status === 'unverified' ? '#6b7280' : '#1f2937'))) }}',
+                                            @endforeach
                                         ],
-                                        borderWidth: 0,
-                                        cutout: '70%',
-                                        spacing: 2
+                                        borderColor: '#ffffff',
+                                        borderWidth: 3,
+                                        cutout: '60%',
+                                        spacing: 4
                                     }]
                                 },
                                 options: {
@@ -969,21 +1007,101 @@
                                             display: false
                                         },
                                         tooltip: {
-                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                            padding: 12,
+                                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                                            titleColor: 'white',
+                                            bodyColor: 'white',
+                                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                                            borderWidth: 1,
                                             cornerRadius: 8,
+                                            padding: 12,
                                             callbacks: {
                                                 label: function(context) {
                                                     const label = context.label || '';
                                                     const value = context.parsed;
                                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                                     const percentage = ((value / total) * 100).toFixed(1);
-                                                    return `${label}: ${value} (${percentage}%)`;
+                                                    return `${label}: ${value.toLocaleString()} (${percentage}%)`;
                                                 }
                                             }
                                         }
+                                    },
+                                    animation: {
+                                        duration: 1000,
+                                        easing: 'easeInOutQuart'
                                     }
-                                }
+                                },
+                                plugins: [{
+                                    id: 'centerText',
+                                    beforeDraw: function(chart) {
+                                        const ctx = chart.ctx;
+                                        ctx.save();
+
+                                        const centerX = chart.width / 2;
+                                        const centerY = chart.height / 2;
+                                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
+                                        0);
+
+                                        ctx.textAlign = 'center';
+                                        ctx.textBaseline = 'middle';
+                                        ctx.fillStyle = '#1f2937';
+                                        ctx.font = 'bold 28px Inter, sans-serif';
+                                        ctx.fillText(total.toLocaleString(), centerX, centerY - 10);
+
+                                        ctx.fillStyle = '#64748b';
+                                        ctx.font = '14px Inter, sans-serif';
+                                        ctx.fillText('Total Registrations', centerX, centerY + 15);
+                                        ctx.restore();
+                                    },
+                                    afterDraw: function(chart) {
+                                        const ctx = chart.ctx;
+                                        const meta = chart.getDatasetMeta(0);
+                                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
+                                        0);
+
+                                        ctx.save();
+                                        ctx.font = 'bold 14px Inter, sans-serif';
+                                        ctx.textAlign = 'center';
+                                        ctx.textBaseline = 'middle';
+
+                                        chart.data.datasets[0].data.forEach((value, index) => {
+                                            if (value > 0) {
+                                                const percentage = ((value / total) * 100).toFixed(
+                                                    1);
+
+                                                // Show percentage for all segments with data
+                                                const element = meta.data[index];
+
+                                                // Calculate the middle angle of the segment
+                                                const startAngle = element.startAngle;
+                                                const endAngle = element.endAngle;
+                                                const midAngle = (startAngle + endAngle) / 2;
+
+                                                // Calculate position based on the segment's center point
+                                                const chartArea = chart.chartArea;
+                                                const centerX = (chartArea.left + chartArea.right) /
+                                                    2;
+                                                const centerY = (chartArea.top + chartArea.bottom) /
+                                                    2;
+
+                                                // Position the text at 70% of the radius from center
+                                                const radius = (element.outerRadius - element
+                                                    .innerRadius) * 0.7 + element.innerRadius;
+                                                const x = centerX + Math.cos(midAngle) * radius;
+                                                const y = centerY + Math.sin(midAngle) * radius;
+
+                                                const text = `${percentage}%`;
+
+                                                ctx.fillStyle = '#ffffff';
+                                                ctx.strokeStyle = '#000000';
+                                                ctx.lineWidth = 3;
+                                                ctx.strokeText(text, x, y);
+                                                ctx.fillText(text, x, y);
+                                            }
+                                        });
+
+                                        ctx.restore();
+                                    }
+                                }]
                             });
                         }
 
