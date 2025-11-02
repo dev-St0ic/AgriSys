@@ -260,8 +260,8 @@ class SupplyManagementAnalyticsController extends Controller
                 ->select(
                     DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
                     DB::raw('COUNT(*) as total_transactions'),
-                    DB::raw('SUM(CASE WHEN transaction_type = "add_supply" THEN quantity ELSE 0 END) as supplies_added'),
-                    DB::raw('SUM(CASE WHEN transaction_type = "deduct_supply" THEN quantity ELSE 0 END) as supplies_deducted'),
+                    DB::raw('SUM(CASE WHEN transaction_type = "received" THEN quantity ELSE 0 END) as supplies_added'),
+                    DB::raw('SUM(CASE WHEN transaction_type = "distributed" THEN quantity ELSE 0 END) as supplies_deducted'),
                     DB::raw('SUM(CASE WHEN transaction_type = "loss" THEN quantity ELSE 0 END) as supplies_lost'),
                     DB::raw('SUM(CASE WHEN transaction_type = "adjustment" THEN ABS(quantity) ELSE 0 END) as adjustments'),
                     DB::raw('COUNT(DISTINCT category_item_id) as items_affected')
@@ -373,9 +373,9 @@ class SupplyManagementAnalyticsController extends Controller
                     'ci.name',
                     'ci.unit',
                     DB::raw('COUNT(DISTINCT sri.seedling_request_id) as request_count'),
-                    DB::raw('SUM(sri.quantity_requested) as total_requested'),
-                    DB::raw('SUM(sri.quantity_approved) as total_approved'),
-                    DB::raw('AVG(sri.quantity_requested) as avg_requested')
+                    DB::raw('SUM(sri.requested_quantity) as total_requested'),
+                    DB::raw('SUM(sri.approved_quantity) as total_approved'),
+                    DB::raw('AVG(sri.requested_quantity) as avg_requested')
                 )
                 ->groupBy('ci.id', 'ci.name', 'ci.unit')
                 ->orderBy('request_count', 'desc')
@@ -383,8 +383,8 @@ class SupplyManagementAnalyticsController extends Controller
                 ->get();
 
             // Most supplied items
-            $mostSupplied = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-                ->where('transaction_type', 'add_supply')
+            $mostSupplied = ItemSupplyLog::whereBetween('item_supply_logs.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->where('transaction_type', 'received')
                 ->join('category_items', 'item_supply_logs.category_item_id', '=', 'category_items.id')
                 ->select(
                     'category_items.id',
@@ -400,7 +400,7 @@ class SupplyManagementAnalyticsController extends Controller
                 ->get();
 
             // Items with highest loss
-            $highestLoss = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            $highestLoss = ItemSupplyLog::whereBetween('item_supply_logs.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->where('transaction_type', 'loss')
                 ->join('category_items', 'item_supply_logs.category_item_id', '=', 'category_items.id')
                 ->select(
@@ -480,14 +480,14 @@ class SupplyManagementAnalyticsController extends Controller
             $fulfillment = DB::table('seedling_request_items as sri')
                 ->join('seedling_requests as sr', 'sri.seedling_request_id', '=', 'sr.id')
                 ->whereBetween('sr.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-                ->whereIn('sr.status', ['approved', 'completed'])
+                ->whereIn('sr.status', ['approved', 'partially_approved'])
                 ->select(
                     DB::raw('COUNT(*) as total_items'),
-                    DB::raw('SUM(sri.quantity_requested) as total_requested'),
-                    DB::raw('SUM(sri.quantity_approved) as total_approved'),
-                    DB::raw('SUM(CASE WHEN sri.quantity_approved >= sri.quantity_requested THEN 1 ELSE 0 END) as fully_fulfilled'),
-                    DB::raw('SUM(CASE WHEN sri.quantity_approved < sri.quantity_requested AND sri.quantity_approved > 0 THEN 1 ELSE 0 END) as partially_fulfilled'),
-                    DB::raw('SUM(CASE WHEN sri.quantity_approved = 0 THEN 1 ELSE 0 END) as not_fulfilled')
+                    DB::raw('SUM(sri.requested_quantity) as total_requested'),
+                    DB::raw('SUM(sri.approved_quantity) as total_approved'),
+                    DB::raw('SUM(CASE WHEN sri.approved_quantity >= sri.requested_quantity THEN 1 ELSE 0 END) as fully_fulfilled'),
+                    DB::raw('SUM(CASE WHEN sri.approved_quantity < sri.requested_quantity AND sri.approved_quantity > 0 THEN 1 ELSE 0 END) as partially_fulfilled'),
+                    DB::raw('SUM(CASE WHEN sri.approved_quantity = 0 OR sri.approved_quantity IS NULL THEN 1 ELSE 0 END) as not_fulfilled')
                 )
                 ->first();
 
@@ -531,11 +531,11 @@ class SupplyManagementAnalyticsController extends Controller
     {
         try {
             $supplyAdded = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-                ->where('transaction_type', 'add_supply')
+                ->where('transaction_type', 'received')
                 ->sum('quantity');
 
             $supplyDeducted = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-                ->where('transaction_type', 'deduct_supply')
+                ->where('transaction_type', 'distributed')
                 ->sum('quantity');
 
             $supplyLost = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
@@ -580,12 +580,12 @@ class SupplyManagementAnalyticsController extends Controller
                 ->map(function($item) use ($startDate, $endDate) {
                     $supplied = ItemSupplyLog::where('category_item_id', $item->id)
                         ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-                        ->where('transaction_type', 'add_supply')
+                        ->where('transaction_type', 'received')
                         ->sum('quantity');
 
                     $deducted = ItemSupplyLog::where('category_item_id', $item->id)
                         ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-                        ->where('transaction_type', 'deduct_supply')
+                        ->where('transaction_type', 'distributed')
                         ->sum('quantity');
 
                     $avgSupply = ($item->current_supply + $supplied) / 2;
@@ -617,7 +617,7 @@ class SupplyManagementAnalyticsController extends Controller
     private function getLossAnalysis($startDate, $endDate)
     {
         try {
-            $lossLogs = ItemSupplyLog::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            $lossLogs = ItemSupplyLog::whereBetween('item_supply_logs.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
                 ->where('transaction_type', 'loss')
                 ->with('categoryItem.category')
                 ->get();

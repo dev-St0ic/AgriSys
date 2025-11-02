@@ -79,9 +79,9 @@ class SeedlingAnalyticsService
     private function getOverviewMetrics(Collection $requests): array
     {
         $totalRequests = $requests->count();
-        $approvedRequests = $requests->where('overall_status', 'approved')->count();
-        $partiallyApprovedRequests = $requests->where('overall_status', 'partially_approved')->count();
-        $rejectedRequests = $requests->where('overall_status', 'rejected')->count();
+        $approvedRequests = $requests->where('status', 'approved')->count();
+        $partiallyApprovedRequests = $requests->where('status', 'partially_approved')->count();
+        $rejectedRequests = $requests->where('status', 'rejected')->count();
 
         $totalQuantity = $requests->sum('total_quantity');
         $uniqueApplicants = $requests->pluck('email')->filter()->unique()->count();
@@ -91,7 +91,7 @@ class SeedlingAnalyticsService
             'total_requests' => $totalRequests,
             'approved_requests' => $approvedRequests + $partiallyApprovedRequests,
             'rejected_requests' => $rejectedRequests,
-            'pending_requests' => $requests->where('overall_status', 'under_review')->count(),
+            'pending_requests' => $requests->where('status', 'pending')->count(),
             'approval_rate' => $totalRequests > 0 ? round((($approvedRequests + $partiallyApprovedRequests) / $totalRequests) * 100, 2) : 0,
             'total_quantity_requested' => $totalQuantity,
             'avg_request_size' => $totalRequests > 0 ? round($totalQuantity / $totalRequests, 2) : 0,
@@ -109,7 +109,7 @@ class SeedlingAnalyticsService
             return $request->created_at->format('Y-m');
         })->map(function($monthRequests) {
             $total = $monthRequests->count();
-            $approved = $monthRequests->whereIn('overall_status', ['approved', 'partially_approved'])->count();
+            $approved = $monthRequests->whereIn('status', ['approved', 'partially_approved'])->count();
 
             return [
                 'total_requests' => $total,
@@ -128,15 +128,15 @@ class SeedlingAnalyticsService
         return $requests->groupBy('barangay')
             ->map(function($barangayRequests, $barangay) {
                 $total = $barangayRequests->count();
-                $approved = $barangayRequests->whereIn('overall_status', ['approved', 'partially_approved'])->count();
+                $approved = $barangayRequests->whereIn('status', ['approved', 'partially_approved'])->count();
                 $totalQuantity = $barangayRequests->sum('total_quantity');
 
                 return (object) [
                     'barangay' => $barangay,
                     'total_requests' => $total,
                     'approved' => $approved,
-                    'rejected' => $barangayRequests->where('overall_status', 'rejected')->count(),
-                    'pending' => $barangayRequests->where('overall_status', 'under_review')->count(),
+                    'rejected' => $barangayRequests->where('status', 'rejected')->count(),
+                    'pending' => $barangayRequests->where('status', 'pending')->count(),
                     'total_quantity' => $totalQuantity,
                     'approval_rate' => $total > 0 ? round(($approved / $total) * 100, 2) : 0,
                     'avg_request_size' => $total > 0 ? round($totalQuantity / $total, 2) : 0,
@@ -244,10 +244,10 @@ class SeedlingAnalyticsService
     private function getStatusAnalysis(Collection $requests): array
     {
         return [
-            'approved' => $requests->where('overall_status', 'approved')->count(),
-            'partially_approved' => $requests->where('overall_status', 'partially_approved')->count(),
-            'rejected' => $requests->where('overall_status', 'rejected')->count(),
-            'under_review' => $requests->where('overall_status', 'under_review')->count(),
+            'approved' => $requests->where('status', 'approved')->count(),
+            'partially_approved' => $requests->where('status', 'partially_approved')->count(),
+            'rejected' => $requests->where('status', 'rejected')->count(),
+            'under_review' => $requests->where('status', 'pending')->count(),
         ];
     }
 
@@ -290,7 +290,7 @@ class SeedlingAnalyticsService
      */
     private function getProcessingTimeAnalysis(Collection $requests): array
     {
-        $processedRequests = $requests->whereNotIn('overall_status', ['under_review']);
+        $processedRequests = $requests->whereNotIn('status', ['pending']);
 
         $processingTimes = $processedRequests->map(function($request) {
             return $request->created_at->diffInDays($request->updated_at);
@@ -336,7 +336,7 @@ class SeedlingAnalyticsService
                 'quarter' => "Q{$quarter}",
                 'total_requests' => $quarterRequests->count(),
                 'approval_rate' => $quarterRequests->count() > 0 ?
-                    round(($quarterRequests->whereIn('overall_status', ['approved', 'partially_approved'])->count() / $quarterRequests->count()) * 100, 2) : 0,
+                    round(($quarterRequests->whereIn('status', ['approved', 'partially_approved'])->count() / $quarterRequests->count()) * 100, 2) : 0,
                 'total_quantity' => $quarterRequests->sum('total_quantity'),
             ];
         })->toArray();

@@ -7,6 +7,7 @@ use App\Models\SeedlingRequest;
 use App\Models\SeedlingRequestItem;
 use App\Models\RequestCategory;
 use App\Models\CategoryItem;
+use App\Models\ItemSupplyLog;
 use App\Models\User;
 use App\Models\UserRegistration;
 use Carbon\Carbon;
@@ -41,57 +42,51 @@ class SeedlingRequestSeeder extends Seeder
             return;
         }
 
-        // Create 1 year of data - October 2024 to October 2025 (120+ requests)
-        $this->createYearlyData($categories);
+        // Create current year data - January 2025 to November 2025 (current date)
+        $this->createCurrentYearData($categories);
 
         $this->command->info('Seedling requests seeding completed successfully!');
     }
 
-    private function createYearlyData($categories): void
+    private function createCurrentYearData($categories): void
     {
-        $this->command->info('Creating yearly data with seasonal patterns...');
-
-        // October 2024 - Start of dry season (good planting)
-        $this->createMonthlyRequests('2024-10', 12, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
-
-        // November 2024 - Cool dry season
-        $this->createMonthlyRequests('2024-11', 10, $categories, ['approved' => 80, 'rejected' => 10, 'partially_approved' => 10]);
-
-        // December 2024 - Holiday slowdown
-        $this->createMonthlyRequests('2024-12', 6, $categories, ['approved' => 85, 'rejected' => 10, 'partially_approved' => 5]);
+        $this->command->info('Creating current year data with seasonal patterns...');
 
         // January 2025 - New year slow start
         $this->createMonthlyRequests('2025-01', 8, $categories, ['approved' => 80, 'rejected' => 15, 'partially_approved' => 5]);
 
         // February 2025 - Picking up
-        $this->createMonthlyRequests('2025-02', 10, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
+        $this->createMonthlyRequests('2025-02', 12, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
 
         // March 2025 - Pre-peak season
-        $this->createMonthlyRequests('2025-03', 14, $categories, ['approved' => 70, 'rejected' => 20, 'partially_approved' => 10]);
+        $this->createMonthlyRequests('2025-03', 16, $categories, ['approved' => 70, 'rejected' => 20, 'partially_approved' => 10]);
 
         // April 2025 - Peak planting season
-        $this->createMonthlyRequests('2025-04', 18, $categories, ['approved' => 65, 'rejected' => 20, 'partially_approved' => 15]);
+        $this->createMonthlyRequests('2025-04', 20, $categories, ['approved' => 65, 'rejected' => 20, 'partially_approved' => 15]);
 
         // May 2025 - Continued peak
-        $this->createMonthlyRequests('2025-05', 16, $categories, ['approved' => 70, 'rejected' => 15, 'partially_approved' => 15]);
+        $this->createMonthlyRequests('2025-05', 18, $categories, ['approved' => 70, 'rejected' => 15, 'partially_approved' => 15]);
 
         // June 2025 - Rainy season starts
-        $this->createMonthlyRequests('2025-06', 12, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
+        $this->createMonthlyRequests('2025-06', 14, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
 
         // July 2025 - Rainy season
-        $this->createMonthlyRequests('2025-07', 10, $categories, ['approved' => 70, 'rejected' => 20, 'partially_approved' => 10]);
+        $this->createMonthlyRequests('2025-07', 12, $categories, ['approved' => 70, 'rejected' => 20, 'partially_approved' => 10]);
 
         // August 2025 - Heavy rains
-        $this->createMonthlyRequests('2025-08', 8, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
+        $this->createMonthlyRequests('2025-08', 10, $categories, ['approved' => 75, 'rejected' => 15, 'partially_approved' => 10]);
 
         // September 2025 - End of rainy season
-        $this->createMonthlyRequests('2025-09', 10, $categories, ['approved' => 80, 'rejected' => 10, 'partially_approved' => 10]);
+        $this->createMonthlyRequests('2025-09', 14, $categories, ['approved' => 80, 'rejected' => 10, 'partially_approved' => 10]);
 
-        // October 2025 - Current month with pending requests
-        $this->createMonthlyRequests('2025-10', 8, $categories, ['approved' => 30, 'rejected' => 10, 'partially_approved' => 10, 'pending' => 50]);
+        // October 2025 - Current dry season
+        $this->createMonthlyRequests('2025-10', 16, $categories, ['approved' => 60, 'rejected' => 15, 'partially_approved' => 15, 'pending' => 10]);
+
+        // November 2025 - Current month (only 2 days)
+        $this->createMonthlyRequests('2025-11', 2, $categories, ['approved' => 40, 'rejected' => 20, 'partially_approved' => 20, 'pending' => 20], 2);
     }
 
-    private function createMonthlyRequests(string $month, int $count, $categories, array $statusDistribution): void
+    private function createMonthlyRequests(string $month, int $count, $categories, array $statusDistribution, int $maxDay = 28): void
     {
         $users = User::all();
         $userRegistrations = UserRegistration::all();
@@ -108,8 +103,8 @@ class SeedlingRequestSeeder extends Seeder
         }
 
         for ($i = 0; $i < $count; $i++) {
-            // Random day in the month
-            $day = rand(1, 28);
+            // Random day in the month (limited by maxDay for current month)
+            $day = rand(1, $maxDay);
             $createdDate = Carbon::parse("{$month}-{$day}");
 
             // Skip weekends for realistic data
@@ -121,11 +116,11 @@ class SeedlingRequestSeeder extends Seeder
             $status = $this->getRandomStatus($statusDistribution);
             $selectedUser = $userRegistrations->random();
 
-            // Calculate processing time
-            $processingTime = match($status) {
-                'approved' => rand(1, 3),
-                'rejected' => rand(1, 2),
-                'partially_approved' => rand(2, 4),
+            // Calculate processing time (in hours for more realistic times)
+            $processingHours = match($status) {
+                'approved' => rand(24, 72),      // 1-3 days
+                'rejected' => rand(12, 48),      // 0.5-2 days
+                'partially_approved' => rand(48, 96), // 2-4 days
                 default => 0
             };
 
@@ -148,12 +143,12 @@ class SeedlingRequestSeeder extends Seeder
                 'preferred_delivery_date' => $createdDate->copy()->addDays(rand(7, 21)),
                 'status' => $status,
                 'reviewed_by' => $status !== 'pending' ? $users->random()->id : null,
-                'reviewed_at' => $status !== 'pending' ? $createdDate->copy()->addDays($processingTime) : null,
+                'reviewed_at' => $status !== 'pending' ? $createdDate->copy()->addHours($processingHours) : null,
                 'remarks' => $this->getStatusRemarks($status),
-                'approved_at' => $status === 'approved' ? $createdDate->copy()->addDays($processingTime) : null,
-                'rejected_at' => $status === 'rejected' ? $createdDate->copy()->addDays($processingTime) : null,
+                'approved_at' => $status === 'approved' ? $createdDate->copy()->addHours($processingHours) : null,
+                'rejected_at' => $status === 'rejected' ? $createdDate->copy()->addHours($processingHours) : null,
                 'created_at' => $createdDate,
-                'updated_at' => $status !== 'pending' ? $createdDate->copy()->addDays($processingTime) : $createdDate,
+                'updated_at' => $status !== 'pending' ? $createdDate->copy()->addHours($processingHours) : $createdDate,
             ]);
 
             // Add items to request
@@ -167,6 +162,11 @@ class SeedlingRequestSeeder extends Seeder
                 'total_quantity' => $totalQty,
                 'approved_quantity' => $status === 'approved' ? $approvedQty : ($status === 'partially_approved' ? $approvedQty : null),
             ]);
+
+            // Deduct supplies for approved requests
+            if (in_array($status, ['approved', 'partially_approved'])) {
+                $this->deductSuppliesFromRequest($request, $users->random()->id);
+            }
         }
 
         $this->command->info("Created {$count} requests for {$month}");
@@ -219,7 +219,7 @@ class SeedlingRequestSeeder extends Seeder
                     'category_item_id' => $categoryItem->id,
                     'item_name' => $categoryItem->name,
                     'requested_quantity' => $requestedQty,
-                    'approved_quantity' => $itemStatus === 'approved' ? $requestedQty : null,
+                    'approved_quantity' => $itemStatus === 'approved' ? $this->getApprovedQuantity($categoryItem, $requestedQty) : null,
                     'status' => $itemStatus,
                     'rejection_reason' => $itemStatus === 'rejected' ? $this->getRejectionReason() : null,
                 ]);
@@ -287,6 +287,24 @@ class SeedlingRequestSeeder extends Seeder
         };
     }
 
+    /**
+     * Get approved quantity based on available supply
+     */
+    private function getApprovedQuantity($categoryItem, int $requestedQty): int
+    {
+        // Refresh the item to get current supply
+        $categoryItem->refresh();
+
+        // For realistic simulation, sometimes approve full amount even if stock is lower
+        // (representing supplies that arrive between request and approval)
+        if (rand(1, 100) <= 20) {
+            return $requestedQty; // 20% chance of full approval regardless of current stock
+        }
+
+        // Otherwise, approve based on available supply
+        return min($requestedQty, max(0, $categoryItem->current_supply));
+    }
+
     private function getRejectionReason(): string
     {
         return collect([
@@ -296,5 +314,24 @@ class SeedlingRequestSeeder extends Seeder
             'Exceeds individual allocation',
             'Currently unavailable',
         ])->random();
+    }
+
+    /**
+     * Deduct supplies for approved request items
+     */
+    private function deductSuppliesFromRequest($request, int $adminUserId): void
+    {
+        foreach ($request->items()->where('status', 'approved')->get() as $item) {
+            $categoryItem = CategoryItem::find($item->category_item_id);
+            if ($categoryItem && $item->approved_quantity > 0) {
+                $categoryItem->distributeSupply(
+                    $item->approved_quantity,
+                    $adminUserId,
+                    "Distributed for request #{$request->request_number} - {$item->item_name}",
+                    'SeedlingRequest',
+                    $request->id
+                );
+            }
+        }
     }
 }

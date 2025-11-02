@@ -11,54 +11,55 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <div class="text-center mb-3">
-                        <h4 class="mb-2 fw-bold">Supply Management Analytics Dashboard</h4>
-                        <p class="text-muted mb-0">Comprehensive insights into supply levels, supply trends, and
-                            fulfillment metrics</p>
+                    <!-- Title and Description -->
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold mb-2">Supply Management Analytics Dashboard</h4>
+                        <p class="text-muted mb-0">Comprehensive insights into supply levels, supply trends, and fulfillment
+                            metrics</p>
                     </div>
-                    <!-- Service Tabs -->
+
+                    <!-- Service Navigation Tabs -->
                     <div class="d-flex justify-content-center">
-                        <ul class="nav nav-pills" id="serviceTab" role="tablist">
+                        <ul class="nav nav-pills service-nav" id="serviceTab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.seedlings') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                                    <i class="fas fa-seedling me-1"></i> Seedlings
+                                    <i class="fas fa-seedling me-2"></i>Seedlings
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.rsbsa') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                                    <i class="fas fa-user-check me-1"></i> RSBSA
+                                    <i class="fas fa-user-check me-2"></i>RSBSA
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.fishr') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                                    <i class="fas fa-fish me-1"></i> FISHR
+                                    <i class="fas fa-fish me-2"></i>FISHR
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.boatr') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                                    <i class="fas fa-ship me-1"></i> BOATR
+                                    <i class="fas fa-ship me-2"></i>BOATR
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.training') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                                    <i class="fas fa-graduation-cap me-1"></i> Training
+                                    <i class="fas fa-graduation-cap me-2"></i>Training
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.supply-management') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
-                                    <i class="fas fa-boxes me-1"></i> Supply Management
+                                <a href="{{ route('admin.analytics.supply-management') }}" class="nav-link active">
+                                    <i class="fas fa-boxes me-2"></i>Supply Management
                                 </a>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <a href="{{ route('admin.analytics.user-registration') }}"
                                     class="nav-link {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                                    <i class="fas fa-user-plus me-1"></i> User Registration
+                                    <i class="fas fa-user-plus me-2"></i>User Registration
                                 </a>
                             </li>
                         </ul>
@@ -75,24 +76,30 @@
                 <div class="card-body">
                     <form method="GET" action="{{ route('admin.analytics.supply-management') }}"
                         class="row g-3 align-items-end">
-                        <div class="col-md-3">
-                            <label for="start_date" class="form-label fw-semibold">Start Date</label>
+                        <div class="col-lg-3 col-md-6">
+                            <label for="start_date" class="form-label fw-semibold">
+                                <i class="fas fa-calendar-alt text-primary me-1"></i>Start Date
+                            </label>
                             <input type="date" class="form-control" id="start_date" name="start_date"
                                 value="{{ $startDate }}">
                         </div>
-                        <div class="col-md-3">
-                            <label for="end_date" class="form-label fw-semibold">End Date</label>
+                        <div class="col-lg-3 col-md-6">
+                            <label for="end_date" class="form-label fw-semibold">
+                                <i class="fas fa-calendar-check text-primary me-1"></i>End Date
+                            </label>
                             <input type="date" class="form-control" id="end_date" name="end_date"
                                 value="{{ $endDate }}">
                         </div>
-                        <div class="col-md-6">
-                            <button type="submit" class="btn btn-primary me-2">
-                                <i class="fas fa-filter me-1"></i> Apply Filter
-                            </button>
-                            <a href="{{ route('admin.analytics.supply-management.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
-                                class="btn btn-success">
-                                <i class="fas fa-download me-1"></i> Export
-                            </a>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-filter me-2"></i>Apply Filter
+                                </button>
+                                <a href="{{ route('admin.analytics.supply-management.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
+                                    class="btn btn-success px-4">
+                                    <i class="fas fa-download me-2"></i>Export Data
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -100,84 +107,79 @@
         </div>
     </div>
 
-    <!-- Key Metrics Row -->
+    <!-- Key Metrics Cards -->
     <div class="row mb-4 g-3">
-        <!-- Total Items Card -->
+        <!-- Total Items -->
         <div class="col-lg-3 col-md-6">
-            <div class="metric-card card border-0 shadow-sm h-100">
-                <div class="card-body text-white" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="metric-label mb-2">Total Items</p>
+                            <p class="metric-label text-muted mb-2">Total Items</p>
                             <h2 class="metric-value mb-1">{{ number_format($overview['total_items']) }}</h2>
-                            <small class="metric-subtitle">
-                                <i class="fas fa-check-circle me-1"></i>{{ $overview['active_items'] }} active items
-                            </small>
+                            <span class="badge badge-success-soft">
+                                <i class="fas fa-check-circle me-1"></i>{{ $overview['active_items'] }} active
+                            </span>
                         </div>
-                        <div class="metric-icon">
-                            <i class="fas fa-boxes fa-2x"></i>
+                        <div class="metric-icon bg-primary-soft">
+                            <i class="fas fa-boxes text-primary"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Total Supply Card -->
+        <!-- Total Supply -->
         <div class="col-lg-3 col-md-6">
-            <div class="metric-card card border-0 shadow-sm h-100">
-                <div class="card-body text-white" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="metric-label mb-2">Total Supply</p>
+                            <p class="metric-label text-muted mb-2">Total Supply</p>
                             <h2 class="metric-value mb-1">{{ number_format($overview['total_supply']) }}</h2>
-                            <small class="metric-subtitle">
-                                Avg {{ number_format($overview['avg_supply_per_item'], 1) }} per item
-                            </small>
+                            <small class="text-muted">Avg {{ number_format($overview['avg_supply_per_item'], 1) }} per
+                                item</small>
                         </div>
-                        <div class="metric-icon">
-                            <i class="fas fa-layer-group fa-2x"></i>
+                        <div class="metric-icon bg-info-soft">
+                            <i class="fas fa-layer-group text-info"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Supply Health Score Card -->
+        <!-- Supply Health Score -->
         <div class="col-lg-3 col-md-6">
-            <div class="metric-card card border-0 shadow-sm h-100">
-                <div class="card-body text-white"
-                    style="background: linear-gradient(135deg, {{ $overview['supply_health_score'] >= 80 ? '#10b981, #059669' : ($overview['supply_health_score'] >= 60 ? '#f59e0b, #d97706' : '#ef4444, #dc2626') }});">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="metric-label mb-2">Supply Health Score</p>
+                            <p class="metric-label text-muted mb-2">Supply Health Score</p>
                             <h2 class="metric-value mb-1">{{ $overview['supply_health_score'] }}%</h2>
-                            <small class="metric-subtitle">
-                                {{ $overview['healthy_stock_items'] }} healthy items
-                            </small>
+                            <small class="text-muted">{{ $overview['healthy_stock_items'] }} healthy items</small>
                         </div>
-                        <div class="metric-icon">
-                            <i class="fas fa-heartbeat fa-2x"></i>
+                        <div
+                            class="metric-icon bg-{{ $overview['supply_health_score'] >= 80 ? 'success' : ($overview['supply_health_score'] >= 60 ? 'warning' : 'danger') }}-soft">
+                            <i
+                                class="fas fa-heartbeat text-{{ $overview['supply_health_score'] >= 80 ? 'success' : ($overview['supply_health_score'] >= 60 ? 'warning' : 'danger') }}"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Alerts Card -->
+        <!-- Supply Alerts -->
         <div class="col-lg-3 col-md-6">
-            <div class="metric-card card border-0 shadow-sm h-100">
-                <div class="card-body text-white" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+            <div class="card metric-card border-0 shadow-sm h-100">
+                <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <p class="metric-label mb-2">Supply Alerts</p>
+                            <p class="metric-label text-muted mb-2">Supply Alerts</p>
                             <h2 class="metric-value mb-1">{{ $supplyAlerts['total_alerts'] }}</h2>
-                            <small class="metric-subtitle">
-                                <i class="fas fa-exclamation-triangle me-1"></i>{{ $overview['out_of_stock_items'] }} out
-                                of stock
-                            </small>
+                            <small class="text-muted">{{ $overview['out_of_stock_items'] }} out of stock</small>
                         </div>
-                        <div class="metric-icon">
-                            <i class="fas fa-bell fa-2x"></i>
+                        <div class="metric-icon bg-danger-soft">
+                            <i class="fas fa-bell text-danger"></i>
                         </div>
                     </div>
                 </div>
@@ -185,77 +187,98 @@
         </div>
     </div>
 
-    <!-- Supply Status Overview -->
-    <div class="row g-3 mb-4">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-chart-line me-2 text-primary"></i>Supply Trends Over Time
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="supplyTrendsChart"></canvas>
-                </div>
-            </div>
-        </div>
-
+    <!-- Main Analytics Section -->
+    <div class="row mb-4 g-3">
         <!-- Supply Status Distribution -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-chart-pie me-2 text-success"></i>Supply Status
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>Supply Status
                     </h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="supplyStatusChart"></canvas>
-                    <div class="mt-3">
+                    <div class="status-chart-container mb-3">
+                        <canvas id="supplyStatusChart" height="220"></canvas>
+                    </div>
+                    <div class="status-legends">
                         @foreach ($supplyLevelAnalysis['counts'] as $status => $count)
-                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded status-item">
-                                <span class="d-flex align-items-center">
-                                    <i
-                                        class="fas fa-circle me-2 {{ $status === 'critical' ? 'text-danger' : ($status === 'low' ? 'text-warning' : ($status === 'optimal' ? 'text-success' : ($status === 'overstocked' ? 'text-info' : 'text-secondary'))) }}"></i>
-                                    {{ ucfirst($status) }}
-                                </span>
-                                <span
-                                    class="badge bg-{{ $status === 'critical' ? 'danger' : ($status === 'low' ? 'warning' : ($status === 'optimal' ? 'success' : ($status === 'overstocked' ? 'info' : 'secondary'))) }}">
-                                    {{ $count }}
-                                </span>
+                            @php
+                                $dotColor = match ($status) {
+                                    'critical' => '#ef4444',
+                                    'low' => '#f59e0b',
+                                    'adequate' => '#6b7280',
+                                    'optimal' => '#10b981',
+                                    'overstocked' => '#06b6d4',
+                                    default => '#64748b',
+                                };
+                            @endphp
+                            <div class="legend-item d-flex justify-content-between align-items-center mb-2 p-2 rounded">
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-medium">{{ ucfirst($status) }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge text-white me-2" style="background-color: {{ $dotColor }};">
+                                        {{ $count }}
+                                    </span>
+                                    <span
+                                        class="text-muted fw-semibold">{{ $count > 0 ? round(($count / array_sum($supplyLevelAnalysis['counts'])) * 100, 1) : 0 }}%</span>
+                                </div>
                             </div>
                         @endforeach
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supply Trends -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-chart-line text-info me-2"></i>Supply Trends Over Time
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="supplyTrendsChart" height="220"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Transaction Analysis & Fulfillment -->
-    <div class="row g-3 mb-4">
-        <!-- Transaction Types -->
-        <div class="col-lg-6">
+    <!-- Performance Metrics & Fulfillment Analysis -->
+    <div class="row mb-4 g-3">
+        <!-- Transaction Analysis -->
+        <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-exchange-alt me-2 text-info"></i>Transaction Analysis
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-exchange-alt text-primary me-2"></i>Transaction Analysis
                     </h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="transactionChart"></canvas>
-                    <div class="mt-3">
+                    <div class="transaction-chart-container mb-3">
+                        <canvas id="transactionChart" height="180"></canvas>
+                    </div>
+                    <div class="transaction-legends">
                         @foreach ($transactionAnalysis['transactions'] as $transaction)
-                            <div
-                                class="d-flex justify-content-between align-items-center mb-2 p-2 rounded transaction-item">
-                                <div>
-                                    <strong>{{ ucfirst(str_replace('_', ' ', $transaction->transaction_type)) }}</strong>
-                                    <small class="d-block text-muted">{{ $transaction->unique_items }} items</small>
+                            <div class="transaction-item mb-3 p-3 rounded bg-light">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <span
+                                            class="fw-semibold">{{ ucfirst(str_replace('_', ' ', $transaction->transaction_type)) }}</span>
+                                    </div>
+                                    <span class="badge bg-primary-soft text-primary">
+                                        {{ $transactionAnalysis['percentages'][$transaction->transaction_type] ?? 0 }}%
+                                    </span>
                                 </div>
-                                <div class="text-end">
-                                    <span
-                                        class="badge bg-primary">{{ number_format($transaction->total_quantity) }}</span>
-                                    <small
-                                        class="d-block text-muted">{{ $transactionAnalysis['percentages'][$transaction->transaction_type] ?? 0 }}%</small>
+                                <div class="progress mb-1" style="height: 6px;">
+                                    <div class="progress-bar bg-primary"
+                                        style="width: {{ ($transaction->total_quantity / ($transactionAnalysis['transactions']->max('total_quantity') ?: 1)) * 100 }}%">
+                                    </div>
                                 </div>
+                                <small class="text-muted">{{ number_format($transaction->total_quantity) }} total |
+                                    {{ $transaction->unique_items }} items</small>
                             </div>
                         @endforeach
                     </div>
@@ -263,209 +286,96 @@
             </div>
         </div>
 
-        <!-- Fulfillment Metrics -->
-        <div class="col-lg-6">
+        <!-- Fulfillment Performance -->
+        <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-check-double me-2 text-success"></i>Fulfillment Performance
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-check-double text-success me-2"></i>Fulfillment Performance
                     </h5>
                 </div>
                 <div class="card-body">
-                    <!-- Overall Fulfillment Rate -->
-                    <div class="metric-item mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0 fw-semibold">Overall Fulfillment Rate</h6>
-                            <span
-                                class="badge bg-{{ $fulfillmentAnalysis['fulfillment_rate'] >= 80 ? 'success' : ($fulfillmentAnalysis['fulfillment_rate'] >= 60 ? 'warning' : 'danger') }} fs-6">
-                                {{ $fulfillmentAnalysis['fulfillment_rate'] }}%
-                            </span>
+                    <div class="row text-center mb-4">
+                        <div class="col-6">
+                            <div class="p-3 rounded bg-success-soft">
+                                <h3 class="text-success mb-1">{{ $fulfillmentAnalysis['fulfillment_rate'] }}%</h3>
+                                <p class="mb-0 small text-muted">Overall Rate</p>
+                            </div>
                         </div>
-                        <div class="progress" style="height: 12px;">
-                            <div class="progress-bar bg-{{ $fulfillmentAnalysis['fulfillment_rate'] >= 80 ? 'success' : ($fulfillmentAnalysis['fulfillment_rate'] >= 60 ? 'warning' : 'danger') }}"
-                                style="width: {{ $fulfillmentAnalysis['fulfillment_rate'] }}%"></div>
+                        <div class="col-6">
+                            <div class="p-3 rounded bg-primary-soft">
+                                <h3 class="text-primary mb-1">{{ $fulfillmentAnalysis['full_fulfillment_rate'] }}%</h3>
+                                <p class="mb-0 small text-muted">Full Fulfillment</p>
+                            </div>
                         </div>
-                        <small class="text-muted d-block mt-1">
-                            {{ number_format($fulfillmentAnalysis['total_approved']) }} of
-                            {{ number_format($fulfillmentAnalysis['total_requested']) }} requested
-                        </small>
-                    </div>
-
-                    <!-- Full Fulfillment Rate -->
-                    <div class="metric-item mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0 fw-semibold">Full Fulfillment Rate</h6>
-                            <span
-                                class="badge bg-primary fs-6">{{ $fulfillmentAnalysis['full_fulfillment_rate'] }}%</span>
-                        </div>
-                        <div class="progress" style="height: 12px;">
-                            <div class="progress-bar bg-primary"
-                                style="width: {{ $fulfillmentAnalysis['full_fulfillment_rate'] }}%"></div>
-                        </div>
-                        <small class="text-muted d-block mt-1">
-                            {{ number_format($fulfillmentAnalysis['fully_fulfilled']) }} requests fully fulfilled
-                        </small>
                     </div>
 
                     <!-- Fulfillment Breakdown -->
-                    <div class="row g-2">
+                    <div class="row g-2 mb-3">
                         <div class="col-4">
-                            <div class="text-center p-2 rounded" style="background: rgba(16, 185, 129, 0.1);">
+                            <div class="text-center p-2 rounded bg-success-soft">
                                 <div class="text-success fw-bold fs-4">{{ $fulfillmentAnalysis['fully_fulfilled'] }}</div>
                                 <small class="text-muted">Fully Fulfilled</small>
                             </div>
                         </div>
                         <div class="col-4">
-                            <div class="text-center p-2 rounded" style="background: rgba(245, 158, 11, 0.1);">
+                            <div class="text-center p-2 rounded bg-warning-soft">
                                 <div class="text-warning fw-bold fs-4">{{ $fulfillmentAnalysis['partially_fulfilled'] }}
                                 </div>
                                 <small class="text-muted">Partially</small>
                             </div>
                         </div>
                         <div class="col-4">
-                            <div class="text-center p-2 rounded" style="background: rgba(239, 68, 68, 0.1);">
+                            <div class="text-center p-2 rounded bg-danger-soft">
                                 <div class="text-danger fw-bold fs-4">{{ $fulfillmentAnalysis['not_fulfilled'] }}</div>
                                 <small class="text-muted">Not Fulfilled</small>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Efficiency Metrics & Loss Analysis -->
-    <div class="row g-3 mb-4">
-        <!-- Efficiency Metrics -->
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-tachometer-alt me-2 text-info"></i>Supply Efficiency Metrics
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3 mb-4">
-                        <div class="col-6">
-                            <div class="text-center p-3 rounded"
-                                style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);">
-                                <i class="fas fa-arrow-up fa-2x text-success mb-2"></i>
-                                <div class="text-success fw-bold fs-4">
-                                    {{ number_format($efficiencyMetrics['supply_added']) }}</div>
-                                <small class="text-muted">Supply Added</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="text-center p-3 rounded"
-                                style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(14, 165, 233, 0.05) 100%);">
-                                <i class="fas fa-arrow-down fa-2x text-primary mb-2"></i>
-                                <div class="text-primary fw-bold fs-4">
-                                    {{ number_format($efficiencyMetrics['supply_deducted']) }}</div>
-                                <small class="text-muted">Supply Deducted</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Utilization Rate -->
-                    <div class="metric-item mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0 fw-semibold">Utilization Rate</h6>
-                            <span class="badge bg-primary fs-6">{{ $efficiencyMetrics['utilization_rate'] }}%</span>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-primary"
-                                style="width: {{ min(100, $efficiencyMetrics['utilization_rate']) }}%"></div>
-                        </div>
-                    </div>
-
-                    <!-- Loss Rate -->
-                    <div class="metric-item mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="mb-0 fw-semibold">Loss Rate</h6>
-                            <span
-                                class="badge bg-{{ $efficiencyMetrics['loss_rate'] > 10 ? 'danger' : ($efficiencyMetrics['loss_rate'] > 5 ? 'warning' : 'success') }} fs-6">
-                                {{ $efficiencyMetrics['loss_rate'] }}%
-                            </span>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-{{ $efficiencyMetrics['loss_rate'] > 10 ? 'danger' : ($efficiencyMetrics['loss_rate'] > 5 ? 'warning' : 'success') }}"
-                                style="width: {{ min(100, $efficiencyMetrics['loss_rate']) }}%"></div>
-                        </div>
-                        <small class="text-muted d-block mt-1">
-                            {{ number_format($efficiencyMetrics['supply_lost']) }} units lost
-                        </small>
-                    </div>
-
-                    <!-- Net Supply Change -->
-                    <div
-                        class="alert alert-{{ $efficiencyMetrics['net_supply_change'] >= 0 ? 'success' : 'warning' }} mb-0">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <i class="fas fa-info-circle me-2"></i>
-                                <strong>Net Supply Change</strong>
-                            </div>
-                            <div class="fs-5 fw-bold">
-                                {{ $efficiencyMetrics['net_supply_change'] >= 0 ? '+' : '' }}{{ number_format($efficiencyMetrics['net_supply_change']) }}
-                            </div>
+                    <div class="alert alert-info-soft border-0">
+                        <div class="d-flex">
+                            <i class="fas fa-info-circle text-info me-2 mt-1"></i>
+                            <small class="text-muted">
+                                <strong>{{ number_format($fulfillmentAnalysis['total_approved']) }}</strong> of
+                                <strong>{{ number_format($fulfillmentAnalysis['total_requested']) }}</strong> requested
+                                items fulfilled.
+                            </small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Loss Analysis -->
-        <div class="col-lg-6">
+        <!-- Top Items Analysis -->
+        <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-exclamation-triangle me-2 text-danger"></i>Loss & Waste Analysis
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-star text-warning me-2"></i>Most Requested Items
                     </h5>
                 </div>
                 <div class="card-body">
-                    <div class="row g-3 mb-4">
-                        <div class="col-4">
-                            <div class="text-center p-3 rounded" style="background: rgba(239, 68, 68, 0.1);">
-                                <i class="fas fa-minus-circle fa-2x text-danger mb-2"></i>
-                                <div class="text-danger fw-bold fs-4">{{ number_format($lossAnalysis['total_loss']) }}
+                    @foreach ($topItemsAnalysis['most_requested']->take(5) as $index => $item)
+                        <div class="item-card mb-3 p-3 rounded bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-warning me-2">{{ $index + 1 }}</span>
+                                    <span class="fw-semibold">{{ $item->name }}</span>
                                 </div>
-                                <small class="text-muted">Total Loss</small>
+                                <span class="badge bg-success-soft text-success">
+                                    {{ round(($item->total_approved / max(1, $item->total_requested)) * 100, 1) }}%
+                                </span>
                             </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="text-center p-3 rounded" style="background: rgba(245, 158, 11, 0.1);">
-                                <i class="fas fa-times-circle fa-2x text-warning mb-2"></i>
-                                <div class="text-warning fw-bold fs-4">{{ $lossAnalysis['loss_incidents'] }}</div>
-                                <small class="text-muted">Incidents</small>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="text-center p-3 rounded" style="background: rgba(107, 114, 128, 0.1);">
-                                <i class="fas fa-chart-bar fa-2x text-secondary mb-2"></i>
-                                <div class="text-secondary fw-bold fs-4">
-                                    {{ number_format($lossAnalysis['avg_loss_per_incident'], 1) }}</div>
-                                <small class="text-muted">Avg per Incident</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h6 class="fw-semibold mb-3">Top Items by Loss</h6>
-                    <div class="loss-items-list" style="max-height: 250px; overflow-y: auto;">
-                        @forelse ($lossAnalysis['loss_by_item']->take(5) as $index => $item)
-                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded loss-item">
-                                <div>
-                                    <strong class="d-block">{{ $item['item_name'] }}</strong>
-                                    <small class="text-muted">{{ $item['category'] }}</small>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-danger">{{ number_format($item['total_loss']) }}
-                                        {{ $item['unit'] }}</span>
-                                    <small class="d-block text-muted">{{ $item['loss_incidents'] }} incidents</small>
+                            <div class="progress mb-1" style="height: 6px;">
+                                <div class="progress-bar bg-warning"
+                                    style="width: {{ ($item->total_requested / ($topItemsAnalysis['most_requested']->first()->total_requested ?: 1)) * 100 }}%">
                                 </div>
                             </div>
-                        @empty
-                            <p class="text-muted text-center">No loss data available</p>
-                        @endforelse
-                    </div>
+                            <small class="text-muted">{{ number_format($item->total_requested) }} {{ $item->unit }}
+                                requested</small>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -715,581 +625,773 @@
         </div>
     </div>
 
+@endsection
 
-    <div class="modal fade" id="supplyInsightsModal" tabindex="-1" aria-labelledby="supplyInsightsModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-        @endsection
+@section('styles')
+    <style>
+        /* Custom Color Variables */
+        :root {
+            --primary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #0ea5e9;
+            --purple-color: #8b5cf6;
+            --dark-color: #1f2937;
+        }
 
-        @section('styles')
-            <style>
-                /* Global Styles */
-                body {
-                    background-color: #f8f9fa;
-                }
+        /* Legend dots */
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
 
-                /* Card Styles */
-                .card {
-                    border-radius: 12px;
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
-                }
+        /* Icon circles */
+        .icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
 
-                .card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
-                }
+        /* Service Navigation */
+        .service-nav {
+            background: #f8fafc;
+            padding: 0.5rem;
+            border-radius: 50px;
+            display: inline-flex;
+        }
 
-                /* Metric Cards */
-                .metric-card .card-body {
-                    border-radius: 12px;
-                    position: relative;
-                    overflow: hidden;
-                }
+        .service-nav .nav-link {
+            border-radius: 30px;
+            padding: 0.5rem 1.25rem;
+            margin: 0 0.25rem;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.3s ease;
+            border: none;
+        }
 
-                .metric-label {
-                    font-size: 0.875rem;
-                    opacity: 0.9;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
+        .service-nav .nav-link:hover {
+            color: var(--primary-color);
+            background: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+        }
 
-                .metric-value {
-                    font-size: 2.5rem;
-                    font-weight: 700;
-                    line-height: 1;
-                }
+        .service-nav .nav-link.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
 
-                .metric-subtitle {
-                    opacity: 0.85;
-                    font-size: 0.875rem;
-                }
+        /* Metric Cards */
+        .metric-card {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+        }
 
-                .metric-icon {
-                    opacity: 0.2;
-                    position: absolute;
-                    right: 20px;
-                    top: 50%;
-                    transform: translateY(-50%);
-                }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+        }
 
-                /* Status Items */
-                .status-item {
-                    transition: all 0.2s ease;
-                    background-color: #f8f9fa;
-                }
+        .metric-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-                .status-item:hover {
-                    background-color: #e9ecef;
-                    transform: translateX(5px);
-                }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
 
-                /* Transaction Items */
-                .transaction-item {
-                    transition: all 0.2s ease;
-                    background-color: #f8f9fa;
-                }
+        .metric-icon {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.5rem;
+        }
 
-                .transaction-item:hover {
-                    background-color: #e9ecef;
-                    transform: translateX(5px);
-                }
+        /* Soft Background Colors */
+        .bg-primary-soft {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
 
-                /* Loss Items */
-                .loss-item {
-                    transition: all 0.2s ease;
-                    background-color: #f8f9fa;
-                    border-left: 3px solid #ef4444;
-                }
+        .bg-success-soft {
+            background-color: rgba(16, 185, 129, 0.1);
+        }
 
-                .loss-item:hover {
-                    background-color: #fee2e2;
-                    transform: translateX(5px);
-                }
+        .bg-warning-soft {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
 
-                /* Item Cards */
-                .item-card {
-                    background: linear-gradient(90deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.02) 100%);
-                    border-left: 4px solid #3b82f6;
-                    transition: all 0.2s ease;
-                }
+        .bg-danger-soft {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
 
-                .item-card:hover {
-                    background: linear-gradient(90deg, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0.04) 100%);
-                    transform: translateX(5px);
-                }
+        .bg-info-soft {
+            background-color: rgba(14, 165, 233, 0.1);
+        }
 
-                /* Progress Bars */
-                .progress {
-                    border-radius: 10px;
-                    background-color: rgba(0, 0, 0, 0.05);
-                }
+        .bg-purple-soft {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
 
-                .progress-bar {
-                    border-radius: 10px;
-                    transition: width 0.6s ease;
-                }
+        .text-purple {
+            color: var(--purple-color);
+        }
 
-                /* Table Styles */
-                .table {
-                    font-size: 0.9rem;
-                }
+        /* Badge Soft Colors */
+        .badge-success-soft {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
 
-                .table thead th {
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    font-size: 0.75rem;
-                    letter-spacing: 0.5px;
-                    color: #6b7280;
-                    border-bottom: 2px solid #e5e7eb;
-                }
+        .badge-primary-soft {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary-color);
+        }
 
-                .table tbody tr {
-                    transition: all 0.2s ease;
-                }
+        .badge-warning-soft {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
 
-                .table tbody tr:hover {
-                    background-color: #f9fafb;
-                    transform: scale(1.01);
-                }
+        .badge-danger-soft {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
 
-                /* Navigation Pills */
-                .nav-pills .nav-link {
-                    border-radius: 25px;
-                    transition: all 0.3s ease;
-                    padding: 0.5rem 1.25rem;
-                    font-weight: 500;
-                }
+        .badge-secondary-soft {
+            background-color: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
 
-                .nav-pills .nav-link:hover:not(.active) {
-                    background-color: #f3f4f6;
-                    transform: translateY(-2px);
-                }
+        .badge-purple-soft {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: var(--purple-color);
+        }
 
-                .nav-pills .nav-link.active {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                }
+        .text-secondary {
+            color: #6b7280;
+        }
 
-                /* Card Headers */
-                .card-header {
-                    padding: 1.25rem 1.5rem;
-                }
+        /* Card Styles */
+        .card {
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
 
-                .card-header h5 {
-                    font-size: 1.1rem;
-                }
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+            padding: 1.25rem;
+        }
 
-                /* Badge Styles */
-                .badge {
-                    font-weight: 600;
-                    padding: 0.4em 0.8em;
-                    font-size: 0.875em;
-                }
+        /* Status Legend */
+        .status-legends .legend-item {
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
 
-                /* Chart Container */
-                canvas {
-                    max-height: 350px;
-                }
+        .status-legends .legend-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
 
-                /* Insight Cards */
-                .insight-card {
-                    border: 1px solid rgba(0, 0, 0, 0.05);
-                }
+        /* Progress Bars */
+        .progress {
+            border-radius: 10px;
+            background-color: #f1f5f9;
+        }
 
-                .insight-card ul li {
-                    line-height: 1.6;
-                }
+        .progress-bar {
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
 
-                /* Modal Styles */
-                .modal-content {
-                    border-radius: 15px;
-                }
+        /* Transaction Items */
+        .transaction-item {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
 
-                .modal-header {
-                    border-radius: 15px 15px 0 0;
-                }
+        .transaction-item:hover {
+            border-left-color: var(--primary-color);
+            transform: translateX(5px);
+            background: #f1f5f9 !important;
+        }
 
-                /* Metric Item Styles */
-                .metric-item .progress {
-                    border-radius: 10px;
-                }
+        /* Item Cards */
+        .item-card {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
 
-                /* Text Colors */
-                .text-purple {
-                    color: #8b5cf6 !important;
-                }
+        .item-card:hover {
+            border-left-color: var(--warning-color);
+            transform: translateX(5px);
+            background: #f1f5f9 !important;
+        }
 
-                /* Scrollbar Styling */
-                .loss-items-list::-webkit-scrollbar {
-                    width: 6px;
-                }
+        /* Table Styles */
+        .table-hover tbody tr {
+            transition: all 0.2s ease;
+        }
 
-                .loss-items-list::-webkit-scrollbar-track {
-                    background: #f1f1f1;
-                    border-radius: 10px;
-                }
+        .table-hover tbody tr:hover {
+            background-color: #f8fafc;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
 
-                .loss-items-list::-webkit-scrollbar-thumb {
-                    background: #888;
-                    border-radius: 10px;
-                }
+        /* Alert Soft */
+        .alert-info-soft {
+            background-color: rgba(14, 165, 233, 0.1);
+            color: #0e7490;
+        }
 
-                .loss-items-list::-webkit-scrollbar-thumb:hover {
-                    background: #555;
-                }
+        /* Chart Containers */
+        .status-chart-container {
+            position: relative;
+            height: 220px;
+        }
 
-                /* Responsive Adjustments */
-                @media (max-width: 768px) {
-                    .metric-value {
-                        font-size: 2rem;
+        .transaction-chart-container {
+            position: relative;
+            height: 180px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .service-nav {
+                flex-wrap: wrap;
+                border-radius: 12px;
+                padding: 0.25rem;
+            }
+
+            .service-nav .nav-link {
+                font-size: 0.875rem;
+                padding: 0.5rem 0.75rem;
+                margin: 0.25rem;
+            }
+
+            .metric-value {
+                font-size: 1.5rem;
+            }
+
+            .metric-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeInUp 0.5s ease;
+        }
+
+        /* Scrollbar Styling */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Focus States */
+        .btn:focus,
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+@endsection
+
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chart instances
+            let chartInstances = {};
+
+            // Chart.js default configuration
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            // Initialize Status Chart
+            initializeStatusChart();
+
+            // Initialize Trends Chart
+            initializeTrendsChart();
+
+            // Initialize Transaction Chart
+            initializeTransactionChart();
+
+            /**
+             * Supply Status Distribution Doughnut Chart
+             */
+            function initializeStatusChart() {
+                const ctx = document.getElementById('supplyStatusChart');
+                if (!ctx) return;
+
+                const statusData = [
+                    @foreach ($supplyLevelAnalysis['counts'] as $count)
+                        {{ $count }},
+                    @endforeach
+                ];
+                const statusLabels = [
+                    @foreach ($supplyLevelAnalysis['counts'] as $status => $count)
+                        '{{ ucfirst($status) }}',
+                    @endforeach
+                ];
+
+                // Define status colors
+                const statusColors = [];
+                const statusNames = [
+                    @foreach ($supplyLevelAnalysis['counts'] as $status => $count)
+                        '{{ $status }}',
+                    @endforeach
+                ];
+
+                statusNames.forEach(status => {
+                    switch (status) {
+                        case 'critical':
+                            statusColors.push('#ef4444'); // Red
+                            break;
+                        case 'low':
+                            statusColors.push('#f59e0b'); // Amber
+                            break;
+                        case 'adequate':
+                            statusColors.push('#6b7280'); // Gray
+                            break;
+                        case 'optimal':
+                            statusColors.push('#10b981'); // Green
+                            break;
+                        case 'overstocked':
+                            statusColors.push('#06b6d4'); // Cyan
+                            break;
+                        default:
+                            statusColors.push('#64748b'); // Default gray
                     }
+                });
 
-                    .metric-label {
-                        font-size: 0.75rem;
-                    }
-
-                    .nav-pills .nav-link {
-                        padding: 0.4rem 0.8rem;
-                        font-size: 0.875rem;
-                    }
-
-                    .table {
-                        font-size: 0.8rem;
-                    }
-
-                    .item-card {
-                        margin-bottom: 0.75rem !important;
-                    }
-                }
-
-                @media (max-width: 576px) {
-                    .card-body {
-                        padding: 1rem;
-                    }
-
-                    .metric-icon {
-                        display: none;
-                    }
-                }
-
-                /* Animation */
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(20px);
-                    }
-
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-
-                .card {
-                    animation: fadeInUp 0.5s ease-out;
-                }
-            </style>
-        @endsection
-
-        @section('scripts')
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Chart.js Global Configuration
-                    Chart.defaults.font.family = "'Inter', 'Segoe UI', 'Roboto', sans-serif";
-                    Chart.defaults.color = '#6b7280';
-                    Chart.defaults.plugins.legend.labels.usePointStyle = true;
-                    Chart.defaults.plugins.legend.labels.padding = 15;
-
-                    // Supply Status Distribution Donut Chart
-                    const statusCtx = document.getElementById('supplyStatusChart').getContext('2d');
-                    new Chart(statusCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: [
-                                @foreach ($supplyLevelAnalysis['counts'] as $status => $count)
-                                    '{{ ucfirst($status) }}',
-                                @endforeach
-                            ],
-                            datasets: [{
-                                data: [
-                                    @foreach ($supplyLevelAnalysis['counts'] as $count)
-                                        {{ $count }},
-                                    @endforeach
-                                ],
-                                backgroundColor: [
-                                    '#ef4444', // critical - red
-                                    '#f59e0b', // low - yellow
-                                    '#6b7280', // adequate - gray
-                                    '#10b981', // optimal - green
-                                    '#06b6d4' // overstocked - cyan
-                                ],
-                                borderWidth: 4,
-                                borderColor: '#fff',
-                                hoverOffset: 8
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            aspectRatio: 1.2,
-                            plugins: {
-                                legend: {
-                                    display: false
+                chartInstances.statusChart = new Chart(ctx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: statusLabels,
+                        datasets: [{
+                            data: statusData,
+                            backgroundColor: statusColors,
+                            borderWidth: 3,
+                            borderColor: '#ffffff',
+                            cutout: '65%',
+                            spacing: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                cornerRadius: 8,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
                                 },
-                                tooltip: {
-                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                    padding: 12,
-                                    cornerRadius: 8,
-                                    titleFont: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    },
-                                    bodyFont: {
-                                        size: 13
-                                    },
-                                    callbacks: {
-                                        label: function(context) {
-                                            let label = context.label || '';
-                                            let value = context.parsed || 0;
-                                            let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                            let percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                            return label + ': ' + value + ' (' + percentage + '%)';
-                                        }
+                                bodyFont: {
+                                    size: 13
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
                                     }
                                 }
-                            },
-                            cutout: '65%'
-                        }
-                    });
-
-                    // Supply Trends Over Time Chart
-                    const trendsCtx = document.getElementById('supplyTrendsChart').getContext('2d');
-                    new Chart(trendsCtx, {
-                        type: 'line',
-                        data: {
-                            labels: [
-                                @foreach ($supplyTrends as $trend)
-                                    '{{ date('M Y', strtotime($trend->month . '-01')) }}',
-                                @endforeach
-                            ],
-                            datasets: [{
-                                    label: 'Supplies Added',
-                                    data: [
-                                        @foreach ($supplyTrends as $trend)
-                                            {{ $trend->supplies_added }},
-                                        @endforeach
-                                    ],
-                                    borderColor: '#10b981',
-                                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                                    tension: 0.4,
-                                    fill: true,
-                                    pointRadius: 5,
-                                    pointHoverRadius: 7,
-                                    pointBackgroundColor: '#10b981',
-                                    pointBorderColor: '#fff',
-                                    pointBorderWidth: 2
-                                },
-                                {
-                                    label: 'Supplies Deducted',
-                                    data: [
-                                        @foreach ($supplyTrends as $trend)
-                                            {{ $trend->supplies_deducted }},
-                                        @endforeach
-                                    ],
-                                    borderColor: '#3b82f6',
-                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                    tension: 0.4,
-                                    fill: true,
-                                    pointRadius: 5,
-                                    pointHoverRadius: 7,
-                                    pointBackgroundColor: '#3b82f6',
-                                    pointBorderColor: '#fff',
-                                    pointBorderWidth: 2
-                                },
-                                {
-                                    label: 'Supplies Lost',
-                                    data: [
-                                        @foreach ($supplyTrends as $trend)
-                                            {{ $trend->supplies_lost }},
-                                        @endforeach
-                                    ],
-                                    borderColor: '#ef4444',
-                                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                                    tension: 0.4,
-                                    fill: true,
-                                    pointRadius: 5,
-                                    pointHoverRadius: 7,
-                                    pointBackgroundColor: '#ef4444',
-                                    pointBorderColor: '#fff',
-                                    pointBorderWidth: 2
-                                }
-                            ]
+                            }
                         },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            aspectRatio: 2.5,
-                            interaction: {
+                        animation: {
+                            animateRotate: true,
+                            duration: 1000
+                        }
+                    },
+                    plugins: [{
+                        id: 'centerText',
+                        beforeDraw: function(chart) {
+                            const ctx = chart.ctx;
+                            const chartArea = chart.chartArea;
+                            const centerX = (chartArea.left + chartArea.right) / 2;
+                            const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+                            // Get the total
+                            const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
+                            0);
+
+                            // Draw center text
+                            ctx.save();
+                            ctx.font = 'bold 24px Inter';
+                            ctx.fillStyle = '#1f2937';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(total.toLocaleString(), centerX, centerY - 10);
+
+                            ctx.font = '14px Inter';
+                            ctx.fillStyle = '#64748b';
+                            ctx.fillText('Total Items', centerX, centerY + 15);
+                            ctx.restore();
+                        }
+                    }]
+                });
+            }
+
+            /**
+             * Supply Trends Line Chart
+             */
+            function initializeTrendsChart() {
+                const ctx = document.getElementById('supplyTrendsChart');
+                if (!ctx) return;
+
+                chartInstances.trendsChart = new Chart(ctx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: [
+                            @foreach ($supplyTrends as $trend)
+                                '{{ date('M Y', strtotime($trend->month . '-01')) }}',
+                            @endforeach
+                        ],
+                        datasets: [{
+                                label: 'Supplies Added',
+                                data: [
+                                    @foreach ($supplyTrends as $trend)
+                                        {{ $trend->supplies_added }},
+                                    @endforeach
+                                ],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#10b981',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointHoverBorderWidth: 3
+                            },
+                            {
+                                label: 'Supplies Deducted',
+                                data: [
+                                    @foreach ($supplyTrends as $trend)
+                                        {{ $trend->supplies_deducted }},
+                                    @endforeach
+                                ],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#3b82f6',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointHoverBorderWidth: 3
+                            },
+                            {
+                                label: 'Supplies Lost',
+                                data: [
+                                    @foreach ($supplyTrends as $trend)
+                                        {{ $trend->supplies_lost }},
+                                    @endforeach
+                                ],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#ef4444',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointHoverBorderWidth: 3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    },
+                                    color: '#64748b'
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    },
+                                    color: '#64748b',
+                                    padding: 10
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                align: 'end',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: {
+                                        size: 13,
+                                        weight: '500'
+                                    },
+                                    color: '#64748b'
+                                }
+                            },
+                            tooltip: {
                                 mode: 'index',
                                 intersect: false,
-                            },
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                    labels: {
-                                        padding: 20,
-                                        font: {
-                                            size: 12,
-                                            weight: '600'
-                                        }
-                                    }
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: 'white',
+                                bodyColor: 'white',
+                                borderColor: 'rgba(255, 255, 255, 0.1)',
+                                borderWidth: 1,
+                                cornerRadius: 8,
+                                padding: 12,
+                                displayColors: true,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
                                 },
-                                tooltip: {
-                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                    padding: 12,
-                                    cornerRadius: 8,
-                                    titleFont: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    },
-                                    bodyFont: {
-                                        size: 13
-                                    }
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Quantity',
-                                        font: {
-                                            size: 12,
-                                            weight: '600'
-                                        }
-                                    },
-                                    grid: {
-                                        color: 'rgba(0, 0, 0, 0.05)'
-                                    }
-                                },
-                                x: {
-                                    grid: {
-                                        display: false
-                                    },
-                                    title: {
-                                        display: true,
-                                        text: 'Month',
-                                        font: {
-                                            size: 12,
-                                            weight: '600'
-                                        }
-                                    }
+                                bodyFont: {
+                                    size: 13
                                 }
                             }
                         }
-                    });
+                    }
+                });
+            }
 
-                    // Transaction Analysis Chart
-                    const transactionCtx = document.getElementById('transactionChart').getContext('2d');
-                    new Chart(transactionCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: [
+            /**
+             * Transaction Analysis Bar Chart
+             */
+            function initializeTransactionChart() {
+                const ctx = document.getElementById('transactionChart');
+                if (!ctx) return;
+
+                chartInstances.transactionChart = new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: [
+                            @foreach ($transactionAnalysis['transactions'] as $transaction)
+                                '{{ ucfirst(str_replace('_', ' ', $transaction->transaction_type)) }}',
+                            @endforeach
+                        ],
+                        datasets: [{
+                            label: 'Total Quantity',
+                            data: [
                                 @foreach ($transactionAnalysis['transactions'] as $transaction)
-                                    '{{ ucfirst(str_replace('_', ' ', $transaction->transaction_type)) }}',
+                                    {{ $transaction->total_quantity }},
                                 @endforeach
                             ],
-                            datasets: [{
-                                label: 'Total Quantity',
-                                data: [
-                                    @foreach ($transactionAnalysis['transactions'] as $transaction)
-                                        {{ $transaction->total_quantity }},
-                                    @endforeach
-                                ],
-                                backgroundColor: [
-                                    'rgba(16, 185, 129, 0.8)',
-                                    'rgba(59, 130, 246, 0.8)',
-                                    'rgba(239, 68, 68, 0.8)',
-                                    'rgba(245, 158, 11, 0.8)',
-                                    'rgba(139, 92, 246, 0.8)',
-                                    'rgba(6, 182, 212, 0.8)'
-                                ],
-                                borderColor: [
-                                    '#10b981',
-                                    '#3b82f6',
-                                    '#ef4444',
-                                    '#f59e0b',
-                                    '#8b5cf6',
-                                    '#06b6d4'
-                                ],
-                                borderWidth: 2,
-                                borderRadius: 8,
-                                barThickness: 40
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            aspectRatio: 2,
-                            plugins: {
-                                legend: {
-                                    display: false
+                            backgroundColor: [
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(59, 130, 246, 0.8)',
+                                'rgba(239, 68, 68, 0.8)',
+                                'rgba(245, 158, 11, 0.8)',
+                                'rgba(139, 92, 246, 0.8)',
+                                'rgba(6, 182, 212, 0.8)'
+                            ],
+                            borderColor: [
+                                '#10b981',
+                                '#3b82f6',
+                                '#ef4444',
+                                '#f59e0b',
+                                '#8b5cf6',
+                                '#06b6d4'
+                            ],
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            barThickness: 30
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                cornerRadius: 8,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
                                 },
-                                tooltip: {
-                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                    padding: 12,
-                                    cornerRadius: 8,
-                                    titleFont: {
-                                        size: 14,
-                                        weight: 'bold'
+                                bodyFont: {
+                                    size: 13
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
                                     },
-                                    bodyFont: {
-                                        size: 13
-                                    },
-                                    callbacks: {
-                                        afterLabel: function(context) {
-                                            let index = context.dataIndex;
-                                            let transactions = [
-                                                @foreach ($transactionAnalysis['transactions'] as $transaction)
-                                                    {
-                                                        items: {{ $transaction->unique_items }},
-                                                        percentage: {{ $transactionAnalysis['percentages'][$transaction->transaction_type] ?? 0 }}
-                                                    },
-                                                @endforeach
-                                            ];
-                                            return [
-                                                'Items: ' + transactions[index].items,
-                                                'Percentage: ' + transactions[index].percentage + '%'
-                                            ];
-                                        }
-                                    }
+                                    color: '#64748b',
+                                    padding: 10
                                 }
                             },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Total Quantity',
-                                        font: {
-                                            size: 12,
-                                            weight: '600'
-                                        }
-                                    },
-                                    grid: {
-                                        color: 'rgba(0, 0, 0, 0.05)'
-                                    }
+                            x: {
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
                                 },
-                                x: {
-                                    grid: {
-                                        display: false
-                                    }
+                                ticks: {
+                                    font: {
+                                        size: 11,
+                                        weight: '500'
+                                    },
+                                    color: '#64748b'
                                 }
                             }
                         }
-                    });
+                    }
                 });
-            </script>
-        @endsection
+            }
+
+            /**
+             * Cleanup function
+             */
+            window.destroyCharts = function() {
+                Object.values(chartInstances).forEach(chart => {
+                    if (chart) {
+                        chart.destroy();
+                    }
+                });
+                chartInstances = {};
+            };
+
+            /**
+             * Add smooth animations on scroll
+             */
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+
+            /**
+             * Add loading state to form submission
+             */
+            const filterForm = document.querySelector('form[action*="supply-management"]');
+            if (filterForm) {
+                filterForm.addEventListener('submit', function() {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                        submitBtn.disabled = true;
+                    }
+                });
+            }
+
+            /**
+             * Add animation to metric cards
+             */
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+@endsection

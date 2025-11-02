@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             BarangaySeeder::class,
             FishrRequestSeeder::class,
             RequestCategorySeeder::class,
+            SupplyManagementSeeder::class,  // Run before SeedlingRequestSeeder to ensure supplies are available
             SeedlingRequestSeeder::class,
             BoatrRequestSeeder::class,
             RsbsaApplicationSeeder::class,
