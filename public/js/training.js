@@ -529,7 +529,7 @@ function hideAllMainSections() {
 function showAllMainSections() {
     const sections = [
         'home',
-        '.announcement',
+        'events',
         'services',
         'how-it-works',
         '.help-section'

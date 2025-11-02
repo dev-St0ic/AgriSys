@@ -236,6 +236,27 @@ function showTab(tabId, event) {
     }
 }
 
+
+/**
+ * Show all main page sections
+ */
+function showAllMainSections() {
+    const sections = [
+        'home',
+        'events',
+        'services',
+        'how-it-works',
+        '.help-section'
+    ];
+
+    sections.forEach(selector => {
+        const element = selector.startsWith('.')
+            ? document.querySelector(selector)
+            : document.getElementById(selector);
+        if (element) element.style.display = 'block';
+    });
+}
+
 // ==============================================
 // FORM VALIDATION
 // ==============================================

@@ -596,6 +596,27 @@ function submitSeedlingsRequest(event) {
     });
 }
 
+
+/**
+ * Show all main page sections
+ */
+function showAllMainSections() {
+    const sections = [
+        'home',
+        'events',
+        'services',
+        'how-it-works',
+        '.help-section'
+    ];
+
+    sections.forEach(selector => {
+        const element = selector.startsWith('.')
+            ? document.querySelector(selector)
+            : document.getElementById(selector);
+        if (element) element.style.display = 'block';
+    });
+}
+
 // ==============================================
 // RESET FUNCTIONS
 // ==============================================
@@ -694,6 +715,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize category show more/less
     setupCategoryToggle();
 });
+
 
 // ==============================================
 // GLOBAL EXPORTS
