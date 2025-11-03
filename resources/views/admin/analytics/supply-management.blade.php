@@ -343,6 +343,48 @@
                             </small>
                         </div>
                     </div>
+
+                    <!-- Recently Fulfilled Items -->
+                    @if ($recentlyFulfilledItems->count() > 0)
+                        <div class="mt-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-clock me-1"></i>Recently Fulfilled
+                            </h6>
+                            <div class="recently-fulfilled-list">
+                                @foreach ($recentlyFulfilledItems->take(6) as $item)
+                                    <div
+                                        class="d-flex justify-content-between align-items-center mb-2 py-2 px-2 rounded bg-light">
+                                        <div class="flex-fill">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <small
+                                                    class="text-dark fw-bold me-2">{{ Str::limit($item['item_name'], 18) }}</small>
+                                                <span
+                                                    class="badge badge-{{ $item['is_fully_fulfilled'] ? 'success' : 'warning' }}-soft"
+                                                    style="font-size: 0.65rem;">
+                                                    {{ $item['fulfillment_percentage'] }}%
+                                                </span>
+                                            </div>
+                                            <small class="text-muted" style="font-size: 0.7rem;">
+                                                {{ $item['approved_quantity'] }}/{{ $item['requested_quantity'] }} •
+                                                {{ Str::limit($item['barangay'], 12) }}
+                                            </small>
+                                        </div>
+                                        <small class="text-muted ms-2" style="font-size: 0.65rem;">
+                                            {{ \Carbon\Carbon::parse($item['reviewed_at'])->format('M d') }}
+                                        </small>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <div class="mt-3 text-center">
+                            <div class="py-4">
+                                <i class="fas fa-inbox text-muted" style="font-size: 2rem;"></i>
+                                <p class="text-muted mt-2 mb-0">No recent fulfillments</p>
+                                <small class="text-secondary">Items will appear here when requests are fulfilled</small>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -845,6 +887,18 @@
             background: #f1f5f9 !important;
         }
 
+        /* Recently Fulfilled Items */
+        .recently-fulfilled-list .bg-light {
+            transition: all 0.2s ease;
+            border-left: 2px solid transparent;
+        }
+
+        .recently-fulfilled-list .bg-light:hover {
+            background: #f8fafc !important;
+            border-left-color: var(--success-color);
+            transform: translateX(2px);
+        }
+
         /* Table Styles */
         .table-hover tbody tr {
             transition: all 0.2s ease;
@@ -1050,7 +1104,9 @@
                                         return `${label}: ${value} (${percentage}%)`;
                                     }
                                 }
-                            }
+                            },
+                            // Custom plugin to display percentages inside the doughnut
+                            datalabels: false
                         },
                         animation: {
                             animateRotate: true,
@@ -1067,7 +1123,7 @@
 
                             // Get the total
                             const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
-                            0);
+                                0);
 
                             // Draw center text
                             ctx.save();
@@ -1080,6 +1136,58 @@
                             ctx.font = '14px Inter';
                             ctx.fillStyle = '#64748b';
                             ctx.fillText('Total Items', centerX, centerY + 15);
+                            ctx.restore();
+                        },
+                        afterDraw: function(chart) {
+                            const ctx = chart.ctx;
+                            const meta = chart.getDatasetMeta(0);
+                            const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
+                                0);
+
+                            ctx.save();
+                            ctx.font = 'bold 14px Inter, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+
+                            chart.data.datasets[0].data.forEach((value, index) => {
+                                if (value > 0) {
+                                    const percentage = ((value / total) * 100).toFixed(
+                                        1);
+
+                                    // Only show percentage if slice is large enough
+                                    if (percentage > 5) {
+                                        const element = meta.data[index];
+
+                                        // Calculate the middle angle of the segment
+                                        const startAngle = element.startAngle;
+                                        const endAngle = element.endAngle;
+                                        const midAngle = (startAngle + endAngle) / 2;
+
+                                        // Calculate position based on the segment's center point
+                                        const chartArea = chart.chartArea;
+                                        const centerX = (chartArea.left + chartArea
+                                            .right) / 2;
+                                        const centerY = (chartArea.top + chartArea
+                                            .bottom) / 2;
+
+                                        // Position the text at 70% of the radius from center
+                                        const radius = (element.outerRadius - element
+                                                .innerRadius) * 0.7 + element
+                                            .innerRadius;
+                                        const x = centerX + Math.cos(midAngle) * radius;
+                                        const y = centerY + Math.sin(midAngle) * radius;
+
+                                        const text = `${percentage}%`;
+
+                                        ctx.fillStyle = '#ffffff';
+                                        ctx.strokeStyle = '#000000';
+                                        ctx.lineWidth = 3;
+                                        ctx.strokeText(text, x, y);
+                                        ctx.fillText(text, x, y);
+                                    }
+                                }
+                            });
+
                             ctx.restore();
                         }
                     }]

@@ -221,44 +221,44 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
 });
 
     // ==============================================
-    // ACTIVITY LOGS 
+    // ACTIVITY LOGS
     // ==============================================
 // Activity Logs Routes (Admin only)
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Activity Logs Routes - Specific routes BEFORE generic ones
-    
+
     // Export route (must be before /{id})
     Route::get('activity-logs/export', [ActivityLogController::class, 'export'])
         ->name('admin.activity-logs.export');
-    
+
     // Audit summary route (must be before /{id})
     Route::get('activity-logs/audit-summary', [ActivityLogController::class, 'auditSummary'])
         ->name('admin.activity-logs.audit-summary');
-    
+
     // Compliance report route (must be before /{id})
     Route::get('activity-logs/compliance-report', [ActivityLogController::class, 'complianceReport'])
         ->name('admin.activity-logs.compliance-report');
-    
+
     // Model logs route (must be before /{id})
     Route::get('activity-logs/model/{modelType}/{modelId}', [ActivityLogController::class, 'forModel'])
         ->name('admin.activity-logs.for-model');
-    
+
     // User logs route (must be before /{id})
     Route::get('activity-logs/user/{userId}', [ActivityLogController::class, 'byUser'])
         ->name('admin.activity-logs.by-user');
-    
+
     // Archive route (POST)
     Route::post('activity-logs/archive', [ActivityLogController::class, 'archiveOld'])
         ->name('admin.activity-logs.archive');
-    
+
     // Clear route (DELETE)
     Route::delete('activity-logs/clear', [ActivityLogController::class, 'clearOld'])
         ->name('admin.activity-logs.clear');
-    
+
     // List all activity logs (must be LAST before /{id})
     Route::get('activity-logs', [ActivityLogController::class, 'index'])
         ->name('admin.activity-logs.index');
-    
+
     // View specific log (MUST BE LAST - generic catch-all)
     Route::get('activity-logs/{id}', [ActivityLogController::class, 'show'])
         ->name('admin.activity-logs.show');
@@ -269,7 +269,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::prefix('admin/analytics')->name('admin.analytics.')->group(function () {
         // SEEDLING ANALYTICS - EXISTING
         Route::get('/seedlings', [SeedlingAnalyticsController::class, 'index'])->name('seedlings');
-        // Route::get('/seedlings/export', [SeedlingAnalyticsController::class, 'export'])->name('seedlings.export');
+        Route::get('/seedlings/export', [SeedlingAnalyticsController::class, 'export'])->name('seedlings.export');
 
 
          // RSBSA ANALYTICS - NEW SECTION

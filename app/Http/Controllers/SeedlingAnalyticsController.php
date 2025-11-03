@@ -24,21 +24,13 @@ class SeedlingAnalyticsController extends Controller
     public function index(Request $request)
     {
         try {
-            // Get filter type and preset
-            $filterType = $request->get('filter_type', 'preset');
-            $datePreset = $request->get('date_preset', 'this_year'); // Changed from 'this_month' to 'this_year'
+            // Simple date range filter like other analytics modules
+            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+            $endDate = $request->get('end_date', now()->format('Y-m-d'));
 
-            // Calculate dates based on filter type
-            if ($filterType === 'preset') {
-                [$startDate, $endDate] = $this->calculatePresetDates($datePreset);
-            } else {
-                $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
-                $endDate = $request->get('end_date', now()->format('Y-m-d'));
-
-                // Validate dates
-                $startDate = Carbon::parse($startDate)->format('Y-m-d');
-                $endDate = Carbon::parse($endDate)->format('Y-m-d');
-            }
+            // Validate dates
+            $startDate = Carbon::parse($startDate)->format('Y-m-d');
+            $endDate = Carbon::parse($endDate)->format('Y-m-d');
 
             // Base query with date range
             $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
@@ -48,7 +40,7 @@ class SeedlingAnalyticsController extends Controller
 
             // Check if we have sufficient data for meaningful analytics
             if ($overview['total_requests'] === 0) {
-                session()->flash('warning', 'No seedling requests found for the selected date range. Try expanding the date range or selecting "All Time" to see available data.');
+                session()->flash('warning', 'No seedling requests found for the selected date range. Try expanding the date range to see available data.');
             } elseif ($overview['total_requests'] < 5) {
                 session()->flash('info', 'Limited data available for the selected period (' . $overview['total_requests'] . ' requests). Consider expanding the date range for more comprehensive analytics.');
             }
@@ -98,10 +90,10 @@ class SeedlingAnalyticsController extends Controller
             // 16. Geographic Distribution Heat Map Data
             $geoDistribution = $this->getGeographicDistribution(clone $baseQuery);
 
-            // NEW: 17. Supply Alerts
+            // 17. Supply Alerts
             $supplyAlerts = $this->getSupplyAlerts();
 
-            // NEW: 18. Rejection Analysis
+            // 18. Rejection Analysis
             $rejectionAnalysis = $this->getRejectionAnalysis(clone $baseQuery);
 
             return view('admin.analytics.seedlings', compact(
@@ -124,15 +116,13 @@ class SeedlingAnalyticsController extends Controller
                 'supplyAlerts',
                 'rejectionAnalysis',
                 'startDate',
-                'endDate',
-                'filterType',
-                'datePreset'
+                'endDate'
             ));
         } catch (\Exception $e) {
-            Log::error('Analytics Error: ' . $e->getMessage(), [
+            Log::error('Seedling Analytics Error: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
-            return back()->with('error', 'Error loading analytics data. Please try again.');
+            return back()->with('error', 'Error loading seedling analytics data. Please try again.');
         }
     }
 
@@ -946,5 +936,59 @@ class SeedlingAnalyticsController extends Controller
             'change_percentage' => 0,
             'fulfillment_rate' => 0
         ];
+    }
+
+    /**
+     * Export analytics data
+     */
+    public function export(Request $request)
+    {
+        try {
+            $startDate = $request->get('start_date', now()->subMonths(6)->format('Y-m-d'));
+            $endDate = $request->get('end_date', now()->format('Y-m-d'));
+
+            // Validate dates
+            $startDate = Carbon::parse($startDate)->format('Y-m-d');
+            $endDate = Carbon::parse($endDate)->format('Y-m-d');
+
+            $baseQuery = SeedlingRequest::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+
+            $data = [
+                'export_info' => [
+                    'generated_at' => now()->format('Y-m-d H:i:s'),
+                    'date_range' => [
+                        'start' => $startDate,
+                        'end' => $endDate
+                    ],
+                    'generated_by' => auth()->user()->name ?? 'System'
+                ],
+                'overview' => $this->getOverviewStatistics(clone $baseQuery, $startDate, $endDate),
+                'status_analysis' => $this->getStatusAnalysis(clone $baseQuery),
+                'monthly_trends' => $this->getMonthlyTrends($startDate, $endDate)->toArray(),
+                'barangay_analysis' => $this->getBarangayAnalysis(clone $baseQuery)->toArray(),
+                'category_analysis' => $this->getCategoryAnalysis(clone $baseQuery),
+                'top_items' => $this->getTopRequestedItems(clone $baseQuery)->toArray(),
+                'processing_time' => $this->getProcessingTimeAnalysis(clone $baseQuery),
+                'seasonal_analysis' => $this->getSeasonalAnalysis(clone $baseQuery),
+                'supply_impact' => $this->getSupplyImpactAnalysis(clone $baseQuery),
+                'supply_demand_analysis' => $this->getSupplyDemandAnalysis(clone $baseQuery),
+                'barangay_performance' => $this->getBarangayPerformanceScore($this->getBarangayAnalysis(clone $baseQuery))->toArray(),
+                'category_fulfillment' => $this->getCategoryFulfillmentRate(clone $baseQuery),
+                'request_velocity' => $this->getRequestVelocity($startDate, $endDate)->toArray(),
+                'geo_distribution' => $this->getGeographicDistribution(clone $baseQuery)->toArray(),
+                'supply_alerts' => $this->getSupplyAlerts()->toArray(),
+                'rejection_analysis' => $this->getRejectionAnalysis(clone $baseQuery)->toArray()
+            ];
+
+            $filename = 'seedling-analytics-' . $startDate . '-to-' . $endDate . '.json';
+
+            return response()->json($data, 200, [
+                'Content-Type' => 'application/json',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Seedling Analytics Export Error: ' . $e->getMessage());
+            return back()->with('error', 'Error exporting seedling analytics data: ' . $e->getMessage());
+        }
     }
 }
