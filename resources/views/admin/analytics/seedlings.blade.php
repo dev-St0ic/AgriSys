@@ -87,225 +87,42 @@
         </div>
     </div>
 
-    <!-- Improved Date Range Filter -->
+    <!-- Date Range Filter -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <form method="GET" action="{{ route('admin.analytics.seedlings') }}" id="filterForm">
-                        <div class="row g-3 align-items-end">
-                            <!-- Filter Type Selection -->
-                            <div class="col-lg-3 col-md-6">
-                                <label for="filter_type" class="form-label fw-semibold">
-                                    <i class="fas fa-filter me-1"></i>Filter Type
-                                </label>
-                                <select class="form-select" id="filter_type" name="filter_type">
-                                    <option value="preset" {{ $filterType === 'preset' ? 'selected' : '' }}>Quick Preset
-                                    </option>
-                                    <option value="custom" {{ $filterType === 'custom' ? 'selected' : '' }}>Custom Range
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Preset Options (shown when filter_type = preset) -->
-                            <div class="col-lg-3 col-md-6" id="preset_container"
-                                style="display: {{ $filterType === 'preset' ? 'block' : 'none' }};">
-                                <label for="date_preset" class="form-label fw-semibold">
-                                    <i class="fas fa-calendar-alt me-1"></i>Select Period
-                                </label>
-                                <select class="form-select" id="date_preset" name="date_preset">
-                                    <option value="today" {{ $datePreset === 'today' ? 'selected' : '' }}>Today</option>
-                                    <option value="yesterday" {{ $datePreset === 'yesterday' ? 'selected' : '' }}>Yesterday
-                                    </option>
-                                    <option value="last_7_days" {{ $datePreset === 'last_7_days' ? 'selected' : '' }}>Last
-                                        7 Days</option>
-                                    <option value="last_14_days" {{ $datePreset === 'last_14_days' ? 'selected' : '' }}>
-                                        Last 14 Days</option>
-                                    <option value="last_30_days" {{ $datePreset === 'last_30_days' ? 'selected' : '' }}>
-                                        Last 30 Days</option>
-                                    <option value="this_week" {{ $datePreset === 'this_week' ? 'selected' : '' }}>This Week
-                                    </option>
-                                    <option value="last_week" {{ $datePreset === 'last_week' ? 'selected' : '' }}>Last Week
-                                    </option>
-                                    <option value="this_month" {{ $datePreset === 'this_month' ? 'selected' : '' }}>This
-                                        Month</option>
-                                    <option value="last_month" {{ $datePreset === 'last_month' ? 'selected' : '' }}>Last
-                                        Month</option>
-                                    <option value="this_quarter" {{ $datePreset === 'this_quarter' ? 'selected' : '' }}>
-                                        This Quarter</option>
-                                    <option value="last_quarter" {{ $datePreset === 'last_quarter' ? 'selected' : '' }}>
-                                        Last Quarter</option>
-                                    <option value="this_year" {{ $datePreset === 'this_year' ? 'selected' : '' }}>This Year
-                                    </option>
-                                    <option value="last_year" {{ $datePreset === 'last_year' ? 'selected' : '' }}>Last Year
-                                    </option>
-                                    <option value="all_time" {{ $datePreset === 'all_time' ? 'selected' : '' }}>All Time
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Custom Date Range (shown when filter_type = custom) -->
-                            <div class="col-lg-6 col-md-12" id="custom_container"
-                                style="display: {{ $filterType === 'custom' ? 'block' : 'none' }};">
-                                <div class="row g-2">
-                                    <div class="col-md-6">
-                                        <label for="start_date" class="form-label fw-semibold">
-                                            <i class="fas fa-calendar-day me-1"></i>Start Date
-                                        </label>
-                                        <input type="date" class="form-control" id="start_date" name="start_date"
-                                            value="{{ $startDate }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="end_date" class="form-label fw-semibold">
-                                            <i class="fas fa-calendar-check me-1"></i>End Date
-                                        </label>
-                                        <input type="date" class="form-control" id="end_date" name="end_date"
-                                            value="{{ $endDate }}">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="col-lg-6 col-md-12">
-                                <div class="d-flex gap-2 flex-wrap">
-                                    <button type="submit" class="btn btn-primary px-4">
-                                        <i class="fas fa-search me-2"></i>Apply Filter
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary" id="resetBtn">
-                                        <i class="fas fa-redo me-2"></i>Reset
-                                    </button>
-                                </div>
-                            </div>
+                    <form method="GET" action="{{ route('admin.analytics.seedlings') }}" class="row g-3 align-items-end">
+                        <div class="col-lg-3 col-md-6">
+                            <label for="start_date" class="form-label fw-semibold">
+                                <i class="fas fa-calendar-alt text-primary me-1"></i>Start Date
+                            </label>
+                            <input type="date" class="form-control" id="start_date" name="start_date"
+                                value="{{ $startDate }}">
                         </div>
-
-                        <!-- Filter Summary Display -->
-                        <div class="mt-3 p-3 bg-light rounded" id="filter_summary">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle me-1"></i>
-                                <strong>Current Filter:</strong>
-                                <span id="filter_display">
-                                    @if ($filterType === 'preset')
-                                        {{ ucwords(str_replace('_', ' ', $datePreset)) }}
-                                    @else
-                                        Custom Range
-                                    @endif
-                                </span>
-                                <span class="mx-2">|</span>
-                                <span id="date_range_display">{{ date('M d, Y', strtotime($startDate)) }} -
-                                    {{ date('M d, Y', strtotime($endDate)) }}</span>
-                            </small>
+                        <div class="col-lg-3 col-md-6">
+                            <label for="end_date" class="form-label fw-semibold">
+                                <i class="fas fa-calendar-check text-primary me-1"></i>End Date
+                            </label>
+                            <input type="date" class="form-control" id="end_date" name="end_date"
+                                value="{{ $endDate }}">
+                        </div>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-filter me-2"></i>Apply Filter
+                                </button>
+                                <a href="{{ route('admin.analytics.seedlings.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
+                                    class="btn btn-success px-4">
+                                    <i class="fas fa-download me-2"></i>Export Data
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Alerts & Recommendations Section -->
-    @php
-        $hasAlerts = false;
-        $alerts = [];
-
-        // Check for low approval rate
-        if ($overview['approval_rate'] < 70) {
-            $hasAlerts = true;
-            $alerts[] = [
-                'type' => 'warning',
-                'icon' => 'fa-exclamation-triangle',
-                'title' => 'Low Approval Rate Alert',
-                'message' => "Only {$overview['approval_rate']}% of requests are approved. Review rejection reasons and adjust supply levels.",
-                'action' => 'Review pending requests',
-            ];
-        }
-
-        // Check for high pending requests
-        if ($overview['pending_requests'] > 10) {
-            $hasAlerts = true;
-            $alerts[] = [
-                'type' => 'info',
-                'icon' => 'fa-clock',
-                'title' => 'Pending Requests Need Attention',
-                'message' => "{$overview['pending_requests']} requests are awaiting review. Process them to improve service delivery.",
-                'action' => 'Process pending requests',
-            ];
-        }
-
-        // Check for low fulfillment rate
-        if ($overview['fulfillment_rate'] < 75) {
-            $hasAlerts = true;
-            $alerts[] = [
-                'type' => 'danger',
-                'icon' => 'fa-chart-line',
-                'title' => 'Low Fulfillment Rate',
-                'message' => "Only {$overview['fulfillment_rate']}% of requested quantities are being fulfilled. Check supply availability.",
-                'action' => 'Review supply levels',
-            ];
-        }
-
-        // Check for high demand categories
-        foreach ($supplyDemandAnalysis as $category => $data) {
-            if ($data['total_demand'] > 500) {
-                $hasAlerts = true;
-                $alerts[] = [
-                    'type' => 'primary',
-                    'icon' => 'fa-chart-bar',
-                    'title' => 'High Demand: ' . ucfirst($category),
-                    'message' =>
-                        number_format($data['total_demand']) .
-                        " items requested. Top item: {$data['top_demand_item']}. Consider increasing stock.",
-                    'action' => 'Increase stock for ' . $category,
-                ];
-            }
-        }
-
-        // Check processing time
-        if (
-            isset($processingTimeAnalysis['avg_processing_days']) &&
-            $processingTimeAnalysis['avg_processing_days'] > 5
-        ) {
-            $hasAlerts = true;
-            $alerts[] = [
-                'type' => 'warning',
-                'icon' => 'fa-hourglass-half',
-                'title' => 'Slow Processing Time',
-                'message' => "Average processing time is {$processingTimeAnalysis['avg_processing_days']} days. Target is 3 days or less.",
-                'action' => 'Improve processing efficiency',
-            ];
-        }
-    @endphp
-
-    @if ($hasAlerts)
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-sm border-start border-warning border-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0 text-dark">
-                            <i class="fas fa-bell me-2 text-warning"></i>Alerts & Recommendations
-                        </h5>
-                        <small class="text-muted">Action items that require your attention</small>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            @foreach (array_slice($alerts, 0, 4) as $alert)
-                                <div class="col-md-6 mb-3">
-                                    <div class="alert alert-{{ $alert['type'] }} mb-0 d-flex align-items-start">
-                                        <i class="fas {{ $alert['icon'] }} me-3 mt-1 fa-lg"></i>
-                                        <div class="grow">
-                                            <strong class="d-block mb-1">{{ $alert['title'] }}</strong>
-                                            <p class="mb-2 small">{{ $alert['message'] }}</p>
-                                            <span class="badge bg-{{ $alert['type'] }}">
-                                                <i class="fas fa-arrow-right me-1"></i>{{ $alert['action'] }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 
     <!-- Key Metrics Row -->
     <div class="row mb-4">
@@ -359,10 +176,6 @@
                     </div>
                     <h2 class="text-dark mb-1">{{ $processingTimeAnalysis['avg_processing_days'] ?? 0 }}</h2>
                     <h6 class="text-muted mb-2">Avg. Processing Days</h6>
-                    <small
-                        class="text-{{ ($processingTimeAnalysis['avg_processing_days'] ?? 0) <= 3 ? 'success' : 'warning' }}">
-                        Target: ≤ 3 days
-                    </small>
                 </div>
             </div>
         </div>
@@ -374,13 +187,43 @@
         <div class="col-lg-4 mb-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 text-dark">
-                        <i class="fas fa-pie-chart me-2 text-primary"></i>Request Status
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>Request Status
                     </h5>
                     <small class="text-muted">Current distribution of request statuses</small>
                 </div>
-                <div class="card-body d-flex flex-column">
-                    <canvas id="statusChart" height="250"></canvas>
+                <div class="card-body">
+                    <div class="status-chart-container mb-3">
+                        <canvas id="statusChart" height="220"></canvas>
+                    </div>
+                    <div class="status-legends">
+                        @foreach ($statusAnalysis['counts'] as $status => $count)
+                            @php
+                                $dotColor = match ($status) {
+                                    'approved' => '#10b981',
+                                    'rejected' => '#ef4444',
+                                    'under_review', 'pending' => '#f59e0b',
+                                    'cancelled', 'withdrawn' => '#6b7280',
+                                    'processing' => '#3b82f6',
+                                    'on_hold' => '#8b5cf6',
+                                    default => '#64748b',
+                                };
+                                $total = array_sum($statusAnalysis['counts']);
+                                $percentage = $total > 0 ? round(($count / $total) * 100, 1) : 0;
+                            @endphp
+                            <div class="legend-item d-flex justify-content-between align-items-center mb-2 p-2 rounded">
+                                <div class="d-flex align-items-center">
+                                    <span class="fw-medium">{{ ucfirst(str_replace('_', ' ', $status)) }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge text-white me-2" style="background-color: {{ $dotColor }};">
+                                        {{ $count }}
+                                    </span>
+                                    <span class="text-muted fw-semibold">{{ $percentage }}%</span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
@@ -389,7 +232,7 @@
         <div class="col-lg-8 mb-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 text-dark">
+                    <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-balance-scale me-2 text-success"></i>Demand Analysis by Category
                     </h5>
                     <small class="text-muted">Total demand per category - helps prioritize procurement</small>
@@ -406,7 +249,7 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 text-dark">
+                    <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-check-double me-2 text-success"></i>Fulfillment Rate by Category
                     </h5>
                     <small class="text-muted">Shows how well each category is being fulfilled - identify problem
@@ -455,7 +298,7 @@
         <div class="col-lg-6 mb-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 text-dark">
+                    <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-trophy me-2 text-warning"></i>Top Barangays by Volume
                     </h5>
                     <small class="text-muted">Prioritize resource allocation to high-demand areas</small>
@@ -470,7 +313,7 @@
         <div class="col-lg-6 mb-4">
             <div class="card shadow-sm border-0 h-100">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 text-dark">
+                    <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-chart-line me-2 text-info"></i>Request Trends
                     </h5>
                     <small class="text-muted">Track request patterns over time</small>
@@ -487,7 +330,7 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 text-dark">
+                    <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-star me-2 text-danger"></i>Most Requested Items
                     </h5>
                     <small class="text-muted">Top 10 items by demand - prioritize stock availability</small>
@@ -504,7 +347,7 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 text-dark">
+                    <h5 class="mb-0 fw-semibold">
                         <i class="fas fa-table me-2 text-primary"></i>Barangay Performance Matrix
                     </h5>
                     <small class="text-muted">Comprehensive metrics for prioritization and resource allocation</small>
@@ -568,8 +411,6 @@
                                                         {{ round($barangay['score'], 1) }}
                                                     </div>
                                                 </div>
-                                                <span
-                                                    class="badge bg-{{ $statusClass }}">{{ $barangay['grade'] }}</span>
                                             </div>
                                         </td>
                                         <td>
@@ -718,6 +559,88 @@
             background-color: #6c757d;
             color: white;
         }
+
+        /* Status Legend Styles */
+        .status-legends .legend-item {
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
+
+        .status-legends .legend-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Legend Count Badge */
+        .legend-count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Vertical Legend Styles */
+        .status-legends-vertical {
+            padding: 1rem 0;
+        }
+
+        .legend-item-vertical {
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+
+        .legend-item-vertical:hover {
+            background-color: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-number-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .legend-item-vertical:hover .legend-number-badge {
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .legend-percentage {
+            font-size: 1.1rem;
+            color: #374151;
+            margin-left: 0.5rem;
+        }
+
+        /* Chart Containers */
+        .status-chart-container {
+            position: relative;
+            height: 220px;
+        }
     </style>
 @endsection
 
@@ -732,6 +655,9 @@
             Chart.defaults.plugins.legend.display = true;
             Chart.defaults.plugins.tooltip.enabled = true;
 
+            // Register ChartDataLabels plugin
+            Chart.register(ChartDataLabels);
+
             // Color palette
             const colors = {
                 primary: '#007bff',
@@ -743,188 +669,165 @@
                 orange: '#fd7e14'
             };
 
-            // Improved Date Filter Functionality
-            const filterType = document.getElementById('filter_type');
-            const presetContainer = document.getElementById('preset_container');
-            const customContainer = document.getElementById('custom_container');
-            const datePreset = document.getElementById('date_preset');
-            const startDate = document.getElementById('start_date');
-            const endDate = document.getElementById('end_date');
-            const filterDisplay = document.getElementById('filter_display');
-            const dateRangeDisplay = document.getElementById('date_range_display');
-            const resetBtn = document.getElementById('resetBtn');
-
-            // Toggle between preset and custom
-            filterType.addEventListener('change', function() {
-                if (this.value === 'preset') {
-                    presetContainer.style.display = 'block';
-                    customContainer.style.display = 'none';
-                    updateDatesFromPreset();
-                } else {
-                    presetContainer.style.display = 'none';
-                    customContainer.style.display = 'block';
-                    updateFilterDisplay();
-                }
-            });
-
-            // Update dates when preset changes
-            datePreset.addEventListener('change', updateDatesFromPreset);
-
-            // Update display when custom dates change
-            startDate.addEventListener('change', updateFilterDisplay);
-            endDate.addEventListener('change', updateFilterDisplay);
-
-            function updateDatesFromPreset() {
-                const today = new Date();
-                let start, end = new Date();
-                const preset = datePreset.value;
-
-                switch (preset) {
-                    case 'today':
-                        start = new Date();
-                        end = new Date();
-                        break;
-                    case 'yesterday':
-                        start = new Date();
-                        start.setDate(start.getDate() - 1);
-                        end = new Date(start);
-                        break;
-                    case 'last_7_days':
-                        start = new Date();
-                        start.setDate(start.getDate() - 7);
-                        break;
-                    case 'last_14_days':
-                        start = new Date();
-                        start.setDate(start.getDate() - 14);
-                        break;
-                    case 'last_30_days':
-                        start = new Date();
-                        start.setDate(start.getDate() - 30);
-                        break;
-                    case 'this_week':
-                        start = new Date();
-                        const day = start.getDay();
-                        start.setDate(start.getDate() - day);
-                        break;
-                    case 'last_week':
-                        end = new Date();
-                        end.setDate(end.getDate() - end.getDay() - 1);
-                        start = new Date(end);
-                        start.setDate(start.getDate() - 6);
-                        break;
-                    case 'this_month':
-                        start = new Date(today.getFullYear(), today.getMonth(), 1);
-                        break;
-                    case 'last_month':
-                        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                        end = new Date(today.getFullYear(), today.getMonth(), 0);
-                        break;
-                    case 'this_quarter':
-                        const quarter = Math.floor(today.getMonth() / 3);
-                        start = new Date(today.getFullYear(), quarter * 3, 1);
-                        break;
-                    case 'last_quarter':
-                        const lastQuarter = Math.floor(today.getMonth() / 3) - 1;
-                        start = new Date(today.getFullYear(), lastQuarter * 3, 1);
-                        end = new Date(today.getFullYear(), (lastQuarter + 1) * 3, 0);
-                        break;
-                    case 'this_year':
-                        start = new Date(today.getFullYear(), 0, 1);
-                        break;
-                    case 'last_year':
-                        start = new Date(today.getFullYear() - 1, 0, 1);
-                        end = new Date(today.getFullYear() - 1, 11, 31);
-                        break;
-                    case 'all_time':
-                        start = new Date(2020, 0, 1);
-                        break;
-                }
-
-                startDate.value = formatDate(start);
-                endDate.value = formatDate(end);
-                updateFilterDisplay();
-            }
-
-            function formatDate(date) {
-                return date.toISOString().split('T')[0];
-            }
-
-            function updateFilterDisplay() {
-                if (filterType.value === 'preset') {
-                    const presetText = datePreset.options[datePreset.selectedIndex].text;
-                    filterDisplay.textContent = presetText;
-                } else {
-                    filterDisplay.textContent = 'Custom Range';
-                }
-
-                if (startDate.value && endDate.value) {
-                    const start = new Date(startDate.value);
-                    const end = new Date(endDate.value);
-                    dateRangeDisplay.textContent =
-                        `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
-                }
-            }
-
-            // Reset button functionality
-            resetBtn.addEventListener('click', function() {
-                filterType.value = 'preset';
-                datePreset.value = 'this_month';
-                presetContainer.style.display = 'block';
-                customContainer.style.display = 'none';
-                updateDatesFromPreset();
-            });
-
-            // Initialize on page load
-            updateDatesFromPreset();
-
             // Status Chart
             const statusCtx = document.getElementById('statusChart');
             const statusData = @json($statusAnalysis['counts']);
-            const statusLabels = Object.keys(statusData).map(key => key.replace('_', ' ').toUpperCase());
+            const statusLabels = Object.keys(statusData).map(key => key.replace('_', ' ').charAt(0).toUpperCase() +
+                key.replace('_', ' ').slice(1));
             const statusValues = Object.values(statusData);
             const statusTotal = statusValues.reduce((a, b) => a + b, 0);
 
-            new Chart(statusCtx, {
+            // Define status colors based on status type
+            const statusColors = [];
+            const statusNames = Object.keys(statusData);
+
+            statusNames.forEach(status => {
+                switch (status) {
+                    case 'approved':
+                        statusColors.push('#10b981'); // Green
+                        break;
+                    case 'rejected':
+                        statusColors.push('#ef4444'); // Red
+                        break;
+                    case 'under_review':
+                    case 'pending':
+                        statusColors.push('#f59e0b'); // Amber
+                        break;
+                    case 'cancelled':
+                    case 'withdrawn':
+                        statusColors.push('#6b7280'); // Gray
+                        break;
+                    case 'processing':
+                        statusColors.push('#3b82f6'); // Blue
+                        break;
+                    default:
+                        statusColors.push('#64748b'); // Default gray
+                }
+            });
+
+            const statusChart = new Chart(statusCtx, {
                 type: 'doughnut',
                 data: {
                     labels: statusLabels,
                     datasets: [{
                         data: statusValues,
-                        backgroundColor: [colors.success, colors.danger, colors.warning],
+                        backgroundColor: statusColors,
                         borderWidth: 3,
-                        borderColor: '#fff'
+                        borderColor: '#ffffff',
+                        cutout: '65%',
+                        spacing: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '60%',
                     plugins: {
                         legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                font: {
-                                    size: 12,
-                                    weight: 'bold'
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value.toLocaleString()} (${percentage}%)`;
                                 }
                             }
                         },
-                        datalabels: {
-                            color: '#fff',
-                            font: {
-                                weight: 'bold',
-                                size: 14
-                            },
-                            formatter: (value, ctx) => {
-                                const percentage = statusTotal > 0 ? ((value / statusTotal) * 100)
-                                    .toFixed(1) : '0.0';
-                                return `${value}\n(${percentage}%)`;
-                            }
-                        }
+                        // Custom plugin to display percentages inside the doughnut
+                        datalabels: false
+                    },
+                    animation: {
+                        animateRotate: true,
+                        duration: 1000
                     }
                 },
-                plugins: [ChartDataLabels]
+                plugins: [{
+                    id: 'centerText',
+                    beforeDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const chartArea = chart.chartArea;
+                        const centerX = (chartArea.left + chartArea.right) / 2;
+                        const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+                        // Get the total
+                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+
+                        // Draw center text
+                        ctx.save();
+                        ctx.font = 'bold 24px Inter';
+                        ctx.fillStyle = '#1f2937';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(total.toLocaleString(), centerX, centerY - 10);
+
+                        ctx.font = '14px Inter';
+                        ctx.fillStyle = '#64748b';
+                        ctx.fillText('Total Requests', centerX, centerY + 15);
+                        ctx.restore();
+                    },
+                    afterDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const meta = chart.getDatasetMeta(0);
+                        const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+
+                        ctx.save();
+                        ctx.font = 'bold 14px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+
+                        chart.data.datasets[0].data.forEach((value, index) => {
+                            if (value > 0) {
+                                const percentage = ((value / total) * 100).toFixed(1);
+
+                                // Only show percentage if slice is large enough
+                                if (percentage > 5) {
+                                    const element = meta.data[index];
+
+                                    // Calculate the middle angle of the segment
+                                    const startAngle = element.startAngle;
+                                    const endAngle = element.endAngle;
+                                    const midAngle = (startAngle + endAngle) / 2;
+
+                                    // Calculate position based on the segment's center point
+                                    const chartArea = chart.chartArea;
+                                    const centerX = (chartArea.left + chartArea.right) /
+                                        2;
+                                    const centerY = (chartArea.top + chartArea.bottom) /
+                                        2;
+
+                                    // Position the text at 70% of the radius from center
+                                    const radius = (element.outerRadius - element
+                                        .innerRadius) * 0.7 + element.innerRadius;
+                                    const x = centerX + Math.cos(midAngle) * radius;
+                                    const y = centerY + Math.sin(midAngle) * radius;
+
+                                    const text = `${percentage}%`;
+
+                                    ctx.fillStyle = '#ffffff';
+                                    ctx.strokeStyle = '#000000';
+                                    ctx.lineWidth = 3;
+                                    ctx.strokeText(text, x, y);
+                                    ctx.fillText(text, x, y);
+                                }
+                            }
+                        });
+
+                        ctx.restore();
+                    }
+                }]
             });
 
             // Supply Demand Chart

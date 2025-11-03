@@ -77,23 +77,29 @@
                     <form method="GET" action="{{ route('admin.analytics.user-registration') }}"
                         class="row g-3 align-items-end">
                         <div class="col-lg-3 col-md-6">
-                            <label for="start_date" class="form-label fw-semibold">Start Date</label>
+                            <label for="start_date" class="form-label fw-semibold">
+                                <i class="fas fa-calendar-alt text-primary me-1"></i>Start Date
+                            </label>
                             <input type="date" class="form-control" id="start_date" name="start_date"
                                 value="{{ $startDate }}">
                         </div>
                         <div class="col-lg-3 col-md-6">
-                            <label for="end_date" class="form-label fw-semibold">End Date</label>
+                            <label for="end_date" class="form-label fw-semibold">
+                                <i class="fas fa-calendar-check text-primary me-1"></i>End Date
+                            </label>
                             <input type="date" class="form-control" id="end_date" name="end_date"
                                 value="{{ $endDate }}">
                         </div>
                         <div class="col-lg-6 col-md-12">
-                            <button type="submit" class="btn btn-primary me-2">
-                                <i class="fas fa-filter me-1"></i> Apply Filter
-                            </button>
-                            <a href="{{ route('admin.analytics.user-registration.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
-                                class="btn btn-success">
-                                <i class="fas fa-download me-1"></i> Export
-                            </a>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="fas fa-filter me-2"></i>Apply Filter
+                                </button>
+                                <a href="{{ route('admin.analytics.user-registration.export') }}?start_date={{ $startDate }}&end_date={{ $endDate }}"
+                                    class="btn btn-success px-4">
+                                    <i class="fas fa-download me-2"></i>Export Data
+                                </a>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -1039,7 +1045,7 @@
                                         const centerX = chart.width / 2;
                                         const centerY = chart.height / 2;
                                         const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
-                                        0);
+                                            0);
 
                                         ctx.textAlign = 'center';
                                         ctx.textBaseline = 'middle';
@@ -1056,7 +1062,7 @@
                                         const ctx = chart.ctx;
                                         const meta = chart.getDatasetMeta(0);
                                         const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
-                                        0);
+                                            0);
 
                                         ctx.save();
                                         ctx.font = 'bold 14px Inter, sans-serif';

@@ -51,6 +51,9 @@ class SupplyManagementAnalyticsController extends Controller
             // 8. Fulfillment Analysis
             $fulfillmentAnalysis = $this->getFulfillmentAnalysis($startDate, $endDate);
 
+            // 8.1. Recently Fulfilled Items
+            $recentlyFulfilledItems = $this->getRecentlyFulfilledItems($startDate, $endDate);
+
             // 9. Supply Efficiency Metrics
             $efficiencyMetrics = $this->getEfficiencyMetrics($startDate, $endDate);
 
@@ -72,6 +75,7 @@ class SupplyManagementAnalyticsController extends Controller
                 'topItemsAnalysis',
                 'supplyAlerts',
                 'fulfillmentAnalysis',
+                'recentlyFulfilledItems',
                 'efficiencyMetrics',
                 'turnoverAnalysis',
                 'lossAnalysis',
@@ -807,6 +811,53 @@ class SupplyManagementAnalyticsController extends Controller
         } catch (\Exception $e) {
             Log::error('Supply Management Export Error: ' . $e->getMessage());
             return back()->with('error', 'Error exporting supply management data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get recently fulfilled items
+     */
+    private function getRecentlyFulfilledItems($startDate, $endDate)
+    {
+        try {
+            $recentlyFulfilled = DB::table('seedling_request_items as sri')
+                ->join('seedling_requests as sr', 'sri.seedling_request_id', '=', 'sr.id')
+                ->join('request_categories as rc', 'sri.category_id', '=', 'rc.id')
+                ->whereBetween('sr.created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+                ->whereIn('sr.status', ['approved', 'partially_approved'])
+                ->where('sri.approved_quantity', '>', 0)
+                ->select(
+                    'sri.item_name',
+                    'rc.display_name as category_name',
+                    'sri.approved_quantity',
+                    'sri.requested_quantity',
+                    'sr.first_name',
+                    'sr.last_name',
+                    'sr.barangay',
+                    'sr.reviewed_at',
+                    DB::raw('ROUND((sri.approved_quantity / sri.requested_quantity) * 100, 1) as fulfillment_percentage')
+                )
+                ->orderBy('sr.reviewed_at', 'desc')
+                ->limit(8)
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'item_name' => $item->item_name,
+                        'category_name' => $item->category_name,
+                        'approved_quantity' => $item->approved_quantity,
+                        'requested_quantity' => $item->requested_quantity,
+                        'applicant_name' => trim($item->first_name . ' ' . $item->last_name),
+                        'barangay' => $item->barangay,
+                        'reviewed_at' => $item->reviewed_at,
+                        'fulfillment_percentage' => $item->fulfillment_percentage,
+                        'is_fully_fulfilled' => $item->approved_quantity >= $item->requested_quantity
+                    ];
+                });
+
+            return $recentlyFulfilled;
+        } catch (\Exception $e) {
+            Log::error('Recently Fulfilled Items Error: ' . $e->getMessage());
+            return collect([]);
         }
     }
 }

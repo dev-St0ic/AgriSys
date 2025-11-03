@@ -110,32 +110,40 @@ class DSSDataService
             COUNT(*) as total_items,
             SUM(current_supply) as available_stock,
             SUM(CASE WHEN current_supply <= 10 THEN 1 ELSE 0 END) as low_stock_items,
-            SUM(CASE WHEN current_supply = 0 THEN 1 ELSE 0 END) as out_of_stock_items
+            SUM(CASE WHEN current_supply = 0 THEN 1 ELSE 0 END) as out_of_stock_items,
+            SUM(CASE WHEN reorder_point IS NOT NULL AND current_supply <= reorder_point THEN 1 ELSE 0 END) as needs_reorder,
+            SUM(CASE WHEN minimum_supply IS NOT NULL AND current_supply <= minimum_supply THEN 1 ELSE 0 END) as critical_items
         ')->first();
 
         // Get category distribution with aggregations
-        $categoryDistribution = CategoryItem::select('category_id')
+        $categoryDistribution = CategoryItem::with('category')
+            ->select('category_id')
             ->selectRaw('
                 COUNT(*) as count,
                 SUM(current_supply) as total_stock,
-                AVG(current_supply) as avg_stock
+                AVG(current_supply) as avg_stock,
+                SUM(CASE WHEN current_supply = 0 THEN 1 ELSE 0 END) as out_of_stock,
+                SUM(CASE WHEN current_supply <= 10 THEN 1 ELSE 0 END) as low_stock
             ')
             ->groupBy('category_id')
             ->get()
-            ->keyBy('category_id')
             ->map(function ($item) {
                 return [
+                    'category_name' => $item->category->name ?? 'Unknown',
                     'count' => (int) $item->count,
                     'total_stock' => (int) $item->total_stock,
                     'avg_stock' => round($item->avg_stock, 2),
+                    'out_of_stock' => (int) $item->out_of_stock,
+                    'low_stock' => (int) $item->low_stock,
+                    'stock_status' => $this->getCategoryStockStatus($item->total_stock, $item->count, $item->out_of_stock, $item->low_stock),
                 ];
             });
 
-        // Get stock distribution with eager loading for category
+        // Get detailed stock distribution with more information
         $stockDistribution = CategoryItem::with('category')
-            ->select('id', 'name', 'current_supply', 'unit', 'category_id')
+            ->select('id', 'name', 'current_supply', 'unit', 'category_id', 'minimum_supply', 'maximum_supply', 'reorder_point', 'last_supplied_at')
             ->orderByDesc('current_supply')
-            ->limit(20)
+            ->limit(50)
             ->get()
             ->map(function($item) {
                 return [
@@ -144,7 +152,37 @@ class DSSDataService
                     'current_supply' => $item->current_supply,
                     'unit' => $item->unit,
                     'category' => $item->category->name ?? 'Unknown',
-                    'status' => $this->getStockStatus($item->current_supply),
+                    'minimum_supply' => $item->minimum_supply,
+                    'maximum_supply' => $item->maximum_supply,
+                    'reorder_point' => $item->reorder_point,
+                    'last_supplied_at' => $item->last_supplied_at ? $item->last_supplied_at->format('M j, Y') : 'Never',
+                    'status' => $this->getDetailedStockStatus($item),
+                    'status_color' => $this->getStockStatusColor($item),
+                    'needs_attention' => $this->itemNeedsAttention($item),
+                    'supply_percentage' => $this->calculateSupplyPercentage($item),
+                ];
+            });
+
+        // Get items that need immediate attention
+        $attentionItems = CategoryItem::with('category')
+            ->where(function($query) {
+                $query->where('current_supply', '<=', 0)
+                      ->orWhereColumn('current_supply', '<=', 'reorder_point')
+                      ->orWhereColumn('current_supply', '<=', 'minimum_supply');
+            })
+            ->orderBy('current_supply')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'name' => $item->name,
+                    'category' => $item->category->name ?? 'Unknown',
+                    'current_supply' => $item->current_supply,
+                    'unit' => $item->unit,
+                    'reorder_point' => $item->reorder_point,
+                    'minimum_supply' => $item->minimum_supply,
+                    'status' => $this->getDetailedStockStatus($item),
+                    'urgency' => $this->getUrgencyLevel($item),
+                    'recommended_action' => $this->getRecommendedAction($item),
                 ];
             });
 
@@ -153,8 +191,13 @@ class DSSDataService
             'available_stock' => $supplyStats->available_stock ?? 0,
             'low_stock_items' => $supplyStats->low_stock_items ?? 0,
             'out_of_stock_items' => $supplyStats->out_of_stock_items ?? 0,
+            'needs_reorder' => $supplyStats->needs_reorder ?? 0,
+            'critical_items' => $supplyStats->critical_items ?? 0,
             'items_by_category' => $categoryDistribution,
             'stock_distribution' => $stockDistribution,
+            'attention_items' => $attentionItems,
+            'supply_health_score' => $this->calculateSupplyHealthScore($supplyStats),
+            'supply_summary' => $this->generateSupplySummary($supplyStats, $categoryDistribution, $attentionItems),
         ];
     }
 
@@ -332,6 +375,193 @@ class DSSDataService
         if ($supply <= 10) return 'LOW_STOCK';
         if ($supply <= 50) return 'MEDIUM_STOCK';
         return 'GOOD_STOCK';
+    }
+
+    private function getDetailedStockStatus($item): string
+    {
+        if ($item->current_supply <= 0) {
+            return 'Out of Stock';
+        }
+        if ($item->minimum_supply && $item->current_supply <= $item->minimum_supply) {
+            return 'Critical Level';
+        }
+        if ($item->reorder_point && $item->current_supply <= $item->reorder_point) {
+            return 'Needs Reorder';
+        }
+        if ($item->current_supply <= 10) {
+            return 'Low Stock';
+        }
+        if ($item->maximum_supply && $item->current_supply >= $item->maximum_supply * 0.8) {
+            return 'Well Stocked';
+        }
+        return 'Adequate';
+    }
+
+    private function getStockStatusColor($item): string
+    {
+        if ($item->current_supply <= 0) {
+            return 'danger';
+        }
+        if ($item->minimum_supply && $item->current_supply <= $item->minimum_supply) {
+            return 'danger';
+        }
+        if ($item->reorder_point && $item->current_supply <= $item->reorder_point) {
+            return 'warning';
+        }
+        if ($item->current_supply <= 10) {
+            return 'warning';
+        }
+        return 'success';
+    }
+
+    private function itemNeedsAttention($item): bool
+    {
+        return $item->current_supply <= 0 ||
+               ($item->minimum_supply && $item->current_supply <= $item->minimum_supply) ||
+               ($item->reorder_point && $item->current_supply <= $item->reorder_point);
+    }
+
+    private function calculateSupplyPercentage($item): int
+    {
+        if (!$item->maximum_supply || $item->maximum_supply <= 0) {
+            return $item->current_supply > 50 ? 100 : ($item->current_supply * 2);
+        }
+        return min(100, round(($item->current_supply / $item->maximum_supply) * 100));
+    }
+
+    private function getCategoryStockStatus($totalStock, $count, $outOfStock, $lowStock): string
+    {
+        $outOfStockPercent = $count > 0 ? ($outOfStock / $count) * 100 : 0;
+        $lowStockPercent = $count > 0 ? ($lowStock / $count) * 100 : 0;
+
+        if ($outOfStockPercent >= 50) {
+            return 'Critical';
+        }
+        if ($outOfStockPercent >= 25 || $lowStockPercent >= 50) {
+            return 'Poor';
+        }
+        if ($lowStockPercent >= 25) {
+            return 'Fair';
+        }
+        return 'Good';
+    }
+
+    private function getUrgencyLevel($item): string
+    {
+        if ($item->current_supply <= 0) {
+            return 'CRITICAL';
+        }
+        if ($item->minimum_supply && $item->current_supply <= $item->minimum_supply) {
+            return 'HIGH';
+        }
+        if ($item->reorder_point && $item->current_supply <= $item->reorder_point) {
+            return 'MEDIUM';
+        }
+        return 'LOW';
+    }
+
+    private function getRecommendedAction($item): string
+    {
+        if ($item->current_supply <= 0) {
+            return 'Immediate procurement required - Item completely out of stock';
+        }
+        if ($item->minimum_supply && $item->current_supply <= $item->minimum_supply) {
+            return 'Emergency restock needed - Below minimum safety level';
+        }
+        if ($item->reorder_point && $item->current_supply <= $item->reorder_point) {
+            return 'Initiate regular reorder process';
+        }
+        return 'Monitor stock levels';
+    }
+
+    private function calculateSupplyHealthScore($supplyStats): int
+    {
+        $totalItems = $supplyStats->total_items ?? 1;
+
+        // Calculate health score based on stock status
+        $outOfStockPenalty = ($supplyStats->out_of_stock_items ?? 0) * 10;
+        $lowStockPenalty = ($supplyStats->low_stock_items ?? 0) * 5;
+        $criticalPenalty = ($supplyStats->critical_items ?? 0) * 8;
+
+        $maxPenalty = $totalItems * 10; // Maximum possible penalty
+        $actualPenalty = $outOfStockPenalty + $lowStockPenalty + $criticalPenalty;
+
+        $score = max(0, 100 - (($actualPenalty / $maxPenalty) * 100));
+
+        return round($score);
+    }
+
+    private function generateSupplySummary($supplyStats, $categoryDistribution, $attentionItems): array
+    {
+        $totalItems = $supplyStats->total_items ?? 0;
+        $totalStock = $supplyStats->available_stock ?? 0;
+        $outOfStock = $supplyStats->out_of_stock_items ?? 0;
+        $lowStock = $supplyStats->low_stock_items ?? 0;
+        $needsReorder = $supplyStats->needs_reorder ?? 0;
+        $critical = $supplyStats->critical_items ?? 0;
+
+        // Calculate percentages
+        $outOfStockPercent = $totalItems > 0 ? round(($outOfStock / $totalItems) * 100, 1) : 0;
+        $lowStockPercent = $totalItems > 0 ? round(($lowStock / $totalItems) * 100, 1) : 0;
+        $criticalPercent = $totalItems > 0 ? round(($critical / $totalItems) * 100, 1) : 0;
+
+        // Determine overall status
+        $overallStatus = 'Good';
+        if ($outOfStockPercent >= 25 || $criticalPercent >= 20) {
+            $overallStatus = 'Critical';
+        } elseif ($outOfStockPercent >= 10 || $lowStockPercent >= 30) {
+            $overallStatus = 'Poor';
+        } elseif ($lowStockPercent >= 15) {
+            $overallStatus = 'Fair';
+        }
+
+        // Get top performing categories
+        $topCategories = $categoryDistribution
+            ->where('total_stock', '>', 0)
+            ->sortByDesc('total_stock')
+            ->take(3)
+            ->pluck('category_name')
+            ->toArray();
+
+        // Get categories needing attention
+        $concernCategories = $categoryDistribution
+            ->where('stock_status', '!=', 'Good')
+            ->pluck('category_name')
+            ->toArray();
+
+        return [
+            'overall_status' => $overallStatus,
+            'total_units' => $totalStock,
+            'item_types' => $totalItems,
+            'out_of_stock_percent' => $outOfStockPercent,
+            'low_stock_percent' => $lowStockPercent,
+            'critical_percent' => $criticalPercent,
+            'needs_reorder' => $needsReorder,
+            'top_stocked_categories' => $topCategories,
+            'concern_categories' => $concernCategories,
+            'immediate_attention_count' => $attentionItems->count(),
+            'summary_text' => $this->generateSummaryText($overallStatus, $totalStock, $totalItems, $outOfStockPercent, $lowStockPercent),
+        ];
+    }
+
+    private function generateSummaryText($status, $totalStock, $totalItems, $outOfStockPercent, $lowStockPercent): string
+    {
+        $stockDensity = $totalItems > 0 ? round($totalStock / $totalItems, 1) : 0;
+
+        $summary = "Supply inventory contains {$totalStock} total units across {$totalItems} different item types ";
+        $summary .= "(average {$stockDensity} units per item type). ";
+
+        if ($status === 'Critical') {
+            $summary .= "CRITICAL STATUS: {$outOfStockPercent}% of items are out of stock. Immediate action required.";
+        } elseif ($status === 'Poor') {
+            $summary .= "Supply challenges identified with {$outOfStockPercent}% out of stock and {$lowStockPercent}% low stock items.";
+        } elseif ($status === 'Fair') {
+            $summary .= "Supply levels are manageable but {$lowStockPercent}% of items need restocking attention.";
+        } else {
+            $summary .= "Supply levels are generally adequate with good stock distribution.";
+        }
+
+        return $summary;
     }
 
     private function calculateBarangayPriority(int $requests, int $totalQuantity): string

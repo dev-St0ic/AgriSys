@@ -238,8 +238,8 @@
                 <div class="stat-label">Total Requests</div>
             </div>
             <div class="stat-box">
-                <div class="stat-number">{{ $data['supply_data']['available_stock'] }}</div>
-                <div class="stat-label">Available Stock</div>
+                <div class="stat-number">{{ number_format($data['supply_data']['available_stock']) }}</div>
+                <div class="stat-label">Available Stock ({{ $data['supply_data']['total_items'] }} types)</div>
             </div>
             <div class="stat-box">
                 <div class="stat-number">{{ $data['shortage_analysis']['critical_shortages'] }}</div>
@@ -248,6 +248,44 @@
             <div class="stat-box">
                 <div class="stat-number">{{ $data['barangay_analysis']['total_barangays'] }}</div>
                 <div class="stat-label">Active Barangays</div>
+            </div>
+        </div>
+
+        <!-- Supply Health Overview -->
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <h4 style="margin: 0 0 10px 0; color: #2E7D32;">📊 Supply Inventory Overview</h4>
+            <p style="margin: 5px 0;"><strong>Overall Supply Status:</strong>
+                <span
+                    class="badge badge-{{ $data['supply_data']['supply_summary']['overall_status'] == 'Good' ? 'success' : ($data['supply_data']['supply_summary']['overall_status'] == 'Critical' ? 'danger' : 'warning') }}">
+                    {{ $data['supply_data']['supply_summary']['overall_status'] }}
+                </span>
+                <span style="margin-left: 10px; font-size: 11px;">(Health Score:
+                    {{ $data['supply_data']['supply_health_score'] }}/100)</span>
+            </p>
+            <p style="margin: 5px 0; font-size: 11px;">{{ $data['supply_data']['supply_summary']['summary_text'] }}</p>
+
+            <!-- Stock Status Breakdown -->
+            <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 16px; font-weight: bold; color: #f44336;">
+                        {{ $data['supply_data']['out_of_stock_items'] }}</div>
+                    <div style="font-size: 10px; color: #666;">Out of Stock</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 16px; font-weight: bold; color: #ff9800;">
+                        {{ $data['supply_data']['low_stock_items'] }}</div>
+                    <div style="font-size: 10px; color: #666;">Low Stock</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 16px; font-weight: bold; color: #f44336;">
+                        {{ $data['supply_data']['critical_items'] }}</div>
+                    <div style="font-size: 10px; color: #666;">Critical Level</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 16px; font-weight: bold; color: #ff9800;">
+                        {{ $data['supply_data']['needs_reorder'] }}</div>
+                    <div style="font-size: 10px; color: #666;">Needs Reorder</div>
+                </div>
             </div>
         </div>
 
@@ -329,6 +367,89 @@
     <div class="section page-break">
         <div class="section-title">Detailed Data Analysis</div>
 
+        <!-- Supply Inventory Details -->
+        <h4>📦 Critical Supply Status</h4>
+        @if (isset($data['supply_data']['attention_items']) && count($data['supply_data']['attention_items']) > 0)
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th>Reorder Point</th>
+                        <th>Status</th>
+                        <th>Urgency</th>
+                        <th>Recommended Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (array_slice($data['supply_data']['attention_items']->toArray(), 0, 15) as $item)
+                        <tr>
+                            <td>{{ $item['name'] }}</td>
+                            <td>{{ $item['category'] }}</td>
+                            <td>{{ $item['current_supply'] }} {{ $item['unit'] }}</td>
+                            <td>{{ $item['reorder_point'] ?? 'N/A' }}</td>
+                            <td>
+                                <span
+                                    class="badge badge-{{ $item['status'] == 'Out of Stock' ? 'danger' : ($item['status'] == 'Critical Level' ? 'danger' : 'warning') }}">
+                                    {{ $item['status'] }}
+                                </span>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge badge-{{ $item['urgency'] == 'CRITICAL' ? 'danger' : ($item['urgency'] == 'HIGH' ? 'warning' : 'primary') }}">
+                                    {{ $item['urgency'] }}
+                                </span>
+                            </td>
+                            <td style="font-size: 9px;">{{ $item['recommended_action'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <p style="color: #4caf50; padding: 10px; background-color: #e8f5e8; border-radius: 5px;">
+                ✅ No items require immediate attention. All supplies are at adequate levels.
+            </p>
+        @endif
+
+        <!-- Stock Distribution by Category -->
+        <h4>📊 Stock Distribution by Category</h4>
+        @if (isset($data['supply_data']['items_by_category']) && count($data['supply_data']['items_by_category']) > 0)
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Items</th>
+                        <th>Total Stock</th>
+                        <th>Avg per Item</th>
+                        <th>Out of Stock</th>
+                        <th>Low Stock</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($data['supply_data']['items_by_category'] as $category)
+                        <tr>
+                            <td>{{ $category['category_name'] }}</td>
+                            <td>{{ $category['count'] }}</td>
+                            <td>{{ number_format($category['total_stock']) }}</td>
+                            <td>{{ $category['avg_stock'] }}</td>
+                            <td>{{ $category['out_of_stock'] }}</td>
+                            <td>{{ $category['low_stock'] }}</td>
+                            <td>
+                                <span
+                                    class="badge badge-{{ $category['stock_status'] == 'Good' ? 'success' : ($category['stock_status'] == 'Critical' ? 'danger' : 'warning') }}">
+                                    {{ $category['stock_status'] }}
+                                </span>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <p>No category data available.</p>
+        @endif
+
         <h4>Top Requesting Barangays</h4>
         <table class="table">
             <thead>
@@ -396,6 +517,58 @@
                 {{ $report['report_data']['performance_assessment']['supply_adequacy'] }}</p>
             <p><strong>Geographic Coverage:</strong>
                 {{ $report['report_data']['performance_assessment']['geographic_coverage'] }}</p>
+        </div>
+    @endif
+
+    <!-- Enhanced Supply Summary -->
+    @if (isset($data['supply_data']['supply_summary']))
+        <div class="section">
+            <div class="section-title">📋 Supply Management Summary</div>
+
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                <h4 style="margin: 0 0 10px 0; color: #2E7D32;">Current Inventory Status</h4>
+
+                <div style="display: flex; justify-content: space-between; margin: 15px 0;">
+                    <div style="flex: 1; text-align: center; margin: 0 10px;">
+                        <div style="font-size: 18px; font-weight: bold; color: #2E7D32;">
+                            {{ number_format($data['supply_data']['supply_summary']['total_units']) }}</div>
+                        <div style="font-size: 11px; color: #666;">Total Units in Stock</div>
+                    </div>
+                    <div style="flex: 1; text-align: center; margin: 0 10px;">
+                        <div style="font-size: 18px; font-weight: bold; color: #2196f3;">
+                            {{ $data['supply_data']['supply_summary']['item_types'] }}</div>
+                        <div style="font-size: 11px; color: #666;">Different Item Types</div>
+                    </div>
+                    <div style="flex: 1; text-align: center; margin: 0 10px;">
+                        <div style="font-size: 18px; font-weight: bold; color: #ff9800;">
+                            {{ $data['supply_data']['supply_summary']['needs_reorder'] }}</div>
+                        <div style="font-size: 11px; color: #666;">Items Need Reordering</div>
+                    </div>
+                    <div style="flex: 1; text-align: center; margin: 0 10px;">
+                        <div style="font-size: 18px; font-weight: bold; color: #4caf50;">
+                            {{ $data['supply_data']['supply_health_score'] }}%</div>
+                        <div style="font-size: 11px; color: #666;">Supply Health Score</div>
+                    </div>
+                </div>
+
+                <h4 style="margin: 15px 0 10px 0; color: #2E7D32;">Critical Insights</h4>
+                <ul style="margin: 0; padding-left: 20px; font-size: 11px;">
+                    <li>{{ $data['supply_data']['supply_summary']['out_of_stock_percent'] }}% of items are completely
+                        out of stock</li>
+                    <li>{{ $data['supply_data']['supply_summary']['low_stock_percent'] }}% of items have low stock
+                        levels</li>
+                    <li>{{ $data['supply_data']['supply_summary']['immediate_attention_count'] }} items require
+                        immediate attention</li>
+                    @if (count($data['supply_data']['supply_summary']['top_stocked_categories']) > 0)
+                        <li>Best performing categories:
+                            {{ implode(', ', $data['supply_data']['supply_summary']['top_stocked_categories']) }}</li>
+                    @endif
+                    @if (count($data['supply_data']['supply_summary']['concern_categories']) > 0)
+                        <li>Categories needing attention:
+                            {{ implode(', ', $data['supply_data']['supply_summary']['concern_categories']) }}</li>
+                    @endif
+                </ul>
+            </div>
         </div>
     @endif
 
