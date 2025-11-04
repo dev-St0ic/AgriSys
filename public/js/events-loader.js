@@ -1,6 +1,8 @@
 // ===================================
-// DYNAMIC EVENTS LOADING SYSTEM
+// DYNAMIC EVENTS LOADING SYSTEM (WITH SAFETY FALLBACK)
 // ===================================
+// CRITICAL: Landing page NEVER shows empty state
+// Top 3 cards show non-announcement events, featured (bottom) shows announcements only
 
 let allEvents = [];
 let currentFilter = 'all';
@@ -41,9 +43,15 @@ async function loadEvents(retryCount = 0) {
             throw new Error('Invalid events data format');
         }
         
-        console.log(`✅ [Events] Loaded ${data.events.length} events`);
+        console.log(`✅ [Events] Loaded ${data.events.length} active events`);
         
         allEvents = data.events;
+        
+        // SAFETY CHECK: Use fallback if no active events
+        if (allEvents.length === 0) {
+            console.warn('⚠️ [Events] No active events found - using fallback event');
+            allEvents = [getFallbackEvent()];
+        }
         
         // Update section header
         updateEventsSectionHeader();
@@ -59,9 +67,34 @@ async function loadEvents(retryCount = 0) {
             console.log('🔄 [Events] Retrying in 2 seconds...');
             setTimeout(() => loadEvents(retryCount + 1), 2000);
         } else {
-            showError(error.message);
+            // Even on error, use fallback to prevent empty page
+            console.warn('⚠️ [Events] All retries failed - using fallback event');
+            allEvents = [getFallbackEvent()];
+            updateEventsSectionHeader();
+            renderEventsLayout();
         }
     }
+}
+
+/**
+ * Get fallback event when no active events exist
+ * This ensures the landing page NEVER shows empty state
+ */
+function getFallbackEvent() {
+    return {
+        id: 0,
+        title: 'City Agriculture Office Programs',
+        description: 'The City Agriculture Office is committed to promoting sustainable farming practices, supporting local farmers, and developing agricultural programs that benefit our community. We continuously work on initiatives to enhance food security, improve agricultural productivity, and foster environmental stewardship. Stay tuned for announcements about upcoming events, training sessions, and community programs designed to strengthen our agricultural sector.',
+        short_description: 'Dedicated to promoting sustainable agriculture and supporting our farming community.',
+        category: 'announcement',
+        category_label: 'Announcement',
+        image: createPlaceholder(800, 400, 'Agriculture Office'),
+        date: 'Ongoing',
+        location: 'City Agriculture Office',
+        is_active: true,
+        display_order: 0,
+        is_fallback: true // Flag to identify fallback event
+    };
 }
 
 /**
@@ -83,17 +116,36 @@ function updateEventsSectionHeader() {
     
     // Dynamic subtitle
     const eventCount = allEvents.length;
-    if (eventCount > 0) {
-        subtitleEl.textContent = `Explore ${eventCount} upcoming events and initiatives dedicated to promoting agricultural growth and community development.`;
-    } else {
-        subtitleEl.textContent = 'No events available at this time. Check back soon for upcoming agricultural activities and programs.';
+    const hasFallback = allEvents.some(e => e.is_fallback);
+    
+    if (hasFallback) {
+        subtitleEl.innerHTML = '<i class="fas fa-info-circle me-2"></i>Stay updated with our ongoing agricultural programs and initiatives. New events will be announced here.';
+        subtitleEl.style.color = '#6c757d';
+    } else if (eventCount > 0) {
+        subtitleEl.textContent = `Explore our agricultural events and initiatives dedicated to promoting agricultural growth and community development.`;
+        subtitleEl.style.color = '';
     }
     
     console.log('✅ [Events] Header updated');
 }
 
 /**
- * Main render function - renders 3 cards + 1 featured event
+ * Get non-announcement events (for top 3 cards)
+ */
+function getNonAnnouncementEvents() {
+    return allEvents.filter(e => e.category !== 'announcement');
+}
+
+/**
+ * Get announcement events (for featured bottom section)
+ */
+function getAnnouncementEvents() {
+    return allEvents.filter(e => e.category === 'announcement');
+}
+
+/**
+ * Main render function - 3 cards (non-announcement) + featured announcement
+ * ALWAYS displays content (never empty)
  */
 function renderEventsLayout() {
     console.log('🎨 [Events] Rendering events layout');
@@ -104,35 +156,56 @@ function renderEventsLayout() {
         return;
     }
 
+    // SAFETY: Should never reach here due to fallback, but double-check
     if (!allEvents || allEvents.length === 0) {
-        container.innerHTML = createEmptyState();
-        return;
+        console.error('❌ [Events] Critical: No events available and no fallback loaded');
+        allEvents = [getFallbackEvent()];
     }
 
     let html = '';
 
-    // === TOP ROW: 3 CARDS ===
+    // === TOP ROW: 3 CARDS (Non-announcement events) ===
     html += '<div class="events-grid-top">';
-    const topCards = allEvents.slice(0, 3);
-    topCards.forEach(event => {
-        html += createEventCard(event);
+    
+    const nonAnnouncementEvents = getNonAnnouncementEvents();
+    const topCards = [];
+    
+    // Fill 3 cards with non-announcement events (duplicate if less than 3)
+    if (nonAnnouncementEvents.length >= 3) {
+        topCards.push(...nonAnnouncementEvents.slice(0, 3));
+    } else if (nonAnnouncementEvents.length > 0) {
+        // Use what we have and duplicate to fill 3 slots
+        for (let i = 0; i < 3; i++) {
+            topCards.push(nonAnnouncementEvents[i % nonAnnouncementEvents.length]);
+        }
+    } else {
+        // No non-announcement events, use fallback
+        const fallbackEvent = getFallbackEvent();
+        fallbackEvent.category = 'past_event';
+        fallbackEvent.category_label = 'Past Event';
+        for (let i = 0; i < 3; i++) {
+            topCards.push({...fallbackEvent, id: -1 - i});
+        }
+    }
+    
+    topCards.forEach((event, index) => {
+        html += createEventCard(event, index);
     });
     html += '</div>';
 
-    // === FEATURED EVENT: Large section ===
-    if (allEvents.length > 0) {
-        const featuredEvent = allEvents[0]; // Use first event as featured
-        html += createFeaturedEvent(featuredEvent);
-    }
+    // === FEATURED EVENT: Large section (Announcement only) ===
+    const announcementEvents = getAnnouncementEvents();
+    const featuredEvent = announcementEvents.length > 0 ? announcementEvents[0] : getFallbackEvent();
+    html += createFeaturedEvent(featuredEvent);
 
     container.innerHTML = html;
-    console.log('✅ [Events] Layout rendered successfully');
+    console.log('✅ [Events] Layout rendered with ' + allEvents.length + ' event(s)');
 }
 
 /**
  * Create event card (for top row - 3 cards)
  */
-function createEventCard(event) {
+function createEventCard(event, index = 0) {
     const imageUrl = event.image && event.image.trim() 
         ? event.image 
         : createPlaceholder(400, 220, 'Event');
@@ -147,11 +220,11 @@ function createEventCard(event) {
         : description;
     
     return `
-        <div class="event-card" onclick="handleEventClick(${event.id})">
+        <div class="event-card" onclick="handleEventClick(${event.id}, ${event.is_fallback || false})">
             <img src="${imageUrl}" 
                  alt="${title}" 
                  class="event-card-image" 
-                 onerror="this.src='${createPlaceholder(400, 220, 'Error')}'">
+                 onerror="this.src='${createPlaceholder(400, 220, 'Event')}'">
             <div class="event-card-content">
                 <span class="event-card-category">${category}</span>
                 <h3 class="event-card-title">${title}</h3>
@@ -163,18 +236,24 @@ function createEventCard(event) {
 }
 
 /**
- * Create featured event section (large bottom section)
+ * Create featured event section (large bottom section - announcements only)
  */
 function createFeaturedEvent(event) {
     const imageUrl = event.image && event.image.trim() 
         ? event.image 
         : createPlaceholder(800, 400, 'Featured');
     
-    const title = event.title || 'Featured Event';
+    const title = event.title || 'Featured Announcement';
     const description = event.description || 'No description available';
     const date = event.date || 'Date TBA';
     const location = event.location || 'Location TBA';
-    const category = event.category_label || 'Event';
+    const category = event.category_label || 'Announcement';
+    const isFallback = event.is_fallback || false;
+
+    // Show notification badge if fallback
+    const notificationBadge = isFallback 
+        ? '<div class="alert alert-info mb-3"><i class="fas fa-info-circle me-2"></i><strong>Notice:</strong> New announcements will be posted here. Check back soon for updates on upcoming agricultural programs and activities.</div>'
+        : '';
 
     return `
         <div class="events-featured">
@@ -183,9 +262,10 @@ function createFeaturedEvent(event) {
                     <img src="${imageUrl}" 
                          alt="${title}" 
                          class="featured-image"
-                         onerror="this.src='${createPlaceholder(800, 400, 'Error')}'">
+                         onerror="this.src='${createPlaceholder(800, 400, 'Featured')}'">
                 </div>
                 <div class="featured-content-section">
+                    ${notificationBadge}
                     <span class="featured-badge">${category}</span>
                     <h3 class="featured-title">${title}</h3>
                     <p class="featured-description">${description}</p>
@@ -206,8 +286,8 @@ function createFeaturedEvent(event) {
                         </div>
                     </div>
                     
-                    <button class="featured-cta" onclick="handleEventClick(${event.id})">
-                        View Full Details
+                    <button class="featured-cta" onclick="handleEventClick(${event.id}, ${isFallback})">
+                        ${isFallback ? 'Contact Us' : 'View Full Details'}
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                         </svg>
@@ -219,63 +299,22 @@ function createFeaturedEvent(event) {
 }
 
 /**
- * Create empty state
+ * Handle event click
  */
-function createEmptyState() {
-    return `
-        <div class="events-empty-state">
-            <svg width="120" height="120" fill="none" stroke="#ccc" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <h3>No Events Available</h3>
-            <p>Check back soon for upcoming agricultural activities and programs.</p>
-            <button class="btn-reload" onclick="loadEvents()">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                Refresh
-            </button>
-        </div>
-    `;
-}
-
-/**
- * Show error message
- */
-function showError(message) {
-    console.log('🚨 [Events] Error:', message);
+function handleEventClick(eventId, isFallback = false) {
+    console.log('📋 [Events] Event clicked:', eventId, 'Is fallback:', isFallback);
     
-    const container = document.querySelector('.events-container');
-    if (container) {
-        container.innerHTML = `
-            <div class="events-error-state">
-                <svg width="120" height="120" fill="none" stroke="#dc3545" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <h3>Unable to Load Events</h3>
-                <p class="error-message">${message}</p>
-                <button class="btn-retry" onclick="loadEvents()">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    Try Again
-                </button>
-            </div>
-        `;
+    if (isFallback) {
+        // Redirect to contact page or show info
+        alert('For more information about our agricultural programs, please contact the City Agriculture Office.');
+        return;
     }
-}
-
-/**
- * Handle event click - placeholder for modal or redirect
- */
-function handleEventClick(eventId) {
-    console.log('📋 [Events] Event clicked:', eventId);
+    
     const event = allEvents.find(e => e.id === eventId);
     
     if (event) {
-        // Placeholder: You can implement modal here
         console.log('Event Details:', event);
-        // alert(`Event: ${event.title}\n\n${event.description}`);
+        // TODO: Implement modal or detail page
     }
 }
 
@@ -298,4 +337,4 @@ document.addEventListener('DOMContentLoaded', function() {
 window.loadEvents = loadEvents;
 window.handleEventClick = handleEventClick;
 
-console.log('✅ [Events] Enhanced loader script initialized');
+console.log('✅ [Events] Enhanced loader script with announcements featured');

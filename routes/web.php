@@ -629,17 +629,13 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
 });
 
 // ========================================
-// PUBLIC API ROUTES (No Authentication)
+// PUBLIC API ROUTES (No authentication)
 // ========================================
 
-/**
- * Public Events API - No authentication required
- * GET /api/events?category={all|announcement|ongoing|upcoming|past}
- */
 Route::prefix('api')->name('api.')->group(function () {
+    // Get all active events (for landing page)
     Route::get('/events', [EventController::class, 'getEvents'])
-        ->name('events.public')
-        ->middleware('throttle:60,1');
+        ->name('events.public');
 });
 
 // ========================================
@@ -650,7 +646,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     Route::prefix('events')->name('event.')->group(function () {
         
-        // Display event management page
+        // Display event management page (active events only)
         Route::get('/', [EventController::class, 'index'])
             ->name('index');
 
@@ -670,7 +666,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{event}/update', [EventController::class, 'update'])
             ->name('update.post');
 
-        // Soft delete event
+        // Archive event (soft deactivate)
+        Route::post('/{event}/archive', [EventController::class, 'archive'])
+            ->name('archive');
+
+        // Restore/unarchive event
+        Route::post('/{event}/unarchive', [EventController::class, 'unarchive'])
+            ->name('unarchive');
+
+        // Permanently delete event (hard delete)
         Route::delete('/{event}', [EventController::class, 'destroy'])
             ->name('destroy');
 
@@ -678,16 +682,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])
             ->name('toggle');
 
-        // Update event display order
-        Route::patch('/{event}/order', [EventController::class, 'updateOrder'])
-            ->name('update-order');
+        // View archived events
+        Route::get('/management/archived', [EventController::class, 'archivedEvents'])
+            ->name('archived');
 
         // Get event statistics for dashboard
         Route::get('/statistics/all', [EventController::class, 'getStatistics'])
             ->name('statistics');
+            
+        // View archived events (alternative route)
+        Route::get('/admin/events/management/archived', [EventController::class, 'archivedEvents'])
+        ->name('admin.event.archived');
     });
 });
-
 /**
  * ========================================
  * IMPLEMENTATION NOTES

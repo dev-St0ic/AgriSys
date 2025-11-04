@@ -1287,7 +1287,6 @@
             <div class="footer-bottom-links">
                 <a href="#privacy" target="_blank">Privacy Policy</a>
                 <a href="#terms" target="_blank">Terms of Service</a>
-                <a href="#accessibility" target="_blank">Accessibility</a>
             </div>
         </div>
     </footer>

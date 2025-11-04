@@ -1,5 +1,5 @@
 {{-- resources/views/admin/event/index.blade.php --}}
-{{-- Event Management Admin Page - Complete and Clean --}}
+{{-- Event Management Admin Page - With Archive Functionality --}}
 
 @extends('layouts.app')
 
@@ -10,6 +10,9 @@
         <!-- Page Header -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2><i class="fas fa-calendar-alt me-2"></i>Manage Events</h2>
+            <a href="{{ route('admin.event.archived') }}" class="btn btn-info">
+                <i class="fas fa-archive me-2"></i>View Archive ({{ $stats['archived'] ?? 0 }})
+            </a>
         </div>
 
         <!-- Session Messages -->
@@ -54,6 +57,32 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="flex-grow-1">
+                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">Inactive</div>
+                                <div class="h5 mb-0 fw-bold">{{ $stats['inactive'] ?? 0 }}</div>
+                            </div>
+                            <div class="ms-3"><i class="fas fa-ban fa-2x text-warning"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <div class="text-xs fw-bold text-secondary text-uppercase mb-1">Archived</div>
+                                <div class="h5 mb-0 fw-bold">{{ $stats['archived'] ?? 0 }}</div>
+                            </div>
+                            <div class="ms-3"><i class="fas fa-archive fa-2x text-secondary"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
                                 <div class="text-xs fw-bold text-info text-uppercase mb-1">Announcements</div>
                                 <div class="h5 mb-0 fw-bold">{{ $stats['announcements'] ?? 0 }}</div>
                             </div>
@@ -67,36 +96,10 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">Ongoing</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['ongoing'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-spinner fa-2x text-warning"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-secondary text-uppercase mb-1">Upcoming</div>
+                                <div class="text-xs fw-bold text-danger text-uppercase mb-1">Upcoming</div>
                                 <div class="h5 mb-0 fw-bold">{{ $stats['upcoming'] ?? 0 }}</div>
                             </div>
-                            <div class="ms-3"><i class="fas fa-clock fa-2x text-secondary"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-danger text-uppercase mb-1">Past</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['past'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-history fa-2x text-danger"></i></div>
+                            <div class="ms-3"><i class="fas fa-clock fa-2x text-danger"></i></div>
                         </div>
                     </div>
                 </div>
@@ -134,9 +137,9 @@
                                 <th style="width: 80px;">Image</th>
                                 <th>Title</th>
                                 <th style="width: 120px;">Category</th>
-                                <th style="width: 120px;">Status</th>
+                                <th style="width: 100px;">Status</th>
                                 <th style="width: 100px;">Order</th>
-                                <th style="width: 180px;">Actions</th>
+                                <th style="width: 220px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -172,9 +175,18 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-primary" onclick="editEvent({{ $event->id }})" title="Edit"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-{{ $event->is_active ? 'warning' : 'success' }}" onclick="toggleEvent({{ $event->id }})" title="Toggle"><i class="fas fa-power-off"></i></button>
-                                            <button class="btn btn-danger" onclick="deleteEvent({{ $event->id }})" title="Delete"><i class="fas fa-trash"></i></button>
+                                            <button class="btn btn-primary" onclick="editEvent({{ $event->id }})" title="Edit" data-bs-toggle="tooltip">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-{{ $event->is_active ? 'warning' : 'success' }}" onclick="toggleEvent({{ $event->id }})" title="Toggle Status" data-bs-toggle="tooltip">
+                                                <i class="fas fa-power-off"></i>
+                                            </button>
+                                            <button class="btn btn-info" onclick="archiveEvent({{ $event->id }})" title="Archive" data-bs-toggle="tooltip">
+                                                <i class="fas fa-archive"></i>
+                                            </button>
+                                            <button class="btn btn-danger" onclick="deleteEvent({{ $event->id }})" title="Delete" data-bs-toggle="tooltip">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -254,7 +266,7 @@
                         <div class="mb-3">
                             <label class="form-label">Image</label>
                             <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Max 2MB (JPEG, PNG, GIF)</small>
+                            <small class="text-muted">Max 5MB (JPEG, PNG, GIF, WebP)</small>
                         </div>
 
                         <hr>
@@ -350,7 +362,7 @@
                             <div id="current_event_image" class="mb-2"></div>
                             <label class="form-label">Change Image</label>
                             <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Max 2MB (JPEG, PNG, GIF)</small>
+                            <small class="text-muted">Max 5MB (JPEG, PNG, GIF, WebP)</small>
                         </div>
 
                         <hr>
@@ -368,6 +380,37 @@
                         <button type="submit" class="btn btn-primary">
                             <span class="btn-text">Update Event</span>
                             <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ARCHIVE EVENT MODAL -->
+    <div class="modal fade" id="archiveEventModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Archive Event</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="archiveEventForm">
+                    @csrf
+                    <input type="hidden" id="archive_event_id" name="event_id">
+                    <div class="modal-body">
+                        <p class="mb-3">You are about to archive <strong id="archive_event_name"></strong>.</p>
+                        <p class="text-muted mb-3">Archived events are hidden from the landing page but can be restored later.</p>
+                        <div class="form-group">
+                            <label class="form-label">Reason for archiving (optional)</label>
+                            <textarea name="reason" class="form-control" rows="3" placeholder="e.g., Event completed, Rescheduled, etc."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-info">
+                            <span class="btn-text">Archive Event</span>
+                            <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Archiving...</span>
                         </button>
                     </div>
                 </form>
@@ -414,6 +457,14 @@
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         let currentFilter = 'all';
+
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
 
         function filterEvents(category) {
             currentFilter = category;
@@ -593,6 +644,50 @@
             }
         });
 
+        // Archive event
+        function archiveEvent(eventId) {
+            try {
+                const row = document.querySelector(`[data-event-id="${eventId}"]`) || event.target.closest('.event-row');
+                const eventTitle = row ? row.querySelector('strong').textContent : 'Event';
+                
+                document.getElementById('archive_event_id').value = eventId;
+                document.getElementById('archive_event_name').textContent = eventTitle;
+                new bootstrap.Modal(document.getElementById('archiveEventModal')).show();
+            } catch (error) {
+                showError('Failed to prepare archive dialog');
+            }
+        }
+
+        // Archive event form
+        document.getElementById('archiveEventForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const eventId = document.getElementById('archive_event_id').value;
+            const reason = document.querySelector('#archiveEventForm textarea[name="reason"]').value;
+
+            try {
+                document.querySelector('#archiveEventForm .btn-text').style.display = 'none';
+                document.querySelector('#archiveEventForm .btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/events/${eventId}/archive`, {
+                    method: 'POST',
+                    headers: { 
+                        'X-CSRF-TOKEN': csrfToken, 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json' 
+                    },
+                    body: JSON.stringify({ reason: reason })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Failed to archive event');
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                document.querySelector('#archiveEventForm .btn-text').style.display = 'inline';
+                document.querySelector('#archiveEventForm .btn-loader').style.display = 'none';
+            }
+        });
+
         // Toggle status
         async function toggleEvent(eventId) {
             try {
@@ -610,7 +705,7 @@
 
         // Delete event
         async function deleteEvent(eventId) {
-            if (!confirm('Delete this event?')) return;
+            if (!confirm('⚠️ Permanently delete this event? This action cannot be undone.')) return;
             try {
                 const response = await fetch(`/admin/events/${eventId}`, {
                     method: 'DELETE',
@@ -654,6 +749,234 @@
                 });
             });
         });
+
+        // ===================================
+        // ADMIN PAGE ENHANCEMENT - SAFETY WARNINGS
+        // ===================================
+        // Add this to the existing <script> section in index.blade.php
+
+        // Enhanced error handler for safety warnings
+        function showError(message, warningType = null) {
+            document.querySelectorAll('.modal.show').forEach(m => {
+                const bsModal = bootstrap.Modal.getInstance(m);
+                if (bsModal) bsModal.hide();
+            });
+            
+            setTimeout(() => {
+                const errorModal = document.getElementById('errorModal');
+                const errorMessage = document.getElementById('errorMessage');
+                
+                // Add warning icon and styling for specific warning types
+                if (warningType === 'last_active_event' || warningType === 'no_active_events') {
+                    errorMessage.innerHTML = `
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 2rem;"></i>
+                            <div>
+                                <strong>Landing Page Protection</strong>
+                                <p class="mb-0 mt-2">${message}</p>
+                                ${warningType === 'last_active_event' ? 
+                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>This safety feature ensures visitors always see content on the landing page.</p>' : 
+                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Create an active event to make this change.</p>'
+                                }
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Change modal header color to warning
+                    const modalHeader = errorModal.querySelector('.modal-header');
+                    modalHeader.classList.remove('bg-danger');
+                    modalHeader.classList.add('bg-warning', 'text-dark');
+                    modalHeader.querySelector('.modal-title').textContent = 'Action Not Allowed';
+                } else {
+                    errorMessage.textContent = message;
+                    
+                    // Reset to error styling
+                    const modalHeader = errorModal.querySelector('.modal-header');
+                    modalHeader.classList.remove('bg-warning', 'text-dark');
+                    modalHeader.classList.add('bg-danger', 'text-white');
+                    modalHeader.querySelector('.modal-title').textContent = 'Error';
+                }
+                
+                new bootstrap.Modal(errorModal).show();
+            }, 300);
+        }
+
+        // Enhanced form submission handlers with warning handling
+
+        // CREATE EVENT FORM (Update existing handler)
+        document.getElementById('createEventForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const details = collectDetails(document.getElementById('detailsContainer'));
+            formData.append('details', JSON.stringify(details));
+
+            try {
+                document.querySelector('#createEventForm .btn-text').style.display = 'none';
+                document.querySelector('#createEventForm .btn-loader').style.display = 'inline';
+
+                const response = await fetch('/admin/events', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    // Check for warning type
+                    if (data.warning_type) {
+                        throw { message: data.message, warningType: data.warning_type };
+                    }
+                    throw new Error(data.message || 'Failed to create event');
+                }
+                
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message, error.warningType || null);
+            } finally {
+                document.querySelector('#createEventForm .btn-text').style.display = 'inline';
+                document.querySelector('#createEventForm .btn-loader').style.display = 'none';
+            }
+        });
+
+        // EDIT EVENT FORM (Update existing handler)
+        document.getElementById('editEventForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const eventId = document.getElementById('edit_event_id').value;
+            const formData = new FormData(this);
+            const details = collectDetails(document.getElementById('editDetailsContainer'));
+            formData.append('details', JSON.stringify(details));
+
+            try {
+                document.querySelector('#editEventForm .btn-text').style.display = 'none';
+                document.querySelector('#editEventForm .btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/events/${eventId}`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (data.warning_type) {
+                        throw { message: data.message, warningType: data.warning_type };
+                    }
+                    throw new Error(data.message || 'Failed to update event');
+                }
+                
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message, error.warningType || null);
+            } finally {
+                document.querySelector('#editEventForm .btn-text').style.display = 'inline';
+                document.querySelector('#editEventForm .btn-loader').style.display = 'none';
+            }
+        });
+
+        // ARCHIVE EVENT FORM (Update existing handler)
+        document.getElementById('archiveEventForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const eventId = document.getElementById('archive_event_id').value;
+            const reason = document.querySelector('#archiveEventForm textarea[name="reason"]').value;
+
+            try {
+                document.querySelector('#archiveEventForm .btn-text').style.display = 'none';
+                document.querySelector('#archiveEventForm .btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/events/${eventId}/archive`, {
+                    method: 'POST',
+                    headers: { 
+                        'X-CSRF-TOKEN': csrfToken, 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json' 
+                    },
+                    body: JSON.stringify({ reason: reason })
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (data.warning_type) {
+                        throw { message: data.message, warningType: data.warning_type };
+                    }
+                    throw new Error(data.message || 'Failed to archive event');
+                }
+                
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message, error.warningType || null);
+            } finally {
+                document.querySelector('#archiveEventForm .btn-text').style.display = 'inline';
+                document.querySelector('#archiveEventForm .btn-loader').style.display = 'none';
+            }
+        });
+
+        // TOGGLE STATUS (Update existing function)
+        async function toggleEvent(eventId) {
+            try {
+                const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (data.warning_type) {
+                        throw { message: data.message, warningType: data.warning_type };
+                    }
+                    throw new Error(data.message || 'Failed to update status');
+                }
+                
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message, error.warningType || null);
+            }
+        }
+
+        // DELETE EVENT (Update existing function)
+        async function deleteEvent(eventId) {
+            if (!confirm('⚠️ Permanently delete this event? This action cannot be undone.')) return;
+            
+            try {
+                const response = await fetch(`/admin/events/${eventId}`, {
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (data.warning_type) {
+                        throw { message: data.message, warningType: data.warning_type };
+                    }
+                    throw new Error(data.message || 'Failed to delete event');
+                }
+                
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message, error.warningType || null);
+            }
+        }
+
+        // Add warning banner to admin page if only one active event exists
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeCount = parseInt('{{ $stats["active"] ?? 0 }}');
+            
+            if (activeCount === 1) {
+                const container = document.querySelector('.container-fluid');
+                const warningBanner = document.createElement('div');
+                warningBanner.className = 'alert alert-warning alert-dismissible fade show';
+                warningBanner.innerHTML = `
+                    <i class="fas fa-shield-alt me-2"></i>
+                    <strong>Landing Page Protection Active:</strong> 
+                    You currently have only <strong>1 active event</strong>. 
+                    This event cannot be deactivated, archived, or deleted until another event is made active. 
+                    This ensures the landing page always displays content to visitors.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                container.insertBefore(warningBanner, container.firstChild.nextSibling);
+            }
+        });
+
+        console.log('✅ Admin page safety enhancements loaded');
     </script>
 
     <style>
@@ -669,5 +992,12 @@
         }
         .modal-body { max-height: 70vh; overflow-y: auto; }
         .invalid-feedback { display: block; font-size: 0.875em; color: #dc3545; }
+        .btn-group-sm {
+            display: flex;
+            gap: 2px;
+        }
+        .btn-group-sm .btn {
+            flex: 1;
+        }
     </style>
 @endsection

@@ -10,7 +10,7 @@ return new class extends Migration
      * Run the migrations.
      * 
      * Creates the events table for Agricultural Events Management System
-     * Supports dynamic event display with categorization and ordering
+     * Supports dynamic event display with categorization, ordering, and archiving
      */
     public function up(): void
     {
@@ -31,7 +31,7 @@ return new class extends Migration
             $table->enum('category', ['announcement', 'ongoing', 'upcoming', 'past'])
                 ->default('upcoming')
                 ->index();
-            $table->string('category_label', 100)->nullable(); // Stores "Ongoing", "Upcoming" etc for frontend
+            $table->string('category_label', 100)->nullable(); // Stores "Ongoing", "Upcoming" etc
             
             // ========================================
             // MEDIA & VISUAL
@@ -49,21 +49,29 @@ return new class extends Migration
             // ========================================
             // STATUS & DISPLAY CONTROL
             // ========================================
-            $table->boolean('is_active')->default(true)->index(); // Controls visibility
+            $table->boolean('is_active')->default(true)->index(); // Controls visibility on landing page
             $table->integer('display_order')->default(0)->index(); // Controls ordering on frontend
             $table->boolean('is_featured')->default(false)->index(); // Flag for featured event
+            
+            // ========================================
+            // ARCHIVE FUNCTIONALITY (NEW)
+            // ========================================
+            $table->boolean('is_archived')->default(false)->index(); // Archive flag
+            $table->timestamp('archived_at')->nullable(); // When event was archived
+            $table->text('archive_reason')->nullable(); // Why it was archived (optional)
             
             // ========================================
             // USER TRACKING (Audit Trail)
             // ========================================
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('archived_by')->nullable(); // Who archived it
             $table->timestamp('published_at')->nullable(); // When event was published
             
             // ========================================
             // SOFT DELETE & TIMESTAMPS
             // ========================================
-            $table->softDeletes(); // For archive functionality
+            $table->softDeletes(); // For hard delete functionality
             $table->timestamps(); // created_at, updated_at
 
             // ========================================
@@ -79,14 +87,20 @@ return new class extends Migration
                 ->on('users')
                 ->onDelete('set null');
 
+            $table->foreign('archived_by')
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
+
             // ========================================
             // INDEXES FOR PERFORMANCE
             // ========================================
-            $table->index(['is_active', 'category']); // For filtering active events by category
+            $table->index(['is_active', 'is_archived']); // Active and non-archived
+            $table->index(['is_active', 'category', 'is_archived']); // Filtered queries
             $table->index(['display_order', 'created_at']); // For sorting
             $table->index('created_at'); // For date range queries
-            $table->index(['is_active', 'is_featured']); // For featured events
-            $table->index(['category', 'is_active', 'display_order']); // Composite for common queries
+            $table->index(['is_active', 'is_featured', 'is_archived']); // Featured events
+            $table->index(['category', 'is_active', 'display_order', 'is_archived']); // Composite
         });
     }
 

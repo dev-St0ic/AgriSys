@@ -17,14 +17,12 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Event::with(['creator', 'updater'])->ordered();
+        $query = Event::with(['creator', 'updater'])->notArchived()->ordered();
 
-        // Apply category filter
         if ($request->has('category') && $request->category !== 'all') {
             $query->where('category', $request->category);
         }
 
-        // Apply search filter
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -36,24 +34,22 @@ class EventController extends Controller
 
         $events = $query->paginate(15)->withQueryString();
 
-        // Enhanced statistics with more metrics
         $stats = [
-            'total' => Event::count(),
-            'active' => Event::where('is_active', true)->count(),
-            'announcements' => Event::where('category', 'announcement')->count(),
-            'ongoing' => Event::where('category', 'ongoing')->count(),
-            'upcoming' => Event::where('category', 'upcoming')->count(),
-            'past' => Event::where('category', 'past')->count(),
-            'inactive' => Event::where('is_active', false)->count(),
-            'recent_changes' => EventLog::latest()->take(5)->count()
+            'total' => Event::notArchived()->count(),
+            'active' => Event::active()->count(),
+            'inactive' => Event::notArchived()->where('is_active', false)->count(),
+            'archived' => Event::archived()->count(),
+            'announcements' => Event::active()->where('category', 'announcement')->count(),
+            'ongoing' => Event::active()->where('category', 'ongoing')->count(),
+            'upcoming' => Event::active()->where('category', 'upcoming')->count(),
+            'past' => Event::active()->where('category', 'past')->count(),
         ];
 
         return view('admin.event.index', compact('events', 'stats'));
     }
 
     /**
-     * Get all events as JSON (PUBLIC API ENDPOINT)
-     * Used by frontend to display events on landing page
+     * Get all ACTIVE events as JSON (PUBLIC API ENDPOINT)
      */
     public function getEvents(Request $request)
     {
@@ -61,31 +57,24 @@ class EventController extends Controller
             \Log::info('📡 Events API called', [
                 'category' => $request->get('category', 'all'),
                 'ip' => $request->ip(),
-                'user_agent' => $request->userAgent()
             ]);
             
-            $query = Event::query();
+            $query = Event::active();
             
-            // Only show active events for public API
-            $query->where('is_active', true);
-            
-            // Order by display_order and created_at
             $query->orderBy('display_order', 'asc')
                   ->orderBy('created_at', 'desc');
 
-            // Filter by category if specified
             if ($request->has('category') && $request->category !== 'all') {
                 $query->where('category', $request->category);
             }
 
             $events = $query->get();
             
-            \Log::info('✅ Events retrieved successfully', [
+            \Log::info('✅ Events retrieved', [
                 'count' => $events->count(),
                 'categories' => $events->pluck('category')->unique()->values()
             ]);
 
-            // Format events for frontend with enhanced data
             $formattedEvents = $events->map(function($event) {
                 return [
                     'id' => $event->id,
@@ -117,9 +106,6 @@ class EventController extends Controller
         } catch (\Exception $e) {
             \Log::error('❌ Events API Error', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
             ]);
             
             return response()->json([
@@ -132,33 +118,50 @@ class EventController extends Controller
     }
 
     /**
-     * Store a new event with enhanced validation
+     * Store a new event
+     * SAFETY: Auto-activates if no active events exist
+     * AUTO-DEACTIVATES: Old events in same category when new active event created
      */
     public function store(Request $request)
     {
-        // Custom validation with better error messages
+        \Log::info('📥 [Events] Store request received', [
+            'method' => $request->method(),
+            'all_data' => $request->all(),
+            'has_image' => $request->hasFile('image')
+        ]);
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255|unique:events,title',
-            'description' => 'required|string|min:20',
-            'category' => 'required|in:announcement,ongoing,upcoming,past',
+            'description' => 'required|string|min:10',
+            'category' => 'required|string|in:announcement,ongoing,upcoming,past',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'date' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:500',
-            'details' => 'nullable|json',
-            'is_active' => 'nullable|boolean'
+            'details' => 'nullable|string',
+            'is_active' => 'nullable'
         ], [
             'title.required' => 'Event title is required',
             'title.unique' => 'An event with this title already exists',
             'description.required' => 'Event description is required',
-            'description.min' => 'Description must be at least 20 characters',
+            'description.min' => 'Description must be at least 10 characters',
             'category.required' => 'Please select an event category',
-            'image.max' => 'Image size must not exceed 5MB'
+            'category.in' => 'Invalid category selected',
+            'image.max' => 'Image size must not exceed 5MB',
+            'image.image' => 'File must be a valid image',
+            'image.mimes' => 'Image must be JPEG, PNG, GIF, or WebP'
         ]);
 
         if ($validator->fails()) {
+            \Log::error('❌ [Events] Validation failed', [
+                'errors' => $validator->errors()->toArray(),
+                'title_length' => strlen($request->title ?? ''),
+                'description_length' => strlen($request->description ?? ''),
+                'description_value' => substr($request->description ?? '', 0, 50)
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
+                'message' => 'Validation failed: ' . implode(', ', $validator->errors()->all()),
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -166,7 +169,43 @@ class EventController extends Controller
         try {
             DB::beginTransaction();
 
-            // Handle image upload with better naming
+            // AUTO-ACTIVATION & AUTO-DEACTIVATION LOGIC
+            $activeCount = Event::active()->count();
+            $isActiveRequest = $request->boolean('is_active', true);
+            $wasForced = false;
+            $wasDeactivated = false;
+            $deactivatedCount = 0;
+
+            // If no active events exist, force this one to be active
+            if ($activeCount === 0) {
+                $isActiveRequest = true;
+                $wasForced = true;
+                
+                \Log::info('⚠️ [Events] No active events exist - forcing new event to be active', [
+                    'user_id' => auth()->id()
+                ]);
+            }
+
+            // If creating an active event, auto-deactivate old ones in same category
+            if ($isActiveRequest && $activeCount > 0) {
+                $deactivatedCount = Event::where('category', $request->category)
+                    ->where('is_active', true)
+                    ->where('is_archived', false)
+                    ->update([
+                        'is_active' => false,
+                        'updated_by' => auth()->id(),
+                        'updated_at' => now()
+                    ]);
+                
+                $wasDeactivated = $deactivatedCount > 0;
+
+                \Log::info('✅ [Events] Auto-deactivated old events in category', [
+                    'category' => $request->category,
+                    'count' => $deactivatedCount,
+                    'user_id' => auth()->id()
+                ]);
+            }
+
             $imagePath = null;
             if ($request->hasFile('image')) {
                 $file = $request->file('image');
@@ -174,57 +213,79 @@ class EventController extends Controller
                 $imagePath = $file->storeAs('events', $filename, 'public');
             }
 
-            // Get next display order
-            $maxOrder = Event::max('display_order') ?? -1;
+            $maxOrder = Event::notArchived()->max('display_order') ?? -1;
 
-            // Parse details
             $details = [];
             if ($request->has('details')) {
                 $detailsInput = $request->input('details');
-                $details = is_string($detailsInput) 
-                    ? json_decode($detailsInput, true) ?? [] 
-                    : $detailsInput;
+                if (is_string($detailsInput)) {
+                    $details = json_decode($detailsInput, true) ?? [];
+                } else {
+                    $details = $detailsInput;
+                }
             }
 
-            // Create event
             $event = Event::create([
                 'title' => $request->title,
                 'description' => $request->description,
                 'category' => $request->category,
+                'category_label' => ucfirst($request->category),
                 'image_path' => $imagePath,
                 'date' => $request->date,
                 'location' => $request->location,
                 'details' => $details,
-                'is_active' => $request->is_active ?? true,
+                'is_active' => $isActiveRequest,
+                'is_archived' => false,
                 'display_order' => $maxOrder + 1,
                 'created_by' => auth()->id(),
                 'updated_by' => auth()->id()
             ]);
 
-            // Log the action
             $event->logAction('created', auth()->id(), null, 'Event created successfully');
 
             DB::commit();
 
-            \Log::info('✅ Event created', ['id' => $event->id, 'title' => $event->title]);
+            \Log::info('✅ [Events] Event created successfully', [
+                'id' => $event->id, 
+                'title' => $event->title,
+                'category' => $event->category,
+                'is_active' => $event->is_active,
+                'was_forced_active' => $wasForced,
+                'old_events_deactivated' => $deactivatedCount
+            ]);
+
+            // Build success message
+            $message = 'Event "' . $event->title . '" created successfully';
+            if ($wasForced) {
+                $message .= ' and set as active (no other active events existed)';
+            }
+            if ($wasDeactivated) {
+                $message .= '. Previous events in ' . ucfirst($request->category) . ' category have been automatically deactivated.';
+            }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Event "' . $event->title . '" created successfully',
-                'event' => $event->load('creator')
+                'message' => $message,
+                'event' => $event->load('creator'),
+                'auto_deactivated' => $wasDeactivated,
+                'was_forced_active' => $wasForced,
+                'deactivated_count' => $deactivatedCount,
+                'category' => $event->category
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('❌ Failed to create event', [
+            \Log::error('❌ [Events] Failed to create event', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
             
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create event: ' . $e->getMessage()
+                'message' => 'Failed to create event',
+                'error' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         }
     }
@@ -235,7 +296,7 @@ class EventController extends Controller
     public function show(Event $event)
     {
         try {
-            $event->load(['creator', 'updater', 'logs.performer']);
+            $event->load(['creator', 'updater', 'archivist', 'logs.performer']);
             
             return response()->json([
                 'success' => true,
@@ -251,18 +312,23 @@ class EventController extends Controller
                     'location' => $event->location,
                     'details' => $event->details ?? [],
                     'is_active' => (bool) $event->is_active,
+                    'is_archived' => (bool) $event->is_archived,
+                    'archived_at' => $event->archived_at,
+                    'archive_reason' => $event->archive_reason,
                     'display_order' => $event->display_order,
                     'created_at' => $event->created_at->toIso8601String(),
                     'updated_at' => $event->updated_at->toIso8601String(),
                     'creator' => $event->creator ? [
                         'id' => $event->creator->id,
                         'name' => $event->creator->name,
-                        'email' => $event->creator->email
                     ] : null,
                     'updater' => $event->updater ? [
                         'id' => $event->updater->id,
                         'name' => $event->updater->name,
-                        'email' => $event->updater->email
+                    ] : null,
+                    'archivist' => $event->archivist ? [
+                        'id' => $event->archivist->id,
+                        'name' => $event->archivist->name,
                     ] : null,
                     'logs' => $event->logs->map(function($log) {
                         return [
@@ -272,14 +338,13 @@ class EventController extends Controller
                             'changes' => $log->formatted_changes,
                             'notes' => $log->notes,
                             'created_at' => $log->created_at->toIso8601String(),
-                            'created_at_human' => $log->created_at->diffForHumans()
                         ];
                     })
                 ]
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('❌ Failed to load event', [
+            \Log::error('❌ [Events] Failed to load event', [
                 'id' => $event->id ?? 'unknown',
                 'message' => $e->getMessage()
             ]);
@@ -292,19 +357,19 @@ class EventController extends Controller
     }
 
     /**
-     * Update an event with change tracking
+     * Update an event
      */
     public function update(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255|unique:events,title,' . $event->id,
-            'description' => 'required|string|min:20',
-            'category' => 'required|in:announcement,ongoing,upcoming,past',
+            'description' => 'required|string|min:10',
+            'category' => 'required|string|in:announcement,ongoing,upcoming,past',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'date' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:500',
-            'details' => 'nullable|json',
-            'is_active' => 'nullable|boolean'
+            'details' => 'nullable|string',
+            'is_active' => 'nullable'
         ]);
 
         if ($validator->fails()) {
@@ -318,19 +383,27 @@ class EventController extends Controller
         try {
             DB::beginTransaction();
 
-            // Track changes
+            // SAFETY CHECK: Prevent deactivating last active event
+            $isActiveRequest = $request->boolean('is_active', $event->is_active);
+            $activeCount = Event::active()->count();
+            
+            if ($event->is_active && !$isActiveRequest && $activeCount <= 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⚠️ Cannot deactivate the last active event. The landing page requires at least one active event to display.',
+                    'warning_type' => 'last_active_event'
+                ], 422);
+            }
+
             $changes = [];
             $oldData = $event->only(['title', 'description', 'category', 'date', 'location', 'is_active']);
 
-            // Handle image update
             $newImagePath = $event->image_path;
             if ($request->hasFile('image')) {
-                // Delete old image
                 if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
                     Storage::disk('public')->delete($event->image_path);
                 }
                 
-                // Store new image
                 $file = $request->file('image');
                 $filename = time() . '_' . \Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
                 $newImagePath = $file->storeAs('events', $filename, 'public');
@@ -338,29 +411,29 @@ class EventController extends Controller
                 $changes['image'] = ['old' => $event->image_path, 'new' => $newImagePath];
             }
 
-            // Parse details
             $details = [];
             if ($request->has('details')) {
                 $detailsInput = $request->input('details');
-                $details = is_string($detailsInput) 
-                    ? json_decode($detailsInput, true) ?? [] 
-                    : $detailsInput;
+                if (is_string($detailsInput)) {
+                    $details = json_decode($detailsInput, true) ?? [];
+                } else {
+                    $details = $detailsInput;
+                }
             }
 
-            // Update event
             $event->update([
                 'title' => $request->title,
                 'description' => $request->description,
                 'category' => $request->category,
+                'category_label' => ucfirst($request->category),
                 'image_path' => $newImagePath,
                 'date' => $request->date,
                 'location' => $request->location,
                 'details' => $details,
-                'is_active' => $request->is_active ?? $event->is_active,
+                'is_active' => $isActiveRequest,
                 'updated_by' => auth()->id()
             ]);
 
-            // Calculate changes
             $newData = $event->only(['title', 'description', 'category', 'date', 'location', 'is_active']);
             foreach ($newData as $key => $value) {
                 if ($oldData[$key] !== $value) {
@@ -368,14 +441,13 @@ class EventController extends Controller
                 }
             }
 
-            // Log the action
             if (!empty($changes)) {
                 $event->logAction('updated', auth()->id(), $changes, 'Event updated');
             }
 
             DB::commit();
 
-            \Log::info('✅ Event updated', ['id' => $event->id, 'changes' => count($changes)]);
+            \Log::info('✅ [Events] Event updated', ['id' => $event->id, 'changes' => count($changes)]);
 
             return response()->json([
                 'success' => true,
@@ -387,53 +459,142 @@ class EventController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('❌ Failed to update event', [
+            \Log::error('❌ [Events] Failed to update event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
             
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update event: ' . $e->getMessage()
+                'message' => 'Failed to update event'
             ], 500);
         }
     }
 
     /**
-     * Delete an event (soft delete)
+     * Archive an event
+     * SAFETY: Prevents archiving last active event
      */
-    public function destroy(Event $event)
+    public function archive(Request $request, Event $event)
     {
         try {
-            DB::beginTransaction();
-
-            $eventTitle = $event->title;
-            $eventId = $event->id;
-
-            // Log the action before deletion
-            $event->logAction('deleted', auth()->id(), null, 'Event deleted by ' . auth()->user()->name);
-
-            // Delete image if exists
-            if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
-                Storage::disk('public')->delete($event->image_path);
+            // SAFETY CHECK: Don't archive if it's the last active event
+            $activeCount = Event::active()->count();
+            if ($activeCount <= 1 && $event->is_active) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⚠️ Cannot archive the last active event. The landing page must always display at least one event. Please create or activate another event first.',
+                    'warning_type' => 'last_active_event'
+                ], 422);
             }
 
-            // Soft delete the event
-            $event->delete();
+            DB::beginTransaction();
+
+            $reason = $request->input('reason', null);
+
+            $event->archive(auth()->id(), $reason);
 
             DB::commit();
 
-            \Log::info('✅ Event deleted', ['id' => $eventId, 'title' => $eventTitle]);
+            \Log::info('✅ [Events] Event archived', ['id' => $event->id, 'reason' => $reason]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Event "' . $eventTitle . '" deleted successfully'
+                'message' => 'Event "' . $event->title . '" has been archived'
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('❌ Failed to delete event', [
+            \Log::error('❌ [Events] Failed to archive event', [
+                'id' => $event->id,
+                'message' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to archive event'
+            ], 500);
+        }
+    }
+
+    /**
+     * Restore/unarchive an event
+     */
+    public function unarchive(Event $event)
+    {
+        try {
+            DB::beginTransaction();
+
+            $event->unarchive(auth()->id());
+
+            DB::commit();
+
+            \Log::info('✅ [Events] Event restored', ['id' => $event->id]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Event "' . $event->title . '" has been restored'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('❌ [Events] Failed to restore event', [
+                'id' => $event->id,
+                'message' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to restore event'
+            ], 500);
+        }
+    }
+
+    /**
+     * Permanently delete an event
+     * SAFETY: Prevents deleting last active event
+     */
+    public function destroy(Event $event)
+    {
+        try {
+            // SAFETY CHECK: Don't delete if it's the last active event
+            $activeCount = Event::active()->count();
+            if ($activeCount <= 1 && $event->is_active) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⚠️ Cannot delete the last active event. The landing page must always display at least one event.',
+                    'warning_type' => 'last_active_event'
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            $eventTitle = $event->title;
+            $eventId = $event->id;
+
+            $event->logAction('deleted', auth()->id(), null, 'Event permanently deleted by ' . auth()->user()->name);
+
+            if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
+                Storage::disk('public')->delete($event->image_path);
+            }
+
+            $event->forceDelete();
+
+            DB::commit();
+
+            \Log::info('✅ [Events] Event permanently deleted', ['id' => $eventId, 'title' => $eventTitle]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Event "' . $eventTitle . '" has been permanently deleted'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('❌ [Events] Failed to delete event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
@@ -447,11 +608,23 @@ class EventController extends Controller
 
     /**
      * Toggle event active status
+     * SAFETY: Prevents deactivating last active event
      */
     public function toggleStatus(Event $event)
     {
         try {
             $newStatus = !$event->is_active;
+            
+            // SAFETY CHECK: Prevent deactivating last active event
+            $activeCount = Event::active()->count();
+            if ($event->is_active && $activeCount <= 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⚠️ Cannot deactivate the last active event. The landing page must always have at least one active event.',
+                    'warning_type' => 'last_active_event'
+                ], 422);
+            }
+
             $event->update([
                 'is_active' => $newStatus,
                 'updated_by' => auth()->id()
@@ -460,9 +633,9 @@ class EventController extends Controller
             $action = $newStatus ? 'published' : 'unpublished';
             $event->logAction($action, auth()->id(), [
                 'is_active' => ['old' => !$newStatus, 'new' => $newStatus]
-            ], 'Event status changed to ' . ($newStatus ? 'active' : 'inactive'));
+            ], 'Event status changed');
 
-            \Log::info('✅ Event status toggled', [
+            \Log::info('✅ [Events] Event status toggled', [
                 'id' => $event->id,
                 'new_status' => $newStatus ? 'active' : 'inactive'
             ]);
@@ -470,13 +643,13 @@ class EventController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $newStatus 
-                    ? 'Event "' . $event->title . '" is now active and visible to public' 
-                    : 'Event "' . $event->title . '" is now inactive and hidden from public',
+                    ? 'Event "' . $event->title . '" is now active' 
+                    : 'Event "' . $event->title . '" is now inactive',
                 'is_active' => $newStatus
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('❌ Failed to toggle event status', [
+            \Log::error('❌ [Events] Failed to toggle event status', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
@@ -489,63 +662,33 @@ class EventController extends Controller
     }
 
     /**
-     * Update event display order
+     * Get archived events for archive management view
      */
-    public function updateOrder(Request $request, Event $event)
+    public function archivedEvents(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'display_order' => 'required|integer|min:0|max:9999'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid display order',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         try {
-            DB::beginTransaction();
+            $query = Event::archived()
+                ->with(['creator', 'updater', 'archivist'])
+                ->orderBy('archived_at', 'desc');
 
-            $oldOrder = $event->display_order;
-            $newOrder = $request->display_order;
+            if ($request->has('search') && !empty($request->search)) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('title', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            }
 
-            $event->update([
-                'display_order' => $newOrder,
-                'updated_by' => auth()->id()
-            ]);
+            $events = $query->paginate(20);
 
-            $event->logAction('updated', auth()->id(), [
-                'display_order' => ['old' => $oldOrder, 'new' => $newOrder]
-            ], 'Display order updated from ' . $oldOrder . ' to ' . $newOrder);
-
-            DB::commit();
-
-            \Log::info('✅ Event display order updated', [
-                'id' => $event->id,
-                'old' => $oldOrder,
-                'new' => $newOrder
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Display order updated successfully',
-                'display_order' => $newOrder
-            ]);
+            return view('admin.event.archived', compact('events'));
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            
-            \Log::error('❌ Failed to update event order', [
-                'id' => $event->id,
+            \Log::error('❌ [Events] Failed to fetch archived events', [
                 'message' => $e->getMessage()
             ]);
             
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update display order'
-            ], 500);
+            return redirect()->back()->with('error', 'Failed to fetch archived events');
         }
     }
 
@@ -556,21 +699,14 @@ class EventController extends Controller
     {
         try {
             $stats = [
-                'total' => Event::count(),
-                'active' => Event::where('is_active', true)->count(),
-                'inactive' => Event::where('is_active', false)->count(),
-                'announcements' => Event::where('category', 'announcement')->count(),
-                'ongoing' => Event::where('category', 'ongoing')->count(),
-                'upcoming' => Event::where('category', 'upcoming')->count(),
-                'past' => Event::where('category', 'past')->count(),
-                'with_images' => Event::whereNotNull('image_path')->count(),
-                'without_images' => Event::whereNull('image_path')->count(),
-                'recent_events' => Event::orderBy('created_at', 'desc')->take(5)->get(),
-                'top_display_order' => Event::orderBy('display_order')->take(5)->get(),
-                'recent_logs' => EventLog::with('event', 'performer')
-                    ->latest()
-                    ->take(10)
-                    ->get()
+                'total' => Event::notArchived()->count(),
+                'active' => Event::active()->count(),
+                'inactive' => Event::notArchived()->where('is_active', false)->count(),
+                'archived' => Event::archived()->count(),
+                'announcements' => Event::active()->where('category', 'announcement')->count(),
+                'ongoing' => Event::active()->where('category', 'ongoing')->count(),
+                'upcoming' => Event::active()->where('category', 'upcoming')->count(),
+                'past' => Event::active()->where('category', 'past')->count(),
             ];
 
             return response()->json([
@@ -580,59 +716,13 @@ class EventController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('❌ Failed to fetch statistics', [
+            \Log::error('❌ [Events] Failed to fetch statistics', [
                 'message' => $e->getMessage()
             ]);
             
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch statistics'
-            ], 500);
-        }
-    }
-
-    /**
-     * Bulk update event status
-     */
-    public function bulkToggleStatus(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'event_ids' => 'required|array',
-            'event_ids.*' => 'exists:events,id',
-            'is_active' => 'required|boolean'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $count = Event::whereIn('id', $request->event_ids)
-                ->update([
-                    'is_active' => $request->is_active,
-                    'updated_by' => auth()->id()
-                ]);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => $count . ' events updated successfully',
-                'count' => $count
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update events'
             ], 500);
         }
     }
