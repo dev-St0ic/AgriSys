@@ -203,7 +203,8 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::put('/items/{item}', [SeedlingCategoryItemController::class, 'updateItem'])->name('items.update');
     Route::get('/items/{item}', [SeedlingCategoryItemController::class, 'showItem'])->name('items.show');
     Route::delete('/items/{item}', [SeedlingCategoryItemController::class, 'destroyItem'])->name('items.destroy');
-
+    
+    Route::post('/seedlings/stock-status', [SeedlingsCategoryItemController::class, 'getStockStatus']);
      // Stock Management
     // Route::post('/items/{item}/stock/add', [SeedlingCategoryItemController::class, 'addStock'])->name('items.stock.add');
     // Route::post('/items/{item}/stock/deduct', [SeedlingCategoryItemController::class, 'deductStock'])->name('items.stock.deduct');
@@ -557,8 +558,8 @@ Route::prefix('auth')->group(function () {
 
 
     // Facebook Authentication
-    Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])->name('facebook.redirect');
-    Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])->name('facebook.callback');
+    // Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])->name('facebook.redirect');
+    // Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])->name('facebook.callback');
 
     // Username availability checking
     Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('auth.check.username');
@@ -584,6 +585,14 @@ Route::prefix('auth')->group(function () {
         ->middleware('auth');
 });
 
+// ============================================
+// FACEBOOK AUTHENTICATION - OUTSIDE auth PREFIX
+// ============================================
+Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])
+    ->name('facebook.redirect');
+
+Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
+    ->name('facebook.callback');
 /*
 |--------------------------------------------------------------------------
 | User Dashboard Routes (Protected by UserSession middleware)
@@ -689,7 +698,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         // Get event statistics for dashboard
         Route::get('/statistics/all', [EventController::class, 'getStatistics'])
             ->name('statistics');
-            
+
         // View archived events (alternative route)
         Route::get('/admin/events/management/archived', [EventController::class, 'archivedEvents'])
         ->name('admin.event.archived');
