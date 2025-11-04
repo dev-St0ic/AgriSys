@@ -168,30 +168,36 @@
         <div class="welcome-image"></div>
     </section>
 
-    <!-- Events Section - Updated to load dynamically -->
+    <!-- Events Section - Updated Layout -->
     <section class="events" id="events">
-        <img src="{{ asset('images/logos/cagoFull.png') }}" alt="City Agriculture Office Logo" class="logo-icon">
-        <img src="{{ asset('images/logos/CityOfSanPedro.jpg') }}" alt="City of San Pedro Logo" class="logo-icon">
-        <h2>City<span class="highlight"> Agriculture Office of San Pedro, Laguna</span></h2>
-        <p class="events-subtitle">Ongoing and past events and initiatives of the San Pedro City Agriculture Office
-            dedicated to promoting agricultural growth and community development.</p>
-
-        <div class="events-filters">
-            <button class="filter-btn active" data-filter="all">View All</button>
-            <button class="filter-btn" data-filter="announcement">Announcements</button>
-            <button class="filter-btn" data-filter="ongoing">Ongoing Events</button>
-            <button class="filter-btn" data-filter="upcoming">Upcoming Events</button>
-            <button class="filter-btn" data-filter="past">Past Events</button>
+        <!-- Header with Logos and Title -->
+        <div class="events-header">
+            <img src="{{ asset('images/logos/cagoFull.png') }}" 
+                alt="City Agriculture Office Logo" 
+                class="logo-icon"
+                loading="lazy">
+            <img src="{{ asset('images/logos/CityOfSanPedro.jpg') }}" 
+                alt="City of San Pedro Logo" 
+                class="logo-icon"
+                loading="lazy">
         </div>
-            <!-- Events Grid - Will be populated by JavaScript -->
-            <div class="events-grid">
-                <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
-                    <div class="spinner-border text-primary" role="status">
-                        main
-                    </div>
-                    <p class="text-muted mt-3">Loading events...</p>
-                </div>
+
+        <!-- Title and Subtitle -->
+        <h2 id="events-title">City <span class="highlight">Agriculture Office Events</span></h2>
+        <p class="events-subtitle" id="events-subtitle">Loading events information...</p>
+
+        <!-- Dynamic Events Container -->
+        <!-- Structure:
+            - Top 3 Cards (from first 3 events)
+            - Featured Large Section (from first event or featured)
+            All content populated by JavaScript from API -->
+        <div class="events-container">
+            <!-- Loading state -->
+            <div class="events-loading">
+                <div class="loader"></div>
+                <p>Loading events...</p>
             </div>
+        </div>
     </section>
 
     <!-- Services Section (Always visible) -->

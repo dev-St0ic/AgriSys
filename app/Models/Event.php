@@ -27,7 +27,7 @@ class Event extends Model
         'updated_by'
     ];
 
-    // ⭐ ADDED: Append custom attributes to JSON responses
+    // Append custom attributes to JSON responses
     protected $appends = [
         'image_url',
         'formatted_date'
@@ -77,6 +77,11 @@ class Event extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('display_order')->orderBy('created_at', 'desc');
+    }
+
+    public function scopePublic($query)
+    {
+        return $query->where('is_active', true)->ordered();
     }
 
     // ========================================
@@ -147,8 +152,32 @@ class Event extends Model
         ]);
     }
 
+    /**
+     * Get all public (active) events
+     */
+    public static function getPublicEvents($category = null)
+    {
+        $query = self::public();
+
+        if ($category && $category !== 'all') {
+            $query->where('category', $category);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Get featured events for landing page
+     */
+    public static function getFeaturedEvents($limit = 3)
+    {
+        return self::public()
+            ->limit($limit)
+            ->get();
+    }
+
     // ========================================
-    // JSON SERIALIZATION OVERRIDE (Optional)
+    // JSON SERIALIZATION OVERRIDE
     // ========================================
 
     /**
@@ -166,6 +195,9 @@ class Event extends Model
         return $array;
     }
 
+    /**
+     * Configure activity logging
+     */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
