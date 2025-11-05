@@ -573,6 +573,13 @@ Route::prefix('auth')->group(function () {
     Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('auth.verify.email');
     Route::post('/resend-verification', [UserRegistrationController::class, 'resendVerification'])->name('auth.resend.verification');
 
+    // FACEBOOK AUTHENTICATION - INSIDE auth PREFIX
+    Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])
+    ->name('facebook.redirect');
+
+    Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
+        ->name('facebook.callback');
+
     // Add these to your routes file
     Route::post('/admin/users/{id}/ban', [UserRegistrationController::class, 'banUser']);
     Route::post('/admin/users/{id}/unban', [UserRegistrationController::class, 'unbanUser']);
@@ -588,11 +595,11 @@ Route::prefix('auth')->group(function () {
 // ============================================
 // FACEBOOK AUTHENTICATION - OUTSIDE auth PREFIX
 // ============================================
-Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])
-    ->name('facebook.redirect');
+// Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])
+//     ->name('facebook.redirect');
 
-Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
-    ->name('facebook.callback');
+// Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
+//     ->name('facebook.callback');
 /*
 |--------------------------------------------------------------------------
 | User Dashboard Routes (Protected by UserSession middleware)
