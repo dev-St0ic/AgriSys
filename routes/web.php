@@ -641,6 +641,9 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
 
         // change pass word route
         Route::post('/change-password', [UserRegistrationController::class, 'changePassword'])->name('api.user.change-password');
+
+        //  Session update endpoint for polling (keeps session synced with DB)
+        Route::post('/update-session', [UserRegistrationController::class, 'updateSession'])->name('api.user.update-session');
     });
 });
 

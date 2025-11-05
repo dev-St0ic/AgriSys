@@ -1192,51 +1192,118 @@ class UserRegistrationController extends Controller
         ]);
     }
 
+  /**
+     * Get user profile data (for polling verification status)
+     * UPDATED: Use session-based auth instead of Laravel Auth
+     */
     /**
-     * Get user profile for API
+     * Get user profile data (for polling verification status)
+     * UPDATED: Use session-based auth instead of Laravel Auth
      */
     public function getUserProfile(Request $request)
+    {
+        try {
+            // Get user from session (not Laravel Auth)
+            $userId = session('user.id');
+            
+            if (!$userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
+            // Fetch fresh data from database
+            $user = UserRegistration::find($userId);
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found'
+                ], 404);
+            }
+
+            // Log for debugging
+            \Log::info('Profile polling request', [
+                'user_id' => $userId,
+                'current_status' => $user->status,
+                'session_status' => session('user.status')
+            ]);
+
+            // Return fresh user data with latest status
+            return response()->json([
+                'success' => true,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->full_name ?? $user->username,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'status' => $user->status,  // ← Fresh status from DB!
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'middle_name' => $user->middle_name,
+                    'contact_number' => $user->contact_number,
+                    'date_of_birth' => $user->date_of_birth,
+                    'age' => $user->age,
+                    'complete_address' => $user->complete_address,
+                    'barangay' => $user->barangay,
+                    'user_type' => $user->user_type,
+                    'remarks' => $user->rejection_reason,
+                    'verified_at' => $user->approved_at,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Profile polling error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error retrieving user profile: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update user session data (called by polling to sync session)
+     */
+    public function updateSession(Request $request)
     {
         $userId = session('user.id');
         if (!$userId) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please log in to access profile'
+                'message' => 'No active session'
             ], 401);
         }
 
-        $registration = UserRegistration::find($userId);
-        if (!$registration) {
+        $user = UserRegistration::find($userId);
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found'
             ], 404);
         }
 
+        // Update session with fresh data from database
+        $request->session()->put('user', [
+            'id' => $user->id,
+            'username' => $user->username,
+            'email' => $user->email,
+            'name' => $user->full_name ?? $user->username,
+            'user_type' => $user->user_type,
+            'status' => $user->status // Fresh status from DB!
+        ]);
+
+        $request->session()->put('user_status', $user->status);
+
+        \Log::info('Session updated via polling', [
+            'user_id' => $userId,
+            'new_status' => $user->status
+        ]);
+
         return response()->json([
             'success' => true,
-            'user' => [
-                'id' => $registration->id,
-                'username' => $registration->username,
-                'email' => $registration->email,
-                'first_name' => $registration->first_name,
-                'middle_name' => $registration->middle_name,
-                'last_name' => $registration->last_name,
-                'name_extension' => $registration->name_extension,
-                'full_name' => $registration->full_name,
-                'contact_number' => $registration->contact_number,
-                'complete_address' => $registration->complete_address,
-                'barangay' => $registration->barangay,
-                'user_type' => $registration->user_type,
-                'age' => $registration->age,
-                'date_of_birth' => $registration->date_of_birth,
-                'gender' => $registration->gender,
-                'status' => $registration->status,
-                'verification_status' => $registration->email_verified_at ? 'verified' : 'unverified',
-                'created_at' => $registration->created_at->format('M d, Y'),
-                'last_login_at' => $registration->last_login_at ? $registration->last_login_at->format('M d, Y') : null,
-                'profile_completion' => $this->calculateProfileCompletion($registration),
-            ]
+            'message' => 'Session updated',
+            'status' => $user->status
         ]);
     }
 

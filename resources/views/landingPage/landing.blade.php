@@ -88,13 +88,19 @@
                                 @endphp
                                 {{ $firstName }}
                             </div>
-                            <div class="user-status">
-                                @if (isset($user['status']) && strtolower($user['status']) == 'approved')
-                                    ✓ Verified
-                                @elseif(isset($user['status']) && strtolower($user['status']) == 'pending')
-                                    ⏳ Pending
+                            <div class="user-status" id="header-user-status">
+                                @if (isset($user['status']))
+                                    <span id="status-text">
+                                        @if (strtolower($user['status']) == 'approved')
+                                            ✓ Verified
+                                        @elseif(strtolower($user['status']) == 'pending')
+                                            ⏳ Pending
+                                        @else
+                                            {{ ucfirst($user['status']) }}
+                                        @endif
+                                    </span>
                                 @else
-                                    {{ ucfirst($user['status'] ?? 'Active') }}
+                                    <span id="status-text">Active</span>
                                 @endif
                             </div>
                         </div>
