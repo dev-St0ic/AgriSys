@@ -90,17 +90,24 @@
                             </div>
                             <div class="user-status" id="header-user-status">
                                 @if (isset($user['status']))
-                                    <span id="status-text">
-                                        @if (strtolower($user['status']) == 'approved')
-                                            ✓ Verified
-                                        @elseif(strtolower($user['status']) == 'pending')
-                                            ⏳ Pending
-                                        @else
-                                            {{ ucfirst($user['status']) }}
-                                        @endif
+                                    <span id="status-text" class="status-badge-text">
+                                        @php
+                                            $statusLower = strtolower($user['status']);
+                                            if ($statusLower === 'approved' || $statusLower === 'verified') {
+                                                echo 'Verified';
+                                            } elseif ($statusLower === 'pending' || $statusLower === 'pending_verification') {
+                                                echo 'Under Review';
+                                            } elseif ($statusLower === 'rejected') {
+                                                echo 'Verification Failed';
+                                            } elseif ($statusLower === 'unverified') {
+                                                echo 'Not Verified';
+                                            } else {
+                                                echo ucfirst($user['status']);
+                                            }
+                                        @endphp
                                     </span>
                                 @else
-                                    <span id="status-text">Active</span>
+                                    <span id="status-text" class="status-badge-text">Active</span>
                                 @endif
                             </div>
                         </div>

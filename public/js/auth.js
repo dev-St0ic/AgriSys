@@ -222,42 +222,54 @@ function refreshProfileVerifyButton() {
  */
 function updateHeaderStatusDisplay(status) {
     const statusText = document.getElementById('status-text');
-    if (!statusText) return;
+    const statusDiv = document.getElementById('header-user-status');
+    
+    if (!statusText || !statusDiv) return;
 
     const statusLower = (status || '').toLowerCase();
     let displayText = 'Active';
+    let badgeClass = 'status-active';
+    let icon = ''; // Will use CSS for icon instead
 
-    // Map status to display text
+    // Map status to display text with professional labels
     switch(statusLower) {
         case 'verified':
         case 'approved':
-            displayText = '✓ Verified';
+            displayText = 'Verified';
+            badgeClass = 'status-verified';
             break;
+            
         case 'pending':
         case 'pending_verification':
-            displayText = '⏳ Pending';
+            displayText = 'Under Review';
+            badgeClass = 'status-pending';
             break;
+            
         case 'rejected':
-            displayText = '❌ Rejected';
+            displayText = 'Verification Failed';
+            badgeClass = 'status-rejected';
             break;
+            
         case 'unverified':
-            displayText = 'Active';
+            displayText = 'Not Verified';
+            badgeClass = 'status-unverified';
             break;
+            
         case 'banned':
-            displayText = '🚫 Banned';
+            displayText = 'Account Restricted';
+            badgeClass = 'status-banned';
             break;
+            
         default:
             displayText = statusLower.charAt(0).toUpperCase() + statusLower.slice(1);
+            badgeClass = `status-${statusLower}`;
     }
 
     // Update the text content
     statusText.textContent = displayText;
     
     // Update the parent div class for styling
-    const statusDiv = document.getElementById('header-user-status');
-    if (statusDiv) {
-        statusDiv.className = `user-status status-${statusLower}`;
-    }
+    statusDiv.className = `user-status ${badgeClass}`;
 
     console.log('📝 Header status updated to:', displayText);
 }
@@ -268,7 +280,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateHeaderStatusDisplay(window.userData.status);
     }
 });
-
 // ==============================================
 // USER PROFILE DROPDOWN FUNCTIONS
 // ==============================================

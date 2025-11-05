@@ -1172,6 +1172,242 @@ input.is-invalid {
     margin: 8px 0;
 }
 
+/* ================================================
+   PROFESSIONAL HEADER STATUS BADGE STYLES
+   Farmer & Fisherfolk Friendly Design
+   ================================================ */
+
+.user-status {
+    font-size: 11px;
+    font-weight: 600;
+    color: #0A6953;
+    background: rgba(168, 230, 207, 0.25);
+    padding: 4px 12px;
+    border-radius: 12px;
+    display: inline-block;
+    border: 1px solid #a8e6cf;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+/* Status: Verified - Green Professional Look */
+.user-status.status-verified,
+.user-status.status-approved {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 1.5px solid #6ee7b7;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+    position: relative;
+}
+
+.user-status.status-verified::before,
+.user-status.status-approved::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse-success 2s infinite;
+}
+
+@keyframes pulse-success {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    50% {
+        opacity: 0.7;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+}
+
+/* Status: Pending - Blue Professional Look */
+.user-status.status-pending,
+.user-status.status-pending_verification {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    border: 1.5px solid #93c5fd;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    position: relative;
+}
+
+.user-status.status-pending::before,
+.user-status.status-pending_verification::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #3b82f6;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse-pending 1.5s infinite;
+}
+
+@keyframes pulse-pending {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+}
+
+/* Status: Not Verified - Gray Professional Look */
+.user-status.status-unverified,
+.user-status.status-active {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #4b5563;
+    border: 1.5px solid #d1d5db;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    position: relative;
+}
+
+.user-status.status-unverified::before,
+.user-status.status-active::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #9ca3af;
+    border-radius: 50%;
+    margin-right: 6px;
+    opacity: 0.6;
+}
+
+/* Status: Verification Failed - Red Professional Look */
+.user-status.status-rejected {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #7f1d1d;
+    border: 1.5px solid #fca5a5;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+    position: relative;
+}
+
+.user-status.status-rejected::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #ef4444;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse-rejected 2s infinite;
+}
+
+@keyframes pulse-rejected {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.9);
+    }
+}
+
+/* Status: Banned - Dark Red */
+.user-status.status-banned {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #78350f;
+    border: 1.5px solid #fdba74;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.user-status.status-banned::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: #ea580c;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+/* Text styling for badge */
+.status-badge-text {
+    display: inline-block;
+    letter-spacing: 0.3px;
+    font-weight: 600;
+}
+
+/* Hover effect for user profile status */
+.user-profile:hover .user-status {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ================================================
+   RESPONSIVE & ACCESSIBILITY
+   ================================================ */
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .user-status {
+        font-size: 10px;
+        padding: 3px 10px;
+        border-radius: 10px;
+    }
+
+    .user-status::before {
+        width: 5px;
+        height: 5px;
+        margin-right: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .user-status {
+        font-size: 9px;
+        padding: 3px 9px;
+        border-radius: 8px;
+        letter-spacing: 0.2px;
+    }
+
+    .user-status::before {
+        width: 4px;
+        height: 4px;
+        margin-right: 4px;
+    }
+
+    .status-badge-text {
+        display: inline;
+    }
+}
+
+/* Accessibility - High contrast mode */
+@media (prefers-contrast: high) {
+    .user-status {
+        border-width: 2px;
+    }
+
+    .user-status::before {
+        width: 8px;
+        height: 8px;
+    }
+}
+
+/* Accessibility - Reduced motion - FIXED */
+@media (prefers-reduced-motion: reduce) {
+    /* Remove animations for users who prefer reduced motion */
+    .user-status.status-verified::before,
+    .user-status.status-approved::before,
+    .user-status.status-pending::before,
+    .user-status.status-pending_verification::before,
+    .user-status.status-rejected::before {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: scale(1) !important;
+        box-shadow: none !important;
+    }
+}
+
 /* ==============================================
    MODAL STYLES (SHARED)
    ============================================== */
