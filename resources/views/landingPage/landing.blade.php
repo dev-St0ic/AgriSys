@@ -1012,7 +1012,7 @@
         </div>
     @endif
 
-    <!-- EDIT PROFILE MODAL -->
+   <!-- EDIT PROFILE MODAL - UPDATED VERSION WITH EDITABLE USERNAME (ONCE) -->
     <div id="edit-profile-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content edit-profile-modal">
             <div class="modal-header">
@@ -1022,91 +1022,94 @@
 
             <div class="modal-body">
                 <form id="edit-profile-form">
+                    <!-- Profile Image & Username Section -->
                     <div class="profile-edit-section">
-                        <h5>Personal Information</h5>
+                        <h5>Profile Information</h5>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="edit-first-name">First Name *</label>
-                                <input type="text" id="edit-first-name" name="first_name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit-middle-name">Middle Name</label>
-                                <input type="text" id="edit-middle-name" name="middle_name">
+                        <div class="profile-image-section">
+                            <div class="profile-image-display">
+                                <div id="profile-image-preview" class="profile-image-avatar">
+                                    <span id="profile-avatar-letter">U</span>
+                                </div>
+                                <div class="profile-image-info">
+                                    <p class="profile-image-label">Profile Picture</p>
+                                    <p class="profile-image-note">Avatar based on your username</p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="edit-last-name">Last Name *</label>
-                                <input type="text" id="edit-last-name" name="last_name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit-name-extension">Name Extension</label>
-                                <select id="edit-name-extension" name="name_extension">
-                                    <option value="">Select</option>
-                                    <option value="Jr.">Jr.</option>
-                                    <option value="Sr.">Sr.</option>
-                                    <option value="III">III</option>
-                                    <option value="IV">IV</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="edit-contact-number">Contact Number *</label>
-                                <input type="tel" id="edit-contact-number" name="contact_number"
-                                    placeholder="e.g., +639123456789">
-                            </div>
-                            <div class="form-group">
-                                <label for="edit-gender">Gender</label>
-                                <select id="edit-gender" name="gender">
-                                    <option value="">Select Gender</option>
-                                    <option value="male">Male</option>
-                                    <option value="female">Female</option>
-                                    <option value="other">Other</option>
-                                    <option value="prefer_not_to_say">Prefer not to say</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="edit-date-of-birth">Date of Birth</label>
-                                <input type="date" id="edit-date-of-birth" name="date_of_birth">
-                            </div>
-                            <div class="form-group">
-                                <label for="edit-age">Age</label>
-                                <input type="number" id="edit-age" name="age" min="18"
-                                    max="100" readonly>
-                                <small>Calculated automatically from date of birth</small>
-                            </div>
-                        </div>
-
+                        <!-- Username Field - Editable once -->
                         <div class="form-group">
-                            <label for="edit-user-type">User Type</label>
-                            <select id="edit-user-type" name="user_type">
-                                <option value="">Select Type</option>
-                                <option value="farmer">Farmer</option>
-                                <option value="fisherfolk">Fisherfolk</option>
-                                <option value="individual">Individual</option>
-                            </select>
+                            <div class="username-field-wrapper">
+                                <label for="edit-username">Username *</label>
+                                <div class="username-input-container">
+                                    <input 
+                                        type="text" 
+                                        id="edit-username" 
+                                        name="username"
+                                        placeholder="Enter your username"
+                                        minlength="3"
+                                        maxlength="50"
+                                        pattern="^[a-zA-Z0-9_]+$"
+                                        data-original-username=""
+                                    >
+                                    <span id="username-edit-indicator" class="username-edit-indicator" style="display: none;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 6c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3z"/>
+                                            <path d="M6 9c-1.654.737-3 1.956-3 3.341 0 2.219 2.686 4 6 4s6-1.781 6-4c0-1.385-1.346-2.604-3-3.341"/>
+                                        </svg>
+                                        Can only be changed once
+                                    </span>
+                                </div>
+                                <small>Letters, numbers, and underscores only (3-50 characters)</small>
+                            </div>
+                        </div>
+
+                        <!-- Email Address Field - Readonly -->
+                        <div class="form-group">
+                            <label for="edit-email">Email Address</label>
+                            <input type="email" id="edit-email" name="email" readonly disabled>
+                            <small>Email address cannot be changed. Contact support if needed.</small>
                         </div>
                     </div>
 
+                    <!-- Contact Information Section -->
+                    <div class="profile-edit-section">
+                        <h5>Contact Information</h5>
+
+                        <div class="form-group">
+                            <label for="edit-contact-number">Contact Number *</label>
+                            <input 
+                                type="tel" 
+                                id="edit-contact-number" 
+                                name="contact_number"
+                                placeholder="09XXXXXXXXX or +639XXXXXXXXX"
+                                pattern="^(\+639|09)\d{9}$"
+                                maxlength="20"
+                            >
+                            <small>11-digit Philippine mobile number format</small>
+                        </div>
+                    </div>
+
+                    <!-- Address Information Section -->
                     <div class="profile-edit-section">
                         <h5>Address Information</h5>
 
                         <div class="form-group">
                             <label for="edit-complete-address">Complete Address *</label>
-                            <textarea id="edit-complete-address" name="complete_address" placeholder="Enter your complete address"
-                                rows="3"></textarea>
+                            <textarea 
+                                id="edit-complete-address" 
+                                name="complete_address" 
+                                placeholder="Enter your complete address (House No., Street, Subdivision, etc.)"
+                                rows="3"
+                                maxlength="500"
+                            ></textarea>
+                            <small>Include house number, street name, and subdivision/barangay details</small>
                         </div>
 
                         <div class="form-group">
-                            <label for="edit-barangay">Barangay</label>
-                            <select id="edit-barangay" name="barangay">
+                            <label for="edit-barangay">Barangay *</label>
+                            <select id="edit-barangay" name="barangay" required>
                                 <option value="">Select Barangay</option>
                                 <option value="Bagong Silang">Bagong Silang</option>
                                 <option value="Calendola">Calendola</option>
@@ -1139,6 +1142,7 @@
                         </div>
                     </div>
 
+                    <!-- Modal Actions -->
                     <div class="modal-actions">
                         <button type="button" class="btn-secondary" onclick="closeEditProfileModal()">
                             Cancel
@@ -1152,6 +1156,7 @@
             </div>
         </div>
     </div>
+
     <!-- CHANGE PASSWORD MODAL -->
     <div id="change-password-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content change-password-modal">

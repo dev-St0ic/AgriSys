@@ -390,69 +390,150 @@ function loadProfileData() {
     });
 }
 
-function editProfile() {
-    const modal = document.getElementById('edit-profile-modal');
-    if (!modal) {
-        console.error('Edit profile modal not found');
-        return;
-    }
+// function editProfile() {
+//     const modal = document.getElementById('edit-profile-modal');
+//     if (!modal) {
+//         console.error('Edit profile modal not found');
+//         return;
+//     }
 
-    // Load current profile data
-    loadCurrentProfileData();
+//     // Load current profile data
+//     loadCurrentProfileData();
 
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+//     modal.style.display = 'flex';
+//     document.body.style.overflow = 'hidden';
 
-    // Close profile modal if open
-    closeProfileModal();
-}
+//     // Close profile modal if open
+//     closeProfileModal();
+// }
 
-function closeEditProfileModal() {
-    const modal = document.getElementById('edit-profile-modal');
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-}
+// function closeEditProfileModal() {
+//     const modal = document.getElementById('edit-profile-modal');
+//     if (modal) {
+//         modal.style.display = 'none';
+//         document.body.style.overflow = 'auto';
+//     }
+// }
+// /**
+//  * Load current profile data into edit form
+//  * UPDATED: Check if username has been changed before to disable editing
+//  */
+// async function loadCurrentProfileData() {
+//     try {
+//         const response = await fetch('/api/user/profile', {
+//             method: 'GET',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+//             },
+//             credentials: 'same-origin'
+//         });
 
-async function loadCurrentProfileData() {
-    try {
-        const response = await fetch('/api/user/profile', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-            },
-            credentials: 'same-origin'
-        });
+//         const data = await response.json();
 
-        const data = await response.json();
+//         if (data.success && data.user) {
+//             populateEditForm(data.user);
+//         } else {
+//             showNotification('error', 'Failed to load profile data');
+//         }
+//     } catch (error) {
+//         console.error('Error loading profile data:', error);
+//         showNotification('error', 'Failed to load profile data');
+//     }
+// }
+// /**
+//  * Populate edit form with user data
+//  * UPDATED: Handle username editability based on whether it was already changed
+//  */
+// function populateEditForm(user) {
+//     // Set readonly fields with current user data
+//     const usernameInput = document.getElementById('edit-username');
+//     const emailInput = document.getElementById('edit-email');
+//     const profileAvatarLetter = document.getElementById('profile-avatar-letter');
+//     const usernameEditIndicator = document.getElementById('username-edit-indicator');
 
-        if (data.success && data.user) {
-            populateEditForm(data.user);
-        } else {
-            showNotification('error', 'Failed to load profile data');
-        }
-    } catch (error) {
-        console.error('Error loading profile data:', error);
-        showNotification('error', 'Failed to load profile data');
-    }
-}
+//     // Populate username (editable only if not changed before)
+//     if (usernameInput) {
+//         usernameInput.value = user.username || '';
+//         usernameInput.setAttribute('data-original-username', user.username || '');
 
-function populateEditForm(user) {
-    // Populate form fields with current data
-    document.getElementById('edit-first-name').value = user.first_name || '';
-    document.getElementById('edit-middle-name').value = user.middle_name || '';
-    document.getElementById('edit-last-name').value = user.last_name || '';
-    document.getElementById('edit-name-extension').value = user.name_extension || '';
-    document.getElementById('edit-contact-number').value = user.contact_number || '';
-    document.getElementById('edit-gender').value = user.gender || '';
-    document.getElementById('edit-date-of-birth').value = user.date_of_birth || '';
-    document.getElementById('edit-age').value = user.age || '';
-    document.getElementById('edit-user-type').value = user.user_type || '';
-    document.getElementById('edit-complete-address').value = user.complete_address || '';
-    document.getElementById('edit-barangay').value = user.barangay || '';
-}
+//         // Check if username was already changed (look at user's created_at vs username last changed)
+//         // For now, we'll use a simple approach: check if the system has record of it being changed
+//         const usernameChanged = user.username_changed_at !== null && user.username_changed_at !== undefined;
+
+//         if (usernameChanged) {
+//             // Username already changed once - disable editing
+//             usernameInput.disabled = true;
+//             usernameInput.readOnly = true;
+//             usernameEditIndicator.style.display = 'flex';
+//             usernameEditIndicator.innerHTML = `
+//                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+//                     <path d="M12 6c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3z"/>
+//                     <path d="M6 9c-1.654.737-3 1.956-3 3.341 0 2.219 2.686 4 6 4s6-1.781 6-4c0-1.385-1.346-2.604-3-3.341"/>
+//                 </svg>
+//                 <span>Already changed - Cannot edit</span>
+//             `;
+//         } else {
+//             // Username not changed yet - allow editing
+//             usernameInput.disabled = false;
+//             usernameInput.readOnly = false;
+//             usernameEditIndicator.style.display = 'flex';
+//             usernameEditIndicator.innerHTML = `
+//                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+//                     <path d="M12 6c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3z"/>
+//                     <path d="M6 9c-1.654.737-3 1.956-3 3.341 0 2.219 2.686 4 6 4s6-1.781 6-4c0-1.385-1.346-2.604-3-3.341"/>
+//                 </svg>
+//                 <span>Can only be changed once</span>
+//             `;
+
+//             // Add real-time avatar update on username change
+//             usernameInput.addEventListener('input', function() {
+//                 if (profileAvatarLetter) {
+//                     const firstLetter = this.value.charAt(0).toUpperCase();
+//                     profileAvatarLetter.textContent = firstLetter || 'U';
+//                 }
+//             });
+//         }
+//     }
+
+//     // Populate email (readonly)
+//     if (emailInput) {
+//         emailInput.value = user.email || '';
+//     }
+
+//     // Update profile avatar with first letter of current username
+//     if (profileAvatarLetter && user.username) {
+//         profileAvatarLetter.textContent = user.username.charAt(0).toUpperCase();
+//     }
+
+//     // Populate editable fields
+//     const contactNumberInput = document.getElementById('edit-contact-number');
+//     const addressInput = document.getElementById('edit-complete-address');
+//     const barangaySelect = document.getElementById('edit-barangay');
+
+//     // Contact number (editable)
+//     if (contactNumberInput && user.contact_number) {
+//         contactNumberInput.value = user.contact_number;
+//     }
+
+//     // Complete address (editable)
+//     if (addressInput && user.complete_address) {
+//         addressInput.value = user.complete_address;
+//     }
+
+//     // Barangay (editable)
+//     if (barangaySelect && user.barangay) {
+//         barangaySelect.value = user.barangay;
+//     }
+
+//     console.log('Profile form populated with user data:', {
+//         username: user.username,
+//         email: user.email,
+//         contact_number: user.contact_number,
+//         barangay: user.barangay,
+//         username_changed_before: user.username_changed_at !== null
+//     });
+// }
 
 // ==============================================
 // CHANGE PASSWORD FUNCTIONS WITH VALIDATION
@@ -1146,60 +1227,218 @@ if (verificationDobInput) {
     });
 }
 // ==============================================
-// EDIT PROFILE FORM HANDLER
+// EDIT PROFILE 
 // ==============================================
+/**
+ * Load current profile data into edit form
+ * UPDATED: Check if username has been changed before to disable editing
+ */
+async function loadCurrentProfileData() {
+    try {
+        const response = await fetch('/api/user/profile', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+            },
+            credentials: 'same-origin'
+        });
 
+        const data = await response.json();
+
+        if (data.success && data.user) {
+            populateEditForm(data.user);
+        } else {
+            showNotification('error', 'Failed to load profile data');
+        }
+    } catch (error) {
+        console.error('Error loading profile data:', error);
+        showNotification('error', 'Failed to load profile data');
+    }
+}
+/**
+ * Populate edit form with user data
+ * UPDATED: Handle username editability based on whether it was already changed
+ */
+function populateEditForm(user) {
+    // Set readonly fields with current user data
+    const usernameInput = document.getElementById('edit-username');
+    const emailInput = document.getElementById('edit-email');
+    const profileAvatarLetter = document.getElementById('profile-avatar-letter');
+    const usernameEditIndicator = document.getElementById('username-edit-indicator');
+
+    // Populate username (editable only if not changed before)
+    if (usernameInput) {
+        usernameInput.value = user.username || '';
+        usernameInput.setAttribute('data-original-username', user.username || '');
+
+        // Check if username was already changed (look at user's created_at vs username last changed)
+        // For now, we'll use a simple approach: check if the system has record of it being changed
+        const usernameChanged = user.username_changed_at !== null && user.username_changed_at !== undefined;
+
+        if (usernameChanged) {
+            // Username already changed once - disable editing
+            usernameInput.disabled = true;
+            usernameInput.readOnly = true;
+            usernameEditIndicator.style.display = 'flex';
+            usernameEditIndicator.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 6c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3z"/>
+                    <path d="M6 9c-1.654.737-3 1.956-3 3.341 0 2.219 2.686 4 6 4s6-1.781 6-4c0-1.385-1.346-2.604-3-3.341"/>
+                </svg>
+                <span>Already changed - Cannot edit</span>
+            `;
+        } else {
+            // Username not changed yet - allow editing
+            usernameInput.disabled = false;
+            usernameInput.readOnly = false;
+            usernameEditIndicator.style.display = 'flex';
+            usernameEditIndicator.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 6c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3z"/>
+                    <path d="M6 9c-1.654.737-3 1.956-3 3.341 0 2.219 2.686 4 6 4s6-1.781 6-4c0-1.385-1.346-2.604-3-3.341"/>
+                </svg>
+                <span>Can only be changed once</span>
+            `;
+
+            // Add real-time avatar update on username change
+            usernameInput.addEventListener('input', function() {
+                if (profileAvatarLetter) {
+                    const firstLetter = this.value.charAt(0).toUpperCase();
+                    profileAvatarLetter.textContent = firstLetter || 'U';
+                }
+            });
+        }
+    }
+
+    // Populate email (readonly)
+    if (emailInput) {
+        emailInput.value = user.email || '';
+    }
+
+    // Update profile avatar with first letter of current username
+    if (profileAvatarLetter && user.username) {
+        profileAvatarLetter.textContent = user.username.charAt(0).toUpperCase();
+    }
+
+    // Populate editable fields
+    const contactNumberInput = document.getElementById('edit-contact-number');
+    const addressInput = document.getElementById('edit-complete-address');
+    const barangaySelect = document.getElementById('edit-barangay');
+
+    // Contact number (editable)
+    if (contactNumberInput && user.contact_number) {
+        contactNumberInput.value = user.contact_number;
+    }
+
+    // Complete address (editable)
+    if (addressInput && user.complete_address) {
+        addressInput.value = user.complete_address;
+    }
+
+    // Barangay (editable)
+    if (barangaySelect && user.barangay) {
+        barangaySelect.value = user.barangay;
+    }
+
+    console.log('Profile form populated with user data:', {
+        username: user.username,
+        email: user.email,
+        contact_number: user.contact_number,
+        barangay: user.barangay,
+        username_changed_before: user.username_changed_at !== null
+    });
+}
+
+
+/**
+ * Handle edit profile form submission
+ * UPDATED: Include username in submission if it was changed
+ */
 async function handleEditProfileSubmit(event) {
     event.preventDefault();
 
     const form = event.target;
     const submitBtn = document.getElementById('save-profile-btn');
+    const usernameInput = document.getElementById('edit-username');
 
     // Get form data
     const formData = new FormData(form);
     const profileData = {};
 
-    // Convert FormData to regular object
-    for (let [key, value] of formData.entries()) {
-        if (value.trim() !== '') {
-            profileData[key] = value.trim();
+    // Collect editable fields
+    const editableFields = ['username', 'contact_number', 'complete_address', 'barangay'];
+
+    for (let field of editableFields) {
+        const value = formData.get(field);
+        if (value && value.trim() !== '') {
+            profileData[field] = value.trim();
         }
     }
 
-    // Validation
-    if (!profileData.first_name) {
-        showNotification('error', 'First name is required');
-        return;
+    // Validation - Username
+    if (profileData.username) {
+        const originalUsername = usernameInput.getAttribute('data-original-username');
+
+        // Check if username is different from original
+        if (profileData.username === originalUsername) {
+            // Username not changed, don't include in submission
+            delete profileData.username;
+        } else {
+            // Username changed - validate format
+            const usernameRegex = /^[a-zA-Z0-9_]{3,50}$/;
+            if (!usernameRegex.test(profileData.username)) {
+                showNotification('error', 'Username must be 3-50 characters and contain only letters, numbers, and underscores');
+                usernameInput.style.borderColor = '#ef4444';
+                return;
+            }
+
+            // Check if username is available (only if changed)
+            try {
+                const checkResponse = await fetch('/auth/check-username', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ username: profileData.username })
+                });
+
+                const checkData = await checkResponse.json();
+                if (!checkData.available) {
+                    showNotification('error', 'This username is already taken. Please choose another.');
+                    usernameInput.style.borderColor = '#ef4444';
+                    return;
+                }
+            } catch (error) {
+                console.error('Username availability check failed:', error);
+            }
+        }
     }
 
-    if (!profileData.last_name) {
-        showNotification('error', 'Last name is required');
-        return;
-    }
-
-    if (profileData.contact_number) {
-        // Philippine mobile number validation
+    // Validation - Contact Number
+    const contactNumber = profileData.contact_number;
+    if (contactNumber) {
         const phoneRegex = /^(\+639|09)\d{9}$/;
-        if (!phoneRegex.test(profileData.contact_number)) {
-            showNotification('error', 'Please enter a valid Philippine mobile number (09XXXXXXXXX)');
+        if (!phoneRegex.test(contactNumber)) {
+            showNotification('error', 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)');
+            document.getElementById('edit-contact-number').style.borderColor = '#ef4444';
             return;
         }
     }
 
-    if (profileData.date_of_birth) {
-        const birthDate = new Date(profileData.date_of_birth);
-        const today = new Date();
-        const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+    // Validation - Address
+    if (!profileData.complete_address) {
+        showNotification('error', 'Complete address is required');
+        document.getElementById('edit-complete-address').style.borderColor = '#ef4444';
+        return;
+    }
 
-        if (age < 18) {
-            showNotification('error', 'You must be at least 18 years old');
-            return;
-        }
-
-        if (age > 100) {
-            showNotification('error', 'Please enter a valid date of birth');
-            return;
-        }
+    // Validation - Barangay
+    if (!profileData.barangay) {
+        showNotification('error', 'Barangay is required');
+        document.getElementById('edit-barangay').style.borderColor = '#ef4444';
+        return;
     }
 
     // Set loading state
@@ -1224,17 +1463,32 @@ async function handleEditProfileSubmit(event) {
 
         const data = await response.json();
 
+        console.log('Profile update response:', data);
+
         if (data.success) {
             showNotification('success', data.message || 'Profile updated successfully!');
 
             // Update window.userData with new profile data
             if (window.userData && data.user) {
                 Object.assign(window.userData, data.user);
+
+                // Update header with new username if it was changed
+                if (profileData.username && window.userData.name) {
+                    window.userData.name = data.user.name || data.user.username;
+                    // Optionally refresh header display
+                    if (typeof refreshProfileVerifyButton === 'function') {
+                        refreshProfileVerifyButton();
+                    }
+                }
             }
 
             // Close modal after short delay
             setTimeout(() => {
                 closeEditProfileModal();
+                // Refresh page to show updated data
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
             }, 1000);
 
         } else {
@@ -1243,6 +1497,14 @@ async function handleEditProfileSubmit(event) {
             if (data.errors) {
                 const errorMessages = Object.values(data.errors).flat();
                 errorMessage = errorMessages.join(', ');
+
+                // Highlight error fields
+                Object.keys(data.errors).forEach(field => {
+                    const input = form.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        input.style.borderColor = '#ef4444';
+                    }
+                });
             }
 
             showNotification('error', errorMessage);
@@ -1255,8 +1517,83 @@ async function handleEditProfileSubmit(event) {
         if (btnText) btnText.style.display = 'inline';
         if (btnLoader) btnLoader.style.display = 'none';
         submitBtn.disabled = false;
+
+        // Clear border colors on input
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.style.borderColor = '';
+        });
     }
 }
+
+/**
+ * Open edit profile modal and load data
+ */
+function editProfile() {
+    const modal = document.getElementById('edit-profile-modal');
+    if (!modal) {
+        console.error('Edit profile modal not found');
+        return;
+    }
+
+    // Load current profile data
+    loadCurrentProfileData();
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Close profile modal if open
+    closeProfileModal();
+}
+
+/**
+ * Close edit profile modal
+ */
+function closeEditProfileModal() {
+    const modal = document.getElementById('edit-profile-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Reset form
+    const form = document.getElementById('edit-profile-form');
+    if (form) {
+        form.reset();
+    }
+
+    // Clear all input error styling
+    const inputs = form?.querySelectorAll('input, select, textarea');
+    inputs?.forEach(input => {
+        input.style.borderColor = '';
+        input.classList.remove('error', 'invalid');
+    });
+}
+
+// Hook: Handle form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const editProfileForm = document.getElementById('edit-profile-form');
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', handleEditProfileSubmit);
+    }
+
+    // Close modal on overlay click
+    const editProfileModal = document.getElementById('edit-profile-modal');
+    if (editProfileModal) {
+        editProfileModal.addEventListener('click', function(event) {
+            if (event.target === editProfileModal) {
+                closeEditProfileModal();
+            }
+        });
+    }
+
+    // Make functions globally available
+    window.editProfile = editProfile;
+    window.closeEditProfileModal = closeEditProfileModal;
+    window.loadCurrentProfileData = loadCurrentProfileData;
+    window.handleEditProfileSubmit = handleEditProfileSubmit;
+});
+
 
 // ==============================================
 // MODAL-BASED USER FUNCTIONS
