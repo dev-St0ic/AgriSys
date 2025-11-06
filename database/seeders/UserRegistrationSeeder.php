@@ -184,6 +184,7 @@ class UserRegistrationSeeder extends Seeder
             'status' => UserRegistration::STATUS_UNVERIFIED,
             'terms_accepted' => true,
             'privacy_accepted' => true,
+            'username_changed_at' => null, // NEW: Never changed username
             'registration_ip' => '127.0.0.1',
             'user_agent' => 'Test User Agent',
             'referral_source' => 'direct',
@@ -202,7 +203,7 @@ class UserRegistrationSeeder extends Seeder
             'first_name' => 'Maria',
             'last_name' => 'Santos',
             'middle_name' => 'Reyes',
-            'contact_number' => '+639123456789', // UPDATED: contact_number instead of phone
+            'contact_number' => '+639123456789',
             'complete_address' => '123 Seaside Street, Barangay Baybayin',
             'barangay' => 'Barangay Baybayin',
             'user_type' => 'fisherfolk',
@@ -210,6 +211,7 @@ class UserRegistrationSeeder extends Seeder
             'age' => 39,
             'gender' => 'female',
             'email_verified_at' => now()->subDays(1),
+            'username_changed_at' => null, // NEW: Never changed username
             'registration_ip' => '127.0.0.1',
             'user_agent' => 'Test User Agent',
             'referral_source' => 'barangay_office',
@@ -227,7 +229,7 @@ class UserRegistrationSeeder extends Seeder
             // Profile completion fields
             'first_name' => 'Carlos',
             'last_name' => 'Rodriguez',
-            'contact_number' => '+639555123456', // UPDATED: contact_number instead of phone
+            'contact_number' => '+639555123456',
             'complete_address' => '456 Main Street, Barangay Centro',
             'barangay' => 'Barangay Centro',
             'user_type' => 'farmer',
@@ -236,6 +238,7 @@ class UserRegistrationSeeder extends Seeder
             'gender' => 'male',
             'email_verified_at' => now()->subDays(15),
             'approved_at' => now()->subDays(5),
+            'username_changed_at' => null, // NEW: Never changed username
             'registration_ip' => '127.0.0.1',
             'user_agent' => 'Test User Agent',
             'referral_source' => 'google',
@@ -253,7 +256,7 @@ class UserRegistrationSeeder extends Seeder
             // Profile completion fields
             'first_name' => 'Ana',
             'last_name' => 'Garcia',
-            'contact_number' => '+639777888999', // UPDATED: contact_number instead of phone
+            'contact_number' => '+639777888999',
             'complete_address' => '789 Farm Road, Barangay Rural',
             'barangay' => 'Barangay Rural',
             'user_type' => 'farmer',
@@ -263,6 +266,7 @@ class UserRegistrationSeeder extends Seeder
             'email_verified_at' => now()->subDays(10),
             'rejected_at' => now()->subDays(8),
             'rejection_reason' => 'Unable to verify identity documents. Please resubmit with clearer photos.',
+            'username_changed_at' => null, // NEW: Never changed username
             'registration_ip' => '127.0.0.1',
             'user_agent' => 'Test User Agent',
             'referral_source' => 'friend_referral',
@@ -278,10 +282,37 @@ class UserRegistrationSeeder extends Seeder
             'verification_token' => 'test-verification-token-12345',
             'terms_accepted' => true,
             'privacy_accepted' => true,
+            'username_changed_at' => null, // NEW: Never changed username
             'registration_ip' => '127.0.0.1',
             'user_agent' => 'Test User Agent',
             'referral_source' => 'facebook',
             'created_at' => now()->subMinutes(30),
+        ]);
+
+        // NEW Test User 6: User who already changed username (username_changed_at is set)
+        UserRegistration::create([
+            'username' => 'pedro_santos_new',
+            'email' => 'pedro.test@example.com',
+            'password' => Hash::make('password123'),
+            'status' => UserRegistration::STATUS_APPROVED,
+            'terms_accepted' => true,
+            'privacy_accepted' => true,
+            'first_name' => 'Pedro',
+            'last_name' => 'Santos',
+            'contact_number' => '+639888777666',
+            'complete_address' => '321 Farm Avenue, Barangay Agricola',
+            'barangay' => 'Barangay Agricola',
+            'user_type' => 'farmer',
+            'date_of_birth' => '1988-05-12',
+            'age' => 36,
+            'gender' => 'male',
+            'email_verified_at' => now()->subDays(30),
+            'approved_at' => now()->subDays(20),
+            'username_changed_at' => now()->subDays(10), // NEW: Username was already changed 10 days ago
+            'registration_ip' => '127.0.0.1',
+            'user_agent' => 'Test User Agent',
+            'referral_source' => 'direct',
+            'created_at' => now()->subDays(60),
         ]);
     }
 }

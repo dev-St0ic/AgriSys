@@ -61,7 +61,7 @@ class UserRegistrationFactory extends Factory
             'last_name' => $lastName,
             'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
             'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
-            'contact_number' => $this->faker->optional(0.8)->numerify('+639#########'), // UPDATED: contact_number instead of phone
+            'contact_number' => $this->faker->optional(0.8)->numerify('+639#########'),
             'complete_address' => $this->faker->optional(0.7)->address(),
             'barangay' => $this->faker->optional(0.7)->randomElement($allBarangays),
             'user_type' => $this->faker->optional(0.8)->randomElement(['farmer', 'fisherfolk']),
@@ -71,6 +71,7 @@ class UserRegistrationFactory extends Factory
             // System fields
             'verification_token' => $this->faker->optional(0.3)->sha256(),
             'email_verified_at' => $this->faker->optional(0.7)->dateTimeBetween('-30 days', 'now'),
+            'username_changed_at' => null, // NEW: Username not changed by default
             'registration_ip' => $this->faker->ipv4(),
             'user_agent' => $this->getRandomUserAgent(),
             'referral_source' => $this->faker->randomElement(['direct', 'facebook', 'google', 'friend_referral', 'barangay_office']),
@@ -88,7 +89,7 @@ class UserRegistrationFactory extends Factory
             'first_name' => null,
             'last_name' => null,
             'middle_name' => null,
-            'contact_number' => null, // UPDATED: contact_number instead of phone
+            'contact_number' => null,
             'complete_address' => null,
             'barangay' => null,
             'user_type' => null,
@@ -98,6 +99,7 @@ class UserRegistrationFactory extends Factory
             'approved_at' => null,
             'approved_by' => null,
             'rejection_reason' => null,
+            'username_changed_at' => null, // NEW: Username not changed
         ]);
     }
 
@@ -106,7 +108,6 @@ class UserRegistrationFactory extends Factory
      */
     public function pending(): static
     {
-        // Filipino names for realistic data
         $filipinoFirstNames = [
             'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
             'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
@@ -135,7 +136,7 @@ class UserRegistrationFactory extends Factory
             'last_name' => $this->faker->randomElement($filipinoLastNames),
             'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
             'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
-            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
+            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999),
             'complete_address' => $this->faker->address(),
             'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
@@ -144,6 +145,7 @@ class UserRegistrationFactory extends Factory
             'approved_at' => null,
             'approved_by' => null,
             'rejection_reason' => null,
+            'username_changed_at' => null, // NEW: Username not changed
         ]);
     }
 
@@ -152,7 +154,6 @@ class UserRegistrationFactory extends Factory
      */
     public function approved(): static
     {
-        // Filipino names for realistic data
         $filipinoFirstNames = [
             'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
             'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
@@ -181,15 +182,16 @@ class UserRegistrationFactory extends Factory
             'last_name' => $this->faker->randomElement($filipinoLastNames),
             'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
             'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
-            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
+            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999),
             'complete_address' => $this->faker->address(),
             'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
             'date_of_birth' => $this->faker->dateTimeBetween('-65 years', '-18 years'),
             'gender' => $this->faker->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
             'approved_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
-            'approved_by' => null, // You can set this to an actual admin ID if needed
+            'approved_by' => null,
             'rejection_reason' => null,
+            'username_changed_at' => null, // NEW: Username not changed
         ]);
     }
 
@@ -198,7 +200,6 @@ class UserRegistrationFactory extends Factory
      */
     public function rejected(): static
     {
-        // Filipino names for realistic data
         $filipinoFirstNames = [
             'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
             'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
@@ -227,7 +228,7 @@ class UserRegistrationFactory extends Factory
             'last_name' => $this->faker->randomElement($filipinoLastNames),
             'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
             'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
-            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
+            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999),
             'complete_address' => $this->faker->address(),
             'barangay' => $this->faker->randomElement($allBarangays),
             'user_type' => $this->faker->randomElement(['farmer', 'fisherfolk']),
@@ -241,6 +242,7 @@ class UserRegistrationFactory extends Factory
                 'Documents do not match personal information',
                 'Suspicious activity detected'
             ]),
+            'username_changed_at' => null, // NEW: Username not changed
         ]);
     }
 
@@ -294,7 +296,7 @@ class UserRegistrationFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999), // UPDATED: contact_number instead of phone
+            'contact_number' => '+63' . $this->faker->numberBetween(900000000, 999999999),
             'complete_address' => $this->faker->streetAddress() . ', ' . $this->faker->city(),
             'barangay' => $this->faker->randomElement([
                 'Barangay San Antonio', 'Barangay Santo Niño', 'Barangay Nueva',
@@ -315,7 +317,7 @@ class UserRegistrationFactory extends Factory
             'first_name' => null,
             'last_name' => null,
             'middle_name' => null,
-            'contact_number' => null, // UPDATED: contact_number instead of phone
+            'contact_number' => null,
             'complete_address' => null,
             'barangay' => null,
             'user_type' => null,
@@ -344,6 +346,16 @@ class UserRegistrationFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'created_at' => $this->faker->dateTimeBetween('-6 months', '-1 month'),
             'updated_at' => $this->faker->dateTimeBetween('-6 months', '-1 month'),
+        ]);
+    }
+
+    /**
+     * NEW: Username has been changed (set to past timestamp)
+     */
+    public function usernameChanged(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'username_changed_at' => $this->faker->dateTimeBetween('-30 days', '-1 day'),
         ]);
     }
 

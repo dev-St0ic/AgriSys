@@ -16,6 +16,7 @@ return new class extends Migration
             
             // ===== BASIC SIGNUP INFO (REQUIRED FOR INITIAL REGISTRATION) =====
             $table->string('username', 50)->unique();
+            $table->timestamp('username_changed_at')->nullable(); // NEW: Track username changes
             $table->string('email')->unique();
               // ===== FACEBOOK AUTHENTICATION FIELDS =====
             $table->string('facebook_id')->nullable();

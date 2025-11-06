@@ -1368,118 +1368,138 @@ class UserRegistrationController extends Controller
     /**
      * Update user profile
      */
-    public function updateUserProfile(Request $request)
-    {
-        $userId = session('user.id');
-        if (!$userId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Please log in to update profile'
-            ], 401);
-        }
+  /**
+ * Update user profile - UPDATED TO SUPPORT USERNAME CHANGE (ONCE)
+ */
+public function updateUserProfile(Request $request)
+{
+    $userId = session('user.id');
+    if (!$userId) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Please log in to update profile'
+        ], 401);
+    }
 
-        $registration = UserRegistration::find($userId);
-        if (!$registration) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found'
-            ], 404);
-        }
+    $registration = UserRegistration::find($userId);
+    if (!$registration) {
+        return response()->json([
+            'success' => false,
+            'message' => 'User not found'
+        ], 404);
+    }
 
-        // Enhanced validation for more profile fields
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'sometimes|string|max:100|regex:/^[a-zA-Z\s]+$/',
-            'middle_name' => 'sometimes|nullable|string|max:100|regex:/^[a-zA-Z\s]+$/',
-            'last_name' => 'sometimes|string|max:100|regex:/^[a-zA-Z\s]+$/',
-            'name_extension' => 'sometimes|nullable|string|max:10',
-            'contact_number' => 'sometimes|string|max:20|regex:/^[\+]?[0-9\-\(\)\s]+$/',
-            'complete_address' => 'sometimes|string|max:500',
-            'barangay' => 'sometimes|string|max:100',
-            'user_type' => 'sometimes|in:farmer,fisherfolk,individual',
-            'age' => 'sometimes|integer|min:18|max:100',
-            'date_of_birth' => 'sometimes|date|before:today',
-            'gender' => 'sometimes|in:male,female,other,prefer_not_to_say',
-        ], [
-            'first_name.regex' => 'First name should only contain letters and spaces',
-            'middle_name.regex' => 'Middle name should only contain letters and spaces',
-            'last_name.regex' => 'Last name should only contain letters and spaces',
-            'contact_number.regex' => 'Please enter a valid contact number',
-            'age.min' => 'Age must be at least 18 years old',
-            'date_of_birth.before' => 'Date of birth must be before today',
+    // Build validation rules dynamically
+    $validationRules = [
+        'contact_number' => [
+            'sometimes',
+            'string',
+            'max:20',
+            'regex:/^(\+639|09)\d{9}$/'  // FIXED: Proper regex with delimiters
+        ],
+        'complete_address' => 'sometimes|string|max:500',
+        'barangay' => 'sometimes|string|max:100',
+    ];
+
+    // Add username validation only if username is being changed
+    if ($request->has('username') && $request->username !== $registration->username) {
+        $validationRules['username'] = [
+            'required',
+            'string',
+            'min:3',
+            'max:50',
+            'regex:/^[a-zA-Z0-9_]+$/',  // FIXED: Proper regex with delimiters
+            'unique:user_registration,username,' . $userId
+        ];
+    }
+
+    $validator = Validator::make($request->all(), $validationRules, [
+        'contact_number.regex' => 'Please enter a valid Philippine contact number (09XXXXXXXXX or +639XXXXXXXXX)',
+        'username.regex' => 'Username can only contain letters, numbers, and underscores',
+        'username.unique' => 'This username is already taken',
+        'username.min' => 'Username must be at least 3 characters',
+        'username.max' => 'Username cannot exceed 50 characters',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        // Prepare update data
+        $updateData = $request->only([
+            'contact_number',
+            'complete_address',
+            'barangay',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            // Calculate age from date of birth if provided
-            $updateData = $request->only([
-                'first_name',
-                'middle_name',
-                'last_name',
-                'name_extension',
-                'contact_number',
-                'complete_address',
-                'barangay',
-                'user_type',
-                'age',
-                'date_of_birth',
-                'gender'
-            ]);
-
-            // Auto-calculate age from date_of_birth if provided
-            if ($request->has('date_of_birth') && $request->date_of_birth) {
-                $dob = new \DateTime($request->date_of_birth);
-                $now = new \DateTime();
-                $updateData['age'] = $now->diff($dob)->y;
+        // Handle username change (only once)
+        if ($request->has('username') && $request->username !== $registration->username) {
+            // Check if username was already changed before
+            if ($registration->username_changed_at !== null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Username can only be changed once. Your current username cannot be modified anymore.',
+                    'errors' => [
+                        'username' => ['Username can only be changed once per account']
+                    ]
+                ], 422);
             }
 
-            $registration->update(array_filter($updateData, function($value) {
-                return $value !== null;
-            }));
-
-            // Update session data with new information
-            $updatedUser = session('user');
-            $updatedUser['name'] = $registration->full_name ?? $registration->username;
-            session(['user' => $updatedUser]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Profile updated successfully',
-                'user' => [
-                    'id' => $registration->id,
-                    'username' => $registration->username,
-                    'email' => $registration->email,
-                    'first_name' => $registration->first_name,
-                    'middle_name' => $registration->middle_name,
-                    'last_name' => $registration->last_name,
-                    'name_extension' => $registration->name_extension,
-                    'full_name' => $registration->full_name,
-                    'contact_number' => $registration->contact_number,
-                    'complete_address' => $registration->complete_address,
-                    'barangay' => $registration->barangay,
-                    'user_type' => $registration->user_type,
-                    'age' => $registration->age,
-                    'date_of_birth' => $registration->date_of_birth,
-                    'gender' => $registration->gender,
-                    'status' => $registration->status,
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Profile update failed: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Profile update failed. Please try again.'
-            ], 500);
+            // Allow the change and mark it as changed
+            $updateData['username'] = $request->username;
+            $updateData['username_changed_at'] = now();
         }
+
+        $registration->update(array_filter($updateData, function($value) {
+            return $value !== null;
+        }));
+
+        // Update session data with new information
+        $updatedUser = session('user');
+        $updatedUser['username'] = $registration->username;
+        $updatedUser['name'] = $registration->full_name ?? $registration->username;
+        session(['user' => $updatedUser]);
+
+        // Log username change if it occurred
+        if (isset($updateData['username'])) {
+            \Log::info('Username changed successfully', [
+                'user_id' => $userId,
+                'old_username' => session('user.username'),
+                'new_username' => $updateData['username'],
+                'ip' => \request()->ip()
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully',
+            'user' => [
+                'id' => $registration->id,
+                'username' => $registration->username,
+                'email' => $registration->email,
+                'contact_number' => $registration->contact_number,
+                'complete_address' => $registration->complete_address,
+                'barangay' => $registration->barangay,
+                'name' => $registration->full_name ?? $registration->username,
+                'status' => $registration->status,
+                'username_changed_at' => $registration->username_changed_at,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Profile update failed: ' . $e->getMessage());
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Profile update failed. Please try again.'
+        ], 500);
     }
+}
 
     /**
      * Get public statistics (no auth required)

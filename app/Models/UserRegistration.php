@@ -29,7 +29,7 @@ class UserRegistration extends Model
         'middle_name',
         'last_name',
         'name_extension',
-        'contact_number', // UPDATED: contact_number instead of phone
+        'contact_number',
         'complete_address',
         'barangay',
         'user_type',
@@ -46,7 +46,7 @@ class UserRegistration extends Model
         'profile_image_url',
         
         // Document paths
-        'location_document_path', // UPDATED: location_document_path instead of place_document_path
+        'location_document_path',
         'id_front_path',
         'id_back_path',
         
@@ -61,6 +61,7 @@ class UserRegistration extends Model
         'user_agent',
         'referral_source',
         'last_login_at',
+        'username_changed_at', // NEW: Add to fillable
     ];
 
     protected $hidden = [
@@ -73,9 +74,10 @@ class UserRegistration extends Model
         'email_verified_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
-        'banned_at' => 'datetime',  // ADD THIS
+        'banned_at' => 'datetime',
         'date_of_birth' => 'date',
         'last_login_at' => 'datetime',
+        'username_changed_at' => 'datetime', // NEW: Add this cast
         'terms_accepted' => 'boolean',
         'privacy_accepted' => 'boolean',
     ];
@@ -114,11 +116,41 @@ class UserRegistration extends Model
     {
         return !empty($this->first_name) 
             && !empty($this->last_name)
-            && !empty($this->contact_number) // UPDATED: contact_number instead of phone
+            && !empty($this->contact_number)
             && !empty($this->complete_address)
             && !empty($this->barangay)
             && !empty($this->user_type)
             && !empty($this->date_of_birth);
+    }
+
+    /**
+     * NEW: Check if username can be changed
+     */
+    public function canChangeUsername()
+    {
+        return $this->username_changed_at === null;
+    }
+
+    /**
+     * NEW: Get username change history
+     */
+    public function getUsernameChangeHistory()
+    {
+        if ($this->username_changed_at) {
+            return [
+                'changed' => true,
+                'changed_at' => $this->username_changed_at,
+                'can_change_again' => false,
+                'message' => 'Username was changed on ' . $this->username_changed_at->format('M d, Y g:i A')
+            ];
+        }
+
+        return [
+            'changed' => false,
+            'changed_at' => null,
+            'can_change_again' => true,
+            'message' => 'Username can be changed once'
+        ];
     }
 
     // Relationships
@@ -163,6 +195,22 @@ class UserRegistration extends Model
         return $query->whereNull('email_verified_at');
     }
 
+    /**
+     * NEW: Scope to find users who haven't changed username yet
+     */
+    public function scopeUsernameNotChanged($query)
+    {
+        return $query->whereNull('username_changed_at');
+    }
+
+    /**
+     * NEW: Scope to find users who have changed username
+     */
+    public function scopeUsernameChanged($query)
+    {
+        return $query->whereNotNull('username_changed_at');
+    }
+
     public function scopeSearch($query, $search)
     {
         return $query->where(function ($q) use ($search) {
@@ -170,7 +218,7 @@ class UserRegistration extends Model
               ->orWhere('email', 'LIKE', "%{$search}%")
               ->orWhere('first_name', 'LIKE', "%{$search}%")
               ->orWhere('last_name', 'LIKE', "%{$search}%")
-              ->orWhere('contact_number', 'LIKE', "%{$search}%"); // UPDATED: contact_number instead of phone
+              ->orWhere('contact_number', 'LIKE', "%{$search}%");
         });
     }
 
@@ -287,8 +335,8 @@ class UserRegistration extends Model
         });
     }
 
-     /**
-     *  User has many RSBSA applications
+    /**
+     * User has many RSBSA applications
      */
     public function rsbsaApplications()
     {
@@ -296,7 +344,7 @@ class UserRegistration extends Model
     }
 
     /**
-     *  Get latest RSBSA application
+     * Get latest RSBSA application
      */
     public function latestRsbsaApplication()
     {
@@ -306,7 +354,7 @@ class UserRegistration extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['status', 'email_verified_at', 'approved_at', 'approved_by'])
+            ->logOnly(['status', 'email_verified_at', 'approved_at', 'approved_by', 'username', 'username_changed_at']) // NEW: Added username fields
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
