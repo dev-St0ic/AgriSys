@@ -23,22 +23,33 @@ class Event extends Model
         'details',
         'is_active',
         'display_order',
+        'is_featured',
+        'is_archived',
+        'archived_at',
+        'archive_reason',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'archived_by',
+        'published_at'
     ];
 
-    // ⭐ ADDED: Append custom attributes to JSON responses
+    // Append custom attributes to JSON responses
     protected $appends = [
         'image_url',
-        'formatted_date'
+        'formatted_date',
+        'status_badge'
     ];
 
     protected $casts = [
         'details' => 'array',
         'is_active' => 'boolean',
+        'is_featured' => 'boolean',
+        'is_archived' => 'boolean',
         'display_order' => 'integer',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        'archived_at' => 'datetime',
+        'published_at' => 'datetime'
     ];
 
     // ========================================
@@ -55,6 +66,11 @@ class Event extends Model
         return $this->belongsTo(User::class, 'updated_by');
     }
 
+    public function archivist()
+    {
+        return $this->belongsTo(User::class, 'archived_by');
+    }
+
     public function logs()
     {
         return $this->hasMany(EventLog::class)->orderBy('created_at', 'desc');
@@ -66,7 +82,17 @@ class Event extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_active', true)->where('is_archived', false);
+    }
+
+    public function scopeArchived($query)
+    {
+        return $query->where('is_archived', true);
+    }
+
+    public function scopeNotArchived($query)
+    {
+        return $query->where('is_archived', false);
     }
 
     public function scopeByCategory($query, $category)
@@ -76,7 +102,21 @@ class Event extends Model
 
     public function scopeOrdered($query)
     {
-        return $query->orderBy('display_order')->orderBy('created_at', 'desc');
+        return $query->orderBy('display_order', 'asc')->orderBy('created_at', 'desc');
+    }
+
+    public function scopePublic($query)
+    {
+        return $query->where('is_active', true)
+                     ->where('is_archived', false)
+                     ->ordered();
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true)
+                     ->where('is_active', true)
+                     ->where('is_archived', false);
     }
 
     // ========================================
@@ -89,17 +129,14 @@ class Event extends Model
      */
     public function getImageUrlAttribute()
     {
-        // Return null if no image path
         if (!$this->image_path) {
             return null;
         }
 
-        // If it's already a full URL, return as-is
         if (str_starts_with($this->image_path, 'http')) {
             return $this->image_path;
         }
 
-        // Return the storage URL for local files
         return asset('storage/' . $this->image_path);
     }
 
@@ -109,6 +146,20 @@ class Event extends Model
     public function getFormattedDateAttribute()
     {
         return $this->date ?? 'Date TBA';
+    }
+
+    /**
+     * Get status badge for event (active, archived, inactive)
+     */
+    public function getStatusBadgeAttribute()
+    {
+        if ($this->is_archived) {
+            return 'archived';
+        }
+        if ($this->is_active) {
+            return 'active';
+        }
+        return 'inactive';
     }
 
     // ========================================
@@ -134,6 +185,44 @@ class Event extends Model
     }
 
     /**
+     * Archive this event
+     */
+    public function archive($userId, $reason = null)
+    {
+        $this->update([
+            'is_archived' => true,
+            'archived_at' => now(),
+            'archived_by' => $userId,
+            'archive_reason' => $reason,
+            'is_active' => false // Automatically deactivate when archived
+        ]);
+
+        $this->logAction('archived', $userId, [
+            'is_archived' => ['old' => false, 'new' => true],
+            'is_active' => ['old' => true, 'new' => false]
+        ], 'Event archived: ' . ($reason ?? 'No reason provided'));
+    }
+
+    /**
+     * Restore/unarchive this event
+     */
+    public function unarchive($userId)
+    {
+        $this->update([
+            'is_archived' => false,
+            'archived_at' => null,
+            'archived_by' => null,
+            'archive_reason' => null,
+            'is_active' => true // Automatically activate when restored
+        ]);
+
+        $this->logAction('restored', $userId, [
+            'is_archived' => ['old' => true, 'new' => false],
+            'is_active' => ['old' => false, 'new' => true]
+        ], 'Event restored from archive');
+    }
+
+    /**
      * Log an action for this event
      */
     public function logAction($action, $performedBy, $changes = null, $notes = null)
@@ -147,8 +236,50 @@ class Event extends Model
         ]);
     }
 
+    /**
+     * Check if event should be displayed on landing page
+     */
+    public function isDisplayable()
+    {
+        return $this->is_active && !$this->is_archived && !$this->trashed();
+    }
+
+    /**
+     * Get all public (active and non-archived) events
+     */
+    public static function getPublicEvents($category = null)
+    {
+        $query = self::public();
+
+        if ($category && $category !== 'all') {
+            $query->where('category', $category);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Get featured events for landing page
+     */
+    public static function getFeaturedEvents($limit = 3)
+    {
+        return self::featured()
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Get all archived events (for archive management)
+     */
+    public static function getArchivedEvents()
+    {
+        return self::archived()
+            ->orderBy('archived_at', 'desc')
+            ->get();
+    }
+
     // ========================================
-    // JSON SERIALIZATION OVERRIDE (Optional)
+    // JSON SERIALIZATION OVERRIDE
     // ========================================
 
     /**
@@ -162,14 +293,18 @@ class Event extends Model
         // Explicitly include accessors
         $array['image_url'] = $this->image_url;
         $array['formatted_date'] = $this->formatted_date;
+        $array['status_badge'] = $this->status_badge;
 
         return $array;
     }
 
+    /**
+     * Configure activity logging
+     */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['title', 'category', 'date', 'is_active'])
+            ->logOnly(['title', 'category', 'date', 'is_active', 'is_archived'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

@@ -628,49 +628,104 @@ Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
     });
 });
 
-/*
-|--------------------------------------------------------------------------
-| EVENTS ROUTES - FIXED
-|--------------------------------------------------------------------------
-*/
+// ========================================
+// PUBLIC API ROUTES (No authentication)
+// ========================================
 
-// Admin routes with authentication
+Route::prefix('api')->name('api.')->group(function () {
+    // Get all active events (for landing page)
+    Route::get('/events', [EventController::class, 'getEvents'])
+        ->name('events.public');
+});
+
+// ========================================
+// ADMIN ROUTES (Authentication + Admin Required)
+// ========================================
+
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    
     Route::prefix('events')->name('event.')->group(function () {
-        // List all events
-        Route::get('/', [EventController::class, 'index'])->name('index');
+        
+        // Display event management page (active events only)
+        Route::get('/', [EventController::class, 'index'])
+            ->name('index');
 
         // Create new event
-        Route::post('/', [EventController::class, 'store'])->name('store');
+        Route::post('/', [EventController::class, 'store'])
+            ->name('store');
 
-        // Show single event
-        Route::get('/{event}', [EventController::class, 'show'])->name('show');
+        // Get single event data
+        Route::get('/{event}', [EventController::class, 'show'])
+            ->name('show');
 
-        // Update event (support both PUT and POST with _method)
-        Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])->name('update');
-        Route::post('/{event}/update', [EventController::class, 'update'])->name('update.post');
+        // Update event
+        Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])
+            ->name('update');
 
-        // Delete event
-        Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy');
+        // Update event (POST with _method override)
+        Route::post('/{event}/update', [EventController::class, 'update'])
+            ->name('update.post');
 
-        // Toggle status - FIXED: Use PATCH instead of POST
-        Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])->name('toggle');
+        // Archive event (soft deactivate)
+        Route::post('/{event}/archive', [EventController::class, 'archive'])
+            ->name('archive');
 
-        // Update display order
-        Route::patch('/{event}/order', [EventController::class, 'updateOrder'])->name('update-order');
+        // Restore/unarchive event
+        Route::post('/{event}/unarchive', [EventController::class, 'unarchive'])
+            ->name('unarchive');
 
-        // Get statistics
-        Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
+        // Permanently delete event (hard delete)
+        Route::delete('/{event}', [EventController::class, 'destroy'])
+            ->name('destroy');
+
+        // Toggle event active/inactive status
+        Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])
+            ->name('toggle');
+
+        // View archived events
+        Route::get('/management/archived', [EventController::class, 'archivedEvents'])
+            ->name('archived');
+
+        // Get event statistics for dashboard
+        Route::get('/statistics/all', [EventController::class, 'getStatistics'])
+            ->name('statistics');
+            
+        // View archived events (alternative route)
+        Route::get('/admin/events/management/archived', [EventController::class, 'archivedEvents'])
+        ->name('admin.event.archived');
     });
 });
-
-// ============================================
-// PUBLIC API ROUTES - For landing page
-// ============================================
-Route::prefix('api')->group(function () {
-    // Get all events - PUBLIC (no authentication required)
-    Route::get('/events', [EventController::class, 'getEvents'])->name('api.events.public');
-});
+/**
+ * ========================================
+ * IMPLEMENTATION NOTES
+ * ========================================
+ * 
+ * 1. CSRF Protection:
+ *    - All POST, PATCH, PUT, DELETE requests require X-CSRF-TOKEN header
+ *    - Include @csrf token in forms or pass via headers
+ * 
+ * 2. Authentication:
+ *    - Admin routes require user to be authenticated
+ *    - User must have 'admin' role in database
+ * 
+ * 3. File Uploads:
+ *    - Image uploads must be multipart/form-data
+ *    - Max file size: 2MB
+ *    - Accepted formats: JPEG, PNG, GIF
+ * 
+ * 4. Rate Limiting:
+ *    - Public API limited to 60 requests per minute per IP
+ *    - Admin routes not rate limited
+ * 
+ * 5. Error Handling:
+ *    - All responses include success boolean flag
+ *    - Check response.ok in JavaScript before processing
+ *    - Error messages are user-friendly
+ * 
+ * 6. Model Binding:
+ *    - {event} uses route model binding to auto-load Event model
+ *    - Returns 404 if event doesn't exist
+ */
 /*
 |--------------------------------------------------------------------------
 | Public API Routes (for AJAX calls)

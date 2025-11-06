@@ -1,24 +1,17 @@
 // ===================================
-// EVENT LOADING FOR LANDING PAGE
+// DYNAMIC EVENTS LOADING SYSTEM (WITH SAFETY FALLBACK)
 // ===================================
+// CRITICAL: Landing page NEVER shows empty state
+// Top 3 cards show non-announcement events, featured (bottom) shows announcements only
 
 let allEvents = [];
 let currentFilter = 'all';
 
 /**
- * Load events from API with detailed debugging
+ * Load events from API with retry mechanism
  */
-async function loadEvents() {
-    console.log('🔄 [Events] Starting load...');
-    
-    const grid = document.querySelector('.events-grid');
-    
-    if (!grid) {
-        console.error('❌ [Events] Grid not found on page');
-        return;
-    }
-    
-    console.log('✅ [Events] Grid found, fetching data...');
+async function loadEvents(retryCount = 0) {
+    console.log('🔄 [Events] Loading... Attempt:', retryCount + 1);
     
     try {
         const url = '/api/events?category=all';
@@ -36,90 +29,269 @@ async function loadEvents() {
         console.log(`📊 [Events] Response status: ${response.status}`);
         
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
+            throw new Error(`HTTP ${response.status}`);
         }
         
         const data = await response.json();
         console.log('✅ [Events] API Response:', data);
         
         if (!data.success) {
-            throw new Error(data.message || 'API error');
+            throw new Error(data.message || 'API returned error');
         }
         
         if (!Array.isArray(data.events)) {
-            throw new Error('Events is not an array: ' + JSON.stringify(data.events));
+            throw new Error('Invalid events data format');
         }
         
-        console.log(`✅ [Events] Loaded ${data.events.length} events`);
+        console.log(`✅ [Events] Loaded ${data.events.length} active events`);
         
         allEvents = data.events;
-        renderEvents(data.events);
-        attachEventListeners();
+        
+        // SAFETY CHECK: Use fallback if no active events
+        if (allEvents.length === 0) {
+            console.warn('⚠️ [Events] No active events found - using fallback event');
+            allEvents = [getFallbackEvent()];
+        }
+        
+        // Update section header
+        updateEventsSectionHeader();
+        
+        // Render events
+        renderEventsLayout();
         
     } catch (error) {
         console.error('❌ [Events] Loading failed:', error.message);
-        console.error('Full error:', error);
-        showError(error.message);
+        
+        // Retry logic (max 3 attempts)
+        if (retryCount < 2) {
+            console.log('🔄 [Events] Retrying in 2 seconds...');
+            setTimeout(() => loadEvents(retryCount + 1), 2000);
+        } else {
+            // Even on error, use fallback to prevent empty page
+            console.warn('⚠️ [Events] All retries failed - using fallback event');
+            allEvents = [getFallbackEvent()];
+            updateEventsSectionHeader();
+            renderEventsLayout();
+        }
     }
 }
 
 /**
- * Render events to grid
+ * Get fallback event when no active events exist
+ * This ensures the landing page NEVER shows empty state
  */
-function renderEvents(events) {
-    console.log('🎨 [Events] Rendering', events ? events.length : 0, 'events');
-    
-    const grid = document.querySelector('.events-grid');
-    if (!grid) return;
+function getFallbackEvent() {
+    return {
+        id: 0,
+        title: 'City Agriculture Office Programs',
+        description: 'The City Agriculture Office is committed to promoting sustainable farming practices, supporting local farmers, and developing agricultural programs that benefit our community. We continuously work on initiatives to enhance food security, improve agricultural productivity, and foster environmental stewardship. Stay tuned for announcements about upcoming events, training sessions, and community programs designed to strengthen our agricultural sector.',
+        short_description: 'Dedicated to promoting sustainable agriculture and supporting our farming community.',
+        category: 'announcement',
+        category_label: 'Announcement',
+        image: createPlaceholder(800, 400, 'Agriculture Office'),
+        date: 'Ongoing',
+        location: 'City Agriculture Office',
+        is_active: true,
+        display_order: 0,
+        is_fallback: true // Flag to identify fallback event
+    };
+}
 
-    if (!events || events.length === 0) {
-        grid.innerHTML = `
-            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
-                <i class="fas fa-inbox fa-4x text-muted mb-3" style="display: block; margin-bottom: 20px;"></i>
-                <h5 class="text-muted">No events available</h5>
-                <p class="text-muted">Check back soon for upcoming events</p>
-            </div>
-        `;
+/**
+ * Update section header with dynamic content
+ */
+function updateEventsSectionHeader() {
+    console.log('📝 [Events] Updating section header');
+    
+    const titleEl = document.querySelector('#events-title');
+    const subtitleEl = document.querySelector('#events-subtitle');
+    
+    if (!titleEl || !subtitleEl) {
+        console.warn('⚠️ [Events] Header elements not found');
+        return;
+    }
+    
+    // Dynamic title
+    titleEl.innerHTML = 'City <span class="highlight">Agriculture Office Events</span>';
+    
+    // Dynamic subtitle
+    const eventCount = allEvents.length;
+    const hasFallback = allEvents.some(e => e.is_fallback);
+    
+    if (hasFallback) {
+        subtitleEl.innerHTML = '<i class="fas fa-info-circle me-2"></i>Stay updated with our ongoing agricultural programs and initiatives. New events will be announced here.';
+        subtitleEl.style.color = '#6c757d';
+    } else if (eventCount > 0) {
+        subtitleEl.textContent = `Explore our agricultural events and initiatives dedicated to promoting agricultural growth and community development.`;
+        subtitleEl.style.color = '';
+    }
+    
+    console.log('✅ [Events] Header updated');
+}
+
+/**
+ * Get non-announcement events (for top 3 cards)
+ */
+function getNonAnnouncementEvents() {
+    return allEvents.filter(e => e.category !== 'announcement');
+}
+
+/**
+ * Get announcement events (for featured bottom section)
+ */
+function getAnnouncementEvents() {
+    return allEvents.filter(e => e.category === 'announcement');
+}
+
+/**
+ * Main render function - 3 cards (non-announcement) + featured announcement
+ * ALWAYS displays content (never empty)
+ */
+function renderEventsLayout() {
+    console.log('🎨 [Events] Rendering events layout');
+    
+    const container = document.querySelector('.events-container');
+    if (!container) {
+        console.error('❌ [Events] Container not found');
         return;
     }
 
-    grid.innerHTML = events.map(event => createEventCard(event)).join('');
-    console.log('✅ [Events] Rendered successfully');
+    // SAFETY: Should never reach here due to fallback, but double-check
+    if (!allEvents || allEvents.length === 0) {
+        console.error('❌ [Events] Critical: No events available and no fallback loaded');
+        allEvents = [getFallbackEvent()];
+    }
+
+    let html = '';
+
+    // === TOP ROW: 3 CARDS (Non-announcement events) ===
+    html += '<div class="events-grid-top">';
+    
+    const nonAnnouncementEvents = getNonAnnouncementEvents();
+    const topCards = [];
+    
+    // Fill 3 cards with non-announcement events (duplicate if less than 3)
+    if (nonAnnouncementEvents.length >= 3) {
+        topCards.push(...nonAnnouncementEvents.slice(0, 3));
+    } else if (nonAnnouncementEvents.length > 0) {
+        // Use what we have and duplicate to fill 3 slots
+        for (let i = 0; i < 3; i++) {
+            topCards.push(nonAnnouncementEvents[i % nonAnnouncementEvents.length]);
+        }
+    } else {
+        // No non-announcement events, use fallback
+        const fallbackEvent = getFallbackEvent();
+        fallbackEvent.category = 'past_event';
+        fallbackEvent.category_label = 'Past Event';
+        for (let i = 0; i < 3; i++) {
+            topCards.push({...fallbackEvent, id: -1 - i});
+        }
+    }
+    
+    topCards.forEach((event, index) => {
+        html += createEventCard(event, index);
+    });
+    html += '</div>';
+
+    // === FEATURED EVENT: Large section (Announcement only) ===
+    const announcementEvents = getAnnouncementEvents();
+    const featuredEvent = announcementEvents.length > 0 ? announcementEvents[0] : getFallbackEvent();
+    html += createFeaturedEvent(featuredEvent);
+
+    container.innerHTML = html;
+    console.log('✅ [Events] Layout rendered with ' + allEvents.length + ' event(s)');
 }
 
 /**
- * Create single event card
+ * Create event card (for top row - 3 cards)
  */
-function createEventCard(event) {
-    const imageUrl = event.image && event.image.trim() ? event.image : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22250%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22400%22 height=%22250%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2220%22 fill=%22%23999%22%3ENo Image%3C/text%3E%3C/svg%3E';
+function createEventCard(event, index = 0) {
+    const imageUrl = event.image && event.image.trim() 
+        ? event.image 
+        : createPlaceholder(400, 220, 'Event');
     
-    const details = event.details || {};
-    const title = event.title || 'Untitled';
-    const description = event.description || 'No description';
-    const date = event.date || 'Date TBA';
-    const location = event.location || 'Location TBA';
+    const title = event.title || 'Untitled Event';
+    const description = event.short_description || event.description || 'No description';
+    const category = event.category_label || 'Event';
+    
+    // Truncate description
+    const truncated = description.length > 100 
+        ? description.substring(0, 100) + '...' 
+        : description;
     
     return `
-        <div class="event-card" data-category="${event.category}">
-            <img src="${imageUrl}" alt="${title}" class="event-image" 
-                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22250%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22400%22 height=%22250%22/%3E%3C/svg%3E'">
-            <div class="event-content">
-                <h3>${title}</h3>
-                <p class="event-description">${description}</p>
-                
-                <div class="event-info-box">
-                    <div class="date">📅 ${date}</div>
-                    <div class="location">📍 ${location}</div>
+        <div class="event-card" onclick="handleEventClick(${event.id}, ${event.is_fallback || false})">
+            <img src="${imageUrl}" 
+                 alt="${title}" 
+                 class="event-card-image" 
+                 onerror="this.src='${createPlaceholder(400, 220, 'Event')}'">
+            <div class="event-card-content">
+                <span class="event-card-category">${category}</span>
+                <h3 class="event-card-title">${title}</h3>
+                <p class="event-card-description">${truncated}</p>
+                <button class="event-card-btn">Learn More</button>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Create featured event section (large bottom section - announcements only)
+ */
+function createFeaturedEvent(event) {
+    const imageUrl = event.image && event.image.trim() 
+        ? event.image 
+        : createPlaceholder(800, 400, 'Featured');
+    
+    const title = event.title || 'Featured Announcement';
+    const description = event.description || 'No description available';
+    const date = event.date || 'Date TBA';
+    const location = event.location || 'Location TBA';
+    const category = event.category_label || 'Announcement';
+    const isFallback = event.is_fallback || false;
+
+    // Show notification badge if fallback
+    const notificationBadge = isFallback 
+        ? '<div class="alert alert-info mb-3"><i class="fas fa-info-circle me-2"></i><strong>Notice:</strong> New announcements will be posted here. Check back soon for updates on upcoming agricultural programs and activities.</div>'
+        : '';
+
+    return `
+        <div class="events-featured">
+            <div class="featured-layout">
+                <div class="featured-image-section">
+                    <img src="${imageUrl}" 
+                         alt="${title}" 
+                         class="featured-image"
+                         onerror="this.src='${createPlaceholder(800, 400, 'Featured')}'">
                 </div>
-                
-                <button class="expand-btn" onclick="toggleEventDetails(this)">
-                    <span>View More Details</span>
-                    <span class="arrow">▼</span>
-                </button>
-                
-                <div class="expandable-details">
-                    ${renderEventDetails(details)}
+                <div class="featured-content-section">
+                    ${notificationBadge}
+                    <span class="featured-badge">${category}</span>
+                    <h3 class="featured-title">${title}</h3>
+                    <p class="featured-description">${description}</p>
+                    
+                    <div class="featured-meta">
+                        <div class="featured-meta-item">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>${date}</span>
+                        </div>
+                        <div class="featured-meta-item">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>${location}</span>
+                        </div>
+                    </div>
+                    
+                    <button class="featured-cta" onclick="handleEventClick(${event.id}, ${isFallback})">
+                        ${isFallback ? 'Contact Us' : 'View Full Details'}
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -127,156 +299,42 @@ function createEventCard(event) {
 }
 
 /**
- * Render event details
+ * Handle event click
  */
-function renderEventDetails(details) {
-    if (!details || Object.keys(details).length === 0) {
-        return '<p class="text-muted text-center py-3">No additional details available</p>';
-    }
-
-    let html = '<ul class="details-list">';
-    for (const [key, value] of Object.entries(details)) {
-        if (key === 'icon' || !value) continue;
-        const icon = getDetailIcon(key);
-        const label = formatLabel(key);
-        html += `
-            <li>
-                <span class="icon">${icon}</span>
-                <div class="text">
-                    <div class="label">${label}</div>
-                    <div class="value">${value}</div>
-                </div>
-            </li>
-        `;
-    }
-    html += '</ul>';
-    return html;
-}
-
-/**
- * Get icon for detail
- */
-function getDetailIcon(key) {
-    const icons = {
-        'participants': '👥', 'cost': '💰', 'achievement': '🌳',
-        'impact': '🎯', 'freebies': '🎁', 'registration': '📝',
-        'support': '💚', 'certification': '🏆', 'services': '🛠️',
-        'report': '📞', 'facilities': '⚽', 'upgrades': '🔧',
-        'techniques': '🌱', 'materials': '📦', 'for': '👨‍🌾',
-        'requirement': '✓', 'benefits': '⭐'
-    };
-    return icons[key] || '📌';
-}
-
-/**
- * Format label
- */
-function formatLabel(key) {
-    return key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-}
-
-/**
- * Toggle event details
- */
-function toggleEventDetails(btn) {
-    const card = btn.closest('.event-card');
-    const details = card.querySelector('.expandable-details');
-    const isExpanded = card.classList.contains('expanded');
+function handleEventClick(eventId, isFallback = false) {
+    console.log('📋 [Events] Event clicked:', eventId, 'Is fallback:', isFallback);
     
-    if (isExpanded) {
-        card.classList.remove('expanded');
-        details.style.maxHeight = '0';
-        btn.innerHTML = '<span>View More Details</span> <span class="arrow">▼</span>';
-    } else {
-        card.classList.add('expanded');
-        details.style.maxHeight = details.scrollHeight + 'px';
-        btn.innerHTML = '<span>Hide Details</span> <span class="arrow">▲</span>';
+    if (isFallback) {
+        // Redirect to contact page or show info
+        alert('For more information about our agricultural programs, please contact the City Agriculture Office.');
+        return;
+    }
+    
+    const event = allEvents.find(e => e.id === eventId);
+    
+    if (event) {
+        console.log('Event Details:', event);
+        // TODO: Implement modal or detail page
     }
 }
 
 /**
- * Attach event listeners to filter buttons
+ * Create placeholder image as SVG data URL
  */
-function attachEventListeners() {
-    console.log('🔗 [Events] Attaching listeners to filter buttons...');
-    
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    console.log(`Found ${filterButtons.length} filter buttons`);
-    
-    filterButtons.forEach(button => {
-        button.removeEventListener('click', handleFilterClick);
-        button.addEventListener('click', handleFilterClick);
-    });
-}
-
-/**
- * Handle filter click
- */
-function handleFilterClick(event) {
-    event.preventDefault();
-    
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const eventCards = document.querySelectorAll('.event-card');
-    const filterValue = event.currentTarget.getAttribute('data-filter');
-    
-    console.log(`🔍 [Events] Filtering by: ${filterValue}`);
-    
-    filterButtons.forEach(btn => btn.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    
-    let visibleCount = 0;
-    eventCards.forEach(card => {
-        const shouldShow = filterValue === 'all' || card.getAttribute('data-category') === filterValue;
-        if (shouldShow) {
-            visibleCount++;
-            card.style.display = 'block';
-            setTimeout(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'scale(1)';
-            }, 10);
-        } else {
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.8)';
-            setTimeout(() => {
-                card.style.display = 'none';
-            }, 300);
-        }
-    });
-    
-    console.log(`✅ [Events] Showing ${visibleCount} events`);
-}
-
-/**
- * Show error
- */
-function showError(message) {
-    console.log('🚨 [Events] Error:', message);
-    const grid = document.querySelector('.events-grid');
-    if (grid) {
-        grid.innerHTML = `
-            <div style="text-align: center; padding: 40px; grid-column: 1/-1;">
-                <p style="color: red; font-size: 16px; margin-bottom: 20px;">
-                    <strong>⚠️ Error:</strong> ${message}
-                </p>
-                <button onclick="loadEvents()" style="padding: 10px 20px; background: #0A6953; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                    🔄 Retry
-                </button>
-            </div>
-        `;
-    }
+function createPlaceholder(width, height, text) {
+    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}'%3E%3Crect fill='%23f0f0f0' width='${width}' height='${height}'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='%23999'%3E${text}%3C/text%3E%3C/svg%3E`;
 }
 
 /**
  * Initialize on DOM ready
  */
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 [Events] DOM loaded, starting events loader...');
+    console.log('📄 [Events] DOM loaded, initializing...');
     loadEvents();
 });
 
-// Make functions global
+// Make functions globally accessible
 window.loadEvents = loadEvents;
-window.toggleEventDetails = toggleEventDetails;
-window.attachEventListeners = attachEventListeners;
+window.handleEventClick = handleEventClick;
 
-console.log('✅ [Events] Loader script initialized');
+console.log('✅ [Events] Enhanced loader script with announcements featured');

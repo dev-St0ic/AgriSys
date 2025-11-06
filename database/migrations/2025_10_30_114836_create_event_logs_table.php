@@ -8,33 +8,69 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * 
+     * Creates the event_logs table for audit trail and change tracking
+     * Helps track all modifications to events for accountability
      */
     public function up(): void
     {
         Schema::create('event_logs', function (Blueprint $table) {
+            // Primary Key
             $table->id();
+            
+            // ========================================
+            // FOREIGN KEY REFERENCES
+            // ========================================
             $table->unsignedBigInteger('event_id');
-            $table->string('action'); // created, updated, deleted, published, unpublished
-            $table->unsignedBigInteger('performed_by'); // user who performed the action
-            $table->json('changes')->nullable(); // track what changed
-            $table->text('notes')->nullable(); // additional notes
-            $table->timestamps();
+            $table->unsignedBigInteger('performed_by');
+            
+            // ========================================
+            // LOG INFORMATION
+            // ========================================
+            $table->string('action', 100); // created, updated, deleted, published, unpublished, toggled
+            $table->json('changes')->nullable(); // Track what fields changed: {field: {old: val, new: val}}
+            $table->text('notes')->nullable(); // Additional context or reason for change
+            
+            // ========================================
+            // METADATA
+            // ========================================
+            $table->string('ip_address', 45)->nullable(); // IPv4 or IPv6
+            $table->string('user_agent', 500)->nullable(); // Browser/client info
+            $table->string('method', 10)->nullable(); // HTTP method (POST, PUT, DELETE)
+            $table->json('request_data')->nullable(); // Full request payload for debugging
+            
+            // ========================================
+            // TIMESTAMPS (Immutable - logs are never updated)
+            // ========================================
+            $table->timestamps(); // created_at, updated_at
 
-            // Foreign keys
+            // ========================================
+            // FOREIGN KEY CONSTRAINTS
+            // ========================================
             $table->foreign('event_id')
                 ->references('id')
                 ->on('events')
-                ->onDelete('cascade');
+                ->onDelete('cascade'); // Delete logs when event is permanently deleted
 
             $table->foreign('performed_by')
                 ->references('id')
                 ->on('users')
-                ->onDelete('cascade');
+                ->onDelete('cascade'); // Delete logs when user is deleted
 
-            // Indexes for better query performance
-            $table->index('event_id');
-            $table->index('performed_by');
-            $table->index('created_at');
+            // ========================================
+            // INDEXES FOR QUERY PERFORMANCE
+            // ========================================
+            // DO NOT add index() to column that already has foreign() 
+            // Foreign keys automatically create indexes in MySQL
+            
+            // Single column indexes
+            $table->index('action'); // Query by action type
+            $table->index('created_at'); // Time-based queries
+            
+            // Composite indexes for common query patterns
+            $table->index(['event_id', 'created_at']); // Get event logs in order
+            $table->index(['performed_by', 'created_at']); // Get user activity timeline
+            $table->index(['event_id', 'action']); // Get specific actions for an event
         });
     }
 
