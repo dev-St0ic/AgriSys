@@ -1,5 +1,4 @@
 // Enhanced Auth Modal Functions with Profile Verification and Status Management
-
 // ==============================================
 // AUTH MODAL FUNCTIONS
 // ==============================================
@@ -217,6 +216,70 @@ function refreshProfileVerifyButton() {
     console.log(`Profile verify button updated for status: ${status}`);
 }
 
+/**
+ * Update header status display dynamically
+ * This function runs whenever the status changes
+ */
+function updateHeaderStatusDisplay(status) {
+    const statusText = document.getElementById('status-text');
+    const statusDiv = document.getElementById('header-user-status');
+    
+    if (!statusText || !statusDiv) return;
+
+    const statusLower = (status || '').toLowerCase();
+    let displayText = 'Active';
+    let badgeClass = 'status-active';
+    let icon = ''; // Will use CSS for icon instead
+
+    // Map status to display text with professional labels
+    switch(statusLower) {
+        case 'verified':
+        case 'approved':
+            displayText = 'Verified';
+            badgeClass = 'status-verified';
+            break;
+            
+        case 'pending':
+        case 'pending_verification':
+            displayText = 'Under Review';
+            badgeClass = 'status-pending';
+            break;
+            
+        case 'rejected':
+            displayText = 'Verification Failed';
+            badgeClass = 'status-rejected';
+            break;
+            
+        case 'unverified':
+            displayText = 'Not Verified';
+            badgeClass = 'status-unverified';
+            break;
+            
+        case 'banned':
+            displayText = 'Account Restricted';
+            badgeClass = 'status-banned';
+            break;
+            
+        default:
+            displayText = statusLower.charAt(0).toUpperCase() + statusLower.slice(1);
+            badgeClass = `status-${statusLower}`;
+    }
+
+    // Update the text content
+    statusText.textContent = displayText;
+    
+    // Update the parent div class for styling
+    statusDiv.className = `user-status ${badgeClass}`;
+
+    console.log('📝 Header status updated to:', displayText);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.userData && window.userData.status) {
+        updateHeaderStatusDisplay(window.userData.status);
+    }
+});
 // ==============================================
 // USER PROFILE DROPDOWN FUNCTIONS
 // ==============================================
@@ -2938,102 +3001,401 @@ function handleValidationErrors(errors) {
 // ==============================================
 // VERIFICATION STATUS POLLING
 // ==============================================
+// ==============================================
+// REAL-TIME VERIFICATION STATUS POLLING
+// ==============================================
 
-/*
-  Add robust verification-status poller.
-  - tries multiple endpoints
-  - accepts different JSON shapes (data.user, user, data)
-  - updates window.userData and calls refreshProfileVerifyButton()
-*/
+/**
+ * Robust verification-status poller that checks for status updates
+ * when user is in 'pending' or 'pending_verification' state.
+ * 
+ * Features:
+ * - Auto-starts when verification form is submitted
+ * - Probes multiple endpoints for compatibility
+ * - Updates UI in real-time when status changes
+ * - Smart backoff: stops polling when status is approved/rejected
+ * - Respects user logout (stops polling on 401/403)
+ */
+
 let verificationStatusPoll = {
     intervalId: null,
-    intervalMs: 10000, // Poll every 10 seconds
+    intervalMs: 5000, // Poll every 5 seconds (increased responsiveness)
+    maxAttempts: 144, // 12 minutes of polling at 5-second intervals
+    attemptCount: 0,
+    lastKnownStatus: null,
+
+    /**
+     * Probe multiple endpoints to get latest user status
+     * Returns: { user, url, stop } object
+     */
     async probeEndpoints() {
         const tokenMeta = document.querySelector('meta[name="csrf-token"]');
         const headers = {
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': tokenMeta ? tokenMeta.content : ''
+            'X-CSRF-TOKEN': tokenMeta ? tokenMeta.content : '',
+            'Cache-Control': 'no-cache'
         };
 
-        // Try these endpoints in order — adjust if your backend exposes a different URL
+        // Try these endpoints in order
         const endpoints = ['/api/user/profile', '/auth/profile', '/api/profile'];
 
         for (const url of endpoints) {
             try {
-                const res = await fetch(url, { method: 'GET', headers });
-                if (!res.ok) {
-                    // if unauthorized/forbidden stop polling
-                    if (res.status === 401 || res.status === 403) return { stop: true };
-                    continue;
+                const res = await fetch(url, { 
+                    method: 'GET', 
+                    headers,
+                    credentials: 'same-origin'
+                });
+
+                // Stop polling if unauthorized (user logged out)
+                if (res.status === 401 || res.status === 403) {
+                    console.log('User session ended (status:', res.status + ')');
+                    return { stop: true, reason: 'unauthorized' };
                 }
+
+                if (!res.ok) continue;
+
                 const json = await res.json();
-                // Support several shapes: { user: {...} }, { data: { user: {...} } }, or direct user object
-                const user = (json && (json.user || (json.data && json.data.user) || json.data || json)) || null;
-                return { user, url };
+                
+                // Support multiple response shapes
+                const user = (json && (
+                    json.user || 
+                    (json.data && json.data.user) || 
+                    (json.data && typeof json.data === 'object' && json.data.status ? json.data : null) ||
+                    json
+                )) || null;
+
+                return { user, url, stop: false };
             } catch (err) {
-                console.debug('Verification probe failed for', url, err);
+                console.debug('Verification probe failed for', url, err.message);
                 continue;
             }
         }
-        return { user: null };
+
+        return { user: null, stop: false };
     },
+
+    /**
+     * Start polling for verification status changes
+     */
     start() {
-        if (this.intervalId) return;
-        if (!window.userData) return;
+        // Don't start if already polling
+        if (this.intervalId) {
+            console.log('Verification polling already active');
+            return;
+        }
+
+        // Only start if user exists and is in pending state
+        if (!window.userData) {
+            console.log('No user data available for polling');
+            return;
+        }
+
         const status = (window.userData.status || '').toLowerCase();
-        if (status !== 'pending' && status !== 'pending_verification') return;
+        if (!['pending', 'pending_verification'].includes(status)) {
+            console.log('User status is not pending, polling not needed:', status);
+            return;
+        }
 
-        this.intervalId = setInterval(async () => {
-            try {
-                const { user, url, stop } = await this.probeEndpoints();
-                if (stop) {
-                    this.stop();
-                    return;
-                }
-                if (!user) return;
-                const serverStatus = ((user.status || '') + '').toLowerCase();
-                const localStatus = (window.userData.status || '').toLowerCase();
+        this.lastKnownStatus = status;
+        this.attemptCount = 0;
 
-                if (serverStatus && serverStatus !== localStatus) {
-                    // merge user fields (do not overwrite everything in case UI expects other props)
-                    window.userData = Object.assign({}, window.userData, user);
-                    refreshProfileVerifyButton();
+        console.log('🔄 Starting verification status polling...', {
+            status,
+            interval: this.intervalMs + 'ms',
+            maxAttempts: this.maxAttempts
+        });
 
-                    if (serverStatus === 'verified' || serverStatus === 'approved') {
-                        showNotification('success', 'Your profile has been verified!');
-                        this.stop();
-                    } else if (serverStatus === 'rejected') {
-                        showNotification('error', 'Your verification was rejected. You can submit again with updated documents.');
-                        this.stop();
-                    }
-                }
-            } catch (err) {
-                console.error('Verification status poll error:', err);
-            }
-        }, this.intervalMs);
+        this.intervalId = setInterval(() => this.checkStatus(), this.intervalMs);
 
-        console.debug('Started verificationStatusPoll');
+        // Perform first check immediately
+        this.checkStatus();
     },
-    stop() {
+
+    /**
+     * Stop polling for status changes
+     */
+    stop(reason = 'manual') {
         if (this.intervalId) {
             clearInterval(this.intervalId);
             this.intervalId = null;
-            console.debug('Stopped verificationStatusPoll');
+            console.log('⏹️ Stopped verification polling:', reason);
         }
+    },
+
+    /**
+     * Single status check iteration
+     */
+    async checkStatus() {
+        this.attemptCount++;
+
+        // Auto-stop after max attempts (prevents infinite polling)
+        if (this.attemptCount > this.maxAttempts) {
+            console.log('Max polling attempts reached');
+            this.stop('max_attempts_reached');
+            return;
+        }
+
+        try {
+            const { user, url, stop } = await this.probeEndpoints();
+
+            // Stop if user logged out
+            if (stop) {
+                this.stop('user_unauthorized');
+                return;
+            }
+
+            // Skip if no user data returned
+            if (!user) {
+                console.debug(`Attempt ${this.attemptCount}: No user data returned`);
+                return;
+            }
+
+            const serverStatus = ((user.status || '') + '').toLowerCase();
+            const localStatus = (window.userData.status || '').toLowerCase();
+
+            // Log status changes
+            if (serverStatus && serverStatus !== this.lastKnownStatus) {
+                console.log('✨ Status changed:', {
+                    from: this.lastKnownStatus,
+                    to: serverStatus,
+                    attempt: this.attemptCount
+                });
+                this.lastKnownStatus = serverStatus;
+            }
+
+            // Check if status has changed from pending
+            if (serverStatus && serverStatus !== localStatus) {
+                console.log('🎉 Verification status updated!', {
+                    old: localStatus,
+                    new: serverStatus
+                });
+
+                // Update local user data
+                window.userData = Object.assign({}, window.userData, user);
+
+                // Refresh UI button
+                if (typeof refreshProfileVerifyButton === 'function') {
+                    refreshProfileVerifyButton();
+                }
+
+                // Handle status-specific notifications
+                if (serverStatus === 'verified' || serverStatus === 'approved') {
+                    this.handleApproved();
+                } else if (serverStatus === 'rejected') {
+                    this.handleRejected(user.remarks || 'No reason provided');
+                }
+
+                // Stop polling after status change
+                this.stop('status_changed_to_' + serverStatus);
+            }
+        } catch (err) {
+            console.error('Verification poll error:', err);
+            // Don't stop on error, keep trying
+        }
+    },
+
+    /**
+     * Handle approval notification
+     */
+    handleApproved() {
+    console.log('✅ Verification approved!');
+
+    // 1. Update local user data
+    if (window.userData) {
+        window.userData.status = 'approved';
+    }
+
+    // 2. ✅ UPDATE HEADER IMMEDIATELY (NEW!)
+    if (typeof updateHeaderStatusDisplay === 'function') {
+        updateHeaderStatusDisplay('approved');
+    }
+
+    // 3. Update profile button
+    if (typeof refreshProfileVerifyButton === 'function') {
+        refreshProfileVerifyButton();
+    }
+
+    // 4. Show notification
+    if (typeof showNotification === 'function') {
+        showNotification('success', '🎉 Your profile has been verified! You can now access all services.');
+    }
+
+    // 5. Optional: Close verification modal if open
+    const modal = document.getElementById('verification-modal');
+    if (modal && modal.style.display !== 'none') {
+        setTimeout(() => {
+            if (typeof closeVerificationModal === 'function') {
+                closeVerificationModal();
+            }
+        }, 1500);
+    }
+
+    // 6. Play success sound
+    if (typeof playToneNotification === 'function') {
+        playToneNotification('success');
+    }
+},
+
+    /**
+     * Handle rejection notification
+     */
+  handleRejected(remarks = '') {
+    console.log('❌ Verification rejected:', remarks);
+
+    // 1. Update local user data
+    if (window.userData) {
+        window.userData.status = 'rejected';
+    }
+
+    // 2. ✅ UPDATE HEADER IMMEDIATELY (NEW!)
+    if (typeof updateHeaderStatusDisplay === 'function') {
+        updateHeaderStatusDisplay('rejected');
+    }
+
+    // 3. Update profile button
+    if (typeof refreshProfileVerifyButton === 'function') {
+        refreshProfileVerifyButton();
+    }
+
+    // 4. Show error notification
+    if (typeof showNotification === 'function') {
+        let message = 'Your verification was rejected. You can submit again with updated documents.';
+        if (remarks) {
+            message += ' Reason: ' + remarks;
+        }
+        showNotification('error', message);
+    }
+
+    // 5. Play error sound
+    if (typeof playToneNotification === 'function') {
+        playToneNotification('error');
+    }
     }
 };
 
+/**
+ * PUBLIC FUNCTION: Start polling if needed
+ * Called after verification form submission
+ */
 function maybeStartVerificationPoll() {
     try {
-        if (!window.userData) return;
+        if (!window.userData) {
+            console.log('No user data, cannot start polling');
+            return;
+        }
+
         const s = (window.userData.status || '').toLowerCase();
+        
+        // Only start if status is pending
         if (['pending', 'pending_verification'].includes(s)) {
             verificationStatusPoll.start();
+        } else {
+            console.log('User status not pending, polling not needed:', s);
         }
     } catch (e) {
-        console.error('maybeStartVerificationPoll error', e);
+        console.error('maybeStartVerificationPoll error:', e);
     }
 }
+
+/**
+ * PUBLIC FUNCTION: Force stop polling
+ * Called on logout or when user manually closes modal
+ */
+function stopVerificationPolling() {
+    verificationStatusPoll.stop('manual_stop');
+}
+
+/**
+ * PUBLIC FUNCTION: Get current polling status
+ * For debugging/monitoring
+ */
+function getPollingStatus() {
+    return {
+        active: !!verificationStatusPoll.intervalId,
+        attempts: verificationStatusPoll.attemptCount,
+        maxAttempts: verificationStatusPoll.maxAttempts,
+        lastKnownStatus: verificationStatusPoll.lastKnownStatus,
+        interval: verificationStatusPoll.intervalMs + 'ms'
+    };
+}
+
+// ==============================================
+// INTEGRATION HOOKS
+// ==============================================
+
+/**
+ * Hook: Start polling when page loads if user is pending
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        maybeStartVerificationPoll();
+    }, 500);
+});
+
+/**
+ * Hook: Stop polling on logout
+ */
+function logoutUserWithPolling() {
+    // Stop polling before logging out
+    stopVerificationPolling();
+    
+    // Then logout (your existing logout logic)
+    logoutUser();
+}
+
+/**
+ * Hook: Stop polling when verification modal closes
+ */
+const originalCloseVerificationModal = window.closeVerificationModal;
+window.closeVerificationModal = function() {
+    if (originalCloseVerificationModal) {
+        originalCloseVerificationModal();
+    }
+    // Note: Don't stop polling here - user might just be closing the modal
+    // Polling should continue checking for status updates
+};
+
+/**
+ * OPTIONAL: Add visual indicator of polling status
+ */
+function addPollingIndicator() {
+    // Find profile verify button
+    const btn = document.getElementById('verify-action-btn');
+    if (!btn || btn.classList.contains('verified')) return;
+
+    // Add subtle polling indicator
+    const indicator = document.createElement('div');
+    indicator.className = 'polling-indicator';
+    indicator.innerHTML = `
+        <style>
+            .polling-indicator {
+                display: inline-block;
+                width: 8px;
+                height: 8px;
+                background: #3b82f6;
+                border-radius: 50%;
+                margin-right: 6px;
+                animation: polling-pulse 1.5s ease-in-out infinite;
+            }
+            @keyframes polling-pulse {
+                0%, 100% { opacity: 0.6; transform: scale(1); }
+                50% { opacity: 1; transform: scale(1.2); }
+            }
+        </style>
+    `;
+    
+    if (btn && !btn.querySelector('.polling-indicator')) {
+        btn.insertBefore(indicator, btn.firstChild);
+    }
+}
+
+// Add indicator when polling starts
+const originalStart = verificationStatusPoll.start.bind(verificationStatusPoll);
+verificationStatusPoll.start = function() {
+    originalStart();
+    setTimeout(() => addPollingIndicator(), 100);
+};
 
 // ==============================================
 // HOOKS AND LISTENERS

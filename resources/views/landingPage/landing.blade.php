@@ -88,13 +88,26 @@
                                 @endphp
                                 {{ $firstName }}
                             </div>
-                            <div class="user-status">
-                                @if (isset($user['status']) && strtolower($user['status']) == 'approved')
-                                    ✓ Verified
-                                @elseif(isset($user['status']) && strtolower($user['status']) == 'pending')
-                                    ⏳ Pending
+                            <div class="user-status" id="header-user-status">
+                                @if (isset($user['status']))
+                                    <span id="status-text" class="status-badge-text">
+                                        @php
+                                            $statusLower = strtolower($user['status']);
+                                            if ($statusLower === 'approved' || $statusLower === 'verified') {
+                                                echo 'Verified';
+                                            } elseif ($statusLower === 'pending' || $statusLower === 'pending_verification') {
+                                                echo 'Under Review';
+                                            } elseif ($statusLower === 'rejected') {
+                                                echo 'Verification Failed';
+                                            } elseif ($statusLower === 'unverified') {
+                                                echo 'Not Verified';
+                                            } else {
+                                                echo ucfirst($user['status']);
+                                            }
+                                        @endphp
+                                    </span>
                                 @else
-                                    {{ ucfirst($user['status'] ?? 'Active') }}
+                                    <span id="status-text" class="status-badge-text">Active</span>
                                 @endif
                             </div>
                         </div>
