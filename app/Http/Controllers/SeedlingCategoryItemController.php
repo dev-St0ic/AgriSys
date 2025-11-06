@@ -299,6 +299,40 @@ class SeedlingCategoryItemController extends Controller
         return response()->json($item->load('category', 'supplyLogs'));
     }
 
+    /**
+     * Get real-time stock status for items
+     * POST /api/seedlings/stock-status
+     */
+    public function getStockStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'item_ids' => 'required|array',
+            'item_ids.*' => 'required|integer|exists:category_items,id'
+        ]);
+
+        $items = CategoryItem::whereIn('id', $validated['item_ids'])
+            ->select('id', 'name', 'unit', 'current_supply', 'min_quantity', 'max_quantity', 'reorder_point')
+            ->get();
+
+        $itemsData = $items->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'unit' => $item->unit,
+                'current_supply' => $item->current_supply,
+                'min_quantity' => $item->min_quantity,
+                'max_quantity' => $item->max_quantity,
+                'reorder_point' => $item->reorder_point,
+                'stock_status' => $item->stock_status, // Uses the getStockStatusAttribute from model
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'items' => $itemsData
+        ]);
+    }
+
     // ==========================================
     // SUPPLY MANAGEMENT OPERATIONS
     // ==========================================

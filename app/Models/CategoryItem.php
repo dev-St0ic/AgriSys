@@ -130,7 +130,21 @@ class CategoryItem extends Model
     }
 
     /**
-     * Get supply status
+     * FRONTEND: Get stock status for landing page (out_of_stock, low_stock, in_stock)
+     */
+    public function getStockStatusAttribute(): string
+    {
+        if ($this->current_supply <= 0) {
+            return 'out_of_stock';
+        }
+        if ($this->reorder_point && $this->current_supply <= $this->reorder_point) {
+            return 'low_stock';
+        }
+        return 'in_stock';
+    }
+
+    /**
+     * ADMIN: Get supply status for admin panel (out_of_supply, low_supply, critical, adequate)
      */
     public function getSupplyStatusAttribute(): string
     {
