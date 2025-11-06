@@ -554,6 +554,41 @@ function handlePopState() {
 }
 
 // ==============================================
+// APPLICATIONS MODAL FUNCTIONS
+// ==============================================
+
+
+/**
+ * Open applications modal
+ */
+function openApplicationsModal() {
+    const modal = document.getElementById('applications-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        loadUserApplicationsInModal();
+    }
+}
+
+/**
+ * Close applications modal
+ */
+function closeApplicationsModal() {
+    const modal = document.getElementById('applications-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+/**
+ * Show my applications modal (called from profile dropdown)
+ */
+function showMyApplicationsModal() {
+    openApplicationsModal();
+}
+
+// ==============================================
 // HELP SECTION FUNCTIONALITY
 // ==============================================
 
