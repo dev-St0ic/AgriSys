@@ -431,7 +431,6 @@ class EventController extends Controller
                 'location' => $request->location,
                 'details' => $details,
                 'is_active' => $isActiveRequest,
-                'display_order' => $request->display_order,
                 'updated_by' => auth()->id()
             ]);
 

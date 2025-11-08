@@ -175,6 +175,9 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-info" onclick="viewEvent({{ $event->id }})" title="View" data-bs-toggle="tooltip">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
                                             <button class="btn btn-primary" onclick="editEvent({{ $event->id }})" title="Edit" data-bs-toggle="tooltip">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -305,6 +308,24 @@
         </div>
     </div>
 
+    <!-- VIEW EVENT MODAL  -->
+    <div class="modal fade" id="viewEventModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Event Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="eventDetailsContent">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- EDIT EVENT MODAL -->
     <div class="modal fade" id="editEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -570,6 +591,79 @@
             }, 300);
         }
 
+        // View event
+        async function viewEvent(eventId) {
+        try {
+            const response = await fetch(`/admin/events/${eventId}`, {
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+            if (!data.success) throw new Error('Failed to load event');
+            
+            const event = data.event;
+            
+            // Build details HTML similar to archived page
+            let detailsHtml = '';
+            if (event.details && Object.keys(event.details).length > 0) {
+                detailsHtml = `
+                    <div class="mb-3">
+                        <h6 class="fw-bold mb-2">Additional Details:</h6>
+                        <dl class="row">
+                `;
+                for (const [key, value] of Object.entries(event.details)) {
+                    const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ').slice(1);
+                    detailsHtml += `
+                        <dt class="col-sm-4">${displayKey}:</dt>
+                        <dd class="col-sm-8">${value}</dd>
+                    `;
+                }
+                detailsHtml += `
+                        </dl>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div class="row">
+                    <div class="col-md-4">
+                        ${event.image ? `<img src="${event.image}" alt="${event.title}" class="img-fluid rounded">` : '<div class="bg-light p-5 text-center rounded"><i class="fas fa-image fa-3x text-muted"></i></div>'}
+                    </div>
+                    <div class="col-md-8">
+                        <h4>${event.title}</h4>
+                        <p class="text-muted">${event.description}</p>
+                        <dl class="row">
+                            <dt class="col-sm-4">Category:</dt>
+                            <dd class="col-sm-8"><span class="badge bg-info">${event.category_label}</span></dd>
+                            
+                            <dt class="col-sm-4">Status:</dt>
+                            <dd class="col-sm-8"><span class="badge bg-${event.is_active ? 'success' : 'secondary'}">${event.is_active ? 'Active' : 'Inactive'}</span></dd>
+                            
+                            <dt class="col-sm-4">Display Order:</dt>
+                            <dd class="col-sm-8">${event.display_order || '—'}</dd>
+                            
+                            <dt class="col-sm-4">Date:</dt>
+                            <dd class="col-sm-8">${event.date || '—'}</dd>
+                            
+                            <dt class="col-sm-4">Location:</dt>
+                            <dd class="col-sm-8">${event.location || '—'}</dd>
+                            
+                            <dt class="col-sm-4">Created:</dt>
+                            <dd class="col-sm-8"><small>${new Date(event.created_at).toLocaleDateString()}</small></dd>
+                            
+                            <dt class="col-sm-4">Updated:</dt>
+                            <dd class="col-sm-8"><small>${new Date(event.updated_at).toLocaleDateString()}</small></dd>
+                        </dl>
+                        ${detailsHtml}
+                    </div>
+                </div>
+            `;
+            document.getElementById('eventDetailsContent').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('viewEventModal')).show();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
         // Edit event
         async function editEvent(eventId) {
             try {
@@ -826,6 +920,9 @@
     </script>
 
     <style>
+        dl { margin-bottom: 0; }
+        dt { font-weight: 600; color: #333; }
+        dd { margin-bottom: 0.5rem; }
         .text-xs { font-size: 0.75rem; }
         .event-row { transition: all 0.2s ease; }
         .event-row:hover { background-color: #f8f9fa; }
