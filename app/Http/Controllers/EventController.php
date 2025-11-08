@@ -43,7 +43,10 @@ class EventController extends Controller
             $query->where('created_at', '<=', $dateTo);
         }
 
-        $events = $query->paginate(15)->withQueryString();
+        // $events = $query->paginate(15)->withQueryString();
+        // SORT BY NEWEST FIRST (newest created_at at top)
+        $events = $query->orderBy('created_at', 'DESC')
+                    ->paginate(15);
 
         $stats = [
             'total' => Event::notArchived()->count(),

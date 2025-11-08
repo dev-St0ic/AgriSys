@@ -278,7 +278,6 @@
                                 <th>Title</th>
                                 <th style="width: 120px;">Category</th>
                                 <th style="width: 100px;">Status</th>
-                                <th style="width: 100px;">Order</th>
                                 <th style="width: 220px;">Actions</th>
                             </tr>
                         </thead>
@@ -310,9 +309,6 @@
                                             {{ $event->is_active ? 'Active' : 'Inactive' }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-secondary">{{ $event->display_order }}</span>
-                                    </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
                                             <button class="btn btn-info" onclick="viewEvent({{ $event->id }})" title="View" data-bs-toggle="tooltip">
@@ -335,7 +331,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4">
+                                    <td colspan="5" class="text-center py-4">
                                         <i class="fas fa-calendar-times fa-3x text-muted mb-3" style="display: block;"></i>
                                         <p class="text-muted">No events found. Create your first event.</p>
                                     </td>
