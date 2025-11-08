@@ -228,7 +228,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-lg">
-                <div class="card-header bg-gradient-dark text-white py-4">
+                <div class="card-header bg-gradient-dark py-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 font-weight-bold">
                             <i class="fas fa-bolt me-3"></i>Quick Actions
@@ -523,6 +523,11 @@
             overflow: hidden;
             position: relative;
         }
+        
+        /* remove margin bottom from last status item row */
+        .service-card .row.text-center.mb-3 {
+            margin-bottom: 0 !important;
+        }
 
         .service-card:hover {
             transform: translateY(-5px);
@@ -535,6 +540,7 @@
             position: absolute;
             top: 0;
             left: 0;
+             background-color: #000 !important;
         }
 
         .service-icon {
