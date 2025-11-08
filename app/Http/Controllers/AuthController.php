@@ -220,6 +220,15 @@ public function login(Request $request)
                     'icon' => 'fas fa-warehouse',
                     'color' => 'info'
                 ],
+                 'seedling' => [
+                    'name' => 'Seedling Requests',
+                    'total' => $seedlingTotal,
+                    'approved' => $seedlingApproved,
+                    'pending' => $seedlingPending,
+                    'rejected' => $seedlingRejected,
+                    'icon' => 'fas fa-leaf',
+                    'color' => 'success'
+                ],
                 'rsbsa' => [
                     'name' => 'RSBSA Applications',
                     'total' => $rsbsaTotal,
@@ -228,15 +237,6 @@ public function login(Request $request)
                     'rejected' => $rsbsaRejected,
                     'icon' => 'fas fa-seedling',
                     'color' => 'primary'
-                ],
-                'seedling' => [
-                    'name' => 'Seedling Requests',
-                    'total' => $seedlingTotal,
-                    'approved' => $seedlingApproved,
-                    'pending' => $seedlingPending,
-                    'rejected' => $seedlingRejected,
-                    'icon' => 'fas fa-leaf',
-                    'color' => 'success'
                 ],
                 'fishr' => [
                     'name' => 'FishR Registrations',

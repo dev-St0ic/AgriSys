@@ -228,7 +228,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-lg">
-                <div class="card-header bg-gradient-dark text-white py-4">
+                <div class="card-header bg-gradient-dark py-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 font-weight-bold">
                             <i class="fas fa-bolt me-3"></i>Quick Actions
@@ -338,9 +338,9 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-lg">
-                <div class="card-header bg-gradient-primary text-white py-4">
+                <div class="card-header bg-gradient-primary py-4">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 font-weight-bold">
+                        <h5 class="mb-0 font-weight-bold text-dark ">
                             <i class="fas fa-chart-bar me-3"></i>Application Statistics by Service
                         </h5>
                     </div>
@@ -354,10 +354,10 @@
                                     <div class="card-body p-4 d-flex flex-column">
                                         <div class="d-flex align-items-center justify-content-center mb-3">
                                             <div class="service-icon bg-{{ $service['color'] }}-light">
-                                                <i class="{{ $service['icon'] }} text-{{ $service['color'] }}"></i>
+                                                <i class="{{ $service['icon'] }} text-dark"></i>
                                             </div>
                                             <div class="ms-3">
-                                                <h6 class="mb-0 font-weight-bold text-{{ $service['color'] }}">
+                                                <h6 class="mb-0 font-weight-bold text-dark">
                                                     {{ $service['name'] }}
                                                 </h6>
                                             </div>
@@ -402,41 +402,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        @if ($service['total'] > 0)
-                                            <!-- Enhanced Progress Bar -->
-                                            <div class="progress-container mt-auto">
-                                                <div class="progress modern-progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-success progress-bar-animated"
-                                                        role="progressbar"
-                                                        style="width: {{ ($service['approved'] / $service['total']) * 100 }}%"
-                                                        data-toggle="tooltip"
-                                                        title="Approved: {{ $service['approved'] }}"></div>
-                                                    <div class="progress-bar bg-warning progress-bar-animated"
-                                                        role="progressbar"
-                                                        style="width: {{ ($service['pending'] / $service['total']) * 100 }}%"
-                                                        data-toggle="tooltip" title="Pending: {{ $service['pending'] }}">
-                                                    </div>
-                                                    <div class="progress-bar bg-danger progress-bar-animated"
-                                                        role="progressbar"
-                                                        style="width: {{ ($service['rejected'] / $service['total']) * 100 }}%"
-                                                        data-toggle="tooltip"
-                                                        title="Rejected: {{ $service['rejected'] }}"></div>
-                                                </div>
-                                                <div class="d-flex justify-content-between mt-2">
-                                                    <small class="text-success font-weight-bold">
-                                                        {{ round(($service['approved'] / $service['total']) * 100, 1) }}%
-                                                    </small>
-                                                    <small class="text-muted">{{ $serviceKey === 'supply' ? 'Active Rate' : 'Approval Rate' }}</small>
-                                                </div>
-                                            </div>
-                                        @else
-                                            <div class="progress-container mt-auto">
-                                                <div class="text-center">
-                                                    <small class="text-muted">No applications yet</small>
-                                                </div>
-                                            </div>
-                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -471,7 +436,7 @@
             overflow: hidden;
             position: relative;
         }
-
+        
         /* .welcome-banner::before {
                 content: '';
                 position: absolute;
@@ -558,6 +523,11 @@
             overflow: hidden;
             position: relative;
         }
+        
+        /* remove margin bottom from last status item row */
+        .service-card .row.text-center.mb-3 {
+            margin-bottom: 0 !important;
+        }
 
         .service-card:hover {
             transform: translateY(-5px);
@@ -570,6 +540,7 @@
             position: absolute;
             top: 0;
             left: 0;
+             background-color: #000 !important;
         }
 
         .service-icon {
@@ -603,25 +574,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        /* Progress Enhancements */
-        .progress-container {
-            position: relative;
-        }
-
-        .modern-progress {
-            border-radius: 10px;
-            background: #f1f3f4;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            transition: width 1s ease-in-out;
-        }
-
-        .progress-bar-animated {
-            animation: progress-bar-stripes 1s linear infinite;
         }
 
         /* Summary Items */
@@ -907,17 +859,6 @@
             .action-icon {
                 font-size: 1.5rem;
                 margin-bottom: 0.5rem;
-            }
-        }
-
-        /* Animation Keyframes */
-        @keyframes progress-bar-stripes {
-            0% {
-                background-position: 1rem 0;
-            }
-
-            100% {
-                background-position: 0 0;
             }
         }
     </style>
