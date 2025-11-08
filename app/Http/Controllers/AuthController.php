@@ -26,43 +26,51 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    /**
-     * Handle login request
-     */
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+/**
+ * Handle login request
+ */
+public function login(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        $credentials = $request->only('email', 'password');
+    $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
-            /** @var User $user */
-            $user = Auth::user();
+    // Logout any existing user first
+    Auth::logout();
+    $request->session()->flush();
+    $request->session()->regenerate();
 
-            // Check if user has admin privileges
-            if ($user->hasAdminPrivileges()) {
-                $request->session()->regenerate();
+    if (Auth::attempt($credentials)) {
+        /** @var User $user */
+        $user = Auth::user();
+        $user->refresh();
 
-                if ($user->isSuperAdmin()) {
-                    return redirect()->intended('/admin/dashboard');
-                } else {
-                    return redirect()->intended('/admin/dashboard');
-                }
-            } else {
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'You do not have admin privileges.',
-                ]);
-            }
+        // Check if user has admin privileges
+        if ($user->hasAdminPrivileges()) {
+            // Regenerate session again to prevent session fixation attacks
+            $request->session()->regenerate();
+            
+            return redirect()->intended('/admin/dashboard')
+                ->with('success', 'Welcome back, ' . $user->name . '!');
+        } else {
+            // User exists but doesn't have admin privileges
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => 'You do not have admin privileges.',
+            ])->onlyInput('email');
         }
-
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
     }
+
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ])->onlyInput('email');
+}
 
     /**
      * Handle logout request

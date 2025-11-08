@@ -74,7 +74,7 @@ class User extends Authenticatable
     /**
      * Check if the user is an admin
      */
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
@@ -82,7 +82,7 @@ class User extends Authenticatable
     /**
      * Check if the user is a superadmin
      */
-    public function isSuperAdmin()
+    public function isSuperAdmin(): bool
     {
         return $this->role === 'superadmin';
     }
@@ -90,7 +90,7 @@ class User extends Authenticatable
     /**
      * Check if the user has admin privileges (admin or superadmin)
      */
-    public function hasAdminPrivileges()
+    public function hasAdminPrivileges(): bool
     {
         return in_array($this->role, ['admin', 'superadmin']);
     }

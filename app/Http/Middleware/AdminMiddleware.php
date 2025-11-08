@@ -22,7 +22,14 @@ class AdminMiddleware
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
+
+        // Refresh user from database to get latest role
+        $user->refresh();
+
         if (!$user->hasAdminPrivileges()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
             abort(403, 'Unauthorized access.');
         }
 
