@@ -24,105 +24,245 @@
             </div>
         @endif
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-primary text-uppercase mb-1">Total Events</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['total'] ?? 0 }}</div>
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Events
                             </div>
-                            <div class="ms-3"><i class="fas fa-calendar-alt fa-2x text-primary"></i></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] ?? 0 }}</div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-success text-uppercase mb-1">Active</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['active'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-check-circle fa-2x text-success"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">Inactive</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['inactive'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-ban fa-2x text-warning"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-secondary text-uppercase mb-1">Archived</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['archived'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-archive fa-2x text-secondary"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-info text-uppercase mb-1">Announcements</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['announcements'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-bell fa-2x text-info"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-danger text-uppercase mb-1">Upcoming</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['upcoming'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-clock fa-2x text-danger"></i></div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Filters and Actions -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button class="btn btn-outline-primary active" onclick="filterEvents('all')">All Events</button>
-                        <button class="btn btn-outline-info" onclick="filterEvents('announcement')">Announcements</button>
-                        <button class="btn btn-outline-warning" onclick="filterEvents('ongoing')">Ongoing</button>
-                        <button class="btn btn-outline-secondary" onclick="filterEvents('upcoming')">Upcoming</button>
-                        <button class="btn btn-outline-danger" onclick="filterEvents('past')">Past</button>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Active
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['active'] ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
                     </div>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
-                        <i class="fas fa-plus me-2"></i>Add Event
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Inactive
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['inactive'] ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-ban fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Archived
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['archived'] ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-archive fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-filter me-2"></i>Filters & Search
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.event.index') }}" id="filterForm">
+                <!-- Hidden date inputs -->
+                <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
+                <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <select name="category" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit();">
+                            <option value="">All Events</option>
+                            <option value="announcement" {{ request('category') == 'announcement' ? 'selected' : '' }}>Announcements</option>
+                            <option value="ongoing" {{ request('category') == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                            <option value="upcoming" {{ request('category') == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                            <option value="past" {{ request('category') == 'past' ? 'selected' : '' }}>Past</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Search title, description, location..." 
+                                value="{{ request('search') }}"
+                                oninput="autoSearch()" id="searchInput">
+                            <button class="btn btn-outline-secondary" type="submit" title="Search"
+                                id="searchButton">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
+                            data-bs-target="#eventDateFilterModal">
+                            <i class="fas fa-calendar-alt me-1"></i>Date Filter
+                        </button>
+                    </div>
+
+                    <div class="col-md-2">
+                        <a href="{{ route('admin.event.index') }}" class="btn btn-secondary btn-sm w-100">
+                            <i class="fas fa-times me-1"></i> Clear
+                        </a>
+                    </div>
+
+                    <div class="col-md-2 text-end">
+                        <button type="button" class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                            <i class="fas fa-plus me-1"></i>Add Event
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Date Filter Modal -->
+    <div class="modal fade" id="eventDateFilterModal" tabindex="-1" aria-labelledby="eventDateFilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="eventDateFilterModalLabel">
+                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Date Range Inputs -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="event_modal_date_from" class="form-label">From Date</label>
+                                        <input type="date" id="event_modal_date_from" class="form-control"
+                                            value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="event_modal_date_to" class="form-label">To Date</label>
+                                        <input type="date" id="event_modal_date_to" class="form-control"
+                                            value="{{ request('date_to') }}">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        onclick="applyEventCustomDateRange()">
+                                        <i class="fas fa-check me-2"></i>Apply Custom Range
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Date Presets -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-clock me-2"></i>Quick Presets
+                                    </h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="setEventDateRangeModal('today')">
+                                            <i class="fas fa-calendar-day me-2"></i>Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="setEventDateRangeModal('week')">
+                                            <i class="fas fa-calendar-week me-2"></i>This Week
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning"
+                                            onclick="setEventDateRangeModal('month')">
+                                            <i class="fas fa-calendar me-2"></i>This Month
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="setEventDateRangeModal('year')">
+                                            <i class="fas fa-calendar-alt me-2"></i>This Year
+                                        </button>
+                                        <hr class="my-3">
+                                        <button type="button" class="btn btn-outline-danger"
+                                            onclick="clearEventDateRangeModal()">
+                                            <i class="fas fa-calendar-times me-2"></i>Clear Date Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Filter Display -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0" id="currentEventDateFilter">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="eventDateFilterStatus">
+                                    @if (request('date_from') || request('date_to'))
+                                        Current filter:
+                                        @if (request('date_from'))
+                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                        @endif
+                                        @if (request('date_to'))
+                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        No date filter applied - showing all events
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
                     </button>
                 </div>
             </div>
         </div>
+    </div>
 
         <!-- Events Table -->
         <div class="card border-0 shadow-sm">
@@ -132,13 +272,12 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover table-bordered align-middle mb-0">
-                        <thead class="table-light">
+                        <thead class="table-dark">
                             <tr>
                                 <th style="width: 80px;">Image</th>
                                 <th>Title</th>
                                 <th style="width: 120px;">Category</th>
                                 <th style="width: 100px;">Status</th>
-                                <th style="width: 100px;">Order</th>
                                 <th style="width: 220px;">Actions</th>
                             </tr>
                         </thead>
@@ -171,10 +310,10 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control form-control-sm" value="{{ $event->display_order }}" onchange="updateEventOrder({{ $event->id }}, this.value)">
-                                    </td>
-                                    <td>
                                         <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-info" onclick="viewEvent({{ $event->id }})" title="View" data-bs-toggle="tooltip">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
                                             <button class="btn btn-primary" onclick="editEvent({{ $event->id }})" title="Edit" data-bs-toggle="tooltip">
                                                 <i class="fas fa-edit"></i>
                                             </button>
@@ -192,7 +331,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4">
+                                    <td colspan="5" class="text-center py-4">
                                         <i class="fas fa-calendar-times fa-3x text-muted mb-3" style="display: block;"></i>
                                         <p class="text-muted">No events found. Create your first event.</p>
                                     </td>
@@ -305,6 +444,24 @@
         </div>
     </div>
 
+    <!-- VIEW EVENT MODAL  -->
+    <div class="modal fade" id="viewEventModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Event Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="eventDetailsContent">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- EDIT EVENT MODAL -->
     <div class="modal fade" id="editEventModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -418,6 +575,37 @@
         </div>
     </div>
 
+     <!-- DELETE MODAL -->
+    <div class="modal fade" id="deleteEventModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Permanently Delete Event</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_event_name"></strong> will:</p>
+                    </div>
+                    <ul class="mb-0">
+                        <li>Remove the event from the database</li>
+                        <li>Delete all associated images</li>
+                        <li>Delete all event logs and history</li>
+                        <li>Cannot be recovered</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmPermanentDelete()" id="confirm_delete_btn">
+                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ERROR MODAL -->
     <div class="modal fade" id="errorModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
@@ -513,14 +701,49 @@
             return details;
         }
 
-        function showError(message) {
+        // Enhanced error handler for safety warnings
+        function showError(message, warningType = null) {
             document.querySelectorAll('.modal.show').forEach(m => {
                 const bsModal = bootstrap.Modal.getInstance(m);
                 if (bsModal) bsModal.hide();
             });
+            
             setTimeout(() => {
-                document.getElementById('errorMessage').textContent = message;
-                new bootstrap.Modal(document.getElementById('errorModal')).show();
+                const errorModal = document.getElementById('errorModal');
+                const errorMessage = document.getElementById('errorMessage');
+                
+                // Add warning icon and styling for specific warning types
+                if (warningType === 'last_active_event' || warningType === 'no_active_events') {
+                    errorMessage.innerHTML = `
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 2rem;"></i>
+                            <div>
+                                <strong>Landing Page Protection</strong>
+                                <p class="mb-0 mt-2">${message}</p>
+                                ${warningType === 'last_active_event' ? 
+                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>This safety feature ensures visitors always see content on the landing page.</p>' : 
+                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Create an active event to make this change.</p>'
+                                }
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Change modal header color to warning
+                    const modalHeader = errorModal.querySelector('.modal-header');
+                    modalHeader.classList.remove('bg-danger');
+                    modalHeader.classList.add('bg-warning', 'text-dark');
+                    modalHeader.querySelector('.modal-title').textContent = 'Action Not Allowed';
+                } else {
+                    errorMessage.textContent = message;
+                    
+                    // Reset to error styling
+                    const modalHeader = errorModal.querySelector('.modal-header');
+                    modalHeader.classList.remove('bg-warning', 'text-dark');
+                    modalHeader.classList.add('bg-danger', 'text-white');
+                    modalHeader.querySelector('.modal-title').textContent = 'Error';
+                }
+                
+                new bootstrap.Modal(errorModal).show();
             }, 300);
         }
 
@@ -535,32 +758,78 @@
             }, 300);
         }
 
-        // Create event form
-        document.getElementById('createEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const details = collectDetails(document.getElementById('detailsContainer'));
-            formData.append('details', JSON.stringify(details));
-
-            try {
-                document.querySelector('#createEventForm .btn-text').style.display = 'none';
-                document.querySelector('#createEventForm .btn-loader').style.display = 'inline';
-
-                const response = await fetch('/admin/events', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: formData
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to create event');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                document.querySelector('#createEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#createEventForm .btn-loader').style.display = 'none';
+        // View event
+        async function viewEvent(eventId) {
+        try {
+            const response = await fetch(`/admin/events/${eventId}`, {
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+            if (!data.success) throw new Error('Failed to load event');
+            
+            const event = data.event;
+            
+            // Build details HTML similar to archived page
+            let detailsHtml = '';
+            if (event.details && Object.keys(event.details).length > 0) {
+                detailsHtml = `
+                    <div class="mb-3">
+                        <h6 class="fw-bold mb-2">Additional Details:</h6>
+                        <dl class="row">
+                `;
+                for (const [key, value] of Object.entries(event.details)) {
+                    const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ').slice(1);
+                    detailsHtml += `
+                        <dt class="col-sm-4">${displayKey}:</dt>
+                        <dd class="col-sm-8">${value}</dd>
+                    `;
+                }
+                detailsHtml += `
+                        </dl>
+                    </div>
+                `;
             }
-        });
+
+            const html = `
+                <div class="row">
+                    <div class="col-md-4">
+                        ${event.image ? `<img src="${event.image}" alt="${event.title}" class="img-fluid rounded">` : '<div class="bg-light p-5 text-center rounded"><i class="fas fa-image fa-3x text-muted"></i></div>'}
+                    </div>
+                    <div class="col-md-8">
+                        <h4>${event.title}</h4>
+                        <p class="text-muted">${event.description}</p>
+                        <dl class="row">
+                            <dt class="col-sm-4">Category:</dt>
+                            <dd class="col-sm-8"><span class="badge bg-info">${event.category_label}</span></dd>
+                            
+                            <dt class="col-sm-4">Status:</dt>
+                            <dd class="col-sm-8"><span class="badge bg-${event.is_active ? 'success' : 'secondary'}">${event.is_active ? 'Active' : 'Inactive'}</span></dd>
+                            
+                            <dt class="col-sm-4">Display Order:</dt>
+                            <dd class="col-sm-8">${event.display_order || '—'}</dd>
+                            
+                            <dt class="col-sm-4">Date:</dt>
+                            <dd class="col-sm-8">${event.date || '—'}</dd>
+                            
+                            <dt class="col-sm-4">Location:</dt>
+                            <dd class="col-sm-8">${event.location || '—'}</dd>
+                            
+                            <dt class="col-sm-4">Created:</dt>
+                            <dd class="col-sm-8"><small>${new Date(event.created_at).toLocaleDateString()}</small></dd>
+                            
+                            <dt class="col-sm-4">Updated:</dt>
+                            <dd class="col-sm-8"><small>${new Date(event.updated_at).toLocaleDateString()}</small></dd>
+                        </dl>
+                        ${detailsHtml}
+                    </div>
+                </div>
+            `;
+            document.getElementById('eventDetailsContent').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('viewEventModal')).show();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
 
         // Edit event
         async function editEvent(eventId) {
@@ -616,34 +885,6 @@
             }
         }
 
-        // Edit event form
-        document.getElementById('editEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const eventId = document.getElementById('edit_event_id').value;
-            const formData = new FormData(this);
-            const details = collectDetails(document.getElementById('editDetailsContainer'));
-            formData.append('details', JSON.stringify(details));
-
-            try {
-                document.querySelector('#editEventForm .btn-text').style.display = 'none';
-                document.querySelector('#editEventForm .btn-loader').style.display = 'inline';
-
-                const response = await fetch(`/admin/events/${eventId}`, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: formData
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to update event');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                document.querySelector('#editEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#editEventForm .btn-loader').style.display = 'none';
-            }
-        });
-
         // Archive event
         function archiveEvent(eventId) {
             try {
@@ -658,88 +899,6 @@
             }
         }
 
-        // Archive event form
-        document.getElementById('archiveEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const eventId = document.getElementById('archive_event_id').value;
-            const reason = document.querySelector('#archiveEventForm textarea[name="reason"]').value;
-
-            try {
-                document.querySelector('#archiveEventForm .btn-text').style.display = 'none';
-                document.querySelector('#archiveEventForm .btn-loader').style.display = 'inline';
-
-                const response = await fetch(`/admin/events/${eventId}/archive`, {
-                    method: 'POST',
-                    headers: { 
-                        'X-CSRF-TOKEN': csrfToken, 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json' 
-                    },
-                    body: JSON.stringify({ reason: reason })
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to archive event');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                document.querySelector('#archiveEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#archiveEventForm .btn-loader').style.display = 'none';
-            }
-        });
-
-        // Toggle status
-        async function toggleEvent(eventId) {
-            try {
-                const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to update status');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            }
-        }
-
-        // Delete event
-        async function deleteEvent(eventId) {
-            if (!confirm('⚠️ Permanently delete this event? This action cannot be undone.')) return;
-            try {
-                const response = await fetch(`/admin/events/${eventId}`, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' }
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to delete event');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            }
-        }
-
-        // Update order
-        async function updateEventOrder(eventId, order) {
-            try {
-                const response = await fetch(`/admin/events/${eventId}/order`, {
-                    method: 'PATCH',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ display_order: parseInt(order) })
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to update order');
-                const toast = document.createElement('div');
-                toast.className = 'alert alert-success alert-dismissible fade show position-fixed bottom-0 end-0 m-3';
-                toast.style.zIndex = '9999';
-                toast.innerHTML = `${data.message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
-            } catch (error) {
-                showError(error.message);
-            }
-        }
-
         // Reset forms on modal close
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('hidden.bs.modal', function() {
@@ -750,60 +909,8 @@
             });
         });
 
-        // ===================================
-        // ADMIN PAGE ENHANCEMENT - SAFETY WARNINGS
-        // ===================================
-        // Add this to the existing <script> section in index.blade.php
 
-        // Enhanced error handler for safety warnings
-        function showError(message, warningType = null) {
-            document.querySelectorAll('.modal.show').forEach(m => {
-                const bsModal = bootstrap.Modal.getInstance(m);
-                if (bsModal) bsModal.hide();
-            });
-            
-            setTimeout(() => {
-                const errorModal = document.getElementById('errorModal');
-                const errorMessage = document.getElementById('errorMessage');
-                
-                // Add warning icon and styling for specific warning types
-                if (warningType === 'last_active_event' || warningType === 'no_active_events') {
-                    errorMessage.innerHTML = `
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 2rem;"></i>
-                            <div>
-                                <strong>Landing Page Protection</strong>
-                                <p class="mb-0 mt-2">${message}</p>
-                                ${warningType === 'last_active_event' ? 
-                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>This safety feature ensures visitors always see content on the landing page.</p>' : 
-                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Create an active event to make this change.</p>'
-                                }
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Change modal header color to warning
-                    const modalHeader = errorModal.querySelector('.modal-header');
-                    modalHeader.classList.remove('bg-danger');
-                    modalHeader.classList.add('bg-warning', 'text-dark');
-                    modalHeader.querySelector('.modal-title').textContent = 'Action Not Allowed';
-                } else {
-                    errorMessage.textContent = message;
-                    
-                    // Reset to error styling
-                    const modalHeader = errorModal.querySelector('.modal-header');
-                    modalHeader.classList.remove('bg-warning', 'text-dark');
-                    modalHeader.classList.add('bg-danger', 'text-white');
-                    modalHeader.querySelector('.modal-title').textContent = 'Error';
-                }
-                
-                new bootstrap.Modal(errorModal).show();
-            }, 300);
-        }
-
-        // Enhanced form submission handlers with warning handling
-
-        // CREATE EVENT FORM (Update existing handler)
+        // CREATE EVENT FORM
         document.getElementById('createEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
@@ -822,7 +929,6 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    // Check for warning type
                     if (data.warning_type) {
                         throw { message: data.message, warningType: data.warning_type };
                     }
@@ -838,12 +944,13 @@
             }
         });
 
-        // EDIT EVENT FORM (Update existing handler)
+        // EDIT EVENT FORM
         document.getElementById('editEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const eventId = document.getElementById('edit_event_id').value;
             const formData = new FormData(this);
             const details = collectDetails(document.getElementById('editDetailsContainer'));
+            
             formData.append('details', JSON.stringify(details));
 
             try {
@@ -873,7 +980,7 @@
             }
         });
 
-        // ARCHIVE EVENT FORM (Update existing handler)
+        // ARCHIVE EVENT FORM
         document.getElementById('archiveEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const eventId = document.getElementById('archive_event_id').value;
@@ -910,7 +1017,7 @@
             }
         });
 
-        // TOGGLE STATUS (Update existing function)
+        // TOGGLE STATUS
         async function toggleEvent(eventId) {
             try {
                 const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
@@ -932,14 +1039,42 @@
             }
         }
 
-        // DELETE EVENT (Update existing function)
-        async function deleteEvent(eventId) {
-            if (!confirm('⚠️ Permanently delete this event? This action cannot be undone.')) return;
-            
+        // DELETE EVENT
+        let currentDeleteEventId = null;
+        function deleteEvent(eventId) {
             try {
-                const response = await fetch(`/admin/events/${eventId}`, {
+                const row = document.querySelector(`tr[data-category]`)?.closest('tbody')?.querySelector('tr') || event.target.closest('.event-row');
+                let eventTitle = 'Event';
+                
+                // Get event title from the row
+                if (row) {
+                    const titleElement = row.querySelector('strong');
+                    if (titleElement) {
+                        eventTitle = titleElement.textContent;
+                    }
+                }
+                
+                currentDeleteEventId = eventId;
+                document.getElementById('delete_event_name').textContent = eventTitle;
+                new bootstrap.Modal(document.getElementById('deleteEventModal')).show();
+            } catch (error) {
+                showError('Failed to prepare delete dialog');
+            }
+        }
+
+        // Confirm permanent delete
+        async function confirmPermanentDelete() {
+            try {
+                document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'none';
+                document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/events/${currentDeleteEventId}`, {
                     method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' }
+                    headers: { 
+                        'X-CSRF-TOKEN': csrfToken, 
+                        'Content-Type': 'application/json', 
+                        'Accept': 'application/json' 
+                    }
                 });
                 const data = await response.json();
                 
@@ -953,10 +1088,13 @@
                 showSuccess(data.message);
             } catch (error) {
                 showError(error.message, error.warningType || null);
+            } finally {
+                document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'inline';
+                document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
             }
         }
 
-        // Add warning banner to admin page if only one active event exists
+        // Add warning banner if only one active event exists
         document.addEventListener('DOMContentLoaded', function() {
             const activeCount = parseInt('{{ $stats["active"] ?? 0 }}');
             
@@ -976,10 +1114,159 @@
             }
         });
 
-        console.log('✅ Admin page safety enhancements loaded');
+        
+        // Auto search functionality
+        let searchTimeout;
+
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500); // Wait 500ms after user stops typing
+        }
+
+       // ===== EVENT DATE FILTER FUNCTIONS =====
+
+        // Helper function to format date to YYYY-MM-DD
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Date range functions for event modal
+        function setEventDateRangeModal(period) {
+            const today = new Date();
+            let startDate = new Date(today);
+            let endDate = new Date(today);
+
+            switch (period) {
+                case 'today':
+                    startDate = new Date(today);
+                    endDate = new Date(today);
+                    break;
+                case 'week':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - today.getDay());
+                    endDate = new Date(today);
+                    break;
+                case 'month':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today);
+                    break;
+                case 'year':
+                    startDate = new Date(today.getFullYear(), 0, 1);
+                    endDate = new Date(today);
+                    break;
+            }
+
+            const startDateStr = formatDateForInput(startDate);
+            const endDateStr = formatDateForInput(endDate);
+
+            document.getElementById('event_modal_date_from').value = startDateStr;
+            document.getElementById('event_modal_date_to').value = endDateStr;
+        }
+
+        function applyEventCustomDateRange() {
+            const dateFrom = document.getElementById('event_modal_date_from').value;
+            const dateTo = document.getElementById('event_modal_date_to').value;
+
+            if (!dateFrom && !dateTo) {
+                alert('Please select at least one date');
+                return;
+            }
+
+            if (dateFrom && dateTo && dateFrom > dateTo) {
+                alert('From date cannot be later than To date');
+                return;
+            }
+
+            applyEventDateFilter(dateFrom, dateTo);
+        }
+
+        function applyEventDateFilter(dateFrom, dateTo) {
+            document.getElementById('date_from').value = dateFrom;
+            document.getElementById('date_to').value = dateTo;
+
+            updateEventDateFilterStatus(dateFrom, dateTo);
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('eventDateFilterModal'));
+            if (modal) {
+                modal.hide();
+            }
+
+            setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 300);
+        }
+
+        function clearEventDateRangeModal() {
+            document.getElementById('event_modal_date_from').value = '';
+            document.getElementById('event_modal_date_to').value = '';
+            applyEventDateFilter('', '');
+        }
+
+        function updateEventDateFilterStatus(dateFrom, dateTo) {
+            const statusElement = document.getElementById('eventDateFilterStatus');
+            if (!dateFrom && !dateTo) {
+                statusElement.innerHTML = 'No date filter applied - showing all events';
+            } else {
+                let statusText = 'Current filter: ';
+                if (dateFrom) {
+                    const fromDate = new Date(dateFrom).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `From ${fromDate} `;
+                }
+                if (dateTo) {
+                    const toDate = new Date(dateTo).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `To ${toDate}`;
+                }
+                statusElement.innerHTML = statusText;
+            }
+        }
+        console.log('✅ Admin page loaded successfully');
     </script>
 
     <style>
+        /* statistic card */
+        .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+        }
+
+        .border-left-success {
+            border-left: 0.25rem solid #1cc88a !important;
+        }
+
+        .border-left-warning {
+            border-left: 0.25rem solid #f6c23e !important;
+        }
+
+        .border-left-info {
+            border-left: 0.25rem solid #36b9cc !important;
+        }
+
+        .text-xs {
+            font-size: 0.7rem;
+        }
+
+        .text-gray-300 {
+            color: #dddfeb !important;
+        }
+
+        .text-gray-800 {
+            color: #5a5c69 !important;
+        }
+        dl { margin-bottom: 0; }
+        dt { font-weight: 600; color: #333; }
+        dd { margin-bottom: 0.5rem; }
         .text-xs { font-size: 0.75rem; }
         .event-row { transition: all 0.2s ease; }
         .event-row:hover { background-color: #f8f9fa; }

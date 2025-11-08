@@ -19,7 +19,7 @@ class EventController extends Controller
     {
         $query = Event::with(['creator', 'updater'])->notArchived()->ordered();
 
-        if ($request->has('category') && $request->category !== 'all') {
+        if ($request->has('category') && !empty($request->category) && $request->category !== 'all') {
             $query->where('category', $request->category);
         }
 
@@ -32,7 +32,21 @@ class EventController extends Controller
             });
         }
 
-        $events = $query->paginate(15)->withQueryString();
+        // Date filtering with proper handling
+        if ($request->has('date_from') && !empty($request->date_from)) {
+            $dateFrom = $request->date_from;
+            $query->where('created_at', '>=', $dateFrom);
+        }
+
+        if ($request->has('date_to') && !empty($request->date_to)) {
+            $dateTo = $request->date_to . ' 23:59:59';
+            $query->where('created_at', '<=', $dateTo);
+        }
+
+        // $events = $query->paginate(15)->withQueryString();
+        // SORT BY NEWEST FIRST (newest created_at at top)
+        $events = $query->orderBy('created_at', 'DESC')
+                    ->paginate(15);
 
         $stats = [
             'total' => Event::notArchived()->count(),
