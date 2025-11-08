@@ -99,23 +99,170 @@
         </div>
     </div>
 
-        <!-- Filters and Actions -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button class="btn btn-outline-primary active" onclick="filterEvents('all')">All Events</button>
-                        <button class="btn btn-outline-info" onclick="filterEvents('announcement')">Announcements</button>
-                        <button class="btn btn-outline-warning" onclick="filterEvents('ongoing')">Ongoing</button>
-                        <button class="btn btn-outline-secondary" onclick="filterEvents('upcoming')">Upcoming</button>
-                        <button class="btn btn-outline-danger" onclick="filterEvents('past')">Past</button>
+    <!-- Filters and Actions -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-filter me-2"></i>Filters & Search
+            </h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.event.index') }}" id="filterForm">
+                <!-- Hidden date inputs -->
+                <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
+                <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <select name="category" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit();">
+                            <option value="">All Events</option>
+                            <option value="announcement" {{ request('category') == 'announcement' ? 'selected' : '' }}>Announcements</option>
+                            <option value="ongoing" {{ request('category') == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                            <option value="upcoming" {{ request('category') == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                            <option value="past" {{ request('category') == 'past' ? 'selected' : '' }}>Past</option>
+                        </select>
                     </div>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
-                        <i class="fas fa-plus me-2"></i>Add Event
+
+                    <div class="col-md-4">
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Search title, description, location..." 
+                                value="{{ request('search') }}"
+                                oninput="autoSearch()" id="searchInput">
+                            <button class="btn btn-outline-secondary" type="submit" title="Search"
+                                id="searchButton">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
+                            data-bs-target="#eventDateFilterModal">
+                            <i class="fas fa-calendar-alt me-1"></i>Date Filter
+                        </button>
+                    </div>
+
+                    <div class="col-md-2">
+                        <a href="{{ route('admin.event.index') }}" class="btn btn-secondary btn-sm w-100">
+                            <i class="fas fa-times me-1"></i> Clear
+                        </a>
+                    </div>
+
+                    <div class="col-md-2 text-end">
+                        <button type="button" class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                            <i class="fas fa-plus me-1"></i>Add Event
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Date Filter Modal -->
+    <div class="modal fade" id="eventDateFilterModal" tabindex="-1" aria-labelledby="eventDateFilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="eventDateFilterModalLabel">
+                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Date Range Inputs -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="event_modal_date_from" class="form-label">From Date</label>
+                                        <input type="date" id="event_modal_date_from" class="form-control"
+                                            value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="event_modal_date_to" class="form-label">To Date</label>
+                                        <input type="date" id="event_modal_date_to" class="form-control"
+                                            value="{{ request('date_to') }}">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        onclick="applyEventCustomDateRange()">
+                                        <i class="fas fa-check me-2"></i>Apply Custom Range
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Date Presets -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-clock me-2"></i>Quick Presets
+                                    </h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="setEventDateRangeModal('today')">
+                                            <i class="fas fa-calendar-day me-2"></i>Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="setEventDateRangeModal('week')">
+                                            <i class="fas fa-calendar-week me-2"></i>This Week
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning"
+                                            onclick="setEventDateRangeModal('month')">
+                                            <i class="fas fa-calendar me-2"></i>This Month
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="setEventDateRangeModal('year')">
+                                            <i class="fas fa-calendar-alt me-2"></i>This Year
+                                        </button>
+                                        <hr class="my-3">
+                                        <button type="button" class="btn btn-outline-danger"
+                                            onclick="clearEventDateRangeModal()">
+                                            <i class="fas fa-calendar-times me-2"></i>Clear Date Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Filter Display -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0" id="currentEventDateFilter">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="eventDateFilterStatus">
+                                    @if (request('date_from') || request('date_to'))
+                                        Current filter:
+                                        @if (request('date_from'))
+                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                        @endif
+                                        @if (request('date_to'))
+                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        No date filter applied - showing all events
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
                     </button>
                 </div>
             </div>
         </div>
+    </div>
 
         <!-- Events Table -->
         <div class="card border-0 shadow-sm">
@@ -971,6 +1118,124 @@
             }
         });
 
+        
+        // Auto search functionality
+        let searchTimeout;
+
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500); // Wait 500ms after user stops typing
+        }
+
+       // ===== EVENT DATE FILTER FUNCTIONS =====
+
+        // Helper function to format date to YYYY-MM-DD
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Date range functions for event modal
+        function setEventDateRangeModal(period) {
+            const today = new Date();
+            let startDate = new Date(today);
+            let endDate = new Date(today);
+
+            switch (period) {
+                case 'today':
+                    startDate = new Date(today);
+                    endDate = new Date(today);
+                    break;
+                case 'week':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - today.getDay());
+                    endDate = new Date(today);
+                    break;
+                case 'month':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today);
+                    break;
+                case 'year':
+                    startDate = new Date(today.getFullYear(), 0, 1);
+                    endDate = new Date(today);
+                    break;
+            }
+
+            const startDateStr = formatDateForInput(startDate);
+            const endDateStr = formatDateForInput(endDate);
+
+            document.getElementById('event_modal_date_from').value = startDateStr;
+            document.getElementById('event_modal_date_to').value = endDateStr;
+        }
+
+        function applyEventCustomDateRange() {
+            const dateFrom = document.getElementById('event_modal_date_from').value;
+            const dateTo = document.getElementById('event_modal_date_to').value;
+
+            if (!dateFrom && !dateTo) {
+                alert('Please select at least one date');
+                return;
+            }
+
+            if (dateFrom && dateTo && dateFrom > dateTo) {
+                alert('From date cannot be later than To date');
+                return;
+            }
+
+            applyEventDateFilter(dateFrom, dateTo);
+        }
+
+        function applyEventDateFilter(dateFrom, dateTo) {
+            document.getElementById('date_from').value = dateFrom;
+            document.getElementById('date_to').value = dateTo;
+
+            updateEventDateFilterStatus(dateFrom, dateTo);
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('eventDateFilterModal'));
+            if (modal) {
+                modal.hide();
+            }
+
+            setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 300);
+        }
+
+        function clearEventDateRangeModal() {
+            document.getElementById('event_modal_date_from').value = '';
+            document.getElementById('event_modal_date_to').value = '';
+            applyEventDateFilter('', '');
+        }
+
+        function updateEventDateFilterStatus(dateFrom, dateTo) {
+            const statusElement = document.getElementById('eventDateFilterStatus');
+            if (!dateFrom && !dateTo) {
+                statusElement.innerHTML = 'No date filter applied - showing all events';
+            } else {
+                let statusText = 'Current filter: ';
+                if (dateFrom) {
+                    const fromDate = new Date(dateFrom).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `From ${fromDate} `;
+                }
+                if (dateTo) {
+                    const toDate = new Date(dateTo).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `To ${toDate}`;
+                }
+                statusElement.innerHTML = statusText;
+            }
+        }
         console.log('✅ Admin page loaded successfully');
     </script>
 
