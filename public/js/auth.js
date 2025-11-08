@@ -1983,7 +1983,8 @@ function logoutUser() {
             if (data.success) {
                 showNotification('success', 'Successfully logged out!');
                 setTimeout(() => {
-                    window.location.reload();
+                    // Redirect to home page instead of reload
+                    window.location.href = '/';
                 }, 1000);
             } else {
                 showNotification('error', 'Logout failed. Please try again.');
@@ -1991,8 +1992,8 @@ function logoutUser() {
         })
         .catch(error => {
             console.error('Logout error:', error);
-            // Fallback: reload page anyway
-            window.location.reload();
+            // Fallback: redirect to home instead of reload
+            window.location.href = '/';
         });
     }
 }
