@@ -170,8 +170,8 @@
                                             {{ $event->is_active ? 'Active' : 'Inactive' }}
                                         </span>
                                     </td>
-                                    <td>
-                                        <input type="number" class="form-control form-control-sm" value="{{ $event->display_order }}" onchange="updateEventOrder({{ $event->id }}, this.value)">
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary">{{ $event->display_order }}</span>
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
@@ -513,14 +513,49 @@
             return details;
         }
 
-        function showError(message) {
+        // Enhanced error handler for safety warnings
+        function showError(message, warningType = null) {
             document.querySelectorAll('.modal.show').forEach(m => {
                 const bsModal = bootstrap.Modal.getInstance(m);
                 if (bsModal) bsModal.hide();
             });
+            
             setTimeout(() => {
-                document.getElementById('errorMessage').textContent = message;
-                new bootstrap.Modal(document.getElementById('errorModal')).show();
+                const errorModal = document.getElementById('errorModal');
+                const errorMessage = document.getElementById('errorMessage');
+                
+                // Add warning icon and styling for specific warning types
+                if (warningType === 'last_active_event' || warningType === 'no_active_events') {
+                    errorMessage.innerHTML = `
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 2rem;"></i>
+                            <div>
+                                <strong>Landing Page Protection</strong>
+                                <p class="mb-0 mt-2">${message}</p>
+                                ${warningType === 'last_active_event' ? 
+                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>This safety feature ensures visitors always see content on the landing page.</p>' : 
+                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Create an active event to make this change.</p>'
+                                }
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Change modal header color to warning
+                    const modalHeader = errorModal.querySelector('.modal-header');
+                    modalHeader.classList.remove('bg-danger');
+                    modalHeader.classList.add('bg-warning', 'text-dark');
+                    modalHeader.querySelector('.modal-title').textContent = 'Action Not Allowed';
+                } else {
+                    errorMessage.textContent = message;
+                    
+                    // Reset to error styling
+                    const modalHeader = errorModal.querySelector('.modal-header');
+                    modalHeader.classList.remove('bg-warning', 'text-dark');
+                    modalHeader.classList.add('bg-danger', 'text-white');
+                    modalHeader.querySelector('.modal-title').textContent = 'Error';
+                }
+                
+                new bootstrap.Modal(errorModal).show();
             }, 300);
         }
 
@@ -534,33 +569,6 @@
                 new bootstrap.Modal(document.getElementById('successModal')).show();
             }, 300);
         }
-
-        // Create event form
-        document.getElementById('createEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const details = collectDetails(document.getElementById('detailsContainer'));
-            formData.append('details', JSON.stringify(details));
-
-            try {
-                document.querySelector('#createEventForm .btn-text').style.display = 'none';
-                document.querySelector('#createEventForm .btn-loader').style.display = 'inline';
-
-                const response = await fetch('/admin/events', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: formData
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to create event');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                document.querySelector('#createEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#createEventForm .btn-loader').style.display = 'none';
-            }
-        });
 
         // Edit event
         async function editEvent(eventId) {
@@ -616,34 +624,6 @@
             }
         }
 
-        // Edit event form
-        document.getElementById('editEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const eventId = document.getElementById('edit_event_id').value;
-            const formData = new FormData(this);
-            const details = collectDetails(document.getElementById('editDetailsContainer'));
-            formData.append('details', JSON.stringify(details));
-
-            try {
-                document.querySelector('#editEventForm .btn-text').style.display = 'none';
-                document.querySelector('#editEventForm .btn-loader').style.display = 'inline';
-
-                const response = await fetch(`/admin/events/${eventId}`, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: formData
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to update event');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                document.querySelector('#editEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#editEventForm .btn-loader').style.display = 'none';
-            }
-        });
-
         // Archive event
         function archiveEvent(eventId) {
             try {
@@ -658,88 +638,6 @@
             }
         }
 
-        // Archive event form
-        document.getElementById('archiveEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const eventId = document.getElementById('archive_event_id').value;
-            const reason = document.querySelector('#archiveEventForm textarea[name="reason"]').value;
-
-            try {
-                document.querySelector('#archiveEventForm .btn-text').style.display = 'none';
-                document.querySelector('#archiveEventForm .btn-loader').style.display = 'inline';
-
-                const response = await fetch(`/admin/events/${eventId}/archive`, {
-                    method: 'POST',
-                    headers: { 
-                        'X-CSRF-TOKEN': csrfToken, 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json' 
-                    },
-                    body: JSON.stringify({ reason: reason })
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to archive event');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                document.querySelector('#archiveEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#archiveEventForm .btn-loader').style.display = 'none';
-            }
-        });
-
-        // Toggle status
-        async function toggleEvent(eventId) {
-            try {
-                const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to update status');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            }
-        }
-
-        // Delete event
-        async function deleteEvent(eventId) {
-            if (!confirm('⚠️ Permanently delete this event? This action cannot be undone.')) return;
-            try {
-                const response = await fetch(`/admin/events/${eventId}`, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' }
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to delete event');
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            }
-        }
-
-        // Update order
-        async function updateEventOrder(eventId, order) {
-            try {
-                const response = await fetch(`/admin/events/${eventId}/order`, {
-                    method: 'PATCH',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify({ display_order: parseInt(order) })
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to update order');
-                const toast = document.createElement('div');
-                toast.className = 'alert alert-success alert-dismissible fade show position-fixed bottom-0 end-0 m-3';
-                toast.style.zIndex = '9999';
-                toast.innerHTML = `${data.message}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
-            } catch (error) {
-                showError(error.message);
-            }
-        }
-
         // Reset forms on modal close
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('hidden.bs.modal', function() {
@@ -750,60 +648,8 @@
             });
         });
 
-        // ===================================
-        // ADMIN PAGE ENHANCEMENT - SAFETY WARNINGS
-        // ===================================
-        // Add this to the existing <script> section in index.blade.php
 
-        // Enhanced error handler for safety warnings
-        function showError(message, warningType = null) {
-            document.querySelectorAll('.modal.show').forEach(m => {
-                const bsModal = bootstrap.Modal.getInstance(m);
-                if (bsModal) bsModal.hide();
-            });
-            
-            setTimeout(() => {
-                const errorModal = document.getElementById('errorModal');
-                const errorMessage = document.getElementById('errorMessage');
-                
-                // Add warning icon and styling for specific warning types
-                if (warningType === 'last_active_event' || warningType === 'no_active_events') {
-                    errorMessage.innerHTML = `
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 2rem;"></i>
-                            <div>
-                                <strong>Landing Page Protection</strong>
-                                <p class="mb-0 mt-2">${message}</p>
-                                ${warningType === 'last_active_event' ? 
-                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>This safety feature ensures visitors always see content on the landing page.</p>' : 
-                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Create an active event to make this change.</p>'
-                                }
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Change modal header color to warning
-                    const modalHeader = errorModal.querySelector('.modal-header');
-                    modalHeader.classList.remove('bg-danger');
-                    modalHeader.classList.add('bg-warning', 'text-dark');
-                    modalHeader.querySelector('.modal-title').textContent = 'Action Not Allowed';
-                } else {
-                    errorMessage.textContent = message;
-                    
-                    // Reset to error styling
-                    const modalHeader = errorModal.querySelector('.modal-header');
-                    modalHeader.classList.remove('bg-warning', 'text-dark');
-                    modalHeader.classList.add('bg-danger', 'text-white');
-                    modalHeader.querySelector('.modal-title').textContent = 'Error';
-                }
-                
-                new bootstrap.Modal(errorModal).show();
-            }, 300);
-        }
-
-        // Enhanced form submission handlers with warning handling
-
-        // CREATE EVENT FORM (Update existing handler)
+        // CREATE EVENT FORM
         document.getElementById('createEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
@@ -822,7 +668,6 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    // Check for warning type
                     if (data.warning_type) {
                         throw { message: data.message, warningType: data.warning_type };
                     }
@@ -838,12 +683,13 @@
             }
         });
 
-        // EDIT EVENT FORM (Update existing handler)
+        // EDIT EVENT FORM
         document.getElementById('editEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const eventId = document.getElementById('edit_event_id').value;
             const formData = new FormData(this);
             const details = collectDetails(document.getElementById('editDetailsContainer'));
+            
             formData.append('details', JSON.stringify(details));
 
             try {
@@ -873,7 +719,7 @@
             }
         });
 
-        // ARCHIVE EVENT FORM (Update existing handler)
+        // ARCHIVE EVENT FORM
         document.getElementById('archiveEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const eventId = document.getElementById('archive_event_id').value;
@@ -910,7 +756,7 @@
             }
         });
 
-        // TOGGLE STATUS (Update existing function)
+        // TOGGLE STATUS
         async function toggleEvent(eventId) {
             try {
                 const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
@@ -932,7 +778,7 @@
             }
         }
 
-        // DELETE EVENT (Update existing function)
+        // DELETE EVENT
         async function deleteEvent(eventId) {
             if (!confirm('⚠️ Permanently delete this event? This action cannot be undone.')) return;
             
@@ -956,7 +802,7 @@
             }
         }
 
-        // Add warning banner to admin page if only one active event exists
+        // Add warning banner if only one active event exists
         document.addEventListener('DOMContentLoaded', function() {
             const activeCount = parseInt('{{ $stats["active"] ?? 0 }}');
             
@@ -976,7 +822,7 @@
             }
         });
 
-        console.log('✅ Admin page safety enhancements loaded');
+        console.log('✅ Admin page loaded successfully');
     </script>
 
     <style>
