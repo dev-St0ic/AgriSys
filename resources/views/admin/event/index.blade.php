@@ -439,6 +439,37 @@
         </div>
     </div>
 
+     <!-- DELETE MODAL -->
+    <div class="modal fade" id="deleteEventModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Permanently Delete Event</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle me-2"></i>Warning!</strong>
+                        <p class="mb-0">This action cannot be undone. Permanently deleting <strong id="delete_event_name"></strong> will:</p>
+                    </div>
+                    <ul class="mb-0">
+                        <li>Remove the event from the database</li>
+                        <li>Delete all associated images</li>
+                        <li>Delete all event logs and history</li>
+                        <li>Cannot be recovered</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmPermanentDelete()" id="confirm_delete_btn">
+                        <span class="btn-text">Yes, Delete Permanently</span>
+                        <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Deleting...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ERROR MODAL -->
     <div class="modal fade" id="errorModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
@@ -873,13 +904,41 @@
         }
 
         // DELETE EVENT
-        async function deleteEvent(eventId) {
-            if (!confirm('⚠️ Permanently delete this event? This action cannot be undone.')) return;
-            
+        let currentDeleteEventId = null;
+        function deleteEvent(eventId) {
             try {
-                const response = await fetch(`/admin/events/${eventId}`, {
+                const row = document.querySelector(`tr[data-category]`)?.closest('tbody')?.querySelector('tr') || event.target.closest('.event-row');
+                let eventTitle = 'Event';
+                
+                // Get event title from the row
+                if (row) {
+                    const titleElement = row.querySelector('strong');
+                    if (titleElement) {
+                        eventTitle = titleElement.textContent;
+                    }
+                }
+                
+                currentDeleteEventId = eventId;
+                document.getElementById('delete_event_name').textContent = eventTitle;
+                new bootstrap.Modal(document.getElementById('deleteEventModal')).show();
+            } catch (error) {
+                showError('Failed to prepare delete dialog');
+            }
+        }
+
+        // Confirm permanent delete
+        async function confirmPermanentDelete() {
+            try {
+                document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'none';
+                document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/events/${currentDeleteEventId}`, {
                     method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' }
+                    headers: { 
+                        'X-CSRF-TOKEN': csrfToken, 
+                        'Content-Type': 'application/json', 
+                        'Accept': 'application/json' 
+                    }
                 });
                 const data = await response.json();
                 
@@ -893,6 +952,9 @@
                 showSuccess(data.message);
             } catch (error) {
                 showError(error.message, error.warningType || null);
+            } finally {
+                document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'inline';
+                document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
             }
         }
 
