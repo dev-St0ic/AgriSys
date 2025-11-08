@@ -24,87 +24,80 @@
             </div>
         @endif
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-primary text-uppercase mb-1">Total Events</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['total'] ?? 0 }}</div>
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Events
                             </div>
-                            <div class="ms-3"><i class="fas fa-calendar-alt fa-2x text-primary"></i></div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] ?? 0 }}</div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-success text-uppercase mb-1">Active</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['active'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-check-circle fa-2x text-success"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">Inactive</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['inactive'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-ban fa-2x text-warning"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-secondary text-uppercase mb-1">Archived</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['archived'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-archive fa-2x text-secondary"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-info text-uppercase mb-1">Announcements</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['announcements'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-bell fa-2x text-info"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-danger text-uppercase mb-1">Upcoming</div>
-                                <div class="h5 mb-0 fw-bold">{{ $stats['upcoming'] ?? 0 }}</div>
-                            </div>
-                            <div class="ms-3"><i class="fas fa-clock fa-2x text-danger"></i></div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Active
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['active'] ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Inactive
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['inactive'] ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-ban fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Archived
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['archived'] ?? 0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-archive fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
         <!-- Filters and Actions -->
         <div class="card border-0 shadow-sm mb-4">
@@ -982,6 +975,34 @@
     </script>
 
     <style>
+        /* statistic card */
+        .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+        }
+
+        .border-left-success {
+            border-left: 0.25rem solid #1cc88a !important;
+        }
+
+        .border-left-warning {
+            border-left: 0.25rem solid #f6c23e !important;
+        }
+
+        .border-left-info {
+            border-left: 0.25rem solid #36b9cc !important;
+        }
+
+        .text-xs {
+            font-size: 0.7rem;
+        }
+
+        .text-gray-300 {
+            color: #dddfeb !important;
+        }
+
+        .text-gray-800 {
+            color: #5a5c69 !important;
+        }
         dl { margin-bottom: 0; }
         dt { font-weight: 600; color: #333; }
         dd { margin-bottom: 0.5rem; }
