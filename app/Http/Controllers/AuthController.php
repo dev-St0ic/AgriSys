@@ -44,24 +44,25 @@ class AuthController extends Controller
 
             // Check if user has admin privileges
             if ($user->hasAdminPrivileges()) {
+                // Regenerate session to prevent session fixation attacks
                 $request->session()->regenerate();
-
-                if ($user->isSuperAdmin()) {
-                    return redirect()->intended('/admin/dashboard');
-                } else {
-                    return redirect()->intended('/admin/dashboard');
-                }
+                
+                return redirect()->intended('/admin/dashboard');
             } else {
+                // User exists but doesn't have admin privileges
                 Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
                 return back()->withErrors([
                     'email' => 'You do not have admin privileges.',
-                ]);
+                ])->onlyInput('email');
             }
         }
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
-        ]);
+        ])->onlyInput('email');
     }
 
     /**
