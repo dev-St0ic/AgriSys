@@ -1970,6 +1970,11 @@ function formatApplicationDate(dateString) {
 
 function logoutUser() {
     if (confirm('Are you sure you want to log out?')) {
+        // Stop verification polling if active
+        if (typeof stopVerificationPolling === 'function') {
+            stopVerificationPolling();
+        }
+        
         fetch('/auth/logout', {
             method: 'POST',
             headers: {
@@ -1982,8 +1987,14 @@ function logoutUser() {
         .then(data => {
             if (data.success) {
                 showNotification('success', 'Successfully logged out!');
+                
+                // Hide all forms before redirecting
+                if (typeof hideAllForms === 'function') {
+                    hideAllForms();
+                }
+                
+                // Small delay to show notification, then redirect to home
                 setTimeout(() => {
-                    // Redirect to home page instead of reload
                     window.location.href = '/';
                 }, 1000);
             } else {
@@ -1992,7 +2003,13 @@ function logoutUser() {
         })
         .catch(error => {
             console.error('Logout error:', error);
-            // Fallback: redirect to home instead of reload
+            
+            // Hide all forms before redirecting
+            if (typeof hideAllForms === 'function') {
+                hideAllForms();
+            }
+            
+            // Fallback: redirect to home anyway
             window.location.href = '/';
         });
     }
