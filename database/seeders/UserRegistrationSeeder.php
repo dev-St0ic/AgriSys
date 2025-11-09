@@ -15,21 +15,10 @@ class UserRegistrationSeeder extends Seeder
     {
         $this->command->info('Seeding user registrations...');
 
-        // Create different types of registrations to showcase the workflow
-        
-        // 1. Unverified users (basic signup only) - 20 users
         $this->createUnverifiedUsers();
-        
-        // 2. Pending users (completed profile, waiting for admin approval) - 15 users
         $this->createPendingUsers();
-        
-        // 3. Approved users (admin approved) - 25 users
         $this->createApprovedUsers();
-        
-        // 4. Rejected users (admin rejected) - 5 users
         $this->createRejectedUsers();
-        
-        // 5. Create some test users for development
         $this->createTestUsers();
         
         $this->command->info('User registrations seeded successfully!');
@@ -47,25 +36,8 @@ class UserRegistrationSeeder extends Seeder
     {
         $this->command->info('Creating unverified users...');
         
-        // Mix of different user types, all unverified (basic signup only)
         UserRegistration::factory()
-            ->count(8)
-            ->unverified()
-            ->incompleteProfile()
-            ->emailUnverified()
-            ->recent()
-            ->create();
-
-        UserRegistration::factory()
-            ->count(6)
-            ->unverified()
-            ->incompleteProfile()
-            ->emailUnverified()
-            ->recent()
-            ->create();
-
-        UserRegistration::factory()
-            ->count(6)
+            ->count(20)
             ->unverified()
             ->incompleteProfile()
             ->emailUnverified()
@@ -176,7 +148,7 @@ class UserRegistrationSeeder extends Seeder
     {
         $this->command->info('Creating test users...');
         
-        // Test User 1: Basic signup (unverified) - just username, email, password
+        // Test User 1: Basic signup (unverified)
         UserRegistration::create([
             'username' => 'juan_test',
             'email' => 'juan.test@example.com',
@@ -184,10 +156,7 @@ class UserRegistrationSeeder extends Seeder
             'status' => UserRegistration::STATUS_UNVERIFIED,
             'terms_accepted' => true,
             'privacy_accepted' => true,
-            'username_changed_at' => null, // NEW: Never changed username
-            'registration_ip' => '127.0.0.1',
-            'user_agent' => 'Test User Agent',
-            'referral_source' => 'direct',
+            'username_changed_at' => null,
             'created_at' => now()->subHours(2),
         ]);
 
@@ -199,7 +168,6 @@ class UserRegistrationSeeder extends Seeder
             'status' => UserRegistration::STATUS_PENDING,
             'terms_accepted' => true,
             'privacy_accepted' => true,
-            // Profile completion fields
             'first_name' => 'Maria',
             'last_name' => 'Santos',
             'middle_name' => 'Reyes',
@@ -211,10 +179,7 @@ class UserRegistrationSeeder extends Seeder
             'age' => 39,
             'gender' => 'female',
             'email_verified_at' => now()->subDays(1),
-            'username_changed_at' => null, // NEW: Never changed username
-            'registration_ip' => '127.0.0.1',
-            'user_agent' => 'Test User Agent',
-            'referral_source' => 'barangay_office',
+            'username_changed_at' => null,
             'created_at' => now()->subDays(3),
         ]);
 
@@ -226,7 +191,6 @@ class UserRegistrationSeeder extends Seeder
             'status' => UserRegistration::STATUS_APPROVED,
             'terms_accepted' => true,
             'privacy_accepted' => true,
-            // Profile completion fields
             'first_name' => 'Carlos',
             'last_name' => 'Rodriguez',
             'contact_number' => '+639555123456',
@@ -238,10 +202,7 @@ class UserRegistrationSeeder extends Seeder
             'gender' => 'male',
             'email_verified_at' => now()->subDays(15),
             'approved_at' => now()->subDays(5),
-            'username_changed_at' => null, // NEW: Never changed username
-            'registration_ip' => '127.0.0.1',
-            'user_agent' => 'Test User Agent',
-            'referral_source' => 'google',
+            'username_changed_at' => null,
             'created_at' => now()->subDays(20),
         ]);
 
@@ -253,7 +214,6 @@ class UserRegistrationSeeder extends Seeder
             'status' => UserRegistration::STATUS_REJECTED,
             'terms_accepted' => true,
             'privacy_accepted' => true,
-            // Profile completion fields
             'first_name' => 'Ana',
             'last_name' => 'Garcia',
             'contact_number' => '+639777888999',
@@ -266,10 +226,7 @@ class UserRegistrationSeeder extends Seeder
             'email_verified_at' => now()->subDays(10),
             'rejected_at' => now()->subDays(8),
             'rejection_reason' => 'Unable to verify identity documents. Please resubmit with clearer photos.',
-            'username_changed_at' => null, // NEW: Never changed username
-            'registration_ip' => '127.0.0.1',
-            'user_agent' => 'Test User Agent',
-            'referral_source' => 'friend_referral',
+            'username_changed_at' => null,
             'created_at' => now()->subDays(12),
         ]);
 
@@ -282,14 +239,11 @@ class UserRegistrationSeeder extends Seeder
             'verification_token' => 'test-verification-token-12345',
             'terms_accepted' => true,
             'privacy_accepted' => true,
-            'username_changed_at' => null, // NEW: Never changed username
-            'registration_ip' => '127.0.0.1',
-            'user_agent' => 'Test User Agent',
-            'referral_source' => 'facebook',
+            'username_changed_at' => null,
             'created_at' => now()->subMinutes(30),
         ]);
 
-        // NEW Test User 6: User who already changed username (username_changed_at is set)
+        // Test User 6: User who already changed username
         UserRegistration::create([
             'username' => 'pedro_santos_new',
             'email' => 'pedro.test@example.com',
@@ -308,10 +262,7 @@ class UserRegistrationSeeder extends Seeder
             'gender' => 'male',
             'email_verified_at' => now()->subDays(30),
             'approved_at' => now()->subDays(20),
-            'username_changed_at' => now()->subDays(10), // NEW: Username was already changed 10 days ago
-            'registration_ip' => '127.0.0.1',
-            'user_agent' => 'Test User Agent',
-            'referral_source' => 'direct',
+            'username_changed_at' => now()->subDays(10),
             'created_at' => now()->subDays(60),
         ]);
     }

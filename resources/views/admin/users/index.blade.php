@@ -1377,8 +1377,6 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-2">
-                            <div class="col-12"><strong>Occupation:</strong> ${data.occupation || '<span class="text-muted">Not specified</span>'}</div>
-                            <div class="col-12"><strong>Organization:</strong> ${data.organization || '<span class="text-muted">Not specified</span>'}</div>
                             <div class="col-12"><strong>Emergency Contact:</strong> ${data.emergency_contact_name || '<span class="text-muted">Not provided</span>'}</div>
                             <div class="col-12"><strong>Emergency Phone:</strong> ${data.emergency_contact_phone ? `<a href="tel:${data.emergency_contact_phone}" class="text-decoration-none">${data.emergency_contact_phone}</a>` : '<span class="text-muted">Not provided</span>'}</div>
                         </div>
@@ -1423,31 +1421,6 @@
                                     </span>
                                     ${data.id_back_path ? `<br><button class="btn btn-sm btn-outline-info" onclick="viewDocument('id_back')"><i class="fas fa-eye"></i> View</button>` : ''}
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Technical Information Card -->
-            <div class="col-12">
-                <div class="card border-dark">
-                    <div class="card-header bg-dark text-white">
-                        <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Technical Information</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <p><strong>Registration IP:</strong><br><code>${data.registration_ip || 'N/A'}</code></p>
-                            </div>
-                            <div class="col-md-3">
-                                <p><strong>Referral Source:</strong><br>${data.referral_source || 'Direct'}</p>
-                            </div>
-                            <div class="col-md-3">
-                                <p><strong>Terms Accepted:</strong><br>${data.terms_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
-                            </div>
-                            <div class="col-md-3">
-                                <p><strong>Privacy Accepted:</strong><br>${data.privacy_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
                             </div>
                         </div>
                     </div>

@@ -57,11 +57,8 @@ class UserRegistration extends Model
         'rejected_at',
         'approved_by',
         'rejection_reason',
-        'registration_ip',
-        'user_agent',
-        'referral_source',
         'last_login_at',
-        'username_changed_at', // NEW: Add to fillable
+        'username_changed_at',
     ];
 
     protected $hidden = [
@@ -74,10 +71,9 @@ class UserRegistration extends Model
         'email_verified_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
-        'banned_at' => 'datetime',
         'date_of_birth' => 'date',
         'last_login_at' => 'datetime',
-        'username_changed_at' => 'datetime', // NEW: Add this cast
+        'username_changed_at' => 'datetime',
         'terms_accepted' => 'boolean',
         'privacy_accepted' => 'boolean',
     ];
@@ -123,17 +119,11 @@ class UserRegistration extends Model
             && !empty($this->date_of_birth);
     }
 
-    /**
-     * NEW: Check if username can be changed
-     */
     public function canChangeUsername()
     {
         return $this->username_changed_at === null;
     }
 
-    /**
-     * NEW: Get username change history
-     */
     public function getUsernameChangeHistory()
     {
         if ($this->username_changed_at) {
@@ -195,17 +185,11 @@ class UserRegistration extends Model
         return $query->whereNull('email_verified_at');
     }
 
-    /**
-     * NEW: Scope to find users who haven't changed username yet
-     */
     public function scopeUsernameNotChanged($query)
     {
         return $query->whereNull('username_changed_at');
     }
 
-    /**
-     * NEW: Scope to find users who have changed username
-     */
     public function scopeUsernameChanged($query)
     {
         return $query->whereNotNull('username_changed_at');
@@ -327,7 +311,6 @@ class UserRegistration extends Model
     {
         parent::boot();
 
-        // Auto-calculate age when date_of_birth is set
         static::saving(function ($model) {
             if ($model->date_of_birth && !$model->age) {
                 $model->age = $model->date_of_birth->diffInYears(now());
@@ -335,17 +318,11 @@ class UserRegistration extends Model
         });
     }
 
-    /**
-     * User has many RSBSA applications
-     */
     public function rsbsaApplications()
     {
         return $this->hasMany(RsbsaApplication::class, 'user_id');
     }
 
-    /**
-     * Get latest RSBSA application
-     */
     public function latestRsbsaApplication()
     {
         return $this->hasOne(RsbsaApplication::class, 'user_id')->latestOfMany();
@@ -354,7 +331,7 @@ class UserRegistration extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['status', 'email_verified_at', 'approved_at', 'approved_by', 'username', 'username_changed_at']) // NEW: Added username fields
+            ->logOnly(['status', 'email_verified_at', 'approved_at', 'approved_by', 'username', 'username_changed_at'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

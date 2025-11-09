@@ -583,16 +583,11 @@ Route::prefix('auth')->group(function () {
     Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
         ->name('facebook.callback');
 
-    // Add these to your routes file
-    Route::post('/admin/users/{id}/ban', [UserRegistrationController::class, 'banUser']);
-    Route::post('/admin/users/{id}/unban', [UserRegistrationController::class, 'unbanUser']);
-    Route::post('/admin/users/bulk-ban', [UserRegistrationController::class, 'bulkBan']);
-
-    // view document
-    Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'serveDocument'])
-        ->name('registrations.document')
-        ->where('type', 'location|id_front|id_back')
-        ->middleware('auth');
+    // view document not needed
+    // Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'serveDocument'])
+    //     ->name('registrations.document')
+    //     ->where('type', 'location|id_front|id_back')
+    //     ->middleware('auth');
 });
 
 // ============================================
