@@ -951,6 +951,197 @@ class UserRegistrationController extends Controller
     }
 
     /**
+     * Create new user  WITH DOCUMENT UPLOADS
+     */
+    public function createUser(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied. Admin privileges required.'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'username' => 'required|string|min:3|max:50|regex:/^[a-zA-Z0-9_]+$/|unique:user_registration,username',
+            'email' => 'required|string|email|max:255|unique:user_registration,email',
+            'password' => 'required|string|min:8|confirmed',
+            'first_name' => 'required|string|max:100',
+            'middle_name' => 'nullable|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'name_extension' => 'nullable|string|max:20',
+            'date_of_birth' => 'required|date|before:today',
+            'gender' => 'nullable|in:male,female',
+            'contact_number' => ['required', 'string', 'max:20', 'regex:/^(\+639|09)\d{9}$/'],
+            'barangay' => 'required|string|max:100',
+            'complete_address' => 'required|string',
+            'user_type' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member',
+            'emergency_contact_name' => 'required|string|max:100',
+            'emergency_contact_phone' => ['required', 'string', 'max:20', 'regex:/^(\+639|09)\d{9}$/'],
+            'status' => 'required|in:unverified,pending,approved',
+            'email_verified' => 'boolean',
+            // Document uploads (optional)
+            'id_front' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
+            'id_back' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
+            'location_proof' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
+        ], [
+            'username.regex' => 'Username can only contain letters, numbers, and underscores',
+            'username.unique' => 'This username is already taken',
+            'contact_number.regex' => 'Please enter a valid Philippine mobile number',
+            'emergency_contact_phone.regex' => 'Please enter a valid Philippine mobile number',
+            'id_front.image' => 'ID front must be an image file',
+            'id_front.max' => 'ID front image must be less than 5MB',
+            'id_back.image' => 'ID back must be an image file',
+            'id_back.max' => 'ID back image must be less than 5MB',
+            'location_proof.image' => 'Location proof must be an image file',
+            'location_proof.max' => 'Location proof image must be less than 5MB',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please check all required fields.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // Calculate age
+            $dateOfBirth = new \DateTime($request->date_of_birth);
+            $age = $dateOfBirth->diff(new \DateTime())->y;
+
+            // Validate age
+            if ($age < 18) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User must be at least 18 years old.',
+                    'errors' => [
+                        'date_of_birth' => ['User must be at least 18 years old']
+                    ]
+                ], 422);
+            }
+
+            // Handle file uploads
+            $idFrontPath = null;
+            $idBackPath = null;
+            $locationProofPath = null;
+
+            try {
+                if ($request->hasFile('id_front') && $request->file('id_front')->isValid()) {
+                    $idFrontPath = $request->file('id_front')->store('verification/id_front', 'public');
+                }
+
+                if ($request->hasFile('id_back') && $request->file('id_back')->isValid()) {
+                    $idBackPath = $request->file('id_back')->store('verification/id_back', 'public');
+                }
+
+                if ($request->hasFile('location_proof') && $request->file('location_proof')->isValid()) {
+                    $locationProofPath = $request->file('location_proof')->store('verification/location_proof', 'public');
+                }
+            } catch (\Exception $fileException) {
+                \Log::error('File upload failed during admin user creation', [
+                    'error' => $fileException->getMessage(),
+                    'admin_user' => auth()->user()->email
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File upload failed. Please try again with smaller images.'
+                ], 500);
+            }
+
+            // Create user
+            $userData = [
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => $request->password,
+                'first_name' => $request->first_name,
+                'middle_name' => $request->middle_name,
+                'last_name' => $request->last_name,
+                'name_extension' => $request->name_extension,
+                'date_of_birth' => $request->date_of_birth,
+                'age' => $age,
+                'gender' => $request->gender,
+                'contact_number' => $request->contact_number,
+                'barangay' => $request->barangay,
+                'complete_address' => $request->complete_address,
+                'user_type' => $request->user_type,
+                'emergency_contact_name' => $request->emergency_contact_name,
+                'emergency_contact_phone' => $request->emergency_contact_phone,
+                'status' => $request->status,
+                'terms_accepted' => true,
+                'privacy_accepted' => true,
+                'registration_ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'referral_source' => 'admin_created',
+            ];
+
+            // Add file paths if uploads were successful
+            if ($idFrontPath) {
+                $userData['id_front_path'] = $idFrontPath;
+            }
+            if ($idBackPath) {
+                $userData['id_back_path'] = $idBackPath;
+            }
+            if ($locationProofPath) {
+                $userData['location_document_path'] = $locationProofPath;
+            }
+
+            // Add email verification if checked
+            if ($request->email_verified) {
+                $userData['email_verified_at'] = now();
+            }
+
+            // Set approval data if status is approved
+            if ($request->status === 'approved') {
+                $userData['approved_at'] = now();
+                $userData['approved_by'] = auth()->id();
+            }
+
+            // Set pending data if status is pending
+            if ($request->status === 'pending') {
+                $userData['approved_by'] = auth()->id();
+            }
+
+            $registration = UserRegistration::create($userData);
+
+            \Log::info('User created by admin', [
+                'created_user_id' => $registration->id,
+                'username' => $registration->username,
+                'admin_user' => auth()->user()->email,
+                'status' => $request->status,
+                'documents_uploaded' => [
+                    'id_front' => !empty($idFrontPath),
+                    'id_back' => !empty($idBackPath),
+                    'location_proof' => !empty($locationProofPath)
+                ]
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User created successfully!',
+                'user' => [
+                    'id' => $registration->id,
+                    'username' => $registration->username,
+                    'email' => $registration->email,
+                    'status' => $registration->status
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            \Log::error('Admin user creation failed: ' . $e->getMessage(), [
+                'admin_user' => auth()->user()->email,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create user. Please try again.',
+                'error' => config('app.debug') ? $e->getMessage() : 'Server error'
+            ], 500);
+        }
+    }
+    /**
      * UPDATED: Ban user (permanent login block)
      */
     public function banUser(Request $request, $id)
