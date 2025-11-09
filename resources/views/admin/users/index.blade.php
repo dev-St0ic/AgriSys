@@ -2709,7 +2709,7 @@ function toggleAddPasswordVisibility(inputId) {
             formData.append('emergency_contact_name', document.getElementById('add_emergency_contact_name').value.trim());
             formData.append('emergency_contact_phone', document.getElementById('add_emergency_contact_phone').value.trim());
             formData.append('status', document.getElementById('add_status').value);
-            formData.append('email_verified', document.getElementById('add_email_verified').checked);
+            formData.append('email_verified', document.getElementById('add_email_verified').checked ? 1 : 0);
             
             // Add file uploads if present
             const idFrontInput = document.getElementById('add_id_front');
