@@ -599,25 +599,24 @@
                             </div>
                         </div>
 
-                        <!-- Document Uploads (Optional) -->
+                        <!-- Document Uploads (REQUIRED) -->
                         <div class="card mb-3">
                             <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Documents (Optional)</h6>
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Documents <span class="badge bg-danger text-white ms-2">REQUIRED</span></h6>
                             </div>
                             <div class="card-body">
                                 <p class="text-muted small mb-3">Upload documents to associate with this user. Supported formats: JPG, PNG (Max 5MB each)</p>
-                                
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_id_front" class="form-label">Government ID - Front</label>
-                                        <input type="file" class="form-control" id="add_id_front" accept="image/*"
+                                        <label for="add_id_front" class="form-label">Government ID - Front <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" id="add_id_front" accept="image/*" required
                                             onchange="previewAddDocument('add_id_front', 'add_id_front_preview')">
                                         <div id="add_id_front_preview" style="margin-top: 10px;"></div>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_id_back" class="form-label">Government ID - Back</label>
-                                        <input type="file" class="form-control" id="add_id_back" accept="image/*"
+                                        <label for="add_id_back" class="form-label">Government ID - Back <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" id="add_id_back" accept="image/*" required
                                             onchange="previewAddDocument('add_id_back', 'add_id_back_preview')">
                                         <div id="add_id_back_preview" style="margin-top: 10px;"></div>
                                     </div>
@@ -625,8 +624,8 @@
 
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="add_location_proof" class="form-label">Location/Role Proof</label>
-                                        <input type="file" class="form-control" id="add_location_proof" accept="image/*"
+                                        <label for="add_location_proof" class="form-label">Location/Role Proof <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" id="add_location_proof" accept="image/*" required
                                             onchange="previewAddDocument('add_location_proof', 'add_location_proof_preview')">
                                         <div id="add_location_proof_preview" style="margin-top: 10px;"></div>
                                     </div>
@@ -2672,6 +2671,46 @@ function toggleAddPasswordVisibility(inputId) {
                     input.parentNode.appendChild(errorDiv);
                     isValid = false;
                 }
+            });
+
+            // Validate documents (REQUIRED)
+            if (!validateAddDocuments()) {
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        /**
+         * Validate all document uploads (required)
+         */
+        function validateAddDocuments() {
+            let isValid = true;
+            
+            const documents = [
+                { id: 'add_id_front', label: 'Government ID - Front' },
+                { id: 'add_id_back', label: 'Government ID - Back' },
+                { id: 'add_location_proof', label: 'Location/Role Proof' }
+            ];
+            
+            documents.forEach(doc => {
+                const input = document.getElementById(doc.id);
+                if (!input) return;
+                
+                const feedback = input.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+                input.classList.remove('is-invalid', 'is-valid');
+                
+                if (!input.files || !input.files[0]) {
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = doc.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                    return;
+                }
+                
+                input.classList.add('is-valid');
             });
             
             return isValid;

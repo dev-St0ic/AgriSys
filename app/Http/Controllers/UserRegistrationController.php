@@ -981,9 +981,9 @@ class UserRegistrationController extends Controller
             'status' => 'required|in:unverified,pending,approved',
             'email_verified' => 'boolean',
             // Document uploads (optional)
-            'id_front' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
-            'id_back' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
-            'location_proof' => 'nullable|file|image|mimes:jpeg,png,jpg|max:5120',
+            'id_front' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
+            'id_back' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
+            'location_proof' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
         ], [
             'username.regex' => 'Username can only contain letters, numbers, and underscores',
             'username.unique' => 'This username is already taken',
