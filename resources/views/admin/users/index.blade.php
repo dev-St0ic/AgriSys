@@ -181,7 +181,7 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">User Registration Records</h6>
-            <div class="btn-group">
+            <div class="btn-group gap-2">
                 <button type="button" class="btn btn-primary btn-sm" onclick="exportRegistrations()">
                     <i class="fas fa-download me-2"></i>Export Data
                 </button>

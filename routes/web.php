@@ -510,7 +510,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
 
     // Create new user account
-    Route::post('/admin/registrations/create', [UserRegistrationController::class, 'createUser'])->name('admin.registrations.create');
+    Route::post('/registrations/create', [UserRegistrationController::class, 'createUser'])->name('admin.registrations.create');
 
     // Individual registration management
     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
