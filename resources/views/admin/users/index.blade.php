@@ -937,6 +937,17 @@
             transition: all 0.2s ease;
         }
 
+         /* Center document image */
+        #documentModal .document-image {
+            max-width: 90%;
+            max-height: 55vh;
+            object-fit: contain;
+            margin: 0 auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+
         /* Fix for lingering modal backdrop */
         .modal-backdrop {
             opacity: 0.5;
