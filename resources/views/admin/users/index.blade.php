@@ -886,6 +886,158 @@
     </div>
 
     <style>
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Header (for confirmation toasts) */
+        .toast-notification .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .toast-notification .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .toast-notification .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Toast Body */
+        .toast-notification .toast-body {
+            padding: 16px;
+        }
+
+        .toast-notification .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* Toast Content (for simple notifications) */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size:  1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;       /* Make icon bigger */
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i,
+        .toast-notification.toast-success .toast-header i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i,
+        .toast-notification.toast-error .toast-header i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i,
+        .toast-notification.toast-warning .toast-header i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i,
+        .toast-notification.toast-info .toast-header i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-body {
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .d-flex.gap-2 button {
+            pointer-events: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
         /* Border styles for statistics cards */
         .border-left-primary {
             border-left: 0.25rem solid #4e73df !important;
@@ -1473,7 +1625,7 @@
         // Enhanced view document function
         function viewDocument(documentType) {
             if (!currentRegistrationId) {
-                showAlert('error', 'Registration ID not found');
+                showToast('error', 'Registration ID not found');
                 return;
             }
 
@@ -1798,7 +1950,7 @@
                 })
                 .then(response => {
                     if (response.success) {
-                        showAlert('success', response.message);
+                        showToast('success', response.message);
 
                         // Auto-refresh the page after a short delay
                         setTimeout(() => {
@@ -1810,7 +1962,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('error', 'Error updating registration status: ' + error.message);
+                    showToast('error', 'Error updating registration status: ' + error.message);
                 });
         }
 
@@ -1877,11 +2029,11 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('error', 'Error loading registration details: ' + error.message);
+                    showToast('error', 'Error loading registration details: ' + error.message);
                 });
         }
 
-        // enhance version
+        // enhance version with toast notif
 
         function updateRegistrationStatus() {
             const id = document.getElementById('updateRegistrationId').value;
@@ -1894,7 +2046,7 @@
             console.log('Remarks:', remarks);
 
             if (!newStatus) {
-                showAlert('error', 'Please select a status');
+                showToast('error', 'Please select a status');
                 return;
             }
 
@@ -1902,7 +2054,7 @@
             const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
 
             if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                showAlert('warning', 'No changes detected. Please modify the status or remarks before updating.');
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
                 return;
             }
 
@@ -1922,17 +2074,80 @@
                 }
             }
 
-            const confirmMessage =
-                `Are you sure you want to update this registration with the following changes?\n\n${changesSummary.join('\n')}`;
+            // Show confirmation toast with action buttons
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
+        }
 
-            if (!confirm(confirmMessage)) {
-                return;
+        // New confirmation toast function
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+            
+            // Store the callback function on the toast element
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+            
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-info"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        // NEW helper function to execute confirmation action
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+            
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
             }
+            
+            // Clean up the callback reference
+            delete window[callbackId];
+            
+            removeToast(toast);
+        }
 
+        // Proceed with actual status update
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
             const updateButton = document.querySelector('#updateModal .btn-primary');
             const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
             updateButton.disabled = true;
 
             const endpoint = `/admin/registrations/${id}/update-status`;
@@ -1943,7 +2158,6 @@
 
             console.log('Sending request to:', endpoint);
             console.log('Request data:', requestData);
-            console.log('CSRF Token:', getCSRFToken());
 
             fetch(endpoint, {
                     method: 'POST',
@@ -1956,16 +2170,8 @@
                 })
                 .then(response => {
                     console.log('Response Status:', response.status);
-                    console.log('Response Status Text:', response.statusText);
-                    console.log('Response Headers:', {
-                        'Content-Type': response.headers.get('Content-Type'),
-                        'X-Requested-With': response.headers.get('X-Requested-With')
-                    });
-
-                    // Clone response to read body multiple times if needed
                     const clonedResponse = response.clone();
 
-                    // First, try to parse as JSON to see error details
                     return clonedResponse.json().then(jsonData => {
                         console.log('Response JSON:', jsonData);
                         return {
@@ -1975,7 +2181,6 @@
                         };
                     }).catch(jsonError => {
                         console.warn('Could not parse JSON response:', jsonError);
-                        // If JSON parsing fails, get text instead
                         return response.text().then(textData => {
                             console.log('Response Text:', textData);
                             return {
@@ -1990,7 +2195,6 @@
                     console.log('Processing result:', result);
 
                     if (!result.ok) {
-                        // Error response - show detailed error
                         let errorMessage = `Server Error (${result.status}): `;
                         
                         if (result.data && result.data.message) {
@@ -2008,15 +2212,14 @@
                         throw new Error(errorMessage);
                     }
 
-                    // Success response
                     if (result.data && result.data.success) {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
                         modal.hide();
-                        showAlert('success', result.data.message);
+                        
+                        showToast('success', result.data.message || 'Registration status updated successfully');
 
                         console.log('Update successful, reloading...');
                         
-                        // Auto-refresh the page
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -2027,13 +2230,68 @@
                 .catch(error => {
                     console.error('Complete error object:', error);
                     console.error('Error message:', error.message);
-                    console.error('Error stack:', error.stack);
-                    showAlert('error', 'Error updating registration status: ' + error.message);
+                    showToast('error', 'Error updating registration status: ' + error.message);
                 })
                 .finally(() => {
                     updateButton.innerHTML = originalText;
                     updateButton.disabled = false;
                 });
+        }
+
+        // Toast notification function (similar to event page)
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds for non-confirmation toasts
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
         }
 
    // Show add user modal
@@ -2619,12 +2877,12 @@ function toggleAddPasswordVisibility(inputId) {
         }
 
         /**
-         * Submit add user form (admin)
+         * Submit add user form (admin) with toast notif
          */
         function submitAddUser() {
             // Run comprehensive validation
             if (!validateAddUserForm()) {
-                showAlert('error', 'Please fix all validation errors before submitting');
+                showToast('error', 'Please fix all validation errors before submitting');
                 return;
             }
             
@@ -2689,8 +2947,8 @@ function toggleAddPasswordVisibility(inputId) {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
                     modal.hide();
                     
-                    // Show success message
-                    showAlert('success', data.message);
+                    // Show success message using TOAST instead of alert
+                    showToast('success', data.message || 'User created successfully');
                     
                     // Reload page after short delay
                     setTimeout(() => {
@@ -2713,24 +2971,31 @@ function toggleAddPasswordVisibility(inputId) {
                             }
                         });
                     }
-                    showAlert('error', data.message || 'Failed to create user');
+                    showToast('error', data.message || 'Failed to create user');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('error', 'An error occurred while creating the user');
+                showToast('error', 'An error occurred while creating the user');
             })
             .finally(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             });
         }
-        // Delete registration
+        
+        // Delete registration - UPDATED with confirmation toast
         function deleteRegistration(id) {
-            if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
-                return;
-            }
+            // Show confirmation toast instead of browser confirm
+            showConfirmationToast(
+                'Delete Registration',
+                'Are you sure you want to delete this registration?\n\nThis action cannot be undone.',
+                () => proceedWithDelete(id)
+            );
+        }
 
+        // Proceed with actual delete
+        function proceedWithDelete(id) {
             fetch(`/admin/registrations/${id}`, {
                     method: 'DELETE',
                     headers: {
@@ -2741,7 +3006,7 @@ function toggleAddPasswordVisibility(inputId) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showAlert('success', data.message);
+                        showToast('success', data.message || 'Registration deleted successfully');
                         const row = document.querySelector(`tr[data-id="${id}"]`);
                         if (row) {
                             row.style.transition = 'opacity 0.3s';
@@ -2750,48 +3015,13 @@ function toggleAddPasswordVisibility(inputId) {
                         }
                         refreshStats();
                     } else {
-                        showAlert('error', data.message);
+                        showToast('error', data.message || 'Failed to delete registration');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('error', 'An error occurred while deleting the registration.');
+                    showToast('error', 'An error occurred while deleting the registration.');
                 });
-        }
-
-        // Enhanced alert system
-        function showAlert(type, message) {
-            // Remove existing alerts
-            document.querySelectorAll('.alert').forEach(alert => alert.remove());
-
-            const alertClass = type === 'error' ? 'danger' : type;
-            const iconClass = {
-                'success': 'fas fa-check-circle',
-                'danger': 'fas fa-exclamation-circle',
-                'warning': 'fas fa-exclamation-triangle',
-                'info': 'fas fa-info-circle'
-            } [alertClass] || 'fas fa-info-circle';
-
-            const alertHtml = `
-        <div class="alert alert-${alertClass} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
-            <i class="${iconClass} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `;
-
-            document.body.insertAdjacentHTML('beforeend', alertHtml);
-
-            if (type === 'success') {
-                setTimeout(() => {
-                    const successAlert = document.querySelector('.alert-success');
-                    if (successAlert) {
-                        successAlert.style.transition = 'opacity 0.3s';
-                        successAlert.style.opacity = '0';
-                        setTimeout(() => successAlert.remove(), 300);
-                    }
-                }, 5000);
-            }
         }
 
         // Refresh statistics
@@ -2854,7 +3084,7 @@ function toggleAddPasswordVisibility(inputId) {
             const toDate = document.getElementById('modal_date_to').value;
 
             if (fromDate && toDate && fromDate > toDate) {
-                showAlert('error', 'From date cannot be later than to date');
+                showToast('error', 'From date cannot be later than to date');
                 return;
             }
 
