@@ -41,53 +41,54 @@
         .sidebar {
             min-height: 100vh;
             max-height: 100vh;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            background: #ffffff;
             transition: all 0.3s ease;
             position: fixed;
             top: 0;
             left: 0;
             z-index: 1000;
-            width: 250px;
+            width: 280px;
             overflow-x: hidden;
             overflow-y: auto;
-            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+            border-right: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar.collapsed {
-            width:780px;
+            width: 75px;
         }
 
         /* Cabinet drawer effect */
-`        .sidebar.collapsed::after {
+        ` .sidebar.collapsed::after {
             content: '';
             position: absolute;
             right: 0;
             top: 0;
             bottom: 0;
             width: 1px;
-            background: linear-gradient(to bottom, 
-                transparent 0%, 
-                rgba(255,255,255,0.1) 10%, 
-                rgba(255,255,255,0.1) 90%, 
-                transparent 100%);
+            background: linear-gradient(to bottom,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.1) 10%,
+                    rgba(255, 255, 255, 0.1) 90%,
+                    transparent 100%);
         }
 
-        /* Sidebar scrollbar */
+        /* Minimalist scrollbar */
         .sidebar::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
 
         .sidebar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+            background: transparent;
         }
 
         .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
+            background: rgba(100, 181, 246, 0.3);
+            border-radius: 2px;
         }
 
         .sidebar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(100, 181, 246, 0.5);
         }
 
         /* Update toggle icon rotation */
@@ -95,9 +96,25 @@
             transition: transform 0.3s ease;
         }
 
+        .sidebar.collapsed .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        html.sidebar-collapsed-state .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Better toggle button positioning */
+        .toggle-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+            padding: 0 1rem;
+        }
+
         /* Apply collapsed state from HTML class */
         html.sidebar-collapsed-state .sidebar {
-            width: 70px;
+            width: 75px;
         }
 
         /* Override collapsed state when no sidebar exists */
@@ -108,9 +125,9 @@
         }
 
         html.sidebar-collapsed-state .main-content {
-            margin-left: 70px !important;
-            width: calc(100vw - 70px) !important;
-            max-width: calc(100vw - 70px) !important;
+            margin-left: 75px !important;
+            width: calc(100vw - 75px) !important;
+            max-width: calc(100vw - 75px) !important;
         }
 
         html.sidebar-collapsed-state .nav-link {
@@ -145,33 +162,68 @@
             transform: rotate(180deg);
         }
 
-        .sidebar .nav-link {
-            color: #ecf0f1;
-            border-radius: 0.5rem;
-            margin: 0.2rem 0;
-            transition: all 0.3s ease;
-            white-space: nowrap;
+        .nav-link {
+            color: #6b7280 !important;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            margin: 0.25rem 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
-            text-align: left;
+            font-weight: 500;
+            border: 1px solid transparent;
         }
 
-        .sidebar .nav-link:hover {
-            background-color: rgba(52, 152, 219, 0.2);
-            color: #3498db;
+        .nav-link:hover {
+            background: rgba(107, 114, 128, 0.1);
+            color: #374151 !important;
+            transform: translateX(5px);
+            border-color: rgba(107, 114, 128, 0.2);
+            box-shadow: 0 2px 8px rgba(107, 114, 128, 0.2);
+        }
+
+        .nav-link:hover .nav-link-text {
+            color: #374151 !important;
+        }
+
+        .nav-link:hover i {
+            color: #374151 !important;
         }
 
         .sidebar .nav-link.active {
-            background-color: #3498db;
-            color: white;
+            background: #10b981;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            border-color: #059669;
+        }
+
+        .sidebar .nav-link.active .nav-link-text {
+            color: white !important;
+        }
+
+        .sidebar .nav-link.active i {
+            color: white !important;
         }
 
         .sidebar.collapsed .nav-link {
             justify-content: center;
             text-align: center;
             padding: 0.75rem;
+            margin: 0.2rem 0.5rem;
+        }
+
+        .sidebar.collapsed .nav-link:hover {
+            background: rgba(100, 181, 246, 0.2);
+        }
+
+        .sidebar.collapsed .nav-link.active {
+            background: #10b981;
+        }
+
+        .sidebar.collapsed .nav-link.active i {
+            color: white !important;
         }
 
         .sidebar.collapsed .nav-link-text {
@@ -183,6 +235,7 @@
             opacity: 1;
             margin-left: 0.5rem;
             flex: 1;
+            color: #6b7280 !important;
         }
 
         .sidebar .nav-link i {
@@ -190,6 +243,8 @@
             text-align: center;
             font-size: 1.1rem;
             flex-shrink: 0;
+            transition: all 0.3s ease;
+            color: #6b7280 !important;
         }
 
         .sidebar.collapsed .nav-link i {
@@ -222,18 +277,18 @@
         .main-content {
             background-color: #f8f9fa;
             min-height: 100vh;
-            margin-left: 250px;
+            margin-left: 280px;
             transition: margin-left 0.3s ease;
             position: relative;
             overflow-x: auto;
-            width: calc(100vw - 250px);
-            max-width: calc(100vw - 250px);
+            width: calc(100vw - 280px);
+            max-width: calc(100vw - 280px);
         }
 
         .main-content.sidebar-collapsed {
-            margin-left: 70px;
-            width: calc(100vw - 70px);
-            max-width: calc(100vw - 70px);
+            margin-left: 75px;
+            width: calc(100vw - 75px);
+            max-width: calc(100vw - 75px);
         }
 
         .main-content.no-sidebar {
@@ -266,11 +321,48 @@
         }
 
         .sidebar-brand {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(100, 181, 246, 0.15);
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        /* New sidebar header styling */
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .brand-text {
+            line-height: 1.2;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            padding: 1rem 0.5rem;
+            justify-content: center !important;
+        }
+
+        .sidebar.collapsed .sidebar-brand-content {
+            display: none !important;
+        }
+
+        .sidebar-logo {
+            transition: all 0.3s ease;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .sidebar.collapsed .sidebar-logo {
+            height: 60px;
+            width: auto;
+        }
+
+        .sidebar.collapsed .toggle-sidebar-btn {
+            margin: 0 auto;
         }
 
         .sidebar.collapsed .sidebar-brand {
@@ -284,57 +376,140 @@
             width: 100%;
         }
 
+        .sidebar-brand h4 {
+            transition: all 0.3s ease;
+            opacity: 1;
+            transform: scale(1);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-brand h4 i {
+            color: #64B5F6;
+        }
+
+        .sidebar-brand small {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: rgba(227, 242, 253, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         .toggle-sidebar-btn {
-            background: transparent;
+            background: rgba(0, 0, 0, 0.05);
             border: none;
-            color: #ecf0f1;
-            border-radius: 0.5rem;
+            color: #374151;
+            border-radius: 8px;
             transition: all 0.3s ease;
             cursor: pointer;
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
-            width: 100%;
-            margin: 0.2rem 0;
-            text-align: left;
-            white-space: nowrap;
+            justify-content: center;
+            padding: 0.6rem;
+            width: 40px;
+            height: 40px;
+            position: relative;
             overflow: hidden;
         }
 
+        .toggle-sidebar-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
         .toggle-sidebar-btn:hover {
-            background-color: rgba(52, 152, 219, 0.2);
-            color: #3498db;
+            background: rgba(0, 0, 0, 0.1);
+            color: #1f2937;
+            transform: scale(1.05);
+        }
+
+        .toggle-sidebar-btn:hover::before {
+            width: 60px;
+            height: 60px;
+        }
+
+        .toggle-sidebar-btn:active {
+            transform: scale(0.95);
         }
 
         .toggle-sidebar-btn i {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             transition: all 0.3s ease;
-            min-width: 20px;
-            text-align: center;
-            flex-shrink: 0;
+            z-index: 1;
+            position: relative;
+        }
+
+        /* Hamburger Menu Styles */
+        .hamburger-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 18px;
+            height: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hamburger-line {
+            width: 18px;
+            height: 2px;
+            background-color: #374151;
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 1.5px 0;
+            transform-origin: center;
+        }
+
+        .hamburger-line:nth-child(1) {
+            margin-top: 0;
+        }
+
+        .hamburger-line:nth-child(3) {
+            margin-bottom: 0;
+        }
+
+        /* Hover effects for hamburger */
+        .toggle-sidebar-btn:hover .hamburger-line {
+            background-color: #ffffff;
         }
 
         .toggle-sidebar-btn .nav-link-text {
-            transition: all 0.3s ease;
-            opacity: 1;
-            margin-left: 0.5rem;
-            flex: 1;
+            display: none;
         }
 
         .sidebar.collapsed .toggle-sidebar-btn {
             justify-content: center;
             text-align: center;
             padding: 0.75rem;
+            margin: 0 auto 1rem auto;
+            width: 45px;
+            height: 45px;
+        }
+
+        /* Improved collapsed state visibility */
+        html.sidebar-collapsed-state .toggle-sidebar-btn {
+            background: rgba(100, 181, 246, 0.15);
+        }
+
+        html.sidebar-collapsed-state .toggle-sidebar-btn:hover {
+            background: rgba(100, 181, 246, 0.25);
         }
 
         .sidebar.collapsed .toggle-sidebar-btn .nav-link-text {
             opacity: 0;
             width: 0;
             margin-left: 0;
-        }
-
-        .sidebar.collapsed .toggle-sidebar-btn i {
-            margin: 0;
         }
 
         .tooltip-custom {
@@ -347,16 +522,17 @@
             left: 100%;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(30, 58, 95, 0.95);
             color: white;
             padding: 8px 12px;
-            border-radius: 6px;
+            border-radius: 4px;
             white-space: nowrap;
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s ease;
             margin-left: 15px;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 400;
             z-index: 1002;
         }
 
@@ -367,10 +543,11 @@
             top: 50%;
             transform: translateY(-50%);
             border: 6px solid transparent;
-            border-right-color: rgba(0, 0, 0, 0.9);
+            border-right-color: rgba(30, 58, 95, 0.95);
             opacity: 0;
             transition: all 0.3s ease;
             margin-left: 9px;
+            z-index: 1001;
         }
 
         .sidebar.collapsed .tooltip-custom:hover::after,
@@ -416,8 +593,111 @@
             text-decoration: none;
         }
 
-        .profile-section .dropdown button:hover {
-            opacity: 0.8;
+        /* Navigation section divider */
+        .nav-section-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 1rem 1rem 1rem;
+            opacity: 0.6;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .divider-text {
+            padding: 0 0.75rem;
+            font-size: 0.7rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .sidebar.collapsed .nav-section-divider {
+            margin: 1rem 0.5rem;
+        }
+
+        .sidebar.collapsed .divider-text {
+            display: none;
+        }
+
+        .sidebar.collapsed .divider-line {
+            background: rgba(100, 181, 246, 0.2);
+        }
+
+        /* Enhanced mobile responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1050;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1040;
+                backdrop-filter: blur(2px);
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .toggle-sidebar-btn {
+                margin: 0.25rem;
+            }
+        }
+
+        /* Enhanced focus states for accessibility */
+        .sidebar .nav-link:focus,
+        .toggle-sidebar-btn:focus {
+            outline: 2px solid #64B5F6;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(100, 181, 246, 0.2);
+        }
+
+        /* Add a subtle pulse effect for the toggle button */
+        .toggle-sidebar-btn {
+            box-shadow: 0 2px 8px rgba(100, 181, 246, 0.15);
+        }
+
+        .toggle-sidebar-btn:hover {
+            box-shadow: 0 4px 12px rgba(100, 181, 246, 0.25);
+        }
+
+        /* Tooltip positioning for toggle button */
+        .toggle-sidebar-btn.tooltip-custom::after {
+            left: 120%;
+            margin-left: 10px;
+        }
+
+        .toggle-sidebar-btn.tooltip-custom::before {
+            left: 120%;
+            margin-left: 4px;
+        }
+
+        /* Improved collapsed state styles */
+        .sidebar.collapsed .nav-link {
+            position: relative;
         }
     </style>
 </head>
@@ -433,119 +713,156 @@
                     <!-- Sidebar -->
                     <nav class="sidebar" id="sidebar">
                         <div class="position-sticky pt-3">
-                            <!-- Hamburger Toggle Button -->
-                            <div class="d-none d-md-block px-2">
-                                <button class="toggle-sidebar-btn tooltip-custom" id="toggleSidebar"
-                                    onclick="toggleSidebar()" data-tooltip="Toggle Menu">
-                                    <i class="fas fa-bars" id="toggleIcon"></i>
-                                    <span class="nav-link-text"></span>
-                                </button>
-                            </div>
+                            <!-- Header with Brand and Toggle -->
+                            <div class="sidebar-header d-flex align-items-center justify-content-between px-3 mb-3">
+                                <div class="sidebar-brand-content d-flex align-items-center justify-content-center">
+                                    <img src="{{ asset('images/logos/agri-removebg.png') }}" alt="AgriSys Logo"
+                                        class="sidebar-logo"
+                                        style="height: 80px; width: auto;
+                                                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
+                                </div>
 
-                            <div class="sidebar-brand">
-                                <div class="sidebar-brand-content">
-                                    <h4 class="text-white mb-0">
-                                        <i class="fas fa-seedling me-2"></i>
-                                        <span class="sidebar-brand-text">AgriSys</span>
-                                    </h4>
-                                    <small class="text-muted sidebar-brand-text">
-                                        {{ auth()->user()->isSuperAdmin() ? 'Super Admin' : 'Admin' }}
-                                    </small>
+                                <!-- Hamburger Toggle Button on Right -->
+                                <div class="d-none d-md-block">
+                                    <button class="toggle-sidebar-btn tooltip-custom" id="toggleSidebar"
+                                        onclick="toggleSidebar()" data-tooltip="Toggle Menu"
+                                        aria-label="Toggle navigation menu" aria-expanded="true" type="button">
+                                        <!-- Hamburger Lines -->
+                                        <div class="hamburger-menu" id="hamburgerMenu">
+                                            <span class="hamburger-line"></span>
+                                            <span class="hamburger-line"></span>
+                                            <span class="hamburger-line"></span>
+                                        </div>
+                                    </button>
                                 </div>
                             </div>
 
-                            <ul class="nav flex-column">
+                            <!-- Navigation Section Separator -->
+                            <div class="nav-section-divider">
+                                <div class="divider-line"></div>
+                                <span class="divider-text">Navigation</span>
+                                <div class="divider-line"></div>
+                            </div>
+
+                            <ul class="nav flex-column" role="navigation" aria-label="Main navigation">
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.dashboard') }}" data-tooltip="Dashboard">
-                                        <i class="fas fa-tachometer-alt"></i>
+                                        href="{{ route('admin.dashboard') }}" data-tooltip="Dashboard"
+                                        aria-label="Dashboard" role="menuitem">
+                                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
                                         <span class="nav-link-text">Dashboard</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.event.*') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.event.index') }}" data-tooltip="Event Management">
-                                        <i class="fas fa-calendar-alt"></i>
+                                        href="{{ route('admin.event.index') }}" data-tooltip="Event Management"
+                                        aria-label="Event Management" role="menuitem">
+                                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
                                         <span class="nav-link-text">Events</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('admin.slideshow.*') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.slideshow.index') }}" data-tooltip="Slideshow Management"
+                                        aria-label="Slideshow Management" role="menuitem">
+                                        <i class="fas fa-images" aria-hidden="true"></i>
+                                        <span class="nav-link-text">Slideshow Management</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.registrations.index') }}" data-tooltip="User Registrations">
-                                        <i class="fas fa-user-edit"></i>
+                                        href="{{ route('admin.registrations.index') }}" data-tooltip="User Registrations"
+                                        aria-label="User Registrations" role="menuitem">
+                                        <i class="fas fa-user-edit" aria-hidden="true"></i>
                                         <span class="nav-link-text">User Registration</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.rsbsa.*') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.rsbsa.applications') }}" data-tooltip="RSBSA Applications">
-                                        <i class="fas fa-file-alt"></i>
+                                        href="{{ route('admin.rsbsa.applications') }}" data-tooltip="RSBSA Applications"
+                                        aria-label="RSBSA Applications" role="menuitem">
+                                        <i class="fas fa-file-alt" aria-hidden="true"></i>
                                         <span class="nav-link-text">RSBSA Applications</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.seedlings.requests') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.seedlings.requests') }}" data-tooltip="Seedling Requests">
-                                        <i class="fas fa-seedling"></i>
+                                        href="{{ route('admin.seedlings.requests') }}" data-tooltip="Seedling Requests"
+                                        aria-label="Seedling Requests" role="menuitem">
+                                        <i class="fas fa-seedling" aria-hidden="true"></i>
                                         <span class="nav-link-text">Seedling Requests</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.seedlings.categories.index') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.seedlings.categories.index') }}"
-                                        data-tooltip="Supply Management">
-                                        <i class="fas fa-layer-group me-2"></i>
+                                        data-tooltip="Supply Management" aria-label="Supply Management" role="menuitem">
+                                        <i class="fas fa-layer-group me-2" aria-hidden="true"></i>
                                         <span class="nav-link-text">Supply Management</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.fishr.requests') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.fishr.requests') }}" data-tooltip="FishR Registrations">
-                                        <i class="fas fa-fish"></i>
+                                        href="{{ route('admin.fishr.requests') }}" data-tooltip="FishR Registrations"
+                                        aria-label="FishR Registrations" role="menuitem">
+                                        <i class="fas fa-fish" aria-hidden="true"></i>
                                         <span class="nav-link-text">FishR Registrations</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.boatr.requests') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.boatr.requests') }}" data-tooltip="BoatR Registrations">
-                                        <i class="fas fa-ship"></i>
+                                        href="{{ route('admin.boatr.requests') }}" data-tooltip="BoatR Registrations"
+                                        aria-label="BoatR Registrations" role="menuitem">
+                                        <i class="fas fa-ship" aria-hidden="true"></i>
                                         <span class="nav-link-text">BoatR Registrations</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.training.requests') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.training.requests') }}"
-                                        data-tooltip="Training Registrations">
-                                        <i class="fas fa-chalkboard-teacher"></i>
+                                        data-tooltip="Training Registrations" aria-label="Training Registrations"
+                                        role="menuitem">
+                                        <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>
                                         <span class="nav-link-text">Training Registrations</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.analytics.analytics') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.analytics.seedlings') }}" data-tooltip="Analytics">
-                                        <i class="fas fa-chart-bar"></i>
+                                        href="{{ route('admin.analytics.seedlings') }}" data-tooltip="Analytics"
+                                        aria-label="Analytics" role="menuitem">
+                                        <i class="fas fa-chart-bar" aria-hidden="true"></i>
                                         <span class="nav-link-text">Analytics</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.dss.*') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.dss.preview') }}" data-tooltip="DSS Report Preview">
-                                        <i class="fas fa-brain"></i>
+                                        href="{{ route('admin.dss.preview') }}" data-tooltip="DSS Report Preview"
+                                        aria-label="DSS Report Preview" role="menuitem">
+                                        <i class="fas fa-brain" aria-hidden="true"></i>
                                         <span class="nav-link-text">DSS Report Preview</span>
                                     </a>
                                 </li>
                                 @if (auth()->user()->isSuperAdmin())
+                                    <!-- Admin Section Separator -->
+                                    <div class="nav-section-divider">
+                                        <div class="divider-line"></div>
+                                        <span class="divider-text">Admin</span>
+                                        <div class="divider-line"></div>
+                                    </div>
+
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.activity-logs.index') }}" data-tooltip="Activity Logs">
-                                            <i class="fas fa-history"></i>
+                                            href="{{ route('admin.activity-logs.index') }}" data-tooltip="Activity Logs"
+                                            aria-label="Activity Logs" role="menuitem">
+                                            <i class="fas fa-history" aria-hidden="true"></i>
                                             <span class="nav-link-text">Activity Logs</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('admin.admins.*') ? 'active' : '' }} tooltip-custom"
-                                            href="{{ route('admin.admins.index') }}" data-tooltip="Manage Admins">
-                                            <i class="fas fa-users-cog"></i>
+                                            href="{{ route('admin.admins.index') }}" data-tooltip="Manage Admins"
+                                            aria-label="Manage Admins" role="menuitem">
+                                            <i class="fas fa-users-cog" aria-hidden="true"></i>
                                             <span class="nav-link-text">Manage Admins</span>
                                         </a>
                                     </li>
@@ -691,6 +1008,9 @@
         </div>
     </div>
 
+    <!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @yield('scripts')
@@ -731,9 +1051,8 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            const toggleIcon = document.getElementById('toggleIcon');
 
-            if (!sidebar || !mainContent || !toggleIcon) return;
+            if (!sidebar || !mainContent) return;
 
             // Toggle collapsed state
             const isCurrentlyCollapsed = sidebar.classList.contains('collapsed');
