@@ -526,9 +526,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
         ->name('registrations.document')
         ->where('type', 'location|id_front|id_back');
 
-    // Statistics and export
+    // Statistics 
     Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
-    Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
 
     // Bulk operations (optional future enhancement)
     Route::post('/registrations/bulk-approve', [UserRegistrationController::class, 'bulkApprove'])->name('registrations.bulk-approve');

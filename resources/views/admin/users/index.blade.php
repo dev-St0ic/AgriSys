@@ -182,9 +182,6 @@
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">User Registration Records</h6>
             <div class="btn-group gap-2">
-                <button type="button" class="btn btn-primary btn-sm" onclick="exportRegistrations()">
-                    <i class="fas fa-download me-2"></i>Export Data
-                </button>
                 <button type="button" class="btn btn-success btn-sm me-2" onclick="showAddUserModal()">
                     <i class="fas fa-user-plus me-2"></i>Add User
                 </button>
@@ -2888,30 +2885,6 @@ function toggleAddPasswordVisibility(inputId) {
                 .catch(error => {
                     console.error('Error refreshing stats:', error);
                 });
-        }
-
-        // Export registrations function
-        function exportRegistrations() {
-            const params = new URLSearchParams(window.location.search);
-            const exportBtn = document.querySelector('[onclick="exportRegistrations()"]');
-            const originalText = exportBtn.innerHTML;
-            exportBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Exporting...';
-            exportBtn.disabled = true;
-
-            const exportUrl = '/admin/registrations/export?' + params.toString();
-
-            const link = document.createElement('a');
-            link.href = exportUrl;
-            link.download = `registrations_${new Date().toISOString().split('T')[0]}.xlsx`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            setTimeout(() => {
-                exportBtn.innerHTML = originalText;
-                exportBtn.disabled = false;
-                showAlert('success', 'Export started successfully');
-            }, 2000);
         }
 
         // Date filter functions
