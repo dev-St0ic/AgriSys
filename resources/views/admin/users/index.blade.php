@@ -748,29 +748,8 @@
                 <div class="modal-body" id="registrationDetails">
                     <!-- Content will be loaded here -->
                 </div>
+                <!-- close button -->
                 <div class="modal-footer">
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('location')"
-                            id="viewLocationDoc">
-                            <i class="fas fa-map-marker-alt me-2"></i>View Location Document
-                        </button>
-                        <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('id_front')"
-                            id="viewIdFront">
-                            <i class="fas fa-id-card me-2"></i>View ID Front
-                        </button>
-                        <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('id_back')"
-                            id="viewIdBack">
-                            <i class="fas fa-id-card-alt me-2"></i>View ID Back
-                        </button>
-                        <button type="button" class="btn btn-success btn-sm" onclick="quickUpdateStatus('approved')"
-                            id="quickApprove">
-                            <i class="fas fa-check me-2"></i>Quick Approve
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="quickUpdateStatus('rejected')"
-                            id="quickReject">
-                            <i class="fas fa-times me-2"></i>Quick Reject
-                        </button>
-                    </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -797,17 +776,9 @@
                     <div id="documentViewer" style="display: none;"></div>
                 </div>
                 <div class="modal-footer">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary" onclick="downloadDocument()">
-                            <i class="fas fa-download me-2"></i>Download
-                        </button>
-                        <button type="button" class="btn btn-success" onclick="openInNewTab()">
-                            <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                        </button>
-                        <button type="button" class="btn btn-info" onclick="zoomDocument()">
-                            <i class="fas fa-search-plus me-2"></i>Zoom
-                        </button>
-                    </div>
+                    <button type="button" class="btn btn-info btn-sm" onclick="zoomDocument()">
+                        <i class="fas fa-search-plus me-2"></i>Zoom
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -1644,33 +1615,6 @@
             toggleZoom();
         }
 
-        // Download document function
-        function downloadDocument() {
-            if (currentDocumentUrl) {
-                const link = document.createElement('a');
-                link.href = currentDocumentUrl;
-                if (currentDocumentInfo && currentDocumentInfo.name) {
-                    link.download = currentDocumentInfo.name;
-                }
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showAlert('success', 'Download started');
-            } else {
-                showAlert('error', 'No document available for download');
-            }
-        }
-
-        // Open document in new tab
-        function openInNewTab() {
-            if (currentDocumentUrl) {
-                window.open(currentDocumentUrl, '_blank');
-            } else {
-                showAlert('error', 'No document available to open');
-            }
-        }
-
         // Enhanced view documents function for User Registrations - FIXED
         function viewDocuments(id) {
             currentRegistrationId = id;
@@ -1816,29 +1760,6 @@
                         `;
                     }
                 });
-        }
-        // Quick status update functions
-        function quickUpdateStatus(newStatus) {
-            if (!currentRegistrationId) {
-                showAlert('error', 'No registration selected');
-                return;
-            }
-
-            const statusText = getStatusText(newStatus);
-            const confirmMessage = `Are you sure you want to ${newStatus} this registration?`;
-
-            if (!confirm(confirmMessage)) {
-                return;
-            }
-
-            // Close the registration modal first
-            const registrationModal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
-            if (registrationModal) {
-                registrationModal.hide();
-            }
-
-            // Perform the status update
-            updateRegistrationStatusDirect(currentRegistrationId, newStatus);
         }
 
         // Direct status update
