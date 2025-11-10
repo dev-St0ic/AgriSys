@@ -3259,6 +3259,55 @@ function toggleAddPasswordVisibility(inputId) {
             });
         }
 
+       /**
+         * Auto-capitalize first letter of each word in name fields (Title Case)
+         */
+        function capitalizeName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                // Split by spaces, capitalize each word, then join back
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        }
+
+        // Apply auto-capitalization to name fields with debounce to avoid issues while typing
+        let nameCapitalizeTimeout;
+        
+        function handleNameInput(input) {
+            clearTimeout(nameCapitalizeTimeout);
+            nameCapitalizeTimeout = setTimeout(() => {
+                capitalizeName(input);
+            }, 500); // Wait 500ms after user stops typing
+        }
+
+        // Apply to name fields on blur (when user leaves the field) for immediate effect
+        document.getElementById('add_first_name')?.addEventListener('blur', function() {
+            capitalizeName(this);
+        });
+
+        document.getElementById('add_middle_name')?.addEventListener('blur', function() {
+            capitalizeName(this);
+        });
+
+        document.getElementById('add_last_name')?.addEventListener('blur', function() {
+            capitalizeName(this);
+        });
+
+        document.getElementById('add_emergency_contact_name')?.addEventListener('blur', function() {
+            capitalizeName(this);
+        });
+
+        /**
+         * Real-time validation for contact number (admin)
+         */
+        document.getElementById('add_contact_number')?.addEventListener('input', function() {
+            validateAddContactNumber(this.value);
+        });
+        
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
     </script>
 @endsection
