@@ -60,9 +60,9 @@
     <header>
         <div class="header-left">
             <div class="logo-text">
-                <h2 class="logo-text">
-                    <span class="logo-agri">Agri</span><span class="logo-sys">Sys</span>
-                </h2>
+                <div class="logo-container">
+                    <img src="{{ asset('images/logos/agrii-removebg.png') }}" alt="AgriSys Logo" class="main-logo">
+                </div>
             </div>
             <div class="header-center nav-buttons">
                 <button type="button" class="btn" onclick="goHome(event)">Home</button>
@@ -95,7 +95,10 @@
                                             $statusLower = strtolower($user['status']);
                                             if ($statusLower === 'approved' || $statusLower === 'verified') {
                                                 echo 'Verified';
-                                            } elseif ($statusLower === 'pending' || $statusLower === 'pending_verification') {
+                                            } elseif (
+                                                $statusLower === 'pending' ||
+                                                $statusLower === 'pending_verification'
+                                            ) {
                                                 echo 'Under Review';
                                             } elseif ($statusLower === 'rejected') {
                                                 echo 'Verification Failed';
@@ -171,6 +174,28 @@
             onclick="document.getElementById('services').scrollIntoView({ behavior: 'smooth' })">Explore Services</button>
     </section> -->
     <section class="welcome" id="home">
+        <!-- Background Slideshow -->
+        <div class="slideshow-container">
+            @forelse($slides as $index => $slide)
+                <div class="slide {{ $index === 0 ? 'active' : '' }}"
+                    style="background-image: url('{{ $slide->image_url ?? $slide['image_url'] }}');"
+                    data-title="{{ $slide->title ?? ($slide['title'] ?? '') }}"
+                    data-description="{{ $slide->description ?? ($slide['description'] ?? '') }}">
+                </div>
+            @empty
+                <!-- Fallback slide if no slides are available -->
+                <div class="slide active" style="background-image: url('{{ asset('images/hero/bg1.jpg') }}');"
+                    data-title="Welcome to AgriSys" data-description="Agricultural Services System">
+                </div>
+            @endforelse
+        </div>
+
+        <!-- Fallback background for when images don't load -->
+        <div class="welcome-fallback"></div>
+
+        <!-- Overlay for better text readability -->
+        <div class="welcome-overlay"></div>
+
         <div class="welcome-content">
             <h2>Welcome to <span class="highlight">AgriSys</span><br>Agriculture System</br></h2>
             <p>The Agricultural Service System of the City Agriculture Office of San Pedro, Laguna</p>
@@ -179,19 +204,29 @@
                 Services</button>
         </div>
         <div class="welcome-image"></div>
+
+        <!-- Slideshow Controls -->
+        <div class="slideshow-controls">
+            <button class="slideshow-nav prev" onclick="previousSlide()" aria-label="Previous slide">❮</button>
+            <div class="slide-indicators">
+                @forelse($slides as $index => $slide)
+                    <span class="indicator {{ $index === 0 ? 'active' : '' }}"
+                        onclick="currentSlide({{ $index + 1 }})"></span>
+                @empty
+                    <span class="indicator active" onclick="currentSlide(1)"></span>
+                @endforelse
+            </div>
+            <button class="slideshow-nav next" onclick="nextSlide()" aria-label="Next slide">❯</button>
+        </div>
     </section>
 
     <!-- Events Section - Updated Layout -->
     <section class="events" id="events">
         <!-- Header with Logos and Title -->
         <div class="events-header">
-            <img src="{{ asset('images/logos/cagoFull.png') }}" 
-                alt="City Agriculture Office Logo" 
-                class="logo-icon"
+            <img src="{{ asset('images/logos/agrii-removebg.png') }}" alt="AgriSys Logo" class="logo-icon"
                 loading="lazy">
-            <img src="{{ asset('images/logos/CityOfSanPedro.jpg') }}" 
-                alt="City of San Pedro Logo" 
-                class="logo-icon"
+            <img src="{{ asset('images/logos/CityOfSanPedro.jpg') }}" alt="City of San Pedro Logo" class="logo-icon"
                 loading="lazy">
         </div>
 
@@ -1012,7 +1047,7 @@
         </div>
     @endif
 
-   <!-- EDIT PROFILE MODAL - UPDATED VERSION WITH EDITABLE USERNAME (ONCE) -->
+    <!-- EDIT PROFILE MODAL - UPDATED VERSION WITH EDITABLE USERNAME (ONCE) -->
     <div id="edit-profile-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content edit-profile-modal">
             <div class="modal-header">
@@ -1043,20 +1078,16 @@
                             <div class="username-field-wrapper">
                                 <label for="edit-username">Username *</label>
                                 <div class="username-input-container">
-                                    <input 
-                                        type="text" 
-                                        id="edit-username" 
-                                        name="username"
-                                        placeholder="Enter your username"
-                                        minlength="3"
-                                        maxlength="50"
-                                        pattern="^[a-zA-Z0-9_]+$"
-                                        data-original-username=""
-                                    >
-                                    <span id="username-edit-indicator" class="username-edit-indicator" style="display: none;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M12 6c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3z"/>
-                                            <path d="M6 9c-1.654.737-3 1.956-3 3.341 0 2.219 2.686 4 6 4s6-1.781 6-4c0-1.385-1.346-2.604-3-3.341"/>
+                                    <input type="text" id="edit-username" name="username"
+                                        placeholder="Enter your username" minlength="3" maxlength="50"
+                                        pattern="^[a-zA-Z0-9_]+$" data-original-username="">
+                                    <span id="username-edit-indicator" class="username-edit-indicator"
+                                        style="display: none;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2">
+                                            <path d="M12 6c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3z" />
+                                            <path
+                                                d="M6 9c-1.654.737-3 1.956-3 3.341 0 2.219 2.686 4 6 4s6-1.781 6-4c0-1.385-1.346-2.604-3-3.341" />
                                         </svg>
                                         Can only be changed once
                                     </span>
@@ -1079,14 +1110,9 @@
 
                         <div class="form-group">
                             <label for="edit-contact-number">Contact Number *</label>
-                            <input 
-                                type="tel" 
-                                id="edit-contact-number" 
-                                name="contact_number"
-                                placeholder="09XXXXXXXXX or +639XXXXXXXXX"
-                                pattern="^(\+639|09)\d{9}$"
-                                maxlength="20"
-                            >
+                            <input type="tel" id="edit-contact-number" name="contact_number"
+                                placeholder="09XXXXXXXXX or +639XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
+                                maxlength="20">
                             <small>11-digit Philippine mobile number format</small>
                         </div>
                     </div>
@@ -1097,13 +1123,8 @@
 
                         <div class="form-group">
                             <label for="edit-complete-address">Complete Address *</label>
-                            <textarea 
-                                id="edit-complete-address" 
-                                name="complete_address" 
-                                placeholder="Enter your complete address (House No., Street, Subdivision, etc.)"
-                                rows="3"
-                                maxlength="500"
-                            ></textarea>
+                            <textarea id="edit-complete-address" name="complete_address"
+                                placeholder="Enter your complete address (House No., Street, Subdivision, etc.)" rows="3" maxlength="500"></textarea>
                             <small>Include house number, street name, and subdivision/barangay details</small>
                         </div>
 
@@ -1199,9 +1220,8 @@
                         <div class="form-group">
                             <label for="new-password">New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="new-password" name="new_password" required
-                                    minlength="8" autocomplete="new-password"
-                                    placeholder="Enter your new password"
+                                <input type="password" id="new-password" name="new_password" required minlength="8"
+                                    autocomplete="new-password" placeholder="Enter your new password"
                                     oninput="checkNewPasswordStrength(this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('new-password')">
@@ -1220,8 +1240,8 @@
                         <div class="form-group">
                             <label for="confirm-new-password">Confirm New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="confirm-new-password" name="confirm_new_password"
-                                    required autocomplete="new-password" placeholder="Confirm your new password"
+                                <input type="password" id="confirm-new-password" name="confirm_new_password" required
+                                    autocomplete="new-password" placeholder="Confirm your new password"
                                     oninput="checkNewPasswordMatch(document.getElementById('new-password').value, this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('confirm-new-password')">
@@ -1310,6 +1330,7 @@
     </footer>
 
     <script src="{{ asset('js/events-loader.js') }}"></script>
+    <script src="{{ asset('js/slideshow.js') }}"></script>
     <script src="{{ asset('js/landing.js') }}"></script>
     <script src="{{ asset('js/seedlings.js') }}"></script>
     <script src="{{ asset('js/rsbsa.js') }}"></script>

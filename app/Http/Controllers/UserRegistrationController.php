@@ -24,7 +24,7 @@ class UserRegistrationController extends Controller
      */
     public function index(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             abort(403, 'Access denied. Admin privileges required.');
         }
 
@@ -531,7 +531,7 @@ class UserRegistrationController extends Controller
      */
     public function getRegistration($id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -589,7 +589,12 @@ class UserRegistrationController extends Controller
      */
     public function viewDocument($id, $type)
     {
+ fix/ui-admin-user-registration
         if (!auth()->check() || !auth()->user()->isAdmin()) {
+
+        // Check admin authentication
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
+main
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -694,7 +699,12 @@ class UserRegistrationController extends Controller
      */
     public function serveDocument($id, $type)
     {
+ fix/ui-admin-user-registration
         if (!auth()->check() || !auth()->user()->isAdmin()) {
+
+        // Check admin authentication
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
+ main
             abort(403, 'Access denied. Admin privileges required.');
         }
 
@@ -794,7 +804,7 @@ class UserRegistrationController extends Controller
      */
     public function createUser(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -862,10 +872,24 @@ class UserRegistrationController extends Controller
             $idBackPath = null;
             $locationProofPath = null;
 
+ fix/ui-admin-user-registration
             try {
                 if ($request->hasFile('id_front') && $request->file('id_front')->isValid()) {
                     $idFrontPath = $request->file('id_front')->store('verification/id_front', 'public');
                 }
+
+    /**
+     * UPDATED: Unban user (restore access)
+     */
+    public function unbanUser(Request $request, $id)
+    {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied. Admin privileges required.'
+            ], 403);
+        }
+ main
 
                 if ($request->hasFile('id_back') && $request->file('id_back')->isValid()) {
                     $idBackPath = $request->file('id_back')->store('verification/id_back', 'public');
@@ -966,7 +990,7 @@ class UserRegistrationController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -1048,7 +1072,7 @@ class UserRegistrationController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -1077,7 +1101,7 @@ class UserRegistrationController extends Controller
      */
     public function getStatistics()
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied'
@@ -1107,7 +1131,7 @@ class UserRegistrationController extends Controller
     {
         try {
             $userId = session('user.id');
-            
+
             if (!$userId) {
                 return response()->json([
                     'success' => false,
@@ -1116,7 +1140,7 @@ class UserRegistrationController extends Controller
             }
 
             $user = UserRegistration::find($userId);
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -1147,7 +1171,7 @@ class UserRegistrationController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Profile polling error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error retrieving user profile: ' . $e->getMessage()
@@ -1221,7 +1245,7 @@ class UserRegistrationController extends Controller
      */
     public function bulkApprove(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied'
@@ -1270,7 +1294,7 @@ class UserRegistrationController extends Controller
      */
     public function bulkReject(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied'
@@ -1316,8 +1340,137 @@ class UserRegistrationController extends Controller
     }
 
     /**
+ fix/ui-admin-user-registration
      * Change user password
      */
+
+     * ADDED: Bulk ban registrations
+     */
+    public function bulkBan(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied'
+            ], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:user_registration,id',
+            'reason' => 'required|string|max:1000'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid data provided',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $count = UserRegistration::whereIn('id', $request->ids)
+                ->update([
+                    'status' => 'banned',
+                    'banned_at' => now(),
+                    'approved_by' => auth()->id(),
+                    'ban_reason' => $request->reason,
+                    'rejection_reason' => null,
+                    'approved_at' => null,
+                    'rejected_at' => null
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Successfully banned {$count} registrations"
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Bulk ban failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Bulk ban failed. Please try again.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Export registrations to CSV/Excel - UPDATED to include banned status
+     */
+    public function export(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
+            abort(403, 'Access denied');
+        }
+
+        $query = UserRegistration::query();
+
+        // Apply same filters as index method
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('user_type')) {
+            $query->where('user_type', $request->user_type);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $registrations = $query->orderBy('created_at', 'desc')->get();
+
+        $filename = 'user_registrations_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function() use ($registrations) {
+            $file = fopen('php://output', 'w');
+
+            // CSV Headers
+            fputcsv($file, [
+                'ID', 'Username', 'Email', 'First Name', 'Last Name',
+                'User Type', 'Status', 'Contact Number', 'Barangay',
+                'Created At', 'Approved At', 'Rejected At', 'Banned At', 'Last Login'
+            ]);
+
+            // CSV Data
+            foreach ($registrations as $registration) {
+                fputcsv($file, [
+                    $registration->id,
+                    $registration->username,
+                    $registration->email,
+                    $registration->first_name,
+                    $registration->last_name,
+                    $registration->user_type,
+                    $registration->status,
+                    $registration->contact_number,
+                    $registration->barangay,
+                    $registration->created_at ? $registration->created_at->format('Y-m-d H:i:s') : '',
+                    $registration->approved_at ? $registration->approved_at->format('Y-m-d H:i:s') : '',
+                    $registration->rejected_at ? $registration->rejected_at->format('Y-m-d H:i:s') : '',
+                    $registration->banned_at ? $registration->banned_at->format('Y-m-d H:i:s') : '',
+                    $registration->last_login_at ? $registration->last_login_at->format('Y-m-d H:i:s') : '',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    //  change user password
+ main
     public function changePassword(Request $request)
     {
         $userId = session('user.id');
@@ -1575,6 +1728,7 @@ class UserRegistrationController extends Controller
                     ]);
                 }
 
+fix/ui-admin-user-registration
                 $userRegistration->update(['last_login_at' => now()]);
 
                 \Log::info('Existing user logged in via Facebook', [
@@ -1594,6 +1748,20 @@ class UserRegistrationController extends Controller
                 'status' => $userRegistration->status,
                 'profile_image' => $userRegistration->profile_image_url,
             ]);
+
+        // Store user in session
+        $request->session()->regenerate(); // Regenerate session for security
+
+        $request->session()->put('user', [
+            'id' => $userRegistration->id,
+            'username' => $userRegistration->username,
+            'email' => $userRegistration->email,
+            'name' => $userRegistration->full_name ?? $userRegistration->username,
+            'user_type' => $userRegistration->user_type,
+            'status' => $userRegistration->status,
+            'profile_image' => $userRegistration->profile_image_url,
+        ]);
+ main
 
             $request->session()->put('user_id', $userRegistration->id);
             $request->session()->put('user_email', $userRegistration->email);
