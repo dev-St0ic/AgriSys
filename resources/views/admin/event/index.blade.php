@@ -123,7 +123,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="input-group input-group-sm">
                             <input type="text" name="search" class="form-control"
                                 placeholder="Search title, description, location..." 
@@ -136,7 +136,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
                             data-bs-target="#eventDateFilterModal">
                             <i class="fas fa-calendar-alt me-1"></i>Date Filter
@@ -147,12 +147,6 @@
                         <a href="{{ route('admin.event.index') }}" class="btn btn-secondary btn-sm w-100">
                             <i class="fas fa-times me-1"></i> Clear
                         </a>
-                    </div>
-
-                    <div class="col-md-2 text-end">
-                        <button type="button" class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#createEventModal">
-                            <i class="fas fa-plus me-1"></i>Add Event
-                        </button>
                     </div>
                 </div>
             </form>
@@ -265,25 +259,31 @@
     </div>
 
         <!-- Events Table -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Events List</h5>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Events List</h6>
+                <div class="btn-group gap-2">
+                    <button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                        <i class="fas fa-plus me-2"></i>Add Event
+                    </button>
+                </div>
             </div>
-            <div class="card-body p-0">
+
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered align-middle mb-0">
+                    <table class="table table-bordered table-hover" width="100%" cellspacing="0">
                         <thead class="table-dark">
                             <tr>
-                                <th style="width: 80px;">Image</th>
+                                <th>Image</th>
                                 <th>Title</th>
-                                <th style="width: 120px;">Category</th>
-                                <th style="width: 100px;">Status</th>
-                                <th style="width: 220px;">Actions</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($events as $event)
-                                <tr class="event-row" data-category="{{ $event->category }}">
+                                <tr data-id="{{ $event->id }}">
                                     <td>
                                         @if ($event->image_path)
                                             <img src="{{ Storage::url($event->image_path) }}" alt="{{ $event->title }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
@@ -302,44 +302,112 @@
                                             $colors = ['announcement' => 'info', 'ongoing' => 'warning', 'upcoming' => 'secondary', 'past' => 'danger'];
                                             $color = $colors[$event->category] ?? 'primary';
                                         @endphp
-                                        <span class="badge bg-{{ $color }}">{{ ucfirst($event->category) }}</span>
+                                        <span class="badge bg-{{ $color }} fs-6">{{ ucfirst($event->category) }}</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $event->is_active ? 'success' : 'secondary' }}">
+                                        <span class="badge bg-{{ $event->is_active ? 'success' : 'secondary' }} fs-6">
                                             {{ $event->is_active ? 'Active' : 'Inactive' }}
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-info" onclick="viewEvent({{ $event->id }})" title="View" data-bs-toggle="tooltip">
-                                                <i class="fas fa-eye"></i>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                onclick="viewEvent({{ $event->id }})" title="View Details">
+                                                <i class="fas fa-eye"></i> View
                                             </button>
-                                            <button class="btn btn-primary" onclick="editEvent({{ $event->id }})" title="Edit" data-bs-toggle="tooltip">
-                                                <i class="fas fa-edit"></i>
+
+                                            <button class="btn btn-sm btn-outline-success"
+                                                onclick="editEvent({{ $event->id }})" title="Edit">
+                                                <i class="fas fa-edit"></i> Edit
                                             </button>
-                                            <button class="btn btn-{{ $event->is_active ? 'warning' : 'success' }}" onclick="toggleEvent({{ $event->id }})" title="Toggle Status" data-bs-toggle="tooltip">
-                                                <i class="fas fa-power-off"></i>
+
+                                            <button class="btn btn-sm btn-outline-warning"
+                                                onclick="toggleEvent({{ $event->id }})" title="Toggle Status">
+                                                <i class="fas fa-power-off"></i> Toggle
                                             </button>
-                                            <button class="btn btn-info" onclick="archiveEvent({{ $event->id }})" title="Archive" data-bs-toggle="tooltip">
-                                                <i class="fas fa-archive"></i>
+
+                                            <button class="btn btn-sm btn-outline-info"
+                                                onclick="archiveEvent({{ $event->id }})" title="Archive">
+                                                <i class="fas fa-archive"></i> Archive
                                             </button>
-                                            <button class="btn btn-danger" onclick="deleteEvent({{ $event->id }})" title="Delete" data-bs-toggle="tooltip">
-                                                <i class="fas fa-trash"></i>
+
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteEvent({{ $event->id }})" title="Delete">
+                                                <i class="fas fa-trash"></i> Delete
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4">
-                                        <i class="fas fa-calendar-times fa-3x text-muted mb-3" style="display: block;"></i>
-                                        <p class="text-muted">No events found. Create your first event.</p>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                                        <p>No events found matching your criteria.</p>
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                @if ($events->hasPages())
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm">
+                                {{-- Previous Page Link --}}
+                                @if ($events->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Back</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $events->previousPageUrl() }}" rel="prev">Back</a>
+                                    </li>
+                                @endif
+
+                                {{-- Pagination Elements --}}
+                                @php
+                                    $currentPage = $events->currentPage();
+                                    $lastPage = $events->lastPage();
+                                    $startPage = max(1, $currentPage - 2);
+                                    $endPage = min($lastPage, $currentPage + 2);
+
+                                    if ($endPage - $startPage < 4) {
+                                        if ($startPage == 1) {
+                                            $endPage = min($lastPage, $startPage + 4);
+                                        } else {
+                                            $startPage = max(1, $endPage - 4);
+                                        }
+                                    }
+                                @endphp
+
+                                @for ($page = $startPage; $page <= $endPage; $page++)
+                                    @if ($page == $currentPage)
+                                        <li class="page-item active">
+                                            <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $events->url($page) }}">{{ $page }}</a>
+                                        </li>
+                                    @endif
+                                @endfor
+
+                                {{-- Next Page Link --}}
+                                @if ($events->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $events->nextPageUrl() }}" rel="next">Next</a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Next</span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -758,7 +826,7 @@
             return details;
         }
 
-        // Enhanced error handler for safety warnings
+        // Enhanced friendly notification handler
         function showError(message, warningType = null) {
             document.querySelectorAll('.modal.show').forEach(m => {
                 const bsModal = bootstrap.Modal.getInstance(m);
@@ -766,41 +834,22 @@
             });
             
             setTimeout(() => {
-                const errorModal = document.getElementById('errorModal');
-                const errorMessage = document.getElementById('errorMessage');
-                
-                // Add warning icon and styling for specific warning types
+                // For safety warnings, use a friendly info modal style
                 if (warningType === 'last_active_event' || warningType === 'no_active_events') {
-                    errorMessage.innerHTML = `
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 2rem;"></i>
-                            <div>
-                                <strong>Landing Page Protection</strong>
-                                <p class="mb-0 mt-2">${message}</p>
-                                ${warningType === 'last_active_event' ? 
-                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>This safety feature ensures visitors always see content on the landing page.</p>' : 
-                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Create an active event to make this change.</p>'
-                                }
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Change modal header color to warning
-                    const modalHeader = errorModal.querySelector('.modal-header');
-                    modalHeader.classList.remove('bg-danger');
-                    modalHeader.classList.add('bg-warning', 'text-dark');
-                    modalHeader.querySelector('.modal-title').textContent = 'Action Not Allowed';
+                    showToast('info', message);
                 } else {
+                    // For actual errors, show error modal
+                    const errorModal = document.getElementById('errorModal');
+                    const errorMessage = document.getElementById('errorMessage');
                     errorMessage.textContent = message;
                     
-                    // Reset to error styling
                     const modalHeader = errorModal.querySelector('.modal-header');
                     modalHeader.classList.remove('bg-warning', 'text-dark');
                     modalHeader.classList.add('bg-danger', 'text-white');
                     modalHeader.querySelector('.modal-title').textContent = 'Error';
+                    
+                    new bootstrap.Modal(errorModal).show();
                 }
-                
-                new bootstrap.Modal(errorModal).show();
             }, 300);
         }
 
@@ -1110,10 +1159,10 @@
         }
 
         // Update the edit form submission to check for changes first
+        // EDIT EVENT FORM - WITH RELOAD
         document.getElementById('editEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Check if there are actual changes
             let hasChanges = false;
             
             const fieldsToCheck = [
@@ -1132,13 +1181,11 @@
                 }
             });
 
-            // Check for file input
             const fileInput = this.querySelector('input[type="file"]');
             if (fileInput && fileInput.files.length > 0) {
                 hasChanges = true;
             }
 
-            // Check detail rows for changes
             const detailRows = document.querySelectorAll('#editDetailsContainer .detail-row');
             detailRows.forEach(row => {
                 const keyInput = row.querySelector('.detail-key');
@@ -1155,7 +1202,16 @@
                 return;
             }
 
-            // Continue with the original form submission
+            // FRONTEND VALIDATION: Announcements cannot be set to inactive
+            const category = document.getElementById('edit_category').value;
+            const isActive = document.getElementById('edit_is_active').value;
+            const wasActive = document.getElementById('edit_is_active').dataset.originalValue;
+            
+            if (category === 'announcement' && isActive === '0') {
+                showToast('warning', 'Announcements must always be active and cannot be deactivated.');
+                return;
+            }
+
             const formData = new FormData(this);
             const details = collectDetails(document.getElementById('editDetailsContainer'));
             const eventId = document.getElementById('edit_event_id').value;
@@ -1181,6 +1237,8 @@
                 }
                 
                 showSuccess(data.message);
+                setTimeout(() => location.reload(), 800);
+                
             } catch (error) {
                 showError(error.message, error.warningType || null);
             } finally {
@@ -1260,38 +1318,55 @@
 
 
         // CREATE EVENT FORM
-        document.getElementById('createEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const details = collectDetails(document.getElementById('detailsContainer'));
-            formData.append('details', JSON.stringify(details));
+       document.getElementById('createEventForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const category = document.querySelector('select[name="category"]').value;
+        const isActive = document.querySelector('select[name="is_active"]').value;
+        
+        // FRONTEND VALIDATION: Announcements are always active
+        if (category === 'announcement' && isActive === '0') {
+            showToast('warning', 'Announcements must always be active. Status has been automatically set to Active.');
+            document.querySelector('select[name="is_active"]').value = '1';
+            return;
+        }
+        
+        const formData = new FormData(this);
+        const details = collectDetails(document.getElementById('detailsContainer'));
+        formData.append('details', JSON.stringify(details));
 
-            try {
-                document.querySelector('#createEventForm .btn-text').style.display = 'none';
-                document.querySelector('#createEventForm .btn-loader').style.display = 'inline';
+        try {
+            document.querySelector('#createEventForm .btn-text').style.display = 'none';
+            document.querySelector('#createEventForm .btn-loader').style.display = 'inline';
 
-                const response = await fetch('/admin/events', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: formData
-                });
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    if (data.warning_type) {
-                        throw { message: data.message, warningType: data.warning_type };
-                    }
-                    throw new Error(data.message || 'Failed to create event');
+            const response = await fetch('/admin/events', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                if (data.warning_type === 'category_limit_reached') {
+                    throw { 
+                        message: data.message + ' You can create it as inactive or deactivate an existing event first.', 
+                        warningType: data.warning_type 
+                    };
                 }
-                
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message, error.warningType || null);
-            } finally {
-                document.querySelector('#createEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#createEventForm .btn-loader').style.display = 'none';
+                throw new Error(data.message || 'Failed to create event');
             }
-        });
+            
+            showSuccess(data.message);
+            setTimeout(() => location.reload(), 800);
+            
+        } catch (error) {
+            showError(error.message, error.warningType || null);
+        } finally {
+            document.querySelector('#createEventForm .btn-text').style.display = 'inline';
+            document.querySelector('#createEventForm .btn-loader').style.display = 'none';
+        }
+    });
+
 
         // ARCHIVE EVENT FORM
         document.getElementById('archiveEventForm').addEventListener('submit', async function(e) {
@@ -1315,13 +1390,22 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    if (data.warning_type) {
+                    if (data.warning_type === 'event_is_active') {
+                        showToast('warning', data.message);
+                        return;
+                    } else if (data.warning_type === 'last_active_event') {
+                        showToast('info', data.message);
+                        return;
+                    } else if (data.warning_type) {
                         throw { message: data.message, warningType: data.warning_type };
+                    } else {
+                        throw new Error(data.message || 'Failed to archive event');
                     }
-                    throw new Error(data.message || 'Failed to archive event');
                 }
                 
                 showSuccess(data.message);
+                setTimeout(() => location.reload(), 800);
+                
             } catch (error) {
                 showError(error.message, error.warningType || null);
             } finally {
@@ -1330,7 +1414,7 @@
             }
         });
 
-        // TOGGLE STATUS
+     // TOGGLE STATUS
         async function toggleEvent(eventId) {
             try {
                 const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
@@ -1340,43 +1424,51 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    if (data.warning_type) {
-                        throw { message: data.message, warningType: data.warning_type };
+                    if (data.warning_type === 'announcement_always_active') {
+                        showToast('warning', data.message);
+                    } else if (data.warning_type === 'last_active_in_category') {
+                        showToast('info', data.message);
+                    } else if (data.warning_type === 'category_limit_reached') {
+                        showToast('info', data.message);
+                    } else if (data.warning_type === 'last_active_event') {
+                        showToast('info', data.message);
+                    } else {
+                        throw new Error(data.message || 'Failed to update status');
                     }
-                    throw new Error(data.message || 'Failed to update status');
+                    return;
                 }
                 
                 showSuccess(data.message);
+                setTimeout(() => location.reload(), 800);
+                
             } catch (error) {
-                showError(error.message, error.warningType || null);
+                showError(error.message);
             }
         }
+    // DELETE EVENT
+        let currentDeleteEventId = null;
+
+    function deleteEvent(eventId) {
+        try {
+            // Get event details from the table row
+            const row = document.querySelector(`[data-id="${eventId}"]`);
+            const eventTitle = row ? row.querySelector('strong').textContent : 'this event';
+            
+            // Set the global variable
+            currentDeleteEventId = eventId;
+            
+            // Update modal with event name
+            document.getElementById('delete_event_name').textContent = eventTitle;
+            
+            // Show the delete modal
+            new bootstrap.Modal(document.getElementById('deleteEventModal')).show();
+        } catch (error) {
+            showError('Failed to prepare delete dialog: ' + error.message);
+        }
+    }
 
         // DELETE EVENT
-        let currentDeleteEventId = null;
-        function deleteEvent(eventId) {
-            try {
-                const row = document.querySelector(`tr[data-category]`)?.closest('tbody')?.querySelector('tr') || event.target.closest('.event-row');
-                let eventTitle = 'Event';
-                
-                // Get event title from the row
-                if (row) {
-                    const titleElement = row.querySelector('strong');
-                    if (titleElement) {
-                        eventTitle = titleElement.textContent;
-                    }
-                }
-                
-                currentDeleteEventId = eventId;
-                document.getElementById('delete_event_name').textContent = eventTitle;
-                new bootstrap.Modal(document.getElementById('deleteEventModal')).show();
-            } catch (error) {
-                showError('Failed to prepare delete dialog');
-            }
-        }
-
-        // Confirm permanent delete
-        async function confirmPermanentDelete() {
+       async function confirmPermanentDelete() {
             try {
                 document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'none';
                 document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'inline';
@@ -1392,13 +1484,30 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    if (data.warning_type) {
+                    // Close modal first
+                    const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteEventModal'));
+                    if (deleteModal) deleteModal.hide();
+                    
+                    // Handle different warning types
+                    if (data.warning_type === 'event_is_active') {
+                        showToast('warning', data.message);
+                    } else if (data.warning_type === 'last_active_event') {
+                        showToast('warning', data.message);
+                    } else if (data.warning_type) {
                         throw { message: data.message, warningType: data.warning_type };
+                    } else {
+                        throw new Error(data.message || 'Failed to delete event');
                     }
-                    throw new Error(data.message || 'Failed to delete event');
+                    return;
                 }
                 
                 showSuccess(data.message);
+                
+                // Reload page after 1 second
+                setTimeout(() => {
+                    location.reload();
+                }, 800);
+                
             } catch (error) {
                 showError(error.message, error.warningType || null);
             } finally {
@@ -1406,26 +1515,41 @@
                 document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
             }
         }
+        // // Confirm permanent delete
+        // async function confirmPermanentDelete() {
+        //     try {
+        //         document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'none';
+        //         document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'inline';
 
-        // Add warning banner if only one active event exists
-        document.addEventListener('DOMContentLoaded', function() {
-            const activeCount = parseInt('{{ $stats["active"] ?? 0 }}');
-            
-            if (activeCount === 1) {
-                const container = document.querySelector('.container-fluid');
-                const warningBanner = document.createElement('div');
-                warningBanner.className = 'alert alert-warning alert-dismissible fade show';
-                warningBanner.innerHTML = `
-                    <i class="fas fa-shield-alt me-2"></i>
-                    <strong>Landing Page Protection Active:</strong> 
-                    You currently have only <strong>1 active event</strong>. 
-                    This event cannot be deactivated, archived, or deleted until another event is made active. 
-                    This ensures the landing page always displays content to visitors.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                container.insertBefore(warningBanner, container.firstChild.nextSibling);
-            }
-        });
+        //         const response = await fetch(`/admin/events/${currentDeleteEventId}`, {
+        //             method: 'DELETE',
+        //             headers: { 
+        //                 'X-CSRF-TOKEN': csrfToken, 
+        //                 'Content-Type': 'application/json', 
+        //                 'Accept': 'application/json' 
+        //             }
+        //         });
+        //         const data = await response.json();
+                
+        //         if (!response.ok) {
+        //             if (data.warning_type) {
+        //                 throw { message: data.message, warningType: data.warning_type };
+        //             }
+        //             throw new Error(data.message || 'Failed to delete event');
+        //         }
+                
+        //         showSuccess(data.message);
+        //         // Reload page after 1 second
+        //         setTimeout(() => {
+        //             location.reload();
+        //         }, 1000);
+        //     } catch (error) {
+        //         showError(error.message, error.warningType || null);
+        //     } finally {
+        //         document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'inline';
+        //         document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
+        //     }
+        // }
 
         
         // Auto search functionality
@@ -1666,6 +1790,44 @@
 
         .toast-notification .btn-close-toast:hover {
             opacity: 1;
+        }
+
+        /* Custom Pagination Styles */
+        .pagination {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 0;
+        }
+
+        .pagination .page-item .page-link {
+            color: #6c757d;
+            background-color: transparent;
+            border: none;
+            padding: 8px 12px;
+            margin: 0 2px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item .page-link:hover {
+            color: #495057;
+            background-color: #e9ecef;
+            text-decoration: none;
+        }
+
+        .pagination .page-item.active .page-link {
+            color: white;
+            background-color: #007bff;
+            border-color: #007bff;
+            font-weight: 600;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #adb5bd;
+            background-color: transparent;
+            cursor: not-allowed;
         }
 
         /* Type-specific styles */

@@ -21,13 +21,10 @@
         <!-- Search and Filter -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <form method="GET" class="d-flex gap-2">
+                <form method="GET" id="searchForm" class="d-flex gap-2">
                     <div class="flex-grow-1">
-                        <input type="text" name="search" class="form-control" placeholder="Search archived events..." value="{{ request('search') }}">
+                        <input type="text" name="search" id="searchInput" class="form-control" placeholder="Search archived events..." value="{{ request('search') }}" oninput="autoSearch()">
                     </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search me-2"></i>Search
-                    </button>
                     <a href="{{ route('admin.event.archived') }}" class="btn btn-secondary">
                         <i class="fas fa-redo me-2"></i>Clear
                     </a>
@@ -103,15 +100,15 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-primary" onclick="viewEventDetails({{ $event->id }})" title="View Details" data-bs-toggle="tooltip">
-                                                <i class="fas fa-eye"></i>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewEventDetails({{ $event->id }})" title="View Details">
+                                                <i class="fas fa-eye"></i> View
                                             </button>
-                                            <button class="btn btn-success" onclick="restoreEvent({{ $event->id }}, '{{ addslashes($event->title) }}')" title="Restore" data-bs-toggle="tooltip">
-                                                <i class="fas fa-redo"></i>
+                                            <button class="btn btn-sm btn-outline-success" onclick="restoreEvent({{ $event->id }}, '{{ addslashes($event->title) }}')" title="Restore">
+                                                <i class="fas fa-redo"></i> Restore
                                             </button>
-                                            <button class="btn btn-danger" onclick="permanentlyDeleteEvent({{ $event->id }}, '{{ addslashes($event->title) }}')" title="Delete Permanently" data-bs-toggle="tooltip">
-                                                <i class="fas fa-trash"></i>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="permanentlyDeleteEvent({{ $event->id }}, '{{ addslashes($event->title) }}')" title="Delete Permanently">
+                                                <i class="fas fa-trash"></i> Delete
                                             </button>
                                         </div>
                                     </td>
@@ -212,75 +209,109 @@
         </div>
     </div>
 
-    <!-- SUCCESS MODAL -->
-    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Success</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="successMessage" class="mb-0"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="location.reload()">OK</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ERROR MODAL -->
-    <div class="modal fade" id="errorModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Error</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="errorMessage" class="mb-0"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         let currentRestoreEventId = null;
         let currentDeleteEventId = null;
 
-        // Initialize tooltips
+        // Initialize tooltips and modal cleanup
         document.addEventListener('DOMContentLoaded', function() {
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
+
+            // Fix modal backdrop lingering issue for ALL modals
+            const modals = document.querySelectorAll('.modal');
+            
+            modals.forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Remove any lingering backdrops
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => backdrop.remove());
+                    
+                    // Remove modal-open class from body
+                    document.body.classList.remove('modal-open');
+                    
+                    // Reset body overflow
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                });
+            });
         });
 
-        function showError(message) {
-            document.querySelectorAll('.modal.show').forEach(m => {
-                const bsModal = bootstrap.Modal.getInstance(m);
-                if (bsModal) bsModal.hide();
-            });
+        // Toast notification system
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
             setTimeout(() => {
-                document.getElementById('errorMessage').textContent = message;
-                new bootstrap.Modal(document.getElementById('errorModal')).show();
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
             }, 300);
         }
 
+        function showError(message) {
+            showToast('error', message);
+        }
+
         function showSuccess(message) {
-            document.querySelectorAll('.modal.show').forEach(m => {
-                const bsModal = bootstrap.Modal.getInstance(m);
-                if (bsModal) bsModal.hide();
-            });
-            setTimeout(() => {
-                document.getElementById('successMessage').textContent = message;
-                new bootstrap.Modal(document.getElementById('successModal')).show();
-            }, 300);
+            showToast('success', message);
+        }
+
+        // Auto search functionality
+        let searchTimeout;
+
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('searchForm').submit();
+            }, 500); // Wait 500ms after user stops typing
         }
 
         // View event details
@@ -293,6 +324,28 @@
                 if (!data.success) throw new Error('Failed to load event details');
                 
                 const event = data.event;
+                
+                // Build details HTML
+                let detailsHtml = '';
+                if (event.details && Object.keys(event.details).length > 0) {
+                    detailsHtml = `
+                        <div class="mb-3">
+                            <h6 class="fw-bold mb-2">Additional Details:</h6>
+                            <dl class="row">
+                    `;
+                    for (const [key, value] of Object.entries(event.details)) {
+                        const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ').slice(1);
+                        detailsHtml += `
+                            <dt class="col-sm-4">${displayKey}:</dt>
+                            <dd class="col-sm-8">${value}</dd>
+                        `;
+                    }
+                    detailsHtml += `
+                            </dl>
+                        </div>
+                    `;
+                }
+                
                 let html = `
                     <div class="row">
                         <div class="col-md-4">
@@ -325,6 +378,7 @@
                                 <dd class="col-sm-8"><small>${event.archive_reason}</small></dd>
                                 ` : ''}
                             </dl>
+                            ${detailsHtml}
                         </div>
                     </div>
                 `;
@@ -352,8 +406,26 @@
                     headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' }
                 });
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to restore event');
-                showSuccess(data.message);
+                
+                // Close modal first
+                const restoreModal = bootstrap.Modal.getInstance(document.getElementById('restoreEventModal'));
+                if (restoreModal) restoreModal.hide();
+                
+                if (!response.ok) {
+                    // Handle different warning types
+                    if (data.warning_type) {
+                        showToast('warning', data.message);
+                    } else {
+                        throw new Error(data.message || 'Failed to restore event');
+                    }
+                    return;
+                }
+                
+                // Show notification then reload
+                setTimeout(() => {
+                    showSuccess(data.message);
+                    setTimeout(() => location.reload(), 800);
+                }, 300);
             } catch (error) {
                 showError(error.message);
             } finally {
@@ -379,8 +451,25 @@
                     headers: { 'X-CSRF-TOKEN': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' }
                 });
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.message || 'Failed to delete event');
+                
+                if (!response.ok) {
+                    // Close modal first
+                    const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteEventModal'));
+                    if (deleteModal) deleteModal.hide();
+                    
+                    // Handle different warning types
+                    if (data.warning_type === 'event_is_active') {
+                        showToast('warning', data.message);
+                    } else if (data.warning_type) {
+                        showToast('warning', data.message);
+                    } else {
+                        throw new Error(data.message || 'Failed to delete event');
+                    }
+                    return;
+                }
+                
                 showSuccess(data.message);
+                setTimeout(() => location.reload(), 800);
             } catch (error) {
                 showError(error.message);
             } finally {
@@ -407,5 +496,132 @@
         dl { margin-bottom: 0; }
         dt { font-weight: 600; color: #333; }
         dd { margin-bottom: 0.5rem; }
+
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.25rem;
+            min-width: 24px;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+            margin-left: 12px;
+        }
+
+        .toast-notification .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #333;
+        }
+
+        .toast-notification .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        /* Modal Backdrop Fix */
+        .modal-backdrop {
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.fade {
+            opacity: 0;
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.5;
+        }
+
+        /* Ensure body scrolling is restored */
+        body {
+            overflow: auto !important;
+            padding-right: 0 !important;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            .toast-notification .toast-content {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 @endsection
