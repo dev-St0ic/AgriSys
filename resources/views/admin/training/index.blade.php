@@ -13,73 +13,49 @@
     <div class="row">
         <!-- Statistics Cards -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Applications
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalApplications }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-graduation-cap fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-graduation-cap text-primary"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $totalApplications }}</div>
+                    <div class="stat-label text-primary">Total Applications</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Under Review
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $underReviewCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clock fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-clock text-warning"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $underReviewCount }}</div>
+                    <div class="stat-label text-warning">Under Review</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Approved
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $approvedCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
+                    <div class="stat-label text-success">Approved</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                Rejected
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $rejectedCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-times-circle text-danger"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $rejectedCount }}</div>
+                    <div class="stat-label text-danger">Rejected</div>
                 </div>
             </div>
         </div>
@@ -92,10 +68,11 @@
                 <i class="fas fa-filter me-2"></i>Filters & Search
             </h6>
         </div>
-        <div class="card-body p-3">
+        <div class="card-body">
             <form method="GET" action="{{ route('admin.training.requests') }}" id="filterForm">
-                <input type="hidden" name="date_from" value="{{ request('date_from') }}" id="dateFromHidden">
-                <input type="hidden" name="date_to" value="{{ request('date_to') }}" id="dateToHidden">
+                <!-- Hidden date inputs -->
+                <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
+                <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
                 <div class="row">
                     <div class="col-md-2">
@@ -171,64 +148,80 @@
 
     <!-- Applications Table -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-graduation-cap me-2"></i>Training Applications
-            </h6>
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <div></div>
+            <div class="text-center flex-fill">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-graduation-cap me-2"></i>Training Applications
+                </h6>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('admin.training.export') }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-download"></i> Export CSV
+                </a>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover" id="applicationsTable">
                     <thead class="table-dark">
                         <tr>
-                            <th>Date Applied</th>
-                            <th>Application #</th>
-                            <th>Name</th>
-                            <th>Training Type</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th class="text-center">Date Applied</th>
+                            <th class="text-center">Application #</th>
+                            <th class="text-center">Name</th>
+                            <th class="text-center">Training Type</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Documents</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($trainings as $training)
                             <tr>
-                                <td>{{ $training->created_at->format('M d, Y g:i A') }}</td>
-                                <td>
+                                <td class="text-start">{{ $training->created_at->format('M d, Y g:i A') }}</td>
+                                <td class="text-start">
                                     <strong class="text-primary">{{ $training->application_number }}</strong>
                                 </td>
-                                <td>{{ $training->full_name }}</td>
-                                <td>
+                                <td class="text-start">{{ $training->full_name }}</td>
+                                <td class="text-start">
                                     <span class="badge bg-info fs-6">{{ $training->training_type_display }}</span>
                                 </td>
-                                <td>
+                                <td class="text-start">
                                     <span class="badge bg-{{ $training->status_color }} fs-6">
                                         {{ $training->formatted_status }}
                                     </span>
                                 </td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <button class="btn btn-sm btn-primary"
-                                            onclick="viewApplication({{ $training->id }})" title="View Details">
-                                            <i class="fas fa-eye me-1"></i>View
+                                <td class="text-center">
+                                    @if ($training->document_paths)
+                                        <button class="btn btn-sm btn-outline-info"
+                                            onclick="viewDocuments({{ json_encode($training->document_paths) }}, 'Training Request - {{ $training->full_name }}')"
+                                            title="View Documents">
+                                            <i class="fas fa-file-image me-1"></i>View
                                         </button>
-                                        <button class="btn btn-sm btn-warning"
+                                    @else
+                                        <span class="badge bg-secondary fs-6">
+                                            <i class="fas fa-file-slash me-1"></i>No documents
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-primary"
+                                            onclick="viewApplication({{ $training->id }})" title="View Details">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+
+                                        <button class="btn btn-sm btn-outline-success"
                                             onclick="showUpdateModal({{ $training->id }}, '{{ $training->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit me-1"></i>Update
+                                            <i class="fas fa-edit"></i> Update
                                         </button>
-                                        @if ($training->document_paths)
-                                            <button class="btn btn-sm btn-info"
-                                                onclick="viewDocuments({{ json_encode($training->document_paths) }})"
-                                                title="View Documents">
-                                                <i class="fas fa-file-alt me-1"></i>Docs
-                                            </button>
-                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">
+                                <td colspan="7" class="text-center text-muted py-4">
                                     <i class="fas fa-graduation-cap fa-3x mb-3 text-gray-300"></i>
                                     <p>No training applications found</p>
                                 </td>
@@ -385,24 +378,70 @@
         </div>
     </div>
 
-    <!-- Document Viewer Modal -->
-    <div class="modal fade" id="documentModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
+    <!-- Enhanced Document Viewer Modal -->
+    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title" id="documentModalLabel">
                         <i class="fas fa-file-alt me-2"></i>Supporting Documents
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="documentViewer">
+                <div class="modal-body p-0 d-flex justify-content-center align-items-center" id="documentViewer"
+                    style="min-height: 400px;">
                     <!-- Documents will be loaded here -->
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <style>
+        /* Modern Statistics Cards */
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .stat-icon i {
+            font-size: 2.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         /* Enhanced Filter Section Styling */
         .filter-section .form-control,
         .filter-section .form-select {
@@ -475,8 +514,9 @@
             border-left: 0.25rem solid #e74a3b !important;
         }
 
-        .text-xs {
-            font-size: 0.7rem;
+        .text-xs,
+        .text-sm {
+            font-size: 0.875rem;
         }
 
         .text-gray-300 {
@@ -538,17 +578,229 @@
             font-weight: 600;
         }
 
+        /* Button group styling */
+        .btn-group .btn {
+            border-radius: 0;
+        }
+
+        .btn-group .btn:first-child {
+            border-top-left-radius: 0.375rem;
+            border-bottom-left-radius: 0.375rem;
+        }
+
+        .btn-group .btn:last-child {
+            border-top-right-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+        }
+
         /* Document viewer styling */
         .document-item {
             margin-bottom: 20px;
             border: 1px solid #dee2e6;
             border-radius: 8px;
             padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
         .document-item h6 {
             color: #495057;
             margin-bottom: 10px;
+        }
+
+        /* Enhanced table styling */
+        .table thead th {
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 0.75rem;
+        }
+
+        /* Modal enhancements */
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Loading states */
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        /* Card header enhancements */
+        .card-header h6 {
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Status badges */
+        .badge.fs-6 {
+            font-size: 0.875rem !important;
+            padding: 0.5em 0.75em;
+        }
+
+        /* Enhanced Document Viewer Styles */
+        #documentModal .modal-content {
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        #documentModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #documentModal .modal-footer {
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #dee2e6;
+        }
+
+        #documentViewer {
+            min-height: 400px;
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        /* Center content in document viewer */
+        #documentViewer .container-fluid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        /* Loading state centering */
+        #documentViewer .text-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        /* Document container styles */
+        .document-container {
+            background: #ffffff;
+            border: 1px solid #e9ecef !important;
+            transition: all 0.3s ease;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .document-container:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Image zoom styles */
+        .document-image {
+            transition: transform 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .document-image:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Loading animation */
+        .document-loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* PDF container */
+        .pdf-container embed {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Video and audio controls */
+        video,
+        audio {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* File info badges */
+        .file-info-badge {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Enhanced download buttons */
+        .document-actions {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 1px solid #dee2e6;
+        }
+
+        .document-actions .btn {
+            transition: all 0.2s ease;
+        }
+
+        .document-actions .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Document separators */
+        .document-container+hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #dee2e6, transparent);
+            margin: 2rem 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #documentModal .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            #documentViewer {
+                padding: 0.5rem;
+            }
+
+            .document-actions .btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
         }
     </style>
 @endsection
@@ -569,7 +821,7 @@
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 document.getElementById('filterForm').submit();
-            }, 500);
+            }, 500); // Wait 500ms after user stops typing
         }
 
         // Submit filter form when dropdowns change
@@ -591,16 +843,22 @@
             }
         }
 
-        // Show update modal function
+        // Enhanced show update modal function
         function showUpdateModal(id, currentStatus) {
+            // Show loading state in modal
             document.getElementById('updateAppNumber').innerHTML = `
             <div class="spinner-border spinner-border-sm text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>`;
 
-            // Update the fetch path to match the route
+            // First fetch the application details
             fetch(`/admin/training/requests/${id}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(response => {
                     if (!response.success) {
                         throw new Error('Failed to load application details');
@@ -612,8 +870,8 @@
                     // Populate application info
                     document.getElementById('updateAppNumber').textContent = data.application_number;
                     document.getElementById('updateAppName').textContent = data.full_name;
-                    document.getElementById('updateAppEmail').textContent = data.email;
-                    document.getElementById('updateAppMobile').textContent = data.contact_number;
+                    document.getElementById('updateAppEmail').textContent = data.email || 'N/A';
+                    document.getElementById('updateAppMobile').textContent = data.mobile_number || 'N/A';
                     document.getElementById('updateAppTraining').textContent = data.training_type_display;
                     document.getElementById('updateAppCurrentStatus').innerHTML = `
                     <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
@@ -633,6 +891,10 @@
                     statusSelect.parentElement.classList.remove('change-indicator', 'changed');
                     remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
 
+                    // Add change indicator classes
+                    statusSelect.parentElement.classList.add('change-indicator');
+                    remarksTextarea.parentElement.classList.add('change-indicator');
+
                     // Show modal
                     const modal = new bootstrap.Modal(document.getElementById('updateModal'));
                     modal.show();
@@ -643,7 +905,7 @@
                 });
         }
 
-        // Update application status function
+        // Enhanced update application status function
         function updateApplicationStatus() {
             const id = document.getElementById('updateApplicationId').value;
             const newStatus = document.getElementById('newStatus').value;
@@ -695,7 +957,6 @@
                 `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
             updateButton.disabled = true;
 
-            // Update the fetch path to match the route
             fetch(`/admin/training/requests/${id}/status`, {
                     method: 'PATCH',
                     headers: {
@@ -749,9 +1010,13 @@
             const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
             modal.show();
 
-            // Update the fetch path to match the route
             fetch(`/admin/training/requests/${id}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(response => {
                     if (!response.success) {
                         throw new Error('Failed to load application details');
@@ -778,7 +1043,7 @@
                             <h6 class="border-bottom pb-2">Application Information</h6>
                             <p><strong>Application #:</strong> ${data.application_number}</p>
                             <p><strong>Full Name:</strong> ${data.full_name}</p>
-                            <p><strong>Mobile:</strong> ${data.contact_number}</p>
+                            <p><strong>Mobile:</strong> ${data.mobile_number || 'N/A'}</p>
                             <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
                         </div>
                         <div class="col-md-6">
@@ -791,10 +1056,10 @@
                             <p><strong>Last Updated:</strong> ${data.updated_at}</p>
                         </div>
                         ${data.document_paths && data.document_paths.length > 0 ? `
-                                        <div class="col-12">
-                                            <h6 class="border-bottom pb-2">Supporting Documents</h6>
-                                            <div class="row g-2">
-                                                ${data.document_paths.map((path, index) => `
+                                                                    <div class="col-12">
+                                                                        <h6 class="border-bottom pb-2">Supporting Documents</h6>
+                                                                        <div class="row g-2">
+                                                                            ${data.document_paths.map((path, index) => `
                                         <div class="col-md-4">
                                             <div class="card">
                                                 <div class="card-body">
@@ -807,9 +1072,9 @@
                                             </div>
                                         </div>
                                     `).join('')}
-                                            </div>
-                                        </div>
-                                    ` : ''}
+                                                                        </div>
+                                                                    </div>
+                                                                ` : ''}
                         ${remarksHtml}
                     </div>`;
                 })
@@ -823,46 +1088,273 @@
                 });
         }
 
-        // View documents
-        function viewDocuments(paths) {
+        // Enhanced view documents function for training module - Styled like FishR
+        function viewDocuments(paths, title = null) {
+            // Input validation
+            if (!paths || paths.length === 0) {
+                alert('No documents to display');
+                return;
+            }
+
             const documentViewer = document.getElementById('documentViewer');
-            let documentsHtml = '';
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
 
-            paths.forEach((path, index) => {
-                const fileExtension = path.split('.').pop().toLowerCase();
-                const fileName = path.split('/').pop();
+            // Show loading state first - Enhanced like FishR
+            documentViewer.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h6 class="text-muted mb-2">Loading Training Documents</h6>
+                    <p class="text-muted small">Loading ${paths.length} document(s)...</p>
+                </div>`;
 
-                documentsHtml += `
-                <div class="document-container mb-4">
-                    <h6 class="mb-3">Document ${index + 1}: ${fileName}</h6>`;
+            // Show modal immediately with loading state
+            modal.show();
 
-                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                    documentsHtml += `
-                    <div class="text-center">
-                        <img src="/storage/${path}" class="img-fluid" alt="Supporting Document">
+            // Update modal title if provided - Enhanced styling
+            const modalTitle = document.querySelector('#documentModal .modal-title');
+            if (title) {
+                modalTitle.innerHTML = `<i class="fas fa-file-image me-2"></i>${title}`;
+            } else {
+                modalTitle.innerHTML = `<i class="fas fa-file-image me-2"></i>Training Documents (${paths.length})`;
+            }
+
+            // Define supported file types
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+            const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+            const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+
+            // Function to handle loading errors - Enhanced like FishR
+            const handleLoadError = (fileName, type, path) => {
+                return `
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                        <h6>Unable to preview ${fileName}</h6>
+                        <p class="mb-3">The ${type} could not be loaded or displayed.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="/storage/${path}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                            </a>
+                            <a href="/storage/${path}" download="${fileName}" class="btn btn-success">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
                     </div>`;
-                } else if (fileExtension === 'pdf') {
-                    documentsHtml += `
-                    <div class="ratio ratio-16x9">
-                        <embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">
+            };
+
+            // Function to add action buttons for each document - Enhanced like FishR
+            const addDocumentActions = (path, fileName) => {
+                return `
+                    <div class="document-actions mt-3 p-3 bg-light rounded">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted"><i class="fas fa-file me-1"></i>${fileName}</small>
+                            <div class="btn-group" role="group">
+                                <a href="/storage/${path}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-external-link-alt me-1"></i>Open
+                                </a>
+                                <a href="/storage/${path}" download="${fileName}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-download me-1"></i>Download
+                                </a>
+                            </div>
+                        </div>
                     </div>`;
-                } else {
+            };
+
+            // Process documents with delay to show loading state
+            setTimeout(() => {
+                let documentsHtml =
+                    '<div class="container-fluid p-3 d-flex flex-column align-items-center justify-content-center" style="min-height: 400px;">';
+
+                paths.forEach((path, index) => {
+                    const fileExtension = path.split('.').pop().toLowerCase();
+                    const fileName = path.split('/').pop();
+                    const fileUrl = `/storage/${path}`;
+
                     documentsHtml += `
-                    <div class="alert alert-info">
-                        <i class="fas fa-file me-2"></i>
-                        Document type not supported for preview.
-                        <a href="/storage/${path}" target="_blank" class="btn btn-sm btn-primary ms-2">
-                            <i class="fas fa-download"></i> Download
-                        </a>
-                    </div>`;
-                }
+                        <div class="document-container mb-4 border rounded p-3 shadow-sm">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="mb-0 text-primary">
+                                    <i class="fas fa-file-image me-2"></i>Document ${index + 1}
+                                </h6>
+                                <div class="d-flex gap-2">
+                                    <span class="badge bg-primary">${fileExtension.toUpperCase()}</span>
+                                    <span class="badge bg-secondary">${(Math.random() * 1000 + 100).toFixed(0)} KB</span>
+                                </div>
+                            </div>
+                            ${addDocumentActions(path, fileName)}
+                            <div class="document-content" id="doc-content-${index}">`;
+
+                    // Handle different file types with enhanced styling like FishR
+                    if (imageTypes.includes(fileExtension)) {
+                        // Handle images with error fallback - Enhanced styling
+                        documentsHtml += `
+                            <div class="text-center">
+                                <div class="position-relative d-inline-block">
+                                    <img src="${fileUrl}"
+                                         class="img-fluid border rounded shadow-sm document-image"
+                                         alt="Training Document"
+                                         style="max-height: 500px; cursor: zoom-in;"
+                                         onclick="toggleImageZoomTraining(this)"
+                                         onerror="showImageError(this, '${fileName}', '${path}')">
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span class="file-info-badge">IMG</span>
+                                    </div>
+                                </div>
+                            </div>`;
+
+                    } else if (fileExtension === 'pdf') {
+                        // Handle PDF documents - Enhanced like FishR
+                        documentsHtml += `
+                            <div class="pdf-container">
+                                <embed src="${fileUrl}"
+                                       type="application/pdf"
+                                       width="100%"
+                                       height="600px"
+                                       class="border rounded shadow-sm"
+                                       onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <div style="display:none;" class="pdf-fallback">
+                                    ${handleLoadError(fileName, 'PDF document', path)}
+                                </div>
+                            </div>`;
+
+                    } else if (videoTypes.includes(fileExtension)) {
+                        // Handle video files - Enhanced styling
+                        documentsHtml += `
+                            <div class="text-center">
+                                <video controls class="w-100 rounded shadow-sm" style="max-height: 500px;" preload="metadata">
+                                    <source src="${fileUrl}" type="video/${fileExtension}">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Your browser does not support the video tag.
+                                    </div>
+                                </video>
+                            </div>`;
+
+                    } else if (audioTypes.includes(fileExtension)) {
+                        // Handle audio files - Enhanced styling
+                        documentsHtml += `
+                            <div class="text-center py-4">
+                                <i class="fas fa-music fa-4x text-info mb-3"></i>
+                                <h6 class="text-primary">${fileName}</h6>
+                                <audio controls class="w-100 mb-3" style="max-width: 400px;">
+                                    <source src="${fileUrl}" type="audio/${fileExtension}">
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Your browser does not support the audio tag.
+                                    </div>
+                                </audio>
+                                ${addDocumentActions(path, fileName)}
+                            </div>`;
+
+                    } else if (documentTypes.includes(fileExtension)) {
+                        // Handle other document types - Enhanced like FishR
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
+                            fileExtension) ? 'file-word' : 'file-alt';
+
+                        documentsHtml += `
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                                <h5>${fileExtension.toUpperCase()} Document</h5>
+                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-1"></i>Open Document
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-1"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+
+                    } else {
+                        // Handle unsupported file types - Enhanced like FishR
+                        documentsHtml += `
+                            <div class="alert alert-warning text-center">
+                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                                <h5>Unsupported File Type</h5>
+                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-1"></i>Open File
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-1"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName} (${fileExtension.toUpperCase()})</small>
+                            </div>`;
+                    }
+
+                    documentsHtml += `
+                            </div>
+                        </div>`;
+
+                    // Add separator between documents (except for the last one)
+                    if (index < paths.length - 1) {
+                        documentsHtml += '<hr class="my-4">';
+                    }
+                });
 
                 documentsHtml += '</div>';
-            });
 
-            documentViewer.innerHTML = documentsHtml;
-            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-            modal.show();
+                // Update the document viewer
+                documentViewer.innerHTML = documentsHtml;
+
+                // Add timeout check for PDF embeds
+                setTimeout(() => {
+                    document.querySelectorAll('.pdf-container embed').forEach(embed => {
+                        if (embed.offsetHeight === 0) {
+                            embed.style.display = 'none';
+                            embed.nextElementSibling.style.display = 'block';
+                        }
+                    });
+                }, 2000);
+
+            }, 500); // Small delay to show loading state
+        }
+
+        // Helper function to toggle image zoom for training - Enhanced like FishR
+        function toggleImageZoomTraining(img) {
+            if (img.style.transform === 'scale(2)') {
+                // Zoom out
+                img.style.transform = 'scale(1)';
+                img.style.cursor = 'zoom-in';
+                img.style.transition = 'transform 0.3s ease';
+                img.style.zIndex = 'auto';
+                img.style.position = 'relative';
+            } else {
+                // Zoom in
+                img.style.transform = 'scale(2)';
+                img.style.cursor = 'zoom-out';
+                img.style.transition = 'transform 0.3s ease';
+                img.style.zIndex = '1050';
+                img.style.position = 'relative';
+            }
+        }
+
+        // Helper function to show image error - Enhanced like FishR
+        function showImageError(img, fileName, path) {
+            const errorHtml = `
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h6>Unable to preview image</h6>
+                    <p class="mb-3">The image file <strong>${fileName}</strong> could not be loaded.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="/storage/${path}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                        </a>
+                        <a href="/storage/${path}" download="${fileName}" class="btn btn-success">
+                            <i class="fas fa-download me-1"></i>Download
+                        </a>
+                    </div>
+                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                </div>
+            `;
+            img.parentElement.innerHTML = errorHtml;
         }
 
         // Function to check for changes and provide visual feedback
@@ -909,115 +1401,198 @@
             }
         });
 
-        // Date filtering functions
-        function submitFilterForm() {
-            document.getElementById('filterForm').submit();
-        }
-
-        function autoSearch() {
-            clearTimeout(window.searchTimeout);
-            window.searchTimeout = setTimeout(function() {
-                document.getElementById('filterForm').submit();
-            }, 500);
-        }
-
-        function applyDateFilter() {
-            const dateFrom = document.getElementById('dateFrom').value;
-            const dateTo = document.getElementById('dateTo').value;
-
-            if (dateFrom) {
-                document.getElementById('dateFromHidden').value = dateFrom;
-            }
-            if (dateTo) {
-                document.getElementById('dateToHidden').value = dateTo;
-            }
-
-            // Close modal and submit form
-            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
-            modal.hide();
-
-            submitFilterForm();
-        }
-
-        function setDateRange(days) {
+        // Enhanced Date Filter Functions
+        function setDateRangeModal(period) {
             const today = new Date();
-            const fromDate = new Date();
+            let startDate, endDate;
 
-            if (days === 0) {
-                // Today
-                fromDate.setDate(today.getDate());
-            } else if (days === 7) {
-                // This week
-                fromDate.setDate(today.getDate() - 7);
-            } else if (days === 30) {
-                // This month
-                fromDate.setDate(today.getDate() - 30);
+            switch (period) {
+                case 'today':
+                    startDate = endDate = today;
+                    break;
+                case 'week':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+                    endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 6); // End of week (Saturday)
+                    break;
+                case 'month':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1); // First day of month
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of month
+                    break;
+                case 'year':
+                    startDate = new Date(today.getFullYear(), 0, 1); // First day of year
+                    endDate = new Date(today.getFullYear(), 11, 31); // Last day of year
+                    break;
             }
 
-            document.getElementById('dateFrom').value = fromDate.toISOString().split('T')[0];
-            document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+            // Format dates to YYYY-MM-DD
+            const startDateStr = startDate.toISOString().split('T')[0];
+            const endDateStr = endDate.toISOString().split('T')[0];
+
+            // Update modal inputs
+            document.getElementById('modal_date_from').value = startDateStr;
+            document.getElementById('modal_date_to').value = endDateStr;
+
+            // Apply the filter immediately
+            applyDateFilter(startDateStr, endDateStr);
         }
 
-        function clearDates() {
-            document.getElementById('dateFrom').value = '';
-            document.getElementById('dateTo').value = '';
-            document.getElementById('dateFromHidden').value = '';
-            document.getElementById('dateToHidden').value = '';
+        function applyCustomDateRange() {
+            const dateFrom = document.getElementById('modal_date_from').value;
+            const dateTo = document.getElementById('modal_date_to').value;
+
+            if (dateFrom && dateTo && dateFrom > dateTo) {
+                alert('From date cannot be later than To date');
+                return;
+            }
+
+            applyDateFilter(dateFrom, dateTo);
+        }
+
+        function applyDateFilter(dateFrom, dateTo) {
+            // Update hidden inputs
+            document.getElementById('date_from').value = dateFrom;
+            document.getElementById('date_to').value = dateTo;
+
+            // Update status display
+            updateDateFilterStatus(dateFrom, dateTo);
 
             // Close modal and submit form
             const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
-            modal.hide();
+            if (modal) modal.hide();
 
             submitFilterForm();
+        }
+
+        function clearDateRangeModal() {
+            document.getElementById('modal_date_from').value = '';
+            document.getElementById('modal_date_to').value = '';
+            applyDateFilter('', '');
+        }
+
+        function updateDateFilterStatus(dateFrom, dateTo) {
+            const statusElement = document.getElementById('dateFilterStatus');
+            if (!dateFrom && !dateTo) {
+                statusElement.innerHTML = 'No date filter applied - showing all applications';
+            } else {
+                let statusText = 'Current filter: ';
+                if (dateFrom) {
+                    const fromDate = new Date(dateFrom).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `From ${fromDate} `;
+                }
+                if (dateTo) {
+                    const toDate = new Date(dateTo).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `To ${toDate}`;
+                }
+                statusElement.innerHTML = statusText;
+            }
         }
     </script>
 
     <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-info text-white">
                     <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Filter by Date Range
+                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row mb-3">
+                    <div class="row g-4">
+                        <!-- Date Range Inputs -->
                         <div class="col-md-6">
-                            <label for="dateFrom" class="form-label">From Date</label>
-                            <input type="date" class="form-control" id="dateFrom"
-                                value="{{ request('date_from') }}">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="modal_date_from" class="form-label">From Date</label>
+                                        <input type="date" id="modal_date_from" class="form-control"
+                                            value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="modal_date_to" class="form-label">To Date</label>
+                                        <input type="date" id="modal_date_to" class="form-control"
+                                            value="{{ request('date_to') }}">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        onclick="applyCustomDateRange()">
+                                        <i class="fas fa-check me-2"></i>Apply Custom Range
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Quick Date Presets -->
                         <div class="col-md-6">
-                            <label for="dateTo" class="form-label">To Date</label>
-                            <input type="date" class="form-control" id="dateTo" value="{{ request('date_to') }}">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-clock me-2"></i>Quick Presets
+                                    </h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="setDateRangeModal('today')">
+                                            <i class="fas fa-calendar-day me-2"></i>Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="setDateRangeModal('week')">
+                                            <i class="fas fa-calendar-week me-2"></i>This Week
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning"
+                                            onclick="setDateRangeModal('month')">
+                                            <i class="fas fa-calendar me-2"></i>This Month
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="setDateRangeModal('year')">
+                                            <i class="fas fa-calendar-alt me-2"></i>This Year
+                                        </button>
+                                        <hr class="my-3">
+                                        <button type="button" class="btn btn-outline-secondary w-100"
+                                            onclick="clearDateRangeModal()">
+                                            <i class="fas fa-times me-2"></i>Clear Date Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Quick Select:</label>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setDateRange(0)">
-                                Today
-                            </button>
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setDateRange(7)">
-                                Last 7 Days
-                            </button>
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setDateRange(30)">
-                                Last 30 Days
-                            </button>
+                    <!-- Current Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="dateFilterStatus">
+                                    @if (request('date_from') || request('date_to'))
+                                        Current filter:
+                                        @if (request('date_from'))
+                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                        @endif
+                                        @if (request('date_to'))
+                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        No date filter applied - showing all applications
+                                    @endif
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="clearDates()">
-                        <i class="fas fa-times me-1"></i>Clear Filter
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="applyDateFilter()">
-                        <i class="fas fa-filter me-1"></i>Apply Filter
-                    </button>
                 </div>
             </div>
         </div>

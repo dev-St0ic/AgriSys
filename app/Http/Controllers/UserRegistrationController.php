@@ -589,12 +589,8 @@ class UserRegistrationController extends Controller
      */
     public function viewDocument($id, $type)
     {
- fix/ui-admin-user-registration
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-
         // Check admin authentication
         if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
-main
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -699,12 +695,8 @@ main
      */
     public function serveDocument($id, $type)
     {
- fix/ui-admin-user-registration
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-
         // Check admin authentication
         if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
- main
             abort(403, 'Access denied. Admin privileges required.');
         }
 
@@ -872,24 +864,10 @@ main
             $idBackPath = null;
             $locationProofPath = null;
 
- fix/ui-admin-user-registration
             try {
                 if ($request->hasFile('id_front') && $request->file('id_front')->isValid()) {
                     $idFrontPath = $request->file('id_front')->store('verification/id_front', 'public');
                 }
-
-    /**
-     * UPDATED: Unban user (restore access)
-     */
-    public function unbanUser(Request $request, $id)
-    {
-        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Access denied. Admin privileges required.'
-            ], 403);
-        }
- main
 
                 if ($request->hasFile('id_back') && $request->file('id_back')->isValid()) {
                     $idBackPath = $request->file('id_back')->store('verification/id_back', 'public');
@@ -1340,12 +1318,9 @@ main
     }
 
     /**
- fix/ui-admin-user-registration
      * Change user password
      */
 
-     * ADDED: Bulk ban registrations
-     */
     public function bulkBan(Request $request)
     {
         if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
@@ -1469,8 +1444,9 @@ main
         return response()->stream($callback, 200, $headers);
     }
 
-    //  change user password
- main
+    /**
+     * Change user password
+     */
     public function changePassword(Request $request)
     {
         $userId = session('user.id');
@@ -1728,7 +1704,6 @@ main
                     ]);
                 }
 
-fix/ui-admin-user-registration
                 $userRegistration->update(['last_login_at' => now()]);
 
                 \Log::info('Existing user logged in via Facebook', [
@@ -1738,7 +1713,7 @@ fix/ui-admin-user-registration
             }
 
             $request->session()->regenerate();
-            
+
             $request->session()->put('user', [
                 'id' => $userRegistration->id,
                 'username' => $userRegistration->username,
@@ -1761,7 +1736,6 @@ fix/ui-admin-user-registration
             'status' => $userRegistration->status,
             'profile_image' => $userRegistration->profile_image_url,
         ]);
- main
 
             $request->session()->put('user_id', $userRegistration->id);
             $request->session()->put('user_email', $userRegistration->email);

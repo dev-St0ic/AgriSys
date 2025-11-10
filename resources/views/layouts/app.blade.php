@@ -746,6 +746,14 @@
 
                             <ul class="nav flex-column" role="navigation" aria-label="Main navigation">
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('landing.page') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('landing.page') }}" data-tooltip="Landing Page"
+                                        aria-label="Landing Page" role="menuitem">
+                                        <i class="fas fa-home" aria-hidden="true"></i>
+                                        <span class="nav-link-text">Home Page</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} tooltip-custom"
                                         href="{{ route('admin.dashboard') }}" data-tooltip="Dashboard"
                                         aria-label="Dashboard" role="menuitem">
@@ -842,6 +850,7 @@
                                         <span class="nav-link-text">DSS Report Preview</span>
                                     </a>
                                 </li>
+
                                 @if (auth()->user()->isSuperAdmin())
                                     <!-- Admin Section Separator -->
                                     <div class="nav-section-divider">
@@ -1129,6 +1138,15 @@
         // Apply state multiple times to ensure reliability
         setTimeout(applySidebarState, 250);
         setTimeout(applySidebarState, 500);
+    </script>
+
+    <!-- Real-time Activities JavaScript -->
+    <script>
+        // Add auth info for JavaScript
+        window.auth = {
+            isAdmin: @json(auth()->check() && auth()->user()->isAdmin()),
+            user: @json(auth()->user() ? ['id' => auth()->user()->id, 'name' => auth()->user()->name] : null)
+        };
     </script>
 
     <!-- Demo content to test horizontal scrolling -->

@@ -431,7 +431,10 @@ class BoatrApplication extends Model
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('application_number', 'like', "%{$search}%")
                   ->orWhere('vessel_name', 'like', "%{$search}%")
-                  ->orWhere('fishr_number', 'like', "%{$search}%");
+                  ->orWhere('fishr_number', 'like', "%{$search}%")
+                  ->orWhere('barangay', 'like', "%{$search}%")
+                  ->orWhere('contact_number', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
             });
         }
         return $query;
@@ -516,6 +519,14 @@ class BoatrApplication extends Model
             'approved' => 'Approved',
             'rejected' => 'Rejected'
         ];
+    }
+
+    /**
+     * Get the annexes for the application
+     */
+    public function annexes()
+    {
+        return $this->hasMany(BoatrAnnex::class, 'boatr_application_id');
     }
 
     /**

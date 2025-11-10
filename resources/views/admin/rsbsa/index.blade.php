@@ -13,73 +13,49 @@
     <div class="row">
         <!-- Statistics Cards -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Applications
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalApplications }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-seedling fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-seedling text-primary"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $totalApplications }}</div>
+                    <div class="stat-label text-primary">Total Applications</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Pending
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pendingCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-hourglass-start fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-hourglass-start text-info"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $pendingCount }}</div>
+                    <div class="stat-label text-info">Pending</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Under Review
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $underReviewCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clock fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-clock text-warning"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $underReviewCount }}</div>
+                    <div class="stat-label text-warning">Under Review</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Approved
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $approvedCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
+                    <div class="stat-label text-success">Approved</div>
                 </div>
             </div>
         </div>
@@ -253,44 +229,72 @@
 
     <!-- Applications Table -->
     <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <div></div>
+            <div class="text-center flex-fill">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-file-alt me-2"></i>RSBSA Applications
+                </h6>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('admin.rsbsa.export') }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-download"></i> Export CSV
+                </a>
+            </div>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover" id="applicationsTable">
                     <thead class="table-dark">
                         <tr>
-                            <th>Date Applied</th>
-                            <th>Application #</th>
-                            <th>Name</th>
-                            <th>Sex</th>
-                            <th>Barangay</th>
-                            <th>Contact Number</th>
-                            <th>Livelihood</th>
-                            <th>Land Area</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th class="text-center">Date Applied</th>
+                            <th class="text-center">Application #</th>
+                            <th class="text-center">Name</th>
+                            <th class="text-center">Sex</th>
+                            <th class="text-center">Barangay</th>
+                            <th class="text-center">Contact Number</th>
+                            <th class="text-center">Livelihood</th>
+                            <th class="text-center">Land Area</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Documents</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($applications as $application)
                             <tr>
-                                <td>{{ $application->created_at->format('M d, Y g:i A') }}</td>
-                                <td>
+                                <td class="text-start">{{ $application->created_at->format('M d, Y g:i A') }}</td>
+                                <td class="text-start">
                                     <strong class="text-primary">{{ $application->application_number }}</strong>
                                 </td>
-                                <td>{{ $application->full_name }}</td>
-                                <td>{{ $application->sex }}</td>
-                                <td>{{ $application->barangay }}</td>
-                                <td>{{ $application->contact_number }}</td>
-                                <td>
-                                    <span class="badge bg-info">{{ $application->main_livelihood }}</span>
+                                <td class="text-start">{{ $application->full_name }}</td>
+                                <td class="text-start">{{ $application->sex }}</td>
+                                <td class="text-start">{{ $application->barangay }}</td>
+                                <td class="text-start">{{ $application->contact_number }}</td>
+                                <td class="text-start">
+                                    <span class="badge bg-info fs-6">{{ $application->main_livelihood }}</span>
                                 </td>
-                                <td>{{ $application->land_area ? $application->land_area . ' ha' : 'N/A' }}</td>
-                                <td>
-                                    <span class="badge bg-{{ $application->status_color }}">
+                                <td class="text-start">
+                                    {{ $application->land_area ? $application->land_area . ' ha' : 'N/A' }}</td>
+                                <td class="text-start">
+                                    <span class="badge bg-{{ $application->status_color }} fs-6">
                                         {{ $application->formatted_status }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
+                                    @if ($application->supporting_document_path)
+                                        <button class="btn btn-sm btn-outline-info"
+                                            onclick="viewDocument('{{ $application->supporting_document_path }}', 'Application #{{ $application->application_number }} - Supporting Document')"
+                                            title="View Document">
+                                            <i class="fas fa-file-alt me-1"></i>View
+                                        </button>
+                                    @else
+                                        <span class="badge bg-secondary fs-6">
+                                            <i class="fas fa-file-slash me-1"></i>No documents
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
                                     <div class="btn-group" role="group">
                                         <button class="btn btn-sm btn-outline-primary"
                                             onclick="viewApplication({{ $application->id }})" title="View Details">
@@ -302,25 +306,12 @@
                                             title="Update Status">
                                             <i class="fas fa-edit"></i> Update
                                         </button>
-
-                                        @if ($application->supporting_document_path)
-                                            <button class="btn btn-sm btn-outline-info"
-                                                onclick="viewDocument('{{ $application->supporting_document_path }}')"
-                                                title="View Document">
-                                                <i class="fas fa-file-pdf"></i>Doc
-                                            </button>
-                                        @else
-                                            <span class="btn btn-sm btn-outline-danger disabled text-danger"
-                                                title="No Document Available">
-                                                <i class="fas fa-file-excel text-danger"></i> None
-                                            </span>
-                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-muted py-4">
+                                <td colspan="11" class="text-center text-muted py-4">
                                     <i class="fas fa-seedling fa-3x mb-3"></i>
                                     <p>No RSBSA applications found.</p>
                                 </td>
@@ -481,24 +472,69 @@
         </div>
     </div>
 
-    <!-- Document Viewer Modal -->
-    <div class="modal fade" id="documentModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
+    <!-- Enhanced Document Viewer Modal -->
+    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title" id="documentModalLabel">
                         <i class="fas fa-file-alt me-2"></i>Supporting Document
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="documentViewer">
+                <div class="modal-body p-0" id="documentViewer">
                     <!-- Document will be loaded here -->
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <style>
+        /* Modern Statistics Cards */
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .stat-icon i {
+            font-size: 2.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #495057;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         /* Date Filter Modal Styling */
         .modal-content {
             border-radius: 15px;
@@ -831,6 +867,116 @@
         .pagination .page-item:first-child .page-link,
         .pagination .page-item:last-child .page-link {
             font-weight: 600;
+        }
+
+        /* Enhanced Document Viewer Styles */
+        #documentModal .modal-content {
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        #documentModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #documentModal .modal-footer {
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #dee2e6;
+        }
+
+        #documentViewer {
+            min-height: 400px;
+            max-height: 80vh;
+            overflow: auto;
+            padding: 1rem;
+        }
+
+        /* Image zoom styles */
+        .document-image {
+            transition: transform 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .document-image:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Loading animation */
+        .document-loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* PDF container */
+        .pdf-container embed {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Video and audio controls */
+        video,
+        audio {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* File info badges */
+        .file-info-badge {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Enhanced download buttons */
+        .document-actions {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .document-actions .btn {
+            transition: all 0.2s ease;
+        }
+
+        .document-actions .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #documentModal .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            #documentViewer {
+                padding: 0.5rem;
+            }
+
+            .document-actions .btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
         }
     </style>
 
@@ -1562,28 +1708,226 @@
                 });
         }
 
-        // View document
-        function viewDocument(path) {
-            if (!path) {
+        // Enhanced view document function
+        function viewDocument(path, filename = null) {
+            // Input validation
+            if (!path || path.trim() === '') {
                 alert('No document path provided');
                 return;
             }
 
             const documentViewer = document.getElementById('documentViewer');
-            const fileExtension = path.split('.').pop().toLowerCase();
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
 
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                documentViewer.innerHTML = `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document">`;
-            } else if (fileExtension === 'pdf') {
-                documentViewer.innerHTML =
-                    `<embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">`;
+            // Show loading state first
+            documentViewer.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted">Loading document...</p>
+                </div>`;
+
+            // Show modal immediately with loading state
+            modal.show();
+
+            // Update modal title if filename is provided
+            const modalTitle = document.querySelector('#documentModal .modal-title');
+            if (filename) {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
             } else {
-                documentViewer.innerHTML =
-                    `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
             }
 
-            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-            modal.show();
+            // Extract file extension and name
+            const fileExtension = path.split('.').pop().toLowerCase();
+            const fileName = filename || path.split('/').pop();
+            const fileUrl = `/storage/${path}`;
+
+            // Define supported file types
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+            const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+            const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+
+            // Function to handle loading errors
+            const handleLoadError = (type, error = null) => {
+                console.error(`Error loading ${type}:`, error);
+                documentViewer.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                        <h5>Unable to preview ${type}</h5>
+                        <p class="mb-3">The ${type} could not be loaded or displayed.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                            </a>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                <i class="fas fa-download me-2"></i>Download
+                            </a>
+                        </div>
+                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                    </div>`;
+            };
+
+            // Function to add download button
+            const addDownloadButton = () => {
+                return `
+                    <div class="text-center mt-3 p-3 bg-light">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                            </a>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                        <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
+                    </div>`;
+            };
+
+            // Handle different file types
+            setTimeout(() => {
+                try {
+                    if (imageTypes.includes(fileExtension)) {
+                        // Handle images
+                        const img = new Image();
+                        img.onload = function() {
+                            documentViewer.innerHTML = `
+                                <div class="text-center">
+                                    <div class="position-relative d-inline-block">
+                                        <img src="${fileUrl}"
+                                             class="img-fluid border rounded shadow-sm"
+                                             alt="Supporting Document"
+                                             style="max-height: 70vh; cursor: zoom-in;"
+                                             onclick="toggleImageZoom(this)">
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
+                                        </div>
+                                    </div>
+                                    ${addDownloadButton()}
+                                </div>`;
+                        };
+                        img.onerror = function() {
+                            handleLoadError('image');
+                        };
+                        img.src = fileUrl;
+
+                    } else if (fileExtension === 'pdf') {
+                        // Handle PDF documents
+                        documentViewer.innerHTML = `
+                            <div class="pdf-container">
+                                <embed src="${fileUrl}"
+                                       type="application/pdf"
+                                       width="100%"
+                                       height="600px"
+                                       class="border rounded">
+                                ${addDownloadButton()}
+                            </div>`;
+
+                        // Check if PDF loaded successfully after a short delay
+                        setTimeout(() => {
+                            const embed = documentViewer.querySelector('embed');
+                            if (!embed || embed.offsetHeight === 0) {
+                                documentViewer.innerHTML = `
+                                    <div class="alert alert-info text-center">
+                                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                        <h5>PDF Preview Unavailable</h5>
+                                        <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                                <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                            </a>
+                                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                                <i class="fas fa-download me-2"></i>Download PDF
+                                            </a>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                    </div>`;
+                            }
+                        }, 2000);
+
+                    } else if (videoTypes.includes(fileExtension)) {
+                        // Handle video files
+                        documentViewer.innerHTML = `
+                            <div class="text-center">
+                                <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
+                                    <source src="${fileUrl}" type="video/${fileExtension}">
+                                    Your browser does not support the video tag.
+                                </video>
+                                ${addDownloadButton()}
+                            </div>`;
+
+                    } else if (audioTypes.includes(fileExtension)) {
+                        // Handle audio files
+                        documentViewer.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-music fa-4x text-info mb-3"></i>
+                                <h5>Audio File</h5>
+                                <audio controls class="w-100 mb-3">
+                                    <source src="${fileUrl}" type="audio/${fileExtension}">
+                                    Your browser does not support the audio tag.
+                                </audio>
+                                ${addDownloadButton()}
+                            </div>`;
+
+                    } else if (documentTypes.includes(fileExtension)) {
+                        // Handle other document types
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
+                            fileExtension) ? 'file-word' : 'file-alt';
+
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                                <h5>${fileExtension.toUpperCase()} Document</h5>
+                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open Document
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+                    } else {
+                        // Handle unsupported file types
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-warning text-center">
+                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                                <h5>Unsupported File Type</h5>
+                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open File
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+                    }
+                } catch (error) {
+                    console.error('Error processing document:', error);
+                    handleLoadError('document', error);
+                }
+            }, 500); // Small delay to show loading state
+        }
+
+        // Helper function to toggle image zoom
+        function toggleImageZoom(img) {
+            if (img.style.transform === 'scale(2)') {
+                img.style.transform = 'scale(1)';
+                img.style.cursor = 'zoom-in';
+                img.style.transition = 'transform 0.3s ease';
+            } else {
+                img.style.transform = 'scale(2)';
+                img.style.cursor = 'zoom-out';
+                img.style.transition = 'transform 0.3s ease';
+                img.style.zIndex = '1050';
+            }
         }
 
         // Function to check for changes and provide visual feedback
@@ -1633,6 +1977,72 @@
             if (remarksTextarea) {
                 remarksTextarea.addEventListener('input', checkForChanges);
             }
+
+            // Add keyboard shortcuts for document modal
+            document.addEventListener('keydown', function(e) {
+                const documentModal = document.getElementById('documentModal');
+                const isModalOpen = documentModal && documentModal.classList.contains('show');
+
+                if (isModalOpen) {
+                    if (e.key === 'Escape') {
+                        // Allow default ESC behavior to close modal
+                        return;
+                    } else if (e.key === 'F11') {
+                        // Toggle fullscreen mode
+                        e.preventDefault();
+                        toggleFullscreen();
+                    } else if (e.ctrlKey && e.key === 's') {
+                        // Ctrl+S to download document
+                        e.preventDefault();
+                        const downloadLink = documentModal.querySelector('a[download]');
+                        if (downloadLink) {
+                            downloadLink.click();
+                        }
+                    } else if (e.ctrlKey && e.key === 'o') {
+                        // Ctrl+O to open in new tab
+                        e.preventDefault();
+                        const openLink = documentModal.querySelector('a[target="_blank"]');
+                        if (openLink) {
+                            openLink.click();
+                        }
+                    }
+                }
+            });
         });
+
+        // Helper function to toggle fullscreen mode
+        function toggleFullscreen() {
+            const documentModal = document.getElementById('documentModal');
+            const modalDialog = documentModal.querySelector('.modal-dialog');
+
+            if (modalDialog.classList.contains('modal-xl')) {
+                modalDialog.classList.remove('modal-xl');
+                modalDialog.classList.add('modal-fullscreen');
+                document.querySelector('#documentModal .modal-title').innerHTML =
+                    '<i class="fas fa-compress me-2"></i>Document Viewer (Press F11 to exit fullscreen)';
+            } else {
+                modalDialog.classList.remove('modal-fullscreen');
+                modalDialog.classList.add('modal-xl');
+                document.querySelector('#documentModal .modal-title').innerHTML =
+                    '<i class="fas fa-file-alt me-2"></i>Supporting Document';
+            }
+        }
+
+        // Function to handle document loading errors globally
+        function handleDocumentError(element, fallbackUrl) {
+            element.style.display = 'none';
+            const container = element.parentElement;
+            if (container) {
+                container.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                        <h6>Document Loading Failed</h6>
+                        <p class="small mb-3">Unable to display this document.</p>
+                        <a href="${fallbackUrl}" target="_blank" class="btn btn-sm btn-primary">
+                            <i class="fas fa-external-link-alt me-1"></i>Try Opening Directly
+                        </a>
+                    </div>`;
+            }
+        }
     </script>
 @endsection

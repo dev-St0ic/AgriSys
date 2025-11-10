@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BoatrApplication;
+use App\Models\BoatrAnnex;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -22,7 +23,7 @@ class BoatRController extends Controller
                 'user_id' => auth()->id()
             ]);
 
-            $query = BoatrApplication::with(['reviewer', 'inspector']);
+            $query = BoatrApplication::with(['reviewer', 'inspector', 'annexes']);
 
             // Apply filters
             if ($request->filled('status')) {
@@ -35,6 +36,10 @@ class BoatRController extends Controller
 
             if ($request->filled('primary_fishing_gear')) {
                 $query->where('primary_fishing_gear', $request->primary_fishing_gear);
+            }
+
+            if ($request->filled('barangay')) {
+                $query->where('barangay', $request->barangay);
             }
 
             // Add date filtering
@@ -87,6 +92,13 @@ class BoatRController extends Controller
                 ]);
             }
 
+            // Get available barangays for filter dropdown
+            $barangays = BoatrApplication::whereNotNull('barangay')
+                ->where('barangay', '!=', '')
+                ->distinct()
+                ->orderBy('barangay')
+                ->pluck('barangay');
+
             return view('admin.boatr.index', compact(
                 'registrations',
                 'totalRegistrations',
@@ -96,7 +108,8 @@ class BoatRController extends Controller
                 'inspectionScheduledCount',
                 'documentsPendingCount',
                 'approvedCount',
-                'rejectedCount'
+                'rejectedCount',
+                'barangays'
             ));
 
         } catch (\Exception $e) {
@@ -288,13 +301,30 @@ class BoatRController extends Controller
     public function show($id)
     {
         try {
-            $registration = BoatrApplication::with(['reviewer', 'inspector'])->findOrFail($id);
+            $registration = BoatrApplication::with(['reviewer', 'inspector', 'annexes.uploader'])->findOrFail($id);
 
             // Get user document with URL (single document) - FIXED
             $userDocument = $registration->getUserDocumentWithUrl();
 
             // Get inspection documents with URLs (multiple documents)
             $inspectionDocuments = $registration->getInspectionDocumentsWithUrls();
+
+            // Get annexes data
+            $annexes = $registration->annexes->map(function ($annex) {
+                return [
+                    'id' => $annex->id,
+                    'title' => $annex->title,
+                    'description' => $annex->description,
+                    'file_name' => $annex->file_name,
+                    'file_extension' => $annex->file_extension,
+                    'file_size' => $annex->file_size,
+                    'formatted_file_size' => $annex->formatted_file_size,
+                    'is_image' => $annex->is_image,
+                    'is_pdf' => $annex->is_pdf,
+                    'uploaded_by' => $annex->uploader->name,
+                    'created_at' => $annex->created_at->format('M d, Y h:i A'),
+                ];
+            });
 
             // FIXED: Return proper JSON structure with correct user_documents format
             return response()->json([
@@ -305,6 +335,9 @@ class BoatRController extends Controller
                 'first_name' => $registration->first_name,
                 'middle_name' => $registration->middle_name,
                 'last_name' => $registration->last_name,
+                'barangay' => $registration->barangay,
+                'contact_number' => $registration->contact_number,
+                'email' => $registration->email,
                 'fishr_number' => $registration->fishr_number,
                 'vessel_name' => $registration->vessel_name,
                 'boat_type' => $registration->boat_type,
@@ -328,8 +361,12 @@ class BoatRController extends Controller
                 'inspection_documents' => $inspectionDocuments,
                 'has_inspection_documents' => $registration->hasInspectionDocuments(),
 
-                // Document counts
-                'total_documents_count' => $registration->total_documents_count,
+                // Annexes
+                'annexes' => $annexes,
+                'has_annexes' => $annexes->isNotEmpty(),
+
+                // Document counts (including annexes)
+                'total_documents_count' => $registration->total_documents_count + $annexes->count(),
 
                 // Inspection information
                 'inspection_completed' => $registration->inspection_completed,
@@ -667,6 +704,10 @@ class BoatRController extends Controller
                 $query->where('primary_fishing_gear', $request->primary_fishing_gear);
             }
 
+            if ($request->filled('barangay')) {
+                $query->where('barangay', $request->barangay);
+            }
+
             $registrations = $query->orderBy('created_at', 'desc')->get();
 
             $filename = 'boatr_registrations_' . now()->format('Y-m-d_H-i-s') . '.csv';
@@ -683,6 +724,9 @@ class BoatRController extends Controller
                 fputcsv($file, [
                     'Application Number',
                     'Full Name',
+                    'Barangay',
+                    'Contact Number',
+                    'Email',
                     'FishR Number',
                     'Vessel Name',
                     'Boat Type',
@@ -706,6 +750,9 @@ class BoatRController extends Controller
                     fputcsv($file, [
                         $registration->application_number,
                         $registration->full_name,
+                        $registration->barangay ?? 'N/A',
+                        $registration->contact_number ?? 'N/A',
+                        $registration->email ?? 'N/A',
                         $registration->fishr_number,
                         $registration->vessel_name,
                         $registration->boat_type,
@@ -738,6 +785,260 @@ class BoatRController extends Controller
             ]);
 
             return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get annexes for a specific registration
+     */
+    public function getAnnexes($id)
+    {
+        try {
+            $registration = BoatrApplication::findOrFail($id);
+            $annexes = $registration->annexes()->with('uploader')->orderBy('created_at', 'desc')->get();
+
+            return response()->json([
+                'success' => true,
+                'annexes' => $annexes->map(function ($annex) {
+                    return [
+                        'id' => $annex->id,
+                        'title' => $annex->title,
+                        'description' => $annex->description,
+                        'file_name' => $annex->file_name,
+                        'file_extension' => $annex->file_extension,
+                        'file_size' => $annex->file_size,
+                        'formatted_file_size' => $annex->formatted_file_size,
+                        'is_image' => $annex->is_image,
+                        'is_pdf' => $annex->is_pdf,
+                        'uploaded_by' => $annex->uploader->name,
+                        'created_at' => $annex->created_at,
+                    ];
+                })
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting annexes', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading annexes: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Upload a new annex for a registration
+     */
+    public function uploadAnnex(Request $request, $id)
+    {
+        try {
+            $registration = BoatrApplication::findOrFail($id);
+
+            // Validation
+            $request->validate([
+                'file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,gif|max:10240', // 10MB max
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string|max:500',
+            ]);
+
+            $file = $request->file('file');
+
+            // Generate unique filename
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filePath = 'boatr/annexes/' . $registration->id . '/' . $filename;
+
+            // Store file
+            Storage::disk('public')->put($filePath, file_get_contents($file));
+
+            // Create annex record
+            $annex = $registration->annexes()->create([
+                'title' => $request->input('title'),
+                'description' => $request->input('description'),
+                'file_path' => $filePath,
+                'file_name' => $file->getClientOriginalName(),
+                'file_extension' => $file->getClientOriginalExtension(),
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+                'uploaded_by' => auth()->id(),
+            ]);
+
+            Log::info('Annex uploaded successfully', [
+                'registration_id' => $id,
+                'annex_id' => $annex->id,
+                'title' => $annex->title,
+                'file_name' => $annex->file_name,
+                'uploaded_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Annex uploaded successfully',
+                'annex' => [
+                    'id' => $annex->id,
+                    'title' => $annex->title,
+                    'description' => $annex->description,
+                    'file_name' => $annex->file_name,
+                    'formatted_file_size' => $annex->formatted_file_size,
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Error uploading annex', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uploading annex: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Preview an annex
+     */
+    public function previewAnnex($id, $annexId)
+    {
+        try {
+            Log::info('Preview annex request', [
+                'registration_id' => $id,
+                'annex_id' => $annexId,
+                'user_id' => auth()->id()
+            ]);
+
+            $registration = BoatrApplication::findOrFail($id);
+            $annex = $registration->annexes()->findOrFail($annexId);
+
+            Log::info('Annex found', [
+                'annex_title' => $annex->title,
+                'file_path' => $annex->file_path,
+                'file_exists' => Storage::disk('public')->exists($annex->file_path)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'title' => $annex->title,
+                'description' => $annex->description,
+                'file_name' => $annex->file_name,
+                'file_extension' => $annex->file_extension,
+                'file_url' => $annex->file_url,
+                'is_image' => $annex->is_image,
+                'is_pdf' => $annex->is_pdf,
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Annex not found', [
+                'id' => $id,
+                'annex_id' => $annexId,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Annex not found'
+            ], 404);
+
+        } catch (\Exception $e) {
+            Log::error('Error previewing annex', [
+                'id' => $id,
+                'annex_id' => $annexId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading annex preview: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Download an annex
+     */
+    public function downloadAnnex($id, $annexId)
+    {
+        try {
+            $registration = BoatrApplication::findOrFail($id);
+            $annex = $registration->annexes()->findOrFail($annexId);
+
+            if (!Storage::disk('public')->exists($annex->file_path)) {
+                abort(404, 'File not found');
+            }
+
+            Log::info('Annex downloaded', [
+                'registration_id' => $id,
+                'annex_id' => $annexId,
+                'title' => $annex->title,
+                'downloaded_by' => auth()->id()
+            ]);
+
+            return Storage::disk('public')->download($annex->file_path, $annex->file_name);
+
+        } catch (\Exception $e) {
+            Log::error('Error downloading annex', [
+                'id' => $id,
+                'annex_id' => $annexId,
+                'error' => $e->getMessage()
+            ]);
+
+            abort(500, 'Error downloading file');
+        }
+    }
+
+    /**
+     * Delete an annex
+     */
+    public function deleteAnnex($id, $annexId)
+    {
+        try {
+            $registration = BoatrApplication::findOrFail($id);
+            $annex = $registration->annexes()->findOrFail($annexId);
+
+            // Delete the file and database record
+            $deleted = $annex->deleteWithFile();
+
+            if ($deleted) {
+                Log::info('Annex deleted successfully', [
+                    'registration_id' => $id,
+                    'annex_id' => $annexId,
+                    'title' => $annex->title,
+                    'deleted_by' => auth()->id()
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Annex deleted successfully'
+                ]);
+            } else {
+                throw new \Exception('Failed to delete annex');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting annex', [
+                'id' => $id,
+                'annex_id' => $annexId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting annex: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

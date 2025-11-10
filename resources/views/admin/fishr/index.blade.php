@@ -13,73 +13,49 @@
     <div class="row">
         <!-- Statistics Cards -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Registrations
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalRegistrations }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-fish fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-fish text-primary"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $totalRegistrations }}</div>
+                    <div class="stat-label text-primary">Total Registrations</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Under Review
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $underReviewCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clock fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-clock text-warning"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $underReviewCount }}</div>
+                    <div class="stat-label text-warning">Under Review</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Approved
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $approvedCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
+                    <div class="stat-label text-success">Approved</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                Rejected
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $rejectedCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-times-circle fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-times-circle text-danger"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $rejectedCount }}</div>
+                    <div class="stat-label text-danger">Rejected</div>
                 </div>
             </div>
         </div>
@@ -252,44 +228,65 @@
 
     <!-- Registrations Table -->
     <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <div></div>
+            <div class="text-center flex-fill">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-fish me-2"></i>FishR Applications
+                </h6>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('admin.fishr.export') }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-download"></i> Export CSV
+                </a>
+            </div>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered table-hover" id="registrationsTable">
                     <thead class="table-dark">
                         <tr>
-                            <th>Date Applied</th>
-                            <th>Registration #</th>
-                            <th>Name</th>
-                            <th>Sex</th>
-                            <th>Barangay</th>
-                            <th>Contact Number</th>
-                            <th>Email</th>
-                            <th>Livelihood</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th class="text-center">Date Applied</th>
+                            <th class="text-center">Registration #</th>
+                            <th class="text-center">Name</th>
+                            <th class="text-center">Barangay</th>
+                            <th class="text-center">Livelihood</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Documents</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($registrations as $registration)
                             <tr>
-                                <td>{{ $registration->created_at->format('M d, Y g:i A') }}</td>
-                                <td>
+                                <td class="text-start">{{ $registration->created_at->format('M d, Y g:i A') }}</td>
+                                <td class="text-start">
                                     <strong class="text-primary">{{ $registration->registration_number }}</strong>
                                 </td>
-                                <td>{{ $registration->full_name }}</td>
-                                <td>{{ $registration->sex }}</td>
-                                <td>{{ $registration->barangay }}</td>
-                                <td>{{ $registration->contact_number }}</td>
-                                <td>{{ $registration->email ?? 'N/A' }}</td>
-                                <td>
+                                <td class="text-start">{{ $registration->full_name }}</td>
+                                <td class="text-start">{{ $registration->barangay }}</td>
+                                <td class="text-start">
                                     <span class="badge bg-info fs-6">{{ $registration->livelihood_description }}</span>
                                 </td>
-                                <td>
+                                <td class="text-start">
                                     <span class="badge bg-{{ $registration->status_color }} fs-6">
                                         {{ $registration->formatted_status }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="text-center">
+                                    @if ($registration->document_path)
+                                        <button class="btn btn-sm btn-outline-info"
+                                            onclick="viewDocument('{{ $registration->document_path }}', 'Fisherfolk Registration - {{ $registration->first_name }} {{ $registration->last_name }}')"
+                                            title="View Document">
+                                            <i class="fas fa-file-image me-1"></i>View
+                                        </button>
+                                    @else
+                                        <span class="badge bg-secondary fs-6">
+                                            <i class="fas fa-file-slash me-1"></i>No documents
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
                                     <div class="btn-group" role="group">
                                         <button class="btn btn-sm btn-outline-primary"
                                             onclick="viewRegistration({{ $registration->id }})" title="View Details">
@@ -302,24 +299,16 @@
                                             <i class="fas fa-edit"></i> Update
                                         </button>
 
-                                        @if ($registration->document_path)
-                                            <button class="btn btn-sm btn-outline-info"
-                                                onclick="viewDocument('{{ $registration->document_path }}')"
-                                                title="View Document">
-                                                <i class="fas fa-file-image"></i>Doc
-                                            </button>
-                                        @else
-                                            <span class="btn btn-sm btn-outline-danger disabled text-danger"
-                                                title="No Document Available">
-                                                <i class="fas fa-file-slash text-danger"></i> None
-                                            </span>
-                                        @endif
+                                        <button class="btn btn-sm btn-annexes"
+                                            onclick="showAnnexesModal({{ $registration->id }})" title="Manage Annexes">
+                                            <i class="fas fa-folder-plus me-1"></i>Annexes
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-muted py-4">
+                                <td colspan="8" class="text-center text-muted py-4">
                                     <i class="fas fa-fish fa-3x mb-3"></i>
                                     <p>No FishR registrations found.</p>
                                 </td>
@@ -478,18 +467,149 @@
         </div>
     </div>
 
-    <!-- Document Viewer Modal -->
-    <div class="modal fade" id="documentModal" tabindex="-1">
+    <!-- Enhanced Document Viewer Modal -->
+    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title" id="documentModalLabel">
+                        <i class="fas fa-file-alt me-2"></i>Supporting Document
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0" id="documentViewer">
+                    <!-- Document will be loaded here -->
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Annexes Modal -->
+    <div class="modal fade" id="annexesModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fas fa-file-alt me-2"></i>Supporting Document
+                        <i class="fas fa-folder-plus me-2"></i>Manage Annexes
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="documentViewer">
-                    <!-- Document will be loaded here -->
+                <div class="modal-body">
+                    <!-- Loading State -->
+                    <div id="annexesLoading" class="text-center py-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading annexes...</p>
+                    </div>
+
+                    <!-- Content -->
+                    <div id="annexesContent">
+                        <!-- Registration Info -->
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Registration #:</strong> <span id="annexRegNumber"></span><br>
+                                        <strong>Applicant:</strong> <span id="annexApplicantName"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Barangay:</strong> <span id="annexBarangay"></span><br>
+                                        <strong>Status:</strong> <span id="annexStatus"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload New Annex -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-upload me-2"></i>Upload New Annex
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="annexUploadForm" enctype="multipart/form-data">
+                                    <input type="hidden" id="annexRegistrationId">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="annexFile" class="form-label">Select File *</label>
+                                                <input type="file" class="form-control" id="annexFile"
+                                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required>
+                                                <div class="invalid-feedback" id="annexFileError"></div>
+                                                <small class="text-muted">Supported formats: PDF, DOC, DOCX, JPG, PNG, GIF
+                                                    (Max: 10MB)</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="annexTitle" class="form-label">Document Title *</label>
+                                                <input type="text" class="form-control" id="annexTitle"
+                                                    placeholder="e.g., Additional Certificate, Supporting Document"
+                                                    required>
+                                                <div class="invalid-feedback" id="annexTitleError"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="annexDescription" class="form-label">Description</label>
+                                        <textarea class="form-control" id="annexDescription" rows="3"
+                                            placeholder="Brief description of the document (optional)"></textarea>
+                                        <small class="text-muted"><span id="annexDescCount">0</span>/500
+                                            characters</small>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
+                                        <i class="fas fa-upload me-1"></i>Upload Annex
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Existing Annexes -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-folder me-2"></i>Existing Annexes
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="annexesList">
+                                    <!-- Annexes will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Preview Modal -->
+    <div class="modal fade" id="documentPreviewModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="documentPreviewTitle">
+                        <i class="fas fa-eye me-2"></i>Document Preview
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="documentPreview" class="text-center">
+                        <!-- Document preview will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -596,21 +716,44 @@
     </div>
 
     <style>
-        /* Existing styles maintained */
-        .border-left-primary {
-            border-left: 0.25rem solid #4e73df !important;
+        /* Modern Statistics Cards */
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            transition: all 0.3s ease;
+            overflow: hidden;
         }
 
-        .border-left-success {
-            border-left: 0.25rem solid #1cc88a !important;
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
         }
 
-        .border-left-warning {
-            border-left: 0.25rem solid #f6c23e !important;
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
         }
 
-        .border-left-danger {
-            border-left: 0.25rem solid #e74a3b !important;
+        .stat-icon i {
+            font-size: 2.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #495057;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .text-xs {
@@ -708,6 +851,196 @@
         .pagination .page-item:last-child .page-link {
             font-weight: 600;
         }
+
+        /* Annexes Button Styling */
+        .btn-annexes {
+            background-color: transparent;
+            border-color: #6f42c1;
+            color: #6f42c1;
+        }
+
+        .btn-annexes:hover {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+            color: white;
+        }
+
+        .btn-annexes:focus,
+        .btn-annexes:active {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
+        }
+
+        /* Annex Document Items */
+        .annex-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .annex-item:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .annex-title {
+            color: #6f42c1;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .annex-meta {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        /* Modal z-index fixes for stacking */
+        .modal {
+            z-index: 1050;
+        }
+
+        .modal-backdrop {
+            z-index: 1049;
+        }
+
+        /* Preview modal when opened from annexes modal should be higher */
+        .modal-preview-from-annexes {
+            z-index: 1060 !important;
+        }
+
+        .modal-preview-from-annexes+.modal-backdrop {
+            z-index: 1059 !important;
+        }
+
+        /* Document item styling */
+        .document-item {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Enhanced Document Viewer Styles */
+        #documentModal .modal-content {
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        #documentModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #documentModal .modal-footer {
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #dee2e6;
+        }
+
+        #documentViewer {
+            min-height: 400px;
+            max-height: 80vh;
+            overflow: auto;
+            padding: 1rem;
+        }
+
+        /* Image zoom styles */
+        .document-image {
+            transition: transform 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .document-image:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Loading animation */
+        .document-loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* PDF container */
+        .pdf-container embed {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Video and audio controls */
+        video,
+        audio {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* File info badges */
+        .file-info-badge {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Enhanced download buttons */
+        .document-actions {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .document-actions .btn {
+            transition: all 0.2s ease;
+        }
+
+        .document-actions .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #documentModal .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            #documentViewer {
+                padding: 0.5rem;
+            }
+
+            .document-actions .btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+        }
     </style>
 @endsection
 
@@ -758,8 +1091,22 @@
             </div>`;
 
             // First fetch the registration details
-            fetch(`/admin/fishr-registrations/${id}`)
-                .then(response => response.json())
+            fetch(`/admin/fishr-registrations/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(response => {
                     if (!response.success) {
                         throw new Error('Failed to load registration details');
@@ -923,8 +1270,22 @@
             modal.show();
 
             // Fetch registration details
-            fetch(`/admin/fishr-registrations/${id}`)
-                .then(response => response.json()) // First parse the JSON
+            fetch(`/admin/fishr-registrations/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(response => {
                     console.log('Response:', response); // Debug log
 
@@ -982,23 +1343,225 @@
                 });
         }
 
-        // View document
-        function viewDocument(path) {
-            const documentViewer = document.getElementById('documentViewer');
-            const fileExtension = path.split('.').pop().toLowerCase();
-
-            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                documentViewer.innerHTML = `<img src="/storage/${path}" class="img-fluid" alt="Supporting Document">`;
-            } else if (fileExtension === 'pdf') {
-                documentViewer.innerHTML =
-                    `<embed src="/storage/${path}" type="application/pdf" width="100%" height="600px">`;
-            } else {
-                documentViewer.innerHTML =
-                    `<p>Document type not supported for preview. <a href="/storage/${path}" target="_blank">Download</a></p>`;
+        // Enhanced view document function
+        function viewDocument(path, filename = null) {
+            // Input validation
+            if (!path || path.trim() === '') {
+                alert('No document path provided');
+                return;
             }
 
+            const documentViewer = document.getElementById('documentViewer');
             const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+
+            // Show loading state first
+            documentViewer.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted">Loading document...</p>
+                </div>`;
+
+            // Show modal immediately with loading state
             modal.show();
+
+            // Update modal title if filename is provided
+            const modalTitle = document.querySelector('#documentModal .modal-title');
+            if (filename) {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+            } else {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
+            }
+
+            // Extract file extension and name
+            const fileExtension = path.split('.').pop().toLowerCase();
+            const fileName = filename || path.split('/').pop();
+            const fileUrl = `/storage/${path}`;
+
+            // Define supported file types
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+            const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+            const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+
+            // Function to handle loading errors
+            const handleLoadError = (type, error = null) => {
+                console.error(`Error loading ${type}:`, error);
+                documentViewer.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                        <h6>Unable to preview ${fileName}</h6>
+                        <p class="mb-3">The ${type} could not be loaded or displayed.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                            </a>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                    </div>`;
+            };
+
+            // Function to add download button
+            const addDownloadButton = () => {
+                return `
+                    <div class="text-center mt-3 p-3 bg-light">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                            </a>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                        <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
+                    </div>`;
+            };
+
+            // Handle different file types
+            setTimeout(() => {
+                try {
+                    if (imageTypes.includes(fileExtension)) {
+                        // Handle images
+                        const img = new Image();
+                        img.onload = function() {
+                            documentViewer.innerHTML = `
+                                <div class="text-center">
+                                    <div class="position-relative d-inline-block">
+                                        <img src="${fileUrl}"
+                                             class="img-fluid border rounded shadow-sm"
+                                             alt="Supporting Document"
+                                             style="max-height: 70vh; cursor: zoom-in;"
+                                             onclick="toggleImageZoom(this)">
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
+                                        </div>
+                                    </div>
+                                    ${addDownloadButton()}
+                                </div>`;
+                        };
+                        img.onerror = function() {
+                            handleLoadError('image');
+                        };
+                        img.src = fileUrl;
+
+                    } else if (fileExtension === 'pdf') {
+                        // Handle PDF documents
+                        documentViewer.innerHTML = `
+                            <div class="pdf-container">
+                                <embed src="${fileUrl}"
+                                       type="application/pdf"
+                                       width="100%"
+                                       height="600px"
+                                       class="border rounded">
+                                ${addDownloadButton()}
+                            </div>`;
+
+                        // Check if PDF loaded successfully after a short delay
+                        setTimeout(() => {
+                            const embed = documentViewer.querySelector('embed');
+                            if (!embed || embed.offsetHeight === 0) {
+                                documentViewer.innerHTML = `
+                                    <div class="alert alert-info text-center">
+                                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                        <h5>PDF Preview Unavailable</h5>
+                                        <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                                <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                            </a>
+                                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                                <i class="fas fa-download me-2"></i>Download PDF
+                                            </a>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                    </div>`;
+                            }
+                        }, 2000);
+
+                    } else if (videoTypes.includes(fileExtension)) {
+                        // Handle video files
+                        documentViewer.innerHTML = `
+                            <div class="text-center">
+                                <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
+                                    <source src="${fileUrl}" type="video/${fileExtension}">
+                                    Your browser does not support the video tag.
+                                </video>
+                                ${addDownloadButton()}
+                            </div>`;
+
+                    } else if (audioTypes.includes(fileExtension)) {
+                        // Handle audio files
+                        documentViewer.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-music fa-4x text-info mb-3"></i>
+                                <h5>Audio File</h5>
+                                <audio controls class="w-100 mb-3">
+                                    <source src="${fileUrl}" type="audio/${fileExtension}">
+                                    Your browser does not support the audio tag.
+                                </audio>
+                                ${addDownloadButton()}
+                            </div>`;
+
+                    } else if (documentTypes.includes(fileExtension)) {
+                        // Handle other document types
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
+                            fileExtension) ? 'file-word' : 'file-alt';
+
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                                <h5>${fileExtension.toUpperCase()} Document</h5>
+                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open Document
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+                    } else {
+                        // Handle unsupported file types
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-warning text-center">
+                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                                <h5>Unsupported File Type</h5>
+                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open File
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+                    }
+                } catch (error) {
+                    console.error('Error processing document:', error);
+                    handleLoadError('document', error);
+                }
+            }, 500); // Small delay to show loading state
+        }
+
+        // Helper function to toggle image zoom
+        function toggleImageZoom(img) {
+            if (img.style.transform === 'scale(2)') {
+                img.style.transform = 'scale(1)';
+                img.style.cursor = 'zoom-in';
+                img.style.transition = 'transform 0.3s ease';
+            } else {
+                img.style.transform = 'scale(2)';
+                img.style.cursor = 'zoom-out';
+                img.style.transition = 'transform 0.3s ease';
+                img.style.zIndex = '1050';
+            }
         }
 
         // Function to check for changes and provide visual feedback
@@ -1140,5 +1703,457 @@
                 statusElement.innerHTML = statusText;
             }
         }
+
+        // ========== ANNEXES FUNCTIONALITY ==========
+
+        // Show toast notification
+        function showToast(type, title, message) {
+            // Create a simple toast using alert for now (you can enhance this with proper Bootstrap toasts)
+            if (type === 'success') {
+                alert(`✅ ${title}: ${message}`);
+            } else if (type === 'error') {
+                alert(`❌ ${title}: ${message}`);
+            } else if (type === 'warning') {
+                alert(`⚠️ ${title}: ${message}`);
+            } else {
+                alert(`ℹ️ ${title}: ${message}`);
+            }
+        }
+
+        // Show annexes modal
+        function showAnnexesModal(id) {
+            const modal = new bootstrap.Modal(document.getElementById('annexesModal'));
+            modal.show();
+
+            // Show loading
+            document.getElementById('annexesLoading').style.display = 'block';
+            document.getElementById('annexesContent').style.display = 'none';
+
+            // Load registration details and annexes
+            loadAnnexesData(id);
+        }
+
+        // Load annexes data
+        function loadAnnexesData(id) {
+            fetch(`/admin/fishr-registrations/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load data');
+
+                    // Hide loading, show content
+                    document.getElementById('annexesLoading').style.display = 'none';
+                    document.getElementById('annexesContent').style.display = 'block';
+
+                    // Populate registration info
+                    document.getElementById('annexRegistrationId').value = id;
+                    document.getElementById('annexRegNumber').textContent = data.data.registration_number;
+                    document.getElementById('annexApplicantName').textContent = data.data.full_name;
+                    document.getElementById('annexBarangay').textContent = data.data.barangay || 'N/A';
+                    document.getElementById('annexStatus').innerHTML =
+                        `<span class="badge bg-${data.data.status_color}">${data.data.formatted_status}</span>`;
+
+                    // Load existing annexes
+                    loadExistingAnnexes(id);
+
+                    // Reset form
+                    resetAnnexForm();
+                })
+                .catch(error => {
+                    console.error('Error loading annexes data:', error);
+                    showToast('error', 'Error', 'Failed to load data: ' + error.message);
+
+                    // Hide loading, show error
+                    document.getElementById('annexesLoading').style.display = 'none';
+                    document.getElementById('annexesContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading data: ${error.message}
+                    </div>
+                `;
+                    document.getElementById('annexesContent').style.display = 'block';
+                });
+        }
+
+        // Load existing annexes
+        function loadExistingAnnexes(id) {
+            fetch(`/admin/fishr-registrations/${id}/annexes`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    const annexesList = document.getElementById('annexesList');
+
+                    if (data.success && data.annexes && data.annexes.length > 0) {
+                        let annexesHtml = '';
+                        data.annexes.forEach((annex, index) => {
+                            const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+
+                            annexesHtml += `
+                            <div class="document-item border rounded p-3 mb-3" id="annex-${annex.id}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="mb-1 text-primary">${annex.title}</h6>
+                                        <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>Uploaded: ${uploadDate}
+                                            <span class="mx-2">|</span>
+                                            <i class="fas fa-file me-1"></i>Size: ${formatFileSize(annex.file_size)}
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                    onclick="previewAnnex(${id}, ${annex.id})" title="Preview">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success"
+                                                    onclick="downloadAnnex(${id}, ${annex.id})" title="Download">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    onclick="deleteAnnex(${id}, ${annex.id})" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        });
+                        annexesList.innerHTML = annexesHtml;
+                    } else {
+                        annexesList.innerHTML = `
+                        <div class="text-center py-4">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No annexes uploaded yet</p>
+                        </div>
+                    `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading annexes:', error);
+                    document.getElementById('annexesList').innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading annexes: ${error.message}
+                    </div>
+                `;
+                });
+        }
+
+        // Upload annex
+        function uploadAnnex() {
+            const id = document.getElementById('annexRegistrationId').value;
+            const fileInput = document.getElementById('annexFile');
+            const title = document.getElementById('annexTitle').value.trim();
+            const description = document.getElementById('annexDescription').value.trim();
+
+            // Validation
+            if (!fileInput.files[0]) {
+                showValidationError('annexFile', 'annexFileError', 'Please select a file');
+                return;
+            }
+
+            if (!title) {
+                showValidationError('annexTitle', 'annexTitleError', 'Please enter a document title');
+                return;
+            }
+
+            // File size validation (10MB)
+            if (fileInput.files[0].size > 10 * 1024 * 1024) {
+                showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
+                return;
+            }
+
+            // Clear validation errors
+            clearValidationErrors();
+
+            if (!confirm('Are you sure you want to upload this annex?')) {
+                return;
+            }
+
+            // Show loading state
+            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+            const originalContent = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading...';
+            uploadBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('title', title);
+            formData.append('description', description);
+
+            fetch(`/admin/fishr-registrations/${id}/annexes`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Success', 'Annex uploaded successfully');
+                        resetAnnexForm();
+                        loadExistingAnnexes(id); // Reload annexes list
+                    } else {
+                        throw new Error(data.message || 'Failed to upload annex');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error uploading annex:', error);
+                    showToast('error', 'Error', 'Failed to upload annex: ' + error.message);
+                })
+                .finally(() => {
+                    // Restore button state
+                    uploadBtn.innerHTML = originalContent;
+                    uploadBtn.disabled = false;
+                });
+        }
+
+        // Preview annex
+        function previewAnnex(registrationId, annexId) {
+            // Reuse existing document preview modal with proper z-index handling
+            const previewModal = document.getElementById('documentPreviewModal');
+            const annexesModal = document.getElementById('annexesModal');
+            const modal = new bootstrap.Modal(previewModal);
+
+            // Set higher z-index to appear above annexes modal
+            previewModal.style.zIndex = '1060';
+
+            // Find and temporarily hide the annexes modal backdrop
+            const annexesBackdrop = document.querySelector('.modal-backdrop');
+            let originalBackdropDisplay = '';
+            if (annexesBackdrop) {
+                originalBackdropDisplay = annexesBackdrop.style.display;
+                annexesBackdrop.style.zIndex = '1058';
+            }
+
+            // Add event listener to restore everything when preview modal is hidden
+            previewModal.addEventListener('hidden.bs.modal', function() {
+                previewModal.style.zIndex = '';
+                if (annexesBackdrop) {
+                    annexesBackdrop.style.zIndex = '';
+                }
+            }, {
+                once: true
+            });
+
+            modal.show();
+
+            document.getElementById('documentPreview').innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading annex preview...</p>
+                </div>
+            `;
+
+            fetch(`/admin/fishr-registrations/${registrationId}/annexes/${annexId}/preview`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load preview');
+
+                    document.getElementById('documentPreviewTitle').innerHTML =
+                        `<i class="fas fa-folder me-2"></i>${data.title}`;
+
+                    const fileExtension = data.file_extension?.toLowerCase();
+                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+                    const isPdf = fileExtension === 'pdf';
+
+                    if (isPdf) {
+                        document.getElementById('documentPreview').innerHTML = `
+                        <div class="text-center">
+                            <embed src="${data.file_url}" type="application/pdf" width="100%" height="600px"
+                                   style="border: none; border-radius: 8px;" />
+                            <div class="mt-2">
+                                <a href="${data.file_url}" target="_blank" class="btn btn-primary">
+                                    <i class="fas fa-external-link-alt me-1"></i>Open in new tab
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    } else if (isImage) {
+                        document.getElementById('documentPreview').innerHTML = `
+                        <div class="text-center">
+                            <img src="${data.file_url}" class="img-fluid" alt="Annex preview"
+                                 style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+                        </div>
+                    `;
+                    } else {
+                        document.getElementById('documentPreview').innerHTML = `
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <h5>Preview not available for this file type</h5>
+                            <p>File type: ${fileExtension?.toUpperCase() || 'Unknown'}</p>
+                            <a href="${data.file_url}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-download me-1"></i>Download to view
+                            </a>
+                        </div>
+                    `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading annex preview:', error);
+                    document.getElementById('documentPreview').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <h5>Error loading annex preview</h5>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+                });
+        }
+
+        // Download annex
+        function downloadAnnex(registrationId, annexId) {
+            window.open(`/admin/fishr-registrations/${registrationId}/annexes/${annexId}/download`, '_blank');
+        }
+
+        // Delete annex
+        function deleteAnnex(registrationId, annexId) {
+            if (!confirm('Are you sure you want to delete this annex? This action cannot be undone.')) {
+                return;
+            }
+
+            fetch(`/admin/fishr-registrations/${registrationId}/annexes/${annexId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Success', 'Annex deleted successfully');
+
+                        // Remove from UI
+                        const annexElement = document.getElementById(`annex-${annexId}`);
+                        if (annexElement) {
+                            annexElement.remove();
+                        }
+
+                        // Reload if no annexes left
+                        const annexesList = document.getElementById('annexesList');
+                        if (!annexesList.querySelector('.document-item')) {
+                            loadExistingAnnexes(registrationId);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Failed to delete annex');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting annex:', error);
+                    showToast('error', 'Error', 'Failed to delete annex: ' + error.message);
+                });
+        }
+
+        // Reset annex form
+        function resetAnnexForm() {
+            document.getElementById('annexFile').value = '';
+            document.getElementById('annexTitle').value = '';
+            document.getElementById('annexDescription').value = '';
+            document.getElementById('annexDescCount').textContent = '0';
+            clearValidationErrors();
+        }
+
+        // Show validation error
+        function showValidationError(inputId, errorId, message) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById(errorId);
+
+            input.classList.add('is-invalid');
+            error.textContent = message;
+        }
+
+        // Clear validation errors
+        function clearValidationErrors() {
+            const inputs = ['annexFile', 'annexTitle'];
+            const errors = ['annexFileError', 'annexTitleError'];
+
+            inputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) input.classList.remove('is-invalid');
+            });
+
+            errors.forEach(errorId => {
+                const error = document.getElementById(errorId);
+                if (error) error.textContent = '';
+            });
+        }
+
+        // Utility function to format file sizes
+        function formatFileSize(bytes) {
+            if (!bytes || bytes === 0) return 'Unknown size';
+
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Character count for annex description
+        document.addEventListener('DOMContentLoaded', function() {
+            const annexDesc = document.getElementById('annexDescription');
+            const annexDescCount = document.getElementById('annexDescCount');
+
+            if (annexDesc && annexDescCount) {
+                annexDesc.addEventListener('input', function() {
+                    const count = this.value.length;
+                    annexDescCount.textContent = count;
+
+                    if (count > 500) {
+                        this.value = this.value.substring(0, 500);
+                        annexDescCount.textContent = '500';
+                    }
+                });
+            }
+        });
+
+        // ========== END ANNEXES FUNCTIONALITY ==========
     </script>
 @endsection
