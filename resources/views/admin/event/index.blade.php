@@ -1159,83 +1159,93 @@
         }
 
         // Update the edit form submission to check for changes first
-        //EDIT EVENT FORM - WITH RELOAD
+        // EDIT EVENT FORM - WITH RELOAD
         document.getElementById('editEventForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        let hasChanges = false;
-        
-        const fieldsToCheck = [
-            'edit_title',
-            'edit_description',
-            'edit_category',
-            'edit_is_active',
-            'edit_date',
-            'edit_location'
-        ];
-
-        fieldsToCheck.forEach(fieldId => {
-            const input = document.getElementById(fieldId);
-            if (input && input.value !== (input.dataset.originalValue || '')) {
-                hasChanges = true;
-            }
-        });
-
-        const fileInput = this.querySelector('input[type="file"]');
-        if (fileInput && fileInput.files.length > 0) {
-            hasChanges = true;
-        }
-
-        const detailRows = document.querySelectorAll('#editDetailsContainer .detail-row');
-        detailRows.forEach(row => {
-            const keyInput = row.querySelector('.detail-key');
-            const valueInput = row.querySelector('.detail-value');
+            e.preventDefault();
             
-            if (keyInput.value !== (keyInput.dataset.originalKey || '') ||
-                valueInput.value !== (valueInput.dataset.originalValue || '')) {
-                hasChanges = true;
-            }
-        });
-
-        if (!hasChanges) {
-            showError('No changes detected. Please modify the event details before updating.');
-            return;
-        }
-
-        const formData = new FormData(this);
-        const details = collectDetails(document.getElementById('editDetailsContainer'));
-        const eventId = document.getElementById('edit_event_id').value;
-        
-        formData.append('details', JSON.stringify(details));
-
-        try {
-            document.querySelector('#editEventForm .btn-text').style.display = 'none';
-            document.querySelector('#editEventForm .btn-loader').style.display = 'inline';
-
-            const response = await fetch(`/admin/events/${eventId}`, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                body: formData
-            });
-            const data = await response.json();
+            let hasChanges = false;
             
-            if (!response.ok) {
-                if (data.warning_type) {
-                    throw { message: data.message, warningType: data.warning_type };
+            const fieldsToCheck = [
+                'edit_title',
+                'edit_description',
+                'edit_category',
+                'edit_is_active',
+                'edit_date',
+                'edit_location'
+            ];
+
+            fieldsToCheck.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input && input.value !== (input.dataset.originalValue || '')) {
+                    hasChanges = true;
                 }
-                throw new Error(data.message || 'Failed to update event');
+            });
+
+            const fileInput = this.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files.length > 0) {
+                hasChanges = true;
             }
+
+            const detailRows = document.querySelectorAll('#editDetailsContainer .detail-row');
+            detailRows.forEach(row => {
+                const keyInput = row.querySelector('.detail-key');
+                const valueInput = row.querySelector('.detail-value');
+                
+                if (keyInput.value !== (keyInput.dataset.originalKey || '') ||
+                    valueInput.value !== (valueInput.dataset.originalValue || '')) {
+                    hasChanges = true;
+                }
+            });
+
+            if (!hasChanges) {
+                showError('No changes detected. Please modify the event details before updating.');
+                return;
+            }
+
+            // FRONTEND VALIDATION: Announcements cannot be set to inactive
+            const category = document.getElementById('edit_category').value;
+            const isActive = document.getElementById('edit_is_active').value;
+            const wasActive = document.getElementById('edit_is_active').dataset.originalValue;
             
-            showSuccess(data.message);
-            setTimeout(() => location.reload(), 800);
+            if (category === 'announcement' && isActive === '0') {
+                showToast('warning', 'Announcements must always be active and cannot be deactivated.');
+                return;
+            }
+
+            const formData = new FormData(this);
+            const details = collectDetails(document.getElementById('editDetailsContainer'));
+            const eventId = document.getElementById('edit_event_id').value;
             
-        } catch (error) {
-            showError(error.message, error.warningType || null);
-        } finally {
-            document.querySelector('#editEventForm .btn-text').style.display = 'inline';
-            document.querySelector('#editEventForm .btn-loader').style.display = 'none';
-        }
-    });
+            formData.append('details', JSON.stringify(details));
+
+            try {
+                document.querySelector('#editEventForm .btn-text').style.display = 'none';
+                document.querySelector('#editEventForm .btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/events/${eventId}`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (data.warning_type) {
+                        throw { message: data.message, warningType: data.warning_type };
+                    }
+                    throw new Error(data.message || 'Failed to update event');
+                }
+                
+                showSuccess(data.message);
+                setTimeout(() => location.reload(), 800);
+                
+            } catch (error) {
+                showError(error.message, error.warningType || null);
+            } finally {
+                document.querySelector('#editEventForm .btn-text').style.display = 'inline';
+                document.querySelector('#editEventForm .btn-loader').style.display = 'none';
+            }
+        });
 
         // Add CSS for visual feedback
         const style = document.createElement('style');
@@ -1404,38 +1414,37 @@
             }
         });
 
-        // TOGGLE STATUS
-       async function toggleEvent(eventId) {
-        try {
-            const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
-            });
-            const data = await response.json();
-            
-            if (!response.ok) {
-                if (data.warning_type === 'announcement_always_active') {
-                    showToast('warning', data.message);
-                } else if (data.warning_type === 'last_active_in_category') {
-                    showToast('info', data.message);
-                } else if (data.warning_type === 'category_limit_reached') {
-                    showToast('info', data.message);
-                } else if (data.warning_type === 'last_active_event') {
-                    showToast('info', data.message);
-                } else {
-                    throw new Error(data.message || 'Failed to update status');
+     // TOGGLE STATUS
+        async function toggleEvent(eventId) {
+            try {
+                const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (data.warning_type === 'announcement_always_active') {
+                        showToast('warning', data.message);
+                    } else if (data.warning_type === 'last_active_in_category') {
+                        showToast('info', data.message);
+                    } else if (data.warning_type === 'category_limit_reached') {
+                        showToast('info', data.message);
+                    } else if (data.warning_type === 'last_active_event') {
+                        showToast('info', data.message);
+                    } else {
+                        throw new Error(data.message || 'Failed to update status');
+                    }
+                    return;
                 }
-                return;
+                
+                showSuccess(data.message);
+                setTimeout(() => location.reload(), 800);
+                
+            } catch (error) {
+                showError(error.message);
             }
-            
-            showSuccess(data.message);
-            setTimeout(() => location.reload(), 800);
-            
-        } catch (error) {
-            showError(error.message);
         }
-    }
-
     // DELETE EVENT
         let currentDeleteEventId = null;
 
