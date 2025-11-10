@@ -123,7 +123,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="input-group input-group-sm">
                             <input type="text" name="search" class="form-control"
                                 placeholder="Search title, description, location..." 
@@ -136,7 +136,7 @@
                         </div>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
                             data-bs-target="#eventDateFilterModal">
                             <i class="fas fa-calendar-alt me-1"></i>Date Filter
@@ -147,12 +147,6 @@
                         <a href="{{ route('admin.event.index') }}" class="btn btn-secondary btn-sm w-100">
                             <i class="fas fa-times me-1"></i> Clear
                         </a>
-                    </div>
-
-                    <div class="col-md-2 text-end">
-                        <button type="button" class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#createEventModal">
-                            <i class="fas fa-plus me-1"></i>Add Event
-                        </button>
                     </div>
                 </div>
             </form>
@@ -265,25 +259,31 @@
     </div>
 
         <!-- Events Table -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Events List</h5>
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Events List</h6>
+                <div class="btn-group gap-2">
+                    <button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                        <i class="fas fa-plus me-2"></i>Add Event
+                    </button>
+                </div>
             </div>
-            <div class="card-body p-0">
+
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered align-middle mb-0">
+                    <table class="table table-bordered table-hover" width="100%" cellspacing="0">
                         <thead class="table-dark">
                             <tr>
-                                <th style="width: 80px;">Image</th>
+                                <th>Image</th>
                                 <th>Title</th>
-                                <th style="width: 120px;">Category</th>
-                                <th style="width: 100px;">Status</th>
-                                <th style="width: 220px;">Actions</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($events as $event)
-                                <tr class="event-row" data-category="{{ $event->category }}">
+                                <tr data-id="{{ $event->id }}">
                                     <td>
                                         @if ($event->image_path)
                                             <img src="{{ Storage::url($event->image_path) }}" alt="{{ $event->title }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
@@ -302,44 +302,112 @@
                                             $colors = ['announcement' => 'info', 'ongoing' => 'warning', 'upcoming' => 'secondary', 'past' => 'danger'];
                                             $color = $colors[$event->category] ?? 'primary';
                                         @endphp
-                                        <span class="badge bg-{{ $color }}">{{ ucfirst($event->category) }}</span>
+                                        <span class="badge bg-{{ $color }} fs-6">{{ ucfirst($event->category) }}</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-{{ $event->is_active ? 'success' : 'secondary' }}">
+                                        <span class="badge bg-{{ $event->is_active ? 'success' : 'secondary' }} fs-6">
                                             {{ $event->is_active ? 'Active' : 'Inactive' }}
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-info" onclick="viewEvent({{ $event->id }})" title="View" data-bs-toggle="tooltip">
-                                                <i class="fas fa-eye"></i>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                onclick="viewEvent({{ $event->id }})" title="View Details">
+                                                <i class="fas fa-eye"></i> View
                                             </button>
-                                            <button class="btn btn-primary" onclick="editEvent({{ $event->id }})" title="Edit" data-bs-toggle="tooltip">
-                                                <i class="fas fa-edit"></i>
+
+                                            <button class="btn btn-sm btn-outline-success"
+                                                onclick="editEvent({{ $event->id }})" title="Edit">
+                                                <i class="fas fa-edit"></i> Edit
                                             </button>
-                                            <button class="btn btn-{{ $event->is_active ? 'warning' : 'success' }}" onclick="toggleEvent({{ $event->id }})" title="Toggle Status" data-bs-toggle="tooltip">
-                                                <i class="fas fa-power-off"></i>
+
+                                            <button class="btn btn-sm btn-outline-warning"
+                                                onclick="toggleEvent({{ $event->id }})" title="Toggle Status">
+                                                <i class="fas fa-power-off"></i> Toggle
                                             </button>
-                                            <button class="btn btn-info" onclick="archiveEvent({{ $event->id }})" title="Archive" data-bs-toggle="tooltip">
-                                                <i class="fas fa-archive"></i>
+
+                                            <button class="btn btn-sm btn-outline-info"
+                                                onclick="archiveEvent({{ $event->id }})" title="Archive">
+                                                <i class="fas fa-archive"></i> Archive
                                             </button>
-                                            <button class="btn btn-danger" onclick="deleteEvent({{ $event->id }})" title="Delete" data-bs-toggle="tooltip">
-                                                <i class="fas fa-trash"></i>
+
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="deleteEvent({{ $event->id }})" title="Delete">
+                                                <i class="fas fa-trash"></i> Delete
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4">
-                                        <i class="fas fa-calendar-times fa-3x text-muted mb-3" style="display: block;"></i>
-                                        <p class="text-muted">No events found. Create your first event.</p>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                                        <p>No events found matching your criteria.</p>
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                @if ($events->hasPages())
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm">
+                                {{-- Previous Page Link --}}
+                                @if ($events->onFirstPage())
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Back</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $events->previousPageUrl() }}" rel="prev">Back</a>
+                                    </li>
+                                @endif
+
+                                {{-- Pagination Elements --}}
+                                @php
+                                    $currentPage = $events->currentPage();
+                                    $lastPage = $events->lastPage();
+                                    $startPage = max(1, $currentPage - 2);
+                                    $endPage = min($lastPage, $currentPage + 2);
+
+                                    if ($endPage - $startPage < 4) {
+                                        if ($startPage == 1) {
+                                            $endPage = min($lastPage, $startPage + 4);
+                                        } else {
+                                            $startPage = max(1, $endPage - 4);
+                                        }
+                                    }
+                                @endphp
+
+                                @for ($page = $startPage; $page <= $endPage; $page++)
+                                    @if ($page == $currentPage)
+                                        <li class="page-item active">
+                                            <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link" href="{{ $events->url($page) }}">{{ $page }}</a>
+                                        </li>
+                                    @endif
+                                @endfor
+
+                                {{-- Next Page Link --}}
+                                @if ($events->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $events->nextPageUrl() }}" rel="next">Next</a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled">
+                                        <span class="page-link">Next</span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -1666,6 +1734,44 @@
 
         .toast-notification .btn-close-toast:hover {
             opacity: 1;
+        }
+
+        /* Custom Pagination Styles */
+        .pagination {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 0;
+        }
+
+        .pagination .page-item .page-link {
+            color: #6c757d;
+            background-color: transparent;
+            border: none;
+            padding: 8px 12px;
+            margin: 0 2px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .page-item .page-link:hover {
+            color: #495057;
+            background-color: #e9ecef;
+            text-decoration: none;
+        }
+
+        .pagination .page-item.active .page-link {
+            color: white;
+            background-color: #007bff;
+            border-color: #007bff;
+            font-weight: 600;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #adb5bd;
+            background-color: transparent;
+            cursor: not-allowed;
         }
 
         /* Type-specific styles */
