@@ -1436,6 +1436,28 @@
         }
     }
 
+    // DELETE EVENT
+        let currentDeleteEventId = null;
+
+    function deleteEvent(eventId) {
+        try {
+            // Get event details from the table row
+            const row = document.querySelector(`[data-id="${eventId}"]`);
+            const eventTitle = row ? row.querySelector('strong').textContent : 'this event';
+            
+            // Set the global variable
+            currentDeleteEventId = eventId;
+            
+            // Update modal with event name
+            document.getElementById('delete_event_name').textContent = eventTitle;
+            
+            // Show the delete modal
+            new bootstrap.Modal(document.getElementById('deleteEventModal')).show();
+        } catch (error) {
+            showError('Failed to prepare delete dialog: ' + error.message);
+        }
+    }
+
         // DELETE EVENT
        async function confirmPermanentDelete() {
             try {
@@ -1453,8 +1475,15 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    if (data.warning_type === 'last_active_event') {
-                        showToast('info', '⚠️ ' + data.message);
+                    // Close modal first
+                    const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteEventModal'));
+                    if (deleteModal) deleteModal.hide();
+                    
+                    // Handle different warning types
+                    if (data.warning_type === 'event_is_active') {
+                        showToast('warning', data.message);
+                    } else if (data.warning_type === 'last_active_event') {
+                        showToast('warning', data.message);
                     } else if (data.warning_type) {
                         throw { message: data.message, warningType: data.warning_type };
                     } else {
