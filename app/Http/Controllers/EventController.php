@@ -476,13 +476,12 @@ class EventController extends Controller
     public function archive(Request $request, Event $event)
     {
         try {
-            // SAFETY CHECK: Don't archive if it's the last active event
-            $activeCount = Event::active()->count();
-            if ($activeCount <= 1 && $event->is_active) {
+            // SAFETY CHECK: Cannot archive if event is active
+            if ($event->is_active) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'This is the only active event on your landing page. Please create or activate another event before archiving this one to ensure visitors always have content to view.',
-                    'warning_type' => 'last_active_event'
+                    'message' => 'Cannot archive an active event. Please deactivate it first by clicking the Toggle button.',
+                    'warning_type' => 'event_is_active'
                 ], 422);
             }
 

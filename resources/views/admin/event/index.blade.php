@@ -1159,89 +1159,83 @@
         }
 
         // Update the edit form submission to check for changes first
+        //EDIT EVENT FORM - WITH RELOAD
         document.getElementById('editEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Check if there are actual changes
-            let hasChanges = false;
-            
-            const fieldsToCheck = [
-                'edit_title',
-                'edit_description',
-                'edit_category',
-                'edit_is_active',
-                'edit_date',
-                'edit_location'
-            ];
+        e.preventDefault();
+        
+        let hasChanges = false;
+        
+        const fieldsToCheck = [
+            'edit_title',
+            'edit_description',
+            'edit_category',
+            'edit_is_active',
+            'edit_date',
+            'edit_location'
+        ];
 
-            fieldsToCheck.forEach(fieldId => {
-                const input = document.getElementById(fieldId);
-                if (input && input.value !== (input.dataset.originalValue || '')) {
-                    hasChanges = true;
-                }
-            });
-
-            // Check for file input
-            const fileInput = this.querySelector('input[type="file"]');
-            if (fileInput && fileInput.files.length > 0) {
+        fieldsToCheck.forEach(fieldId => {
+            const input = document.getElementById(fieldId);
+            if (input && input.value !== (input.dataset.originalValue || '')) {
                 hasChanges = true;
             }
+        });
 
-            // Check detail rows for changes
-            const detailRows = document.querySelectorAll('#editDetailsContainer .detail-row');
-            detailRows.forEach(row => {
-                const keyInput = row.querySelector('.detail-key');
-                const valueInput = row.querySelector('.detail-value');
-                
-                if (keyInput.value !== (keyInput.dataset.originalKey || '') ||
-                    valueInput.value !== (valueInput.dataset.originalValue || '')) {
-                    hasChanges = true;
-                }
-            });
+        const fileInput = this.querySelector('input[type="file"]');
+        if (fileInput && fileInput.files.length > 0) {
+            hasChanges = true;
+        }
 
-            if (!hasChanges) {
-                showError('No changes detected. Please modify the event details before updating.');
-                return;
-            }
-
-            // Continue with the original form submission
-            const formData = new FormData(this);
-            const details = collectDetails(document.getElementById('editDetailsContainer'));
-            const eventId = document.getElementById('edit_event_id').value;
+        const detailRows = document.querySelectorAll('#editDetailsContainer .detail-row');
+        detailRows.forEach(row => {
+            const keyInput = row.querySelector('.detail-key');
+            const valueInput = row.querySelector('.detail-value');
             
-            formData.append('details', JSON.stringify(details));
-
-            try {
-                document.querySelector('#editEventForm .btn-text').style.display = 'none';
-                document.querySelector('#editEventForm .btn-loader').style.display = 'inline';
-
-                const response = await fetch(`/admin/events/${eventId}`, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: formData
-                });
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    if (data.warning_type) {
-                        throw { message: data.message, warningType: data.warning_type };
-                    }
-                    throw new Error(data.message || 'Failed to update event');
-                }
-                
-                showSuccess(data.message);
-                // Reload page after 1 second
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-
-            } catch (error) {
-                showError(error.message, error.warningType || null);
-            } finally {
-                document.querySelector('#editEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#editEventForm .btn-loader').style.display = 'none';
+            if (keyInput.value !== (keyInput.dataset.originalKey || '') ||
+                valueInput.value !== (valueInput.dataset.originalValue || '')) {
+                hasChanges = true;
             }
         });
+
+        if (!hasChanges) {
+            showError('No changes detected. Please modify the event details before updating.');
+            return;
+        }
+
+        const formData = new FormData(this);
+        const details = collectDetails(document.getElementById('editDetailsContainer'));
+        const eventId = document.getElementById('edit_event_id').value;
+        
+        formData.append('details', JSON.stringify(details));
+
+        try {
+            document.querySelector('#editEventForm .btn-text').style.display = 'none';
+            document.querySelector('#editEventForm .btn-loader').style.display = 'inline';
+
+            const response = await fetch(`/admin/events/${eventId}`, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                if (data.warning_type) {
+                    throw { message: data.message, warningType: data.warning_type };
+                }
+                throw new Error(data.message || 'Failed to update event');
+            }
+            
+            showSuccess(data.message);
+            setTimeout(() => location.reload(), 800);
+            
+        } catch (error) {
+            showError(error.message, error.warningType || null);
+        } finally {
+            document.querySelector('#editEventForm .btn-text').style.display = 'inline';
+            document.querySelector('#editEventForm .btn-loader').style.display = 'none';
+        }
+    });
 
         // Add CSS for visual feedback
         const style = document.createElement('style');
@@ -1315,64 +1309,53 @@
 
         // CREATE EVENT FORM
        document.getElementById('createEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const category = document.querySelector('select[name="category"]').value;
-            const isActive = document.querySelector('select[name="is_active"]').value;
-            
-            // FRONTEND VALIDATION: Announcements are always active
-            if (category === 'announcement' && isActive === '0') {
-                showToast('warning', '📢 Announcements must always be active. Status has been automatically set to Active.');
-                document.querySelector('select[name="is_active"]').value = '1';
-                return;
-            }
-            
-            // Check if we're trying to create an active event and the category already has 3 active
-            if (isActive === '1') {
-                const category = document.querySelector('select[name="category"]').value;
-                // This check will be handled by the backend with warning/auto-deactivate
-            }
-            
-            const formData = new FormData(this);
-            const details = collectDetails(document.getElementById('detailsContainer'));
-            formData.append('details', JSON.stringify(details));
+        e.preventDefault();
+        
+        const category = document.querySelector('select[name="category"]').value;
+        const isActive = document.querySelector('select[name="is_active"]').value;
+        
+        // FRONTEND VALIDATION: Announcements are always active
+        if (category === 'announcement' && isActive === '0') {
+            showToast('warning', 'Announcements must always be active. Status has been automatically set to Active.');
+            document.querySelector('select[name="is_active"]').value = '1';
+            return;
+        }
+        
+        const formData = new FormData(this);
+        const details = collectDetails(document.getElementById('detailsContainer'));
+        formData.append('details', JSON.stringify(details));
 
-            try {
-                document.querySelector('#createEventForm .btn-text').style.display = 'none';
-                document.querySelector('#createEventForm .btn-loader').style.display = 'inline';
+        try {
+            document.querySelector('#createEventForm .btn-text').style.display = 'none';
+            document.querySelector('#createEventForm .btn-loader').style.display = 'inline';
 
-                const response = await fetch('/admin/events', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: formData
-                });
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    // Handle specific warning types
-                    if (data.warning_type === 'category_limit_reached') {
-                        throw { 
-                            message: '📊 ' + data.message + ' You can create it as inactive or deactivate an existing event first.', 
-                            warningType: data.warning_type 
-                        };
-                    }
-                    throw new Error(data.message || 'Failed to create event');
+            const response = await fetch('/admin/events', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                if (data.warning_type === 'category_limit_reached') {
+                    throw { 
+                        message: data.message + ' You can create it as inactive or deactivate an existing event first.', 
+                        warningType: data.warning_type 
+                    };
                 }
-                
-                showSuccess(data.message);
-                
-                // Reload page after 1 second
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-                
-            } catch (error) {
-                showError(error.message, error.warningType || null);
-            } finally {
-                document.querySelector('#createEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#createEventForm .btn-loader').style.display = 'none';
+                throw new Error(data.message || 'Failed to create event');
             }
-        });
+            
+            showSuccess(data.message);
+            setTimeout(() => location.reload(), 800);
+            
+        } catch (error) {
+            showError(error.message, error.warningType || null);
+        } finally {
+            document.querySelector('#createEventForm .btn-text').style.display = 'inline';
+            document.querySelector('#createEventForm .btn-loader').style.display = 'none';
+        }
+    });
 
 
         // ARCHIVE EVENT FORM
@@ -1397,22 +1380,21 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    if (data.warning_type === 'last_active_event') {
-                        showToast('info', '⚠️ ' + data.message);
+                    if (data.warning_type === 'event_is_active') {
+                        showToast('warning', data.message);
+                        return;
+                    } else if (data.warning_type === 'last_active_event') {
+                        showToast('info', data.message);
+                        return;
                     } else if (data.warning_type) {
                         throw { message: data.message, warningType: data.warning_type };
                     } else {
                         throw new Error(data.message || 'Failed to archive event');
                     }
-                    return;
                 }
                 
                 showSuccess(data.message);
-                
-                // Reload page after 1 second
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
+                setTimeout(() => location.reload(), 800);
                 
             } catch (error) {
                 showError(error.message, error.warningType || null);
@@ -1423,7 +1405,7 @@
         });
 
         // TOGGLE STATUS
-        async function toggleEvent(eventId) {
+       async function toggleEvent(eventId) {
         try {
             const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
                 method: 'PATCH',
@@ -1432,15 +1414,14 @@
             const data = await response.json();
             
             if (!response.ok) {
-                // Handle specific warning types with friendly messages
                 if (data.warning_type === 'announcement_always_active') {
-                    showToast('warning', '📢 ' + data.message);
+                    showToast('warning', data.message);
                 } else if (data.warning_type === 'last_active_in_category') {
-                    showToast('info', '⚠️ ' + data.message);
+                    showToast('info', data.message);
                 } else if (data.warning_type === 'category_limit_reached') {
-                    showToast('info', '📊 ' + data.message);
+                    showToast('info', data.message);
                 } else if (data.warning_type === 'last_active_event') {
-                    showToast('info', '⚠️ ' + data.message);
+                    showToast('info', data.message);
                 } else {
                     throw new Error(data.message || 'Failed to update status');
                 }
@@ -1448,11 +1429,7 @@
             }
             
             showSuccess(data.message);
-            
-            // Reload page after 1 second to show updated data
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
+            setTimeout(() => location.reload(), 800);
             
         } catch (error) {
             showError(error.message);
@@ -1491,7 +1468,7 @@
                 // Reload page after 1 second
                 setTimeout(() => {
                     location.reload();
-                }, 1000);
+                }, 800);
                 
             } catch (error) {
                 showError(error.message, error.warningType || null);
@@ -1500,61 +1477,42 @@
                 document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
             }
         }
-        // Confirm permanent delete
-        async function confirmPermanentDelete() {
-            try {
-                document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'none';
-                document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'inline';
+        // // Confirm permanent delete
+        // async function confirmPermanentDelete() {
+        //     try {
+        //         document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'none';
+        //         document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'inline';
 
-                const response = await fetch(`/admin/events/${currentDeleteEventId}`, {
-                    method: 'DELETE',
-                    headers: { 
-                        'X-CSRF-TOKEN': csrfToken, 
-                        'Content-Type': 'application/json', 
-                        'Accept': 'application/json' 
-                    }
-                });
-                const data = await response.json();
+        //         const response = await fetch(`/admin/events/${currentDeleteEventId}`, {
+        //             method: 'DELETE',
+        //             headers: { 
+        //                 'X-CSRF-TOKEN': csrfToken, 
+        //                 'Content-Type': 'application/json', 
+        //                 'Accept': 'application/json' 
+        //             }
+        //         });
+        //         const data = await response.json();
                 
-                if (!response.ok) {
-                    if (data.warning_type) {
-                        throw { message: data.message, warningType: data.warning_type };
-                    }
-                    throw new Error(data.message || 'Failed to delete event');
-                }
+        //         if (!response.ok) {
+        //             if (data.warning_type) {
+        //                 throw { message: data.message, warningType: data.warning_type };
+        //             }
+        //             throw new Error(data.message || 'Failed to delete event');
+        //         }
                 
-                showSuccess(data.message);
-                // Reload page after 1 second
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-            } catch (error) {
-                showError(error.message, error.warningType || null);
-            } finally {
-                document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'inline';
-                document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
-            }
-        }
+        //         showSuccess(data.message);
+        //         // Reload page after 1 second
+        //         setTimeout(() => {
+        //             location.reload();
+        //         }, 1000);
+        //     } catch (error) {
+        //         showError(error.message, error.warningType || null);
+        //     } finally {
+        //         document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'inline';
+        //         document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
+        //     }
+        // }
 
-        // Add friendly info banner if only one active event exists
-        document.addEventListener('DOMContentLoaded', function() {
-            const activeCount = parseInt('{{ $stats["active"] ?? 0 }}');
-            
-            if (activeCount === 1) {
-                const container = document.querySelector('.container-fluid');
-                const infoBanner = document.createElement('div');
-                infoBanner.className = 'alert alert-info alert-dismissible fade show';
-                infoBanner.innerHTML = `
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Helpful Tip:</strong> 
-                    You currently have <strong>1 active event</strong> on your landing page. 
-                    To deactivate, archive, or delete it, simply create or activate another event first. 
-                    This keeps your landing page looking great for visitors!
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                container.insertBefore(infoBanner, container.firstChild.nextSibling);
-            }
-        });
         
         // Auto search functionality
         let searchTimeout;
