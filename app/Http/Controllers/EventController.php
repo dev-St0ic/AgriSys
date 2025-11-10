@@ -68,7 +68,7 @@ class EventController extends Controller
     public function getEvents(Request $request)
     {
         try {
-            \Log::info('📡 Events API called', [
+            \Log::info(' Events API called', [
                 'category' => $request->get('category', 'all'),
                 'ip' => $request->ip(),
             ]);
@@ -84,7 +84,7 @@ class EventController extends Controller
 
             $events = $query->get();
             
-            \Log::info('✅ Events retrieved', [
+            \Log::info(' Events retrieved', [
                 'count' => $events->count(),
                 'categories' => $events->pluck('category')->unique()->values()
             ]);
@@ -118,7 +118,7 @@ class EventController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            \Log::error('❌ Events API Error', [
+            \Log::error(' Events API Error', [
                 'message' => $e->getMessage(),
             ]);
             
@@ -197,7 +197,7 @@ class EventController extends Controller
                         $deactivatedCount = 1;
                         $wasDeactivated = true;
 
-                        \Log::info('⚠️ [Events] Auto-deactivated oldest event (limit reached)', [
+                        \Log::info(' [Events] Auto-deactivated oldest event (limit reached)', [
                             'category' => $request->category,
                             'deactivated_id' => $oldestEvent->id,
                             'deactivated_title' => $oldestEvent->title
@@ -245,7 +245,7 @@ class EventController extends Controller
 
             DB::commit();
 
-            \Log::info('✅ [Events] Event created successfully', [
+            \Log::info(' [Events] Event created successfully', [
                 'id' => $event->id,
                 'title' => $event->title,
                 'category' => $event->category,
@@ -273,7 +273,7 @@ class EventController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            \Log::error('❌ [Events] Failed to create event', [
+            \Log::error(' [Events] Failed to create event', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine()
@@ -342,7 +342,7 @@ class EventController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('❌ [Events] Failed to load event', [
+            \Log::error(' [Events] Failed to load event', [
                 'id' => $event->id ?? 'unknown',
                 'message' => $e->getMessage()
             ]);
@@ -388,7 +388,7 @@ class EventController extends Controller
             if ($event->is_active && !$isActiveRequest && $activeCount <= 1) {
                 return response()->json([
                     'success' => false,
-                    'message' => '⚠️ Cannot deactivate the last active event. The landing page requires at least one active event to display.',
+                    'message' => ' Cannot deactivate the last active event. The landing page requires at least one active event to display.',
                     'warning_type' => 'last_active_event'
                 ], 422);
             }
@@ -445,7 +445,7 @@ class EventController extends Controller
 
             DB::commit();
 
-            \Log::info('✅ [Events] Event updated', ['id' => $event->id, 'changes' => count($changes)]);
+            \Log::info(' [Events] Event updated', ['id' => $event->id, 'changes' => count($changes)]);
 
             return response()->json([
                 'success' => true,
@@ -457,7 +457,7 @@ class EventController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('❌ [Events] Failed to update event', [
+            \Log::error(' [Events] Failed to update event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
@@ -494,7 +494,7 @@ class EventController extends Controller
 
             DB::commit();
 
-            \Log::info('✅ [Events] Event archived', ['id' => $event->id, 'reason' => $reason]);
+            \Log::info(' [Events] Event archived', ['id' => $event->id, 'reason' => $reason]);
 
             return response()->json([
                 'success' => true,
@@ -504,7 +504,7 @@ class EventController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('❌ [Events] Failed to archive event', [
+            \Log::error(' [Events] Failed to archive event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
@@ -528,7 +528,7 @@ class EventController extends Controller
 
             DB::commit();
 
-            \Log::info('✅ [Events] Event restored', ['id' => $event->id]);
+            \Log::info(' [Events] Event restored', ['id' => $event->id]);
 
             return response()->json([
                 'success' => true,
@@ -538,7 +538,7 @@ class EventController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('❌ [Events] Failed to restore event', [
+            \Log::error(' [Events] Failed to restore event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
@@ -582,7 +582,7 @@ class EventController extends Controller
 
             DB::commit();
 
-            \Log::info('✅ [Events] Event permanently deleted', ['id' => $eventId, 'title' => $eventTitle]);
+            \Log::info(' [Events] Event permanently deleted', ['id' => $eventId, 'title' => $eventTitle]);
 
             return response()->json([
                 'success' => true,
@@ -592,7 +592,7 @@ class EventController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('❌ [Events] Failed to delete event', [
+            \Log::error(' [Events] Failed to delete event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
@@ -603,7 +603,7 @@ class EventController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Toggle event active status
      * SAFETY RULES:
@@ -620,7 +620,7 @@ class EventController extends Controller
             if ($event->category === 'announcement') {
                 return response()->json([
                     'success' => false,
-                    'message' => '❌ Announcements must always be active and cannot be deactivated. This is required to maintain landing page content.',
+                    'message' => ' Announcements must always be active and cannot be deactivated. This is required to maintain landing page content.',
                     'warning_type' => 'announcement_always_active'
                 ], 422);
             }
@@ -635,7 +635,7 @@ class EventController extends Controller
                 if ($activeCountInCategory <= 1) {
                     return response()->json([
                         'success' => false,
-                        'message' => '⚠️ This is the only active event in the ' . ucfirst($event->category) . ' category. Please activate another event first, or create a new one.',
+                        'message' => ' This is the only active event in the ' . ucfirst($event->category) . ' category. Please activate another event first, or create a new one.',
                         'warning_type' => 'last_active_in_category'
                     ], 422);
                 }
@@ -651,7 +651,7 @@ class EventController extends Controller
                 if ($activeCountInCategory >= 3) {
                     return response()->json([
                         'success' => false,
-                        'message' => '⚠️ The ' . ucfirst($event->category) . ' category already has 3 active events (maximum limit). Please deactivate one first.',
+                        'message' => ' The ' . ucfirst($event->category) . ' category already has 3 active events (maximum limit). Please deactivate one first.',
                         'warning_type' => 'category_limit_reached'
                     ], 422);
                 }
@@ -668,7 +668,7 @@ class EventController extends Controller
                 'is_active' => ['old' => !$newStatus, 'new' => $newStatus]
             ], 'Event status changed');
 
-            \Log::info('✅ [Events] Event status toggled', [
+            \Log::info(' [Events] Event status toggled', [
                 'id' => $event->id,
                 'category' => $event->category,
                 'new_status' => $newStatus ? 'active' : 'inactive'
@@ -677,14 +677,14 @@ class EventController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => $newStatus
-                    ? '✅ Event "' . $event->title . '" is now active'
-                    : '✅ Event "' . $event->title . '" is now inactive',
+                    ? ' Event "' . $event->title . '" is now active'
+                    : ' Event "' . $event->title . '" is now inactive',
                 'is_active' => $newStatus,
                 'category' => $event->category
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('❌ [Events] Failed to toggle event status', [
+            \Log::error(' [Events] Failed to toggle event status', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
@@ -719,7 +719,7 @@ class EventController extends Controller
             return view('admin.event.archived', compact('events'));
 
         } catch (\Exception $e) {
-            \Log::error('❌ [Events] Failed to fetch archived events', [
+            \Log::error(' [Events] Failed to fetch archived events', [
                 'message' => $e->getMessage()
             ]);
             
@@ -751,7 +751,7 @@ class EventController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('❌ [Events] Failed to fetch statistics', [
+            \Log::error(' [Events] Failed to fetch statistics', [
                 'message' => $e->getMessage()
             ]);
             

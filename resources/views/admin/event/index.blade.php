@@ -1234,7 +1234,7 @@
                 setTimeout(() => {
                     location.reload();
                 }, 1000);
-                
+
             } catch (error) {
                 showError(error.message, error.warningType || null);
             } finally {
@@ -1524,6 +1524,10 @@
                 }
                 
                 showSuccess(data.message);
+                // Reload page after 1 second
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
             } catch (error) {
                 showError(error.message, error.warningType || null);
             } finally {
