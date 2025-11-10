@@ -517,13 +517,23 @@ class EventController extends Controller
 
     /**
      * Restore/unarchive an event
+     * NOTE: Restored events remain in their original state (inactive)
+     * Only archive fields are cleared, is_active status is NOT changed
      */
     public function unarchive(Event $event)
     {
         try {
             DB::beginTransaction();
 
-            $event->unarchive(auth()->id());
+            $event->update([
+                'is_archived' => false,
+                'archived_at' => null,
+                'archive_reason' => null,
+                'archived_by' => null,
+                'updated_by' => auth()->id()
+            ]);
+
+            $event->logAction('restored', auth()->id(), null, 'Event restored from archive');
 
             DB::commit();
 
@@ -531,7 +541,7 @@ class EventController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Event "' . $event->title . '" has been restored'
+                'message' => 'Event "' . $event->title . '" has been restored (remains inactive)'
             ]);
 
         } catch (\Exception $e) {

@@ -407,11 +407,11 @@
                 });
                 const data = await response.json();
                 
+                // Close modal first
+                const restoreModal = bootstrap.Modal.getInstance(document.getElementById('restoreEventModal'));
+                if (restoreModal) restoreModal.hide();
+                
                 if (!response.ok) {
-                    // Close modal first
-                    const restoreModal = bootstrap.Modal.getInstance(document.getElementById('restoreEventModal'));
-                    if (restoreModal) restoreModal.hide();
-                    
                     // Handle different warning types
                     if (data.warning_type) {
                         showToast('warning', data.message);
@@ -421,8 +421,11 @@
                     return;
                 }
                 
-                showSuccess(data.message);
-                setTimeout(() => location.reload(), 800);
+                // Show notification then reload
+                setTimeout(() => {
+                    showSuccess(data.message);
+                    setTimeout(() => location.reload(), 800);
+                }, 300);
             } catch (error) {
                 showError(error.message);
             } finally {
