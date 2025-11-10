@@ -61,7 +61,7 @@
         <div class="header-left">
             <div class="logo-text">
                 <div class="logo-container">
-                    <img src="{{ asset('images/logos/agri.jpg') }}" alt="AgriSys Logo" class="main-logo">
+                    <img src="{{ asset('images/logos/agrii-removebg.png') }}" alt="AgriSys Logo" class="main-logo">
                 </div>
             </div>
             <div class="header-center nav-buttons">
@@ -224,7 +224,7 @@
     <section class="events" id="events">
         <!-- Header with Logos and Title -->
         <div class="events-header">
-            <img src="{{ asset('images/logos/cagoFull.png') }}" alt="City Agriculture Office Logo" class="logo-icon"
+            <img src="{{ asset('images/logos/agrii-removebg.png') }}" alt="AgriSys Logo" class="logo-icon"
                 loading="lazy">
             <img src="{{ asset('images/logos/CityOfSanPedro.jpg') }}" alt="City of San Pedro Logo" class="logo-icon"
                 loading="lazy">

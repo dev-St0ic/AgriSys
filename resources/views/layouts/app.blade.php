@@ -716,7 +716,7 @@
                             <!-- Header with Brand and Toggle -->
                             <div class="sidebar-header d-flex align-items-center justify-content-between px-3 mb-3">
                                 <div class="sidebar-brand-content d-flex align-items-center justify-content-center">
-                                    <img src="{{ asset('images/logos/agri-removebg.png') }}" alt="AgriSys Logo"
+                                    <img src="{{ asset('images/logos/agrii-removebg.png') }}" alt="AgriSys Logo"
                                         class="sidebar-logo"
                                         style="height: 80px; width: auto;
                                                 filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
