@@ -25,7 +25,7 @@ class UserRegistrationController extends Controller
      */
     public function index(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             abort(403, 'Access denied. Admin privileges required.');
         }
 
@@ -652,7 +652,7 @@ class UserRegistrationController extends Controller
      */
     public function getRegistration($id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -730,7 +730,7 @@ class UserRegistrationController extends Controller
     public function viewDocument($id, $type)
     {
         // Check admin authentication
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -851,7 +851,7 @@ class UserRegistrationController extends Controller
     public function serveDocument($id, $type)
     {
         // Check admin authentication
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             abort(403, 'Access denied. Admin privileges required.');
         }
 
@@ -955,7 +955,7 @@ class UserRegistrationController extends Controller
      */
     public function banUser(Request $request, $id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -1000,7 +1000,7 @@ class UserRegistrationController extends Controller
      */
     public function unbanUser(Request $request, $id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -1040,7 +1040,7 @@ class UserRegistrationController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -1135,7 +1135,7 @@ class UserRegistrationController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
@@ -1164,7 +1164,7 @@ class UserRegistrationController extends Controller
      */
     public function getStatistics()
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied'
@@ -1205,7 +1205,7 @@ class UserRegistrationController extends Controller
         try {
             // Get user from session (not Laravel Auth)
             $userId = session('user.id');
-            
+
             if (!$userId) {
                 return response()->json([
                     'success' => false,
@@ -1215,7 +1215,7 @@ class UserRegistrationController extends Controller
 
             // Fetch fresh data from database
             $user = UserRegistration::find($userId);
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,
@@ -1254,7 +1254,7 @@ class UserRegistrationController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Profile polling error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error retrieving user profile: ' . $e->getMessage()
@@ -1523,7 +1523,7 @@ public function updateUserProfile(Request $request)
      */
     public function bulkApprove(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied'
@@ -1575,7 +1575,7 @@ public function updateUserProfile(Request $request)
      */
     public function bulkReject(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied'
@@ -1628,7 +1628,7 @@ public function updateUserProfile(Request $request)
      */
     public function bulkBan(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied'
@@ -1681,7 +1681,7 @@ public function updateUserProfile(Request $request)
      */
     public function export(Request $request)
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
             abort(403, 'Access denied');
         }
 
@@ -1968,7 +1968,7 @@ public function handleFacebookCallback(Request $request)
 
         // Store user in session
         $request->session()->regenerate(); // Regenerate session for security
-        
+
         $request->session()->put('user', [
             'id' => $userRegistration->id,
             'username' => $userRegistration->username,

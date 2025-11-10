@@ -24,15 +24,15 @@ use App\Http\Controllers\DSSController;
 use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\SlideshowController;
+use App\Http\Controllers\HomeController;
 
 // ==============================================
 // PUBLIC ROUTES
 // ==============================================
 
 // Landing page
-Route::get('/', function () {
-    return view('landingPage.landing');
-})->name('landing.page');
+Route::get('/', [HomeController::class, 'index'])->name('landing.page');
 
 // CSRF Token refresh route
 Route::get('/csrf-token', function () {
@@ -55,14 +55,12 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Service routes for frontend navigation
-Route::get('/services', function () {
-    return view('landingPage.landing');
-})->name('services');
+Route::get('/services', [HomeController::class, 'index'])->name('services');
 
 Route::get('/services/{service}', function ($service) {
     $validServices = ['rsbsa', 'seedlings', 'fishr', 'boatr', 'training'];
     if (in_array($service, $validServices)) {
-        return view('landingPage.landing');
+        return app(HomeController::class)->index();
     }
     return redirect()->route('landing.page');
 })->name('services.show');
@@ -86,13 +84,13 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     }
 })->name('api.validate-fishr');
 
-    // ==============================================
-    // ADMIN PROTECTED ROUTES
-    // ==============================================
+        // ==============================================
+        // ADMIN PROTECTED ROUTES
+        // ==============================================
 
     Route::middleware('admin')->group(function () {
-    // Dashboard
-    Route::get('/admin/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
+        // Dashboard
+        Route::get('/admin/dashboard', [AuthController::class, 'dashboard'])->name('admin.dashboard');
 
     // edit admin profile
 
@@ -163,6 +161,23 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     });
 
     // ==============================================
+    // EVENT MANAGEMENT
+    // ==============================================
+    Route::prefix('admin/events')->name('admin.event.')->group(function () {
+        Route::get('/', [EventController::class, 'index'])->name('index');
+        Route::post('/', [EventController::class, 'store'])->name('store');
+        Route::get('/{event}', [EventController::class, 'show'])->name('show');
+        Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])->name('update');
+        Route::post('/{event}/update', [EventController::class, 'update'])->name('update.post');
+        Route::post('/{event}/archive', [EventController::class, 'archive'])->name('archive');
+        Route::post('/{event}/unarchive', [EventController::class, 'unarchive'])->name('unarchive');
+        Route::delete('/{event}', [EventController::class, 'destroy'])->name('destroy');
+        Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])->name('toggle');
+        Route::get('/management/archived', [EventController::class, 'archivedEvents'])->name('archived');
+        Route::get('/statistics/all', [EventController::class, 'getStatistics'])->name('statistics');
+    });
+
+    // ==============================================
     // SEEDLING REQUESTS MANAGEMENT
     // ==============================================
 
@@ -203,8 +218,8 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::put('/items/{item}', [SeedlingCategoryItemController::class, 'updateItem'])->name('items.update');
     Route::get('/items/{item}', [SeedlingCategoryItemController::class, 'showItem'])->name('items.show');
     Route::delete('/items/{item}', [SeedlingCategoryItemController::class, 'destroyItem'])->name('items.destroy');
-    
-    Route::post('/seedlings/stock-status', [SeedlingsCategoryItemController::class, 'getStockStatus']);
+
+    Route::post('/seedlings/stock-status', [SeedlingCategoryItemController::class, 'getStockStatus']);
      // Stock Management
     // Route::post('/items/{item}/stock/add', [SeedlingCategoryItemController::class, 'addStock'])->name('items.stock.add');
     // Route::post('/items/{item}/stock/deduct', [SeedlingCategoryItemController::class, 'deductStock'])->name('items.stock.deduct');
@@ -263,11 +278,23 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // View specific log (MUST BE LAST - generic catch-all)
     Route::get('activity-logs/{id}', [ActivityLogController::class, 'show'])
         ->name('admin.activity-logs.show');
+
+    // ==============================================
+    // SLIDESHOW MANAGEMENT
+    // ==============================================
+    Route::prefix('slideshow')->name('admin.slideshow.')->group(function () {
+        Route::get('/', [SlideshowController::class, 'index'])->name('index');
+        Route::post('/', [SlideshowController::class, 'store'])->name('store');
+        Route::put('/{id}', [SlideshowController::class, 'update'])->name('update');
+        Route::delete('/{id}', [SlideshowController::class, 'destroy'])->name('destroy');
+        Route::post('/update-order', [SlideshowController::class, 'updateOrder'])->name('update-order');
+        Route::post('/{id}/toggle-status', [SlideshowController::class, 'toggleStatus'])->name('toggle-status');
+    });
 });
     // ==============================================
     // ANALYTICS ROUTES - SECTION
     // ==============================================
-    Route::prefix('admin/analytics')->name('admin.analytics.')->group(function () {
+    Route::prefix('admin/analytics')->name('admin.analytics.')->middleware(['auth', 'admin'])->group(function () {
         // SEEDLING ANALYTICS - EXISTING
         Route::get('/seedlings', [SeedlingAnalyticsController::class, 'index'])->name('seedlings');
         Route::get('/seedlings/export', [SeedlingAnalyticsController::class, 'export'])->name('seedlings.export');
@@ -537,13 +564,10 @@ Route::aliasMiddleware('user.session', UserSession::class);
 
 /*
 |--------------------------------------------------------------------------
-| Main Landing Page Route
+| Main Landing Page Route (handled above)
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    $user = session('user', null);
-    return view('landingPage.landing', compact('user'));
-})->name('landing.page');
+// Landing page route is defined earlier in the file with HomeController
 
 /*
 |--------------------------------------------------------------------------
@@ -607,15 +631,7 @@ Route::prefix('auth')->group(function () {
 */
 Route::middleware([App\Http\Middleware\UserSession::class])->group(function () {
     // Main user dashboard
-    Route::get('/dashboard', function () {
-        $user = session('user', null);
-
-        if (!$user) {
-            return redirect('/')->with('error', 'Please log in to access this page.');
-        }
-
-        return view('landingPage.landing', compact('user'));
-    })->name('user.dashboard');
+    Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('user.dashboard');
 
     // User profile routes
     Route::get('/profile', function () {
@@ -658,98 +674,14 @@ Route::prefix('api')->name('api.')->group(function () {
 });
 
 // ========================================
-// ADMIN ROUTES (Authentication + Admin Required)
+// EVENT ROUTES MOVED TO MAIN ADMIN GROUP ABOVE
 // ========================================
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    
-    Route::prefix('events')->name('event.')->group(function () {
-        
-        // Display event management page (active events only)
-        Route::get('/', [EventController::class, 'index'])
-            ->name('index');
-
-        // Create new event
-        Route::post('/', [EventController::class, 'store'])
-            ->name('store');
-
-        // Get single event data
-        Route::get('/{event}', [EventController::class, 'show'])
-            ->name('show');
-
-        // Update event
-        Route::match(['put', 'patch'], '/{event}', [EventController::class, 'update'])
-            ->name('update');
-
-        // Update event (POST with _method override)
-        Route::post('/{event}/update', [EventController::class, 'update'])
-            ->name('update.post');
-
-        // Archive event (soft deactivate)
-        Route::post('/{event}/archive', [EventController::class, 'archive'])
-            ->name('archive');
-
-        // Restore/unarchive event
-        Route::post('/{event}/unarchive', [EventController::class, 'unarchive'])
-            ->name('unarchive');
-
-        // Permanently delete event (hard delete)
-        Route::delete('/{event}', [EventController::class, 'destroy'])
-            ->name('destroy');
-
-        // Toggle event active/inactive status
-        Route::patch('/{event}/toggle-status', [EventController::class, 'toggleStatus'])
-            ->name('toggle');
-
-        // View archived events
-        Route::get('/management/archived', [EventController::class, 'archivedEvents'])
-            ->name('archived');
-
-        // Get event statistics for dashboard
-        Route::get('/statistics/all', [EventController::class, 'getStatistics'])
-            ->name('statistics');
-
-        // View archived events (alternative route)
-        Route::get('/admin/events/management/archived', [EventController::class, 'archivedEvents'])
-        ->name('admin.event.archived');
-    });
-});
-/**
- * ========================================
- * IMPLEMENTATION NOTES
- * ========================================
- * 
- * 1. CSRF Protection:
- *    - All POST, PATCH, PUT, DELETE requests require X-CSRF-TOKEN header
- *    - Include @csrf token in forms or pass via headers
- * 
- * 2. Authentication:
- *    - Admin routes require user to be authenticated
- *    - User must have 'admin' role in database
- * 
- * 3. File Uploads:
- *    - Image uploads must be multipart/form-data
- *    - Max file size: 2MB
- *    - Accepted formats: JPEG, PNG, GIF
- * 
- * 4. Rate Limiting:
- *    - Public API limited to 60 requests per minute per IP
- *    - Admin routes not rate limited
- * 
- * 5. Error Handling:
- *    - All responses include success boolean flag
- *    - Check response.ok in JavaScript before processing
- *    - Error messages are user-friendly
- * 
- * 6. Model Binding:
- *    - {event} uses route model binding to auto-load Event model
- *    - Returns 404 if event doesn't exist
- */
-/*
-|--------------------------------------------------------------------------
-| Public API Routes (for AJAX calls)
-|--------------------------------------------------------------------------
-*/
+// /*
+// |--------------------------------------------------------------------------
+// | Public API Routes (for AJAX calls)
+// |--------------------------------------------------------------------------
+// */
 Route::prefix('api')->group(function () {
     // Public information (no authentication required)
     Route::get('/registration-stats', [UserRegistrationController::class, 'getPublicStats'])->name('api.registration.stats');
@@ -815,10 +747,17 @@ if (app()->environment('local', 'testing')) {
                 'status' => 'unverified'
             ]]);
 
-            return view('landingPage.landing')->with('user', session('user'));
+            return app(HomeController::class)->index();
         });
     });
 }
+
+// ==============================================
+// API ROUTES
+// ==============================================
+// Get active slideshow images for landing page
+Route::get('/api/slideshow/active', [SlideshowController::class, 'getActiveSlides'])->name('api.slideshow.active');
+
 // ==============================================
 // FALLBACK ROUTE
 // ==============================================

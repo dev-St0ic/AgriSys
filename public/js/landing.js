@@ -290,7 +290,7 @@ function hideAllMainSections() {
 
 function hideAllForms() {
     const formIds = [
-        'rsbsa-choice', 'new-rsbsa', 
+        'rsbsa-choice', 'new-rsbsa',
         'seedlings-choice', 'seedlings-form',
         'fishr-form', 'boatr-form', 'training-form'
     ];
@@ -384,15 +384,15 @@ function closeForm(formId) {
 // document.addEventListener('DOMContentLoaded', function() {
 //     const filterButtons = document.querySelectorAll('.filter-btn');
 //     const eventCards = document.querySelectorAll('.event-card');
-    
+
 //     // Filter functionality
 //     filterButtons.forEach(button => {
 //         button.addEventListener('click', function() {
 //             filterButtons.forEach(btn => btn.classList.remove('active'));
 //             this.classList.add('active');
-            
+
 //             const filterValue = this.getAttribute('data-filter');
-            
+
 //             eventCards.forEach(card => {
 //                 if (filterValue === 'all') {
 //                     card.style.display = 'block';
@@ -418,16 +418,16 @@ function closeForm(formId) {
 //             });
 //         });
 //     });
-    
+
 //     // Expand/Collapse functionality
 //     eventCards.forEach(card => {
 //         const expandBtn = card.querySelector('.expand-btn');
 //         const expandableDetails = card.querySelector('.expandable-details');
-        
+
 //         if (expandBtn && expandableDetails) {
 //             expandBtn.addEventListener('click', function() {
 //                 const isExpanded = card.classList.contains('expanded');
-                
+
 //                 if (isExpanded) {
 //                     // Collapse
 //                     card.classList.remove('expanded');

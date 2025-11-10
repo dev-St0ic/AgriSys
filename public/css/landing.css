@@ -25,7 +25,7 @@ header {
     z-index: 1000;
     transition: all 0.3s ease;
     border-bottom: 1px solid rgba(45, 106, 79, 0.1);
-    min-height: 50px; 
+    min-height: 50px;
 }
 
 
@@ -37,6 +37,39 @@ header {
     margin: 0;
     padding: 0;
     flex-shrink: 0; /* Prevent logo from shrinking */
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-logo {
+    height: 100px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    max-width: 300px;
+}
+
+.main-logo:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive logo sizing */
+@media (max-width: 768px) {
+    .main-logo {
+        height: 80px;
+        max-width: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-logo {
+        height: 70px;
+        max-width: 200px;
+    }
 }
 
 
@@ -171,7 +204,7 @@ header {
     outline-offset: 2px;
 }
 
-/* --- Welcome Section --- */
+/* --- Welcome Section with Background Slideshow --- */
 .welcome {
     display: flex;
     flex-direction: column;
@@ -179,15 +212,86 @@ header {
     justify-content: center;
     height: 90vh;
     width: 100%;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../images/hero/temporaryBG.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
     position: relative;
     overflow: hidden;
     margin: 0;
     padding: 0;
+}
+
+/* Slideshow Container */
+.slideshow-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Fallback background */
+.welcome-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+    z-index: 0;
+}
+
+/* Individual Slides */
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    will-change: opacity;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+/* Ensure slides load properly */
+.slide {
+    background-color: #4CAF50; /* Fallback color if image fails to load */
+}
+
+/* Preload optimization */
+.slide::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    background-size: inherit;
+    background-position: inherit;
+    background-repeat: inherit;
+    z-index: -1;
+}
+
+/* Welcome Overlay for better text readability */
+.welcome-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+    z-index: 2;
 }
 
 /* Left side - Text content */
@@ -195,11 +299,184 @@ header {
     flex: 1;
     padding: 60px 60px;
     color: #1a1a1a;
-    z-index: 2;
+    z-index: 3;
     max-width: 600px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position: relative;
+}
+
+/* Slideshow Controls */
+.slideshow-controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.slide-indicators {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.indicator.active {
+    background: #24f798;
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(36, 247, 152, 0.5);
+}
+
+.indicator:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: scale(1.1);
+}
+
+/* Navigation Arrows - Now positioned beside dots */
+.slideshow-nav {
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    z-index: 4;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+}
+
+.slideshow-nav:hover {
+    background: rgba(0, 0, 0, 0.8);
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.slideshow-nav.prev {
+    order: 1;
+}
+
+.slide-indicators {
+    order: 2;
+}
+
+.slideshow-nav.next {
+    order: 3;
+}
+
+/* Animation for slide transitions */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: scale(1.1);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.slide.active {
+    animation: slideIn 1.5s ease-in-out;
+}
+
+/* Responsive adjustments for slideshow */
+@media (max-width: 768px) {
+    .slideshow-controls {
+        bottom: 20px;
+        gap: 15px;
+    }
+
+    .indicator {
+        width: 10px;
+        height: 10px;
+    }
+
+    .slide-indicators {
+        gap: 8px;
+    }
+
+    .slideshow-nav {
+        padding: 6px 10px;
+        font-size: 14px;
+        width: 32px;
+        height: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .slideshow-controls {
+        bottom: 15px;
+        gap: 12px;
+    }
+
+    .indicator {
+        width: 8px;
+        height: 8px;
+    }
+
+    .slide-indicators {
+        gap: 6px;
+    }
+
+    .slideshow-nav {
+        padding: 5px 8px;
+        font-size: 12px;
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 360px) {
+    .slideshow-controls {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .slideshow-nav.prev,
+    .slide-indicators,
+    .slideshow-nav.next {
+        order: initial;
+    }
+
+    .slide-indicators {
+        order: 1;
+    }
+
+    .slideshow-controls .slideshow-nav {
+        order: 2;
+        display: inline-flex;
+        margin: 0 5px;
+    }
+}
+
+/* Improve performance with GPU acceleration */
+.slideshow-container,
+.slide,
+.welcome-overlay,
+.welcome-content {
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .welcome h2 {
@@ -1031,11 +1308,11 @@ header {
     .services-grid {
         max-width: 1000px;
     }
-    
+
     .row-three {
         gap: 18px;
     }
-    
+
     .row-two-centered {
         gap: 18px;
         max-width: 700px;
@@ -1055,7 +1332,7 @@ header {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
-    
+
     .row-two-centered {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
@@ -1083,7 +1360,7 @@ header {
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    
+
     .row-two-centered {
         grid-template-columns: 1fr;
         gap: 20px;
