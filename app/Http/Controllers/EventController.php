@@ -497,7 +497,7 @@ class EventController extends Controller
             if ($activeCount <= 1 && $event->is_active) {
                 return response()->json([
                     'success' => false,
-                    'message' => '⚠️ Cannot archive the last active event. The landing page must always display at least one event. Please create or activate another event first.',
+                    'message' => 'This is the only active event on your landing page. Please create or activate another event before archiving this one to ensure visitors always have content to view.',
                     'warning_type' => 'last_active_event'
                 ], 422);
             }
@@ -573,12 +573,12 @@ class EventController extends Controller
     public function destroy(Event $event)
     {
         try {
-            // SAFETY CHECK: Don't delete if it's the last active event
+           // SAFETY CHECK: Don't delete if it's the last active event
             $activeCount = Event::active()->count();
             if ($activeCount <= 1 && $event->is_active) {
                 return response()->json([
                     'success' => false,
-                    'message' => '⚠️ Cannot delete the last active event. The landing page must always display at least one event.',
+                    'message' => 'This is the only active event displayed on your landing page. Please create or activate another event before deleting this one.',
                     'warning_type' => 'last_active_event'
                 ], 422);
             }
@@ -634,7 +634,7 @@ class EventController extends Controller
             if ($event->is_active && $activeCount <= 1) {
                 return response()->json([
                     'success' => false,
-                    'message' => '⚠️ Cannot deactivate the last active event. The landing page must always have at least one active event.',
+                    'message' => 'This is the only active event on your landing page. Please activate or create another event before turning this one off.',
                     'warning_type' => 'last_active_event'
                 ], 422);
             }

@@ -826,7 +826,7 @@
             return details;
         }
 
-        // Enhanced error handler for safety warnings
+        // Enhanced friendly notification handler
         function showError(message, warningType = null) {
             document.querySelectorAll('.modal.show').forEach(m => {
                 const bsModal = bootstrap.Modal.getInstance(m);
@@ -834,41 +834,22 @@
             });
             
             setTimeout(() => {
-                const errorModal = document.getElementById('errorModal');
-                const errorMessage = document.getElementById('errorMessage');
-                
-                // Add warning icon and styling for specific warning types
+                // For safety warnings, use a friendly info modal style
                 if (warningType === 'last_active_event' || warningType === 'no_active_events') {
-                    errorMessage.innerHTML = `
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 2rem;"></i>
-                            <div>
-                                <strong>Landing Page Protection</strong>
-                                <p class="mb-0 mt-2">${message}</p>
-                                ${warningType === 'last_active_event' ? 
-                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>This safety feature ensures visitors always see content on the landing page.</p>' : 
-                                    '<p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Create an active event to make this change.</p>'
-                                }
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Change modal header color to warning
-                    const modalHeader = errorModal.querySelector('.modal-header');
-                    modalHeader.classList.remove('bg-danger');
-                    modalHeader.classList.add('bg-warning', 'text-dark');
-                    modalHeader.querySelector('.modal-title').textContent = 'Action Not Allowed';
+                    showToast('info', message);
                 } else {
+                    // For actual errors, show error modal
+                    const errorModal = document.getElementById('errorModal');
+                    const errorMessage = document.getElementById('errorMessage');
                     errorMessage.textContent = message;
                     
-                    // Reset to error styling
                     const modalHeader = errorModal.querySelector('.modal-header');
                     modalHeader.classList.remove('bg-warning', 'text-dark');
                     modalHeader.classList.add('bg-danger', 'text-white');
                     modalHeader.querySelector('.modal-title').textContent = 'Error';
+                    
+                    new bootstrap.Modal(errorModal).show();
                 }
-                
-                new bootstrap.Modal(errorModal).show();
             }, 300);
         }
 
@@ -1475,26 +1456,25 @@
             }
         }
 
-        // Add warning banner if only one active event exists
+        // Add friendly info banner if only one active event exists
         document.addEventListener('DOMContentLoaded', function() {
             const activeCount = parseInt('{{ $stats["active"] ?? 0 }}');
             
             if (activeCount === 1) {
                 const container = document.querySelector('.container-fluid');
-                const warningBanner = document.createElement('div');
-                warningBanner.className = 'alert alert-warning alert-dismissible fade show';
-                warningBanner.innerHTML = `
-                    <i class="fas fa-shield-alt me-2"></i>
-                    <strong>Landing Page Protection Active:</strong> 
-                    You currently have only <strong>1 active event</strong>. 
-                    This event cannot be deactivated, archived, or deleted until another event is made active. 
-                    This ensures the landing page always displays content to visitors.
+                const infoBanner = document.createElement('div');
+                infoBanner.className = 'alert alert-info alert-dismissible fade show';
+                infoBanner.innerHTML = `
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Helpful Tip:</strong> 
+                    You currently have <strong>1 active event</strong> on your landing page. 
+                    To deactivate, archive, or delete it, simply create or activate another event first. 
+                    This keeps your landing page looking great for visitors!
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
-                container.insertBefore(warningBanner, container.firstChild.nextSibling);
+                container.insertBefore(infoBanner, container.firstChild.nextSibling);
             }
         });
-
         
         // Auto search functionality
         let searchTimeout;
