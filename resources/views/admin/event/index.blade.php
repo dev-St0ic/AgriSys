@@ -646,13 +646,70 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         let currentFilter = 'all';
 
-        // Initialize tooltips
         document.addEventListener('DOMContentLoaded', function() {
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Fix modal backdrop lingering issue for ALL modals
+        const modals = document.querySelectorAll('.modal');
+        
+        modals.forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function() {
+                // Remove any lingering backdrops
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+                
+                // Remove modal-open class from body
+                document.body.classList.remove('modal-open');
+                
+                // Reset body overflow
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                console.log('Modal cleaned up:', this.id);
             });
         });
+
+        // Specific fix for edit/create event modals
+        const eventModals = [
+            'createEventModal',
+            'editEventModal',
+            'viewEventModal',
+            'archiveEventModal',
+            'deleteEventModal',
+            'errorModal',
+            'successModal'
+        ];
+
+        eventModals.forEach(modalId => {
+            const modalElement = document.getElementById(modalId);
+            if (modalElement) {
+                modalElement.addEventListener('hidden.bs.modal', function() {
+                    // Force cleanup
+                    const backdrops = document.querySelectorAll('.modal-backdrop.fade.show');
+                    backdrops.forEach(backdrop => backdrop.remove());
+                    
+                    // Remove all backdrops as fallback
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                    
+                    // Ensure body is scrollable
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                    
+                    // Force remove modal-open if no other modals are open
+                    const openModals = document.querySelectorAll('.modal.show');
+                    if (openModals.length === 0) {
+                        document.body.classList.remove('modal-open');
+                    }
+                    
+                    console.log('Event modal cleaned up:', modalId);
+                });
+            }
+        });
+    });
 
         function filterEvents(category) {
             currentFilter = category;
@@ -747,14 +804,70 @@
             }, 300);
         }
 
+        // show success
         function showSuccess(message) {
             document.querySelectorAll('.modal.show').forEach(m => {
                 const bsModal = bootstrap.Modal.getInstance(m);
                 if (bsModal) bsModal.hide();
             });
             setTimeout(() => {
-                document.getElementById('successMessage').textContent = message;
-                new bootstrap.Modal(document.getElementById('successModal')).show();
+                showToast('success', message || 'Operation completed successfully');
+            }, 300);
+        }
+
+       // Toast notification system
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
             }, 300);
         }
 
@@ -841,6 +954,7 @@
                 if (!data.success) throw new Error('Failed to load event');
                 const event = data.event;
 
+                // Populate form fields
                 document.getElementById('edit_event_id').value = event.id;
                 document.getElementById('edit_title').value = event.title;
                 document.getElementById('edit_description').value = event.description;
@@ -848,6 +962,14 @@
                 document.getElementById('edit_is_active').value = event.is_active ? '1' : '0';
                 document.getElementById('edit_date').value = event.date || '';
                 document.getElementById('edit_location').value = event.location || '';
+
+                // Store original values for change detection
+                document.getElementById('edit_title').dataset.originalValue = event.title;
+                document.getElementById('edit_description').dataset.originalValue = event.description;
+                document.getElementById('edit_category').dataset.originalValue = event.category;
+                document.getElementById('edit_is_active').dataset.originalValue = event.is_active ? '1' : '0';
+                document.getElementById('edit_date').dataset.originalValue = event.date || '';
+                document.getElementById('edit_location').dataset.originalValue = event.location || '';
 
                 const imagePreview = document.getElementById('current_event_image');
                 if (event.image) {
@@ -865,11 +987,11 @@
                         row.innerHTML = `
                             <div class="row">
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control form-control-sm detail-key" value="${key}">
+                                    <input type="text" class="form-control form-control-sm detail-key" value="${key}" data-original-key="${key}">
                                 </div>
                                 <div class="col-md-6">
                                     <div class="input-group input-group-sm">
-                                        <input type="text" class="form-control detail-value" value="${value}">
+                                        <input type="text" class="form-control detail-value" value="${value}" data-original-value="${value}">
                                         <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeDetailRow(this)">Remove</button>
                                     </div>
                                 </div>
@@ -879,11 +1001,238 @@
                     }
                 }
 
+                // Initialize change detection
+                initializeEventChangeDetection();
+
                 new bootstrap.Modal(document.getElementById('editEventModal')).show();
             } catch (error) {
                 showError(error.message);
             }
         }
+
+        // Initialize change detection listeners
+        function initializeEventChangeDetection() {
+            const form = document.getElementById('editEventForm');
+            const submitBtn = form.querySelector('.btn-primary');
+            const fileInput = form.querySelector('input[type="file"]');
+
+            // Track all input changes
+            form.querySelectorAll('input[type="text"], textarea, select').forEach(input => {
+                input.addEventListener('change', () => checkEventChanges(submitBtn));
+                input.addEventListener('input', () => checkEventChanges(submitBtn));
+            });
+
+            // Track file input changes
+            if (fileInput) {
+                fileInput.addEventListener('change', () => checkEventChanges(submitBtn));
+            }
+
+            // Initial check
+            checkEventChanges(submitBtn);
+        }
+
+        // Check for changes in the event form
+        function checkEventChanges(submitBtn) {
+            const form = document.getElementById('editEventForm');
+            let hasChanges = false;
+
+            // Check regular fields
+            const fieldsToCheck = [
+                'edit_title',
+                'edit_description',
+                'edit_category',
+                'edit_is_active',
+                'edit_date',
+                'edit_location'
+            ];
+
+            fieldsToCheck.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input && input.value !== (input.dataset.originalValue || '')) {
+                    hasChanges = true;
+                    input.classList.add('form-changed');
+                    input.parentElement.classList.add('change-indicator', 'changed');
+                } else if (input) {
+                    input.classList.remove('form-changed');
+                    input.parentElement.classList.remove('change-indicator', 'changed');
+                }
+            });
+
+            // Check detail rows
+            const detailRows = document.querySelectorAll('#editDetailsContainer .detail-row');
+            const originalDetailsContainer = document.getElementById('editDetailsContainer');
+            
+            detailRows.forEach(row => {
+                const keyInput = row.querySelector('.detail-key');
+                const valueInput = row.querySelector('.detail-value');
+                
+                const keyChanged = keyInput.value !== (keyInput.dataset.originalKey || '');
+                const valueChanged = valueInput.value !== (valueInput.dataset.originalValue || '');
+                
+                if (keyChanged || valueChanged) {
+                    hasChanges = true;
+                    row.classList.add('detail-row-changed');
+                } else {
+                    row.classList.remove('detail-row-changed');
+                }
+            });
+
+            // Check for new detail rows (rows without original values)
+            detailRows.forEach(row => {
+                const keyInput = row.querySelector('.detail-key');
+                if (!keyInput.dataset.originalKey && keyInput.value) {
+                    hasChanges = true;
+                }
+            });
+
+            // Check file input
+            const fileInput = form.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files.length > 0) {
+                hasChanges = true;
+            }
+
+            // Update submit button state
+            if (hasChanges) {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.innerHTML = `
+                    <span class="btn-text"><i class="fas fa-save me-1"></i>Update Event</span>
+                    <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+                `;
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.classList.add('no-changes');
+                submitBtn.innerHTML = `
+                    <span class="btn-text"><i class="fas fa-check me-1"></i>No Changes</span>
+                    <span class="btn-loader" style="display: none;"><span class="spinner-border spinner-border-sm me-2"></span>Updating...</span>
+                `;
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Update the edit form submission to check for changes first
+        document.getElementById('editEventForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Check if there are actual changes
+            let hasChanges = false;
+            
+            const fieldsToCheck = [
+                'edit_title',
+                'edit_description',
+                'edit_category',
+                'edit_is_active',
+                'edit_date',
+                'edit_location'
+            ];
+
+            fieldsToCheck.forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input && input.value !== (input.dataset.originalValue || '')) {
+                    hasChanges = true;
+                }
+            });
+
+            // Check for file input
+            const fileInput = this.querySelector('input[type="file"]');
+            if (fileInput && fileInput.files.length > 0) {
+                hasChanges = true;
+            }
+
+            // Check detail rows for changes
+            const detailRows = document.querySelectorAll('#editDetailsContainer .detail-row');
+            detailRows.forEach(row => {
+                const keyInput = row.querySelector('.detail-key');
+                const valueInput = row.querySelector('.detail-value');
+                
+                if (keyInput.value !== (keyInput.dataset.originalKey || '') ||
+                    valueInput.value !== (valueInput.dataset.originalValue || '')) {
+                    hasChanges = true;
+                }
+            });
+
+            if (!hasChanges) {
+                showError('No changes detected. Please modify the event details before updating.');
+                return;
+            }
+
+            // Continue with the original form submission
+            const formData = new FormData(this);
+            const details = collectDetails(document.getElementById('editDetailsContainer'));
+            const eventId = document.getElementById('edit_event_id').value;
+            
+            formData.append('details', JSON.stringify(details));
+
+            try {
+                document.querySelector('#editEventForm .btn-text').style.display = 'none';
+                document.querySelector('#editEventForm .btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/events/${eventId}`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (data.warning_type) {
+                        throw { message: data.message, warningType: data.warning_type };
+                    }
+                    throw new Error(data.message || 'Failed to update event');
+                }
+                
+                showSuccess(data.message);
+            } catch (error) {
+                showError(error.message, error.warningType || null);
+            } finally {
+                document.querySelector('#editEventForm .btn-text').style.display = 'inline';
+                document.querySelector('#editEventForm .btn-loader').style.display = 'none';
+            }
+        });
+
+        // Add CSS for visual feedback
+        const style = document.createElement('style');
+        style.textContent = `
+            .form-changed {
+                border-left: 3px solid #ffc107 !important;
+                background-color: #fff3cd;
+                transition: all 0.3s ease;
+            }
+
+            .no-changes {
+                opacity: 0.7;
+                cursor: not-allowed !important;
+                transition: all 0.3s ease;
+            }
+
+            .change-indicator {
+                position: relative;
+            }
+
+            .change-indicator.changed::after {
+                content: "●";
+                color: #ffc107;
+                font-size: 12px;
+                position: absolute;
+                right: -15px;
+                top: 50%;
+                transform: translateY(-50%);
+                opacity: 1;
+                transition: opacity 0.3s ease;
+            }
+
+            .detail-row-changed {
+                background-color: #fff3cd;
+                padding: 8px;
+                border-radius: 4px;
+                animation: highlight 0.3s ease;
+            }
+
+            @keyframes highlight {
+                from { background-color: #ffe6e6; }
+                to { background-color: #fff3cd; }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Archive event
         function archiveEvent(eventId) {
@@ -941,42 +1290,6 @@
             } finally {
                 document.querySelector('#createEventForm .btn-text').style.display = 'inline';
                 document.querySelector('#createEventForm .btn-loader').style.display = 'none';
-            }
-        });
-
-        // EDIT EVENT FORM
-        document.getElementById('editEventForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const eventId = document.getElementById('edit_event_id').value;
-            const formData = new FormData(this);
-            const details = collectDetails(document.getElementById('editDetailsContainer'));
-            
-            formData.append('details', JSON.stringify(details));
-
-            try {
-                document.querySelector('#editEventForm .btn-text').style.display = 'none';
-                document.querySelector('#editEventForm .btn-loader').style.display = 'inline';
-
-                const response = await fetch(`/admin/events/${eventId}`, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: formData
-                });
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    if (data.warning_type) {
-                        throw { message: data.message, warningType: data.warning_type };
-                    }
-                    throw new Error(data.message || 'Failed to update event');
-                }
-                
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message, error.warningType || null);
-            } finally {
-                document.querySelector('#editEventForm .btn-text').style.display = 'inline';
-                document.querySelector('#editEventForm .btn-loader').style.display = 'none';
             }
         });
 
@@ -1232,6 +1545,7 @@
                 statusElement.innerHTML = statusText;
             }
         }
+
         console.log('✅ Admin page loaded successfully');
     </script>
 
@@ -1285,6 +1599,133 @@
         }
         .btn-group-sm .btn {
             flex: 1;
+        }
+
+         /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.25rem;
+            min-width: 24px;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+            margin-left: 12px;
+        }
+
+        .toast-notification .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #333;
+        }
+
+        .toast-notification .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            .toast-notification .toast-content {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Modal Backdrop Fix */
+        .modal-backdrop {
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-backdrop.fade {
+            opacity: 0;
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.5;
+        }
+
+        /* Ensure body scrolling is restored */
+        body {
+            overflow: auto !important;
+            padding-right: 0 !important;
+        }
+
+        body.modal-open {
+            overflow: hidden;
         }
     </style>
 @endsection
