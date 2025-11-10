@@ -1230,6 +1230,11 @@
                 }
                 
                 showSuccess(data.message);
+                // Reload page after 1 second
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+                
             } catch (error) {
                 showError(error.message, error.warningType || null);
             } finally {
@@ -1309,8 +1314,25 @@
 
 
         // CREATE EVENT FORM
-        document.getElementById('createEventForm').addEventListener('submit', async function(e) {
+       document.getElementById('createEventForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            const category = document.querySelector('select[name="category"]').value;
+            const isActive = document.querySelector('select[name="is_active"]').value;
+            
+            // FRONTEND VALIDATION: Announcements are always active
+            if (category === 'announcement' && isActive === '0') {
+                showToast('warning', '📢 Announcements must always be active. Status has been automatically set to Active.');
+                document.querySelector('select[name="is_active"]').value = '1';
+                return;
+            }
+            
+            // Check if we're trying to create an active event and the category already has 3 active
+            if (isActive === '1') {
+                const category = document.querySelector('select[name="category"]').value;
+                // This check will be handled by the backend with warning/auto-deactivate
+            }
+            
             const formData = new FormData(this);
             const details = collectDetails(document.getElementById('detailsContainer'));
             formData.append('details', JSON.stringify(details));
@@ -1327,13 +1349,23 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    if (data.warning_type) {
-                        throw { message: data.message, warningType: data.warning_type };
+                    // Handle specific warning types
+                    if (data.warning_type === 'category_limit_reached') {
+                        throw { 
+                            message: '📊 ' + data.message + ' You can create it as inactive or deactivate an existing event first.', 
+                            warningType: data.warning_type 
+                        };
                     }
                     throw new Error(data.message || 'Failed to create event');
                 }
                 
                 showSuccess(data.message);
+                
+                // Reload page after 1 second
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+                
             } catch (error) {
                 showError(error.message, error.warningType || null);
             } finally {
@@ -1341,6 +1373,7 @@
                 document.querySelector('#createEventForm .btn-loader').style.display = 'none';
             }
         });
+
 
         // ARCHIVE EVENT FORM
         document.getElementById('archiveEventForm').addEventListener('submit', async function(e) {
@@ -1364,13 +1397,23 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    if (data.warning_type) {
+                    if (data.warning_type === 'last_active_event') {
+                        showToast('info', '⚠️ ' + data.message);
+                    } else if (data.warning_type) {
                         throw { message: data.message, warningType: data.warning_type };
+                    } else {
+                        throw new Error(data.message || 'Failed to archive event');
                     }
-                    throw new Error(data.message || 'Failed to archive event');
+                    return;
                 }
                 
                 showSuccess(data.message);
+                
+                // Reload page after 1 second
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+                
             } catch (error) {
                 showError(error.message, error.warningType || null);
             } finally {
@@ -1381,54 +1424,82 @@
 
         // TOGGLE STATUS
         async function toggleEvent(eventId) {
+        try {
+            const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+            });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                // Handle specific warning types with friendly messages
+                if (data.warning_type === 'announcement_always_active') {
+                    showToast('warning', '📢 ' + data.message);
+                } else if (data.warning_type === 'last_active_in_category') {
+                    showToast('info', '⚠️ ' + data.message);
+                } else if (data.warning_type === 'category_limit_reached') {
+                    showToast('info', '📊 ' + data.message);
+                } else if (data.warning_type === 'last_active_event') {
+                    showToast('info', '⚠️ ' + data.message);
+                } else {
+                    throw new Error(data.message || 'Failed to update status');
+                }
+                return;
+            }
+            
+            showSuccess(data.message);
+            
+            // Reload page after 1 second to show updated data
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+            
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
+        // DELETE EVENT
+       async function confirmPermanentDelete() {
             try {
-                const response = await fetch(`/admin/events/${eventId}/toggle-status`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
+                document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'none';
+                document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'inline';
+
+                const response = await fetch(`/admin/events/${currentDeleteEventId}`, {
+                    method: 'DELETE',
+                    headers: { 
+                        'X-CSRF-TOKEN': csrfToken, 
+                        'Content-Type': 'application/json', 
+                        'Accept': 'application/json' 
+                    }
                 });
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    if (data.warning_type) {
+                    if (data.warning_type === 'last_active_event') {
+                        showToast('info', '⚠️ ' + data.message);
+                    } else if (data.warning_type) {
                         throw { message: data.message, warningType: data.warning_type };
+                    } else {
+                        throw new Error(data.message || 'Failed to delete event');
                     }
-                    throw new Error(data.message || 'Failed to update status');
+                    return;
                 }
                 
                 showSuccess(data.message);
-                //  RELOAD PAGE AFTER 1 SECOND
+                
+                // Reload page after 1 second
                 setTimeout(() => {
                     location.reload();
                 }, 1000);
-
+                
             } catch (error) {
                 showError(error.message, error.warningType || null);
+            } finally {
+                document.getElementById('confirm_delete_btn').querySelector('.btn-text').style.display = 'inline';
+                document.getElementById('confirm_delete_btn').querySelector('.btn-loader').style.display = 'none';
             }
         }
-
-        // DELETE EVENT
-        let currentDeleteEventId = null;
-        function deleteEvent(eventId) {
-            try {
-                const row = document.querySelector(`tr[data-category]`)?.closest('tbody')?.querySelector('tr') || event.target.closest('.event-row');
-                let eventTitle = 'Event';
-                
-                // Get event title from the row
-                if (row) {
-                    const titleElement = row.querySelector('strong');
-                    if (titleElement) {
-                        eventTitle = titleElement.textContent;
-                    }
-                }
-                
-                currentDeleteEventId = eventId;
-                document.getElementById('delete_event_name').textContent = eventTitle;
-                new bootstrap.Modal(document.getElementById('deleteEventModal')).show();
-            } catch (error) {
-                showError('Failed to prepare delete dialog');
-            }
-        }
-
         // Confirm permanent delete
         async function confirmPermanentDelete() {
             try {
