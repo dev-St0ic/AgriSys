@@ -3258,8 +3258,8 @@ function toggleAddPasswordVisibility(inputId) {
                 console.log('Document modal cleaned up');
             });
         }
-
-       /**
+        
+        /**
          * Auto-capitalize first letter of each word in name fields (Title Case)
          */
         function capitalizeName(input) {
@@ -3307,7 +3307,7 @@ function toggleAddPasswordVisibility(inputId) {
         document.getElementById('add_contact_number')?.addEventListener('input', function() {
             validateAddContactNumber(this.value);
         });
-        
+
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
     </script>
 @endsection
