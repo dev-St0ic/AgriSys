@@ -16,7 +16,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 40px; /* adjust size */
+    padding: 8px 40px; /* Reduced from 10px to 8px */
     background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 20px rgba(45, 106, 79, 0.08);
@@ -25,7 +25,7 @@ header {
     z-index: 1000;
     transition: all 0.3s ease;
     border-bottom: 1px solid rgba(45, 106, 79, 0.1);
-    min-height: 50px;
+    min-height: 60px; /* Reduced from 50px to 60px but with smaller logo will be more compact */
 }
 
 
@@ -46,11 +46,11 @@ header {
 }
 
 .main-logo {
-    height: 100px;
+    height: 60px; /* Reduced from 100px to 60px */
     width: auto;
     object-fit: contain;
     transition: transform 0.3s ease;
-    max-width: 300px;
+    max-width: 180px; /* Reduced from 300px to 180px */
 }
 
 .main-logo:hover {
@@ -93,27 +93,27 @@ header {
 /* Header center navigation */
 .header-center {
     display: flex;
-    gap: 15px;
+    gap: 12px; /* Reduced from 15px to 12px */
     align-items: center;
     margin-left: auto; /* space between left and center */
-    margin-right: 10px; /* Space before auth buttons */
+    margin-right: 8px; /* Reduced from 10px to 8px */
 }
 
 .header-center .btn {
-    padding: 12px 20px;
+    padding: 10px 16px; /* Reduced from 12px 20px to 10px 16px */
     background-color: #ffffff;
     color: #2d6a4f;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 0.95rem; /* Slightly reduced from 1rem */
     font-weight: 500;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     text-align: center;
-    min-width: 80px; /* Ensures buttons have a minimum width */
+    min-width: 70px; /* Reduced from 80px to 70px */
 }
 
 .header-center .btn:hover {
@@ -148,20 +148,20 @@ header {
     align-items: center;
     justify-content: space-between;
     width: 100%; /* Take full width to push items apart */
-    gap: 20px; /* Add gap between logo and buttons */
+    gap: 15px; /* Reduced from 20px to 15px */
 }
 
 /* Auth buttons styling */
 .auth-buttons .btn {
-    padding: 12px 20px;
+    padding: 10px 16px; /* Reduced from 12px 20px */
     border-radius: 8px;
     cursor: pointer;
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 0.95rem; /* Reduced from 1rem */
     font-weight: 500;
     transition: all 0.3s ease;
     text-align: center;
-    min-width: 80px;
+    min-width: 70px; /* Reduced from 80px */
     border: none;
 }
 
@@ -210,7 +210,7 @@ header {
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    height: 90vh;
+    height: 100vh; /* Changed from 90vh to 100vh to fill full viewport */
     width: 100%;
     position: relative;
     overflow: hidden;
@@ -336,9 +336,9 @@ header {
 }
 
 .indicator.active {
-    background: #24f798;
+    background: #2d6a4f;
     transform: scale(1.2);
-    box-shadow: 0 0 10px rgba(36, 247, 152, 0.5);
+    box-shadow: 0 0 10px rgba(45, 106, 79, 0.5);
 }
 
 .indicator:hover {
@@ -653,13 +653,19 @@ header {
     flex-wrap: wrap;
 }
 
-/* Logo styling - COMPACT (Same as reference) */
+/* Logo styling - INCREASED SIZE */
 .logo-icon {
-    width: 70px;
-    height: 70px;
+    width: 100px;
+    height: 100px;
     object-fit: contain;
     opacity: 0.85;
     transition: opacity 0.3s ease;
+}
+
+/* AgriSys logo - EXTRA LARGE */
+.agrisys-logo-large {
+    width: 130px !important;
+    height: 130px !important;
 }
 
 .logo-icon:hover {
@@ -676,7 +682,7 @@ header {
 }
 
 .events h2 .highlight {
-    color: #40916c;
+    color: #2d6a4f;
 }
 
 .events-subtitle {
@@ -1069,8 +1075,13 @@ header {
     }
 
     .logo-icon {
-        width: 60px;
-        height: 60px;
+        width: 80px;
+        height: 80px;
+    }
+
+    .agrisys-logo-large {
+        width: 100px !important;
+        height: 100px !important;
     }
 
     .events h2 {
@@ -1120,8 +1131,13 @@ header {
     }
 
     .logo-icon {
-        width: 50px;
-        height: 50px;
+        width: 70px;
+        height: 70px;
+    }
+
+    .agrisys-logo-large {
+        width: 85px !important;
+        height: 85px !important;
     }
 
     .events h2 {

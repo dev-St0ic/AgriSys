@@ -13,73 +13,49 @@
     <div class="row">
         <!-- Statistics Cards -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Applications
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalRegistrations }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-ship fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-ship text-primary"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $totalRegistrations }}</div>
+                    <div class="stat-label text-primary">Total Applications</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Pending
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pendingCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-search text-warning"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $inspectionRequiredCount }}</div>
+                    <div class="stat-label text-warning">Inspection Required</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Inspection Required
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $inspectionRequiredCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-search fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $approvedCount }}</div>
+                    <div class="stat-label text-success">Approved</div>
                 </div>
             </div>
         </div>
 
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Approved
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $approvedCount }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                        </div>
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-hourglass-half text-info"></i>
                     </div>
+                    <div class="stat-number mb-2">{{ $pendingCount }}</div>
+                    <div class="stat-label text-info">Pending</div>
                 </div>
             </div>
         </div>
@@ -154,11 +130,22 @@
                             </option>
                         </select>
                     </div>
+                    <div class="col-md-2">
+                        <select name="barangay" class="form-select form-select-sm" onchange="submitFilterForm()">
+                            <option value="">All Barangays</option>
+                            @foreach ($barangays as $barangay)
+                                <option value="{{ $barangay }}"
+                                    {{ request('barangay') == $barangay ? 'selected' : '' }}>
+                                    {{ $barangay }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-md-3">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
-                                placeholder="Search name, vessel, FishR number..." value="{{ request('search') }}"
-                                oninput="autoSearch()" id="searchInput">
+                                placeholder="Search name, vessel, FishR number, barangay..."
+                                value="{{ request('search') }}" oninput="autoSearch()" id="searchInput">
                             <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
                                 id="searchButton">
                                 <i class="fas fa-search"></i>
@@ -184,9 +171,12 @@
     <!-- Applications Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-ship me-2"></i>BoatR Applications
-            </h6>
+            <div></div>
+            <div class="text-center flex-fill">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-ship me-2"></i>BoatR Applications
+                </h6>
+            </div>
             <div class="d-flex gap-2">
                 <a href="{{ route('admin.boatr.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
@@ -198,13 +188,14 @@
                 <table class="table table-bordered table-hover" id="registrationsTable">
                     <thead class="table-dark">
                         <tr>
-                            <th>Date Applied</th>
-                            <th>Application #</th>
-                            <th>Name</th>
-                            <th>Inspection</th>
-                            <th>Documents</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th class="text-center">Date Applied</th>
+                            <th class="text-center">Application #</th>
+                            <th class="text-center">Name</th>
+                            <th class="text-center">Barangay</th>
+                            <th class="text-center">Inspection</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Documents</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -215,6 +206,7 @@
                                     <strong class="text-primary">{{ $registration->application_number }}</strong>
                                 </td>
                                 <td>{{ $registration->full_name }}</td>
+                                <td>{{ $registration->barangay ?? 'N/A' }}</td>
                                 <td>
                                     @if ($registration->inspection_completed)
                                         <span class="badge bg-success"
@@ -225,45 +217,52 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @php
-                                        $userDocs = $registration->hasUserDocument() ? 1 : 0;
-                                        $inspectionDocs = count($registration->inspection_documents ?? []);
-                                        $totalDocs = $userDocs + $inspectionDocs;
-                                    @endphp
-                                    <div id="documents-cell-{{ $registration->id }}">
-                                        @if ($totalDocs > 0)
-                                            <button class="btn btn-sm btn-info"
-                                                onclick="viewDocuments({{ $registration->id }})">
-                                                <i class="fas fa-file-alt"></i>
-                                                View ({{ $totalDocs }})
-                                            </button>
-                                        @else
-                                            <span class="badge bg-secondary">No documents</span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td>
                                     <span class="badge bg-{{ $registration->status_color }} fs-6"
                                         id="status-badge-{{ $registration->id }}">
                                         {{ $registration->formatted_status }}
                                     </span>
                                 </td>
-                                <td>
-                                    <div class="d-flex gap-1" id="actions-{{ $registration->id }}">
-                                        <button class="btn btn-sm btn-primary"
-                                            onclick="viewRegistration({{ $registration->id }})" title="View Details">
-                                            <i class="fas fa-eye me-1"></i>View
+                                <td class="text-center">
+                                    @php
+                                        $userDocs = $registration->hasUserDocument() ? 1 : 0;
+                                        $inspectionDocs = count($registration->inspection_documents ?? []);
+                                        $annexesDocs = $registration->annexes ? $registration->annexes->count() : 0;
+                                        $totalDocs = $userDocs + $inspectionDocs + $annexesDocs;
+                                    @endphp
+                                    @if ($totalDocs > 0)
+                                        <button class="btn btn-sm btn-outline-info"
+                                            onclick="viewDocuments({{ $registration->id }})" title="View Documents">
+                                            <i class="fas fa-file-alt me-1"></i>View
                                         </button>
-                                        <button class="btn btn-sm btn-warning"
+                                    @else
+                                        <span class="badge bg-secondary fs-6">
+                                            <i class="fas fa-file-slash me-1"></i>No documents
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-sm btn-outline-primary"
+                                            onclick="viewRegistration({{ $registration->id }})" title="View Details">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+
+                                        <button class="btn btn-sm btn-outline-warning"
                                             onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
                                             title="Update Status">
-                                            <i class="fas fa-edit me-1"></i>Update
+                                            <i class="fas fa-edit"></i> Update
                                         </button>
+
+                                        <button class="btn btn-sm btn-annexes"
+                                            onclick="showAnnexesModal({{ $registration->id }})" title="Manage Annexes">
+                                            <i class="fas fa-folder-plus me-1"></i>Annexes
+                                        </button>
+
                                         @if (!$registration->inspection_completed)
-                                            <button class="btn btn-sm btn-success"
+                                            <button class="btn btn-sm btn-outline-success"
                                                 onclick="showInspectionModal({{ $registration->id }})"
                                                 title="Complete Inspection">
-                                                <i class="fas fa-search me-1"></i>Inspection
+                                                <i class="fas fa-search"></i>Inspection
                                             </button>
                                         @endif
                                     </div>
@@ -271,7 +270,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">
+                                <td colspan="8" class="text-center text-muted py-4">
                                     <i class="fas fa-ship fa-3x mb-3 text-gray-300"></i>
                                     <p>No registrations found</p>
                                 </td>
@@ -377,6 +376,7 @@
                                     <p class="mb-1"><strong>Application #:</strong> <span id="updateRegNumber"></span>
                                     </p>
                                     <p class="mb-1"><strong>Name:</strong> <span id="updateRegName"></span></p>
+                                    <p class="mb-1"><strong>Barangay:</strong> <span id="updateRegBarangay"></span></p>
                                     <p class="mb-1"><strong>Vessel:</strong> <span id="updateRegVessel"></span></p>
                                 </div>
                                 <div class="col-md-6">
@@ -507,29 +507,31 @@
         </div>
     </div>
 
-    <!-- Document Viewer Modal -->
-    <div class="modal fade" id="documentModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
+    <!-- Enhanced Document Viewer Modal -->
+    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title" id="documentModalLabel">
                         <i class="fas fa-file-alt me-2"></i>Application Documents
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-0">
                     <div id="documentViewerLoading" class="text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                             <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-2">Loading documents...</p>
+                        <p class="text-muted">Loading documents...</p>
                     </div>
                     <div id="documentViewer" style="display: none;">
                         <!-- Documents will be loaded here -->
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
                 </div>
             </div>
         </div>
@@ -548,6 +550,110 @@
                 <div class="modal-body">
                     <div id="documentPreview" class="text-center">
                         <!-- Document preview will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Annexes Modal -->
+    <div class="modal fade" id="annexesModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-folder-plus me-2"></i>Manage Annexes
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Loading State -->
+                    <div id="annexesLoading" class="text-center py-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading annexes...</p>
+                    </div>
+
+                    <!-- Content -->
+                    <div id="annexesContent">
+                        <!-- Application Info -->
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Application #:</strong> <span id="annexAppNumber"></span><br>
+                                        <strong>Applicant:</strong> <span id="annexApplicantName"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Vessel Name:</strong> <span id="annexVesselName"></span><br>
+                                        <strong>Status:</strong> <span id="annexStatus"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Upload New Annex -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-upload me-2"></i>Upload New Annex
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="annexUploadForm" enctype="multipart/form-data">
+                                    <input type="hidden" id="annexRegistrationId">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="annexFile" class="form-label">Select File *</label>
+                                                <input type="file" class="form-control" id="annexFile"
+                                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required>
+                                                <div class="invalid-feedback" id="annexFileError"></div>
+                                                <small class="text-muted">Supported formats: PDF, DOC, DOCX, JPG, PNG, GIF
+                                                    (Max: 10MB)</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="annexTitle" class="form-label">Document Title *</label>
+                                                <input type="text" class="form-control" id="annexTitle"
+                                                    placeholder="e.g., Additional Certificate, Supporting Document"
+                                                    required>
+                                                <div class="invalid-feedback" id="annexTitleError"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="annexDescription" class="form-label">Description</label>
+                                        <textarea class="form-control" id="annexDescription" rows="3"
+                                            placeholder="Brief description of the document (optional)"></textarea>
+                                        <small class="text-muted"><span id="annexDescCount">0</span>/500
+                                            characters</small>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="uploadAnnex()">
+                                        <i class="fas fa-upload me-1"></i>Upload Annex
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Existing Annexes -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-folder me-2"></i>Existing Annexes
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="annexesList">
+                                    <!-- Annexes will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -674,6 +780,73 @@
     </div>
 
     <style>
+        /* Modern Statistics Cards */
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e3e6f0;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+            border-color: #4e73df;
+        }
+
+        .stat-card:hover::before {
+            background: transparent;
+        }
+
+        .stat-card .card-body {
+            position: relative;
+            z-index: 2;
+            background: transparent;
+            margin: 0;
+            border-radius: 0;
+            backdrop-filter: none;
+            padding: 1.5rem;
+        }
+
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .stat-icon i {
+            font-size: 2.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #5a5c69;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         /* Enhanced Filter Section Styling */
         .filter-section .form-control,
         .filter-section .form-select {
@@ -684,8 +857,8 @@
 
         .filter-section .form-control:focus,
         .filter-section .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
         }
 
         .filter-section .input-group-text {
@@ -710,7 +883,7 @@
         }
 
         .bg-success {
-            background-color: #1cc88a !important;
+            background-color: #198754 !important;
         }
 
         .bg-danger {
@@ -719,27 +892,6 @@
 
         .bg-secondary {
             background-color: #858796 !important;
-        }
-
-        /* Card border colors */
-        .border-left-primary {
-            border-left: 0.25rem solid #4e73df !important;
-        }
-
-        .border-left-success {
-            border-left: 0.25rem solid #1cc88a !important;
-        }
-
-        .border-left-warning {
-            border-left: 0.25rem solid #f6c23e !important;
-        }
-
-        .border-left-danger {
-            border-left: 0.25rem solid #e74a3b !important;
-        }
-
-        .border-left-info {
-            border-left: 0.25rem solid #36b9cc !important;
         }
 
         /* Text utilities */
@@ -835,7 +987,7 @@
 
         /* Enhanced modal styling */
         .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
             color: white;
         }
 
@@ -899,6 +1051,225 @@
         .pagination .page-item:last-child .page-link {
             font-weight: 600;
         }
+
+        /* Annexes Button Styling */
+        .btn-annexes {
+            background-color: transparent;
+            border-color: #4e73df;
+            color: #4e73df;
+        }
+
+        .btn-annexes:hover {
+            background-color: #4e73df;
+            border-color: #4e73df;
+            color: white;
+        }
+
+        .btn-annexes:focus,
+        .btn-annexes:active {
+            background-color: #4e73df;
+            border-color: #4e73df;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        /* Annex Document Items */
+        .annex-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .annex-item:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .annex-title {
+            color: #4e73df;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .annex-meta {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        /* Modal z-index fixes for stacking */
+        .modal {
+            z-index: 1050;
+        }
+
+        .modal-backdrop {
+            z-index: 1049;
+        }
+
+        /* Preview modal when opened from annexes modal should be higher */
+        .modal-preview-from-annexes {
+            z-index: 1060 !important;
+        }
+
+        .modal-preview-from-annexes+.modal-backdrop {
+            z-index: 1059 !important;
+        }
+
+        /* Enhanced Document Viewer Styles */
+        #documentModal .modal-content,
+        #documentPreviewModal .modal-content {
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        #documentModal .modal-header,
+        #documentPreviewModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #documentModal .modal-footer,
+        #documentPreviewModal .modal-footer {
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #dee2e6;
+        }
+
+        #documentViewer,
+        #documentPreview {
+            min-height: 400px;
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        /* Enhanced document item styles */
+        .document-item {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .document-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Image zoom styles */
+        .document-image {
+            transition: transform 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .document-image:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Loading animation */
+        .document-loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* PDF container */
+        .pdf-container embed {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Video and audio controls */
+        video,
+        audio {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* File info badges */
+        .file-info-badge {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Enhanced download buttons */
+        .document-actions {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .document-actions .btn {
+            transition: all 0.2s ease;
+        }
+
+        .document-actions .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Document thumbnail improvements */
+        .document-thumbnail {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .document-thumbnail:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Enhanced card styles for document sections */
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+
+            #documentModal .modal-dialog,
+            #documentPreviewModal .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            #documentViewer,
+            #documentPreview {
+                padding: 0.5rem;
+            }
+
+            .document-actions .btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .document-item {
+                padding: 10px;
+            }
+        }
     </style>
 @endsection
 
@@ -929,10 +1300,10 @@
 
                     // Update statistics cards - BoatR structure
                     const cards = {
-                        total: ['.border-left-primary .h5'], // Total Applications
-                        pending: ['.border-left-info .h5'], // Pending
-                        inspection: ['.border-left-warning .h5'], // Inspection Required
-                        approved: ['.border-left-success .h5'] // Approved
+                        total: ['.stat-card:nth-child(1) .stat-number'], // Total Applications
+                        pending: ['.stat-card:nth-child(4) .stat-number'], // Pending
+                        inspection: ['.stat-card:nth-child(2) .stat-number'], // Inspection Required
+                        approved: ['.stat-card:nth-child(3) .stat-number'] // Approved
                     };
 
                     Object.entries(cards).forEach(([key, [selector]]) => {
@@ -1029,27 +1400,42 @@
                 }
             }
 
-            // Update documents cell
-            const documentsCell = document.getElementById(`documents-cell-${id}`);
-            if (documentsCell && data.total_documents !== undefined) {
+            // Update documents in actions
+            const actionsCell = document.getElementById(`actions-${id}`);
+            if (actionsCell && data.total_documents !== undefined) {
+                // Find the documents button or "None" span in the actions
+                const documentsBtn = actionsCell.querySelector('[onclick*="viewDocuments"]');
+                const noneSpan = actionsCell.querySelector('.btn-outline-danger.disabled');
+
                 if (data.total_documents > 0) {
-                    documentsCell.innerHTML = `
-                    <button class="btn btn-sm btn-info" onclick="viewDocuments(${id})">
-                        <i class="fas fa-file-alt"></i>
-                        View (${data.total_documents})
-                    </button>
-                `;
+                    if (noneSpan) {
+                        // Replace "None" span with documents button
+                        noneSpan.outerHTML = `
+                            <button class="btn btn-sm btn-outline-info" onclick="viewDocuments(${id})" title="View Documents">
+                                <i class="fas fa-file-alt"></i>Docs
+                            </button>
+                        `;
+                    } else if (documentsBtn) {
+                        // Update existing button tooltip
+                        documentsBtn.setAttribute('title', `View Documents (${data.total_documents})`);
+                    }
                 } else {
-                    documentsCell.innerHTML = '<span class="badge bg-secondary">No documents</span>';
+                    if (documentsBtn) {
+                        // Replace documents button with "None" span
+                        documentsBtn.outerHTML = `
+                            <span class="btn btn-sm btn-outline-danger disabled text-danger" title="No Documents Available">
+                                <i class="fas fa-file-slash text-danger"></i> None
+                            </span>
+                        `;
+                    }
                 }
             }
 
-            // Update actions buttons
-            const actionsCell = document.getElementById(`actions-${id}`);
-            if (actionsCell && !data.inspection_completed) {
+            // Update actions buttons for inspection
+            if (actionsCell && data.inspection_completed) {
                 // Remove inspection button if inspection is completed
                 const inspectionBtn = actionsCell.querySelector('[onclick*="showInspectionModal"]');
-                if (inspectionBtn && data.inspection_completed) {
+                if (inspectionBtn) {
                     inspectionBtn.remove();
                 }
             }
@@ -1103,6 +1489,7 @@
                     document.getElementById('updateRegId').textContent = data.id;
                     document.getElementById('updateRegNumber').textContent = data.application_number;
                     document.getElementById('updateRegName').textContent = data.full_name;
+                    document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
                     document.getElementById('updateRegVessel').textContent = data.vessel_name;
                     document.getElementById('updateRegFishR').textContent = data.fishr_number;
                     document.getElementById('updateRegBoatType').textContent = data.boat_type;
@@ -1547,11 +1934,11 @@
                             </div>
                         </div>
                         ${isImage && doc.url ? `
-                                        <div class="mt-2 text-center">
-                                            <img src="${doc.url}" class="document-thumbnail" alt="Document preview"
-                                                 onclick="previewDocument(${id}, 'user', ${index})" style="max-width: 150px; cursor: pointer;">
-                                        </div>
-                                    ` : ''}
+                                                                                        <div class="mt-2 text-center">
+                                                                                            <img src="${doc.url}" class="document-thumbnail" alt="Document preview"
+                                                                                                 onclick="previewDocument(${id}, 'user', ${index})" style="max-width: 150px; cursor: pointer;">
+                                                                                        </div>
+                                                                                    ` : ''}
                     </div>
                 `;
                         });
@@ -1598,11 +1985,54 @@
                             </div>
                         </div>
                         ${isImage && doc.url ? `
-                                        <div class="mt-2 text-center">
-                                            <img src="${doc.url}" class="document-thumbnail" alt="Document preview"
-                                                 onclick="previewDocument(${id}, 'inspection', ${index})" style="max-width: 150px; cursor: pointer;">
-                                        </div>
-                                    ` : ''}
+                                                                                        <div class="mt-2 text-center">
+                                                                                            <img src="${doc.url}" class="document-thumbnail" alt="Document preview"
+                                                                                                 onclick="previewDocument(${id}, 'inspection', ${index})" style="max-width: 150px; cursor: pointer;">
+                                                                                        </div>
+                                                                                    ` : ''}
+                    </div>
+                `;
+                        });
+
+                        documentsHtml += '</div></div></div>';
+                    }
+
+                    // Annexes Documents
+                    if (data.annexes && data.annexes.length > 0) {
+                        documentsHtml += `
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Annexes</h5>
+                        </div>
+                        <div class="card-body">
+            `;
+
+                        data.annexes.forEach((annex, index) => {
+                            const isImage = annex.is_image;
+
+                            documentsHtml += `
+                    <div class="document-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${annex.title}</h6>
+                                <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-file me-1"></i>${annex.file_name}
+                                    <br><i class="fas fa-calendar me-1"></i>Uploaded: ${annex.created_at}
+                                    <br><i class="fas fa-user me-1"></i>By: ${annex.uploaded_by}
+                                    <br><i class="fas fa-weight me-1"></i>Size: ${annex.formatted_file_size}
+                                </small>
+                            </div>
+                            <div class="btn-group-vertical">
+                                <button class="btn btn-sm btn-primary mb-1" onclick="downloadAnnex(${id}, ${annex.id})" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-sm btn-info" onclick="previewAnnex(${id}, ${annex.id})" title="Preview">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 `;
                         });
@@ -1612,12 +2042,13 @@
 
                     // No documents message
                     if ((!data.user_documents || data.user_documents.length === 0) &&
-                        (!data.inspection_documents || data.inspection_documents.length === 0)) {
+                        (!data.inspection_documents || data.inspection_documents.length === 0) &&
+                        (!data.annexes || data.annexes.length === 0)) {
                         documentsHtml += `
                 <div class="col-12">
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        No documents found for this application.
+                        None found for this application.
                     </div>
                 </div>
             `;
@@ -1639,20 +2070,19 @@
                 });
         }
 
-        // Enhanced preview document function - FIXED route and error handling
+        // Enhanced preview document function - Improved with better file type support
         function previewDocument(id, type, index) {
             const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
             modal.show();
 
-            // Show loading in preview
+            // Show enhanced loading state in preview
             document.getElementById('documentPreview').innerHTML = `
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Loading document preview...</p>
-        </div>
-    `;
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted">Loading document preview...</p>
+                </div>`;
 
             // Clear previous title
             document.getElementById('documentPreviewTitle').innerHTML = '<i class="fas fa-eye me-2"></i>Document Preview';
@@ -1680,45 +2110,173 @@
                         throw new Error(data.message || 'Failed to load document preview');
                     }
 
-                    // Update modal title
+                    // Update modal title with document name
                     document.getElementById('documentPreviewTitle').innerHTML =
                         `<i class="fas fa-eye me-2"></i>${data.document_name}`;
 
                     const fileExtension = data.document_type?.toLowerCase() ||
                         data.document_name.split('.').pop().toLowerCase();
-                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
-                    const isPdf = fileExtension === 'pdf';
+                    const fileName = data.document_name;
+                    const fileUrl = data.document_url;
 
-                    if (isPdf) {
+                    // Define supported file types
+                    const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+                    const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+                    const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+                    const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+
+                    // Function to add action buttons
+                    const addActionButtons = () => {
+                        return `
+                            <div class="text-center mt-3 p-3 bg-light rounded">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary">
+                                        <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success">
+                                        <i class="fas fa-download me-1"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName} (${fileExtension.toUpperCase()})</small>
+                            </div>`;
+                    };
+
+                    // Handle different file types with enhanced capabilities
+                    try {
+                        if (imageTypes.includes(fileExtension)) {
+                            // Enhanced image handling
+                            const img = new Image();
+                            img.onload = function() {
+                                document.getElementById('documentPreview').innerHTML = `
+                                    <div class="text-center">
+                                        <div class="position-relative d-inline-block">
+                                            <img src="${fileUrl}"
+                                                 class="img-fluid border rounded shadow"
+                                                 alt="Document preview"
+                                                 style="max-height: 70vh; cursor: zoom-in;"
+                                                 onclick="toggleImageZoomBoatr(this)">
+                                            <div class="position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
+                                            </div>
+                                        </div>
+                                        ${addActionButtons()}
+                                    </div>`;
+                            };
+                            img.onerror = function() {
+                                document.getElementById('documentPreview').innerHTML = `
+                                    <div class="alert alert-warning text-center">
+                                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                                        <h5>Unable to load image</h5>
+                                        <p class="mb-3">The image could not be displayed.</p>
+                                        ${addActionButtons()}
+                                    </div>`;
+                            };
+                            img.src = fileUrl;
+
+                        } else if (fileExtension === 'pdf') {
+                            // Enhanced PDF handling
+                            document.getElementById('documentPreview').innerHTML = `
+                                <div class="pdf-container">
+                                    <embed src="${fileUrl}"
+                                           type="application/pdf"
+                                           width="100%"
+                                           height="600px"
+                                           class="border rounded shadow">
+                                    ${addActionButtons()}
+                                </div>`;
+
+                            // Check PDF loading after delay
+                            setTimeout(() => {
+                                const embed = document.querySelector('#documentPreview embed');
+                                if (!embed || embed.offsetHeight === 0) {
+                                    document.getElementById('documentPreview').innerHTML = `
+                                        <div class="alert alert-info text-center">
+                                            <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                            <h5>PDF Preview Unavailable</h5>
+                                            <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                                    <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                                </a>
+                                                <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                                    <i class="fas fa-download me-2"></i>Download PDF
+                                                </a>
+                                            </div>
+                                            <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                        </div>`;
+                                }
+                            }, 2000);
+
+                        } else if (videoTypes.includes(fileExtension)) {
+                            // Enhanced video handling
+                            document.getElementById('documentPreview').innerHTML = `
+                                <div class="text-center">
+                                    <video controls class="w-100 rounded shadow" style="max-height: 70vh;" preload="metadata">
+                                        <source src="${fileUrl}" type="video/${fileExtension}">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    ${addActionButtons()}
+                                </div>`;
+
+                        } else if (audioTypes.includes(fileExtension)) {
+                            // Enhanced audio handling
+                            document.getElementById('documentPreview').innerHTML = `
+                                <div class="text-center py-5">
+                                    <i class="fas fa-music fa-4x text-info mb-3"></i>
+                                    <h5>${fileName}</h5>
+                                    <audio controls class="w-100 mb-3">
+                                        <source src="${fileUrl}" type="audio/${fileExtension}">
+                                        Your browser does not support the audio tag.
+                                    </audio>
+                                    ${addActionButtons()}
+                                </div>`;
+
+                        } else if (documentTypes.includes(fileExtension)) {
+                            // Enhanced document type handling
+                            const docIcon = ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+
+                            document.getElementById('documentPreview').innerHTML = `
+                                <div class="alert alert-info text-center">
+                                    <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                                    <h5>${fileExtension.toUpperCase()} Document</h5>
+                                    <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                            <i class="fas fa-external-link-alt me-2"></i>Open Document
+                                        </a>
+                                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                            <i class="fas fa-download me-2"></i>Download
+                                        </a>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                </div>`;
+                        } else {
+                            // Enhanced unsupported file type handling
+                            document.getElementById('documentPreview').innerHTML = `
+                                <div class="alert alert-warning text-center">
+                                    <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                                    <h5>Unsupported File Type</h5>
+                                    <p class="mb-3">File type ".${fileExtension}" is not supported for preview.</p>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                            <i class="fas fa-external-link-alt me-2"></i>Open File
+                                        </a>
+                                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                            <i class="fas fa-download me-2"></i>Download
+                                        </a>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                </div>`;
+                        }
+                    } catch (error) {
+                        console.error('Error processing document preview:', error);
                         document.getElementById('documentPreview').innerHTML = `
-                <div class="text-center">
-                    <embed src="${data.document_url}" type="application/pdf" width="100%" height="600px"
-                           style="border: none; border-radius: 8px;" />
-                    <div class="mt-2">
-                        <a href="${data.document_url}" target="_blank" class="btn btn-primary">
-                            <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
-                        </a>
-                    </div>
-                </div>
-            `;
-                    } else if (isImage) {
-                        document.getElementById('documentPreview').innerHTML = `
-                <div class="text-center">
-                    <img src="${data.document_url}" class="img-fluid" alt="Document preview"
-                         style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-                </div>
-            `;
-                    } else {
-                        document.getElementById('documentPreview').innerHTML = `
-                <div class="alert alert-info text-center">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <h5>Preview not available for this file type</h5>
-                    <p>File type: ${fileExtension.toUpperCase()}</p>
-                    <a href="${data.document_url}" target="_blank" class="btn btn-primary">
-                        <i class="fas fa-download me-1"></i>Download to view
-                    </a>
-                </div>
-            `;
+                            <div class="alert alert-danger text-center">
+                                <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                                <h5>Error Loading Document</h5>
+                                <p class="mb-3">An error occurred while trying to load the document preview.</p>
+                                ${addActionButtons()}
+                            </div>`;
                     }
                 })
                 .catch(error => {
@@ -1741,6 +2299,21 @@
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(1024));
             return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Helper function to toggle image zoom for boatr
+        function toggleImageZoomBoatr(img) {
+            if (img.style.transform === 'scale(2)') {
+                img.style.transform = 'scale(1)';
+                img.style.cursor = 'zoom-in';
+                img.style.transition = 'transform 0.3s ease';
+                img.style.zIndex = 'auto';
+            } else {
+                img.style.transform = 'scale(2)';
+                img.style.cursor = 'zoom-out';
+                img.style.transition = 'transform 0.3s ease';
+                img.style.zIndex = '1050';
+            }
         }
 
         // Enhanced view application details function - FIXED user documents structure
@@ -1836,7 +2409,8 @@
                         <div class="card-body">
                             <p><strong>Application #:</strong> <span class="badge bg-primary">${data.application_number}</span></p>
                             <p><strong>Name:</strong> ${data.full_name}</p>
-                            <p><strong>Mobile:</strong> ${data.mobile || 'N/A'}</p>
+                            <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
+                            <p><strong>Contact Number:</strong> ${data.contact_number || 'N/A'}</p>
                             <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
                             <p><strong>FishR Number:</strong> ${data.fishr_number}</p>
                         </div>
@@ -1944,6 +2518,429 @@
             }
         });
 
+        // ========== ANNEXES FUNCTIONALITY ==========
+
+        // Show annexes modal
+        function showAnnexesModal(id) {
+            const modal = new bootstrap.Modal(document.getElementById('annexesModal'));
+            modal.show();
+
+            // Show loading
+            document.getElementById('annexesLoading').style.display = 'block';
+            document.getElementById('annexesContent').style.display = 'none';
+
+            // Load registration details and annexes
+            loadAnnexesData(id);
+        }
+
+        // Load annexes data
+        function loadAnnexesData(id) {
+            fetch(`/admin/boatr/requests/${id}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load data');
+
+                    // Hide loading, show content
+                    document.getElementById('annexesLoading').style.display = 'none';
+                    document.getElementById('annexesContent').style.display = 'block';
+
+                    // Populate application info
+                    document.getElementById('annexRegistrationId').value = id;
+                    document.getElementById('annexAppNumber').textContent = data.application_number;
+                    document.getElementById('annexApplicantName').textContent = data.full_name;
+                    document.getElementById('annexVesselName').textContent = data.vessel_name || 'N/A';
+                    document.getElementById('annexStatus').innerHTML =
+                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+
+                    // Load existing annexes
+                    loadExistingAnnexes(id);
+
+                    // Reset form
+                    resetAnnexForm();
+                })
+                .catch(error => {
+                    console.error('Error loading annexes data:', error);
+                    showToast('error', 'Error', 'Failed to load data: ' + error.message);
+
+                    // Hide loading, show error
+                    document.getElementById('annexesLoading').style.display = 'none';
+                    document.getElementById('annexesContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading data: ${error.message}
+                    </div>
+                `;
+                    document.getElementById('annexesContent').style.display = 'block';
+                });
+        }
+
+        // Load existing annexes
+        function loadExistingAnnexes(id) {
+            fetch(`/admin/boatr/requests/${id}/annexes`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const annexesList = document.getElementById('annexesList');
+
+                    if (data.success && data.annexes && data.annexes.length > 0) {
+                        let annexesHtml = '';
+                        data.annexes.forEach((annex, index) => {
+                            const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
+
+                            annexesHtml += `
+                            <div class="document-item border rounded p-3 mb-3" id="annex-${annex.id}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6 class="mb-1 text-primary">${annex.title}</h6>
+                                        <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>Uploaded: ${uploadDate}
+                                            <span class="mx-2">|</span>
+                                            <i class="fas fa-file me-1"></i>Size: ${formatFileSize(annex.file_size)}
+                                        </small>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                    onclick="previewAnnex(${id}, ${annex.id})" title="Preview">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-success"
+                                                    onclick="downloadAnnex(${id}, ${annex.id})" title="Download">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    onclick="deleteAnnex(${id}, ${annex.id})" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        });
+                        annexesList.innerHTML = annexesHtml;
+                    } else {
+                        annexesList.innerHTML = `
+                        <div class="text-center py-4">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No annexes uploaded yet</p>
+                        </div>
+                    `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading annexes:', error);
+                    document.getElementById('annexesList').innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading annexes: ${error.message}
+                    </div>
+                `;
+                });
+        }
+
+        // Upload annex
+        function uploadAnnex() {
+            const id = document.getElementById('annexRegistrationId').value;
+            const fileInput = document.getElementById('annexFile');
+            const title = document.getElementById('annexTitle').value.trim();
+            const description = document.getElementById('annexDescription').value.trim();
+
+            // Validation
+            if (!fileInput.files[0]) {
+                showValidationError('annexFile', 'annexFileError', 'Please select a file');
+                return;
+            }
+
+            if (!title) {
+                showValidationError('annexTitle', 'annexTitleError', 'Please enter a document title');
+                return;
+            }
+
+            // File size validation (10MB)
+            if (fileInput.files[0].size > 10 * 1024 * 1024) {
+                showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
+                return;
+            }
+
+            // Clear validation errors
+            clearValidationErrors();
+
+            if (!confirm('Are you sure you want to upload this annex?')) {
+                return;
+            }
+
+            // Show loading state
+            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+            const originalContent = uploadBtn.innerHTML;
+            uploadBtn.classList.add('btn-loading');
+            uploadBtn.innerHTML = '<span class="btn-text">Uploading...</span>';
+            uploadBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('title', title);
+            formData.append('description', description);
+
+            fetch(`/admin/boatr/requests/${id}/annexes`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Success', 'Annex uploaded successfully');
+                        resetAnnexForm();
+                        loadExistingAnnexes(id); // Reload annexes list
+                        refreshData(); // Refresh main table if needed
+                    } else {
+                        throw new Error(data.message || 'Failed to upload annex');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error uploading annex:', error);
+                    showToast('error', 'Error', 'Failed to upload annex: ' + error.message);
+                })
+                .finally(() => {
+                    // Restore button state
+                    uploadBtn.classList.remove('btn-loading');
+                    uploadBtn.innerHTML = originalContent;
+                    uploadBtn.disabled = false;
+                });
+        }
+
+        // Preview annex
+        function previewAnnex(registrationId, annexId) {
+            // Reuse existing document preview modal with proper z-index handling
+            const previewModal = document.getElementById('documentPreviewModal');
+            const annexesModal = document.getElementById('annexesModal');
+            const modal = new bootstrap.Modal(previewModal);
+
+            // Set higher z-index to appear above annexes modal
+            previewModal.style.zIndex = '1060';
+
+            // Find and temporarily hide the annexes modal backdrop
+            const annexesBackdrop = document.querySelector('.modal-backdrop');
+            let originalBackdropDisplay = '';
+            if (annexesBackdrop) {
+                originalBackdropDisplay = annexesBackdrop.style.display;
+                annexesBackdrop.style.zIndex = '1058';
+            }
+
+            // Add event listener to restore everything when preview modal is hidden
+            previewModal.addEventListener('hidden.bs.modal', function() {
+                previewModal.style.zIndex = '';
+                if (annexesBackdrop) {
+                    annexesBackdrop.style.zIndex = '';
+                }
+            }, {
+                once: true
+            });
+
+            modal.show();
+
+            document.getElementById('documentPreview').innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading annex preview...</p>
+                </div>
+            `;
+
+            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/preview`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load preview');
+
+                    document.getElementById('documentPreviewTitle').innerHTML =
+                        `<i class="fas fa-folder me-2"></i>${data.title}`;
+
+                    const fileExtension = data.file_extension?.toLowerCase();
+                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+                    const isPdf = fileExtension === 'pdf';
+
+                    if (isPdf) {
+                        document.getElementById('documentPreview').innerHTML = `
+                        <div class="text-center">
+                            <embed src="${data.file_url}" type="application/pdf" width="100%" height="600px"
+                                   style="border: none; border-radius: 8px;" />
+                            <div class="mt-2">
+                                <a href="${data.file_url}" target="_blank" class="btn btn-primary">
+                                    <i class="fas fa-external-link-alt me-1"></i>Open in new tab
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    } else if (isImage) {
+                        document.getElementById('documentPreview').innerHTML = `
+                        <div class="text-center">
+                            <img src="${data.file_url}" class="img-fluid" alt="Annex preview"
+                                 style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+                        </div>
+                    `;
+                    } else {
+                        document.getElementById('documentPreview').innerHTML = `
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <h5>Preview not available for this file type</h5>
+                            <p>File type: ${fileExtension?.toUpperCase() || 'Unknown'}</p>
+                            <a href="${data.file_url}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-download me-1"></i>Download to view
+                            </a>
+                        </div>
+                    `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading annex preview:', error);
+                    document.getElementById('documentPreview').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <h5>Error loading annex preview</h5>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+                });
+        }
+
+        // Download annex
+        function downloadAnnex(registrationId, annexId) {
+            window.open(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/download`, '_blank');
+        }
+
+        // Delete annex
+        function deleteAnnex(registrationId, annexId) {
+            if (!confirm('Are you sure you want to delete this annex? This action cannot be undone.')) {
+                return;
+            }
+
+            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Success', 'Annex deleted successfully');
+
+                        // Remove from UI
+                        const annexElement = document.getElementById(`annex-${annexId}`);
+                        if (annexElement) {
+                            annexElement.remove();
+                        }
+
+                        // Reload if no annexes left
+                        const annexesList = document.getElementById('annexesList');
+                        if (!annexesList.querySelector('.document-item')) {
+                            loadExistingAnnexes(registrationId);
+                        }
+
+                        refreshData(); // Refresh main table
+                    } else {
+                        throw new Error(data.message || 'Failed to delete annex');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting annex:', error);
+                    showToast('error', 'Error', 'Failed to delete annex: ' + error.message);
+                });
+        }
+
+        // Reset annex form
+        function resetAnnexForm() {
+            document.getElementById('annexFile').value = '';
+            document.getElementById('annexTitle').value = '';
+            document.getElementById('annexDescription').value = '';
+            document.getElementById('annexDescCount').textContent = '0';
+            clearValidationErrors();
+        }
+
+        // Show validation error
+        function showValidationError(inputId, errorId, message) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById(errorId);
+
+            input.classList.add('is-invalid');
+            error.textContent = message;
+        }
+
+        // Clear validation errors
+        function clearValidationErrors() {
+            const inputs = ['annexFile', 'annexTitle'];
+            const errors = ['annexFileError', 'annexTitleError'];
+
+            inputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) input.classList.remove('is-invalid');
+            });
+
+            errors.forEach(errorId => {
+                const error = document.getElementById(errorId);
+                if (error) error.textContent = '';
+            });
+        }
+
+        // Character count for annex description
+        document.addEventListener('DOMContentLoaded', function() {
+            const annexDesc = document.getElementById('annexDescription');
+            const annexDescCount = document.getElementById('annexDescCount');
+
+            if (annexDesc && annexDescCount) {
+                annexDesc.addEventListener('input', function() {
+                    const count = this.value.length;
+                    annexDescCount.textContent = count;
+
+                    if (count > 500) {
+                        this.value = this.value.substring(0, 500);
+                        annexDescCount.textContent = '500';
+                    }
+                });
+            }
+        });
+
+        // ========== END ANNEXES FUNCTIONALITY ==========
+
         window.addEventListener('offline', function() {
             console.log('Network connection lost');
             if (typeof showToast === 'function') {
@@ -2009,7 +3006,13 @@
             formatFileSize,
             getDebugLogs,
             clearDebugLogs,
-            logAction
+            logAction,
+            // Annexes functions
+            showAnnexesModal,
+            uploadAnnex,
+            previewAnnex,
+            downloadAnnex,
+            deleteAnnex
         };
 
         console.log('BoatR Admin utilities available via window.BoatRAdmin');
@@ -2018,28 +3021,28 @@
         // Update statistics cards (optional enhancement)
         function updateStatisticsCards(statistics) {
             if (statistics.total !== undefined) {
-                const totalElement = document.querySelector('.border-left-primary .h5');
+                const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-number');
                 if (totalElement) {
                     totalElement.textContent = statistics.total;
                 }
             }
 
             if (statistics.pending !== undefined) {
-                const pendingElement = document.querySelector('.border-left-info .h5');
+                const pendingElement = document.querySelector('.stat-card:nth-child(4) .stat-number');
                 if (pendingElement) {
                     pendingElement.textContent = statistics.pending;
                 }
             }
 
             if (statistics.inspection_required !== undefined) {
-                const inspectionElement = document.querySelector('.border-left-warning .h5');
+                const inspectionElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
                 if (inspectionElement) {
                     inspectionElement.textContent = statistics.inspection_required;
                 }
             }
 
             if (statistics.approved !== undefined) {
-                const approvedElement = document.querySelector('.border-left-success .h5');
+                const approvedElement = document.querySelector('.stat-card:nth-child(3) .stat-number');
                 if (approvedElement) {
                     approvedElement.textContent = statistics.approved;
                 }

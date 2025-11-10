@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FishrApplication;
+use App\Models\FishrAnnex;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -127,6 +128,7 @@ class FishRController extends Controller
                     'sex' => $registration->sex,
                     'barangay' => $registration->barangay,
                     'contact_number' => $registration->contact_number,
+                    'email' => $registration->email, // Added missing email field
                     'main_livelihood' => $registration->main_livelihood,
                     'livelihood_description' => $registration->livelihood_description,
                     'other_livelihood' => $registration->other_livelihood,
@@ -477,6 +479,260 @@ class FishRController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error assigning FishR number: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get annexes for a specific registration
+     */
+    public function getAnnexes($id)
+    {
+        try {
+            $registration = FishrApplication::findOrFail($id);
+            $annexes = $registration->annexes()->with('uploader')->orderBy('created_at', 'desc')->get();
+
+            return response()->json([
+                'success' => true,
+                'annexes' => $annexes->map(function ($annex) {
+                    return [
+                        'id' => $annex->id,
+                        'title' => $annex->title,
+                        'description' => $annex->description,
+                        'file_name' => $annex->file_name,
+                        'file_extension' => $annex->file_extension,
+                        'file_size' => $annex->file_size,
+                        'formatted_file_size' => $annex->formatted_file_size,
+                        'is_image' => $annex->is_image,
+                        'is_pdf' => $annex->is_pdf,
+                        'uploaded_by' => $annex->uploader->name,
+                        'created_at' => $annex->created_at,
+                    ];
+                })
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting annexes', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading annexes: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Upload a new annex for a registration
+     */
+    public function uploadAnnex(Request $request, $id)
+    {
+        try {
+            $registration = FishrApplication::findOrFail($id);
+
+            // Validation
+            $request->validate([
+                'file' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png,gif|max:10240', // 10MB max
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string|max:500',
+            ]);
+
+            $file = $request->file('file');
+
+            // Generate unique filename
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filePath = 'fishr/annexes/' . $registration->id . '/' . $filename;
+
+            // Store file
+            Storage::disk('public')->put($filePath, file_get_contents($file));
+
+            // Create annex record
+            $annex = $registration->annexes()->create([
+                'title' => $request->input('title'),
+                'description' => $request->input('description'),
+                'file_path' => $filePath,
+                'file_name' => $file->getClientOriginalName(),
+                'file_extension' => $file->getClientOriginalExtension(),
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+                'uploaded_by' => auth()->id(),
+            ]);
+
+            Log::info('FishR annex uploaded successfully', [
+                'registration_id' => $id,
+                'annex_id' => $annex->id,
+                'title' => $annex->title,
+                'file_name' => $annex->file_name,
+                'uploaded_by' => auth()->id()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Annex uploaded successfully',
+                'annex' => [
+                    'id' => $annex->id,
+                    'title' => $annex->title,
+                    'description' => $annex->description,
+                    'file_name' => $annex->file_name,
+                    'formatted_file_size' => $annex->formatted_file_size,
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Error uploading FishR annex', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uploading annex: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Preview an annex
+     */
+    public function previewAnnex($id, $annexId)
+    {
+        try {
+            Log::info('Preview FishR annex request', [
+                'registration_id' => $id,
+                'annex_id' => $annexId,
+                'user_id' => auth()->id()
+            ]);
+
+            $registration = FishrApplication::findOrFail($id);
+            $annex = $registration->annexes()->findOrFail($annexId);
+
+            Log::info('FishR annex found', [
+                'annex_title' => $annex->title,
+                'file_path' => $annex->file_path,
+                'file_exists' => Storage::disk('public')->exists($annex->file_path)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'title' => $annex->title,
+                'description' => $annex->description,
+                'file_name' => $annex->file_name,
+                'file_extension' => $annex->file_extension,
+                'file_url' => $annex->file_url,
+                'is_image' => $annex->is_image,
+                'is_pdf' => $annex->is_pdf,
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('FishR annex not found', [
+                'id' => $id,
+                'annex_id' => $annexId,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Annex not found'
+            ], 404);
+
+        } catch (\Exception $e) {
+            Log::error('Error previewing FishR annex', [
+                'id' => $id,
+                'annex_id' => $annexId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading annex preview: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Download an annex
+     */
+    public function downloadAnnex($id, $annexId)
+    {
+        try {
+            $registration = FishrApplication::findOrFail($id);
+            $annex = $registration->annexes()->findOrFail($annexId);
+
+            if (!Storage::disk('public')->exists($annex->file_path)) {
+                abort(404, 'File not found');
+            }
+
+            Log::info('FishR annex downloaded', [
+                'registration_id' => $id,
+                'annex_id' => $annexId,
+                'title' => $annex->title,
+                'downloaded_by' => auth()->id()
+            ]);
+
+            return Storage::disk('public')->download($annex->file_path, $annex->file_name);
+
+        } catch (\Exception $e) {
+            Log::error('Error downloading FishR annex', [
+                'id' => $id,
+                'annex_id' => $annexId,
+                'error' => $e->getMessage()
+            ]);
+
+            abort(500, 'Error downloading file');
+        }
+    }
+
+    /**
+     * Delete an annex
+     */
+    public function deleteAnnex($id, $annexId)
+    {
+        try {
+            $registration = FishrApplication::findOrFail($id);
+            $annex = $registration->annexes()->findOrFail($annexId);
+
+            // Delete the file and database record
+            $deleted = $annex->deleteWithFile();
+
+            if ($deleted) {
+                Log::info('FishR annex deleted successfully', [
+                    'registration_id' => $id,
+                    'annex_id' => $annexId,
+                    'title' => $annex->title,
+                    'deleted_by' => auth()->id()
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Annex deleted successfully'
+                ]);
+            } else {
+                throw new \Exception('Failed to delete annex');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting FishR annex', [
+                'id' => $id,
+                'annex_id' => $annexId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting annex: ' . $e->getMessage()
             ], 500);
         }
     }

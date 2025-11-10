@@ -140,4 +140,89 @@ class TrainingController extends Controller
             'message' => 'Training application deleted successfully'
         ]);
     }
+
+    /**
+     * Export training applications to CSV
+     */
+    public function export(Request $request)
+    {
+        try {
+            $query = TrainingApplication::with('updatedBy');
+
+            // Apply same filters as index
+            if ($request->filled('search')) {
+                $query->search($request->search);
+            }
+
+            if ($request->filled('status')) {
+                $query->withStatus($request->status);
+            }
+
+            if ($request->filled('training_type')) {
+                $query->withTrainingType($request->training_type);
+            }
+
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+
+            $applications = $query->orderBy('created_at', 'desc')->get();
+
+            $filename = 'training_applications_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            ];
+
+            $callback = function() use ($applications) {
+                $file = fopen('php://output', 'w');
+
+                // CSV headers
+                fputcsv($file, [
+                    'Application Number',
+                    'Full Name',
+                    'Contact Number',
+                    'Email',
+                    'Training Type',
+                    'Status',
+                    'Has Documents',
+                    'Documents Count',
+                    'Date Applied',
+                    'Date Updated',
+                    'Updated By',
+                    'Remarks'
+                ]);
+
+                // CSV data
+                foreach ($applications as $application) {
+                    fputcsv($file, [
+                        $application->application_number,
+                        $application->full_name,
+                        $application->contact_number ?? 'N/A',
+                        $application->email ?? 'N/A',
+                        $application->training_type_display,
+                        $application->formatted_status,
+                        $application->hasDocuments() ? 'Yes' : 'No',
+                        $application->hasDocuments() ? count($application->document_paths) : 0,
+                        $application->created_at->format('M d, Y h:i A'),
+                        $application->updated_at->format('M d, Y h:i A'),
+                        $application->updatedBy?->name ?? 'N/A',
+                        $application->remarks ?? 'N/A'
+                    ]);
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error exporting data: ' . $e->getMessage());
+        }
+    }
 }

@@ -224,14 +224,15 @@
     <section class="events" id="events">
         <!-- Header with Logos and Title -->
         <div class="events-header">
-            <img src="{{ asset('images/logos/agrii-removebg.png') }}" alt="AgriSys Logo" class="logo-icon"
-                loading="lazy">
+            <img src="{{ asset('images/logos/agrii-removebg.png') }}" alt="AgriSys Logo"
+                class="logo-icon agrisys-logo-large" loading="lazy">
             <img src="{{ asset('images/logos/CityOfSanPedro.jpg') }}" alt="City of San Pedro Logo" class="logo-icon"
                 loading="lazy">
+            <img src="{{ asset('images/logos/cagoFull.png') }}" alt="CAGO Logo" class="logo-icon" loading="lazy">
         </div>
 
         <!-- Title and Subtitle -->
-        <h2 id="events-title">City <span class="highlight">Agriculture Office Events</span></h2>
+        <h2 id="events-title">City Agriculture Office Events</h2>
         <p class="events-subtitle" id="events-subtitle">Loading events information...</p>
 
         <!-- Dynamic Events Container -->

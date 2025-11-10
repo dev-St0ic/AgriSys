@@ -52,7 +52,7 @@ public function login(Request $request)
         if ($user->hasAdminPrivileges()) {
             // Regenerate session again to prevent session fixation attacks
             $request->session()->regenerate();
-            
+
             return redirect()->intended('/admin/dashboard')
                 ->with('success', 'Welcome back, ' . $user->name . '!');
         } else {
@@ -97,7 +97,7 @@ public function login(Request $request)
         // Analytics data
         $analyticsData = $this->getAnalyticsData();
 
-        // analytics for supply management
+        // Analytics for supply management
         $supplyData = $this->getSupplyData();
 
         return view('admin.dashboard', compact(
@@ -106,7 +106,7 @@ public function login(Request $request)
             'totalSuperAdmins',
             'totalUsers',
             'analyticsData',
-            'supplyData' 
+            'supplyData'
         ));
     }
 

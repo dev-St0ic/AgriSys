@@ -10,7 +10,7 @@
             <div class="welcome-banner card shadow-lg border-0 bg-gradient-primary text-white">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center">
-                        <div class="flex-grow-1" style="min-width: 0;">
+                        <div class="grow" style="min-width: 0;">
                             <h2
                                 class="mb-1 font-weight-bold"style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                 @php
@@ -42,7 +42,7 @@
                         <div class="metric-icon bg-primary">
                             <i class="fas fa-crown text-white"></i>
                         </div>
-                        <div class="ms-3 flex-grow-1">
+                        <div class="ms-3 grow">
                             <div class="metric-label">Super Admins</div>
                             <div class="metric-value text-primary">{{ $totalSuperAdmins }}</div>
                             <div class="metric-trend">
@@ -62,7 +62,7 @@
                         <div class="metric-icon bg-success">
                             <i class="fas fa-users-cog text-white"></i>
                         </div>
-                        <div class="ms-3 flex-grow-1">
+                        <div class="ms-3 grow">
                             <div class="metric-label">Admins</div>
                             <div class="metric-value text-success">{{ $totalAdmins }}</div>
                             <div class="metric-trend">
@@ -82,7 +82,7 @@
                         <div class="metric-icon bg-info">
                             <i class="fas fa-warehouse text-white"></i>
                         </div>
-                        <div class="ms-3 flex-grow-1">
+                        <div class="ms-3 grow">
                             <div class="metric-label">Supply Management</div>
                             @if ($supplyData['total_categories'] > 0)
                                 <div class="metric-value text-info">
@@ -122,7 +122,7 @@
                         <div class="metric-icon bg-warning">
                             <i class="fas fa-chart-bar text-white"></i>
                         </div>
-                        <div class="ms-3 flex-grow-1">
+                        <div class="ms-3 grow">
                             <div class="metric-label">Total Applications</div>
                             <div class="metric-value text-warning">{{ number_format($analyticsData['totals']['total']) }}
                             </div>
@@ -153,7 +153,7 @@
                         <div class="metric-icon bg-success">
                             <i class="fas fa-check-circle text-white"></i>
                         </div>
-                        <div class="ms-3 flex-grow-1">
+                        <div class="ms-3 grow">
                             <div class="metric-label">Total Approved</div>
                             <div class="metric-value text-success counter-number"
                                 data-target="{{ $analyticsData['totals']['approved'] }}">0</div>
@@ -181,7 +181,7 @@
                         <div class="metric-icon bg-warning">
                             <i class="fas fa-clock text-white"></i>
                         </div>
-                        <div class="ms-3 flex-grow-1">
+                        <div class="ms-3 grow">
                             <div class="metric-label">Total Pending</div>
                             <div class="metric-value text-warning counter-number"
                                 data-target="{{ $analyticsData['totals']['pending'] }}">0</div>
@@ -202,7 +202,7 @@
                         <div class="metric-icon bg-danger">
                             <i class="fas fa-times-circle text-white"></i>
                         </div>
-                        <div class="ms-3 flex-grow-1">
+                        <div class="ms-3 grow">
                             <div class="metric-label">Total Rejected</div>
                             <div class="metric-value text-danger counter-number"
                                 data-target="{{ $analyticsData['totals']['rejected'] }}">0</div>
@@ -224,123 +224,13 @@
         </div>
     </div>
 
-    <!-- Quick Actions Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-lg">
-                <div class="card-header bg-gradient-dark py-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 font-weight-bold">
-                            <i class="fas fa-bolt me-3"></i>Quick Actions
-                        </h5>
-                    </div>
-                </div>
-                <div class="card-body p-4">
-                    <div class="row g-3">
-                        <!-- First Row -->
-                        <div class="col-lg-3 col-md-6">
-                            <a href="{{ route('landing.page') }}" target="_blank" class="action-card-small btn-info">
-                                <div class="action-icon-small">
-                                    <i class="fas fa-home"></i>
-                                </div>
-                                <div class="action-content-small">
-                                    <h6 class="action-title-small">Landing</h6>
-                                    <small class="action-desc-small">Public site</small>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <a href="{{ route('admin.seedlings.categories.index') }}" class="action-card-small btn-info">
-                                <div class="action-icon-small">
-                                    <i class="fas fa-layer-group"></i>
-                                </div>
-                                <div class="action-content-small">
-                                    <h6 class="action-title-small">Supply</h6>
-                                    <small class="action-desc-small">Management</small>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <a href="{{ route('admin.seedlings.requests') }}" class="action-card-small btn-success">
-                                <div class="action-icon-small">
-                                    <i class="fas fa-seedling"></i>
-                                </div>
-                                <div class="action-content-small">
-                                    <h6 class="action-title-small">Seedlings</h6>
-                                    <small class="action-desc-small">Requests</small>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <a href="{{ route('admin.rsbsa.applications') }}" class="action-card-small btn-primary">
-                                <div class="action-icon-small">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <div class="action-content-small">
-                                    <h6 class="action-title-small">RSBSA</h6>
-                                    <small class="action-desc-small">Apps</small>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Second Row -->
-                        <div class="col-lg-3 col-md-6">
-                            <a href="{{ route('admin.fishr.requests') }}" class="action-card-small btn-info">
-                                <div class="action-icon-small">
-                                    <i class="fas fa-fish"></i>
-                                </div>
-                                <div class="action-content-small">
-                                    <h6 class="action-title-small">FishR</h6>
-                                    <small class="action-desc-small">Register</small>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <a href="{{ route('admin.boatr.requests') }}" class="action-card-small btn-warning">
-                                <div class="action-icon-small">
-                                    <i class="fas fa-ship"></i>
-                                </div>
-                                <div class="action-content-small">
-                                    <h6 class="action-title-small">BoatR</h6>
-                                    <small class="action-desc-small">Apps</small>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <a href="{{ route('admin.training.requests') }}" class="action-card-small btn-purple">
-                                <div class="action-icon-small">
-                                    <i class="fas fa-chalkboard-teacher"></i>
-                                </div>
-                                <div class="action-content-small">
-                                    <h6 class="action-title-small">Training</h6>
-                                    <small class="action-desc-small">Apps</small>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="col-lg-3 col-md-6">
-                            <a href="{{ route('admin.analytics.seedlings') }}" class="action-card-small btn-dark">
-                                <div class="action-icon-small">
-                                    <i class="fas fa-chart-line"></i>
-                                </div>
-                                <div class="action-content-small">
-                                    <h6 class="action-title-small">Analytics</h6>
-                                    <small class="action-desc-small">Reports</small>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Application Statistics by Service -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-lg">
-                <div class="card-header bg-gradient-primary py-4">
+                <div class="card-header bg-gradient-primary text-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 font-weight-bold text-dark ">
+                        <h5 class="mb-0 font-weight-bold">
                             <i class="fas fa-chart-bar me-3"></i>Application Statistics by Service
                         </h5>
                     </div>
@@ -352,21 +242,22 @@
                                 <div class="card service-card flex-fill border-0 shadow-sm position-relative">
                                     <div class="service-header bg-{{ $service['color'] }}"></div>
                                     <div class="card-body p-4 d-flex flex-column">
-                                        <div class="d-flex align-items-center justify-content-center mb-3">
+                                        <div class="d-flex align-items-center mb-3">
                                             <div class="service-icon bg-{{ $service['color'] }}-light">
-                                                <i class="{{ $service['icon'] }} text-dark"></i>
+                                                <i class="{{ $service['icon'] }} text-{{ $service['color'] }}"></i>
                                             </div>
                                             <div class="ms-3">
-                                                <h6 class="mb-0 font-weight-bold text-dark">
+                                                <h6 class="mb-1 font-weight-bold text-{{ $service['color'] }}">
                                                     {{ $service['name'] }}
                                                 </h6>
+                                                <small class="text-muted">Service Management</small>
                                             </div>
                                         </div>
 
-                                       <div class="text-center mb-3">
+                                        <div class="text-center mb-3">
                                             <h2 class="mb-0 font-weight-bold text-dark counter-number"
                                                 data-target="{{ $service['total'] }}">0</h2>
-                                            <small class="text-muted">{{ $serviceKey === 'supply' ? 'Total Items' : 'Total Applications' }}</small>
+                                            <small class="text-muted">Total Applications</small>
                                         </div>
 
                                         <!-- Status Breakdown with enhanced design -->
@@ -377,7 +268,7 @@
                                                         {{ $service['approved'] }}</div>
                                                     <div class="status-label">
                                                         <i class="fas fa-check-circle text-success me-1"></i>
-                                                        <small class="text-muted">{{ $serviceKey === 'supply' ? 'Active' : 'Approved' }}</small>
+                                                        <small class="text-muted">Approved</small>
                                                     </div>
                                                 </div>
                                             </div>
@@ -386,8 +277,8 @@
                                                     <div class="status-number text-warning font-weight-bold">
                                                         {{ $service['pending'] }}</div>
                                                     <div class="status-label">
-                                                        <i class="fas fa-{{ $serviceKey === 'supply' ? 'exclamation-triangle' : 'clock' }} text-warning me-1"></i>
-                                                        <small class="text-muted">{{ $serviceKey === 'supply' ? 'Low Stock' : 'Pending' }}</small>
+                                                        <i class="fas fa-clock text-warning me-1"></i>
+                                                        <small class="text-muted">Pending</small>
                                                     </div>
                                                 </div>
                                             </div>
@@ -397,11 +288,46 @@
                                                         {{ $service['rejected'] }}</div>
                                                     <div class="status-label">
                                                         <i class="fas fa-times-circle text-danger me-1"></i>
-                                                        <small class="text-muted">{{ $serviceKey === 'supply' ? 'Out of Stock' : 'Rejected' }}</small>
+                                                        <small class="text-muted">Rejected</small>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        @if ($service['total'] > 0)
+                                            <!-- Enhanced Progress Bar -->
+                                            <div class="progress-container mt-auto">
+                                                <div class="progress modern-progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-success progress-bar-animated"
+                                                        role="progressbar"
+                                                        style="width: {{ ($service['approved'] / $service['total']) * 100 }}%"
+                                                        data-toggle="tooltip"
+                                                        title="Approved: {{ $service['approved'] }}"></div>
+                                                    <div class="progress-bar bg-warning progress-bar-animated"
+                                                        role="progressbar"
+                                                        style="width: {{ ($service['pending'] / $service['total']) * 100 }}%"
+                                                        data-toggle="tooltip" title="Pending: {{ $service['pending'] }}">
+                                                    </div>
+                                                    <div class="progress-bar bg-danger progress-bar-animated"
+                                                        role="progressbar"
+                                                        style="width: {{ ($service['rejected'] / $service['total']) * 100 }}%"
+                                                        data-toggle="tooltip"
+                                                        title="Rejected: {{ $service['rejected'] }}"></div>
+                                                </div>
+                                                <div class="d-flex justify-content-between mt-2">
+                                                    <small class="text-success font-weight-bold">
+                                                        {{ round(($service['approved'] / $service['total']) * 100, 1) }}%
+                                                    </small>
+                                                    <small class="text-muted">Approval Rate</small>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="progress-container mt-auto">
+                                                <div class="text-center">
+                                                    <small class="text-muted">No applications yet</small>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -413,8 +339,6 @@
     </div>
 
 
-
-    <!-- Enhanced Styles -->
     <style>
         :root {
             --primary-color: #4e73df;
@@ -436,18 +360,18 @@
             overflow: hidden;
             position: relative;
         }
-        
+
         /* .welcome-banner::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                right: 0;
-                width: 100px;
-                height: 100px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 50%;
-                transform: translate(20px, -20px);
-            } */
+                                        content: '';
+                                        position: absolute;
+                                        top: 0;
+                                        right: 0;
+                                        width: 100px;
+                                        height: 100px;
+                                        background: rgba(255, 255, 255, 0.1);
+                                        border-radius: 50%;
+                                        transform: translate(20px, -20px);
+                                    } */
 
         /* Metric Cards */
         .metric-card {
@@ -523,11 +447,6 @@
             overflow: hidden;
             position: relative;
         }
-        
-        /* remove margin bottom from last status item row */
-        .service-card .row.text-center.mb-3 {
-            margin-bottom: 0 !important;
-        }
 
         .service-card:hover {
             transform: translateY(-5px);
@@ -540,7 +459,6 @@
             position: absolute;
             top: 0;
             left: 0;
-             background-color: #000 !important;
         }
 
         .service-icon {
@@ -574,6 +492,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        /* Progress Enhancements */
+        .progress-container {
+            position: relative;
+        }
+
+        .modern-progress {
+            border-radius: 10px;
+            background: #f1f3f4;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            transition: width 1s ease-in-out;
+        }
+
+        .progress-bar-animated {
+            animation: progress-bar-stripes 1s linear infinite;
         }
 
         /* Summary Items */
@@ -634,29 +571,6 @@
             border-color: transparent;
         }
 
-        /* Small Action Cards for Quick Actions */
-        .action-card-small {
-            display: block;
-            background: white;
-            border: 2px solid #e3e6f0;
-            border-radius: 10px;
-            padding: 0.75rem;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s ease;
-            height: 70px;
-            position: relative;
-            overflow: hidden;
-            text-align: center;
-        }
-
-        .action-card-small:hover {
-            text-decoration: none;
-            transform: translateY(-2px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            border-color: transparent;
-        }
-
         .action-card.btn-primary:hover {
             border-color: var(--primary-color);
             box-shadow: 0 0 20px rgba(78, 115, 223, 0.3);
@@ -697,47 +611,6 @@
             box-shadow: 0 0 20px rgba(108, 117, 125, 0.3);
         }
 
-        /* Small action card hover effects */
-        .action-card-small.btn-primary:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 15px rgba(78, 115, 223, 0.3);
-        }
-
-        .action-card-small.btn-success:hover {
-            border-color: var(--success-color);
-            box-shadow: 0 0 15px rgba(28, 200, 138, 0.3);
-        }
-
-        .action-card-small.btn-info:hover {
-            border-color: var(--info-color);
-            box-shadow: 0 0 15px rgba(54, 185, 204, 0.3);
-        }
-
-        .action-card-small.btn-warning:hover {
-            border-color: var(--warning-color);
-            box-shadow: 0 0 15px rgba(246, 194, 62, 0.3);
-        }
-
-        .action-card-small.btn-danger:hover {
-            border-color: var(--danger-color);
-            box-shadow: 0 0 15px rgba(231, 74, 59, 0.3);
-        }
-
-        .action-card-small.btn-purple:hover {
-            border-color: var(--purple-color);
-            box-shadow: 0 0 15px rgba(111, 66, 193, 0.3);
-        }
-
-        .action-card-small.btn-dark:hover {
-            border-color: var(--dark-color);
-            box-shadow: 0 0 15px rgba(90, 92, 105, 0.3);
-        }
-
-        .action-card-small.btn-secondary:hover {
-            border-color: #6c757d;
-            box-shadow: 0 0 15px rgba(108, 117, 125, 0.3);
-        }
-
         .action-icon {
             font-size: 2rem;
             margin-bottom: 0.75rem;
@@ -757,61 +630,7 @@
             color: #858796;
         }
 
-        /* Small action card elements */
-        .action-icon-small {
-            font-size: 1.25rem;
-            margin-bottom: 0.25rem;
-            color: #6c757d;
-            transition: all 0.3s ease;
-        }
-
-        .action-title-small {
-            font-size: 0.7rem;
-            font-weight: 700;
-            margin-bottom: 0;
-            color: #5a5c69;
-            line-height: 1;
-        }
-
-        .action-desc-small {
-            font-size: 0.6rem;
-            color: #858796;
-            line-height: 1;
-        }
-
-        .action-content-small {
-            margin-top: 0.25rem;
-        }
-
         /* Color Utilities */
-        .bg-primary {
-            background-color: var(--primary-color);
-        }
-
-        .bg-success {
-            background-color: var(--success-color);
-        }
-
-        .bg-info {
-            background-color: var(--info-color);
-        }
-
-        .bg-warning {
-            background-color: var(--warning-color);
-        }
-
-        .bg-danger {
-            background-color: var(--danger-color);
-        }
-
-        .bg-purple {
-            background-color: var(--purple-color);
-        }
-
-        .bg-dark {
-            background-color: var(--dark-color);
-        }
-
         .bg-primary-light {
             background-color: rgba(78, 115, 223, 0.1);
         }
@@ -836,6 +655,22 @@
             background-color: rgba(111, 66, 193, 0.1);
         }
 
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
+        }
+
+        .bg-gradient-dark {
+            background: linear-gradient(135deg, var(--dark-color) 0%, #3d3e46 100%);
+        }
+
+        .badge-light-primary {
+            background-color: rgba(78, 115, 223, 0.1);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+
+
         /* Counter Animation */
         .counter-number {
             transition: all 0.3s ease;
@@ -859,6 +694,17 @@
             .action-icon {
                 font-size: 1.5rem;
                 margin-bottom: 0.5rem;
+            }
+        }
+
+        /* Animation Keyframes */
+        @keyframes progress-bar-stripes {
+            0% {
+                background-position: 1rem 0;
+            }
+
+            100% {
+                background-position: 0 0;
             }
         }
     </style>
@@ -923,6 +769,8 @@
                     }
                 });
             });
+
+
         });
     </script>
 @endsection

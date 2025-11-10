@@ -141,6 +141,14 @@ class FishrApplication extends Model
     }
 
     /**
+     * Relationship: FishR application has many annexes
+     */
+    public function annexes()
+    {
+        return $this->hasMany(FishrAnnex::class, 'fishr_application_id');
+    }
+
+    /**
      * Check if the application has a supporting document
      */
     public function hasDocument()

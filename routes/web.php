@@ -115,13 +115,20 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     // ==============================================
     Route::prefix('admin/fishr-registrations')->name('admin.fishr.')->group(function () {
         Route::get('/', [FishRController::class, 'index'])->name('requests');
+        Route::get('/export', [FishRController::class, 'export'])->name('export');
         Route::get('/{id}', [FishRController::class, 'show'])->name('show');
         Route::patch('/{id}/status', [FishRController::class, 'updateStatus'])->name('update-status');
         Route::delete('/{id}', [FishRController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/download', [FishRController::class, 'downloadDocument'])->name('download-document');
-        Route::get('/export', [FishRController::class, 'export'])->name('export');
         Route::post('/{id}/assign-fishr-number', [FishRController::class, 'assignFishRNumber'])
             ->name('assign-fishr-number');
+
+        // Annexes routes
+        Route::get('/{id}/annexes', [FishRController::class, 'getAnnexes'])->name('annexes.index');
+        Route::post('/{id}/annexes', [FishRController::class, 'uploadAnnex'])->name('annexes.upload');
+        Route::get('/{id}/annexes/{annexId}/preview', [FishRController::class, 'previewAnnex'])->name('annexes.preview');
+        Route::get('/{id}/annexes/{annexId}/download', [FishRController::class, 'downloadAnnex'])->name('annexes.download');
+        Route::delete('/{id}/annexes/{annexId}', [FishRController::class, 'deleteAnnex'])->name('annexes.delete');
     });
 
     // ==============================================
@@ -142,6 +149,13 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         Route::post('/requests/{id}/document-preview', [BoatRController::class, 'documentPreview'])->name('document-preview');
         Route::get('/requests/{id}/download-document', [BoatRController::class, 'downloadDocument'])->name('download-document');
 
+        // Annexes routes
+        Route::get('/requests/{id}/annexes', [BoatRController::class, 'getAnnexes'])->name('annexes.index');
+        Route::post('/requests/{id}/annexes', [BoatRController::class, 'uploadAnnex'])->name('annexes.upload');
+        Route::get('/requests/{id}/annexes/{annexId}/preview', [BoatRController::class, 'previewAnnex'])->name('annexes.preview');
+        Route::get('/requests/{id}/annexes/{annexId}/download', [BoatRController::class, 'downloadAnnex'])->name('annexes.download');
+        Route::delete('/requests/{id}/annexes/{annexId}', [BoatRController::class, 'deleteAnnex'])->name('annexes.delete');
+
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
     });
@@ -157,6 +171,8 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         Route::patch('/requests/{id}/status', [TrainingController::class, 'updateStatus'])->name('requests.update-status');
         Route::delete('/requests/{id}', [TrainingController::class, 'destroy'])->name('requests.destroy');
 
+        // Export functionality
+        Route::get('/export', [TrainingController::class, 'export'])->name('export');
 
     });
 
@@ -553,8 +569,11 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
         ->name('registrations.document')
         ->where('type', 'location|id_front|id_back');
 
-    // Statistics 
+    // Statistics
     Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
+
+    // Export functionality
+    Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
 
     // Bulk operations (optional future enhancement)
     Route::post('/registrations/bulk-approve', [UserRegistrationController::class, 'bulkApprove'])->name('registrations.bulk-approve');
