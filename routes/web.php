@@ -536,6 +536,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     // Main user management interface
     Route::get('/users', [UserRegistrationController::class, 'index'])->name('registrations.index');
 
+    // Create new user account
+    Route::post('/registrations/create', [UserRegistrationController::class, 'createUser'])->name('admin.registrations.create');
+
     // Individual registration management
     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
     Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');
@@ -550,9 +553,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
         ->name('registrations.document')
         ->where('type', 'location|id_front|id_back');
 
-    // Statistics and export
+    // Statistics 
     Route::get('/registrations/statistics', [UserRegistrationController::class, 'getStatistics'])->name('registrations.statistics');
-    Route::get('/registrations/export', [UserRegistrationController::class, 'export'])->name('registrations.export');
 
     // Bulk operations (optional future enhancement)
     Route::post('/registrations/bulk-approve', [UserRegistrationController::class, 'bulkApprove'])->name('registrations.bulk-approve');
@@ -604,16 +606,11 @@ Route::prefix('auth')->group(function () {
     Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
         ->name('facebook.callback');
 
-    // Add these to your routes file
-    Route::post('/admin/users/{id}/ban', [UserRegistrationController::class, 'banUser']);
-    Route::post('/admin/users/{id}/unban', [UserRegistrationController::class, 'unbanUser']);
-    Route::post('/admin/users/bulk-ban', [UserRegistrationController::class, 'bulkBan']);
-
-    // view document
-    Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'serveDocument'])
-        ->name('registrations.document')
-        ->where('type', 'location|id_front|id_back')
-        ->middleware('auth');
+    // view document not needed
+    // Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'serveDocument'])
+    //     ->name('registrations.document')
+    //     ->where('type', 'location|id_front|id_back')
+    //     ->middleware('auth');
 });
 
 // ============================================

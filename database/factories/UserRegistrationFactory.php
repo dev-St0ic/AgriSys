@@ -21,7 +21,6 @@ class UserRegistrationFactory extends Factory
      */
     public function definition(): array
     {
-        // Filipino names for realistic data
         $filipinoFirstNames = [
             'Juan', 'Jose', 'Pedro', 'Antonio', 'Miguel', 'Fernando', 'Carlos', 'Ricardo',
             'Roberto', 'Mario', 'Raul', 'Luis', 'Manuel', 'Francisco', 'Jorge', 'Rafael',
@@ -48,15 +47,13 @@ class UserRegistrationFactory extends Factory
         $lastName = $this->faker->randomElement($filipinoLastNames);
 
         return [
-            // Basic required fields for signup
             'username' => $this->faker->unique()->userName(),
             'email' => $this->faker->unique()->safeEmail(),
-            'password' => Hash::make('password123'), // Default password for testing
+            'password' => Hash::make('password123'),
             'status' => $this->faker->randomElement(['unverified', 'pending', 'approved', 'rejected']),
             'terms_accepted' => true,
             'privacy_accepted' => true,
 
-            // Extended fields (filled during verification - nullable)
             'first_name' => $firstName,
             'last_name' => $lastName,
             'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
@@ -68,13 +65,9 @@ class UserRegistrationFactory extends Factory
             'date_of_birth' => $this->faker->optional(0.8)->dateTimeBetween('-70 years', '-18 years'),
             'gender' => $this->faker->optional(0.9)->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
 
-            // System fields
             'verification_token' => $this->faker->optional(0.3)->sha256(),
             'email_verified_at' => $this->faker->optional(0.7)->dateTimeBetween('-30 days', 'now'),
-            'username_changed_at' => null, // NEW: Username not changed by default
-            'registration_ip' => $this->faker->ipv4(),
-            'user_agent' => $this->getRandomUserAgent(),
-            'referral_source' => $this->faker->randomElement(['direct', 'facebook', 'google', 'friend_referral', 'barangay_office']),
+            'username_changed_at' => null,
             'last_login_at' => $this->faker->optional(0.5)->dateTimeBetween('-7 days', 'now'),
         ];
     }
@@ -99,7 +92,7 @@ class UserRegistrationFactory extends Factory
             'approved_at' => null,
             'approved_by' => null,
             'rejection_reason' => null,
-            'username_changed_at' => null, // NEW: Username not changed
+            'username_changed_at' => null,
         ]);
     }
 
@@ -145,7 +138,7 @@ class UserRegistrationFactory extends Factory
             'approved_at' => null,
             'approved_by' => null,
             'rejection_reason' => null,
-            'username_changed_at' => null, // NEW: Username not changed
+            'username_changed_at' => null,
         ]);
     }
 
@@ -191,7 +184,7 @@ class UserRegistrationFactory extends Factory
             'approved_at' => $this->faker->dateTimeBetween('-7 days', 'now'),
             'approved_by' => null,
             'rejection_reason' => null,
-            'username_changed_at' => null, // NEW: Username not changed
+            'username_changed_at' => null,
         ]);
     }
 
@@ -242,7 +235,7 @@ class UserRegistrationFactory extends Factory
                 'Documents do not match personal information',
                 'Suspicious activity detected'
             ]),
-            'username_changed_at' => null, // NEW: Username not changed
+            'username_changed_at' => null,
         ]);
     }
 
@@ -350,27 +343,12 @@ class UserRegistrationFactory extends Factory
     }
 
     /**
-     * NEW: Username has been changed (set to past timestamp)
+     * Username has been changed
      */
     public function usernameChanged(): static
     {
         return $this->state(fn (array $attributes) => [
             'username_changed_at' => $this->faker->dateTimeBetween('-30 days', '-1 day'),
         ]);
-    }
-
-    /**
-     * Get random user agent string for testing.
-     */
-    private function getRandomUserAgent(): string
-    {
-        $userAgents = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1',
-            'Mozilla/5.0 (Linux; Android 14; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
-        ];
-
-        return $this->faker->randomElement($userAgents);
     }
 }

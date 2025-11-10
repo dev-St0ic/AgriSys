@@ -181,9 +181,9 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">User Registration Records</h6>
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary btn-sm" onclick="exportRegistrations()">
-                    <i class="fas fa-download me-2"></i>Export Data
+            <div class="btn-group gap-2">
+                <button type="button" class="btn btn-success btn-sm me-2" onclick="showAddUserModal()">
+                    <i class="fas fa-user-plus me-2"></i>Add User
                 </button>
             </div>
         </div>
@@ -408,6 +408,266 @@
         </div>
     </div>
 
+    <!-- Add User Modal - UPDATED WITH DOCUMENT UPLOADS -->
+    <div class="modal fade" id="addUserModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>Add New User
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addUserForm">
+                        <!-- Account Credentials -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-lock me-2"></i>Account Credentials</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="add_username" class="form-label">Username <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="add_username" required 
+                                            pattern="^[a-zA-Z0-9_]{3,50}$" minlength="3" maxlength="50">
+                                        <div class="form-text">3-50 characters, letters, numbers, and underscores only</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="add_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="add_email" required maxlength="254">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="add_user_type" class="form-label">User Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="add_user_type" required>
+                                            <option value="">Select Type</option>
+                                            <option value="farmer">Farmer</option>
+                                            <option value="fisherfolk">Fisherfolk</option>
+                                            <option value="general">General Public</option>
+                                            <option value="agri-entrepreneur">Agri-Entrepreneur</option>
+                                            <option value="cooperative-member">Cooperative Member</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_password" class="form-label">Password <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="add_password" required minlength="8">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="toggleAddPasswordVisibility('add_password')">
+                                                <i class="fas fa-eye" id="add_password_icon"></i>
+                                            </button>
+                                        </div>
+                                        <div class="form-text">Minimum 8 characters, must include uppercase, lowercase, number, and special character</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" id="add_password_confirmation" required>
+                                            <button class="btn btn-outline-secondary" type="button" onclick="toggleAddPasswordVisibility('add_password_confirmation')">
+                                                <i class="fas fa-eye" id="add_password_confirmation_icon"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-id-card me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="add_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="add_first_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="add_middle_name" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="add_middle_name" maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="add_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="add_last_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="add_name_extension" class="form-label">Extension</label>
+                                        <select class="form-select" id="add_name_extension">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="add_date_of_birth" class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="add_date_of_birth" required>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="add_gender" class="form-label">Gender</label>
+                                        <select class="form-select" id="add_gender">
+                                            <option value="">Select</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="add_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="add_contact_number" required 
+                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Address Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="add_barangay" required>
+                                            <option value="">Select Barangay</option>
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_complete_address" class="form-label">Complete Address <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="add_complete_address" required rows="3" maxlength="500"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-phone-alt me-2"></i>Emergency Contact</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_emergency_contact_name" class="form-label">Emergency Contact Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="add_emergency_contact_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_emergency_contact_phone" class="form-label">Emergency Contact Phone <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="add_emergency_contact_phone" required 
+                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Document Uploads (REQUIRED) -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Documents <span class="badge bg-danger text-white ms-2">REQUIRED</span></h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted small mb-3">Upload documents to associate with this user. Supported formats: JPG, PNG (Max 5MB each)</p>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_id_front" class="form-label">Government ID - Front <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" id="add_id_front" accept="image/*" required
+                                            onchange="previewAddDocument('add_id_front', 'add_id_front_preview')">
+                                        <div id="add_id_front_preview" style="margin-top: 10px;"></div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_id_back" class="form-label">Government ID - Back <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" id="add_id_back" accept="image/*" required
+                                            onchange="previewAddDocument('add_id_back', 'add_id_back_preview')">
+                                        <div id="add_id_back_preview" style="margin-top: 10px;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_location_proof" class="form-label">Location/Role Proof <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" id="add_location_proof" accept="image/*" required
+                                            onchange="previewAddDocument('add_location_proof', 'add_location_proof_preview')">
+                                        <div id="add_location_proof_preview" style="margin-top: 10px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Status -->
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Account Status</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="add_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="add_status" required>
+                                            <option value="unverified">Unverified (Basic Signup)</option>
+                                            <option value="pending">Pending Review</option>
+                                            <option value="approved">Approved</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" id="add_email_verified" checked>
+                                            <label class="form-check-label" for="add_email_verified">
+                                                Mark email as verified
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="submitAddUser()">
+                        <i class="fas fa-save me-1"></i>Create User
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Update Status Modal -->
     <div class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -488,29 +748,8 @@
                 <div class="modal-body" id="registrationDetails">
                     <!-- Content will be loaded here -->
                 </div>
+                <!-- close button -->
                 <div class="modal-footer">
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('location')"
-                            id="viewLocationDoc">
-                            <i class="fas fa-map-marker-alt me-2"></i>View Location Document
-                        </button>
-                        <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('id_front')"
-                            id="viewIdFront">
-                            <i class="fas fa-id-card me-2"></i>View ID Front
-                        </button>
-                        <button type="button" class="btn btn-info btn-sm" onclick="viewDocument('id_back')"
-                            id="viewIdBack">
-                            <i class="fas fa-id-card-alt me-2"></i>View ID Back
-                        </button>
-                        <button type="button" class="btn btn-success btn-sm" onclick="quickUpdateStatus('approved')"
-                            id="quickApprove">
-                            <i class="fas fa-check me-2"></i>Quick Approve
-                        </button>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="quickUpdateStatus('rejected')"
-                            id="quickReject">
-                            <i class="fas fa-times me-2"></i>Quick Reject
-                        </button>
-                    </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -537,17 +776,9 @@
                     <div id="documentViewer" style="display: none;"></div>
                 </div>
                 <div class="modal-footer">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary" onclick="downloadDocument()">
-                            <i class="fas fa-download me-2"></i>Download
-                        </button>
-                        <button type="button" class="btn btn-success" onclick="openInNewTab()">
-                            <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                        </button>
-                        <button type="button" class="btn btn-info" onclick="zoomDocument()">
-                            <i class="fas fa-search-plus me-2"></i>Zoom
-                        </button>
-                    </div>
+                    <button type="button" class="btn btn-info btn-sm" onclick="zoomDocument()">
+                        <i class="fas fa-search-plus me-2"></i>Zoom
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -655,6 +886,158 @@
     </div>
 
     <style>
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Header (for confirmation toasts) */
+        .toast-notification .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .toast-notification .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .toast-notification .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Toast Body */
+        .toast-notification .toast-body {
+            padding: 16px;
+        }
+
+        .toast-notification .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* Toast Content (for simple notifications) */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size:  1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;       /* Make icon bigger */
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i,
+        .toast-notification.toast-success .toast-header i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i,
+        .toast-notification.toast-error .toast-header i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i,
+        .toast-notification.toast-warning .toast-header i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i,
+        .toast-notification.toast-info .toast-header i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-body {
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .d-flex.gap-2 button {
+            pointer-events: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
         /* Border styles for statistics cards */
         .border-left-primary {
             border-left: 0.25rem solid #4e73df !important;
@@ -705,6 +1088,17 @@
             transform: scale(1.1);
             transition: all 0.2s ease;
         }
+
+         /* Center document image */
+        #documentModal .document-image {
+            max-width: 90%;
+            max-height: 55vh;
+            object-fit: contain;
+            margin: 0 auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
 
         /* Fix for lingering modal backdrop */
         .modal-backdrop {
@@ -1114,8 +1508,6 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-2">
-                            <div class="col-12"><strong>Occupation:</strong> ${data.occupation || '<span class="text-muted">Not specified</span>'}</div>
-                            <div class="col-12"><strong>Organization:</strong> ${data.organization || '<span class="text-muted">Not specified</span>'}</div>
                             <div class="col-12"><strong>Emergency Contact:</strong> ${data.emergency_contact_name || '<span class="text-muted">Not provided</span>'}</div>
                             <div class="col-12"><strong>Emergency Phone:</strong> ${data.emergency_contact_phone ? `<a href="tel:${data.emergency_contact_phone}" class="text-decoration-none">${data.emergency_contact_phone}</a>` : '<span class="text-muted">Not provided</span>'}</div>
                         </div>
@@ -1160,31 +1552,6 @@
                                     </span>
                                     ${data.id_back_path ? `<br><button class="btn btn-sm btn-outline-info" onclick="viewDocument('id_back')"><i class="fas fa-eye"></i> View</button>` : ''}
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Technical Information Card -->
-            <div class="col-12">
-                <div class="card border-dark">
-                    <div class="card-header bg-dark text-white">
-                        <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Technical Information</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <p><strong>Registration IP:</strong><br><code>${data.registration_ip || 'N/A'}</code></p>
-                            </div>
-                            <div class="col-md-3">
-                                <p><strong>Referral Source:</strong><br>${data.referral_source || 'Direct'}</p>
-                            </div>
-                            <div class="col-md-3">
-                                <p><strong>Terms Accepted:</strong><br>${data.terms_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
-                            </div>
-                            <div class="col-md-3">
-                                <p><strong>Privacy Accepted:</strong><br>${data.privacy_accepted ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>'}</p>
                             </div>
                         </div>
                     </div>
@@ -1258,7 +1625,7 @@
         // Enhanced view document function
         function viewDocument(documentType) {
             if (!currentRegistrationId) {
-                showAlert('error', 'Registration ID not found');
+                showToast('error', 'Registration ID not found');
                 return;
             }
 
@@ -1411,33 +1778,6 @@
             toggleZoom();
         }
 
-        // Download document function
-        function downloadDocument() {
-            if (currentDocumentUrl) {
-                const link = document.createElement('a');
-                link.href = currentDocumentUrl;
-                if (currentDocumentInfo && currentDocumentInfo.name) {
-                    link.download = currentDocumentInfo.name;
-                }
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showAlert('success', 'Download started');
-            } else {
-                showAlert('error', 'No document available for download');
-            }
-        }
-
-        // Open document in new tab
-        function openInNewTab() {
-            if (currentDocumentUrl) {
-                window.open(currentDocumentUrl, '_blank');
-            } else {
-                showAlert('error', 'No document available to open');
-            }
-        }
-
         // Enhanced view documents function for User Registrations - FIXED
         function viewDocuments(id) {
             currentRegistrationId = id;
@@ -1584,29 +1924,6 @@
                     }
                 });
         }
-        // Quick status update functions
-        function quickUpdateStatus(newStatus) {
-            if (!currentRegistrationId) {
-                showAlert('error', 'No registration selected');
-                return;
-            }
-
-            const statusText = getStatusText(newStatus);
-            const confirmMessage = `Are you sure you want to ${newStatus} this registration?`;
-
-            if (!confirm(confirmMessage)) {
-                return;
-            }
-
-            // Close the registration modal first
-            const registrationModal = bootstrap.Modal.getInstance(document.getElementById('registrationModal'));
-            if (registrationModal) {
-                registrationModal.hide();
-            }
-
-            // Perform the status update
-            updateRegistrationStatusDirect(currentRegistrationId, newStatus);
-        }
 
         // Direct status update
         function updateRegistrationStatusDirect(id, status, remarks = '') {
@@ -1633,7 +1950,7 @@
                 })
                 .then(response => {
                     if (response.success) {
-                        showAlert('success', response.message);
+                        showToast('success', response.message);
 
                         // Auto-refresh the page after a short delay
                         setTimeout(() => {
@@ -1645,7 +1962,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('error', 'Error updating registration status: ' + error.message);
+                    showToast('error', 'Error updating registration status: ' + error.message);
                 });
         }
 
@@ -1712,11 +2029,11 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('error', 'Error loading registration details: ' + error.message);
+                    showToast('error', 'Error loading registration details: ' + error.message);
                 });
         }
 
-        // enhance version
+        // enhance version with toast notif
 
         function updateRegistrationStatus() {
             const id = document.getElementById('updateRegistrationId').value;
@@ -1729,7 +2046,7 @@
             console.log('Remarks:', remarks);
 
             if (!newStatus) {
-                showAlert('error', 'Please select a status');
+                showToast('error', 'Please select a status');
                 return;
             }
 
@@ -1737,7 +2054,7 @@
             const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
 
             if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                showAlert('warning', 'No changes detected. Please modify the status or remarks before updating.');
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
                 return;
             }
 
@@ -1757,17 +2074,80 @@
                 }
             }
 
-            const confirmMessage =
-                `Are you sure you want to update this registration with the following changes?\n\n${changesSummary.join('\n')}`;
+            // Show confirmation toast with action buttons
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
+        }
 
-            if (!confirm(confirmMessage)) {
-                return;
+        // New confirmation toast function
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+            
+            // Store the callback function on the toast element
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+            
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-info"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        // NEW helper function to execute confirmation action
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+            
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
             }
+            
+            // Clean up the callback reference
+            delete window[callbackId];
+            
+            removeToast(toast);
+        }
 
+        // Proceed with actual status update
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
             const updateButton = document.querySelector('#updateModal .btn-primary');
             const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
             updateButton.disabled = true;
 
             const endpoint = `/admin/registrations/${id}/update-status`;
@@ -1778,7 +2158,6 @@
 
             console.log('Sending request to:', endpoint);
             console.log('Request data:', requestData);
-            console.log('CSRF Token:', getCSRFToken());
 
             fetch(endpoint, {
                     method: 'POST',
@@ -1791,16 +2170,8 @@
                 })
                 .then(response => {
                     console.log('Response Status:', response.status);
-                    console.log('Response Status Text:', response.statusText);
-                    console.log('Response Headers:', {
-                        'Content-Type': response.headers.get('Content-Type'),
-                        'X-Requested-With': response.headers.get('X-Requested-With')
-                    });
-
-                    // Clone response to read body multiple times if needed
                     const clonedResponse = response.clone();
 
-                    // First, try to parse as JSON to see error details
                     return clonedResponse.json().then(jsonData => {
                         console.log('Response JSON:', jsonData);
                         return {
@@ -1810,7 +2181,6 @@
                         };
                     }).catch(jsonError => {
                         console.warn('Could not parse JSON response:', jsonError);
-                        // If JSON parsing fails, get text instead
                         return response.text().then(textData => {
                             console.log('Response Text:', textData);
                             return {
@@ -1825,7 +2195,6 @@
                     console.log('Processing result:', result);
 
                     if (!result.ok) {
-                        // Error response - show detailed error
                         let errorMessage = `Server Error (${result.status}): `;
                         
                         if (result.data && result.data.message) {
@@ -1843,15 +2212,14 @@
                         throw new Error(errorMessage);
                     }
 
-                    // Success response
                     if (result.data && result.data.success) {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
                         modal.hide();
-                        showAlert('success', result.data.message);
+                        
+                        showToast('success', result.data.message || 'Registration status updated successfully');
 
                         console.log('Update successful, reloading...');
                         
-                        // Auto-refresh the page
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -1862,20 +2230,772 @@
                 .catch(error => {
                     console.error('Complete error object:', error);
                     console.error('Error message:', error.message);
-                    console.error('Error stack:', error.stack);
-                    showAlert('error', 'Error updating registration status: ' + error.message);
+                    showToast('error', 'Error updating registration status: ' + error.message);
                 })
                 .finally(() => {
                     updateButton.innerHTML = originalText;
                     updateButton.disabled = false;
                 });
         }
-        // Delete registration
-        function deleteRegistration(id) {
-            if (!confirm('Are you sure you want to delete this registration? This action cannot be undone.')) {
+
+        // Toast notification function (similar to event page)
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds for non-confirmation toasts
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
+
+   // Show add user modal
+function showAddUserModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addUserModal'));
+    
+    // Reset form
+    document.getElementById('addUserForm').reset();
+    
+    // Remove any validation errors
+    document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    
+    modal.show();
+}
+
+// Toggle password visibility
+function toggleAddPasswordVisibility(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(inputId + '_icon');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+        // ==============================================
+        // ADD USER FORM VALIDATION
+        // ==============================================
+
+        /**
+         * Real-time validation for username (admin)
+         */
+        document.getElementById('add_username')?.addEventListener('input', function() {
+            validateAddUsername(this.value);
+        });
+
+        function validateAddUsername(username) {
+            const input = document.getElementById('add_username');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            // Remove existing feedback
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!username || username.trim() === '') {
                 return;
             }
+            
+            let errors = [];
+            
+            // Length check (3-50 characters)
+            if (username.length < 3) {
+                errors.push('Username must be at least 3 characters');
+            }
+            if (username.length > 50) {
+                errors.push('Username must not exceed 50 characters');
+            }
+            
+            // No spaces allowed
+            if (/\s/.test(username)) {
+                errors.push('Username cannot contain spaces');
+            }
+            
+            // Only letters, numbers, and underscores allowed
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                errors.push('Username can only contain letters, numbers, and underscores');
+            }
+            
+            // Cannot start with a number
+            if (/^[0-9]/.test(username)) {
+                errors.push('Username cannot start with a number');
+            }
+            
+            if (errors.length > 0) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = errors[0];
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            // Check availability on server
+            checkAddUsernameAvailability(username);
+            return true;
+        }
 
+        let addUsernameCheckTimeout;
+        function checkAddUsernameAvailability(username) {
+            clearTimeout(addUsernameCheckTimeout);
+            const input = document.getElementById('add_username');
+            
+            addUsernameCheckTimeout = setTimeout(() => {
+                fetch('/auth/check-username', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                    },
+                    body: JSON.stringify({ username: username })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) feedback.remove();
+                    
+                    if (data.available) {
+                        input.classList.remove('is-invalid');
+                        input.classList.add('is-valid');
+                    } else {
+                        input.classList.remove('is-valid');
+                        input.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = 'Username already taken';
+                        input.parentNode.appendChild(errorDiv);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking username:', error);
+                });
+            }, 500);
+        }
+
+        /**
+         * Real-time validation for email (admin)
+         */
+        document.getElementById('add_email')?.addEventListener('input', function() {
+            validateAddEmail(this.value);
+        });
+
+        document.getElementById('add_email')?.addEventListener('blur', function() {
+            validateAddEmail(this.value);
+        });
+
+        function validateAddEmail(email) {
+            const input = document.getElementById('add_email');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            // Remove existing feedback
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!email || email.trim() === '') {
+                return;
+            }
+            
+            email = email.trim();
+            
+            // Check for spaces
+            if (/\s/.test(email)) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Email cannot contain spaces';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            // Check length
+            if (email.length > 254) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Email is too long (max 254 characters)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            // Email pattern validation
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if (!emailPattern.test(email)) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Invalid email format';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            // Check for consecutive dots
+            if (/\.\./.test(email)) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Email cannot have consecutive dots';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        /**
+         * Real-time validation for password (admin)
+         */
+        document.getElementById('add_password')?.addEventListener('input', function() {
+            const password = this.value;
+            validateAddPassword(password);
+            
+            // Re-validate confirmation if it has value
+            const confirmPassword = document.getElementById('add_password_confirmation').value;
+            if (confirmPassword) {
+                validateAddPasswordMatch(password, confirmPassword);
+            }
+        });
+
+        function validateAddPassword(password) {
+            const input = document.getElementById('add_password');
+            const feedback = input.parentNode.parentNode.querySelector('.invalid-feedback');
+            
+            // Remove existing feedback
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!password) {
+                return;
+            }
+            
+            let errors = [];
+            
+            // Check for spaces
+            if (/\s/.test(password)) {
+                errors.push('Password cannot contain spaces');
+            }
+            
+            // Check minimum length (8 characters)
+            if (password.length < 8) {
+                errors.push('Password must be at least 8 characters');
+            }
+            
+            // Check for uppercase
+            if (!/[A-Z]/.test(password)) {
+                errors.push('Password must contain at least one uppercase letter');
+            }
+            
+            // Check for lowercase
+            if (!/[a-z]/.test(password)) {
+                errors.push('Password must contain at least one lowercase letter');
+            }
+            
+            // Check for number
+            if (!/\d/.test(password)) {
+                errors.push('Password must contain at least one number');
+            }
+            
+            // Check for special character
+            if (!/[@#!$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+                errors.push('Password must contain at least one special character');
+            }
+            
+            if (errors.length > 0) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = errors[0];
+                input.parentNode.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        /**
+         * Real-time validation for password confirmation (admin)
+         */
+        document.getElementById('add_password_confirmation')?.addEventListener('input', function() {
+            const password = document.getElementById('add_password').value;
+            const confirmPassword = this.value;
+            validateAddPasswordMatch(password, confirmPassword);
+        });
+
+        function validateAddPasswordMatch(password, confirmPassword) {
+            const input = document.getElementById('add_password_confirmation');
+            const feedback = input.parentNode.parentNode.querySelector('.invalid-feedback');
+            
+            // Remove existing feedback
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!confirmPassword) {
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Passwords do not match';
+                input.parentNode.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        /**
+         * Real-time validation for contact number (admin)
+         */
+        document.getElementById('add_contact_number')?.addEventListener('input', function() {
+            validateAddContactNumber(this.value);
+        });
+
+        document.getElementById('add_contact_number')?.addEventListener('blur', function() {
+            validateAddContactNumber(this.value);
+        });
+
+        function validateAddContactNumber(contactNumber) {
+            const input = document.getElementById('add_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            // Remove existing feedback
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!contactNumber || contactNumber.trim() === '') {
+                return;
+            }
+            
+            // Philippine mobile number validation (09XXXXXXXXX or +639XXXXXXXXX)
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+            
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        /**
+         * Real-time validation for emergency contact phone (admin)
+         */
+        document.getElementById('add_emergency_contact_phone')?.addEventListener('input', function() {
+            validateAddEmergencyPhone(this.value);
+        });
+
+        document.getElementById('add_emergency_contact_phone')?.addEventListener('blur', function() {
+            validateAddEmergencyPhone(this.value);
+        });
+
+        function validateAddEmergencyPhone(phone) {
+            const input = document.getElementById('add_emergency_contact_phone');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            // Remove existing feedback
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!phone || phone.trim() === '') {
+                return;
+            }
+            
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+            
+            if (!phoneRegex.test(phone.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        /**
+         * Real-time validation for date of birth (admin)
+         */
+        document.getElementById('add_date_of_birth')?.addEventListener('change', function() {
+            validateAddDateOfBirth(this.value);
+        });
+
+        function validateAddDateOfBirth(dob) {
+            const input = document.getElementById('add_date_of_birth');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            // Remove existing feedback
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!dob) {
+                return;
+            }
+            
+            const birthDate = new Date(dob);
+            const today = new Date();
+            const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+            
+            if (age < 18) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'User must be at least 18 years old';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            if (age > 100) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid date of birth';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        /**
+         * Document preview for file inputs
+         */
+        function previewAddDocument(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            
+            if (!input.files || !input.files[0]) {
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+            
+            const file = input.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                if (preview) {
+                    preview.innerHTML = `
+                        <div class="document-preview-item">
+                            <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                            <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name}</p>
+                        </div>
+                    `;
+                    preview.style.display = 'block';
+                }
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Comprehensive form validation before submission (admin)
+         */
+        function validateAddUserForm() {
+            let isValid = true;
+            
+            // Validate username
+            const username = document.getElementById('add_username').value.trim();
+            if (!validateAddUsername(username)) {
+                isValid = false;
+            }
+            
+            // Validate email
+            const email = document.getElementById('add_email').value.trim();
+            if (!validateAddEmail(email)) {
+                isValid = false;
+            }
+            
+            // Validate password
+            const password = document.getElementById('add_password').value;
+            if (!validateAddPassword(password)) {
+                isValid = false;
+            }
+            
+            // Validate password confirmation
+            const passwordConfirm = document.getElementById('add_password_confirmation').value;
+            if (!validateAddPasswordMatch(password, passwordConfirm)) {
+                isValid = false;
+            }
+            
+            // Validate contact number
+            const contactNumber = document.getElementById('add_contact_number').value.trim();
+            if (!validateAddContactNumber(contactNumber)) {
+                isValid = false;
+            }
+            
+            // Validate emergency contact phone
+            const emergencyPhone = document.getElementById('add_emergency_contact_phone').value.trim();
+            if (!validateAddEmergencyPhone(emergencyPhone)) {
+                isValid = false;
+            }
+            
+            // Validate date of birth
+            const dob = document.getElementById('add_date_of_birth').value;
+            if (!validateAddDateOfBirth(dob)) {
+                isValid = false;
+            }
+            
+            // Check required fields
+            const requiredFields = [
+                { id: 'add_username', label: 'Username' },
+                { id: 'add_email', label: 'Email' },
+                { id: 'add_password', label: 'Password' },
+                { id: 'add_password_confirmation', label: 'Password Confirmation' },
+                { id: 'add_first_name', label: 'First Name' },
+                { id: 'add_last_name', label: 'Last Name' },
+                { id: 'add_date_of_birth', label: 'Date of Birth' },
+                { id: 'add_contact_number', label: 'Contact Number' },
+                { id: 'add_user_type', label: 'User Type' },
+                { id: 'add_barangay', label: 'Barangay' },
+                { id: 'add_complete_address', label: 'Complete Address' },
+                { id: 'add_emergency_contact_name', label: 'Emergency Contact Name' },
+                { id: 'add_emergency_contact_phone', label: 'Emergency Contact Phone' }
+            ];
+            
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input && (!input.value || input.value.trim() === '')) {
+                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) feedback.remove();
+                    
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = field.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            });
+
+            // Validate documents (REQUIRED)
+            if (!validateAddDocuments()) {
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        /**
+         * Validate all document uploads (required)
+         */
+        function validateAddDocuments() {
+            let isValid = true;
+            
+            const documents = [
+                { id: 'add_id_front', label: 'Government ID - Front' },
+                { id: 'add_id_back', label: 'Government ID - Back' },
+                { id: 'add_location_proof', label: 'Location/Role Proof' }
+            ];
+            
+            documents.forEach(doc => {
+                const input = document.getElementById(doc.id);
+                if (!input) return;
+                
+                const feedback = input.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+                input.classList.remove('is-invalid', 'is-valid');
+                
+                if (!input.files || !input.files[0]) {
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = doc.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                    return;
+                }
+                
+                input.classList.add('is-valid');
+            });
+            
+            return isValid;
+        }
+
+        /**
+         * Submit add user form (admin) with toast notif
+         */
+        function submitAddUser() {
+            // Run comprehensive validation
+            if (!validateAddUserForm()) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return;
+            }
+            
+            const form = document.getElementById('addUserForm');
+            
+            // Get form data - ALIGNED WITH BACKEND EXPECTATIONS
+            const formData = new FormData();
+            
+            formData.append('username', document.getElementById('add_username').value.trim());
+            formData.append('email', document.getElementById('add_email').value.trim());
+            formData.append('password', document.getElementById('add_password').value);
+            formData.append('password_confirmation', document.getElementById('add_password_confirmation').value);
+            formData.append('first_name', document.getElementById('add_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('add_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('add_last_name').value.trim());
+            formData.append('name_extension', document.getElementById('add_name_extension').value);
+            formData.append('date_of_birth', document.getElementById('add_date_of_birth').value);
+            formData.append('gender', document.getElementById('add_gender').value);
+            formData.append('contact_number', document.getElementById('add_contact_number').value.trim());
+            formData.append('barangay', document.getElementById('add_barangay').value);
+            formData.append('complete_address', document.getElementById('add_complete_address').value.trim());
+            formData.append('user_type', document.getElementById('add_user_type').value);
+            formData.append('emergency_contact_name', document.getElementById('add_emergency_contact_name').value.trim());
+            formData.append('emergency_contact_phone', document.getElementById('add_emergency_contact_phone').value.trim());
+            formData.append('status', document.getElementById('add_status').value);
+            formData.append('email_verified', document.getElementById('add_email_verified').checked ? 1 : 0);
+            
+            // Add file uploads if present
+            const idFrontInput = document.getElementById('add_id_front');
+            const idBackInput = document.getElementById('add_id_back');
+            const locationProofInput = document.getElementById('add_location_proof');
+            
+            if (idFrontInput?.files[0]) {
+                formData.append('id_front', idFrontInput.files[0]);
+            }
+            if (idBackInput?.files[0]) {
+                formData.append('id_back', idBackInput.files[0]);
+            }
+            if (locationProofInput?.files[0]) {
+                formData.append('location_proof', locationProofInput.files[0]);
+            }
+            
+            // Find the submit button (the one that triggered this function)
+            const submitBtn = document.querySelector('#addUserModal .btn-success');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
+            submitBtn.disabled = true;
+            
+            // Submit to backend
+            fetch('/admin/registrations/create', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
+                    modal.hide();
+                    
+                    // Show success message using TOAST instead of alert
+                    showToast('success', data.message || 'User created successfully');
+                    
+                    // Reload page after short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Show validation errors
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            const input = document.getElementById('add_' + field);
+                            if (input) {
+                                const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                if (feedback) feedback.remove();
+                                
+                                input.classList.add('is-invalid');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback d-block';
+                                errorDiv.textContent = data.errors[field][0];
+                                input.parentNode.appendChild(errorDiv);
+                            }
+                        });
+                    }
+                    showToast('error', data.message || 'Failed to create user');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'An error occurred while creating the user');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+        
+        // Delete registration - UPDATED with confirmation toast
+        function deleteRegistration(id) {
+            // Show confirmation toast instead of browser confirm
+            showConfirmationToast(
+                'Delete Registration',
+                'Are you sure you want to delete this registration?\n\nThis action cannot be undone.',
+                () => proceedWithDelete(id)
+            );
+        }
+
+        // Proceed with actual delete
+        function proceedWithDelete(id) {
             fetch(`/admin/registrations/${id}`, {
                     method: 'DELETE',
                     headers: {
@@ -1886,7 +3006,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showAlert('success', data.message);
+                        showToast('success', data.message || 'Registration deleted successfully');
                         const row = document.querySelector(`tr[data-id="${id}"]`);
                         if (row) {
                             row.style.transition = 'opacity 0.3s';
@@ -1895,48 +3015,13 @@
                         }
                         refreshStats();
                     } else {
-                        showAlert('error', data.message);
+                        showToast('error', data.message || 'Failed to delete registration');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('error', 'An error occurred while deleting the registration.');
+                    showToast('error', 'An error occurred while deleting the registration.');
                 });
-        }
-
-        // Enhanced alert system
-        function showAlert(type, message) {
-            // Remove existing alerts
-            document.querySelectorAll('.alert').forEach(alert => alert.remove());
-
-            const alertClass = type === 'error' ? 'danger' : type;
-            const iconClass = {
-                'success': 'fas fa-check-circle',
-                'danger': 'fas fa-exclamation-circle',
-                'warning': 'fas fa-exclamation-triangle',
-                'info': 'fas fa-info-circle'
-            } [alertClass] || 'fas fa-info-circle';
-
-            const alertHtml = `
-        <div class="alert alert-${alertClass} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
-            <i class="${iconClass} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `;
-
-            document.body.insertAdjacentHTML('beforeend', alertHtml);
-
-            if (type === 'success') {
-                setTimeout(() => {
-                    const successAlert = document.querySelector('.alert-success');
-                    if (successAlert) {
-                        successAlert.style.transition = 'opacity 0.3s';
-                        successAlert.style.opacity = '0';
-                        setTimeout(() => successAlert.remove(), 300);
-                    }
-                }, 5000);
-            }
         }
 
         // Refresh statistics
@@ -1962,30 +3047,6 @@
                 .catch(error => {
                     console.error('Error refreshing stats:', error);
                 });
-        }
-
-        // Export registrations function
-        function exportRegistrations() {
-            const params = new URLSearchParams(window.location.search);
-            const exportBtn = document.querySelector('[onclick="exportRegistrations()"]');
-            const originalText = exportBtn.innerHTML;
-            exportBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Exporting...';
-            exportBtn.disabled = true;
-
-            const exportUrl = '/admin/registrations/export?' + params.toString();
-
-            const link = document.createElement('a');
-            link.href = exportUrl;
-            link.download = `registrations_${new Date().toISOString().split('T')[0]}.xlsx`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            setTimeout(() => {
-                exportBtn.innerHTML = originalText;
-                exportBtn.disabled = false;
-                showAlert('success', 'Export started successfully');
-            }, 2000);
         }
 
         // Date filter functions
@@ -2023,7 +3084,7 @@
             const toDate = document.getElementById('modal_date_to').value;
 
             if (fromDate && toDate && fromDate > toDate) {
-                showAlert('error', 'From date cannot be later than to date');
+                showToast('error', 'From date cannot be later than to date');
                 return;
             }
 
@@ -2197,6 +3258,55 @@
                 console.log('Document modal cleaned up');
             });
         }
+        
+        /**
+         * Auto-capitalize first letter of each word in name fields (Title Case)
+         */
+        function capitalizeName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                // Split by spaces, capitalize each word, then join back
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        }
+
+        // Apply auto-capitalization to name fields with debounce to avoid issues while typing
+        let nameCapitalizeTimeout;
+        
+        function handleNameInput(input) {
+            clearTimeout(nameCapitalizeTimeout);
+            nameCapitalizeTimeout = setTimeout(() => {
+                capitalizeName(input);
+            }, 500); // Wait 500ms after user stops typing
+        }
+
+        // Apply to name fields on blur (when user leaves the field) for immediate effect
+        document.getElementById('add_first_name')?.addEventListener('blur', function() {
+            capitalizeName(this);
+        });
+
+        document.getElementById('add_middle_name')?.addEventListener('blur', function() {
+            capitalizeName(this);
+        });
+
+        document.getElementById('add_last_name')?.addEventListener('blur', function() {
+            capitalizeName(this);
+        });
+
+        document.getElementById('add_emergency_contact_name')?.addEventListener('blur', function() {
+            capitalizeName(this);
+        });
+
+        /**
+         * Real-time validation for contact number (admin)
+         */
+        document.getElementById('add_contact_number')?.addEventListener('input', function() {
+            validateAddContactNumber(this.value);
+        });
 
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
     </script>
