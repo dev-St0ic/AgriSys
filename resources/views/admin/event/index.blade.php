@@ -1396,6 +1396,11 @@
                 }
                 
                 showSuccess(data.message);
+                //  RELOAD PAGE AFTER 1 SECOND
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+
             } catch (error) {
                 showError(error.message, error.warningType || null);
             }
