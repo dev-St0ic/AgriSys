@@ -250,9 +250,6 @@
                             <th class="text-center">Date Applied</th>
                             <th class="text-center">Application #</th>
                             <th class="text-center">Name</th>
-                            <th class="text-center">Sex</th>
-                            <th class="text-center">Barangay</th>
-                            <th class="text-center">Contact Number</th>
                             <th class="text-center">Livelihood</th>
                             <th class="text-center">Land Area</th>
                             <th class="text-center">Status</th>
@@ -277,9 +274,6 @@
                                         {{ $application->name_extension }}
                                     @endif
                                 </td>
-                                <td class="text-start">{{ $application->sex }}</td>
-                                <td class="text-start">{{ $application->barangay }}</td>
-                                <td class="text-start">{{ $application->contact_number }}</td>
                                 <td class="text-start">
                                     <span class="badge bg-info fs-6">{{ $application->main_livelihood }}</span>
                                 </td>
