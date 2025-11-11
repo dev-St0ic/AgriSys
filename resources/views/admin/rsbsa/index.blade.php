@@ -985,7 +985,7 @@
                 padding: 0.5rem 1rem;
             }
         }
-        /* Toast Notification Container */
+     /* Toast Notification Container */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -1038,12 +1038,36 @@
             border-left: 4px solid #28a745;
         }
 
+        .toast-notification.toast-success .toast-content i,
+        .toast-notification.toast-success .toast-header i {
+            color: #28a745;
+        }
+
         .toast-notification.toast-error {
             border-left: 4px solid #dc3545;
         }
 
+        .toast-notification.toast-error .toast-content i,
+        .toast-notification.toast-error .toast-header i {
+            color: #dc3545;
+        }
+
         .toast-notification.toast-warning {
             border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i,
+        .toast-notification.toast-warning .toast-header i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i,
+        .toast-notification.toast-info .toast-header i {
+            color: #17a2b8;
         }
 
         /* Confirmation Toast */
@@ -1064,6 +1088,13 @@
         .confirmation-toast .toast-body {
             padding: 16px;
             background: #f8f9fa;
+        }
+
+        .confirmation-toast .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
         }
 
         .btn-close-toast {
@@ -2226,7 +2257,7 @@
             return container;
         }
 
-        // Toast notification function (add this if not already present)
+      // Toast notification function
         function showToast(type, message) {
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
@@ -2260,14 +2291,14 @@
             }, 5000);
         }
 
-        // Confirmation toast function (add this if not already present)
+        // Confirmation toast function
         function showConfirmationToast(title, message, onConfirm) {
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
             const toast = document.createElement('div');
             toast.className = 'toast-notification confirmation-toast';
 
-            // Store the callback function
+            // Store the callback function on the toast element
             toast.dataset.confirmCallback = Math.random().toString(36);
             window[toast.dataset.confirmCallback] = onConfirm;
 
@@ -2330,10 +2361,189 @@
             }, 300);
         }
 
-        // Get CSRF token utility function (add this if not already present)
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Get CSRF token utility function
         function getCSRFToken() {
             const metaTag = document.querySelector('meta[name="csrf-token"]');
             return metaTag ? metaTag.getAttribute('content') : '';
+        }
+
+        // Helper function to get status display text with null safety
+        function getStatusText(status) {
+            if (!status || status === null || status === undefined) {
+                return 'Unknown';
+            }
+
+            const statusStr = String(status).toLowerCase();
+
+            switch (statusStr) {
+                case 'pending':
+                    return 'Pending';
+                case 'under_review':
+                    return 'Under Review';
+                case 'approved':
+                    return 'Approved';
+                case 'rejected':
+                    return 'Rejected';
+                default:
+                    return statusStr.charAt(0).toUpperCase() + statusStr.slice(1);
+            }
+        }
+
+        // REPLACE deleteApplication function
+        function deleteApplication(id) {
+            showConfirmationToast(
+                'Delete RSBSA Application',
+                'Are you sure you want to delete this RSBSA application?\n\nThis action cannot be undone and will remove all associated data.',
+                () => proceedWithApplicationDelete(id)
+            );
+        }
+
+        // NEW proceedWithApplicationDelete function
+        function proceedWithApplicationDelete(id) {
+            fetch(`/admin/rsbsa-applications/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message || 'Application deleted successfully');
+                        
+                        const row = document.querySelector(`tr[data-id="${id}"]`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s';
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+                                window.location.reload();
+                            }, 300);
+                        } else {
+                            setTimeout(() => window.location.reload(), 1000);
+                        }
+                    } else {
+                        showToast('error', data.message || 'Failed to delete application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while deleting the application: ' + error.message);
+                });
+        }
+
+        // REPLACE updateApplicationStatus function
+        function updateApplicationStatus() {
+            const id = document.getElementById('updateApplicationId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const remarks = document.getElementById('remarks').value;
+
+            if (!id) {
+                showToast('error', 'Invalid application ID');
+                return;
+            }
+
+            if (!newStatus) {
+                showToast('error', 'Please select a status');
+                return;
+            }
+
+            const originalStatus = document.getElementById('newStatus').dataset.originalStatus || '';
+            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+
+            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
+                return;
+            }
+
+            let changesSummary = [];
+            if (newStatus !== originalStatus) {
+                const originalStatusText = getStatusText(originalStatus);
+                const newStatusText = getStatusText(newStatus);
+                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+            }
+            if (remarks.trim() !== originalRemarks.trim()) {
+                if (originalRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Added new remarks');
+                } else if (remarks.trim() === '') {
+                    changesSummary.push('Remarks: Removed existing remarks');
+                } else {
+                    changesSummary.push('Remarks: Modified');
+                }
+            }
+
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this application with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
+        }
+
+        // NEW proceedWithStatusUpdate function
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+            const originalText = updateButton.innerHTML;
+            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.disabled = true;
+
+            fetch(`/admin/rsbsa-applications/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        remarks: remarks
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    if (response.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                        modal.hide();
+                        showToast('success', response.message || 'Application status updated successfully');
+                        
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        throw new Error(response.message || 'Error updating status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error updating application status: ' + error.message);
+                })
+                .finally(() => {
+                    updateButton.innerHTML = originalText;
+                    updateButton.disabled = false;
+                });
         }
     </script>
 @endsection
