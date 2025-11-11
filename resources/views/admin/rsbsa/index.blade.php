@@ -267,7 +267,7 @@
                                 <td class="text-start">
                                     <strong class="text-primary">{{ $application->application_number }}</strong>
                                 </td>
-                                <td class="text-start">{{ $application->full_name }}</td>
+                                <td class="text-start">{{ $application->first_name }} {{ $application->last_name }}</td>
                                 <td class="text-start">{{ $application->sex }}</td>
                                 <td class="text-start">{{ $application->barangay }}</td>
                                 <td class="text-start">{{ $application->contact_number }}</td>

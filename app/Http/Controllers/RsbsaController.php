@@ -37,14 +37,14 @@ class RsbsaController extends Controller
             if ($request->filled('main_livelihood')) {
                 $query->where('main_livelihood', $request->main_livelihood);
             }
-
+            // Search functionality
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('application_number', 'like', "%{$search}%")
-                      ->orWhere('first_name', 'like', "%{$search}%")
-                      ->orWhere('last_name', 'like', "%{$search}%")
-                      ->orWhere('mobile_number', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%");
                 });
             }
 
@@ -124,10 +124,12 @@ class RsbsaController extends Controller
                 'data' => [
                     'id' => $application->id,
                     'application_number' => $application->application_number,
-                    'full_name' => $application->full_name,
+                    'full_name' => $application->first_name . ' ' . $application->last_name,  // Combine first and last name
+                    'first_name' => $application->first_name,
+                    'last_name' => $application->last_name,
                     'sex' => $application->sex,
-                    'mobile_number' => $application->mobile_number,  // Updated field name
-                    'contact_number' => $application->mobile_number,  // Keep for backward compatibility
+                    // 'mobile_number' => $application->contact_number,  // Map contact_number to mobile_number
+                    'contact_number' => $application->contact_number,  // Keep for backward compatibility
                     'barangay' => $application->barangay,
                     'main_livelihood' => $application->main_livelihood,
                     'land_area' => $application->land_area,
