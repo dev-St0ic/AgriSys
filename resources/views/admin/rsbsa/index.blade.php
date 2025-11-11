@@ -16,7 +16,7 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-seedling text-primary"></i>
+                        <i class="fas fa-file-alt text-primary"></i>
                     </div>
                     <div class="stat-number mb-2">{{ $totalApplications }}</div>
                     <div class="stat-label text-primary">Total Applications</div>
@@ -250,9 +250,6 @@
                             <th class="text-center">Date Applied</th>
                             <th class="text-center">Application #</th>
                             <th class="text-center">Name</th>
-                            <th class="text-center">Sex</th>
-                            <th class="text-center">Barangay</th>
-                            <th class="text-center">Contact Number</th>
                             <th class="text-center">Livelihood</th>
                             <th class="text-center">Land Area</th>
                             <th class="text-center">Status</th>
@@ -262,15 +259,21 @@
                     </thead>
                     <tbody>
                         @forelse($applications as $application)
-                            <tr>
+                            <tr data-id="{{ $application->id }}">
                                 <td class="text-start">{{ $application->created_at->format('M d, Y g:i A') }}</td>
                                 <td class="text-start">
                                     <strong class="text-primary">{{ $application->application_number }}</strong>
                                 </td>
-                                <td class="text-start">{{ $application->full_name }}</td>
-                                <td class="text-start">{{ $application->sex }}</td>
-                                <td class="text-start">{{ $application->barangay }}</td>
-                                <td class="text-start">{{ $application->contact_number }}</td>
+                                <td class="text-start">
+                                    {{ $application->first_name }}
+                                    @if($application->middle_name)
+                                        {{ $application->middle_name }}
+                                    @endif
+                                    {{ $application->last_name }}
+                                    @if($application->name_extension)
+                                        {{ $application->name_extension }}
+                                    @endif
+                                </td>
                                 <td class="text-start">
                                     <span class="badge bg-info fs-6">{{ $application->main_livelihood }}</span>
                                 </td>
@@ -306,13 +309,20 @@
                                             title="Update Status">
                                             <i class="fas fa-edit"></i> Update
                                         </button>
+
+                                        <!--  DELETE BUTTON -->
+                                        <button class="btn btn-sm btn-outline-danger"
+                                            onclick="deleteApplication({{ $application->id }})" title="Delete">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="11" class="text-center text-muted py-4">
-                                    <i class="fas fa-seedling fa-3x mb-3"></i>
+                                    <i class="fas fa-file-alt fa-3x mb-3"></i>
                                     <p>No RSBSA applications found.</p>
                                 </td>
                             </tr>
@@ -458,7 +468,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fas fa-seedling me-2"></i>Application Details
+                        <i class="fas fa-file-alt me-2"></i>Application Details
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -976,6 +986,519 @@
             .document-actions .btn {
                 font-size: 0.875rem;
                 padding: 0.5rem 1rem;
+            }
+        }
+     /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i,
+        .toast-notification.toast-success .toast-header i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i,
+        .toast-notification.toast-error .toast-header i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i,
+        .toast-notification.toast-warning .toast-header i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i,
+        .toast-notification.toast-info .toast-header i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .confirmation-toast .toast-body {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification,
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
+
+        /* ============================================
+        VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
+        ============================================ */
+
+        /* Application Details Modal - Enhanced Styling */
+        #applicationModal .modal-content {
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        #applicationModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            padding: 1.5rem;
+        }
+
+        #applicationModal .modal-header .modal-title {
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        #applicationModal .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        #applicationModal .modal-footer {
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #dee2e6;
+            padding: 1.5rem;
+        }
+
+        #applicationModal .modal-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* Application Details Cards */
+        #applicationDetails .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        #applicationDetails .col-md-6 {
+            flex: 0 0 calc(50% - 0.75rem);
+        }
+
+        #applicationDetails .col-12 {
+            flex: 0 0 100%;
+        }
+
+        #applicationDetails h6 {
+            color: #007bff;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e9ecef;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #applicationDetails p {
+            margin-bottom: 0.75rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        #applicationDetails strong {
+            color: #495057;
+            font-weight: 600;
+        }
+
+        /* Remarks Alert Styling */
+        #applicationDetails .alert {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border: none;
+            border-radius: 10px;
+            border-left: 4px solid #17a2b8;
+            margin-top: 1rem;
+        }
+
+        #applicationDetails .alert p {
+            margin: 0;
+            color: #0c5460;
+        }
+
+        #applicationDetails .alert small {
+            color: #0c5460;
+            opacity: 0.8;
+        }
+
+        /* Badge Styling */
+        #applicationDetails .badge {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Scrollbar Styling for Modal Body */
+        #applicationModal .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #applicationModal .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        #applicationModal .modal-body::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        #applicationModal .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Update Modal - Enhanced Styling */
+        #updateModal .modal-content {
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        #updateModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            border: none;
+            padding: 1.5rem;
+        }
+
+        #updateModal .modal-header .modal-title {
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        #updateModal .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        #updateModal .modal-footer {
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #dee2e6;
+            padding: 1.5rem;
+        }
+
+        #updateModal .modal-body {
+            padding: 2rem;
+        }
+
+        /* Application Info Card in Update Modal */
+        #updateModal .card.bg-light {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        #updateModal .card.bg-light:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        #updateModal .card-body {
+            padding: 1.5rem;
+        }
+
+        #updateModal .card-title {
+            color: #007bff;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #updateModal .card-body p {
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        #updateModal .card-body strong {
+            color: #495057;
+            font-weight: 600;
+        }
+
+        #updateModal .badge {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Form Controls in Update Modal */
+        #updateModal .form-label {
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #updateModal .form-select,
+        #updateModal .form-control {
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        #updateModal .form-select:focus,
+        #updateModal .form-control:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+            outline: none;
+        }
+
+        #updateModal .form-text {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Form Changed Visual Feedback */
+        #updateModal .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd;
+            transition: all 0.3s ease;
+        }
+
+        #updateModal .change-indicator {
+            position: relative;
+        }
+
+        #updateModal .change-indicator::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #updateModal .change-indicator.changed::after {
+            opacity: 1;
+        }
+
+        /* Modal Button Styling */
+        #applicationModal .modal-footer .btn,
+        #updateModal .modal-footer .btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        #applicationModal .modal-footer .btn-secondary,
+        #updateModal .modal-footer .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        #applicationModal .modal-footer .btn-secondary:hover,
+        #updateModal .modal-footer .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #updateModal .modal-footer .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        #updateModal .modal-footer .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #updateModal .modal-footer .btn-primary.no-changes {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #applicationModal .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            #updateModal .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            #applicationDetails .col-md-6 {
+                flex: 0 0 100%;
+            }
+
+            #applicationModal .modal-body {
+                padding: 1rem;
+            }
+
+            #updateModal .modal-body {
+                padding: 1rem;
+            }
+
+            #applicationModal .modal-header,
+            #updateModal .modal-header {
+                padding: 1rem;
+            }
+
+            #applicationModal .modal-footer,
+            #updateModal .modal-footer {
+                padding: 1rem;
+            }
+
+            #applicationModal .modal-footer .btn,
+            #updateModal .modal-footer .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            #applicationModal .modal-dialog,
+            #updateModal .modal-dialog {
+                margin: 0.25rem;
+            }
+
+            #applicationDetails h6 {
+                font-size: 0.9rem;
+            }
+
+            #applicationDetails p {
+                font-size: 0.9rem;
+            }
+
+            #updateModal .card-title {
+                font-size: 0.9rem;
+            }
+
+            #updateModal .form-label {
+                font-size: 0.85rem;
+            }
+
+            #updateModal .form-select,
+            #updateModal .form-control {
+                font-size: 0.9rem;
+                padding: 0.6rem;
             }
         }
     </style>
@@ -2043,6 +2566,361 @@
                         </a>
                     </div>`;
             }
+        }
+
+        // Delete application with confirmation toast
+        function deleteApplication(id) {
+            // Show confirmation toast instead of browser confirm
+            showConfirmationToast(
+                'Delete RSBSA Application',
+                'Are you sure you want to delete this RSBSA application?\n\nThis action cannot be undone and will remove all associated data.',
+                () => proceedWithApplicationDelete(id)
+            );
+        }
+
+        // Proceed with actual delete
+        function proceedWithApplicationDelete(id) {
+            fetch(`/admin/rsbsa-applications/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message || 'Application deleted successfully');
+                        
+                        // Remove the row from table with fade animation
+                        const row = document.querySelector(`tr[data-id="${id}"]`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s';
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+                                // Reload page to refresh statistics
+                                window.location.reload();
+                            }, 300);
+                        } else {
+                            // If row not found, just reload
+                            setTimeout(() => window.location.reload(), 1000);
+                        }
+                    } else {
+                        showToast('error', data.message || 'Failed to delete application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while deleting the application: ' + error.message);
+                });
+        }
+
+        // Create toast container if it doesn't exist (add this if not already present)
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+      // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Confirmation toast function
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+
+            // Store the callback function on the toast element
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        // Execute confirmation action
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
+            }
+
+            // Clean up the callback reference
+            delete window[callbackId];
+            removeToast(toast);
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
+
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Get CSRF token utility function
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
+
+        // Helper function to get status display text with null safety
+        function getStatusText(status) {
+            if (!status || status === null || status === undefined) {
+                return 'Unknown';
+            }
+
+            const statusStr = String(status).toLowerCase();
+
+            switch (statusStr) {
+                case 'pending':
+                    return 'Pending';
+                case 'under_review':
+                    return 'Under Review';
+                case 'approved':
+                    return 'Approved';
+                case 'rejected':
+                    return 'Rejected';
+                default:
+                    return statusStr.charAt(0).toUpperCase() + statusStr.slice(1);
+            }
+        }
+
+        // REPLACE deleteApplication function
+        function deleteApplication(id) {
+            showConfirmationToast(
+                'Delete RSBSA Application',
+                'Are you sure you want to delete this RSBSA application?\n\nThis action cannot be undone and will remove all associated data.',
+                () => proceedWithApplicationDelete(id)
+            );
+        }
+
+        // NEW proceedWithApplicationDelete function
+        function proceedWithApplicationDelete(id) {
+            fetch(`/admin/rsbsa-applications/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message || 'Application deleted successfully');
+                        
+                        const row = document.querySelector(`tr[data-id="${id}"]`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s';
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+                                window.location.reload();
+                            }, 300);
+                        } else {
+                            setTimeout(() => window.location.reload(), 1000);
+                        }
+                    } else {
+                        showToast('error', data.message || 'Failed to delete application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while deleting the application: ' + error.message);
+                });
+        }
+
+        // REPLACE updateApplicationStatus function
+        function updateApplicationStatus() {
+            const id = document.getElementById('updateApplicationId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const remarks = document.getElementById('remarks').value;
+
+            if (!id) {
+                showToast('error', 'Invalid application ID');
+                return;
+            }
+
+            if (!newStatus) {
+                showToast('error', 'Please select a status');
+                return;
+            }
+
+            const originalStatus = document.getElementById('newStatus').dataset.originalStatus || '';
+            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+
+            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
+                return;
+            }
+
+            let changesSummary = [];
+            if (newStatus !== originalStatus) {
+                const originalStatusText = getStatusText(originalStatus);
+                const newStatusText = getStatusText(newStatus);
+                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+            }
+            if (remarks.trim() !== originalRemarks.trim()) {
+                if (originalRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Added new remarks');
+                } else if (remarks.trim() === '') {
+                    changesSummary.push('Remarks: Removed existing remarks');
+                } else {
+                    changesSummary.push('Remarks: Modified');
+                }
+            }
+
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this application with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
+        }
+
+        // NEW proceedWithStatusUpdate function
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+            const originalText = updateButton.innerHTML;
+            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.disabled = true;
+
+            fetch(`/admin/rsbsa-applications/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        remarks: remarks
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    if (response.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                        modal.hide();
+                        showToast('success', response.message || 'Application status updated successfully');
+                        
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        throw new Error(response.message || 'Error updating status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error updating application status: ' + error.message);
+                })
+                .finally(() => {
+                    updateButton.innerHTML = originalText;
+                    updateButton.disabled = false;
+                });
         }
     </script>
 @endsection

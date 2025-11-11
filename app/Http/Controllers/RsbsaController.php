@@ -37,14 +37,14 @@ class RsbsaController extends Controller
             if ($request->filled('main_livelihood')) {
                 $query->where('main_livelihood', $request->main_livelihood);
             }
-
+            // Search functionality
             if ($request->filled('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('application_number', 'like', "%{$search}%")
-                      ->orWhere('first_name', 'like', "%{$search}%")
-                      ->orWhere('last_name', 'like', "%{$search}%")
-                      ->orWhere('mobile_number', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%");
                 });
             }
 
@@ -124,10 +124,20 @@ class RsbsaController extends Controller
                 'data' => [
                     'id' => $application->id,
                     'application_number' => $application->application_number,
-                    'full_name' => $application->full_name,
+                    // Build full name with all name parts
+                'full_name' => trim(
+                    $application->first_name . ' ' .
+                    ($application->middle_name ? $application->middle_name . ' ' : '') .
+                    $application->last_name . ' ' .
+                    ($application->name_extension ? $application->name_extension : '')
+                ),
+                'first_name' => $application->first_name,
+                'middle_name' => $application->middle_name,
+                'last_name' => $application->last_name,
+                'name_extension' => $application->name_extension,
                     'sex' => $application->sex,
-                    'mobile_number' => $application->mobile_number,  // Updated field name
-                    'contact_number' => $application->mobile_number,  // Keep for backward compatibility
+                    // 'mobile_number' => $application->contact_number,  // Map contact_number to mobile_number
+                    'contact_number' => $application->contact_number,  // Keep for backward compatibility
                     'barangay' => $application->barangay,
                     'main_livelihood' => $application->main_livelihood,
                     'land_area' => $application->land_area,
@@ -230,9 +240,7 @@ class RsbsaController extends Controller
         }
     }
 
-    /**
-     * Remove the specified RSBSA application from storage
-     */
+    // Delete the specified RSBSA application
     public function destroy(Request $request, $id)
     {
         try {
@@ -255,7 +263,7 @@ class RsbsaController extends Controller
 
             $message = "Application {$applicationNumber} has been deleted successfully";
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message
@@ -272,7 +280,7 @@ class RsbsaController extends Controller
 
             $errorMessage = 'Error deleting application: ' . $e->getMessage();
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => $errorMessage
@@ -282,7 +290,6 @@ class RsbsaController extends Controller
             return redirect()->back()->with('error', $errorMessage);
         }
     }
-
     /**
      * Download supporting document
      */
