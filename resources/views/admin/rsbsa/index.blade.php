@@ -267,7 +267,16 @@
                                 <td class="text-start">
                                     <strong class="text-primary">{{ $application->application_number }}</strong>
                                 </td>
-                                <td class="text-start">{{ $application->first_name }} {{ $application->last_name }}</td>
+                                <td class="text-start">
+                                    {{ $application->first_name }}
+                                    @if($application->middle_name)
+                                        {{ $application->middle_name }}
+                                    @endif
+                                    {{ $application->last_name }}
+                                    @if($application->name_extension)
+                                        {{ $application->name_extension }}
+                                    @endif
+                                </td>
                                 <td class="text-start">{{ $application->sex }}</td>
                                 <td class="text-start">{{ $application->barangay }}</td>
                                 <td class="text-start">{{ $application->contact_number }}</td>

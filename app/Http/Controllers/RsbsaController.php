@@ -124,9 +124,17 @@ class RsbsaController extends Controller
                 'data' => [
                     'id' => $application->id,
                     'application_number' => $application->application_number,
-                    'full_name' => $application->first_name . ' ' . $application->last_name,  // Combine first and last name
-                    'first_name' => $application->first_name,
-                    'last_name' => $application->last_name,
+                    // Build full name with all name parts
+                'full_name' => trim(
+                    $application->first_name . ' ' .
+                    ($application->middle_name ? $application->middle_name . ' ' : '') .
+                    $application->last_name . ' ' .
+                    ($application->name_extension ? $application->name_extension : '')
+                ),
+                'first_name' => $application->first_name,
+                'middle_name' => $application->middle_name,
+                'last_name' => $application->last_name,
+                'name_extension' => $application->name_extension,
                     'sex' => $application->sex,
                     // 'mobile_number' => $application->contact_number,  // Map contact_number to mobile_number
                     'contact_number' => $application->contact_number,  // Keep for backward compatibility
