@@ -16,7 +16,7 @@
             <div class="card stat-card shadow h-100">
                 <div class="card-body text-center py-3">
                     <div class="stat-icon mb-2">
-                        <i class="fas fa-seedling text-primary"></i>
+                        <i class="fas fa-file-alt text-primary"></i>
                     </div>
                     <div class="stat-number mb-2">{{ $totalApplications }}</div>
                     <div class="stat-label text-primary">Total Applications</div>
@@ -319,7 +319,7 @@
                         @empty
                             <tr>
                                 <td colspan="11" class="text-center text-muted py-4">
-                                    <i class="fas fa-seedling fa-3x mb-3"></i>
+                                    <i class="fas fa-file-alt fa-3x mb-3"></i>
                                     <p>No RSBSA applications found.</p>
                                 </td>
                             </tr>
@@ -465,7 +465,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fas fa-seedling me-2"></i>Application Details
+                        <i class="fas fa-file-alt me-2"></i>Application Details
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -1122,6 +1122,380 @@
             .confirmation-toast {
                 min-width: auto;
                 max-width: 100%;
+            }
+        }
+
+        /* ============================================
+        VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
+        ============================================ */
+
+        /* Application Details Modal - Enhanced Styling */
+        #applicationModal .modal-content {
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        #applicationModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            padding: 1.5rem;
+        }
+
+        #applicationModal .modal-header .modal-title {
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        #applicationModal .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        #applicationModal .modal-footer {
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #dee2e6;
+            padding: 1.5rem;
+        }
+
+        #applicationModal .modal-body {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* Application Details Cards */
+        #applicationDetails .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        #applicationDetails .col-md-6 {
+            flex: 0 0 calc(50% - 0.75rem);
+        }
+
+        #applicationDetails .col-12 {
+            flex: 0 0 100%;
+        }
+
+        #applicationDetails h6 {
+            color: #007bff;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e9ecef;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #applicationDetails p {
+            margin-bottom: 0.75rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        #applicationDetails strong {
+            color: #495057;
+            font-weight: 600;
+        }
+
+        /* Remarks Alert Styling */
+        #applicationDetails .alert {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border: none;
+            border-radius: 10px;
+            border-left: 4px solid #17a2b8;
+            margin-top: 1rem;
+        }
+
+        #applicationDetails .alert p {
+            margin: 0;
+            color: #0c5460;
+        }
+
+        #applicationDetails .alert small {
+            color: #0c5460;
+            opacity: 0.8;
+        }
+
+        /* Badge Styling */
+        #applicationDetails .badge {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Scrollbar Styling for Modal Body */
+        #applicationModal .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #applicationModal .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        #applicationModal .modal-body::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        #applicationModal .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Update Modal - Enhanced Styling */
+        #updateModal .modal-content {
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        #updateModal .modal-header {
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            border: none;
+            padding: 1.5rem;
+        }
+
+        #updateModal .modal-header .modal-title {
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        #updateModal .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+        #updateModal .modal-footer {
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-top: 1px solid #dee2e6;
+            padding: 1.5rem;
+        }
+
+        #updateModal .modal-body {
+            padding: 2rem;
+        }
+
+        /* Application Info Card in Update Modal */
+        #updateModal .card.bg-light {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        #updateModal .card.bg-light:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        #updateModal .card-body {
+            padding: 1.5rem;
+        }
+
+        #updateModal .card-title {
+            color: #007bff;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #updateModal .card-body p {
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-size: 0.95rem;
+        }
+
+        #updateModal .card-body strong {
+            color: #495057;
+            font-weight: 600;
+        }
+
+        #updateModal .badge {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Form Controls in Update Modal */
+        #updateModal .form-label {
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #updateModal .form-select,
+        #updateModal .form-control {
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        #updateModal .form-select:focus,
+        #updateModal .form-control:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+            outline: none;
+        }
+
+        #updateModal .form-text {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Form Changed Visual Feedback */
+        #updateModal .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd;
+            transition: all 0.3s ease;
+        }
+
+        #updateModal .change-indicator {
+            position: relative;
+        }
+
+        #updateModal .change-indicator::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #updateModal .change-indicator.changed::after {
+            opacity: 1;
+        }
+
+        /* Modal Button Styling */
+        #applicationModal .modal-footer .btn,
+        #updateModal .modal-footer .btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        #applicationModal .modal-footer .btn-secondary,
+        #updateModal .modal-footer .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        #applicationModal .modal-footer .btn-secondary:hover,
+        #updateModal .modal-footer .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #updateModal .modal-footer .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        #updateModal .modal-footer .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #updateModal .modal-footer .btn-primary.no-changes {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #applicationModal .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            #updateModal .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            #applicationDetails .col-md-6 {
+                flex: 0 0 100%;
+            }
+
+            #applicationModal .modal-body {
+                padding: 1rem;
+            }
+
+            #updateModal .modal-body {
+                padding: 1rem;
+            }
+
+            #applicationModal .modal-header,
+            #updateModal .modal-header {
+                padding: 1rem;
+            }
+
+            #applicationModal .modal-footer,
+            #updateModal .modal-footer {
+                padding: 1rem;
+            }
+
+            #applicationModal .modal-footer .btn,
+            #updateModal .modal-footer .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            #applicationModal .modal-dialog,
+            #updateModal .modal-dialog {
+                margin: 0.25rem;
+            }
+
+            #applicationDetails h6 {
+                font-size: 0.9rem;
+            }
+
+            #applicationDetails p {
+                font-size: 0.9rem;
+            }
+
+            #updateModal .card-title {
+                font-size: 0.9rem;
+            }
+
+            #updateModal .form-label {
+                font-size: 0.85rem;
+            }
+
+            #updateModal .form-select,
+            #updateModal .form-control {
+                font-size: 0.9rem;
+                padding: 0.6rem;
             }
         }
     </style>
