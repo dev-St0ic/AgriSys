@@ -262,7 +262,7 @@
                     </thead>
                     <tbody>
                         @forelse($applications as $application)
-                            <tr>
+                            <tr data-id="{{ $application->id }}">
                                 <td class="text-start">{{ $application->created_at->format('M d, Y g:i A') }}</td>
                                 <td class="text-start">
                                     <strong class="text-primary">{{ $application->application_number }}</strong>
@@ -306,6 +306,13 @@
                                             title="Update Status">
                                             <i class="fas fa-edit"></i> Update
                                         </button>
+
+                                        <!--  DELETE BUTTON -->
+                                        <button class="btn btn-sm btn-outline-danger"
+                                            onclick="deleteApplication({{ $application->id }})" title="Delete">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+
                                     </div>
                                 </td>
                             </tr>
@@ -976,6 +983,114 @@
             .document-actions .btn {
                 font-size: 0.875rem;
                 padding: 0.5rem 1rem;
+            }
+        }
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .confirmation-toast .toast-body {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification,
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
             }
         }
     </style>
@@ -2043,6 +2158,182 @@
                         </a>
                     </div>`;
             }
+        }
+
+        // Delete application with confirmation toast
+        function deleteApplication(id) {
+            // Show confirmation toast instead of browser confirm
+            showConfirmationToast(
+                'Delete RSBSA Application',
+                'Are you sure you want to delete this RSBSA application?\n\nThis action cannot be undone and will remove all associated data.',
+                () => proceedWithApplicationDelete(id)
+            );
+        }
+
+        // Proceed with actual delete
+        function proceedWithApplicationDelete(id) {
+            fetch(`/admin/rsbsa-applications/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message || 'Application deleted successfully');
+                        
+                        // Remove the row from table with fade animation
+                        const row = document.querySelector(`tr[data-id="${id}"]`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s';
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+                                // Reload page to refresh statistics
+                                window.location.reload();
+                            }, 300);
+                        } else {
+                            // If row not found, just reload
+                            setTimeout(() => window.location.reload(), 1000);
+                        }
+                    } else {
+                        showToast('error', data.message || 'Failed to delete application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while deleting the application: ' + error.message);
+                });
+        }
+
+        // Create toast container if it doesn't exist (add this if not already present)
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast notification function (add this if not already present)
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Confirmation toast function (add this if not already present)
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+
+            // Store the callback function
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        // Execute confirmation action
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
+            }
+
+            // Clean up the callback reference
+            delete window[callbackId];
+            removeToast(toast);
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
+
+        // Get CSRF token utility function (add this if not already present)
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
         }
     </script>
 @endsection

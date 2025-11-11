@@ -230,9 +230,7 @@ class RsbsaController extends Controller
         }
     }
 
-    /**
-     * Remove the specified RSBSA application from storage
-     */
+    // Delete the specified RSBSA application
     public function destroy(Request $request, $id)
     {
         try {
@@ -255,7 +253,7 @@ class RsbsaController extends Controller
 
             $message = "Application {$applicationNumber} has been deleted successfully";
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => $message
@@ -272,7 +270,7 @@ class RsbsaController extends Controller
 
             $errorMessage = 'Error deleting application: ' . $e->getMessage();
 
-            if ($request->ajax()) {
+            if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => $errorMessage
@@ -282,7 +280,6 @@ class RsbsaController extends Controller
             return redirect()->back()->with('error', $errorMessage);
         }
     }
-
     /**
      * Download supporting document
      */
