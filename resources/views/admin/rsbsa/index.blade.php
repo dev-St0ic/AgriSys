@@ -1248,13 +1248,17 @@
 
         #updateModal .modal-header {
             border-radius: 12px 12px 0 0;
-            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
             border: none;
             padding: 1.5rem;
         }
 
+       /* #updateModal .modal-header {
+            border-bottom: 1px solid #dee2e6;
+        } */
+
         #updateModal .modal-header .modal-title {
-            color: white;
+            /* color: black; */
+            display: block;
             font-weight: 600;
             font-size: 1.25rem;
         }
