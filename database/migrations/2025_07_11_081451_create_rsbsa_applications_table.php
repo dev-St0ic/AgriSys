@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('rsbsa_applications', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id');
-
+            // CHANGED: Made user_id nullable
+            $table->unsignedBigInteger('user_id')->nullable();
 
             // Application identification
             $table->string('application_number')->unique();
@@ -31,15 +31,15 @@ return new class extends Migration
             $table->string('contact_number', 20);
             $table->string('email')->nullable();
             $table->string('barangay');
-            $table->unsignedBigInteger('barangay_id')->nullable(); // Foreign key to barangays table
+            $table->unsignedBigInteger('barangay_id')->nullable();
 
             // Registration Details
             $table->enum('main_livelihood', ['Farmer', 'Farmworker/Laborer', 'Fisherfolk', 'Agri-youth']);
 
             // Farm/Livelihood Information
-            $table->decimal('land_area', 8, 2)->nullable(); // in hectares
+            $table->decimal('land_area', 8, 2)->nullable();
             $table->string('farm_location')->nullable();
-            $table->text('commodity')->nullable(); // crops/livestock/fish
+            $table->text('commodity')->nullable();
 
             // Document Upload
             $table->string('supporting_document_path')->nullable();
@@ -60,10 +60,11 @@ return new class extends Migration
             $table->softDeletes();
 
             // Foreign key constraints
+            // CHANGED: Made onDelete('set null') since user_id is now nullable
             $table->foreign('user_id')
                 ->references('id')
                 ->on('user_registration')
-                ->onDelete('cascade');
+                ->onDelete('set null');
 
             // Indexes for better performance
             $table->index('user_id');
@@ -71,14 +72,9 @@ return new class extends Migration
             $table->index(['barangay', 'main_livelihood']);
             $table->index('barangay_id');
             $table->index('application_number');
-            $table->index('contact_number'); // For search functionality
-            $table->index('email'); // For email search functionality
-            $table->index(['first_name', 'last_name']); // For name searches
-
-            // Foreign key constraints - will be added in separate migration
-            // $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('set null');
-            // $table->foreign('reviewed_by')->references('id')->on('users')->onDelete('set null');
-            // $table->foreign('assigned_by')->references('id')->on('users')->onDelete('set null');
+            $table->index('contact_number');
+            $table->index('email');
+            $table->index(['first_name', 'last_name']);
         });
     }
 
