@@ -288,15 +288,6 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    @if ($application->supporting_document_path)
-                                        <button class="btn btn-sm btn-outline-info"
-                                            onclick="viewDocument('{{ $application->supporting_document_path }}', 'Application #{{ $application->application_number }} - Supporting Document')"
-                                            title="View Document">
-                                            <i class="fas fa-file-alt me-1"></i>View
-                                        </button>
-                                    @else
-                                        <span class="badge bg-secondary">No documents</span>
-                                    @endif
                                     <div class="fishr-table-documents">
                                         @if ($application->supporting_document_path)
                                             <div class="fishr-document-previews">
@@ -1152,10 +1143,10 @@
             }
         }
 
-       /* Application Details Modal - Simple Professional Look */
+        /* Application Details Modal - Simple Professional Look */
         /* ============================================
-            VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
-            ============================================ */
+                VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
+                ============================================ */
 
         /* Application Details Modal - Enhanced Styling */
         #applicationModal .modal-content {
@@ -1280,9 +1271,9 @@
             padding: 1.5rem;
         }
 
-       /* #updateModal .modal-header {
-            border-bottom: 1px solid #dee2e6;
-        } */
+        /* #updateModal .modal-header {
+                border-bottom: 1px solid #dee2e6;
+            } */
 
         #updateModal .modal-header .modal-title {
             /* color: black; */
@@ -1409,7 +1400,7 @@
             opacity: 1;
         }
 
-       #applicationModal .modal-footer .btn {
+        #applicationModal .modal-footer .btn {
             border-radius: 6px;
             padding: 0.6rem 1.2rem;
             font-weight: 500;
@@ -1427,7 +1418,7 @@
             border-color: #545b62;
         }
 
-       
+
 
         #updateModal .modal-footer .btn-primary {
             background-color: #28a745;
@@ -1882,7 +1873,7 @@
             </div>
         </div>
     </div>
-     <!-- Add RSBSA Application Modal -->
+    <!-- Add RSBSA Application Modal -->
     <div class="modal fade" id="addRsbsaModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -1902,16 +1893,21 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="rsbsa_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="rsbsa_first_name" required maxlength="100">
+                                        <label for="rsbsa_first_name" class="form-label">First Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="rsbsa_first_name" required
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="rsbsa_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="rsbsa_middle_name" maxlength="100">
+                                        <input type="text" class="form-control" id="rsbsa_middle_name"
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="rsbsa_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="rsbsa_last_name" required maxlength="100">
+                                        <label for="rsbsa_last_name" class="form-label">Last Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="rsbsa_last_name" required
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="rsbsa_name_extension" class="form-label">Extension</label>
@@ -1928,7 +1924,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="rsbsa_sex" class="form-label">Sex <span class="text-danger">*</span></label>
+                                        <label for="rsbsa_sex" class="form-label">Sex <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="rsbsa_sex" required>
                                             <option value="">Select</option>
                                             <option value="Male">Male</option>
@@ -1937,8 +1934,9 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="rsbsa_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="rsbsa_contact_number" required 
+                                        <label for="rsbsa_contact_number" class="form-label">Contact Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="rsbsa_contact_number" required
                                             placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
                                     </div>
@@ -1948,8 +1946,10 @@
                                         <div class="form-text">For status notifications</div>
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="rsbsa_user_id" class="form-label">Link to User Account (Optional)</label>
-                                        <input type="number" class="form-control" id="rsbsa_user_id" placeholder="Enter User ID if exists">
+                                        <label for="rsbsa_user_id" class="form-label">Link to User Account
+                                            (Optional)</label>
+                                        <input type="number" class="form-control" id="rsbsa_user_id"
+                                            placeholder="Enter User ID if exists">
                                         <div class="form-text">Leave blank if not associated with any user account</div>
                                     </div>
                                 </div>
@@ -1964,7 +1964,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="rsbsa_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <label for="rsbsa_barangay" class="form-label">Barangay <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="rsbsa_barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -1998,7 +1999,8 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="rsbsa_farm_location" class="form-label">Farm/Work Location</label>
-                                        <textarea class="form-control" id="rsbsa_farm_location" rows="3" maxlength="500" placeholder="Specific location of farm or work area"></textarea>
+                                        <textarea class="form-control" id="rsbsa_farm_location" rows="3" maxlength="500"
+                                            placeholder="Specific location of farm or work area"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -2012,7 +2014,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="rsbsa_main_livelihood" class="form-label">Main Livelihood <span class="text-danger">*</span></label>
+                                        <label for="rsbsa_main_livelihood" class="form-label">Main Livelihood <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="rsbsa_main_livelihood" required>
                                             <option value="">Select Livelihood</option>
                                             <option value="Farmer">Farmer</option>
@@ -2023,13 +2026,13 @@
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="rsbsa_land_area" class="form-label">Land Area (hectares)</label>
-                                        <input type="number" class="form-control" id="rsbsa_land_area" 
-                                            step="0.01" min="0" max="99999.99" placeholder="0.00">
+                                        <input type="number" class="form-control" id="rsbsa_land_area" step="0.01"
+                                            min="0" max="99999.99" placeholder="0.00">
                                         <div class="form-text">Total area in hectares</div>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="rsbsa_commodity" class="form-label">Commodity/Product</label>
-                                        <input type="text" class="form-control" id="rsbsa_commodity" maxlength="1000" 
+                                        <input type="text" class="form-control" id="rsbsa_commodity" maxlength="1000"
                                             placeholder="e.g., Rice, Corn, Vegetables">
                                         <div class="form-text">Main crops, livestock, or fish</div>
                                     </div>
@@ -2040,14 +2043,16 @@
                         <!-- Supporting Document -->
                         <div class="card mb-3">
                             <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)</h6>
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="rsbsa_supporting_document" class="form-label">Upload Document</label>
-                                        <input type="file" class="form-control" id="rsbsa_supporting_document" 
-                                            accept="image/*,.pdf" onchange="previewRsbsaDocument('rsbsa_supporting_document', 'rsbsa_doc_preview')">
+                                        <input type="file" class="form-control" id="rsbsa_supporting_document"
+                                            accept="image/*,.pdf"
+                                            onchange="previewRsbsaDocument('rsbsa_supporting_document', 'rsbsa_doc_preview')">
                                         <div class="form-text">Accepted: JPG, PNG, PDF (Max 5MB)</div>
                                     </div>
                                     <div class="col-md-6">
@@ -2065,7 +2070,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="rsbsa_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
+                                        <label for="rsbsa_status" class="form-label">Initial Status <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="rsbsa_status" required>
                                             <option value="pending" selected>Pending</option>
                                             <option value="under_review">Under Review</option>
@@ -2075,8 +2081,8 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="rsbsa_remarks" class="form-label">Remarks (Optional)</label>
-                                        <textarea class="form-control" id="rsbsa_remarks" rows="3" maxlength="1000" 
-                                                placeholder="Any notes or comments..."></textarea>
+                                        <textarea class="form-control" id="rsbsa_remarks" rows="3" maxlength="1000"
+                                            placeholder="Any notes or comments..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -2361,29 +2367,41 @@
         // Initialize date picker
         document.addEventListener('DOMContentLoaded', function() {
             // Make date range picker clickable
-            document.getElementById('dateRangePicker').addEventListener('click', openDatePicker);
+            const dateRangePicker = document.getElementById('dateRangePicker');
+            if (dateRangePicker) {
+                dateRangePicker.addEventListener('click', openDatePicker);
+            }
 
             // Close modal when clicking outside
-            document.getElementById('datePickerModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeDatePicker();
-                }
-            });
+            const datePickerModal = document.getElementById('datePickerModal');
+            if (datePickerModal) {
+                datePickerModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeDatePicker();
+                    }
+                });
+            }
 
             // Add Enter key listeners to date inputs
-            document.getElementById('modal_date_from').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    applyCustomDateRange();
-                }
-            });
+            const modalDateFrom = document.getElementById('modal_date_from');
+            if (modalDateFrom) {
+                modalDateFrom.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyCustomDateRange();
+                    }
+                });
+            }
 
-            document.getElementById('modal_date_to').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    applyCustomDateRange();
-                }
-            });
+            const modalDateTo = document.getElementById('modal_date_to');
+            if (modalDateTo) {
+                modalDateTo.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyCustomDateRange();
+                    }
+                });
+            }
 
             // Initialize display with current values
             const startDate = document.getElementById('startDate').value;
@@ -2611,8 +2629,8 @@
                 });
         }
 
-       
-       // FIXED: Corrected document display section in viewApplication function
+
+        // FIXED: Corrected document display section in viewApplication function
         function viewApplication(id) {
             if (!id) {
                 showToast('error', 'Invalid application ID');
@@ -2773,29 +2791,19 @@
         }
 
 
-      // FIXED: Unified document viewing function - use this for ALL document viewing
-function viewDocument(path, filename = null, applicationId = null) {
-    // Input validation
-    if (!path || path.trim() === '') {
-        showToast('error', 'No document path provided');
-        return;
-    }
+        // FIXED: Unified document viewing function - use this for ALL document viewing
+        function viewDocument(path, filename = null, applicationId = null) {
+            // Input validation
+            if (!path || path.trim() === '') {
+                showToast('error', 'No document path provided');
+                return;
+            }
+
+            const documentViewer = document.getElementById('documentViewer');
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+
             // Show loading state first
             documentViewer.innerHTML = `
-                <div class="fishr-document-viewer">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="text-muted">Loading document...</p>
-                    </div>
-                </div>`;
-
-    const documentViewer = document.getElementById('documentViewer');
-    const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-
-    // Show loading state first
-    documentViewer.innerHTML = `
         <div class="text-center py-5">
             <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                 <span class="visually-hidden">Loading...</span>
@@ -2803,31 +2811,31 @@ function viewDocument(path, filename = null, applicationId = null) {
             <p class="text-muted">Loading document...</p>
         </div>`;
 
-    // Show modal immediately with loading state
-    modal.show();
+            // Show modal immediately with loading state
+            modal.show();
 
-    // Update modal title if filename is provided
-    const modalTitle = document.querySelector('#documentModal .modal-title');
-    if (filename) {
-        modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
-    } else {
-        modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
-    }
+            // Update modal title if filename is provided
+            const modalTitle = document.querySelector('#documentModal .modal-title');
+            if (filename) {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+            } else {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
+            }
 
-    // Extract file extension and name
-    const fileExtension = path.split('.').pop().toLowerCase();
-    const fileName = filename || path.split('/').pop();
-    const fileUrl = `/storage/${path}`;
+            // Extract file extension and name
+            const fileExtension = path.split('.').pop().toLowerCase();
+            const fileName = filename || path.split('/').pop();
+            const fileUrl = `/storage/${path}`;
 
-    // Define supported file types
-    const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-    const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
-    const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
-    const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+            // Define supported file types
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+            const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+            const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
 
-    // Function to add download button
-    const addDownloadButton = () => {
-        return `
+            // Function to add download button
+            const addDownloadButton = () => {
+                return `
             <div class="text-center mt-3 p-3 bg-light">
                 <div class="d-flex justify-content-center gap-2">
                     <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
@@ -2839,16 +2847,16 @@ function viewDocument(path, filename = null, applicationId = null) {
                 </div>
                 <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
             </div>`;
-    };
+            };
 
-    // Handle different file types
-    setTimeout(() => {
-        try {
-            if (imageTypes.includes(fileExtension)) {
-                // Handle images
-                const img = new Image();
-                img.onload = function() {
-                    documentViewer.innerHTML = `
+            // Handle different file types
+            setTimeout(() => {
+                try {
+                    if (imageTypes.includes(fileExtension)) {
+                        // Handle images
+                        const img = new Image();
+                        img.onload = function() {
+                            documentViewer.innerHTML = `
                         <div class="text-center">
                             <div class="position-relative d-inline-block">
                                 <img src="${fileUrl}"
@@ -2862,9 +2870,9 @@ function viewDocument(path, filename = null, applicationId = null) {
                             </div>
                             ${addDownloadButton()}
                         </div>`;
-                };
-                img.onerror = function() {
-                    documentViewer.innerHTML = `
+                        };
+                        img.onerror = function() {
+                            documentViewer.innerHTML = `
                         <div class="alert alert-warning text-center">
                             <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
                             <h5>Unable to Load Image</h5>
@@ -2879,12 +2887,12 @@ function viewDocument(path, filename = null, applicationId = null) {
                             </div>
                             <small class="text-muted d-block mt-2">File: ${fileName}</small>
                         </div>`;
-                };
-                img.src = fileUrl;
+                        };
+                        img.src = fileUrl;
 
-            } else if (fileExtension === 'pdf') {
-                // Handle PDF documents
-                documentViewer.innerHTML = `
+                    } else if (fileExtension === 'pdf') {
+                        // Handle PDF documents
+                        documentViewer.innerHTML = `
                     <div class="pdf-container">
                         <embed src="${fileUrl}"
                                type="application/pdf"
@@ -2894,11 +2902,11 @@ function viewDocument(path, filename = null, applicationId = null) {
                         ${addDownloadButton()}
                     </div>`;
 
-                // Check if PDF loaded successfully after a short delay
-                setTimeout(() => {
-                    const embed = documentViewer.querySelector('embed');
-                    if (!embed || embed.offsetHeight === 0) {
-                        documentViewer.innerHTML = `
+                        // Check if PDF loaded successfully after a short delay
+                        setTimeout(() => {
+                            const embed = documentViewer.querySelector('embed');
+                            if (!embed || embed.offsetHeight === 0) {
+                                documentViewer.innerHTML = `
                             <div class="alert alert-info text-center">
                                 <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
                                 <h5>PDF Preview Unavailable</h5>
@@ -2913,12 +2921,12 @@ function viewDocument(path, filename = null, applicationId = null) {
                                 </div>
                                 <small class="text-muted d-block mt-2">File: ${fileName}</small>
                             </div>`;
-                    }
-                }, 2000);
+                            }
+                        }, 2000);
 
-            } else if (videoTypes.includes(fileExtension)) {
-                // Handle video files
-                documentViewer.innerHTML = `
+                    } else if (videoTypes.includes(fileExtension)) {
+                        // Handle video files
+                        documentViewer.innerHTML = `
                     <div class="text-center">
                         <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
                             <source src="${fileUrl}" type="video/${fileExtension}">
@@ -2927,9 +2935,9 @@ function viewDocument(path, filename = null, applicationId = null) {
                         ${addDownloadButton()}
                     </div>`;
 
-            } else if (audioTypes.includes(fileExtension)) {
-                // Handle audio files
-                documentViewer.innerHTML = `
+                    } else if (audioTypes.includes(fileExtension)) {
+                        // Handle audio files
+                        documentViewer.innerHTML = `
                     <div class="text-center py-5">
                         <i class="fas fa-music fa-4x text-info mb-3"></i>
                         <h5>Audio File</h5>
@@ -2940,11 +2948,12 @@ function viewDocument(path, filename = null, applicationId = null) {
                         ${addDownloadButton()}
                     </div>`;
 
-            } else if (documentTypes.includes(fileExtension)) {
-                // Handle other document types
-                const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+                    } else if (documentTypes.includes(fileExtension)) {
+                        // Handle other document types
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
+                            fileExtension) ? 'file-word' : 'file-alt';
 
-                documentViewer.innerHTML = `
+                        documentViewer.innerHTML = `
                     <div class="alert alert-info text-center">
                         <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
                         <h5>${fileExtension.toUpperCase()} Document</h5>
@@ -2972,9 +2981,9 @@ function viewDocument(path, filename = null, applicationId = null) {
                             <p class="fishr-file-name">File: ${fileName}</p>
                         </div>
                     </div>`;
-            } else {
-                // Handle unsupported file types
-                documentViewer.innerHTML = `
+                    } else {
+                        // Handle unsupported file types
+                        documentViewer.innerHTML = `
                     <div class="alert alert-warning text-center">
                         <i class="fas fa-file fa-4x text-warning mb-3"></i>
                         <h5>Unsupported File Type</h5>
@@ -2989,10 +2998,10 @@ function viewDocument(path, filename = null, applicationId = null) {
                         </div>
                         <small class="text-muted d-block mt-2">File: ${fileName}</small>
                     </div>`;
-            }
-        } catch (error) {
-            console.error('Error processing document:', error);
-            documentViewer.innerHTML = `
+                    }
+                } catch (error) {
+                    console.error('Error processing document:', error);
+                    documentViewer.innerHTML = `
                 <div class="alert alert-danger text-center">
                     <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
                     <h5>Error Loading Document</h5>
@@ -3006,163 +3015,12 @@ function viewDocument(path, filename = null, applicationId = null) {
                         </a>
                     </div>
                 </div>`;
-            };
-
-            // Function to add FISHR-style download actions
-            const addFishrActions = () => {
-                return `
-                    <div class="fishr-document-actions">
-                        <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
-                            <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                        </button>
-                        <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
-                            <i class="fas fa-download me-2"></i>Download
-                        </button>
-                    </div>
-                    <div class="fishr-document-info">
-                        <p class="fishr-file-name">File: ${fileName} (${fileExtension.toUpperCase()})</p>
-                    </div>`;
-            };
-
-            // Handle different file types
-            setTimeout(() => {
-                try {
-                    if (imageTypes.includes(fileExtension)) {
-                        // Handle images
-                        const img = new Image();
-                        img.onload = function() {
-                            documentViewer.innerHTML = `
-                                <div class="fishr-document-viewer">
-                                    <div class="fishr-document-container">
-                                        <img src="${fileUrl}"
-                                             class="fishr-document-image"
-                                             alt="Supporting Document"
-                                             onclick="toggleImageZoom(this)"
-                                             style="cursor: zoom-in;">
-                                        <div class="fishr-document-overlay">
-                                            <div class="fishr-document-size-badge">
-                                                ${Math.round((this.naturalWidth * this.naturalHeight) / 1024)}KB
-                                            </div>
-                                        </div>
-                                    </div>
-                                    ${addFishrActions()}
-                                </div>`;
-                        };
-                        img.onerror = function() {
-                            handleLoadError('image');
-                        };
-                        img.src = fileUrl;
-
-                    } else if (fileExtension === 'pdf') {
-                        // Handle PDF documents
-                        documentViewer.innerHTML = `
-                            <div class="fishr-document-viewer">
-                                <div class="fishr-document-container">
-                                    <embed src="${fileUrl}"
-                                           type="application/pdf"
-                                           width="100%"
-                                           height="600px"
-                                           class="fishr-pdf-embed">
-                                </div>
-                                ${addFishrActions()}
-                            </div>`;
-
-                        // Check if PDF loaded successfully after a short delay
-                        setTimeout(() => {
-                            const embed = documentViewer.querySelector('embed');
-                            if (!embed || embed.offsetHeight === 0) {
-                                documentViewer.innerHTML = `
-                                    <div class="fishr-document-viewer">
-                                        <div class="fishr-document-placeholder">
-                                            <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
-                                            <h5>PDF Preview Unavailable</h5>
-                                            <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
-                                        </div>
-                                        <div class="fishr-document-actions">
-                                            <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
-                                                <i class="fas fa-external-link-alt me-2"></i>Open PDF
-                                            </button>
-                                            <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
-                                                <i class="fas fa-download me-2"></i>Download PDF
-                                            </button>
-                                        </div>
-                                        <div class="fishr-document-info">
-                                            <p class="fishr-file-name">File: ${fileName}</p>
-                                        </div>
-                                    </div>`;
-                            }
-                        }, 2000);
-
-                    } else if (videoTypes.includes(fileExtension)) {
-                        // Handle video files
-                        documentViewer.innerHTML = `
-                            <div class="text-center">
-                                <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
-                                    <source src="${fileUrl}" type="video/${fileExtension}">
-                                    Your browser does not support the video tag.
-                                </video>
-                                ${addDownloadButton()}
-                            </div>`;
-
-                    } else if (audioTypes.includes(fileExtension)) {
-                        // Handle audio files
-                        documentViewer.innerHTML = `
-                            <div class="text-center py-5">
-                                <i class="fas fa-music fa-4x text-info mb-3"></i>
-                                <h5>Audio File</h5>
-                                <audio controls class="w-100 mb-3">
-                                    <source src="${fileUrl}" type="audio/${fileExtension}">
-                                    Your browser does not support the audio tag.
-                                </audio>
-                                ${addDownloadButton()}
-                            </div>`;
-
-                    } else if (documentTypes.includes(fileExtension)) {
-                        // Handle other document types
-                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
-                            fileExtension) ? 'file-word' : 'file-alt';
-
-                        documentViewer.innerHTML = `
-                            <div class="alert alert-info text-center">
-                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
-                                <h5>${fileExtension.toUpperCase()} Document</h5>
-                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-2"></i>Open Document
-                                    </a>
-                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                        <i class="fas fa-download me-2"></i>Download
-                                    </a>
-                                </div>
-                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                            </div>`;
-                    } else {
-                        // Handle unsupported file types
-                        documentViewer.innerHTML = `
-                            <div class="alert alert-warning text-center">
-                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
-                                <h5>Unsupported File Type</h5>
-                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-2"></i>Open File
-                                    </a>
-                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                        <i class="fas fa-download me-2"></i>Download
-                                    </a>
-                                </div>
-                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                            </div>`;
-                    }
-                } catch (error) {
-                    console.error('Error processing document:', error);
-                    handleLoadError('document', error);
                 }
-            }, 500); // Small delay to show loading state
+            }, 500);
         }
-    }, 500);
-}
+
+        // REMOVED BROKEN DUPLICATE CODE HERE - See helper functions below
+
 
         // Helper function to toggle image zoom
         function toggleImageZoom(img) {
@@ -3177,6 +3035,7 @@ function viewDocument(path, filename = null, applicationId = null) {
                 img.style.zIndex = '1050';
             }
         }
+
 
         // Function to check for changes and provide visual feedback
         function checkForChanges() {
@@ -3515,8 +3374,8 @@ function viewDocument(path, filename = null, applicationId = null) {
             }
         }
 
-        // REPLACE deleteApplication function
-        function deleteApplication(id) {
+        // DUPLICATE REMOVED - deleteApplication already defined above
+        /* function deleteApplication(id) {
             showConfirmationToast(
                 'Delete RSBSA Application',
                 'Are you sure you want to delete this RSBSA application?\n\nThis action cannot be undone and will remove all associated data.',
@@ -3524,8 +3383,8 @@ function viewDocument(path, filename = null, applicationId = null) {
             );
         }
 
-        // NEW proceedWithApplicationDelete function
-        function proceedWithApplicationDelete(id) {
+        // DUPLICATE REMOVED - proceedWithApplicationDelete already defined above
+        /* function proceedWithApplicationDelete(id) {
             fetch(`/admin/rsbsa-applications/${id}`, {
                     method: 'DELETE',
                     headers: {
@@ -3563,10 +3422,10 @@ function viewDocument(path, filename = null, applicationId = null) {
                     console.error('Error:', error);
                     showToast('error', 'An error occurred while deleting the application: ' + error.message);
                 });
-        }
+        } */
 
-        // REPLACE updateApplicationStatus function
-        function updateApplicationStatus() {
+        // DUPLICATE REMOVED - updateApplicationStatus already defined above
+        /* function updateApplicationStatus() {
             const id = document.getElementById('updateApplicationId').value;
             const newStatus = document.getElementById('newStatus').value;
             const remarks = document.getElementById('remarks').value;
@@ -3610,75 +3469,26 @@ function viewDocument(path, filename = null, applicationId = null) {
                 `Update this application with the following changes?\n\n${changesSummary.join('\n')}`,
                 () => proceedWithStatusUpdate(id, newStatus, remarks)
             );
-        }
-
-        // NEW proceedWithStatusUpdate function
-        function proceedWithStatusUpdate(id, newStatus, remarks) {
-            const updateButton = document.querySelector('#updateModal .btn-primary');
-            const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
-            updateButton.disabled = true;
-
-            fetch(`/admin/rsbsa-applications/${id}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    if (response.success) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                        modal.hide();
-                        showToast('success', response.message || 'Application status updated successfully');
-
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        throw new Error(response.message || 'Error updating status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error updating application status: ' + error.message);
-                })
-                .finally(() => {
-                    updateButton.innerHTML = originalText;
-                    updateButton.disabled = false;
-                });
-        }
+        } */
 
         // Show add RSBSA modal
         function showAddRsbsaModal() {
             const modal = new bootstrap.Modal(document.getElementById('addRsbsaModal'));
-            
+
             // Reset form
             document.getElementById('addRsbsaForm').reset();
-            
+
             // Remove any validation errors
             document.querySelectorAll('#addRsbsaModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
             document.querySelectorAll('#addRsbsaModal .invalid-feedback').forEach(el => el.remove());
-            
+
             // Clear document preview
             const preview = document.getElementById('rsbsa_doc_preview');
             if (preview) {
                 preview.innerHTML = '';
                 preview.style.display = 'none';
             }
-            
+
             modal.show();
         }
 
@@ -3690,16 +3500,16 @@ function viewDocument(path, filename = null, applicationId = null) {
         function validateRsbsaContactNumber(contactNumber) {
             const input = document.getElementById('rsbsa_contact_number');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
-            
+
             if (feedback) feedback.remove();
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             if (!contactNumber || contactNumber.trim() === '') {
                 return;
             }
-            
+
             const phoneRegex = /^(\+639|09)\d{9}$/;
-            
+
             if (!phoneRegex.test(contactNumber.trim())) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
@@ -3708,7 +3518,7 @@ function viewDocument(path, filename = null, applicationId = null) {
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -3721,16 +3531,16 @@ function viewDocument(path, filename = null, applicationId = null) {
         function validateRsbsaEmail(email) {
             const input = document.getElementById('rsbsa_email');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
-            
+
             if (feedback) feedback.remove();
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             if (!email || email.trim() === '') {
                 return true; // Email is optional
             }
-            
+
             const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            
+
             if (!emailPattern.test(email.trim())) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
@@ -3739,7 +3549,7 @@ function viewDocument(path, filename = null, applicationId = null) {
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -3772,7 +3582,7 @@ function viewDocument(path, filename = null, applicationId = null) {
         function previewRsbsaDocument(inputId, previewId) {
             const input = document.getElementById(inputId);
             const preview = document.getElementById(previewId);
-            
+
             if (!input.files || !input.files[0]) {
                 if (preview) {
                     preview.innerHTML = '';
@@ -3780,9 +3590,9 @@ function viewDocument(path, filename = null, applicationId = null) {
                 }
                 return;
             }
-            
+
             const file = input.files[0];
-            
+
             // Validate file size (5MB max)
             if (file.size > 5 * 1024 * 1024) {
                 showToast('error', 'File size must not exceed 5MB');
@@ -3793,9 +3603,9 @@ function viewDocument(path, filename = null, applicationId = null) {
                 }
                 return;
             }
-            
+
             const reader = new FileReader();
-            
+
             reader.onload = function(e) {
                 if (preview) {
                     if (file.type.startsWith('image/')) {
@@ -3820,7 +3630,7 @@ function viewDocument(path, filename = null, applicationId = null) {
                     preview.style.display = 'block';
                 }
             };
-            
+
             reader.readAsDataURL(file);
         }
 
@@ -3836,24 +3646,44 @@ function viewDocument(path, filename = null, applicationId = null) {
         // Validate RSBSA form
         function validateRsbsaForm() {
             let isValid = true;
-            
+
             // Required fields
-            const requiredFields = [
-                { id: 'rsbsa_first_name', label: 'First Name' },
-                { id: 'rsbsa_last_name', label: 'Last Name' },
-                { id: 'rsbsa_sex', label: 'Sex' },
-                { id: 'rsbsa_contact_number', label: 'Contact Number' },
-                { id: 'rsbsa_barangay', label: 'Barangay' },
-                { id: 'rsbsa_main_livelihood', label: 'Main Livelihood' },
-                { id: 'rsbsa_status', label: 'Status' }
+            const requiredFields = [{
+                    id: 'rsbsa_first_name',
+                    label: 'First Name'
+                },
+                {
+                    id: 'rsbsa_last_name',
+                    label: 'Last Name'
+                },
+                {
+                    id: 'rsbsa_sex',
+                    label: 'Sex'
+                },
+                {
+                    id: 'rsbsa_contact_number',
+                    label: 'Contact Number'
+                },
+                {
+                    id: 'rsbsa_barangay',
+                    label: 'Barangay'
+                },
+                {
+                    id: 'rsbsa_main_livelihood',
+                    label: 'Main Livelihood'
+                },
+                {
+                    id: 'rsbsa_status',
+                    label: 'Status'
+                }
             ];
-            
+
             requiredFields.forEach(field => {
                 const input = document.getElementById(field.id);
                 if (input && (!input.value || input.value.trim() === '')) {
                     const feedback = input.parentNode.querySelector('.invalid-feedback');
                     if (feedback) feedback.remove();
-                    
+
                     input.classList.add('is-invalid');
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
@@ -3862,19 +3692,19 @@ function viewDocument(path, filename = null, applicationId = null) {
                     isValid = false;
                 }
             });
-            
+
             // Validate contact number
             const contactNumber = document.getElementById('rsbsa_contact_number').value.trim();
             if (!validateRsbsaContactNumber(contactNumber)) {
                 isValid = false;
             }
-            
+
             // Validate email if provided
             const email = document.getElementById('rsbsa_email').value.trim();
             if (email && !validateRsbsaEmail(email)) {
                 isValid = false;
             }
-            
+
             return isValid;
         }
 
@@ -3885,10 +3715,10 @@ function viewDocument(path, filename = null, applicationId = null) {
                 showToast('error', 'Please fix all validation errors before submitting');
                 return;
             }
-            
+
             // Prepare form data
             const formData = new FormData();
-            
+
             formData.append('first_name', document.getElementById('rsbsa_first_name').value.trim());
             formData.append('middle_name', document.getElementById('rsbsa_middle_name').value.trim());
             formData.append('last_name', document.getElementById('rsbsa_last_name').value.trim());
@@ -3903,70 +3733,70 @@ function viewDocument(path, filename = null, applicationId = null) {
             formData.append('commodity', document.getElementById('rsbsa_commodity').value.trim());
             formData.append('status', document.getElementById('rsbsa_status').value);
             formData.append('remarks', document.getElementById('rsbsa_remarks').value.trim());
-            
+
             // Add document if uploaded
             const docInput = document.getElementById('rsbsa_supporting_document');
             if (docInput.files && docInput.files[0]) {
                 formData.append('supporting_document', docInput.files[0]);
             }
-            
+
             // Find submit button
             const submitBtn = document.querySelector('#addRsbsaModal .btn-success');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
             submitBtn.disabled = true;
-            
+
             // Submit to backend
             fetch('/admin/rsbsa-applications/create', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addRsbsaModal'));
-                    modal.hide();
-                    
-                    // Show success message
-                    showToast('success', data.message || 'RSBSA application created successfully');
-                    
-                    // Reload page after short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    // Show validation errors
-                    if (data.errors) {
-                        Object.keys(data.errors).forEach(field => {
-                            const input = document.getElementById('rsbsa_' + field);
-                            if (input) {
-                                const feedback = input.parentNode.querySelector('.invalid-feedback');
-                                if (feedback) feedback.remove();
-                                
-                                input.classList.add('is-invalid');
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'invalid-feedback d-block';
-                                errorDiv.textContent = data.errors[field][0];
-                                input.parentNode.appendChild(errorDiv);
-                            }
-                        });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addRsbsaModal'));
+                        modal.hide();
+
+                        // Show success message
+                        showToast('success', data.message || 'RSBSA application created successfully');
+
+                        // Reload page after short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        // Show validation errors
+                        if (data.errors) {
+                            Object.keys(data.errors).forEach(field => {
+                                const input = document.getElementById('rsbsa_' + field);
+                                if (input) {
+                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                    if (feedback) feedback.remove();
+
+                                    input.classList.add('is-invalid');
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'invalid-feedback d-block';
+                                    errorDiv.textContent = data.errors[field][0];
+                                    input.parentNode.appendChild(errorDiv);
+                                }
+                            });
+                        }
+                        showToast('error', data.message || 'Failed to create RSBSA application');
                     }
-                    showToast('error', data.message || 'Failed to create RSBSA application');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'An error occurred while creating the application');
-            })
-            .finally(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while creating the application');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
         }
 
         console.log('RSBSA Add Registration functionality loaded successfully');

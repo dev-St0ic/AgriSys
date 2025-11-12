@@ -241,7 +241,7 @@ class RsbsaController extends Controller
         }
     }
 
-    
+
 
     /**
      * Store a new RSBSA application ADD REGISTRATION
@@ -260,26 +260,29 @@ class RsbsaController extends Controller
                 'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:100',
-                
+
                 // Livelihood info
                 'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
                 'land_area' => 'nullable|numeric|min:0|max:99999.99',
                 'farm_location' => 'nullable|string|max:500',
                 'commodity' => 'nullable|string|max:1000',
-                
+
                 // Status
                 'status' => 'nullable|in:pending,under_review,approved,rejected',
                 'remarks' => 'nullable|string|max:1000',
-                
+
                 // Document
                 'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB max
-                
+
                 // User ID (optional - if creating for existing user)
                 'user_id' => 'nullable|exists:user_registration,id'
             ]);
 
-            // ADDED: Ensure user_id defaults to null if not provided
-            $validated['user_id'] = $validated['user_id'] ?? null;
+            // FIXED: Ensure user_id is explicitly set to null if not provided
+            // This is necessary because the key might not exist in the validated array
+            if (!isset($validated['user_id'])) {
+                $validated['user_id'] = null;
+            }
 
             // Generate unique application number
             $validated['application_number'] = $this->generateApplicationNumber();
@@ -299,7 +302,7 @@ class RsbsaController extends Controller
             if ($validated['status'] !== 'pending') {
                 $validated['reviewed_at'] = now();
                 $validated['reviewed_by'] = auth()->id();
-                
+
                 if ($validated['status'] === 'approved') {
                     $validated['approved_at'] = now();
                     $validated['number_assigned_at'] = now();
@@ -366,7 +369,7 @@ class RsbsaController extends Controller
         do {
             $number = 'RSBSA-' . strtoupper(\Illuminate\Support\Str::random(8));
         } while (RsbsaApplication::where('application_number', $number)->exists());
-        
+
         return $number;
     }
 
