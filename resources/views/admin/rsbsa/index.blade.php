@@ -1128,77 +1128,63 @@
             }
         }
 
-        /* ============================================
-        VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
-        ============================================ */
-
-        /* Application Details Modal - Enhanced Styling */
+       /* Application Details Modal - Simple Professional Look */
         #applicationModal .modal-content {
             border: none;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
 
         #applicationModal .modal-header {
-            border-radius: 12px 12px 0 0;
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            border: none;
-            padding: 1.5rem;
+            border-radius: 10px 10px 0 0;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            padding: 1.25rem;
         }
 
         #applicationModal .modal-header .modal-title {
-            color: white;
+            color: #333;
             font-weight: 600;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
         }
 
         #applicationModal .modal-header .btn-close {
-            filter: brightness(0) invert(1);
+            filter: none;
+            opacity: 0.5;
+        }
+
+        #applicationModal .modal-header .btn-close:hover {
+            opacity: 0.8;
         }
 
         #applicationModal .modal-footer {
-            border-radius: 0 0 12px 12px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 0 0 10px 10px;
+            background: #f8f9fa;
             border-top: 1px solid #dee2e6;
-            padding: 1.5rem;
+            padding: 1.25rem;
         }
 
         #applicationModal .modal-body {
-            padding: 2rem;
+            padding: 1.5rem;
             max-height: 70vh;
             overflow-y: auto;
         }
 
-        /* Application Details Cards */
-        #applicationDetails .row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-
-        #applicationDetails .col-md-6 {
-            flex: 0 0 calc(50% - 0.75rem);
-        }
-
-        #applicationDetails .col-12 {
-            flex: 0 0 100%;
-        }
-
+        /* Application Details Content */
         #applicationDetails h6 {
-            color: #007bff;
+            color: #495057;
             font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid #e9ecef;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e9ecef;
         }
 
         #applicationDetails p {
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.5;
+            font-size: 0.95rem;
         }
 
         #applicationDetails strong {
@@ -1206,12 +1192,11 @@
             font-weight: 600;
         }
 
-        /* Remarks Alert Styling */
         #applicationDetails .alert {
-            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
-            border: none;
-            border-radius: 10px;
+            background: #e7f3f5;
+            border: 1px solid #b3dde8;
             border-left: 4px solid #17a2b8;
+            border-radius: 6px;
             margin-top: 1rem;
         }
 
@@ -1391,31 +1376,25 @@
             opacity: 1;
         }
 
-        /* Modal Button Styling */
-        #applicationModal .modal-footer .btn,
-        #updateModal .modal-footer .btn {
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
+       #applicationModal .modal-footer .btn {
+            border-radius: 6px;
+            padding: 0.6rem 1.2rem;
             font-weight: 500;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
             font-size: 0.9rem;
         }
 
-        #applicationModal .modal-footer .btn-secondary,
-        #updateModal .modal-footer .btn-secondary {
+        #applicationModal .modal-footer .btn-secondary {
             background-color: #6c757d;
             border-color: #6c757d;
         }
 
-        #applicationModal .modal-footer .btn-secondary:hover,
-        #updateModal .modal-footer .btn-secondary:hover {
+        #applicationModal .modal-footer .btn-secondary:hover {
             background-color: #5a6268;
             border-color: #545b62;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
+
+       
 
         #updateModal .modal-footer .btn-primary {
             background-color: #28a745;
@@ -2188,20 +2167,20 @@
                             </div>
                         </div>` : '';
 
-                    // Build document section HTML - FIXED
+                    // Build document section HTML - FIXED with neutral gray styling
                     let documentHtml = '';
                     if (data.supporting_document_path) {
                         documentHtml = `
                             <div class="col-12">
-                                <div class="card border-success">
-                                    <div class="card-header bg-success text-white">
-                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                <div class="card border-secondary">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
                                     </div>
                                     <div class="card-body">
-                                        <div class="text-center p-3 border border-success rounded bg-light">
-                                            <i class="fas fa-file-alt fa-3x text-success mb-2"></i>
+                                        <div class="text-center p-3 border border-secondary rounded bg-light">
+                                            <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
                                             <h6>Supporting Document</h6>
-                                            <span class="badge bg-success mb-2">Uploaded</span>
+                                            <span class="badge bg-secondary mb-2">Uploaded</span>
                                             <br>
                                             <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.supporting_document_path}', 'Application #${data.application_number} - Supporting Document')">
                                                 <i class="fas fa-eye"></i> View Document
@@ -2214,12 +2193,12 @@
                         documentHtml = `
                             <div class="col-12">
                                 <div class="card border-secondary">
-                                    <div class="card-header bg-secondary text-white">
-                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="text-center p-3 border border-secondary rounded">
-                                            <i class="fas fa-file-slash fa-3x text-secondary mb-2"></i>
+                                            <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
                                             <h6>No Document Uploaded</h6>
                                             <span class="badge bg-secondary mb-2">Not Uploaded</span>
                                         </div>
