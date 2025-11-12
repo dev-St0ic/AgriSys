@@ -209,11 +209,13 @@
                                 <td>{{ $registration->barangay ?? 'N/A' }}</td>
                                 <td>
                                     @if ($registration->inspection_completed)
-                                        <span class="badge bg-success"
-                                            id="inspection-badge-{{ $registration->id }}">Completed</span>
+                                        <span class="badge bg-success" id="inspection-badge-{{ $registration->id }}">
+                                            <i class="fas fa-check-circle me-1"></i>Completed
+                                        </span>
                                     @else
-                                        <span class="badge bg-warning"
-                                            id="inspection-badge-{{ $registration->id }}">Pending</span>
+                                        <span class="badge bg-warning" id="inspection-badge-{{ $registration->id }}">
+                                            <i class="fas fa-clock me-1"></i>Pending
+                                        </span>
                                     @endif
                                 </td>
                                 <td>
@@ -229,16 +231,56 @@
                                         $annexesDocs = $registration->annexes ? $registration->annexes->count() : 0;
                                         $totalDocs = $userDocs + $inspectionDocs + $annexesDocs;
                                     @endphp
-                                    @if ($totalDocs > 0)
-                                        <button class="btn btn-sm btn-outline-info"
-                                            onclick="viewDocuments({{ $registration->id }})" title="View Documents">
-                                            <i class="fas fa-file-alt me-1"></i>View
-                                        </button>
-                                    @else
-                                        <span class="badge bg-secondary fs-6">
-                                            <i class="fas fa-file-slash me-1"></i>No documents
-                                        </span>
-                                    @endif
+
+                                    <div class="boatr-table-documents">
+                                        @if ($totalDocs > 0)
+                                            <div class="boatr-document-previews">
+                                                @if ($userDocs > 0)
+                                                    <div class="boatr-mini-doc"
+                                                        onclick="viewDocuments({{ $registration->id }})"
+                                                        title="User Documents">
+                                                        <div class="boatr-mini-doc-icon">
+                                                            <i class="fas fa-file-image text-info"></i>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                @if ($inspectionDocs > 0)
+                                                    <div class="boatr-mini-doc"
+                                                        onclick="viewDocuments({{ $registration->id }})"
+                                                        title="Inspection Documents">
+                                                        <div class="boatr-mini-doc-icon">
+                                                            <i class="fas fa-clipboard-check text-success"></i>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                @if ($annexesDocs > 0)
+                                                    <div class="boatr-mini-doc"
+                                                        onclick="viewDocuments({{ $registration->id }})" title="Annexes">
+                                                        <div class="boatr-mini-doc-icon">
+                                                            <i class="fas fa-folder text-warning"></i>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                @if ($totalDocs > 3)
+                                                    <div class="boatr-mini-doc boatr-mini-doc-more"
+                                                        onclick="viewDocuments({{ $registration->id }})"
+                                                        title="+{{ $totalDocs - 3 }} more documents">
+                                                        <div class="boatr-more-count">+{{ $totalDocs - 3 }}</div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="boatr-document-summary"
+                                                onclick="viewDocuments({{ $registration->id }})">
+                                                <small class="text-muted">{{ $totalDocs }}
+                                                    document{{ $totalDocs > 1 ? 's' : '' }}</small>
+                                            </div>
+                                        @else
+                                            <div class="boatr-no-documents">
+                                                <i class="fas fa-folder-open text-muted"></i>
+                                                <small class="text-muted">No documents</small>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
@@ -247,7 +289,7 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
-                                        <button class="btn btn-sm btn-outline-warning"
+                                        <button class="btn btn-sm btn-outline-success"
                                             onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
                                             title="Update Status">
                                             <i class="fas fa-edit"></i> Update
@@ -262,7 +304,7 @@
                                             <button class="btn btn-sm btn-outline-success"
                                                 onclick="showInspectionModal({{ $registration->id }})"
                                                 title="Complete Inspection">
-                                                <i class="fas fa-search"></i>Inspection
+                                                <i class="fas fa-clipboard-check me-1"></i>Inspection
                                             </button>
                                         @endif
                                     </div>
@@ -1248,6 +1290,284 @@
             border-bottom: 1px solid #dee2e6;
         }
 
+        /* BoatR-Style Table Document Previews */
+        .boatr-table-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .boatr-document-previews {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .boatr-mini-doc {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: white;
+            border: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .boatr-mini-doc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-color: #4e73df;
+        }
+
+        .boatr-mini-doc-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .boatr-mini-doc-more {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+        }
+
+        .boatr-mini-doc-more:hover {
+            background: #e9ecef;
+            border-color: #6c757d;
+        }
+
+        .boatr-more-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .boatr-mini-doc-more:hover .boatr-more-count {
+            color: #495057;
+        }
+
+        .boatr-document-summary {
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .boatr-document-summary:hover {
+            color: #4e73df !important;
+        }
+
+        .boatr-document-summary:hover small {
+            color: #4e73df !important;
+        }
+
+        .boatr-no-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .boatr-no-documents i {
+            font-size: 1.25rem;
+        }
+
+        /* Document type specific colors for mini previews */
+        .boatr-mini-doc[title*="User"] {
+            border-color: #17a2b8;
+        }
+
+        .boatr-mini-doc[title*="User"]:hover {
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        .boatr-mini-doc[title*="Inspection"] {
+            border-color: #28a745;
+        }
+
+        .boatr-mini-doc[title*="Inspection"]:hover {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .boatr-mini-doc[title*="Annexes"] {
+            border-color: #ffc107;
+        }
+
+        .boatr-mini-doc[title*="Annexes"]:hover {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        /* Responsive adjustments for table documents */
+        @media (max-width: 768px) {
+            .boatr-mini-doc {
+                width: 28px;
+                height: 28px;
+            }
+
+            .boatr-mini-doc-icon {
+                font-size: 0.75rem;
+            }
+
+            .boatr-more-count {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* BoatR-Style Document Viewer (matching FishR) */
+        .boatr-document-viewer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 400px;
+        }
+
+        .boatr-document-container {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .boatr-document-image {
+            max-width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .boatr-document-image:hover {
+            transform: scale(1.02);
+        }
+
+        .boatr-document-image.zoomed {
+            transform: scale(1.5);
+            cursor: zoom-out;
+        }
+
+        .boatr-pdf-embed {
+            border-radius: 8px;
+        }
+
+        .boatr-document-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .boatr-document-size-badge {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .boatr-document-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .boatr-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 140px;
+            cursor: pointer;
+        }
+
+        .boatr-btn-outline {
+            background: white;
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
+
+        .boatr-btn-outline:hover {
+            background: #f8f9fa;
+            color: #495057;
+            border-color: #adb5bd;
+            transform: translateY(-1px);
+        }
+
+        .boatr-btn-primary {
+            background: #4e73df;
+            color: white;
+            border-color: #4e73df;
+        }
+
+        .boatr-btn-primary:hover {
+            background: #2653d4;
+            border-color: #2653d4;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .boatr-document-info {
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .boatr-file-name {
+            margin: 0;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .boatr-document-placeholder {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Responsive design for BoatR document viewer */
+        @media (max-width: 768px) {
+            .boatr-document-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .boatr-btn {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .boatr-document-image {
+                max-height: 40vh;
+            }
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
 
@@ -1393,10 +1713,10 @@
             if (inspectionBadge) {
                 if (data.inspection_completed) {
                     inspectionBadge.className = 'badge bg-success';
-                    inspectionBadge.textContent = 'Completed';
+                    inspectionBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i>Completed';
                 } else {
                     inspectionBadge.className = 'badge bg-warning';
-                    inspectionBadge.textContent = 'Pending';
+                    inspectionBadge.innerHTML = '<i class="fas fa-clock me-1"></i>Pending';
                 }
             }
 
@@ -1825,7 +2145,7 @@
                             </div>
                             <div class="card-body">
                                 <p><strong>Status:</strong> <span class="badge bg-${data.status_color}">${data.formatted_status}</span></p>
-                                <p><strong>Inspection:</strong> ${data.inspection_completed ? '<span class="badge bg-success">Completed</span>' : '<span class="badge bg-warning">Pending</span>'}</p>
+                                <p><strong>Inspection:</strong> ${data.inspection_completed ? '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>' : '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>'}</p>
                                 ${data.inspection_date ? `<p><strong>Inspection Date:</strong> ${data.inspection_date}</p>` : ''}
                                 ${data.inspection_notes ? `<p><strong>Inspection Notes:</strong> ${data.inspection_notes}</p>` : ''}
                             </div>
@@ -1865,15 +2185,9 @@
         // Fixed BoatR Admin JavaScript - Complete Document Handling
         // Add this to your admin BoatR index view or separate JS file
 
-        // Enhanced view documents function - FIXED to handle both user and inspection documents correctly
+        // Enhanced view documents function - Now shows preview directly when viewing documents
         function viewDocuments(id) {
-            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-            modal.show();
-
-            // Show loading state
-            document.getElementById('documentViewerLoading').style.display = 'block';
-            document.getElementById('documentViewer').style.display = 'none';
-
+            // First, fetch the documents to see what's available
             fetch(`/admin/boatr/requests/${id}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
@@ -1892,185 +2206,43 @@
                         throw new Error(data.message || 'Failed to load documents');
                     }
 
-                    // Hide loading, show content
-                    document.getElementById('documentViewerLoading').style.display = 'none';
-                    document.getElementById('documentViewer').style.display = 'block';
+                    // Find the first available document to preview
+                    let docToPreview = null;
+                    let docType = '';
+                    let docIndex = 0;
 
-                    let documentsHtml = '<div class="row">';
-
-                    // User Documents - FIXED to handle single user document as array
+                    // Check user documents first
                     if (data.user_documents && data.user_documents.length > 0) {
-                        documentsHtml += `
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-user me-2"></i>User Uploaded Documents</h5>
-                        </div>
-                        <div class="card-body">
-            `;
-
-                        data.user_documents.forEach((doc, index) => {
-                            const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(doc.type?.toLowerCase());
-
-                            documentsHtml += `
-                    <div class="document-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">User Document</h6>
-                                <p class="mb-1 small text-muted">${doc.original_name || 'Document'}</p>
-                                <small class="text-muted">
-                                    <i class="fas fa-calendar me-1"></i>Uploaded: ${doc.uploaded_at || 'Unknown'}
-                                    <br><i class="fas fa-weight me-1"></i>Size: ${formatFileSize(doc.size)}
-                                </small>
-                            </div>
-                            <div class="btn-group-vertical">
-                                <a href="/admin/boatr/requests/${id}/download-document?type=user&index=${index}"
-                                   class="btn btn-sm btn-primary mb-1" target="_blank" title="Download">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                                <button class="btn btn-sm btn-info" onclick="previewDocument(${id}, 'user', ${index})" title="Preview">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        ${isImage && doc.url ? `
-                                                                                        <div class="mt-2 text-center">
-                                                                                            <img src="${doc.url}" class="document-thumbnail" alt="Document preview"
-                                                                                                 onclick="previewDocument(${id}, 'user', ${index})" style="max-width: 150px; cursor: pointer;">
-                                                                                        </div>
-                                                                                    ` : ''}
-                    </div>
-                `;
-                        });
-
-                        documentsHtml += '</div></div></div>';
+                        docToPreview = data.user_documents[0];
+                        docType = 'user';
+                        docIndex = 0;
+                    }
+                    // Then check inspection documents
+                    else if (data.inspection_documents && data.inspection_documents.length > 0) {
+                        docToPreview = data.inspection_documents[0];
+                        docType = 'inspection';
+                        docIndex = 0;
+                    }
+                    // Finally check annexes
+                    else if (data.annexes && data.annexes.length > 0) {
+                        // For annexes, use the preview annex function
+                        previewAnnex(id, data.annexes[0].id);
+                        return;
                     }
 
-                    // Inspection Documents
-                    if (data.inspection_documents && data.inspection_documents.length > 0) {
-                        documentsHtml += `
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-search me-2"></i>Inspection Documents</h5>
-                        </div>
-                        <div class="card-body">
-            `;
-
-                        data.inspection_documents.forEach((doc, index) => {
-                            const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(doc.extension
-                                ?.toLowerCase());
-
-                            documentsHtml += `
-                    <div class="document-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">Inspection Document ${index + 1}</h6>
-                                <p class="mb-1 small text-muted">${doc.original_name || 'Document'}</p>
-                                <small class="text-muted">
-                                    <i class="fas fa-calendar me-1"></i>Uploaded: ${doc.uploaded_at || 'Unknown'}
-                                    ${doc.uploader ? `<br><i class="fas fa-user me-1"></i>By: ${doc.uploader}` : ''}
-                                    <br><i class="fas fa-weight me-1"></i>Size: ${formatFileSize(doc.size)}
-                                    ${doc.notes ? `<br><i class="fas fa-comment me-1"></i>Notes: ${doc.notes}` : ''}
-                                </small>
-                            </div>
-                            <div class="btn-group-vertical">
-                                <a href="/admin/boatr/requests/${id}/download-document?type=inspection&index=${index}"
-                                   class="btn btn-sm btn-primary mb-1" target="_blank" title="Download">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                                <button class="btn btn-sm btn-info" onclick="previewDocument(${id}, 'inspection', ${index})" title="Preview">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        ${isImage && doc.url ? `
-                                                                                        <div class="mt-2 text-center">
-                                                                                            <img src="${doc.url}" class="document-thumbnail" alt="Document preview"
-                                                                                                 onclick="previewDocument(${id}, 'inspection', ${index})" style="max-width: 150px; cursor: pointer;">
-                                                                                        </div>
-                                                                                    ` : ''}
-                    </div>
-                `;
-                        });
-
-                        documentsHtml += '</div></div></div>';
+                    if (docToPreview) {
+                        // Preview the first available document
+                        previewDocument(id, docType, docIndex);
+                    } else {
+                        // Show a message that no documents are available
+                        showToast('info', 'No Documents', 'No documents available for this application.');
                     }
-
-                    // Annexes Documents
-                    if (data.annexes && data.annexes.length > 0) {
-                        documentsHtml += `
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-folder me-2"></i>Annexes</h5>
-                        </div>
-                        <div class="card-body">
-            `;
-
-                        data.annexes.forEach((annex, index) => {
-                            const isImage = annex.is_image;
-
-                            documentsHtml += `
-                    <div class="document-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">${annex.title}</h6>
-                                <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
-                                <small class="text-muted">
-                                    <i class="fas fa-file me-1"></i>${annex.file_name}
-                                    <br><i class="fas fa-calendar me-1"></i>Uploaded: ${annex.created_at}
-                                    <br><i class="fas fa-user me-1"></i>By: ${annex.uploaded_by}
-                                    <br><i class="fas fa-weight me-1"></i>Size: ${annex.formatted_file_size}
-                                </small>
-                            </div>
-                            <div class="btn-group-vertical">
-                                <button class="btn btn-sm btn-primary mb-1" onclick="downloadAnnex(${id}, ${annex.id})" title="Download">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                                <button class="btn btn-sm btn-info" onclick="previewAnnex(${id}, ${annex.id})" title="Preview">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                        });
-
-                        documentsHtml += '</div></div></div>';
-                    }
-
-                    // No documents message
-                    if ((!data.user_documents || data.user_documents.length === 0) &&
-                        (!data.inspection_documents || data.inspection_documents.length === 0) &&
-                        (!data.annexes || data.annexes.length === 0)) {
-                        documentsHtml += `
-                <div class="col-12">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        None found for this application.
-                    </div>
-                </div>
-            `;
-                    }
-
-                    documentsHtml += '</div>';
-                    document.getElementById('documentViewer').innerHTML = documentsHtml;
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('documentViewerLoading').style.display = 'none';
-                    document.getElementById('documentViewer').innerHTML = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Error loading documents: ${error.message}
-            </div>
-        `;
-                    document.getElementById('documentViewer').style.display = 'block';
+                    showToast('error', 'Error', 'Failed to load documents: ' + error.message);
                 });
-        }
-
-        // Enhanced preview document function - Improved with better file type support
+        } // Enhanced preview document function - Improved with better file type support
         function previewDocument(id, type, index) {
             const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
             modal.show();
@@ -2125,38 +2297,40 @@
                     const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
                     const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
 
-                    // Function to add action buttons
+                    // Function to add BoatR-style action buttons (matching FishR)
                     const addActionButtons = () => {
                         return `
-                            <div class="text-center mt-3 p-3 bg-light rounded">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary">
-                                        <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
-                                    </a>
-                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success">
-                                        <i class="fas fa-download me-1"></i>Download
-                                    </a>
-                                </div>
-                                <small class="text-muted d-block mt-2">File: ${fileName} (${fileExtension.toUpperCase()})</small>
+                            <div class="boatr-document-actions">
+                                <button class="btn boatr-btn boatr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                                </button>
+                                <button class="btn boatr-btn boatr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </button>
+                            </div>
+                            <div class="boatr-document-info">
+                                <p class="boatr-file-name">File: ${fileName} (${fileExtension.toUpperCase()})</p>
                             </div>`;
                     };
 
                     // Handle different file types with enhanced capabilities
                     try {
                         if (imageTypes.includes(fileExtension)) {
-                            // Enhanced image handling
+                            // Enhanced image handling with BoatR-style viewer
                             const img = new Image();
                             img.onload = function() {
                                 document.getElementById('documentPreview').innerHTML = `
-                                    <div class="text-center">
-                                        <div class="position-relative d-inline-block">
+                                    <div class="boatr-document-viewer">
+                                        <div class="boatr-document-container">
                                             <img src="${fileUrl}"
-                                                 class="img-fluid border rounded shadow"
+                                                 class="boatr-document-image"
                                                  alt="Document preview"
-                                                 style="max-height: 70vh; cursor: zoom-in;"
-                                                 onclick="toggleImageZoomBoatr(this)">
-                                            <div class="position-absolute top-0 end-0 m-2">
-                                                <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
+                                                 onclick="toggleImageZoomBoatr(this)"
+                                                 style="cursor: zoom-in;">
+                                            <div class="boatr-document-overlay">
+                                                <div class="boatr-document-size-badge">
+                                                    ${Math.round((this.naturalWidth * this.naturalHeight) / 1024)}KB
+                                                </div>
                                             </div>
                                         </div>
                                         ${addActionButtons()}
@@ -2164,24 +2338,28 @@
                             };
                             img.onerror = function() {
                                 document.getElementById('documentPreview').innerHTML = `
-                                    <div class="alert alert-warning text-center">
-                                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
-                                        <h5>Unable to load image</h5>
-                                        <p class="mb-3">The image could not be displayed.</p>
+                                    <div class="boatr-document-viewer">
+                                        <div class="boatr-document-placeholder">
+                                            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
+                                            <h6>Unable to load image</h6>
+                                            <p class="mb-3">The image could not be displayed.</p>
+                                        </div>
                                         ${addActionButtons()}
                                     </div>`;
                             };
                             img.src = fileUrl;
 
                         } else if (fileExtension === 'pdf') {
-                            // Enhanced PDF handling
+                            // Enhanced PDF handling with BoatR-style viewer
                             document.getElementById('documentPreview').innerHTML = `
-                                <div class="pdf-container">
-                                    <embed src="${fileUrl}"
-                                           type="application/pdf"
-                                           width="100%"
-                                           height="600px"
-                                           class="border rounded shadow">
+                                <div class="boatr-document-viewer">
+                                    <div class="boatr-document-container">
+                                        <embed src="${fileUrl}"
+                                               type="application/pdf"
+                                               width="100%"
+                                               height="600px"
+                                               class="boatr-pdf-embed">
+                                    </div>
                                     ${addActionButtons()}
                                 </div>`;
 
@@ -2190,19 +2368,23 @@
                                 const embed = document.querySelector('#documentPreview embed');
                                 if (!embed || embed.offsetHeight === 0) {
                                     document.getElementById('documentPreview').innerHTML = `
-                                        <div class="alert alert-info text-center">
-                                            <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
-                                            <h5>PDF Preview Unavailable</h5>
-                                            <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
-                                            <div class="d-flex justify-content-center gap-2">
-                                                <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                                    <i class="fas fa-external-link-alt me-2"></i>Open PDF
-                                                </a>
-                                                <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                                    <i class="fas fa-download me-2"></i>Download PDF
-                                                </a>
+                                        <div class="boatr-document-viewer">
+                                            <div class="boatr-document-placeholder">
+                                                <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
+                                                <h5>PDF Preview Unavailable</h5>
+                                                <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
                                             </div>
-                                            <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                            <div class="boatr-document-actions">
+                                                <button class="btn boatr-btn boatr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
+                                                    <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                                </button>
+                                                <button class="btn boatr-btn boatr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
+                                                    <i class="fas fa-download me-2"></i>Download PDF
+                                                </button>
+                                            </div>
+                                            <div class="boatr-document-info">
+                                                <p class="boatr-file-name">File: ${fileName}</p>
+                                            </div>
                                         </div>`;
                                 }
                             }, 2000);
@@ -2438,7 +2620,7 @@
                         </div>
                         <div class="card-body">
                             <p><strong>Status:</strong> <span class="badge bg-${data.status_color}">${data.formatted_status}</span></p>
-                            <p><strong>Inspection:</strong> ${data.inspection_completed ? '<span class="badge bg-success">Completed</span>' : '<span class="badge bg-warning">Pending</span>'}</p>
+                            <p><strong>Inspection:</strong> ${data.inspection_completed ? '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>' : '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>'}</p>
                             ${data.inspection_date ? `<p><strong>Inspection Date:</strong> ${data.inspection_date}</p>` : ''}
                             ${data.inspection_notes ? `<p><strong>Inspection Notes:</strong> ${data.inspection_notes}</p>` : ''}
                         </div>
@@ -3180,6 +3362,17 @@
                 }
                 statusElement.innerHTML = statusText;
             }
+        }
+
+        // Function to download files (same as FishR)
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Add keyboard shortcut listener for refresh and modal closing

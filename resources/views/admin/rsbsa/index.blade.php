@@ -269,11 +269,11 @@
                                 </td>
                                 <td class="text-start">
                                     {{ $application->first_name }}
-                                    @if($application->middle_name)
+                                    @if ($application->middle_name)
                                         {{ $application->middle_name }}
                                     @endif
                                     {{ $application->last_name }}
-                                    @if($application->name_extension)
+                                    @if ($application->name_extension)
                                         {{ $application->name_extension }}
                                     @endif
                                 </td>
@@ -297,6 +297,28 @@
                                     @else
                                         <span class="badge bg-secondary">No documents</span>
                                     @endif
+                                    <div class="fishr-table-documents">
+                                        @if ($application->supporting_document_path)
+                                            <div class="fishr-document-previews">
+                                                <div class="fishr-mini-doc"
+                                                    onclick="viewDocument('{{ $application->supporting_document_path }}', 'Application #{{ $application->application_number }} - Supporting Document')"
+                                                    title="Supporting Document">
+                                                    <div class="fishr-mini-doc-icon">
+                                                        <i class="fas fa-file-alt text-primary"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="fishr-document-summary"
+                                                onclick="viewDocument('{{ $application->supporting_document_path }}', 'Application #{{ $application->application_number }} - Supporting Document')">
+                                                <small class="text-muted">1 document</small>
+                                            </div>
+                                        @else
+                                            <div class="fishr-no-documents">
+                                                <i class="fas fa-folder-open text-muted"></i>
+                                                <small class="text-muted">No documents</small>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
@@ -989,7 +1011,8 @@
                 padding: 0.5rem 1rem;
             }
         }
-     /* Toast Notification Container */
+
+        /* Toast Notification Container */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -1130,6 +1153,11 @@
         }
 
        /* Application Details Modal - Simple Professional Look */
+        /* ============================================
+            VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
+            ============================================ */
+
+        /* Application Details Modal - Enhanced Styling */
         #applicationModal .modal-content {
             border: none;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -1458,6 +1486,7 @@
         }
 
         @media (max-width: 576px) {
+
             #applicationModal .modal-dialog,
             #updateModal .modal-dialog {
                 margin: 0.25rem;
@@ -1483,6 +1512,268 @@
             #updateModal .form-control {
                 font-size: 0.9rem;
                 padding: 0.6rem;
+            }
+        }
+
+        /* FISHR-Style Table Document Previews */
+        .fishr-table-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .fishr-document-previews {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .fishr-mini-doc {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: white;
+            border: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fishr-mini-doc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-color: #007bff;
+        }
+
+        .fishr-mini-doc-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .fishr-mini-doc-more {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+        }
+
+        .fishr-mini-doc-more:hover {
+            background: #e9ecef;
+            border-color: #6c757d;
+        }
+
+        .fishr-more-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .fishr-mini-doc-more:hover .fishr-more-count {
+            color: #495057;
+        }
+
+        .fishr-document-summary {
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .fishr-document-summary:hover {
+            color: #007bff !important;
+        }
+
+        .fishr-document-summary:hover small {
+            color: #007bff !important;
+        }
+
+        .fishr-no-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .fishr-no-documents i {
+            font-size: 1.25rem;
+        }
+
+        /* Document type specific colors for mini previews */
+        .fishr-mini-doc[title*="Supporting"] {
+            border-color: #007bff;
+        }
+
+        .fishr-mini-doc[title*="Supporting"]:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        /* Responsive adjustments for table documents */
+        @media (max-width: 768px) {
+            .fishr-mini-doc {
+                width: 28px;
+                height: 28px;
+            }
+
+            .fishr-mini-doc-icon {
+                font-size: 0.75rem;
+            }
+
+            .fishr-more-count {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* FISHR-Style Document Viewer */
+        .fishr-document-viewer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 400px;
+        }
+
+        .fishr-document-container {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .fishr-document-image {
+            max-width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .fishr-document-image:hover {
+            transform: scale(1.02);
+        }
+
+        .fishr-document-image.zoomed {
+            transform: scale(1.5);
+            cursor: zoom-out;
+        }
+
+        .fishr-pdf-embed {
+            border-radius: 8px;
+        }
+
+        .fishr-document-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .fishr-document-size-badge {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .fishr-document-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .fishr-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 140px;
+            cursor: pointer;
+        }
+
+        .fishr-btn-outline {
+            background: white;
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
+
+        .fishr-btn-outline:hover {
+            background: #f8f9fa;
+            color: #495057;
+            border-color: #adb5bd;
+            transform: translateY(-1px);
+        }
+
+        .fishr-btn-primary {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .fishr-btn-primary:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .fishr-document-info {
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .fishr-file-name {
+            margin: 0;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .fishr-document-placeholder {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Responsive design for FISHR document viewer */
+        @media (max-width: 768px) {
+            .fishr-document-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .fishr-btn {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .fishr-document-image {
+                max-height: 40vh;
             }
         }
     </style>
@@ -2489,6 +2780,16 @@ function viewDocument(path, filename = null, applicationId = null) {
         showToast('error', 'No document path provided');
         return;
     }
+            // Show loading state first
+            documentViewer.innerHTML = `
+                <div class="fishr-document-viewer">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted">Loading document...</p>
+                    </div>
+                </div>`;
 
     const documentViewer = document.getElementById('documentViewer');
     const modal = new bootstrap.Modal(document.getElementById('documentModal'));
@@ -2653,10 +2954,23 @@ function viewDocument(path, filename = null, applicationId = null) {
                                 <i class="fas fa-external-link-alt me-2"></i>Open Document
                             </a>
                             <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                <i class="fas fa-download me-2"></i>Download
-                            </a>
+                    <div class="fishr-document-viewer">
+                        <div class="fishr-document-placeholder">
+                            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
+                            <h5>Unable to preview ${type}</h5>
+                            <p class="mb-3">The ${type} could not be loaded or displayed.</p>
                         </div>
-                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                        <div class="fishr-document-actions">
+                            <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
+                                <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                            </button>
+                            <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
+                                <i class="fas fa-download me-2"></i>Download
+                            </button>
+                        </div>
+                        <div class="fishr-document-info">
+                            <p class="fishr-file-name">File: ${fileName}</p>
+                        </div>
                     </div>`;
             } else {
                 // Handle unsupported file types
@@ -2692,6 +3006,160 @@ function viewDocument(path, filename = null, applicationId = null) {
                         </a>
                     </div>
                 </div>`;
+            };
+
+            // Function to add FISHR-style download actions
+            const addFishrActions = () => {
+                return `
+                    <div class="fishr-document-actions">
+                        <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
+                            <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                        </button>
+                        <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
+                            <i class="fas fa-download me-2"></i>Download
+                        </button>
+                    </div>
+                    <div class="fishr-document-info">
+                        <p class="fishr-file-name">File: ${fileName} (${fileExtension.toUpperCase()})</p>
+                    </div>`;
+            };
+
+            // Handle different file types
+            setTimeout(() => {
+                try {
+                    if (imageTypes.includes(fileExtension)) {
+                        // Handle images
+                        const img = new Image();
+                        img.onload = function() {
+                            documentViewer.innerHTML = `
+                                <div class="fishr-document-viewer">
+                                    <div class="fishr-document-container">
+                                        <img src="${fileUrl}"
+                                             class="fishr-document-image"
+                                             alt="Supporting Document"
+                                             onclick="toggleImageZoom(this)"
+                                             style="cursor: zoom-in;">
+                                        <div class="fishr-document-overlay">
+                                            <div class="fishr-document-size-badge">
+                                                ${Math.round((this.naturalWidth * this.naturalHeight) / 1024)}KB
+                                            </div>
+                                        </div>
+                                    </div>
+                                    ${addFishrActions()}
+                                </div>`;
+                        };
+                        img.onerror = function() {
+                            handleLoadError('image');
+                        };
+                        img.src = fileUrl;
+
+                    } else if (fileExtension === 'pdf') {
+                        // Handle PDF documents
+                        documentViewer.innerHTML = `
+                            <div class="fishr-document-viewer">
+                                <div class="fishr-document-container">
+                                    <embed src="${fileUrl}"
+                                           type="application/pdf"
+                                           width="100%"
+                                           height="600px"
+                                           class="fishr-pdf-embed">
+                                </div>
+                                ${addFishrActions()}
+                            </div>`;
+
+                        // Check if PDF loaded successfully after a short delay
+                        setTimeout(() => {
+                            const embed = documentViewer.querySelector('embed');
+                            if (!embed || embed.offsetHeight === 0) {
+                                documentViewer.innerHTML = `
+                                    <div class="fishr-document-viewer">
+                                        <div class="fishr-document-placeholder">
+                                            <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
+                                            <h5>PDF Preview Unavailable</h5>
+                                            <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
+                                        </div>
+                                        <div class="fishr-document-actions">
+                                            <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
+                                                <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                            </button>
+                                            <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
+                                                <i class="fas fa-download me-2"></i>Download PDF
+                                            </button>
+                                        </div>
+                                        <div class="fishr-document-info">
+                                            <p class="fishr-file-name">File: ${fileName}</p>
+                                        </div>
+                                    </div>`;
+                            }
+                        }, 2000);
+
+                    } else if (videoTypes.includes(fileExtension)) {
+                        // Handle video files
+                        documentViewer.innerHTML = `
+                            <div class="text-center">
+                                <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
+                                    <source src="${fileUrl}" type="video/${fileExtension}">
+                                    Your browser does not support the video tag.
+                                </video>
+                                ${addDownloadButton()}
+                            </div>`;
+
+                    } else if (audioTypes.includes(fileExtension)) {
+                        // Handle audio files
+                        documentViewer.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-music fa-4x text-info mb-3"></i>
+                                <h5>Audio File</h5>
+                                <audio controls class="w-100 mb-3">
+                                    <source src="${fileUrl}" type="audio/${fileExtension}">
+                                    Your browser does not support the audio tag.
+                                </audio>
+                                ${addDownloadButton()}
+                            </div>`;
+
+                    } else if (documentTypes.includes(fileExtension)) {
+                        // Handle other document types
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
+                            fileExtension) ? 'file-word' : 'file-alt';
+
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                                <h5>${fileExtension.toUpperCase()} Document</h5>
+                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open Document
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+                    } else {
+                        // Handle unsupported file types
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-warning text-center">
+                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                                <h5>Unsupported File Type</h5>
+                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open File
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+                    }
+                } catch (error) {
+                    console.error('Error processing document:', error);
+                    handleLoadError('document', error);
+                }
+            }, 500); // Small delay to show loading state
         }
     }, 500);
 }
@@ -2854,7 +3322,7 @@ function viewDocument(path, filename = null, applicationId = null) {
                 .then(data => {
                     if (data.success) {
                         showToast('success', data.message || 'Application deleted successfully');
-                        
+
                         // Remove the row from table with fade animation
                         const row = document.querySelector(`tr[data-id="${id}"]`);
                         if (row) {
@@ -2891,15 +3359,27 @@ function viewDocument(path, filename = null, applicationId = null) {
             return container;
         }
 
-      // Toast notification function
+        // Toast notification function
         function showToast(type, message) {
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
             const iconMap = {
-                'success': { icon: 'fas fa-check-circle', color: 'success' },
-                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
-                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
-                'info': { icon: 'fas fa-info-circle', color: 'info' }
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
             };
 
             const config = iconMap[type] || iconMap['info'];
@@ -3063,7 +3543,7 @@ function viewDocument(path, filename = null, applicationId = null) {
                 .then(data => {
                     if (data.success) {
                         showToast('success', data.message || 'Application deleted successfully');
-                        
+
                         const row = document.querySelector(`tr[data-id="${id}"]`);
                         if (row) {
                             row.style.transition = 'opacity 0.3s';
@@ -3136,7 +3616,8 @@ function viewDocument(path, filename = null, applicationId = null) {
         function proceedWithStatusUpdate(id, newStatus, remarks) {
             const updateButton = document.querySelector('#updateModal .btn-primary');
             const originalText = updateButton.innerHTML;
-            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.innerHTML =
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
             updateButton.disabled = true;
 
             fetch(`/admin/rsbsa-applications/${id}/status`, {
@@ -3162,7 +3643,7 @@ function viewDocument(path, filename = null, applicationId = null) {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
                         modal.hide();
                         showToast('success', response.message || 'Application status updated successfully');
-                        
+
                         setTimeout(() => {
                             window.location.reload();
                         }, 1500);
@@ -3489,5 +3970,15 @@ function viewDocument(path, filename = null, applicationId = null) {
         }
 
         console.log('RSBSA Add Registration functionality loaded successfully');
+        // Download file function for FISHR-style buttons
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 @endsection
