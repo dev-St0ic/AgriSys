@@ -2126,20 +2126,20 @@
                 });
         }
 
-        // View application details with enhanced error handling
-        function viewApplication(id) {
+        // Enhanced view application details with document viewing (similar to other services)
+       function viewApplication(id) {
             if (!id) {
-                alert('Invalid application ID');
+                showToast('error', 'Invalid application ID');
                 return;
             }
 
             // Show loading state
             document.getElementById('applicationDetails').innerHTML = `
-        <div class="text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>`;
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>`;
 
             // Show modal while loading
             const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
@@ -2166,124 +2166,285 @@
                         throw new Error('No application data received');
                     }
 
-                    // Format the details HTML with null safety
-                    const remarksHtml = data.remarks ? `
-                <div class="col-12 mt-3">
-                    <h6 class="border-bottom pb-2">Remarks</h6>
-                    <div class="alert alert-info">
-                        <p class="mb-1">${data.remarks}</p>
-                        <small class="text-muted">
-                            ${data.reviewed_at ? `Updated on ${data.reviewed_at}` : ''}
-                            ${data.reviewer_name ? ` by ${data.reviewer_name}` : ''}
-                        </small>
-                    </div>
-                </div>` : '';
+                    // Store current application ID for document viewing
+                    window.currentApplicationId = id;
 
-                    // Safely get registration type
+                    // Format the details HTML with document section
+                    const remarksHtml = data.remarks ? `
+                        <div class="col-12 mt-3">
+                            <h6 class="border-bottom pb-2">Remarks</h6>
+                            <div class="alert alert-info">
+                                <p class="mb-1">${data.remarks}</p>
+                                <small class="text-muted">
+                                    ${data.reviewed_at ? `Updated on ${data.reviewed_at}` : ''}
+                                    ${data.reviewer_name ? ` by ${data.reviewer_name}` : ''}
+                                </small>
+                            </div>
+                        </div>` : '';
+
+                    // Get registration type safely
                     const regType = data.registration_type || 'new';
                     const regTypeClass = regType === 'new' ? 'primary' : 'warning';
                     const regTypeText = regType.charAt(0).toUpperCase() + regType.slice(1);
 
-                    // Update modal content
+                    // Update modal content with document section - FIXED VERSION
                     document.getElementById('applicationDetails').innerHTML = `
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <h6 class="border-bottom pb-2">Personal Information</h6>
-                        <p><strong>Application #:</strong> ${data.application_number || 'N/A'}</p>
-                        <p><strong>Name:</strong> ${data.full_name || 'N/A'}</p>
-                        <p><strong>Sex:</strong> ${data.sex || 'N/A'}</p>
-                        ${data.date_of_birth ? `<p><strong>Date of Birth:</strong> ${data.date_of_birth}</p>` : ''}
-                        <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
-                        <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="border-bottom pb-2">Registration Information</h6>
-                        <p><strong>Type:</strong>
-                            <span class="badge bg-${regTypeClass}">
-                                ${regTypeText}
-                            </span>
-                        </p>
-                        <p><strong>Main Livelihood:</strong> ${data.main_livelihood || 'N/A'}</p>
-                        <p><strong>Land Area:</strong> ${data.land_area ? data.land_area + ' hectares' : 'N/A'}</p>
-                        <p><strong>Farm Location:</strong> ${data.farm_location || 'N/A'}</p>
-                        <p><strong>Commodity:</strong> ${data.commodity || 'N/A'}</p>
-                        <p><strong>Current Status:</strong>
-                            <span class="badge bg-${data.status_color || 'secondary'}">${data.formatted_status || getStatusText(data.status)}</span>
-                        </p>
-                    </div>
-                    <div class="col-12">
-                        <h6 class="border-bottom pb-2">Application Timeline</h6>
-                        <p><strong>Date Applied:</strong> ${data.created_at || 'N/A'}</p>
-                        <p><strong>Last Updated:</strong> ${data.updated_at || 'N/A'}</p>
-                        ${data.reviewed_at ? `<p><strong>Reviewed At:</strong> ${data.reviewed_at}</p>` : ''}
-                        ${data.number_assigned_at ? `<p><strong>Number Assigned:</strong> ${data.number_assigned_at}</p>` : ''}
-                    </div>
-                    ${remarksHtml}
-                </div>`;
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Personal Information</h6>
+                                <p><strong>Application #:</strong> ${data.application_number || 'N/A'}</p>
+                                <p><strong>Name:</strong> ${data.full_name || 'N/A'}</p>
+                                <p><strong>Sex:</strong> ${data.sex || 'N/A'}</p>
+                                ${data.date_of_birth ? `<p><strong>Date of Birth:</strong> ${data.date_of_birth}</p>` : ''}
+                                <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
+                                <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Registration Information</h6>
+                                <p><strong>Type:</strong>
+                                    <span class="badge bg-${regTypeClass}">
+                                        ${regTypeText}
+                                    </span>
+                                </p>
+                                <p><strong>Main Livelihood:</strong> ${data.main_livelihood || 'N/A'}</p>
+                                <p><strong>Land Area:</strong> ${data.land_area ? data.land_area + ' hectares' : 'N/A'}</p>
+                                <p><strong>Farm Location:</strong> ${data.farm_location || 'N/A'}</p>
+                                <p><strong>Commodity:</strong> ${data.commodity || 'N/A'}</p>
+                                <p><strong>Current Status:</strong>
+                                    <span class="badge bg-${data.status_color || 'secondary'}">${data.formatted_status || getStatusText(data.status)}</span>
+                                </p>
+                            </div>
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2">Application Timeline</h6>
+                                <p><strong>Date Applied:</strong> ${data.created_at || 'N/A'}</p>
+                                <p><strong>Last Updated:</strong> ${data.updated_at || 'N/A'}</p>
+                                ${data.reviewed_at ? `<p><strong>Reviewed At:</strong> ${data.reviewed_at}</p>` : ''}
+                                ${data.number_assigned_at ? `<p><strong>Number Assigned:</strong> ${data.number_assigned_at}</p>` : ''}
+                            </div>
+
+                            <!-- Document Status Card (FIXED) -->
+                            <div class="col-12">
+                                <div class="card border-secondary">
+                                    <div class="card-header bg-secondary text-white">
+                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="text-center p-3 border rounded ${data.supporting_document_path ? 'border-success bg-light' : 'border-secondary'}">
+                                                    <i class="fas fa-file-alt fa-3x ${data.supporting_document_path ? 'text-success' : 'text-secondary'} mb-2"></i>
+                                                    <h6>Supporting Document</h6>
+                                                    <span class="badge ${data.supporting_document_path ? 'bg-success' : 'bg-secondary'} mb-2">
+                                                        ${data.supporting_document_path ? 'Uploaded' : 'Not Uploaded'}
+                                                    </span>
+                                                    ${data.supporting_document_path ? `
+                                                        <br>
+                                                        <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.supporting_document_path}', 'Application #${data.application_number} - Supporting Document')">
+                                                            <i class="fas fa-eye"></i> View Document
+                                                        </button>
+                                                    ` : ''}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${remarksHtml}
+                        </div>`;
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     document.getElementById('applicationDetails').innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    ${error.message || 'Error loading application details. Please try again.'}
-                </div>`;
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            ${error.message || 'Error loading application details. Please try again.'}
+                        </div>`;
                 });
         }
 
-        // Enhanced view document function
-        function viewDocument(path, filename = null) {
-            // Input validation
-            if (!path || path.trim() === '') {
-                alert('No document path provided');
-                return;
-            }
 
-            const documentViewer = document.getElementById('documentViewer');
-            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-
-            // Show loading state first
-            documentViewer.innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="text-muted">Loading document...</p>
-                </div>`;
-
-            // Show modal immediately with loading state
-            modal.show();
-
-            // Update modal title if filename is provided
-            const modalTitle = document.querySelector('#documentModal .modal-title');
-            if (filename) {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+        // Helper function to toggle image zoom (reuse existing if available)
+        function toggleImageZoom(img) {
+            if (img.style.transform === 'scale(2)') {
+                img.style.transform = 'scale(1)';
+                img.style.cursor = 'zoom-in';
             } else {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
+                img.style.transform = 'scale(2)';
+                img.style.cursor = 'zoom-out';
             }
+        }
 
-            // Extract file extension and name
-            const fileExtension = path.split('.').pop().toLowerCase();
-            const fileName = filename || path.split('/').pop();
-            const fileUrl = `/storage/${path}`;
 
-            // Define supported file types
-            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-            const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
-            const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
-            const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+      // FIXED: Unified document viewing function - use this for ALL document viewing
+function viewDocument(path, filename = null, applicationId = null) {
+    // Input validation
+    if (!path || path.trim() === '') {
+        showToast('error', 'No document path provided');
+        return;
+    }
 
-            // Function to handle loading errors
-            const handleLoadError = (type, error = null) => {
-                console.error(`Error loading ${type}:`, error);
+    const documentViewer = document.getElementById('documentViewer');
+    const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+
+    // Show loading state first
+    documentViewer.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted">Loading document...</p>
+        </div>`;
+
+    // Show modal immediately with loading state
+    modal.show();
+
+    // Update modal title if filename is provided
+    const modalTitle = document.querySelector('#documentModal .modal-title');
+    if (filename) {
+        modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+    } else {
+        modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
+    }
+
+    // Extract file extension and name
+    const fileExtension = path.split('.').pop().toLowerCase();
+    const fileName = filename || path.split('/').pop();
+    const fileUrl = `/storage/${path}`;
+
+    // Define supported file types
+    const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+    const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+    const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+    const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+
+    // Function to add download button
+    const addDownloadButton = () => {
+        return `
+            <div class="text-center mt-3 p-3 bg-light">
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                    </a>
+                    <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-download me-1"></i>Download
+                    </a>
+                </div>
+                <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
+            </div>`;
+    };
+
+    // Handle different file types
+    setTimeout(() => {
+        try {
+            if (imageTypes.includes(fileExtension)) {
+                // Handle images
+                const img = new Image();
+                img.onload = function() {
+                    documentViewer.innerHTML = `
+                        <div class="text-center">
+                            <div class="position-relative d-inline-block">
+                                <img src="${fileUrl}"
+                                     class="img-fluid border rounded shadow-sm"
+                                     alt="Supporting Document"
+                                     style="max-height: 70vh; cursor: zoom-in;"
+                                     onclick="toggleImageZoom(this)">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
+                                </div>
+                            </div>
+                            ${addDownloadButton()}
+                        </div>`;
+                };
+                img.onerror = function() {
+                    documentViewer.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <h5>Unable to Load Image</h5>
+                            <p class="mb-3">The image could not be loaded.</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open Image
+                                </a>
+                                <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                            </div>
+                            <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                        </div>`;
+                };
+                img.src = fileUrl;
+
+            } else if (fileExtension === 'pdf') {
+                // Handle PDF documents
                 documentViewer.innerHTML = `
-                    <div class="alert alert-warning text-center">
-                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                        <h5>Unable to preview ${type}</h5>
-                        <p class="mb-3">The ${type} could not be loaded or displayed.</p>
+                    <div class="pdf-container">
+                        <embed src="${fileUrl}"
+                               type="application/pdf"
+                               width="100%"
+                               height="600px"
+                               class="border rounded">
+                        ${addDownloadButton()}
+                    </div>`;
+
+                // Check if PDF loaded successfully after a short delay
+                setTimeout(() => {
+                    const embed = documentViewer.querySelector('embed');
+                    if (!embed || embed.offsetHeight === 0) {
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                <h5>PDF Preview Unavailable</h5>
+                                <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download PDF
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+                    }
+                }, 2000);
+
+            } else if (videoTypes.includes(fileExtension)) {
+                // Handle video files
+                documentViewer.innerHTML = `
+                    <div class="text-center">
+                        <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
+                            <source src="${fileUrl}" type="video/${fileExtension}">
+                            Your browser does not support the video tag.
+                        </video>
+                        ${addDownloadButton()}
+                    </div>`;
+
+            } else if (audioTypes.includes(fileExtension)) {
+                // Handle audio files
+                documentViewer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-music fa-4x text-info mb-3"></i>
+                        <h5>Audio File</h5>
+                        <audio controls class="w-100 mb-3">
+                            <source src="${fileUrl}" type="audio/${fileExtension}">
+                            Your browser does not support the audio tag.
+                        </audio>
+                        ${addDownloadButton()}
+                    </div>`;
+
+            } else if (documentTypes.includes(fileExtension)) {
+                // Handle other document types
+                const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+
+                documentViewer.innerHTML = `
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                        <h5>${fileExtension.toUpperCase()} Document</h5>
+                        <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
                         <div class="d-flex justify-content-center gap-2">
                             <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                                <i class="fas fa-external-link-alt me-2"></i>Open Document
                             </a>
                             <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
                                 <i class="fas fa-download me-2"></i>Download
@@ -2291,153 +2452,43 @@
                         </div>
                         <small class="text-muted d-block mt-2">File: ${fileName}</small>
                     </div>`;
-            };
-
-            // Function to add download button
-            const addDownloadButton = () => {
-                return `
-                    <div class="text-center mt-3 p-3 bg-light">
+            } else {
+                // Handle unsupported file types
+                documentViewer.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                        <h5>Unsupported File Type</h5>
+                        <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
                         <div class="d-flex justify-content-center gap-2">
-                            <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>Open File
                             </a>
-                            <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success btn-sm">
-                                <i class="fas fa-download me-1"></i>Download
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                <i class="fas fa-download me-2"></i>Download
                             </a>
                         </div>
-                        <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
+                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
                     </div>`;
-            };
-
-            // Handle different file types
-            setTimeout(() => {
-                try {
-                    if (imageTypes.includes(fileExtension)) {
-                        // Handle images
-                        const img = new Image();
-                        img.onload = function() {
-                            documentViewer.innerHTML = `
-                                <div class="text-center">
-                                    <div class="position-relative d-inline-block">
-                                        <img src="${fileUrl}"
-                                             class="img-fluid border rounded shadow-sm"
-                                             alt="Supporting Document"
-                                             style="max-height: 70vh; cursor: zoom-in;"
-                                             onclick="toggleImageZoom(this)">
-                                        <div class="position-absolute top-0 end-0 m-2">
-                                            <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
-                                        </div>
-                                    </div>
-                                    ${addDownloadButton()}
-                                </div>`;
-                        };
-                        img.onerror = function() {
-                            handleLoadError('image');
-                        };
-                        img.src = fileUrl;
-
-                    } else if (fileExtension === 'pdf') {
-                        // Handle PDF documents
-                        documentViewer.innerHTML = `
-                            <div class="pdf-container">
-                                <embed src="${fileUrl}"
-                                       type="application/pdf"
-                                       width="100%"
-                                       height="600px"
-                                       class="border rounded">
-                                ${addDownloadButton()}
-                            </div>`;
-
-                        // Check if PDF loaded successfully after a short delay
-                        setTimeout(() => {
-                            const embed = documentViewer.querySelector('embed');
-                            if (!embed || embed.offsetHeight === 0) {
-                                documentViewer.innerHTML = `
-                                    <div class="alert alert-info text-center">
-                                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
-                                        <h5>PDF Preview Unavailable</h5>
-                                        <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                                <i class="fas fa-external-link-alt me-2"></i>Open PDF
-                                            </a>
-                                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                                <i class="fas fa-download me-2"></i>Download PDF
-                                            </a>
-                                        </div>
-                                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                                    </div>`;
-                            }
-                        }, 2000);
-
-                    } else if (videoTypes.includes(fileExtension)) {
-                        // Handle video files
-                        documentViewer.innerHTML = `
-                            <div class="text-center">
-                                <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
-                                    <source src="${fileUrl}" type="video/${fileExtension}">
-                                    Your browser does not support the video tag.
-                                </video>
-                                ${addDownloadButton()}
-                            </div>`;
-
-                    } else if (audioTypes.includes(fileExtension)) {
-                        // Handle audio files
-                        documentViewer.innerHTML = `
-                            <div class="text-center py-5">
-                                <i class="fas fa-music fa-4x text-info mb-3"></i>
-                                <h5>Audio File</h5>
-                                <audio controls class="w-100 mb-3">
-                                    <source src="${fileUrl}" type="audio/${fileExtension}">
-                                    Your browser does not support the audio tag.
-                                </audio>
-                                ${addDownloadButton()}
-                            </div>`;
-
-                    } else if (documentTypes.includes(fileExtension)) {
-                        // Handle other document types
-                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
-                            fileExtension) ? 'file-word' : 'file-alt';
-
-                        documentViewer.innerHTML = `
-                            <div class="alert alert-info text-center">
-                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
-                                <h5>${fileExtension.toUpperCase()} Document</h5>
-                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-2"></i>Open Document
-                                    </a>
-                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                        <i class="fas fa-download me-2"></i>Download
-                                    </a>
-                                </div>
-                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                            </div>`;
-                    } else {
-                        // Handle unsupported file types
-                        documentViewer.innerHTML = `
-                            <div class="alert alert-warning text-center">
-                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
-                                <h5>Unsupported File Type</h5>
-                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-2"></i>Open File
-                                    </a>
-                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                        <i class="fas fa-download me-2"></i>Download
-                                    </a>
-                                </div>
-                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                            </div>`;
-                    }
-                } catch (error) {
-                    console.error('Error processing document:', error);
-                    handleLoadError('document', error);
-                }
-            }, 500); // Small delay to show loading state
+            }
+        } catch (error) {
+            console.error('Error processing document:', error);
+            documentViewer.innerHTML = `
+                <div class="alert alert-danger text-center">
+                    <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                    <h5>Error Loading Document</h5>
+                    <p class="mb-3">${error.message}</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt me-2"></i>Try Opening Directly
+                        </a>
+                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Download
+                        </a>
+                    </div>
+                </div>`;
         }
+    }, 500);
+}
 
         // Helper function to toggle image zoom
         function toggleImageZoom(img) {

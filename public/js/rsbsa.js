@@ -283,8 +283,9 @@ function initializeRSBSATabs() {
 
     console.log('RSBSA tabs initialized');
 }
+
 /**
- * Form validation
+ * FIXED VALIDATION - MATCHES SERVER EXACTLY
  */
 function validateRSBSAForm(form) {
     const requiredFields = [
@@ -293,12 +294,14 @@ function validateRSBSAForm(form) {
         'sex',
         'barangay',
         'mobile',
+        'email',  // ⚠️ MISSING - SERVER REQUIRES THIS
         'main_livelihood'
     ];
 
     let isValid = true;
     let errors = [];
 
+    // 1️⃣ VALIDATE REQUIRED FIELDS
     requiredFields.forEach(fieldName => {
         const field = form.querySelector(`[name="${fieldName}"]`);
         if (!field || !field.value.trim()) {
@@ -306,7 +309,6 @@ function validateRSBSAForm(form) {
             const fieldLabel = fieldName.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
             errors.push(`${fieldLabel} is required`);
 
-            // Add error styling
             if (field) {
                 field.classList.add('error');
                 field.addEventListener('input', function() {
@@ -316,29 +318,98 @@ function validateRSBSAForm(form) {
         }
     });
 
-    // Validate mobile number format
+    // 2️⃣ VALIDATE FIRST NAME FORMAT
+    const firstNameField = form.querySelector('[name="first_name"]');
+    if (firstNameField && firstNameField.value) {
+        // Server uses: regex:/^[a-zA-Z\s\'-]+$/
+        const namePattern = /^[a-zA-Z\s\'-]+$/;
+        if (!namePattern.test(firstNameField.value)) {
+            isValid = false;
+            errors.push('First name can only contain letters, spaces, hyphens, and apostrophes');
+            firstNameField.classList.add('error');
+        }
+    }
+
+    // 3️⃣ VALIDATE LAST NAME FORMAT
+    const lastNameField = form.querySelector('[name="last_name"]');
+    if (lastNameField && lastNameField.value) {
+        const namePattern = /^[a-zA-Z\s\'-]+$/;
+        if (!namePattern.test(lastNameField.value)) {
+            isValid = false;
+            errors.push('Last name can only contain letters, spaces, hyphens, and apostrophes');
+            lastNameField.classList.add('error');
+        }
+    }
+
+    // 4️⃣ VALIDATE MIDDLE NAME FORMAT (optional but if provided must match pattern)
+    const middleNameField = form.querySelector('[name="middle_name"]');
+    if (middleNameField && middleNameField.value) {
+        const namePattern = /^[a-zA-Z\s\'-]+$/;
+        if (!namePattern.test(middleNameField.value)) {
+            isValid = false;
+            errors.push('Middle name can only contain letters, spaces, hyphens, and apostrophes');
+            middleNameField.classList.add('error');
+        }
+    }
+
+    // 5️⃣ VALIDATE SEX (must be exact match)
+    const sexField = form.querySelector('[name="sex"]');
+    if (sexField && sexField.value) {
+        const validSexOptions = ['Male', 'Female', 'Preferred not to say'];
+        if (!validSexOptions.includes(sexField.value)) {
+            isValid = false;
+            errors.push('Please select a valid sex option');
+            sexField.classList.add('error');
+        }
+    }
+
+    // 6️⃣ VALIDATE MOBILE NUMBER
     const mobileField = form.querySelector('[name="mobile"]');
     if (mobileField && mobileField.value) {
-        const mobilePattern = /^(\+639|639|09)\d{9}$/;
+        // Server uses: regex:/^(\+639|09)\d{9}$/
+        // Must be: +639XXXXXXXXX or 09XXXXXXXXX (exactly 12 digits after +63 or 09)
+        const mobilePattern = /^(\+639|09)\d{9}$/;
         if (!mobilePattern.test(mobileField.value.replace(/\s+/g, ''))) {
             isValid = false;
-            errors.push('Please enter a valid mobile number (e.g., 09123456789)');
+            errors.push('Mobile number must be: +639XXXXXXXXX or 09XXXXXXXXX (11 digits total)');
             mobileField.classList.add('error');
         }
     }
 
-    // Validate land area if provided
+    // 7️⃣ VALIDATE EMAIL
+    const emailField = form.querySelector('[name="email"]');
+    if (emailField && emailField.value) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(emailField.value)) {
+            isValid = false;
+            errors.push('Please enter a valid email address');
+            emailField.classList.add('error');
+        }
+    }
+
+    // 8️⃣ VALIDATE MAIN LIVELIHOOD (must be exact match)
+    const livelihoodField = form.querySelector('[name="main_livelihood"]');
+    if (livelihoodField && livelihoodField.value) {
+        const validOptions = ['Farmer', 'Farmworker/Laborer', 'Fisherfolk', 'Agri-youth'];
+        if (!validOptions.includes(livelihoodField.value)) {
+            isValid = false;
+            errors.push('Please select a valid main livelihood option');
+            livelihoodField.classList.add('error');
+        }
+    }
+
+    // 9️⃣ VALIDATE LAND AREA (optional but if provided must be 0-1000)
     const landAreaField = form.querySelector('[name="land_area"]');
     if (landAreaField && landAreaField.value) {
         const landArea = parseFloat(landAreaField.value);
-        if (landArea < 0 || landArea > 1000) {
+        if (isNaN(landArea) || landArea < 0 || landArea > 1000) {
             isValid = false;
             errors.push('Land area must be between 0 and 1000 hectares');
             landAreaField.classList.add('error');
         }
     }
 
-    // Validate file upload
+    // 🔟 VALIDATE FILE UPLOAD
     const fileField = form.querySelector('[name="supporting_docs"]');
     if (fileField && fileField.files.length > 0) {
         const file = fileField.files[0];
@@ -359,6 +430,34 @@ function validateRSBSAForm(form) {
     }
 
     return { isValid, errors };
+}
+
+/**
+ * Format mobile number to match server requirements
+ */
+function formatMobileNumber(input) {
+    let value = input.value.replace(/\D/g, ''); // Remove non-digits
+
+    // If starts with 63, add +
+    if (value.startsWith('63') && value.length >= 11) {
+        value = '+' + value;
+    }
+    // If starts with 9 (single 9), add 0
+    else if (value.match(/^9\d{9}$/)) {
+        value = '0' + value;
+    }
+    // If already starts with 09, keep it
+    else if (value.startsWith('0') && value.length === 11) {
+        // Already correct
+    }
+    // Otherwise ensure it's 09XXXXXXXXX format
+    else if (!value.startsWith('0') && !value.startsWith('+')) {
+        if (value.length === 10 && value.startsWith('9')) {
+            value = '0' + value;
+        }
+    }
+
+    input.value = value;
 }
 
 /**
@@ -549,6 +648,8 @@ function fillSampleRSBSAData() {
         sex: 'Female',
         barangay: 'San Jose',
         mobile: '09123456789',
+        email: 'maria.cruz@example.com',  
+        main_livelihood: 'Farmer',
         main_livelihood: 'rice'
     };
 
