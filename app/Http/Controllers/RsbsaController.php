@@ -154,6 +154,7 @@ class RsbsaController extends Controller
                     'reviewer_name' => optional($application->reviewer)->name,
                     'number_assigned_at' => $application->number_assigned_at ?
                         $application->number_assigned_at->format('M d, Y h:i A') : null,
+                    'supporting_document_path' => $application->supporting_document_path,
                     'assigned_by_name' => optional($application->assignedBy)->name
                 ]
             ]);

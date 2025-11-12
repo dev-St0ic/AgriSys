@@ -2126,8 +2126,9 @@
                 });
         }
 
-        // Enhanced view application details with document viewing (similar to other services)
-       function viewApplication(id) {
+       
+       // FIXED: Corrected document display section in viewApplication function
+        function viewApplication(id) {
             if (!id) {
                 showToast('error', 'Invalid application ID');
                 return;
@@ -2169,7 +2170,12 @@
                     // Store current application ID for document viewing
                     window.currentApplicationId = id;
 
-                    // Format the details HTML with document section
+                    // Get registration type safely
+                    const regType = data.registration_type || 'new';
+                    const regTypeClass = regType === 'new' ? 'primary' : 'warning';
+                    const regTypeText = regType.charAt(0).toUpperCase() + regType.slice(1);
+
+                    // Build remarks HTML if exists
                     const remarksHtml = data.remarks ? `
                         <div class="col-12 mt-3">
                             <h6 class="border-bottom pb-2">Remarks</h6>
@@ -2182,12 +2188,47 @@
                             </div>
                         </div>` : '';
 
-                    // Get registration type safely
-                    const regType = data.registration_type || 'new';
-                    const regTypeClass = regType === 'new' ? 'primary' : 'warning';
-                    const regTypeText = regType.charAt(0).toUpperCase() + regType.slice(1);
+                    // Build document section HTML - FIXED
+                    let documentHtml = '';
+                    if (data.supporting_document_path) {
+                        documentHtml = `
+                            <div class="col-12">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center p-3 border border-success rounded bg-light">
+                                            <i class="fas fa-file-alt fa-3x text-success mb-2"></i>
+                                            <h6>Supporting Document</h6>
+                                            <span class="badge bg-success mb-2">Uploaded</span>
+                                            <br>
+                                            <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.supporting_document_path}', 'Application #${data.application_number} - Supporting Document')">
+                                                <i class="fas fa-eye"></i> View Document
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    } else {
+                        documentHtml = `
+                            <div class="col-12">
+                                <div class="card border-secondary">
+                                    <div class="card-header bg-secondary text-white">
+                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center p-3 border border-secondary rounded">
+                                            <i class="fas fa-file-slash fa-3x text-secondary mb-2"></i>
+                                            <h6>No Document Uploaded</h6>
+                                            <span class="badge bg-secondary mb-2">Not Uploaded</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    }
 
-                    // Update modal content with document section - FIXED VERSION
+                    // Update modal content
                     document.getElementById('applicationDetails').innerHTML = `
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -2221,35 +2262,7 @@
                                 ${data.reviewed_at ? `<p><strong>Reviewed At:</strong> ${data.reviewed_at}</p>` : ''}
                                 ${data.number_assigned_at ? `<p><strong>Number Assigned:</strong> ${data.number_assigned_at}</p>` : ''}
                             </div>
-
-                            <!-- Document Status Card (FIXED) -->
-                            <div class="col-12">
-                                <div class="card border-secondary">
-                                    <div class="card-header bg-secondary text-white">
-                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="text-center p-3 border rounded ${data.supporting_document_path ? 'border-success bg-light' : 'border-secondary'}">
-                                                    <i class="fas fa-file-alt fa-3x ${data.supporting_document_path ? 'text-success' : 'text-secondary'} mb-2"></i>
-                                                    <h6>Supporting Document</h6>
-                                                    <span class="badge ${data.supporting_document_path ? 'bg-success' : 'bg-secondary'} mb-2">
-                                                        ${data.supporting_document_path ? 'Uploaded' : 'Not Uploaded'}
-                                                    </span>
-                                                    ${data.supporting_document_path ? `
-                                                        <br>
-                                                        <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.supporting_document_path}', 'Application #${data.application_number} - Supporting Document')">
-                                                            <i class="fas fa-eye"></i> View Document
-                                                        </button>
-                                                    ` : ''}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
+                            ${documentHtml}
                             ${remarksHtml}
                         </div>`;
                 })
@@ -2262,7 +2275,6 @@
                         </div>`;
                 });
         }
-
 
         // Helper function to toggle image zoom (reuse existing if available)
         function toggleImageZoom(img) {
