@@ -254,26 +254,67 @@
                                 </td>
                                 <td>
                                     @php
-                                        $docCount = 0;
+                                        $docs = [];
                                         if ($registration->location_document_path) {
-                                            $docCount++;
+                                            $docs[] = [
+                                                'type' => 'location',
+                                                'icon' => 'fas fa-map-marker-alt',
+                                                'color' => 'primary',
+                                                'name' => 'Location',
+                                            ];
                                         }
                                         if ($registration->id_front_path) {
-                                            $docCount++;
+                                            $docs[] = [
+                                                'type' => 'id_front',
+                                                'icon' => 'fas fa-id-card',
+                                                'color' => 'success',
+                                                'name' => 'ID Front',
+                                            ];
                                         }
                                         if ($registration->id_back_path) {
-                                            $docCount++;
+                                            $docs[] = [
+                                                'type' => 'id_back',
+                                                'icon' => 'fas fa-id-card-alt',
+                                                'color' => 'info',
+                                                'name' => 'ID Back',
+                                            ];
                                         }
                                     @endphp
-                                    <div id="documents-cell-{{ $registration->id }}">
-                                        @if ($docCount > 0)
-                                            <button class="btn btn-sm btn-info"
+                                    <div id="documents-cell-{{ $registration->id }}" class="fishr-table-documents">
+                                        @if (count($docs) > 0)
+                                            <div class="fishr-document-previews">
+                                                @foreach ($docs as $index => $doc)
+                                                    @if ($index < 2)
+                                                        <div class="fishr-mini-doc"
+                                                            onclick="viewDocumentDirect({{ $registration->id }}, '{{ $doc['type'] }}')"
+                                                            title="View {{ $doc['name'] }}">
+                                                            <div class="fishr-mini-doc-icon">
+                                                                <i
+                                                                    class="{{ $doc['icon'] }} text-{{ $doc['color'] }}"></i>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                                @if (count($docs) > 2)
+                                                    <div class="fishr-mini-doc fishr-mini-doc-more"
+                                                        onclick="viewDocuments({{ $registration->id }})"
+                                                        title="View all {{ count($docs) }} documents">
+                                                        <div class="fishr-mini-doc-icon">
+                                                            <span class="fishr-more-count">+{{ count($docs) - 2 }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="fishr-document-summary"
                                                 onclick="viewDocuments({{ $registration->id }})">
-                                                <i class="fas fa-file-alt"></i>
-                                                View ({{ $docCount }})
-                                            </button>
+                                                <small class="text-muted">{{ count($docs) }}
+                                                    document{{ count($docs) > 1 ? 's' : '' }}</small>
+                                            </div>
                                         @else
-                                            <span class="badge bg-secondary">No documents</span>
+                                            <div class="fishr-no-documents">
+                                                <i class="fas fa-folder-open text-muted"></i>
+                                                <small class="text-muted">No documents</small>
+                                            </div>
                                         @endif
                                     </div>
                                 </td>
@@ -756,7 +797,7 @@
 
     <!-- Enhanced Document Viewer Modal -->
     <div class="modal fade" id="documentModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
                     <h5 class="modal-title" id="documentModalTitle">
@@ -774,10 +815,9 @@
                     <div id="documentViewer" style="display: none;"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-info btn-sm" onclick="zoomDocument()">
-                        <i class="fas fa-search-plus me-2"></i>Zoom
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
                     </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -1223,6 +1263,429 @@
             padding: 2rem;
             text-align: center;
             color: #6c757d;
+        }
+
+        /* Document Thumbnail Gallery Styles - FISHR STYLE */
+        .document-thumbnail-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+            border: 2px solid transparent;
+            height: 100%;
+        }
+
+        .document-thumbnail-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #007bff;
+        }
+
+        .document-thumbnail-container {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .document-thumbnail-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .document-thumbnail-card:hover .document-thumbnail-image {
+            transform: scale(1.05);
+        }
+
+        .document-thumbnail-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .document-thumbnail-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: #f8f9fa;
+        }
+
+        .document-thumbnail-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 123, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .document-thumbnail-card:hover .document-thumbnail-overlay {
+            opacity: 1;
+        }
+
+        .document-thumbnail-info {
+            padding: 1rem;
+            text-align: center;
+            background: white;
+        }
+
+        .document-thumbnail-title {
+            margin: 0 0 0.25rem 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #343a40;
+            line-height: 1.3;
+        }
+
+        .document-thumbnail-info small {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        /* Document status indicators */
+        .document-status-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 10;
+        }
+
+        /* Responsive grid for document thumbnails */
+        @media (max-width: 768px) {
+            .document-thumbnail-container {
+                height: 150px;
+            }
+
+            .document-thumbnail-info {
+                padding: 0.75rem;
+            }
+
+            .document-thumbnail-title {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animation for document grid loading */
+        .document-thumbnail-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .document-thumbnail-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .document-thumbnail-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* FISHR-Style Document Viewer */
+        .fishr-document-viewer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 400px;
+        }
+
+        .fishr-document-container {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .fishr-document-image {
+            max-width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .fishr-document-image:hover {
+            transform: scale(1.02);
+        }
+
+        .fishr-document-image.zoomed {
+            transform: scale(1.5);
+            cursor: zoom-out;
+        }
+
+        .fishr-document-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .fishr-document-size-badge {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .fishr-document-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .fishr-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: 1px solid;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 140px;
+        }
+
+        .fishr-btn-outline {
+            background: white;
+            color: #6c757d;
+            border-color: #dee2e6;
+        }
+
+        .fishr-btn-outline:hover {
+            background: #f8f9fa;
+            color: #495057;
+            border-color: #adb5bd;
+            transform: translateY(-1px);
+        }
+
+        .fishr-btn-primary {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .fishr-btn-primary:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .fishr-document-info {
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .fishr-file-name {
+            margin: 0;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .fishr-document-placeholder {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fishr-file-details {
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .fishr-file-details p {
+            margin: 0.25rem 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive design for FISHR style */
+        @media (max-width: 768px) {
+            .fishr-document-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .fishr-btn {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .fishr-document-image {
+                max-height: 40vh;
+            }
+        }
+
+        /* FISHR-Style Table Document Previews */
+        .fishr-table-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .fishr-document-previews {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .fishr-mini-doc {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: white;
+            border: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fishr-mini-doc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-color: #007bff;
+        }
+
+        .fishr-mini-doc-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .fishr-mini-doc-more {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+        }
+
+        .fishr-mini-doc-more:hover {
+            background: #e9ecef;
+            border-color: #6c757d;
+        }
+
+        .fishr-more-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .fishr-mini-doc-more:hover .fishr-more-count {
+            color: #495057;
+        }
+
+        .fishr-document-summary {
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .fishr-document-summary:hover {
+            color: #007bff !important;
+        }
+
+        .fishr-document-summary:hover small {
+            color: #007bff !important;
+        }
+
+        .fishr-no-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .fishr-no-documents i {
+            font-size: 1.25rem;
+        }
+
+        /* Document type specific colors for mini previews */
+        .fishr-mini-doc[title*="Location"] {
+            border-color: #007bff;
+        }
+
+        .fishr-mini-doc[title*="Location"]:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .fishr-mini-doc[title*="ID Front"] {
+            border-color: #28a745;
+        }
+
+        .fishr-mini-doc[title*="ID Front"]:hover {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .fishr-mini-doc[title*="ID Back"] {
+            border-color: #17a2b8;
+        }
+
+        .fishr-mini-doc[title*="ID Back"]:hover {
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        /* Responsive adjustments for table documents */
+        @media (max-width: 768px) {
+            .fishr-mini-doc {
+                width: 28px;
+                height: 28px;
+            }
+
+            .fishr-mini-doc-icon {
+                font-size: 0.75rem;
+            }
+
+            .fishr-more-count {
+                font-size: 0.7rem;
+            }
         }
 
         /* Loading states */
@@ -1722,35 +2185,54 @@
 
                             if (isImage) {
                                 modalBody.innerHTML = `
-                            <div class="document-container">
-                                <img src="${data.document_url}"
-                                     alt="${titles[documentType]}"
-                                     class="document-image"
-                                     id="documentImage"
-                                     onclick="toggleZoom()"
-                                     style="cursor: zoom-in;"
-                                     onerror="showImageError(this)">
-                            </div>
-                            <div class="mt-3 text-muted">
-                                <small>
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    ${data.file_info.name} • ${formatFileSize(data.file_info.size)} • Click to zoom
-                                </small>
+                            <div class="fishr-document-viewer">
+                                <div class="fishr-document-container">
+                                    <img src="${data.document_url}"
+                                         alt="${titles[documentType]}"
+                                         class="fishr-document-image"
+                                         id="documentImage"
+                                         onclick="toggleZoom()"
+                                         style="cursor: zoom-in;"
+                                         onerror="showImageError(this)">
+                                    <div class="fishr-document-overlay">
+                                        <div class="fishr-document-size-badge">
+                                            ${Math.round(data.file_info.size / 1024)}KB
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fishr-document-actions">
+                                    <button class="btn fishr-btn fishr-btn-outline" onclick="openInNewTab()">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                                    </button>
+                                    <button class="btn fishr-btn fishr-btn-primary" onclick="downloadDocument()">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </button>
+                                </div>
+                                <div class="fishr-document-info">
+                                    <p class="fishr-file-name">File: ${data.file_info.name}</p>
+                                </div>
                             </div>`;
                             } else {
                                 modalBody.innerHTML = `
-                            <div class="document-placeholder">
-                                <i class="fas fa-file fa-4x mb-3 text-primary"></i>
-                                <h5>File Preview Not Available</h5>
-                                <p>This file type cannot be displayed inline.</p>
-                                <div class="mt-3">
-                                    <p><strong>File:</strong> ${data.file_info.name}</p>
-                                    <p><strong>Size:</strong> ${formatFileSize(data.file_info.size)}</p>
-                                    <p><strong>Type:</strong> ${data.file_info.mime_type}</p>
+                            <div class="fishr-document-viewer">
+                                <div class="fishr-document-placeholder">
+                                    <i class="fas fa-file fa-4x mb-3 text-primary"></i>
+                                    <h5>File Preview Not Available</h5>
+                                    <p>This file type cannot be displayed inline.</p>
+                                    <div class="fishr-file-details">
+                                        <p><strong>File:</strong> ${data.file_info.name}</p>
+                                        <p><strong>Size:</strong> ${formatFileSize(data.file_info.size)}</p>
+                                        <p><strong>Type:</strong> ${data.file_info.mime_type}</p>
+                                    </div>
                                 </div>
-                                <button class="btn btn-primary" onclick="openInNewTab()">
-                                    <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
-                                </button>
+                                <div class="fishr-document-actions">
+                                    <button class="btn fishr-btn fishr-btn-outline" onclick="openInNewTab()">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                                    </button>
+                                    <button class="btn fishr-btn fishr-btn-primary" onclick="downloadDocument()">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </button>
+                                </div>
                             </div>`;
                             }
                         }
@@ -1762,11 +2244,18 @@
                     console.error('Error loading document:', error);
                     if (modalBody) {
                         modalBody.innerHTML = `
-                    <div class="document-placeholder">
-                        <i class="fas fa-exclamation-triangle fa-4x mb-3 text-warning"></i>
-                        <h5>Document Could Not Be Loaded</h5>
-                        <p class="text-muted">${error.message}</p>
-                        <small class="text-muted">Please check the console for more details.</small>
+                    <div class="fishr-document-viewer">
+                        <div class="fishr-document-placeholder">
+                            <i class="fas fa-exclamation-triangle fa-4x mb-3 text-warning"></i>
+                            <h5>Document Could Not Be Loaded</h5>
+                            <p class="text-muted">${error.message}</p>
+                            <small class="text-muted">Please check the console for more details.</small>
+                        </div>
+                        <div class="fishr-document-actions">
+                            <button class="btn fishr-btn fishr-btn-outline" onclick="location.reload()">
+                                <i class="fas fa-refresh me-2"></i>Retry
+                            </button>
+                        </div>
                     </div>`;
                     }
                     currentDocumentUrl = null;
@@ -1776,14 +2265,16 @@
 
         // Show image error
         function showImageError(img) {
-            const container = img.parentElement;
+            const container = img.parentElement.parentElement;
             container.innerHTML = `
-        <div class="document-placeholder">
+        <div class="fishr-document-placeholder">
             <i class="fas fa-image fa-4x mb-3 text-muted"></i>
             <h5>Image Could Not Be Loaded</h5>
             <p>The image file may be corrupted or in an unsupported format.</p>
-            <button class="btn btn-primary" onclick="openInNewTab()">
-                <i class="fas fa-external-link-alt me-1"></i>Try Opening in New Tab
+        </div>
+        <div class="fishr-document-actions">
+            <button class="btn fishr-btn fishr-btn-outline" onclick="openInNewTab()">
+                <i class="fas fa-external-link-alt me-2"></i>Try Opening in New Tab
             </button>
         </div>`;
         }
@@ -1818,7 +2309,7 @@
             toggleZoom();
         }
 
-        // Enhanced view documents function for User Registrations - FIXED
+        // Enhanced view documents function with thumbnail grid layout - FISHR STYLE
         function viewDocuments(id) {
             currentRegistrationId = id;
 
@@ -1856,7 +2347,7 @@
             // Update modal title
             const modalTitle = document.getElementById('documentModalTitle');
             if (modalTitle) {
-                modalTitle.innerHTML = '<i class="fas fa-file-alt me-2"></i>User Documents';
+                modalTitle.innerHTML = '<i class="fas fa-images me-2"></i>Document Gallery';
             }
 
             console.log('Fetching documents for registration:', id);
@@ -1888,64 +2379,85 @@
                     if (loadingDiv) loadingDiv.style.display = 'none';
                     if (viewerDiv) viewerDiv.style.display = 'block';
 
-                    let documentsHtml = '<div class="row">';
-
-                    // Build documents array
+                    // Build documents array with thumbnail URLs
                     const docs = [];
                     if (data.location_document_path) {
                         docs.push({
                             type: 'location',
-                            name: 'Location Proof Document'
+                            name: 'Location Proof Document',
+                            icon: 'fas fa-map-marker-alt',
+                            color: 'primary'
                         });
                     }
                     if (data.id_front_path) {
                         docs.push({
                             type: 'id_front',
-                            name: 'Government ID - Front'
+                            name: 'Government ID - Front',
+                            icon: 'fas fa-id-card',
+                            color: 'success'
                         });
                     }
                     if (data.id_back_path) {
                         docs.push({
                             type: 'id_back',
-                            name: 'Government ID - Back'
+                            name: 'Government ID - Back',
+                            icon: 'fas fa-id-card-alt',
+                            color: 'info'
                         });
                     }
 
                     console.log('Documents found:', docs);
 
+                    let documentsHtml = '';
+
                     if (docs.length > 0) {
-                        documentsHtml += '<div class="col-12"><div class="card"><div class="card-body">';
-                        docs.forEach(doc => {
-                            documentsHtml += `
-                                <div class="document-item mb-3 p-3 border rounded">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="mb-1">${doc.name}</h6>
-                                            <small class="text-muted">Click to preview</small>
+                        documentsHtml = `
+                            <div class="row g-3">
+                                ${docs.map(doc => `
+                                        <div class="col-md-4">
+                                            <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
+                                                <div class="document-thumbnail-container">
+                                                    <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
+                                                        <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
+                                                            <span class="visually-hidden">Loading...</span>
+                                                        </div>
+                                                    </div>
+                                                    <img class="document-thumbnail-image"
+                                                         id="thumb-${doc.type}"
+                                                         style="display: none;"
+                                                         alt="${doc.name}"
+                                                         onload="showThumbnail('${doc.type}')"
+                                                         onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
+                                                    <div class="document-thumbnail-overlay">
+                                                        <i class="fas fa-eye fa-2x text-white"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="document-thumbnail-info">
+                                                    <h6 class="document-thumbnail-title">${doc.name}</h6>
+                                                    <small class="text-muted">Click to view full size</small>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <button class="btn btn-sm btn-info" onclick="viewDocumentDirect(${id}, '${doc.type}')">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </button>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        documentsHtml += '</div></div></div>';
+                                    `).join('')}
+                            </div>
+                        `;
                     } else {
-                        documentsHtml += `
-                            <div class="col-12">
-                                <div class="alert alert-info mb-0">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    No documents uploaded yet.
-                                </div>
+                        documentsHtml = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
+                                <h5 class="text-muted">No Documents Available</h5>
+                                <p class="text-muted">No documents have been uploaded for this registration yet.</p>
                             </div>
                         `;
                     }
 
-                    documentsHtml += '</div>';
-
                     if (viewerDiv) {
                         viewerDiv.innerHTML = documentsHtml;
+
+                        // Load thumbnails
+                        docs.forEach(doc => {
+                            loadDocumentThumbnail(id, doc.type);
+                        });
                     }
                 })
                 .catch(error => {
@@ -1963,6 +2475,77 @@
                         `;
                     }
                 });
+        }
+
+        // Load document thumbnail
+        function loadDocumentThumbnail(registrationId, documentType) {
+            fetch(`/admin/registrations/${registrationId}/document/${documentType}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Document not found');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success && data.document_url) {
+                        const thumbImg = document.getElementById(`thumb-${documentType}`);
+                        if (thumbImg) {
+                            thumbImg.src = data.document_url;
+                        }
+                    } else {
+                        throw new Error('Document URL not available');
+                    }
+                })
+                .catch(error => {
+                    console.error(`Error loading thumbnail for ${documentType}:`, error);
+                    showThumbnailError(documentType, 'fas fa-file', 'secondary');
+                });
+        }
+
+        // Show thumbnail when loaded
+        function showThumbnail(documentType) {
+            const loading = document.getElementById(`thumb-loading-${documentType}`);
+            const img = document.getElementById(`thumb-${documentType}`);
+
+            if (loading) loading.style.display = 'none';
+            if (img) img.style.display = 'block';
+        }
+
+        // Show thumbnail error state
+        function showThumbnailError(documentType, icon, color) {
+            const container = document.querySelector(`#thumb-${documentType}`).parentElement;
+            if (container) {
+                container.innerHTML = `
+                    <div class="document-thumbnail-placeholder">
+                        <i class="${icon} fa-3x text-${color}"></i>
+                    </div>
+                `;
+            }
+        }
+
+        // Open current document in new tab
+        function openInNewTab() {
+            if (currentDocumentUrl) {
+                window.open(currentDocumentUrl, '_blank');
+            } else {
+                showToast('error', 'Document URL not available');
+            }
+        }
+
+        // Download current document
+        function downloadDocument() {
+            if (currentDocumentUrl && currentDocumentInfo) {
+                const link = document.createElement('a');
+                link.href = currentDocumentUrl;
+                link.download = currentDocumentInfo.name || 'document';
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast('success', 'Download started');
+            } else {
+                showToast('error', 'Document not available for download');
+            }
         }
 
         // Direct status update
