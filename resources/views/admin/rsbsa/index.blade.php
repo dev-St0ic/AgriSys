@@ -295,9 +295,7 @@
                                             <i class="fas fa-file-alt me-1"></i>View
                                         </button>
                                     @else
-                                        <span class="badge bg-secondary fs-6">
-                                            <i class="fas fa-file-slash me-1"></i>No documents
-                                        </span>
+                                        <span class="badge bg-secondary">No documents</span>
                                     @endif
                                 </td>
                                 <td class="text-center">
