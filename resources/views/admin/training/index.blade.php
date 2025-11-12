@@ -192,17 +192,39 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    @if ($training->document_paths)
-                                        <button class="btn btn-sm btn-outline-info"
-                                            onclick="viewDocuments({{ json_encode($training->document_paths) }}, 'Training Request - {{ $training->full_name }}')"
-                                            title="View Documents">
-                                            <i class="fas fa-file-image me-1"></i>View
-                                        </button>
-                                    @else
-                                        <span class="badge bg-secondary fs-6">
-                                            <i class="fas fa-file-slash me-1"></i>No documents
-                                        </span>
-                                    @endif
+                                    <div class="training-table-documents">
+                                        @if ($training->document_paths && count($training->document_paths) > 0)
+                                            <div class="training-document-previews">
+                                                @foreach (array_slice($training->document_paths, 0, 3) as $index => $path)
+                                                    <div class="training-mini-doc"
+                                                        onclick="viewDocuments({{ json_encode($training->document_paths) }}, 'Training Request - {{ $training->full_name }}')"
+                                                        title="Document {{ $index + 1 }}">
+                                                        <div class="training-mini-doc-icon">
+                                                            <i class="fas fa-file-image text-info"></i>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                                @if (count($training->document_paths) > 3)
+                                                    <div class="training-mini-doc training-mini-doc-more"
+                                                        onclick="viewDocuments({{ json_encode($training->document_paths) }}, 'Training Request - {{ $training->full_name }}')"
+                                                        title="View all {{ count($training->document_paths) }} documents">
+                                                        <span
+                                                            class="training-more-count">+{{ count($training->document_paths) - 3 }}</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="training-document-summary"
+                                                onclick="viewDocuments({{ json_encode($training->document_paths) }}, 'Training Request - {{ $training->full_name }}')">
+                                                <small class="text-muted">{{ count($training->document_paths) }}
+                                                    document{{ count($training->document_paths) > 1 ? 's' : '' }}</small>
+                                            </div>
+                                        @else
+                                            <div class="training-no-documents">
+                                                <i class="fas fa-folder-open text-muted"></i>
+                                                <small class="text-muted">No documents</small>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
@@ -388,8 +410,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-0 d-flex justify-content-center align-items-center" id="documentViewer"
-                    style="min-height: 400px;">
+                <div class="modal-body p-0 d-flex justify-content-center" id="documentViewer">
                     <!-- Documents will be loaded here -->
                 </div>
                 <div class="modal-footer bg-light">
@@ -535,97 +556,6 @@
             font-size: 0.75em;
         }
 
-        /* Custom Pagination Styles */
-        .pagination {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 8px;
-            margin: 0;
-        }
-
-        .pagination .page-item .page-link {
-            color: #6c757d;
-            background-color: transparent;
-            border: none;
-            padding: 8px 12px;
-            margin: 0 2px;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .pagination .page-item .page-link:hover {
-            color: #495057;
-            background-color: #e9ecef;
-            text-decoration: none;
-        }
-
-        .pagination .page-item.active .page-link {
-            color: white;
-            background-color: #007bff;
-            border-color: #007bff;
-            font-weight: 600;
-        }
-
-        .pagination .page-item.disabled .page-link {
-            color: #adb5bd;
-            background-color: transparent;
-            cursor: not-allowed;
-        }
-
-        .pagination .page-item:first-child .page-link,
-        .pagination .page-item:last-child .page-link {
-            font-weight: 600;
-        }
-
-        /* Button group styling */
-        .btn-group .btn {
-            border-radius: 0;
-        }
-
-        .btn-group .btn:first-child {
-            border-top-left-radius: 0.375rem;
-            border-bottom-left-radius: 0.375rem;
-        }
-
-        .btn-group .btn:last-child {
-            border-top-right-radius: 0.375rem;
-            border-bottom-right-radius: 0.375rem;
-        }
-
-        /* Document viewer styling */
-        .document-item {
-            margin-bottom: 20px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .document-item:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .document-item h6 {
-            color: #495057;
-            margin-bottom: 10px;
-        }
-
-        /* Enhanced table styling */
-        .table thead th {
-            border-bottom: 2px solid #dee2e6;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-        }
-
-        .table tbody td {
-            vertical-align: middle;
-            padding: 0.75rem;
-        }
-
         /* Modal enhancements */
         .modal-header {
             border-bottom: 1px solid #e9ecef;
@@ -679,32 +609,11 @@
             overflow: auto;
         }
 
-        /* Center content in document viewer */
-        #documentViewer .container-fluid {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-        }
-
-        /* Loading state centering */
-        #documentViewer .text-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 400px;
-        }
-
         /* Document container styles */
         .document-container {
             background: #ffffff;
             border: 1px solid #e9ecef !important;
             transition: all 0.3s ease;
-            max-width: 800px;
-            width: 100%;
-            margin: 0 auto;
         }
 
         .document-container:hover {
@@ -770,6 +679,26 @@
             border: 1px solid #dee2e6;
         }
 
+        /* Centered document viewer layout */
+        #documentViewer {
+            min-height: 400px;
+        }
+
+        #documentViewer .container-fluid {
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 20px;
+        }
+
+        .document-container {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
         .document-actions .btn {
             transition: all 0.2s ease;
         }
@@ -787,6 +716,120 @@
             margin: 2rem 0;
         }
 
+        /* Training-Style Table Document Previews - Matching FishR */
+        .training-table-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .training-document-previews {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .training-mini-doc {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: white;
+            border: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .training-mini-doc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-color: #007bff;
+        }
+
+        .training-mini-doc-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        .training-mini-doc-more {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+        }
+
+        .training-mini-doc-more:hover {
+            background: #e9ecef;
+            border-color: #6c757d;
+        }
+
+        .training-more-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .training-mini-doc-more:hover .training-more-count {
+            color: #495057;
+        }
+
+        .training-document-summary {
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .training-document-summary:hover {
+            color: #007bff !important;
+        }
+
+        .training-document-summary:hover small {
+            color: #007bff !important;
+        }
+
+        .training-no-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .training-no-documents i {
+            font-size: 1.25rem;
+        }
+
+        /* Document type specific colors for mini previews */
+        .training-mini-doc[title*="Document 1"] {
+            border-color: #17a2b8;
+        }
+
+        .training-mini-doc[title*="Document 1"]:hover {
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        .training-mini-doc[title*="Document 2"] {
+            border-color: #28a745;
+        }
+
+        .training-mini-doc[title*="Document 2"]:hover {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .training-mini-doc[title*="Document 3"] {
+            border-color: #ffc107;
+        }
+
+        .training-mini-doc[title*="Document 3"]:hover {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             #documentModal .modal-dialog {
@@ -800,6 +843,23 @@
             .document-actions .btn {
                 font-size: 0.875rem;
                 padding: 0.5rem 1rem;
+            }
+
+            .training-table-documents {
+                gap: 0.25rem;
+            }
+
+            .training-mini-doc {
+                width: 28px;
+                height: 28px;
+            }
+
+            .training-mini-doc-icon {
+                font-size: 0.75rem;
+            }
+
+            .training-more-count {
+                font-size: 0.65rem;
             }
         }
     </style>
@@ -1056,10 +1116,10 @@
                             <p><strong>Last Updated:</strong> ${data.updated_at}</p>
                         </div>
                         ${data.document_paths && data.document_paths.length > 0 ? `
-                                                                    <div class="col-12">
-                                                                        <h6 class="border-bottom pb-2">Supporting Documents</h6>
-                                                                        <div class="row g-2">
-                                                                            ${data.document_paths.map((path, index) => `
+                                                                        <div class="col-12">
+                                                                            <h6 class="border-bottom pb-2">Supporting Documents</h6>
+                                                                            <div class="row g-2">
+                                                                                ${data.document_paths.map((path, index) => `
                                         <div class="col-md-4">
                                             <div class="card">
                                                 <div class="card-body">
@@ -1072,9 +1132,9 @@
                                             </div>
                                         </div>
                                     `).join('')}
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
-                                                                ` : ''}
+                                                                    ` : ''}
                         ${remarksHtml}
                     </div>`;
                 })
@@ -1088,7 +1148,7 @@
                 });
         }
 
-        // Enhanced view documents function for training module - Styled like FishR
+        // Enhanced view documents function for training module
         function viewDocuments(paths, title = null) {
             // Input validation
             if (!paths || paths.length === 0) {
@@ -1099,25 +1159,24 @@
             const documentViewer = document.getElementById('documentViewer');
             const modal = new bootstrap.Modal(document.getElementById('documentModal'));
 
-            // Show loading state first - Enhanced like FishR
+            // Show loading state first
             documentViewer.innerHTML = `
                 <div class="text-center py-5">
                     <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="visually-hidden">Loading documents...</span>
                     </div>
-                    <h6 class="text-muted mb-2">Loading Training Documents</h6>
-                    <p class="text-muted small">Loading ${paths.length} document(s)...</p>
+                    <p class="text-muted">Loading ${paths.length} document(s)...</p>
                 </div>`;
 
             // Show modal immediately with loading state
             modal.show();
 
-            // Update modal title if provided - Enhanced styling
+            // Update modal title if provided
             const modalTitle = document.querySelector('#documentModal .modal-title');
             if (title) {
-                modalTitle.innerHTML = `<i class="fas fa-file-image me-2"></i>${title}`;
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${title}`;
             } else {
-                modalTitle.innerHTML = `<i class="fas fa-file-image me-2"></i>Training Documents (${paths.length})`;
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Documents (${paths.length})`;
             }
 
             // Define supported file types
@@ -1126,7 +1185,7 @@
             const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
             const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
 
-            // Function to handle loading errors - Enhanced like FishR
+            // Function to handle loading errors
             const handleLoadError = (fileName, type, path) => {
                 return `
                     <div class="alert alert-warning text-center">
@@ -1141,32 +1200,28 @@
                                 <i class="fas fa-download me-1"></i>Download
                             </a>
                         </div>
-                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
                     </div>`;
             };
 
-            // Function to add action buttons for each document - Enhanced like FishR
+            // Function to add action buttons for each document
             const addDocumentActions = (path, fileName) => {
                 return `
-                    <div class="document-actions mt-3 p-3 bg-light rounded">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted"><i class="fas fa-file me-1"></i>${fileName}</small>
-                            <div class="btn-group" role="group">
-                                <a href="/storage/${path}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-external-link-alt me-1"></i>Open
-                                </a>
-                                <a href="/storage/${path}" download="${fileName}" class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-download me-1"></i>Download
-                                </a>
-                            </div>
+                    <div class="document-actions mt-3 p-3 bg-light rounded text-center">
+                        <div class="d-flex justify-content-center gap-2 mb-2">
+                            <a href="/storage/${path}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                            </a>
+                            <a href="/storage/${path}" download="${fileName}" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
                         </div>
+                        <small class="text-muted d-block">${fileName}</small>
                     </div>`;
             };
 
             // Process documents with delay to show loading state
             setTimeout(() => {
-                let documentsHtml =
-                    '<div class="container-fluid p-3 d-flex flex-column align-items-center justify-content-center" style="min-height: 400px;">';
+                let documentsHtml = '<div class="container-fluid p-3 d-flex flex-column align-items-center">';
 
                 paths.forEach((path, index) => {
                     const fileExtension = path.split('.').pop().toLowerCase();
@@ -1174,118 +1229,106 @@
                     const fileUrl = `/storage/${path}`;
 
                     documentsHtml += `
-                        <div class="document-container mb-4 border rounded p-3 shadow-sm">
+                        <div class="document-container mb-4 border rounded p-3" style="max-width: 600px; width: 100%;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="mb-0 text-primary">
-                                    <i class="fas fa-file-image me-2"></i>Document ${index + 1}
+                                    <i class="fas fa-file me-2"></i>Document ${index + 1}
                                 </h6>
-                                <div class="d-flex gap-2">
-                                    <span class="badge bg-primary">${fileExtension.toUpperCase()}</span>
-                                    <span class="badge bg-secondary">${(Math.random() * 1000 + 100).toFixed(0)} KB</span>
-                                </div>
+                                <span class="badge bg-secondary">${fileExtension.toUpperCase()}</span>
                             </div>
-                            ${addDocumentActions(path, fileName)}
                             <div class="document-content" id="doc-content-${index}">`;
 
-                    // Handle different file types with enhanced styling like FishR
+                    // Handle different file types
                     if (imageTypes.includes(fileExtension)) {
-                        // Handle images with error fallback - Enhanced styling
+                        // Handle images with error fallback
                         documentsHtml += `
                             <div class="text-center">
                                 <div class="position-relative d-inline-block">
                                     <img src="${fileUrl}"
                                          class="img-fluid border rounded shadow-sm document-image"
-                                         alt="Training Document"
-                                         style="max-height: 500px; cursor: zoom-in;"
+                                         alt="Supporting Document"
+                                         style="max-height: 400px; cursor: zoom-in;"
                                          onclick="toggleImageZoomTraining(this)"
                                          onerror="showImageError(this, '${fileName}', '${path}')">
-                                    <div class="position-absolute top-0 end-0 m-2">
-                                        <span class="file-info-badge">IMG</span>
-                                    </div>
                                 </div>
+                                ${addDocumentActions(path, fileName)}
                             </div>`;
 
                     } else if (fileExtension === 'pdf') {
-                        // Handle PDF documents - Enhanced like FishR
+                        // Handle PDF documents
                         documentsHtml += `
                             <div class="pdf-container">
                                 <embed src="${fileUrl}"
                                        type="application/pdf"
                                        width="100%"
-                                       height="600px"
-                                       class="border rounded shadow-sm"
+                                       height="500px"
+                                       class="border rounded"
                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                 <div style="display:none;" class="pdf-fallback">
                                     ${handleLoadError(fileName, 'PDF document', path)}
                                 </div>
+                                ${addDocumentActions(path, fileName)}
                             </div>`;
 
                     } else if (videoTypes.includes(fileExtension)) {
-                        // Handle video files - Enhanced styling
+                        // Handle video files
                         documentsHtml += `
                             <div class="text-center">
-                                <video controls class="w-100 rounded shadow-sm" style="max-height: 500px;" preload="metadata">
+                                <video controls class="w-100 rounded shadow" style="max-height: 400px;" preload="metadata">
                                     <source src="${fileUrl}" type="video/${fileExtension}">
-                                    <div class="alert alert-warning">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>
-                                        Your browser does not support the video tag.
-                                    </div>
+                                    Your browser does not support the video tag.
                                 </video>
+                                ${addDocumentActions(path, fileName)}
                             </div>`;
 
                     } else if (audioTypes.includes(fileExtension)) {
-                        // Handle audio files - Enhanced styling
+                        // Handle audio files
                         documentsHtml += `
                             <div class="text-center py-4">
-                                <i class="fas fa-music fa-4x text-info mb-3"></i>
-                                <h6 class="text-primary">${fileName}</h6>
-                                <audio controls class="w-100 mb-3" style="max-width: 400px;">
+                                <i class="fas fa-music fa-3x text-info mb-3"></i>
+                                <h6>${fileName}</h6>
+                                <audio controls class="w-100 mb-3">
                                     <source src="${fileUrl}" type="audio/${fileExtension}">
-                                    <div class="alert alert-warning">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>
-                                        Your browser does not support the audio tag.
-                                    </div>
+                                    Your browser does not support the audio tag.
                                 </audio>
                                 ${addDocumentActions(path, fileName)}
                             </div>`;
 
                     } else if (documentTypes.includes(fileExtension)) {
-                        // Handle other document types - Enhanced like FishR
+                        // Handle other document types
                         const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
                             fileExtension) ? 'file-word' : 'file-alt';
 
                         documentsHtml += `
                             <div class="alert alert-info text-center">
-                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
-                                <h5>${fileExtension.toUpperCase()} Document</h5>
-                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
+                                <i class="fas fa-${docIcon} fa-3x text-primary mb-3"></i>
+                                <h6>${fileName}</h6>
+                                <p class="mb-3">This document type cannot be previewed directly.</p>
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-1"></i>Open Document
+                                        <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
                                     </a>
                                     <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
                                         <i class="fas fa-download me-1"></i>Download
                                     </a>
                                 </div>
-                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
                             </div>`;
 
                     } else {
-                        // Handle unsupported file types - Enhanced like FishR
+                        // Handle unsupported file types
                         documentsHtml += `
                             <div class="alert alert-warning text-center">
-                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
-                                <h5>Unsupported File Type</h5>
-                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
+                                <i class="fas fa-file fa-3x text-warning mb-3"></i>
+                                <h6>Unsupported File Type</h6>
+                                <p class="mb-3">File type ".${fileExtension}" is not supported for preview.</p>
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-1"></i>Open File
+                                        <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
                                     </a>
                                     <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
                                         <i class="fas fa-download me-1"></i>Download
                                     </a>
                                 </div>
-                                <small class="text-muted d-block mt-2">File: ${fileName} (${fileExtension.toUpperCase()})</small>
                             </div>`;
                     }
 
@@ -1317,32 +1360,28 @@
             }, 500); // Small delay to show loading state
         }
 
-        // Helper function to toggle image zoom for training - Enhanced like FishR
+        // Helper function to toggle image zoom for training
         function toggleImageZoomTraining(img) {
             if (img.style.transform === 'scale(2)') {
-                // Zoom out
                 img.style.transform = 'scale(1)';
                 img.style.cursor = 'zoom-in';
                 img.style.transition = 'transform 0.3s ease';
                 img.style.zIndex = 'auto';
-                img.style.position = 'relative';
             } else {
-                // Zoom in
                 img.style.transform = 'scale(2)';
                 img.style.cursor = 'zoom-out';
                 img.style.transition = 'transform 0.3s ease';
                 img.style.zIndex = '1050';
-                img.style.position = 'relative';
             }
         }
 
-        // Helper function to show image error - Enhanced like FishR
+        // Helper function to show image error
         function showImageError(img, fileName, path) {
             const errorHtml = `
                 <div class="alert alert-warning text-center">
-                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                    <h6>Unable to preview image</h6>
-                    <p class="mb-3">The image file <strong>${fileName}</strong> could not be loaded.</p>
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                    <h6>Unable to preview ${fileName}</h6>
+                    <p class="mb-3">The image could not be loaded or displayed.</p>
                     <div class="d-flex justify-content-center gap-2">
                         <a href="/storage/${path}" target="_blank" class="btn btn-primary">
                             <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
@@ -1351,7 +1390,6 @@
                             <i class="fas fa-download me-1"></i>Download
                         </a>
                     </div>
-                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
                 </div>
             `;
             img.parentElement.innerHTML = errorHtml;
