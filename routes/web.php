@@ -103,6 +103,8 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     // ==============================================
     Route::prefix('admin/rsbsa-applications')->name('admin.rsbsa.')->group(function () {
         Route::get('/', [RsbsaController::class, 'index'])->name('applications');
+        // add registration 
+        Route::post('/create', [RsbsaController::class, 'store'])->name('store'); 
         Route::get('/{id}', [RsbsaController::class, 'show'])->name('show');
         Route::patch('/{id}/status', [RsbsaController::class, 'updateStatus'])->name('update-status');
         Route::delete('/{id}', [RsbsaController::class, 'destroy'])->name('destroy');

@@ -154,6 +154,7 @@ class RsbsaController extends Controller
                     'reviewer_name' => optional($application->reviewer)->name,
                     'number_assigned_at' => $application->number_assigned_at ?
                         $application->number_assigned_at->format('M d, Y h:i A') : null,
+                    'supporting_document_path' => $application->supporting_document_path,
                     'assigned_by_name' => optional($application->assignedBy)->name
                 ]
             ]);
@@ -238,6 +239,135 @@ class RsbsaController extends Controller
                 'message' => 'Error updating status: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    
+
+    /**
+     * Store a new RSBSA application ADD REGISTRATION
+     */
+    public function store(Request $request)
+    {
+        try {
+            // Validate the incoming data
+            $validated = $request->validate([
+                // Basic info
+                'first_name' => 'required|string|max:100',
+                'middle_name' => 'nullable|string|max:100',
+                'last_name' => 'required|string|max:100',
+                'name_extension' => 'nullable|string|max:10',
+                'sex' => 'required|in:Male,Female,Preferred not to say',
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'email' => 'nullable|email|max:254',
+                'barangay' => 'required|string|max:100',
+                
+                // Livelihood info
+                'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
+                'land_area' => 'nullable|numeric|min:0|max:99999.99',
+                'farm_location' => 'nullable|string|max:500',
+                'commodity' => 'nullable|string|max:1000',
+                
+                // Status
+                'status' => 'nullable|in:pending,under_review,approved,rejected',
+                'remarks' => 'nullable|string|max:1000',
+                
+                // Document
+                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB max
+                
+                // User ID (optional - if creating for existing user)
+                'user_id' => 'nullable|exists:user_registration,id'
+            ]);
+
+            // ADDED: Ensure user_id defaults to null if not provided
+            $validated['user_id'] = $validated['user_id'] ?? null;
+
+            // Generate unique application number
+            $validated['application_number'] = $this->generateApplicationNumber();
+
+            // Handle document upload
+            if ($request->hasFile('supporting_document')) {
+                $file = $request->file('supporting_document');
+                $filename = 'rsbsa_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('rsbsa_documents', $filename, 'public');
+                $validated['supporting_document_path'] = $path;
+            }
+
+            // Set default status if not provided
+            $validated['status'] = $validated['status'] ?? 'pending';
+
+            // Set reviewed fields if status is not pending
+            if ($validated['status'] !== 'pending') {
+                $validated['reviewed_at'] = now();
+                $validated['reviewed_by'] = auth()->id();
+                
+                if ($validated['status'] === 'approved') {
+                    $validated['approved_at'] = now();
+                    $validated['number_assigned_at'] = now();
+                    $validated['assigned_by'] = auth()->id();
+                } elseif ($validated['status'] === 'rejected') {
+                    $validated['rejected_at'] = now();
+                }
+            }
+
+            // Create the application
+            $application = RsbsaApplication::create($validated);
+
+            Log::info('RSBSA application created by admin', [
+                'application_id' => $application->id,
+                'application_number' => $application->application_number,
+                'created_by' => auth()->user()->name,
+                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
+            ]);
+
+            // Send email notification if approved and email is provided
+            if ($validated['status'] === 'approved' && !empty($validated['email'])) {
+                try {
+                    Mail::to($validated['email'])->send(new ApplicationApproved($application, 'rsbsa'));
+                } catch (\Exception $e) {
+                    Log::error('Failed to send RSBSA approval email: ' . $e->getMessage());
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'RSBSA registration created successfully',
+                'data' => [
+                    'id' => $application->id,
+                    'application_number' => $application->application_number,
+                    'status' => $application->status,
+                    'linked_to_user' => $validated['user_id'] ? true : false
+                ]
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error creating RSBSA registration', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while creating the registration: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate unique RSBSA application number
+     */
+    private function generateApplicationNumber()
+    {
+        do {
+            $number = 'RSBSA-' . strtoupper(\Illuminate\Support\Str::random(8));
+        } while (RsbsaApplication::where('application_number', $number)->exists());
+        
+        return $number;
     }
 
     // Delete the specified RSBSA application
