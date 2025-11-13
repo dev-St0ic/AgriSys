@@ -118,6 +118,9 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     Route::prefix('admin/fishr-registrations')->name('admin.fishr.')->group(function () {
        // Static routes FIRST
         Route::get('/export', [FishRController::class, 'export'])->name('export');
+
+        // create 
+        Route::post('/create', [FishRController::class, 'store'])->name('store');
         
         // DELETE route BEFORE GET/{id}
         Route::delete('/{id}', [FishRController::class, 'destroy'])->name('destroy');
