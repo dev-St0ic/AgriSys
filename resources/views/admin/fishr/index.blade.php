@@ -280,8 +280,7 @@
                                             <div class="fishr-document-previews">
                                                 <button type="button" class="fishr-mini-doc"
                                                     onclick="viewDocument('{{ $registration->document_path }}', 'Fisherfolk Registration - {{ $registration->first_name }} {{ $registration->last_name }}')"
-                                                    title="Registration Document"
-                                                    style="background: none; border: none; padding: 0; cursor: pointer;">
+                                                    title="Registration Document">
                                                     <div class="fishr-mini-doc-icon">
                                                         <i class="fas fa-file-image text-info"></i>
                                                     </div>
@@ -328,7 +327,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">
+                                <td colspan="7" class="text-center text-muted py-4">
                                     <i class="fas fa-fish fa-3x mb-3"></i>
                                     <p>No FishR registrations found.</p>
                                 </td>
