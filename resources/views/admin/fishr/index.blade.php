@@ -280,18 +280,20 @@
                                     <div class="fishr-table-documents">
                                         @if ($registration->document_path)
                                             <div class="fishr-document-previews">
-                                                <div class="fishr-mini-doc"
+                                                <button type="button" class="fishr-mini-doc"
                                                     onclick="viewDocument('{{ $registration->document_path }}', 'Fisherfolk Registration - {{ $registration->first_name }} {{ $registration->last_name }}')"
-                                                    title="Registration Document">
+                                                    title="Registration Document"
+                                                    style="background: none; border: none; padding: 0; cursor: pointer;">
                                                     <div class="fishr-mini-doc-icon">
                                                         <i class="fas fa-file-image text-info"></i>
                                                     </div>
-                                                </div>
+                                                </button>
                                             </div>
-                                            <div class="fishr-document-summary"
-                                                onclick="viewDocument('{{ $registration->document_path }}', 'Fisherfolk Registration - {{ $registration->first_name }} {{ $registration->last_name }}')">
+                                            <button type="button" class="fishr-document-summary"
+                                                onclick="viewDocument('{{ $registration->document_path }}', 'Fisherfolk Registration - {{ $registration->first_name }} {{ $registration->last_name }}')"
+                                                style="background: none; border: none; padding: 0; cursor: pointer;">
                                                 <small class="text-muted">1 document</small>
-                                            </div>
+                                            </button>
                                         @else
                                             <div class="fishr-no-documents">
                                                 <i class="fas fa-folder-open text-muted"></i>
@@ -2026,46 +2028,55 @@
 
         // View registration details
         function viewRegistration(id) {
-            // Show loading state
-            document.getElementById('registrationDetails').innerHTML = `
+        if (!id) {
+            showToast('error', 'Invalid registration ID');
+            return;
+        }
+
+        // Show loading state
+        document.getElementById('registrationDetails').innerHTML = `
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>`;
 
-            // Show modal while loading
-            const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
-            modal.show();
+        // Show modal while loading
+        const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+        modal.show();
 
-            // Fetch registration details
-            fetch(`/admin/fishr-registrations/${id}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    console.log('Response:', response); // Debug log
+        // Fetch registration details
+        fetch(`/admin/fishr-registrations/${id}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(response => {
+                console.log('Response:', response);
 
-                    if (!response.success) {
-                        throw new Error('Failed to load registration details');
-                    }
+                if (!response.success) {
+                    throw new Error('Failed to load registration details');
+                }
 
-                    const data = response.data;
+                const data = response.data;
 
-                    // Format the details HTML
-                    const remarksHtml = data.remarks ? `
+                if (!data) {
+                    throw new Error('No registration data received');
+                }
+
+                // Build remarks HTML if exists
+                const remarksHtml = data.remarks ? `
                     <div class="col-12 mt-3">
                         <h6 class="border-bottom pb-2">Remarks</h6>
                         <div class="alert alert-info">
@@ -2077,45 +2088,85 @@
                         </div>
                     </div>` : '';
 
-                    // Update modal content
-                    document.getElementById('registrationDetails').innerHTML = `
+                // Build document section HTML - ADD THIS SECTION
+                let documentHtml = '';
+                if (data.document_path) {
+                    documentHtml = `
+                        <div class="col-12">
+                            <div class="card border-secondary">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center p-3 border border-secondary rounded bg-light">
+                                        <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
+                                        <h6>Supporting Document</h6>
+                                        <span class="badge bg-secondary mb-2">Uploaded</span>
+                                        <br>
+                                        <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.document_path}', 'FishR Registration #${data.registration_number} - Supporting Document')">
+                                            <i class="fas fa-eye"></i> View Document
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                } else {
+                    documentHtml = `
+                        <div class="col-12">
+                            <div class="card border-secondary">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center p-3 border border-secondary rounded">
+                                        <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
+                                        <h6>No Document Uploaded</h6>
+                                        <span class="badge bg-secondary mb-2">Not Uploaded</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+
+                // Update modal content
+                document.getElementById('registrationDetails').innerHTML = `
                     <div class="row g-3">
                         <div class="col-md-6">
                             <h6 class="border-bottom pb-2">Personal Information</h6>
-                            <p><strong>Registration #:</strong> ${data.registration_number}</p>
-                            <p><strong>Name:</strong> ${data.full_name}</p>
-                            <p><strong>Sex:</strong> ${data.sex}</p>
-                            <p><strong>Contact:</strong> ${data.contact_number}</p>
+                            <p><strong>Registration #:</strong> ${data.registration_number || 'N/A'}</p>
+                            <p><strong>Name:</strong> ${data.full_name || 'N/A'}</p>
+                            <p><strong>Sex:</strong> ${data.sex || 'N/A'}</p>
+                            <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
                             <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-                            <p><strong>Barangay:</strong> ${data.barangay}</p>
+                            <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Status Information</h6>
+                            <h6 class="border-bottom pb-2">Livelihood Information</h6>
+                            <p><strong>Main Livelihood:</strong> ${data.livelihood_description || 'N/A'}</p>
+                            ${data.other_livelihood ? `<p><strong>Other Livelihood:</strong> ${data.other_livelihood}</p>` : ''}
                             <p><strong>Current Status:</strong>
                                 <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
                             </p>
-                            <p><strong>Main Livelihood:</strong> ${data.livelihood_description}</p>
-                            ${data.other_livelihood ? `<p><strong>Other Livelihood:</strong> ${data.other_livelihood}</p>` : ''}
-                            <p><strong>Date Applied:</strong> ${data.created_at}</p>
-                            <p><strong>Last Updated:</strong> ${data.updated_at}</p>
+                            <p><strong>Date Applied:</strong> ${data.created_at || 'N/A'}</p>
+                            <p><strong>Last Updated:</strong> ${data.updated_at || 'N/A'}</p>
                         </div>
+                        ${documentHtml}
                         ${remarksHtml}
                     </div>`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', error.message || 'Error loading registration details. Please try again.');
-                    document.getElementById('registrationDetails').innerHTML = `
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', error.message || 'Error loading registration details. Please try again.');
+                document.getElementById('registrationDetails').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle me-2"></i>
                         ${error.message || 'Error loading registration details. Please try again.'}
                     </div>`;
-                });
+            });
+    }
 
-        }
-
-        // Enhanced view document function
-        function viewDocument(path, filename = null) {
+        // FIXED: Unified document viewing function - use this ONLY ONCE
+        function viewDocument(path, filename = null, applicationId = null) {
             // Input validation
             if (!path || path.trim() === '') {
                 showToast('error', 'No document path provided');
@@ -2127,13 +2178,11 @@
 
             // Show loading state first
             documentViewer.innerHTML = `
-                <div class="fishr-document-viewer">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="text-muted">Loading document...</p>
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
+                    <p class="text-muted">Loading document...</p>
                 </div>`;
 
             // Show modal immediately with loading state
@@ -2144,7 +2193,7 @@
             if (filename) {
                 modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
             } else {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Registration Document`;
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
             }
 
             // Extract file extension and name
@@ -2158,43 +2207,19 @@
             const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
             const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
 
-            // Function to handle loading errors
-            const handleLoadError = (type, error = null) => {
-                console.error(`Error loading ${type}:`, error);
-                documentViewer.innerHTML = `
-                    <div class="fishr-document-viewer">
-                        <div class="fishr-document-placeholder">
-                            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
-                            <h6>Unable to preview ${fileName}</h6>
-                            <p class="mb-3">The ${type} could not be loaded or displayed.</p>
-                        </div>
-                        <div class="fishr-document-actions">
-                            <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
-                                <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                            </button>
-                            <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
-                                <i class="fas fa-download me-2"></i>Download
-                            </button>
-                        </div>
-                        <div class="fishr-document-info">
-                            <p class="fishr-file-name">File: ${fileName}</p>
-                        </div>
-                    </div>`;
-            };
-
-            // Function to add FISHR-style download actions
-            const addFishrActions = () => {
+            // Function to add download button
+            const addDownloadButton = () => {
                 return `
-                    <div class="fishr-document-actions">
-                        <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
-                            <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                        </button>
-                        <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
-                            <i class="fas fa-download me-2"></i>Download
-                        </button>
-                    </div>
-                    <div class="fishr-document-info">
-                        <p class="fishr-file-name">File: ${fileName} (${fileExtension.toUpperCase()})</p>
+                    <div class="text-center mt-3 p-3 bg-light">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                            </a>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                        <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
                     </div>`;
             };
 
@@ -2206,39 +2231,49 @@
                         const img = new Image();
                         img.onload = function() {
                             documentViewer.innerHTML = `
-                                <div class="fishr-document-viewer">
-                                    <div class="fishr-document-container">
+                                <div class="text-center">
+                                    <div class="position-relative d-inline-block">
                                         <img src="${fileUrl}"
-                                             class="fishr-document-image"
-                                             alt="Registration Document"
-                                             onclick="toggleImageZoom(this)"
-                                             style="cursor: zoom-in;">
-                                        <div class="fishr-document-overlay">
-                                            <div class="fishr-document-size-badge">
-                                                ${Math.round((this.naturalWidth * this.naturalHeight) / 1024)}KB
-                                            </div>
+                                            class="img-fluid border rounded shadow-sm"
+                                            alt="Supporting Document"
+                                            style="max-height: 70vh; cursor: zoom-in;"
+                                            onclick="toggleImageZoom(this)">
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
                                         </div>
                                     </div>
-                                    ${addFishrActions()}
+                                    ${addDownloadButton()}
                                 </div>`;
                         };
                         img.onerror = function() {
-                            handleLoadError('image');
+                            documentViewer.innerHTML = `
+                                <div class="alert alert-warning text-center">
+                                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                    <h5>Unable to Load Image</h5>
+                                    <p class="mb-3">The image could not be loaded.</p>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                            <i class="fas fa-external-link-alt me-2"></i>Open Image
+                                        </a>
+                                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                            <i class="fas fa-download me-2"></i>Download
+                                        </a>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                </div>`;
                         };
                         img.src = fileUrl;
 
                     } else if (fileExtension === 'pdf') {
                         // Handle PDF documents
                         documentViewer.innerHTML = `
-                            <div class="fishr-document-viewer">
-                                <div class="fishr-document-container">
-                                    <embed src="${fileUrl}"
-                                           type="application/pdf"
-                                           width="100%"
-                                           height="600px"
-                                           class="fishr-pdf-embed">
-                                </div>
-                                ${addFishrActions()}
+                            <div class="pdf-container">
+                                <embed src="${fileUrl}"
+                                    type="application/pdf"
+                                    width="100%"
+                                    height="600px"
+                                    class="border rounded">
+                                ${addDownloadButton()}
                             </div>`;
 
                         // Check if PDF loaded successfully after a short delay
@@ -2246,23 +2281,19 @@
                             const embed = documentViewer.querySelector('embed');
                             if (!embed || embed.offsetHeight === 0) {
                                 documentViewer.innerHTML = `
-                                    <div class="fishr-document-viewer">
-                                        <div class="fishr-document-placeholder">
-                                            <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
-                                            <h5>PDF Preview Unavailable</h5>
-                                            <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
-                                        </div>
-                                        <div class="fishr-document-actions">
-                                            <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
+                                    <div class="alert alert-info text-center">
+                                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                        <h5>PDF Preview Unavailable</h5>
+                                        <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
                                                 <i class="fas fa-external-link-alt me-2"></i>Open PDF
-                                            </button>
-                                            <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
+                                            </a>
+                                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
                                                 <i class="fas fa-download me-2"></i>Download PDF
-                                            </button>
+                                            </a>
                                         </div>
-                                        <div class="fishr-document-info">
-                                            <p class="fishr-file-name">File: ${fileName}</p>
-                                        </div>
+                                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
                                     </div>`;
                             }
                         }, 2000);
@@ -2293,8 +2324,8 @@
 
                     } else if (documentTypes.includes(fileExtension)) {
                         // Handle other document types
-                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
-                            fileExtension) ? 'file-word' : 'file-alt';
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : 
+                                    ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
 
                         documentViewer.innerHTML = `
                             <div class="alert alert-info text-center">
@@ -2311,6 +2342,7 @@
                                 </div>
                                 <small class="text-muted d-block mt-2">File: ${fileName}</small>
                             </div>`;
+
                     } else {
                         // Handle unsupported file types
                         documentViewer.innerHTML = `
@@ -2331,9 +2363,22 @@
                     }
                 } catch (error) {
                     console.error('Error processing document:', error);
-                    handleLoadError('document', error);
+                    documentViewer.innerHTML = `
+                        <div class="alert alert-danger text-center">
+                            <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                            <h5>Error Loading Document</h5>
+                            <p class="mb-3">${error.message}</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                    <i class="fas fa-external-link-alt me-2"></i>Try Opening Directly
+                                </a>
+                                <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                            </div>
+                        </div>`;
                 }
-            }, 500); // Small delay to show loading state
+            }, 500);
         }
 
         // Helper function to toggle image zoom
@@ -2348,6 +2393,17 @@
                 img.style.transition = 'transform 0.3s ease';
                 img.style.zIndex = '1050';
             }
+        }
+
+        // Download file function
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Function to check for changes and provide visual feedback

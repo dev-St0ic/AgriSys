@@ -140,7 +140,8 @@ class FishRController extends Controller
                     'updated_at' => $registration->updated_at->format('M d, Y h:i A'),
                     'status_updated_at' => $registration->status_updated_at ?
                         $registration->status_updated_at->format('M d, Y h:i A') : null,
-                    'updated_by_name' => optional($registration->updatedBy)->name
+                    'updated_by_name' => optional($registration->updatedBy)->name,
+                    'document_path' => $registration->document_path  
                 ]
             ]);
         } catch (\Exception $e) {
