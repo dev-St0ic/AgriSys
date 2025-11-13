@@ -787,6 +787,149 @@
             font-size: 0.75em;
         }
 
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i,
+        .toast-notification.toast-success .toast-header i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i,
+        .toast-notification.toast-error .toast-header i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i,
+        .toast-notification.toast-warning .toast-header i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i,
+        .toast-notification.toast-info .toast-header i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .confirmation-toast .toast-body {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification,
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
+
         /* Enhanced visual feedback for changed fields */
         .form-changed {
             border-left: 3px solid #ffc107 !important;
@@ -1336,6 +1479,140 @@
             }, 500); // Wait 500ms after user stops typing
         }
 
+        // Create toast container if it doesn't exist
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Confirmation toast function
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+
+            // Store the callback function on the toast element
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        // Execute confirmation action
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
+            }
+
+            // Clean up the callback reference
+            delete window[callbackId];
+            removeToast(toast);
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
+
+        // Get CSRF token utility function
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
+
         // Submit filter form when dropdowns change
         function submitFilterForm() {
             document.getElementById('filterForm').submit();
@@ -1432,7 +1709,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error loading registration details: ' + error.message);
+                    showToast('error', 'Error loading registration details: ' + error.message);
                 });
         }
 
@@ -1443,7 +1720,7 @@
             const remarks = document.getElementById('remarks').value;
 
             if (!newStatus) {
-                alert('Please select a status');
+                showToast('error', 'Please select a status');
                 return;
             }
 
@@ -1453,7 +1730,7 @@
 
             // Check if nothing has changed
             if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                alert('No changes detected. Please modify the status or remarks before updating.');
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
                 return;
             }
 
@@ -1474,12 +1751,12 @@
                 }
             }
 
-            const confirmMessage =
-                `Are you sure you want to update this registration with the following changes?\n\n${changesSummary.join('\n')}`;
-
-            if (!confirm(confirmMessage)) {
-                return;
-            }
+            //confirm 
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
 
             // Show loading state
             const updateButton = document.querySelector('#updateModal .btn-primary');
@@ -1511,7 +1788,7 @@
                         // Show success message and reload page
                         const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
                         modal.hide();
-                        alert(response.message);
+                        showToast('success', response.message);
                         window.location.reload();
                     } else {
                         throw new Error(response.message || 'Error updating status');
@@ -1519,7 +1796,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error updating registration status: ' + error.message);
+                    showToast('error', 'Error updating registration status: ' + error.message);
                 })
                 .finally(() => {
                     // Reset button state
@@ -1608,19 +1885,21 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    showToast('error', error.message || 'Error loading registration details. Please try again.');
                     document.getElementById('registrationDetails').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle me-2"></i>
                         ${error.message || 'Error loading registration details. Please try again.'}
                     </div>`;
                 });
+
         }
 
         // Enhanced view document function
         function viewDocument(path, filename = null) {
             // Input validation
             if (!path || path.trim() === '') {
-                alert('No document path provided');
+                showToast('error', 'No document path provided');
                 return;
             }
 
@@ -1938,7 +2217,7 @@
             const dateTo = document.getElementById('modal_date_to').value;
 
             if (dateFrom && dateTo && dateFrom > dateTo) {
-                alert('From date cannot be later than To date');
+                showToast('warning', 'From date cannot be later than To date');
                 return;
             }
 
@@ -1993,21 +2272,6 @@
         }
 
         // ========== ANNEXES FUNCTIONALITY ==========
-
-        // Show toast notification
-        function showToast(type, title, message) {
-            // Create a simple toast using alert for now (you can enhance this with proper Bootstrap toasts)
-            if (type === 'success') {
-                alert(`✅ ${title}: ${message}`);
-            } else if (type === 'error') {
-                alert(`❌ ${title}: ${message}`);
-            } else if (type === 'warning') {
-                alert(`⚠️ ${title}: ${message}`);
-            } else {
-                alert(`ℹ️ ${title}: ${message}`);
-            }
-        }
-
         // Show annexes modal
         function showAnnexesModal(id) {
             const modal = new bootstrap.Modal(document.getElementById('annexesModal'));
@@ -2060,7 +2324,7 @@
                 })
                 .catch(error => {
                     console.error('Error loading annexes data:', error);
-                    showToast('error', 'Error', 'Failed to load data: ' + error.message);
+                    showToast('error', 'Failed to load data: ' + error.message);
 
                     // Hide loading, show error
                     document.getElementById('annexesLoading').style.display = 'none';
@@ -2157,229 +2421,218 @@
                 });
         }
 
-        // Upload annex
-        function uploadAnnex() {
-            const id = document.getElementById('annexRegistrationId').value;
-            const fileInput = document.getElementById('annexFile');
-            const title = document.getElementById('annexTitle').value.trim();
-            const description = document.getElementById('annexDescription').value.trim();
+    // Upload annex with toast notifications
+    function uploadAnnex() {
+        const id = document.getElementById('annexRegistrationId').value;
+        const fileInput = document.getElementById('annexFile');
+        const title = document.getElementById('annexTitle').value.trim();
+        const description = document.getElementById('annexDescription').value.trim();
 
-            // Validation
-            if (!fileInput.files[0]) {
-                showValidationError('annexFile', 'annexFileError', 'Please select a file');
-                return;
-            }
-
-            if (!title) {
-                showValidationError('annexTitle', 'annexTitleError', 'Please enter a document title');
-                return;
-            }
-
-            // File size validation (10MB)
-            if (fileInput.files[0].size > 10 * 1024 * 1024) {
-                showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
-                return;
-            }
-
-            // Clear validation errors
-            clearValidationErrors();
-
-            if (!confirm('Are you sure you want to upload this annex?')) {
-                return;
-            }
-
-            // Show loading state
-            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
-            const originalContent = uploadBtn.innerHTML;
-            uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading...';
-            uploadBtn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            formData.append('title', title);
-            formData.append('description', description);
-
-            fetch(`/admin/fishr-registrations/${id}/annexes`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', 'Success', 'Annex uploaded successfully');
-                        resetAnnexForm();
-                        loadExistingAnnexes(id); // Reload annexes list
-                    } else {
-                        throw new Error(data.message || 'Failed to upload annex');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error uploading annex:', error);
-                    showToast('error', 'Error', 'Failed to upload annex: ' + error.message);
-                })
-                .finally(() => {
-                    // Restore button state
-                    uploadBtn.innerHTML = originalContent;
-                    uploadBtn.disabled = false;
-                });
+        // Validation
+        if (!fileInput.files[0]) {
+            showValidationError('annexFile', 'annexFileError', 'Please select a file');
+            return;
         }
 
-        // Preview annex
-        function previewAnnex(registrationId, annexId) {
-            // Reuse existing document preview modal with proper z-index handling
-            const previewModal = document.getElementById('documentPreviewModal');
-            const annexesModal = document.getElementById('annexesModal');
-            const modal = new bootstrap.Modal(previewModal);
+        if (!title) {
+            showValidationError('annexTitle', 'annexTitleError', 'Please enter a document title');
+            return;
+        }
 
-            // Set higher z-index to appear above annexes modal
-            previewModal.style.zIndex = '1060';
+        // File size validation (10MB)
+        if (fileInput.files[0].size > 10 * 1024 * 1024) {
+            showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
+            return;
+        }
 
-            // Find and temporarily hide the annexes modal backdrop
-            const annexesBackdrop = document.querySelector('.modal-backdrop');
-            let originalBackdropDisplay = '';
-            if (annexesBackdrop) {
-                originalBackdropDisplay = annexesBackdrop.style.display;
-                annexesBackdrop.style.zIndex = '1058';
-            }
+        // Clear validation errors
+        clearValidationErrors();
 
-            // Add event listener to restore everything when preview modal is hidden
-            previewModal.addEventListener('hidden.bs.modal', function() {
-                previewModal.style.zIndex = '';
-                if (annexesBackdrop) {
-                    annexesBackdrop.style.zIndex = '';
+        // Show confirmation toast instead of browser confirm
+        showConfirmationToast(
+            'Upload Annex',
+            `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}`,
+            () => proceedWithAnnexUpload(id, fileInput, title, description)
+        );
+    }
+
+    // Proceed with annex upload
+    function proceedWithAnnexUpload(id, fileInput, title, description) {
+        // Show loading state
+        const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+        const originalContent = uploadBtn.innerHTML;
+        uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading...';
+        uploadBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('title', title);
+        formData.append('description', description);
+
+        fetch(`/admin/fishr-registrations/${id}/annexes`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Annex uploaded successfully');
+                    resetAnnexForm();
+                    loadExistingAnnexes(id);
+                } else {
+                    throw new Error(data.message || 'Failed to upload annex');
                 }
-            }, {
-                once: true
+            })
+            .catch(error => {
+                console.error('Error uploading annex:', error);
+                showToast('error', 'Failed to upload annex: ' + error.message);
+            })
+            .finally(() => {
+                uploadBtn.innerHTML = originalContent;
+                uploadBtn.disabled = false;
             });
+    }
 
-            modal.show();
+    // Delete annex with confirmation toast
+    function deleteAnnex(registrationId, annexId) {
+        showConfirmationToast(
+            'Delete Annex',
+            'Are you sure you want to delete this annex?\n\nThis action cannot be undone.',
+            () => proceedWithAnnexDelete(registrationId, annexId)
+        );
+    }
 
-            document.getElementById('documentPreview').innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Loading annex preview...</p>
-                </div>
-            `;
+    // Proceed with annex deletion
+    function proceedWithAnnexDelete(registrationId, annexId) {
+        fetch(`/admin/fishr-registrations/${registrationId}/annexes/${annexId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Annex deleted successfully');
 
-            fetch(`/admin/fishr-registrations/${registrationId}/annexes/${annexId}/preview`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
+                    // Remove from UI
+                    const annexElement = document.getElementById(`annex-${annexId}`);
+                    if (annexElement) {
+                        annexElement.remove();
                     }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to load preview');
 
-                    document.getElementById('documentPreviewTitle').innerHTML =
-                        `<i class="fas fa-folder me-2"></i>${data.title}`;
-
-                    const fileExtension = data.file_extension?.toLowerCase();
-                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
-                    const isPdf = fileExtension === 'pdf';
-
-                    if (isPdf) {
-                        document.getElementById('documentPreview').innerHTML = `
-                        <div class="text-center">
-                            <embed src="${data.file_url}" type="application/pdf" width="100%" height="600px"
-                                   style="border: none; border-radius: 8px;" />
-                            <div class="mt-2">
-                                <a href="${data.file_url}" target="_blank" class="btn btn-primary">
-                                    <i class="fas fa-external-link-alt me-1"></i>Open in new tab
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                    } else if (isImage) {
-                        document.getElementById('documentPreview').innerHTML = `
-                        <div class="text-center">
-                            <img src="${data.file_url}" class="img-fluid" alt="Annex preview"
-                                 style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-                        </div>
-                    `;
-                    } else {
-                        document.getElementById('documentPreview').innerHTML = `
-                        <div class="alert alert-info text-center">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <h5>Preview not available for this file type</h5>
-                            <p>File type: ${fileExtension?.toUpperCase() || 'Unknown'}</p>
-                            <a href="${data.file_url}" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-download me-1"></i>Download to view
-                            </a>
-                        </div>
-                    `;
+                    // Reload if no annexes left
+                    const annexesList = document.getElementById('annexesList');
+                    if (!annexesList.querySelector('.document-item')) {
+                        loadExistingAnnexes(registrationId);
                     }
-                })
-                .catch(error => {
-                    console.error('Error loading annex preview:', error);
-                    document.getElementById('documentPreview').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <h5>Error loading annex preview</h5>
-                        <p>${error.message}</p>
-                    </div>
-                `;
-                });
+                } else {
+                    throw new Error(data.message || 'Failed to delete annex');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting annex:', error);
+                showToast('error', 'Failed to delete annex: ' + error.message);
+            });
+    }
+
+    // Updated updateRegistrationStatus with toast notifications
+    function updateRegistrationStatus() {
+        const id = document.getElementById('updateRegistrationId').value;
+        const newStatus = document.getElementById('newStatus').value;
+        const remarks = document.getElementById('remarks').value;
+
+        if (!newStatus) {
+            showToast('error', 'Please select a status');
+            return;
         }
 
-        // Download annex
-        function downloadAnnex(registrationId, annexId) {
-            window.open(`/admin/fishr-registrations/${registrationId}/annexes/${annexId}/download`, '_blank');
+        const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
+        const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+
+        if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
+            showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
+            return;
         }
 
-        // Delete annex
-        function deleteAnnex(registrationId, annexId) {
-            if (!confirm('Are you sure you want to delete this annex? This action cannot be undone.')) {
-                return;
+        let changesSummary = [];
+        if (newStatus !== originalStatus) {
+            const originalStatusText = getStatusText(originalStatus);
+            const newStatusText = getStatusText(newStatus);
+            changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+        }
+        if (remarks.trim() !== originalRemarks.trim()) {
+            if (originalRemarks.trim() === '') {
+                changesSummary.push('Remarks: Added new remarks');
+            } else if (remarks.trim() === '') {
+                changesSummary.push('Remarks: Removed existing remarks');
+            } else {
+                changesSummary.push('Remarks: Modified');
             }
-
-            fetch(`/admin/fishr-registrations/${registrationId}/annexes/${annexId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', 'Success', 'Annex deleted successfully');
-
-                        // Remove from UI
-                        const annexElement = document.getElementById(`annex-${annexId}`);
-                        if (annexElement) {
-                            annexElement.remove();
-                        }
-
-                        // Reload if no annexes left
-                        const annexesList = document.getElementById('annexesList');
-                        if (!annexesList.querySelector('.document-item')) {
-                            loadExistingAnnexes(registrationId);
-                        }
-                    } else {
-                        throw new Error(data.message || 'Failed to delete annex');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting annex:', error);
-                    showToast('error', 'Error', 'Failed to delete annex: ' + error.message);
-                });
         }
+
+        // Only show confirmation - callback handles the actual update
+        showConfirmationToast(
+            'Confirm Update',
+            `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
+            () => proceedWithStatusUpdate(id, newStatus, remarks)
+        );
+    }
+
+    // And the separate proceedWithStatusUpdate function handles the fetch
+    function proceedWithStatusUpdate(id, newStatus, remarks) {
+        const updateButton = document.querySelector('#updateModal .btn-primary');
+        const originalText = updateButton.innerHTML;
+        updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+        updateButton.disabled = true;
+
+        fetch(`/admin/fishr-registrations/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                status: newStatus,
+                remarks: remarks
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(response => {
+            if (response.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                modal.hide();
+                showToast('success', response.message);  
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                throw new Error(response.message || 'Error updating status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Error updating registration status: ' + error.message);
+        })
+        .finally(() => {
+            updateButton.innerHTML = originalText;
+            updateButton.disabled = false;
+        });
+    }
+
 
         // Reset annex form
         function resetAnnexForm() {
