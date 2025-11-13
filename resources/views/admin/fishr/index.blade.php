@@ -252,7 +252,6 @@
                             <th class="text-center">Date Applied</th>
                             <th class="text-center">Registration #</th>
                             <th class="text-center">Name</th>
-                            <th class="text-center">Barangay</th>
                             <th class="text-center">Livelihood</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Documents</th>
@@ -267,7 +266,6 @@
                                     <strong class="text-primary">{{ $registration->registration_number }}</strong>
                                 </td>
                                 <td class="text-start">{{ $registration->full_name }}</td>
-                                <td class="text-start">{{ $registration->barangay }}</td>
                                 <td class="text-start">
                                     <span class="badge bg-info fs-6">{{ $registration->livelihood_description }}</span>
                                 </td>
