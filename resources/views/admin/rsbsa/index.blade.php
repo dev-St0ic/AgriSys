@@ -433,7 +433,6 @@
                                     <p class="mb-1"><strong>Application #:</strong> <span id="updateAppNumber"></span>
                                     </p>
                                     <p class="mb-1"><strong>Name:</strong> <span id="updateAppName"></span></p>
-                                    <p class="mb-1"><strong>Type:</strong> <span id="updateAppType"></span></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mb-1"><strong>Barangay:</strong> <span id="updateAppBarangay"></span></p>
@@ -2673,11 +2672,6 @@
                     // Store current application ID for document viewing
                     window.currentApplicationId = id;
 
-                    // Get registration type safely
-                    const regType = data.registration_type || 'new';
-                    const regTypeClass = regType === 'new' ? 'primary' : 'warning';
-                    const regTypeText = regType.charAt(0).toUpperCase() + regType.slice(1);
-
                     // Build remarks HTML if exists
                     const remarksHtml = data.remarks ? `
                         <div class="col-12 mt-3">
@@ -2745,11 +2739,6 @@
                             </div>
                             <div class="col-md-6">
                                 <h6 class="border-bottom pb-2">Registration Information</h6>
-                                <p><strong>Type:</strong>
-                                    <span class="badge bg-${regTypeClass}">
-                                        ${regTypeText}
-                                    </span>
-                                </p>
                                 <p><strong>Main Livelihood:</strong> ${data.main_livelihood || 'N/A'}</p>
                                 <p><strong>Land Area:</strong> ${data.land_area ? data.land_area + ' hectares' : 'N/A'}</p>
                                 <p><strong>Farm Location:</strong> ${data.farm_location || 'N/A'}</p>
