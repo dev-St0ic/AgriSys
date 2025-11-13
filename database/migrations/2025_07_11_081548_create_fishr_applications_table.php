@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('fishr_applications', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
 
             $table->string('registration_number')->unique();
             $table->string('first_name');

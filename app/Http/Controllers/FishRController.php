@@ -140,7 +140,8 @@ class FishRController extends Controller
                     'updated_at' => $registration->updated_at->format('M d, Y h:i A'),
                     'status_updated_at' => $registration->status_updated_at ?
                         $registration->status_updated_at->format('M d, Y h:i A') : null,
-                    'updated_by_name' => optional($registration->updatedBy)->name
+                    'updated_by_name' => optional($registration->updatedBy)->name,
+                    'document_path' => $registration->document_path  
                 ]
             ]);
         } catch (\Exception $e) {
@@ -215,59 +216,191 @@ class FishRController extends Controller
             ], 500);
         }
     }
-
     /**
-     * Remove the specified FishR registration from storage
+     * Store a newly created FishR registration
      */
-    public function destroy(Request $request, $id)
+    public function store(Request $request)
     {
         try {
-            $registration = FishrApplication::findOrFail($id);
-            $registrationNumber = $registration->registration_number;
+            // Validate the incoming data
+            $validated = $request->validate([
+                // Basic info
+                'first_name' => 'required|string|max:100',
+                'middle_name' => 'nullable|string|max:100',
+                'last_name' => 'required|string|max:100',
+                'name_extension' => 'nullable|string|max:10',
+                'sex' => 'required|in:Male,Female,Preferred not to say',
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'email' => 'nullable|email|max:254',
+                'barangay' => 'required|string|max:100',
 
-            // Delete associated document if exists
-            if ($registration->document_path && Storage::disk('public')->exists($registration->document_path)) {
-                Storage::disk('public')->delete($registration->document_path);
-            }
+                // Livelihood info
+                'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
+                'other_livelihood' => 'nullable|string|max:255',
 
-            // Delete the registration
-            $registration->delete();
+                // Status
+                'status' => 'nullable|in:under_review,approved,rejected',
+                'remarks' => 'nullable|string|max:1000',
 
-            Log::info('FishR registration deleted', [
-                'registration_id' => $id,
-                'registration_number' => $registrationNumber,
-                'deleted_by' => auth()->user()->name ?? 'System'
+                // Document
+                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+
+                // IMPORTANT: Make user_id optional like RSBSA
+                'user_id' => 'nullable|exists:user_registration,id'
             ]);
 
-            $message = "Registration {$registrationNumber} has been deleted successfully";
+            // CHANGE: Set user_id to null if not provided (this is how RSBSA does it)
+            if (!isset($validated['user_id'])) {
+                $validated['user_id'] = null;
+            }
 
-            if ($request->ajax()) {
+            // Generate unique registration number
+            $validated['registration_number'] = $this->generateRegistrationNumber();
+
+            // Calculate livelihood_description
+            $livelihood_map = [
+                'capture' => 'Capture Fishing',
+                'aquaculture' => 'Aquaculture',
+                'vending' => 'Fish Vending',
+                'processing' => 'Fish Processing',
+                'others' => $validated['other_livelihood'] ?? 'Others'
+            ];
+            $validated['livelihood_description'] = $livelihood_map[$validated['main_livelihood']] ?? 'Others';
+
+            // Handle document upload
+            if ($request->hasFile('supporting_document')) {
+                $file = $request->file('supporting_document');
+                $filename = 'fishr_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('fishr_documents', $filename, 'public');
+                $validated['document_path'] = $path;
+            }
+
+            // Set default status if not provided
+            $validated['status'] = $validated['status'] ?? 'under_review';
+
+            // Set reviewed fields if status is not under_review
+            if ($validated['status'] !== 'under_review') {
+                $validated['status_updated_at'] = now();
+                $validated['reviewed_by'] = auth()->id();
+                $validated['reviewed_at'] = now();
+            }
+
+            // Create the registration
+            $registration = FishrApplication::create($validated);
+
+            Log::info('FishR registration created by admin', [
+                'registration_id' => $registration->id,
+                'registration_number' => $registration->registration_number,
+                'created_by' => auth()->user()->name,
+                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
+            ]);
+
+            // Send email notification if approved and email is provided
+            if ($validated['status'] === 'approved' && !empty($validated['email'])) {
+                try {
+                    Mail::to($validated['email'])->send(new ApplicationApproved($registration, 'fishr'));
+                } catch (\Exception $e) {
+                    Log::error('Failed to send FishR approval email: ' . $e->getMessage());
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'FishR registration created successfully',
+                'data' => [
+                    'id' => $registration->id,
+                    'registration_number' => $registration->registration_number,
+                    'status' => $registration->status,
+                    'linked_to_user' => $validated['user_id'] ? true : false
+                ]
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error creating FishR registration', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while creating the registration: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate unique FishR registration number
+     */
+    private function generateRegistrationNumber()
+    {
+        do {
+            $number = 'FISHR-' . strtoupper(\Illuminate\Support\Str::random(8));
+        } while (FishrApplication::where('registration_number', $number)->exists());
+
+        return $number;
+    }
+
+        /**
+         * Remove the specified FishR registration from storage
+         */
+        public function destroy($id)
+        {
+            try {
+                $registration = FishrApplication::findOrFail($id);
+                $registrationNumber = $registration->registration_number;
+
+                // Delete associated document if exists
+                if ($registration->document_path && Storage::disk('public')->exists($registration->document_path)) {
+                    Storage::disk('public')->delete($registration->document_path);
+                }
+
+                // Delete all associated annexes - FIXED: Get the collection first
+                $annexes = $registration->annexes; // This returns a collection, not a query
+                
+                if ($annexes->isNotEmpty()) {
+                    foreach ($annexes as $annex) {
+                        if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                            Storage::disk('public')->delete($annex->file_path);
+                        }
+                        $annex->delete();
+                    }
+                }
+
+                // Delete the registration
+                $registration->delete();
+
+                Log::info('FishR registration deleted', [
+                    'registration_id' => $id,
+                    'registration_number' => $registrationNumber,
+                    'deleted_by' => auth()->user()->name ?? 'System'
+                ]);
+
+                $message = "Registration {$registrationNumber} has been deleted successfully";
+
                 return response()->json([
                     'success' => true,
                     'message' => $message
                 ]);
-            }
 
-            return redirect()->route('admin.fishr.requests')->with('success', $message);
+            } catch (\Exception $e) {
+                Log::error('Error deleting FishR registration', [
+                    'registration_id' => $id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
 
-        } catch (\Exception $e) {
-            Log::error('Error deleting FishR registration', [
-                'registration_id' => $id,
-                'error' => $e->getMessage()
-            ]);
-
-            $errorMessage = 'Error deleting registration: ' . $e->getMessage();
-
-            if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage
+                    'message' => 'Error deleting registration: ' . $e->getMessage()
                 ], 500);
             }
-
-            return redirect()->back()->with('error', $errorMessage);
         }
-    }
 
     /**
      * Download supporting document
