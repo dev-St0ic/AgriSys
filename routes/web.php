@@ -116,14 +116,25 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     // FISHR REGISTRATIONS MANAGEMENT
     // ==============================================
     Route::prefix('admin/fishr-registrations')->name('admin.fishr.')->group(function () {
-        Route::get('/', [FishRController::class, 'index'])->name('requests');
+       // Static routes FIRST
         Route::get('/export', [FishRController::class, 'export'])->name('export');
-        Route::get('/{id}', [FishRController::class, 'show'])->name('show');
-        Route::patch('/{id}/status', [FishRController::class, 'updateStatus'])->name('update-status');
+        
+        // DELETE route BEFORE GET/{id}
         Route::delete('/{id}', [FishRController::class, 'destroy'])->name('destroy');
+        
+        // Index route
+        Route::get('/', [FishRController::class, 'index'])->name('requests');
+        
+        // GET by ID
+        Route::get('/{id}', [FishRController::class, 'show'])->name('show');
+        
+        // Other routes
+        Route::patch('/{id}/status', [FishRController::class, 'updateStatus'])->name('update-status');
         Route::get('/{id}/download', [FishRController::class, 'downloadDocument'])->name('download-document');
         Route::post('/{id}/assign-fishr-number', [FishRController::class, 'assignFishRNumber'])
             ->name('assign-fishr-number');
+
+
 
         // Annexes routes
         Route::get('/{id}/annexes', [FishRController::class, 'getAnnexes'])->name('annexes.index');

@@ -216,58 +216,61 @@ class FishRController extends Controller
         }
     }
 
-    /**
-     * Remove the specified FishR registration from storage
-     */
-    public function destroy(Request $request, $id)
-    {
-        try {
-            $registration = FishrApplication::findOrFail($id);
-            $registrationNumber = $registration->registration_number;
+        /**
+         * Remove the specified FishR registration from storage
+         */
+        public function destroy($id)
+        {
+            try {
+                $registration = FishrApplication::findOrFail($id);
+                $registrationNumber = $registration->registration_number;
 
-            // Delete associated document if exists
-            if ($registration->document_path && Storage::disk('public')->exists($registration->document_path)) {
-                Storage::disk('public')->delete($registration->document_path);
-            }
+                // Delete associated document if exists
+                if ($registration->document_path && Storage::disk('public')->exists($registration->document_path)) {
+                    Storage::disk('public')->delete($registration->document_path);
+                }
 
-            // Delete the registration
-            $registration->delete();
+                // Delete all associated annexes - FIXED: Get the collection first
+                $annexes = $registration->annexes; // This returns a collection, not a query
+                
+                if ($annexes->isNotEmpty()) {
+                    foreach ($annexes as $annex) {
+                        if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                            Storage::disk('public')->delete($annex->file_path);
+                        }
+                        $annex->delete();
+                    }
+                }
 
-            Log::info('FishR registration deleted', [
-                'registration_id' => $id,
-                'registration_number' => $registrationNumber,
-                'deleted_by' => auth()->user()->name ?? 'System'
-            ]);
+                // Delete the registration
+                $registration->delete();
 
-            $message = "Registration {$registrationNumber} has been deleted successfully";
+                Log::info('FishR registration deleted', [
+                    'registration_id' => $id,
+                    'registration_number' => $registrationNumber,
+                    'deleted_by' => auth()->user()->name ?? 'System'
+                ]);
 
-            if ($request->ajax()) {
+                $message = "Registration {$registrationNumber} has been deleted successfully";
+
                 return response()->json([
                     'success' => true,
                     'message' => $message
                 ]);
-            }
 
-            return redirect()->route('admin.fishr.requests')->with('success', $message);
+            } catch (\Exception $e) {
+                Log::error('Error deleting FishR registration', [
+                    'registration_id' => $id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
 
-        } catch (\Exception $e) {
-            Log::error('Error deleting FishR registration', [
-                'registration_id' => $id,
-                'error' => $e->getMessage()
-            ]);
-
-            $errorMessage = 'Error deleting registration: ' . $e->getMessage();
-
-            if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => $errorMessage
+                    'message' => 'Error deleting registration: ' . $e->getMessage()
                 ], 500);
             }
-
-            return redirect()->back()->with('error', $errorMessage);
         }
-    }
 
     /**
      * Download supporting document

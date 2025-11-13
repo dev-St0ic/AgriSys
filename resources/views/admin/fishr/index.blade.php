@@ -258,7 +258,7 @@
                     </thead>
                     <tbody>
                         @forelse($registrations as $registration)
-                            <tr>
+                            <tr data-registration-id="{{ $registration->id }}">
                                 <td class="text-start">{{ $registration->created_at->format('M d, Y g:i A') }}</td>
                                 <td class="text-start">
                                     <strong class="text-primary">{{ $registration->registration_number }}</strong>
@@ -313,6 +313,12 @@
                                         <button class="btn btn-sm btn-annexes"
                                             onclick="showAnnexesModal({{ $registration->id }})" title="Manage Annexes">
                                             <i class="fas fa-folder-plus me-1"></i>Annexes
+                                        </button>
+
+                                        <button class="btn btn-sm btn-outline-danger"
+                                            onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->registration_number }}')" 
+                                            title="Delete Registration">
+                                            <i class="fas fa-trash"></i> Delete
                                         </button>
                                     </div>
                                 </td>
@@ -1308,6 +1314,21 @@
             .fishr-more-count {
                 font-size: 0.7rem;
             }
+        }
+
+        /* Delete button styling */
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .btn-outline-danger:focus,
+        .btn-outline-danger:active {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
         }
 
         /* FISHR-Style Document Viewer */
@@ -2706,6 +2727,61 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        // Delete registration with confirmation toast
+        function deleteRegistration(id, registrationNumber) {
+            showConfirmationToast(
+                'Delete Registration',
+                `Are you sure you want to delete registration ${registrationNumber}?\n\nThis action cannot be undone and will also delete all associated documents and annexes.`,
+                () => proceedWithRegistrationDelete(id, registrationNumber)
+            );
+        }
+        // Proceed with registration deletion
+        function proceedWithRegistrationDelete(id, registrationNumber) {
+            fetch(`/admin/fishr-registrations/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message || 'Registration deleted successfully');
+                        
+                        // Remove row from table with animation
+                        const row = document.querySelector(`tr[data-registration-id="${id}"]`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s ease';
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+                                
+                                // Check if table is empty
+                                const tbody = document.querySelector('#registrationsTable tbody');
+                                if (tbody.children.length === 0) {
+                                    // Reload page to show empty state
+                                    setTimeout(() => window.location.reload(), 1500);
+                                }
+                            }, 300);
+                        } else {
+                            // Fallback: reload page
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Failed to delete registration');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Failed to delete registration: ' + error.message);
+                });
         }
     </script>
 @endsection
