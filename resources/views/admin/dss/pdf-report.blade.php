@@ -582,6 +582,12 @@
             @endif
         </p>
         <p>Data Period: {{ $data['period']['start_date'] }} to {{ $data['period']['end_date'] }}</p>
+        <p><strong>Confidence Level:</strong>
+            @if (isset($report['report_data']['confidence_score']))
+                {{ $report['report_data']['confidence_score'] }}%
+            @endif
+            ({{ $report['report_data']['confidence_level'] ?? 'High' }})
+        </p>
         <p>AgriSys - Agricultural Management System | City Agriculture Office, San Pedro, Laguna</p>
     </div>
 </body>

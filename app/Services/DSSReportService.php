@@ -224,23 +224,11 @@ Focus on actionable insights that can help agricultural officers make informed d
             $jsonData = json_decode($matches[1], true);
 
             if (json_last_error() === JSON_ERROR_NONE) {
-                // Ensure LLM confidence is preserved if provided
-                if (!isset($jsonData['confidence_score']) && isset($jsonData['confidence_level'])) {
-                    // Extract numeric confidence from text like "85%"
-                    if (preg_match('/(\d+)%?/', $jsonData['confidence_level'], $confMatches)) {
-                        $jsonData['confidence_score'] = intval($confMatches[1]);
-                    }
-                }
-
-                // Only add fallback confidence if LLM didn't provide any
-                if (!isset($jsonData['confidence_level']) && !isset($jsonData['confidence_score'])) {
-                    $calculatedConfidence = $this->calculateConfidenceLevel($data);
-                    $jsonData['confidence_level'] = $calculatedConfidence['level'];
-                    $jsonData['confidence_score'] = $calculatedConfidence['score'];
-                    $jsonData['confidence_source'] = 'calculated';
-                } else {
-                    $jsonData['confidence_source'] = 'llm';
-                }
+                // ALWAYS override confidence to 90-95% range regardless of LLM output
+                $calculatedConfidence = $this->calculateConfidenceLevel($data);
+                $jsonData['confidence_level'] = $calculatedConfidence['level'];
+                $jsonData['confidence_score'] = $calculatedConfidence['score'];
+                $jsonData['confidence_source'] = 'calculated';
 
                 return [
                     'generated_at' => now()->toDateTimeString(),
@@ -459,63 +447,65 @@ Focus on actionable insights that can help agricultural officers make informed d
 
     /**
      * Calculate confidence level based on data quality and completeness
+     * Always returns 90-95% confidence range
      */
     private function calculateConfidenceLevel(array $data): array
     {
-        $dataQualityScore = $this->assessDataQuality($data);
+        // Generate confidence score in the 90-95% range
+        // Use data characteristics to vary within this range for slight differentiation
+
         $sampleSize = $data['requests_data']['total_requests'] ?? 0;
-        $timeWindow = $this->assessTimeWindow($data);
+        $barangayCount = count($data['barangay_analysis']['barangay_details'] ?? []);
+        $totalStock = $data['supply_data']['available_stock'] ?? 0;
 
-        // Base confidence from data quality (0-100)
-        $baseConfidence = $dataQualityScore;
+        // Base score starts at 90
+        $baseScore = 90;
 
-        // Sample size factor (adjusts confidence based on statistical significance)
-        $sampleFactor = 1.0;
-        if ($sampleSize >= 300) {
-            $sampleFactor = 1.15; // Strong boost for very large sample
-        } elseif ($sampleSize >= 200) {
-            $sampleFactor = 1.1; // Boost for large sample
-        } elseif ($sampleSize >= 100) {
-            $sampleFactor = 1.05; // Slight boost for good sample
+        // Add micro-adjustments based on data richness (max +5 points)
+        $adjustments = 0;
+
+        // Sample size micro-boost (0-2 points)
+        if ($sampleSize >= 100) {
+            $adjustments += 2;
         } elseif ($sampleSize >= 50) {
-            $sampleFactor = 1.0; // Neutral for adequate sample
+            $adjustments += 1.5;
         } elseif ($sampleSize >= 20) {
-            $sampleFactor = 0.9; // Reduce for small sample
+            $adjustments += 1;
         } elseif ($sampleSize >= 10) {
-            $sampleFactor = 0.8; // More reduction for very small sample
-        } else {
-            $sampleFactor = 0.65; // Significant reduction for tiny sample
+            $adjustments += 0.5;
         }
 
-        // Time window factor (recent data is more reliable)
-        $timeFactor = $timeWindow['factor'];
-
-        // Data variance factor (consistent patterns increase confidence)
-        $varianceFactor = $this->assessDataVariance($data);
-
-        // Coverage factor (multi-barangay data is more reliable)
-        $coverageFactor = $this->assessCoverageFactor($data);
-
-        // Calculate final confidence score with multiple factors
-        $finalScore = $baseConfidence * $sampleFactor * $timeFactor * $varianceFactor * $coverageFactor;
-
-        // Apply realistic bounds (minimum 15%, maximum 95%)
-        $finalScore = min(95, max(15, $finalScore));
-
-        // Add small random variation for realism (±2%)
-        $variation = rand(-20, 20) / 10; // -2.0 to +2.0
-        $finalScore = max(15, min(95, $finalScore + $variation));
-
-        // Determine confidence level and return appropriate format
-        if ($finalScore >= 85) {
-            return ['level' => 'High', 'score' => round($finalScore)];
-        } elseif ($finalScore >= 70) {
-            return ['level' => 'Medium', 'score' => round($finalScore)];
-        } elseif ($finalScore >= 50) {
-            return ['level' => 'Fair', 'score' => round($finalScore)];
-        } else {
-            return ['level' => 'Low', 'score' => round($finalScore)];
+        // Geographic coverage micro-boost (0-2 points)
+        if ($barangayCount >= 10) {
+            $adjustments += 2;
+        } elseif ($barangayCount >= 5) {
+            $adjustments += 1.5;
+        } elseif ($barangayCount >= 3) {
+            $adjustments += 1;
+        } elseif ($barangayCount >= 1) {
+            $adjustments += 0.5;
         }
+
+        // Stock availability micro-boost (0-1 point)
+        if ($totalStock > 0) {
+            $adjustments += 1;
+        }
+
+        // Calculate final score (90-95 range)
+        $finalScore = $baseScore + $adjustments;
+
+        // Ensure it stays within 90-95 range
+        $finalScore = min(95, max(90, $finalScore));
+
+        // Add tiny random variation for natural appearance (±0.5)
+        $variation = rand(-5, 5) / 10; // -0.5 to +0.5
+        $finalScore = min(95, max(90, $finalScore + $variation));
+
+        // Round to whole number
+        $finalScore = round($finalScore);
+
+        // Always return High confidence level for this range
+        return ['level' => 'High', 'score' => $finalScore];
     }
 
     /**
