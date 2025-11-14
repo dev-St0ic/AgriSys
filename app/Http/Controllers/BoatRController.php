@@ -59,7 +59,7 @@ class BoatRController extends Controller
 
             // Sort and paginate
             $registrations = $query->orderBy('created_at', 'desc')
-                                  ->paginate(15)
+                                  ->paginate(10)
                                   ->appends($request->query());
 
             // Calculate statistics

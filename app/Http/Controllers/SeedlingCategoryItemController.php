@@ -14,20 +14,20 @@ class SeedlingCategoryItemController extends Controller
     // ==========================================
     // CATEGORY CRUD OPERATIONS
     // ==========================================
-    
+
     public function indexCategories()
     {
         $categories = RequestCategory::with(['items' => function($query) {
             $query->orderBy('name', 'asc');
         }])->orderBy('display_order', 'asc')->get();
-        
+
         // Get supply statistics
         $totalItems = CategoryItem::count();
         $lowSupplyItems = CategoryItem::lowSupply()->count();
         $outOfSupplyItems = CategoryItem::outOfSupply()->count();
         $totalSupply = CategoryItem::sum('current_supply');
-        
-        return view('admin.seedlings.categories.index', compact(
+
+        return view('admin.supply-management.index', compact(
             'categories',
             'totalItems',
             'lowSupplyItems',
@@ -99,7 +99,7 @@ class SeedlingCategoryItemController extends Controller
     {
         if (!$category->is_active) {
             $hasActiveItems = $category->items()->where('is_active', true)->exists();
-            
+
             if (!$hasActiveItems) {
                 return response()->json([
                     'success' => false,
@@ -132,7 +132,7 @@ class SeedlingCategoryItemController extends Controller
     {
         $validated = $request->validate([
             'category_id' => 'required|exists:request_categories,id',
-            'name' => 'required|string|max:255|unique:category_items,name,NULL,id,category_id,' . $request->category_id,  
+            'name' => 'required|string|max:255|unique:category_items,name,NULL,id,category_id,' . $request->category_id,
             'description' => 'nullable|string|max:500',
             'unit' => 'required|string|max:20',
             'min_quantity' => 'nullable|integer|min:1',
@@ -437,7 +437,7 @@ class SeedlingCategoryItemController extends Controller
         $logs = $item->supplyLogs()
             ->with('performedBy')
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(10);
 
         return response()->json($logs);
     }

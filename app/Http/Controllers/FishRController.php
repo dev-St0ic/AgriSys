@@ -60,7 +60,7 @@ class FishRController extends Controller
 
             // Sort and paginate
             $registrations = $query->orderBy('created_at', 'desc')
-                                  ->paginate(15)
+                                  ->paginate(10)
                                   ->appends($request->query());
 
             // Calculate statistics
@@ -141,7 +141,7 @@ class FishRController extends Controller
                     'status_updated_at' => $registration->status_updated_at ?
                         $registration->status_updated_at->format('M d, Y h:i A') : null,
                     'updated_by_name' => optional($registration->updatedBy)->name,
-                    'document_path' => $registration->document_path  
+                    'document_path' => $registration->document_path
                 ]
             ]);
         } catch (\Exception $e) {
@@ -362,7 +362,7 @@ class FishRController extends Controller
 
                 // Delete all associated annexes - FIXED: Get the collection first
                 $annexes = $registration->annexes; // This returns a collection, not a query
-                
+
                 if ($annexes->isNotEmpty()) {
                     foreach ($annexes as $annex) {
                         if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {

@@ -46,7 +46,7 @@ class EventController extends Controller
         // $events = $query->paginate(15)->withQueryString();
         // SORT BY NEWEST FIRST (newest created_at at top)
         $events = $query->orderBy('created_at', 'DESC')
-                    ->paginate(15);
+                    ->paginate(10);
 
         $stats = [
             'total' => Event::notArchived()->count(),
@@ -72,9 +72,9 @@ class EventController extends Controller
                 'category' => $request->get('category', 'all'),
                 'ip' => $request->ip(),
             ]);
-            
+
             $query = Event::active();
-            
+
             $query->orderBy('display_order', 'asc')
                   ->orderBy('created_at', 'desc');
 
@@ -83,7 +83,7 @@ class EventController extends Controller
             }
 
             $events = $query->get();
-            
+
             \Log::info(' Events retrieved', [
                 'count' => $events->count(),
                 'categories' => $events->pluck('category')->unique()->values()
@@ -121,7 +121,7 @@ class EventController extends Controller
             \Log::error(' Events API Error', [
                 'message' => $e->getMessage(),
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load events',
@@ -133,7 +133,7 @@ class EventController extends Controller
 
     /**
  * Store a new event
- * LOGIC: 
+ * LOGIC:
  * - Max 3 ACTIVE events per category
  * - Announcements must always be ACTIVE
  * - Auto-deactivates oldest event if limit reached
@@ -295,7 +295,7 @@ class EventController extends Controller
     {
         try {
             $event->load(['creator', 'updater', 'archivist', 'logs.performer']);
-            
+
             return response()->json([
                 'success' => true,
                 'event' => [
@@ -346,7 +346,7 @@ class EventController extends Controller
                 'id' => $event->id ?? 'unknown',
                 'message' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Event not found or failed to load'
@@ -384,7 +384,7 @@ class EventController extends Controller
             // SAFETY CHECK: Prevent deactivating last active event
             $isActiveRequest = $request->boolean('is_active', $event->is_active);
             $activeCount = Event::active()->count();
-            
+
             if ($event->is_active && !$isActiveRequest && $activeCount <= 1) {
                 return response()->json([
                     'success' => false,
@@ -401,11 +401,11 @@ class EventController extends Controller
                 if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
                     Storage::disk('public')->delete($event->image_path);
                 }
-                
+
                 $file = $request->file('image');
                 $filename = time() . '_' . \Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
                 $newImagePath = $file->storeAs('events', $filename, 'public');
-                
+
                 $changes['image'] = ['old' => $event->image_path, 'new' => $newImagePath];
             }
 
@@ -456,12 +456,12 @@ class EventController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             \Log::error(' [Events] Failed to update event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update event'
@@ -502,12 +502,12 @@ class EventController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             \Log::error(' [Events] Failed to archive event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to archive event'
@@ -546,12 +546,12 @@ class EventController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             \Log::error(' [Events] Failed to restore event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to restore event'
@@ -599,12 +599,12 @@ class EventController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             \Log::error(' [Events] Failed to delete event', [
                 'id' => $event->id,
                 'message' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete event'
@@ -652,7 +652,7 @@ class EventController extends Controller
                 // RULE 2B: If trying to DEACTIVATE, check if it's the only active event overall
                 if ($event->is_active && !$newStatus) {
                     $activeCount = Event::active()->count();
-                    
+
                     if ($activeCount <= 1) {
                         return response()->json([
                             'success' => false,
@@ -759,7 +759,7 @@ class EventController extends Controller
             \Log::error(' [Events] Failed to fetch archived events', [
                 'message' => $e->getMessage()
             ]);
-            
+
             return redirect()->back()->with('error', 'Failed to fetch archived events');
         }
     }
@@ -791,7 +791,7 @@ class EventController extends Controller
             \Log::error(' [Events] Failed to fetch statistics', [
                 'message' => $e->getMessage()
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch statistics'
