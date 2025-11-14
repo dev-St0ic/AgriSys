@@ -1386,6 +1386,119 @@
                 opacity: 1;
             }
         }
+        /* change detection*/
+
+        /* Enhanced visual feedback for changed fields */
+        .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd;
+            transition: all 0.3s ease;
+        }
+
+        .no-changes {
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        /* Change indicator */
+        .change-indicator {
+            position: relative;
+        }
+
+        .change-indicator::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .change-indicator.changed::after {
+            opacity: 1;
+        }
+
+        /* Button state transitions */
+        #updateStatusBtn {
+            transition: all 0.3s ease;
+        }
+
+        #updateStatusBtn:disabled {
+            cursor: not-allowed;
+        }
+
+        #updateStatusBtn.no-changes {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            opacity: 0.8;
+        }
+
+        #updateStatusBtn.no-changes:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            opacity: 0.9;
+        }
+
+        /* Highlight animations */
+        @keyframes highlightChange {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+            }
+        }
+
+        .form-changed {
+            animation: highlightChange 1s ease-out;
+        }
+
+        /* Modal form styling */
+        #updateModal .form-control,
+        #updateModal .form-select {
+            border-radius: 8px;
+            border: 1px solid #e3e6f0;
+            transition: all 0.3s ease;
+        }
+
+        #updateModal .form-control:focus,
+        #updateModal .form-select:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        #updateModal .form-control.form-changed,
+        #updateModal .form-select.form-changed {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+        }
+
+        #updateModal .form-control.form-changed:focus,
+        #updateModal .form-select.form-changed:focus {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.5);
+        }
+
+        /* Smooth transitions for button text changes */
+        #updateStatusBtn i {
+            transition: all 0.2s ease;
+        }
+
+        /* Visual indicator for change labels */
+        .change-indicator label {
+            transition: all 0.3s ease;
+        }
+
+        .change-indicator.changed label {
+            color: #856404;
+            font-weight: 500;
+        }
 
         /* PDF container */
         .pdf-container embed {
@@ -1830,7 +1943,7 @@
             document.getElementById('filterForm').submit();
         }
 
-        // Character count for textareas
+        // ========== CHARACTER COUNTERS ==========
         document.addEventListener('DOMContentLoaded', function() {
             // Remarks character count
             const remarksTextarea = document.getElementById('remarks');
@@ -1868,7 +1981,7 @@
                 });
             }
         });
-
+        
         // ========== TOAST SYSTEM ==========
         function createToastContainer() {
             let container = document.getElementById('toastContainer');
@@ -1996,6 +2109,7 @@
         }
 
         // ========== STATUS UPDATE ==========
+        // Enhanced show update modal with change tracking
         function showUpdateModal(id, currentStatus) {
             const modal = new bootstrap.Modal(document.getElementById('updateModal'));
             modal.show();
@@ -2041,9 +2155,39 @@
                     '<span class="badge bg-success">Completed</span>' :
                     '<span class="badge bg-warning">Pending</span>';
 
-                document.getElementById('newStatus').value = currentStatus;
-                document.getElementById('remarks').value = '';
-                document.getElementById('remarksCount').textContent = '0';
+                // Set form values and store original values for comparison
+                const statusSelect = document.getElementById('newStatus');
+                const remarksTextarea = document.getElementById('remarks');
+
+                statusSelect.value = currentStatus;
+                statusSelect.dataset.originalStatus = currentStatus;
+                statusSelect.dataset.originalValue = currentStatus;
+
+                remarksTextarea.value = data.remarks || '';
+                remarksTextarea.dataset.originalRemarks = data.remarks || '';
+
+                // Add change indicator classes
+                statusSelect.parentElement.classList.add('change-indicator');
+                remarksTextarea.parentElement.classList.add('change-indicator');
+
+                // Remove any previous highlighting
+                statusSelect.classList.remove('form-changed');
+                remarksTextarea.classList.remove('form-changed');
+                statusSelect.parentElement.classList.remove('changed');
+                remarksTextarea.parentElement.classList.remove('changed');
+
+                // Reset update button state
+                const updateButton = document.getElementById('updateStatusBtn');
+                updateButton.classList.remove('no-changes');
+                updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>Update Status';
+
+                // Remove old listeners to prevent duplicates
+                statusSelect.removeEventListener('change', checkUpdateModalChanges);
+                remarksTextarea.removeEventListener('input', checkUpdateModalChanges);
+
+                // Add change detection event listeners
+                statusSelect.addEventListener('change', checkUpdateModalChanges);
+                remarksTextarea.addEventListener('input', checkUpdateModalChanges);
             })
             .catch(error => {
                 console.error('Error loading application details:', error);
@@ -2052,6 +2196,82 @@
             });
         }
 
+        // Check for changes in Update Status Modal
+        function checkUpdateModalChanges() {
+            const statusSelect = document.getElementById('newStatus');
+            const remarksTextarea = document.getElementById('remarks');
+            const updateButton = document.getElementById('updateStatusBtn');
+
+            if (!statusSelect.dataset.originalStatus) return;
+
+            const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+            const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+
+            // Visual feedback
+            statusSelect.classList.toggle('form-changed', statusChanged);
+            statusSelect.parentElement.classList.toggle('changed', statusChanged);
+
+            remarksTextarea.classList.toggle('form-changed', remarksChanged);
+            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+
+            // Button state
+            const hasChanges = statusChanged || remarksChanged;
+            updateButton.classList.toggle('no-changes', !hasChanges);
+
+            if (!hasChanges) {
+                updateButton.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+            } else {
+                updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+            }
+        }
+
+        // Helper function to get status display text
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Pending',
+                'under_review': 'Under Review',
+                'inspection_required': 'Inspection Required',
+                'inspection_scheduled': 'Inspection Scheduled',
+                'documents_pending': 'Documents Pending',
+                'approved': 'Approved',
+                'rejected': 'Rejected'
+            };
+            return statusMap[status] || status;
+        }
+
+        
+        // Function to check for changes and provide visual feedback
+        function checkBoatrForChanges() {
+            const statusSelect = document.getElementById('newStatus');
+            const remarksTextarea = document.getElementById('remarks');
+            const updateButton = document.getElementById('updateStatusBtn');
+
+            if (!statusSelect.dataset.originalStatus) return; // Don't check if original values aren't set yet
+
+            const statusChanged = statusSelect.value !== statusSelect.dataset.originalStatus;
+            const remarksChanged = remarksTextarea.value.trim() !== (remarksTextarea.dataset.originalRemarks || '').trim();
+
+            // Visual feedback for status field
+            statusSelect.classList.toggle('form-changed', statusChanged);
+            statusSelect.parentElement.classList.toggle('changed', statusChanged);
+
+            // Visual feedback for remarks field
+            remarksTextarea.classList.toggle('form-changed', remarksChanged);
+            remarksTextarea.parentElement.classList.toggle('changed', remarksChanged);
+
+            // Update button state
+            const hasChanges = statusChanged || remarksChanged;
+            updateButton.classList.toggle('no-changes', !hasChanges);
+
+            // Update button text and icon based on changes
+            if (!hasChanges) {
+                updateButton.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+            } else {
+                updateButton.innerHTML = '<i class="fas fa-save me-1"></i>Update Status';
+            }
+        }
+
+        // Enhanced update registration status function with change detection
         function updateRegistrationStatus() {
             const id = document.getElementById('updateRegistrationId').value;
             const newStatus = document.getElementById('newStatus').value;
@@ -2062,22 +2282,53 @@
                 return;
             }
 
-            const statusOption = document.querySelector(`#newStatus option[value="${newStatus}"]`);
-            if (!statusOption) {
-                showToast('error', 'Invalid status selected');
+            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
+            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+
+            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
                 return;
             }
-            
-            const statusText = statusOption.textContent.trim();
+
+            let changesSummary = [];
+            if (newStatus !== originalStatus) {
+                const originalStatusText = getStatusText(originalStatus);
+                const newStatusText = getStatusText(newStatus);
+                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+            }
+            if (remarks.trim() !== originalRemarks.trim()) {
+                if (originalRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Added new remarks');
+                } else if (remarks.trim() === '') {
+                    changesSummary.push('Remarks: Removed existing remarks');
+                } else {
+                    changesSummary.push('Remarks: Modified');
+                }
+            }
 
             showConfirmationToast(
-                'Update Application Status',
-                `Are you sure you want to change the status to: "${statusText}"?${remarks ? '\n\nRemarks: ' + remarks : ''}`,
+                'Confirm Update',
+                `Update this application with the following changes?\n\n${changesSummary.join('\n')}`,
                 () => proceedWithStatusUpdate(id, newStatus, remarks)
             );
         }
 
-        function proceedWithStatusUpdate(id, newStatus, remarks) {
+        // Helper function to get BoatR status display text
+        function getBoatrStatusText(status) {
+            const statusMap = {
+                'pending': 'Pending',
+                'under_review': 'Under Review',
+                'inspection_required': 'Inspection Required',
+                'inspection_scheduled': 'Inspection Scheduled',
+                'documents_pending': 'Documents Pending',
+                'approved': 'Approved',
+                'rejected': 'Rejected'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Updated proceedWithStatusUpdate function
+       function proceedWithStatusUpdate(id, newStatus, remarks) {
             const updateBtn = document.getElementById('updateStatusBtn');
             if (!updateBtn) {
                 showToast('error', 'UI error: Button not found');
@@ -2127,8 +2378,9 @@
                 updateBtn.disabled = false;
             });
         }
+        
 
-        // ========== INSPECTION ==========
+        // ========== INSPECTION MODAL ==========
         function showInspectionModal(id) {
             document.getElementById('inspectionRegistrationId').value = id;
             document.getElementById('supporting_document').value = '';
@@ -2139,10 +2391,81 @@
             document.getElementById('supporting_document').classList.remove('is-invalid');
             document.getElementById('documentError').textContent = '';
 
+            // Store original values for change detection
+            document.getElementById('supporting_document').dataset.originalFile = '';
+            document.getElementById('inspection_notes').dataset.originalNotes = '';
+            document.getElementById('approve_application').dataset.originalChecked = false;
+
+            // Add change indicator classes
+            const fileInput = document.getElementById('supporting_document').parentElement;
+            const notesInput = document.getElementById('inspection_notes').parentElement;
+            const approveCheck = document.getElementById('approve_application').parentElement;
+
+            fileInput.classList.add('change-indicator');
+            notesInput.classList.add('change-indicator');
+            approveCheck.classList.add('change-indicator');
+
+            // Remove previous highlighting
+            document.getElementById('supporting_document').classList.remove('form-changed');
+            document.getElementById('inspection_notes').classList.remove('form-changed');
+            document.getElementById('approve_application').classList.remove('form-changed');
+            fileInput.classList.remove('changed');
+            notesInput.classList.remove('changed');
+            approveCheck.classList.remove('changed');
+
+            // Reset button state
+            const completeBtn = document.getElementById('completeInspectionBtn');
+            completeBtn.classList.remove('no-changes');
+            completeBtn.innerHTML = '<i class="fas fa-check me-1"></i>Complete Inspection';
+
+            // Remove old listeners
+            document.getElementById('supporting_document').removeEventListener('change', checkInspectionModalChanges);
+            document.getElementById('inspection_notes').removeEventListener('input', checkInspectionModalChanges);
+            document.getElementById('approve_application').removeEventListener('change', checkInspectionModalChanges);
+
+            // Add change detection listeners
+            document.getElementById('supporting_document').addEventListener('change', checkInspectionModalChanges);
+            document.getElementById('inspection_notes').addEventListener('input', checkInspectionModalChanges);
+            document.getElementById('approve_application').addEventListener('change', checkInspectionModalChanges);
+
             const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
             modal.show();
         }
 
+        // Check for changes in Inspection Modal
+        function checkInspectionModalChanges() {
+            const fileInput = document.getElementById('supporting_document');
+            const notesInput = document.getElementById('inspection_notes');
+            const approveCheckbox = document.getElementById('approve_application');
+            const completeBtn = document.getElementById('completeInspectionBtn');
+
+            const fileChanged = fileInput.files.length > 0;
+            const notesChanged = notesInput.value.trim() !== (notesInput.dataset.originalNotes || '').trim();
+            const approveChanged = approveCheckbox.checked !== (notesInput.dataset.originalChecked === 'true');
+
+            // Visual feedback
+            fileInput.classList.toggle('form-changed', fileChanged);
+            fileInput.parentElement.classList.toggle('changed', fileChanged);
+
+            notesInput.classList.toggle('form-changed', notesChanged);
+            notesInput.parentElement.classList.toggle('changed', notesChanged);
+
+            approveCheckbox.classList.toggle('form-changed', approveChanged);
+            approveCheckbox.parentElement.classList.toggle('changed', approveChanged);
+
+            // Button state
+            const hasChanges = fileChanged || notesChanged || approveChanged;
+            completeBtn.classList.toggle('no-changes', !hasChanges);
+
+            if (!hasChanges) {
+                completeBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+            } else {
+                completeBtn.innerHTML = '<i class="fas fa-check me-1"></i>Complete Inspection';
+            }
+        }
+
+
+        // Complete inspection with change detection
         function completeInspection() {
             const id = document.getElementById('inspectionRegistrationId').value;
             const fileInput = document.getElementById('supporting_document');
@@ -2166,13 +2489,19 @@
             fileInput.classList.remove('is-invalid');
             document.getElementById('documentError').textContent = '';
 
+            let changesSummary = [];
+            changesSummary.push(`File: ${fileInput.files[0].name}`);
+            if (notes.trim()) changesSummary.push(`Inspection Notes: Added`);
+            if (autoApprove) changesSummary.push(`Auto-approve: Enabled`);
+
             showConfirmationToast(
                 'Complete Inspection',
-                `Are you sure you want to complete the inspection?\n\nFile: ${fileInput.files[0].name}`,
+                `Are you sure you want to complete the inspection?\n\n${changesSummary.join('\n')}`,
                 () => proceedWithInspection(id, fileInput, notes, autoApprove)
             );
         }
 
+        // Proceed with inspection
         function proceedWithInspection(id, fileInput, notes, autoApprove) {
             const completeBtn = document.getElementById('completeInspectionBtn');
             if (!completeBtn) {
@@ -2729,12 +3058,15 @@
             document.body.removeChild(link);
         }
 
+        // Utility function to format file sizes
         function formatFileSize(bytes) {
             if (!bytes || bytes === 0) return 'Unknown size';
+
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(1024));
             return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
         }
+
 
         // ========== ANNEXES MANAGEMENT ==========
         function showAnnexesModal(id) {
@@ -2747,6 +3079,8 @@
             loadAnnexesData(id);
         }
 
+
+        // Load annexes data
         function loadAnnexesData(id) {
             fetch(`/admin/boatr/requests/${id}`, {
                 headers: {
@@ -2789,6 +3123,7 @@
             });
         }
 
+       // Load existing annexes
         function loadExistingAnnexes(id) {
             fetch(`/admin/boatr/requests/${id}/annexes`, {
                 headers: {
@@ -2864,6 +3199,40 @@
             });
         }
 
+        // Check for changes in Annexes Upload Form
+        function checkAnnexesModalChanges() {
+            const fileInput = document.getElementById('annexFile');
+            const titleInput = document.getElementById('annexTitle');
+            const descInput = document.getElementById('annexDescription');
+            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+
+            const fileChanged = fileInput.files.length > 0;
+            const titleChanged = titleInput.value.trim() !== (titleInput.dataset.originalTitle || '').trim();
+            const descChanged = descInput.value.trim() !== (descInput.dataset.originalDesc || '').trim();
+
+            // Visual feedback
+            fileInput.classList.toggle('form-changed', fileChanged);
+            fileInput.parentElement.classList.toggle('changed', fileChanged);
+
+            titleInput.classList.toggle('form-changed', titleChanged);
+            titleInput.parentElement.classList.toggle('changed', titleChanged);
+
+            descInput.classList.toggle('form-changed', descChanged);
+            descInput.parentElement.classList.toggle('changed', descChanged);
+
+            // Button state
+            const hasChanges = fileChanged || titleChanged || descChanged;
+            uploadBtn.classList.toggle('no-changes', !hasChanges);
+
+            if (!hasChanges) {
+                uploadBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+            } else {
+                uploadBtn.innerHTML = '<i class="fas fa-upload me-1"></i>Upload Annex';
+            }
+        }
+
+
+        // Upload annex with change detection
         function uploadAnnex() {
             const id = document.getElementById('annexRegistrationId').value;
             const fileInput = document.getElementById('annexFile');
@@ -2889,18 +3258,14 @@
 
             showConfirmationToast(
                 'Upload Annex',
-                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}`,
+                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}\nTitle: ${title}${description ? '\nDescription: ' + description : ''}`,
                 () => proceedWithAnnexUpload(id, fileInput, title, description)
             );
         }
 
+       // Proceed with annex upload
         function proceedWithAnnexUpload(id, fileInput, title, description) {
             const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
-            if (!uploadBtn) {
-                showToast('error', 'UI error: Button not found');
-                return;
-            }
-
             const originalContent = uploadBtn.innerHTML;
             uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading...';
             uploadBtn.disabled = true;
@@ -2941,6 +3306,7 @@
             });
         }
 
+        // Preview annex
         function previewAnnex(registrationId, annexId) {
             const previewModal = document.getElementById('documentPreviewModal');
             const annexesModal = document.getElementById('annexesModal');
@@ -2995,7 +3361,7 @@
                     document.getElementById('documentPreview').innerHTML = `
                         <div class="text-center">
                             <embed src="${data.file_url}" type="application/pdf" width="100%" height="600px"
-                                   style="border: none; border-radius: 8px;" />
+                                style="border: none; border-radius: 8px;" />
                             <div class="mt-2">
                                 <a href="${data.file_url}" target="_blank" class="btn btn-primary">
                                     <i class="fas fa-external-link-alt me-1"></i>Open in new tab
@@ -3007,7 +3373,7 @@
                     document.getElementById('documentPreview').innerHTML = `
                         <div class="text-center">
                             <img src="${data.file_url}" class="img-fluid" alt="Annex preview"
-                                 style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
+                                style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
                         </div>
                     `;
                 } else {
@@ -3039,6 +3405,7 @@
             window.open(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/download`, '_blank');
         }
 
+        // Delete annex with confirmation
         function deleteAnnex(registrationId, annexId) {
             showConfirmationToast(
                 'Delete Annex',
@@ -3047,6 +3414,7 @@
             );
         }
 
+        // Proceed with annex deletion
         function proceedWithAnnexDelete(registrationId, annexId) {
             fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
                 method: 'DELETE',
@@ -3082,20 +3450,62 @@
             });
         }
 
+        // Reset annex form
         function resetAnnexForm() {
             document.getElementById('annexFile').value = '';
             document.getElementById('annexTitle').value = '';
             document.getElementById('annexDescription').value = '';
             document.getElementById('annexDescCount').textContent = '0';
+
+            // Store original values
+            document.getElementById('annexFile').dataset.originalFile = '';
+            document.getElementById('annexTitle').dataset.originalTitle = '';
+            document.getElementById('annexDescription').dataset.originalDesc = '';
+
+            // Add change indicator classes
+            const fileInput = document.getElementById('annexFile').parentElement;
+            const titleInput = document.getElementById('annexTitle').parentElement;
+            const descInput = document.getElementById('annexDescription').parentElement;
+
+            fileInput.classList.add('change-indicator');
+            titleInput.classList.add('change-indicator');
+            descInput.classList.add('change-indicator');
+
+            // Remove highlighting
+            document.getElementById('annexFile').classList.remove('form-changed');
+            document.getElementById('annexTitle').classList.remove('form-changed');
+            document.getElementById('annexDescription').classList.remove('form-changed');
+            fileInput.classList.remove('changed');
+            titleInput.classList.remove('changed');
+            descInput.classList.remove('changed');
+
+            // Reset button
+            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+            if (uploadBtn) {
+                uploadBtn.classList.add('no-changes');
+                uploadBtn.innerHTML = '<i class="fas fa-upload me-1"></i>Upload Annex';
+            }
+
+            // Remove listeners and add fresh ones
+            document.getElementById('annexFile').removeEventListener('change', checkAnnexesModalChanges);
+            document.getElementById('annexTitle').removeEventListener('input', checkAnnexesModalChanges);
+            document.getElementById('annexDescription').removeEventListener('input', checkAnnexesModalChanges);
+
+            document.getElementById('annexFile').addEventListener('change', checkAnnexesModalChanges);
+            document.getElementById('annexTitle').addEventListener('input', checkAnnexesModalChanges);
+            document.getElementById('annexDescription').addEventListener('input', checkAnnexesModalChanges);
+
             clearValidationErrors();
         }
 
+
+        // Validation helpers
         function showValidationError(inputId, errorId, message) {
             const input = document.getElementById(inputId);
             const error = document.getElementById(errorId);
 
-            if (input) input.classList.add('is-invalid');
-            if (error) error.textContent = message;
+            input.classList.add('is-invalid');
+            error.textContent = message;
         }
 
         function clearValidationErrors() {
@@ -3112,7 +3522,6 @@
                 if (error) error.textContent = '';
             });
         }
-
         // ========== DATE FILTER FUNCTIONS ==========
         function setDateRangeModal(period) {
             const today = new Date();
