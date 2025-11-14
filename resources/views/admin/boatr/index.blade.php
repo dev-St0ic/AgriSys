@@ -1957,84 +1957,36 @@
         }
 
         // Enhanced update registration status with real-time updates and auto-refresh
-        function updateRegistrationStatus() {
-            const id = document.getElementById('updateRegistrationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
+   function updateRegistrationStatus() {
+    const id = document.getElementById('updateRegistrationId').value;
+    const newStatus = document.getElementById('newStatus').value;
+    const remarks = document.getElementById('remarks').value;
 
-            if (!newStatus) {
-                showToast('warning', 'Please select a status before updating');
-                return;
-            }
+    if (!newStatus) {
+        showToast('warning', 'Please select a status before updating');
+        return;
+    }
 
-            const statusText = document.querySelector(`#newStatus option[value="${newStatus}"]`).textContent;
-                showConfirmationToast(
-                    'Update Application Status',
-                    `Are you sure you want to change the status to "${statusText}"?`,
-                    () => proceedWithStatusUpdate(id, newStatus, remarks)
-                );
-
-            // Show loading state
-            const updateBtn = document.getElementById('updateStatusBtn');
-            const originalContent = updateBtn.innerHTML;
-            updateBtn.classList.add('btn-loading');
-            updateBtn.innerHTML = '<span class="btn-text">Updating...</span>';
-            updateBtn.disabled = true;
-
-            fetch(`/admin/boatr/requests/${id}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
-
-                        // Update table row in real-time
-                        if (data.registration) {
-                            updateTableRow(id, data.registration);
-                        }
-
-                        // Close modal
-                        bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
-
-                        // AUTO-REFRESH: Refresh data immediately after successful update
-                        setTimeout(() => {
-                            refreshData();
-                        }, 500);
-
-                        // Optional: Update statistics cards if provided
-                        if (data.statistics) {
-                            updateStatisticsCards(data.statistics);
-                        }
-                    } else {
-                        throw new Error(data.message || 'Unknown error occurred');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Failed to update status: ' + error.message);
-                })
-                .finally(() => {
-                    // Restore button state
-                    updateBtn.classList.remove('btn-loading');
-                    updateBtn.innerHTML = originalContent;
-                    updateBtn.disabled = false;
-                });
+    // SAFE way to get status text with error handling
+    try {
+        const statusOption = document.querySelector(`#newStatus option[value="${newStatus}"]`);
+        if (!statusOption) {
+            showToast('error', 'Invalid status selected');
+            return;
         }
+        const statusText = statusOption.textContent;
+        
+        // ONLY SHOW CONFIRMATION - NO FETCH HERE!
+        showConfirmationToast(
+            'Update Application Status',
+            `Are you sure you want to change the status to "${statusText}"?`,
+            () => proceedWithStatusUpdate(id, newStatus, remarks)
+        );
+    } catch (error) {
+        console.error('Error in updateRegistrationStatus:', error);
+        showToast('error', 'An error occurred while processing the request');
+    }
+}
 
         // Enhanced complete inspection with real-time updates and auto-refresh
         function completeInspection() {
@@ -3654,7 +3606,7 @@
                     showToast('success', data.message);
                     if (data.registration) updateTableRow(id, data.registration);
                     bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
-                    setTimeout(() => refreshData(), 500);
+                    // setTimeout(() => refreshData(), 500);
                 } else throw new Error(data.message);
             })
             .catch(error => showToast('error', 'Failed to complete inspection: ' + error.message))
@@ -3686,7 +3638,7 @@
                     showToast('success', data.message);
                     if (data.registration) updateTableRow(id, data.registration);
                     bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
-                    setTimeout(() => refreshData(), 500);
+                    // setTimeout(() => refreshData(), 500);
                 } else throw new Error(data.message);
             })
             .catch(error => showToast('error', 'Failed to update status: ' + error.message))
@@ -3695,7 +3647,6 @@
                 updateBtn.disabled = false;
             });
         }
-
         // Proceed with annex upload
         function proceedWithAnnexUpload(id, fileInput, title, description) {
             const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
