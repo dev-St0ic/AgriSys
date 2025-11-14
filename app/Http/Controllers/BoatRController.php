@@ -130,7 +130,7 @@ class BoatRController extends Controller
     }
 
     /**
-     * Update the status of the specified BoatR registration - ENHANCED with refresh data
+     * Update the status of the specified BoatR registration
      */
     public function updateStatus(Request $request, $id)
     {
@@ -158,7 +158,6 @@ class BoatRController extends Controller
                 try {
                     Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
                 } catch (\Exception $e) {
-                    // Log the error but don't fail the status update
                     Log::error('Failed to send approval email for BoatR registration ' . $registration->id . ': ' . $e->getMessage());
                 }
             }
@@ -174,16 +173,8 @@ class BoatRController extends Controller
             ]);
 
             $message = "Application {$registration->application_number} status updated to " .
-                      $registration->formatted_status .
-                      ($validated['status'] === 'approved' && $registration->email ? '. Email notification sent to applicant.' : '');
-
-            // ENHANCED: Return updated statistics for auto-refresh
-            $statistics = [
-                'total' => BoatrApplication::count(),
-                'pending' => BoatrApplication::where('status', 'pending')->count(),
-                'inspection_required' => BoatrApplication::where('status', 'inspection_required')->count(),
-                'approved' => BoatrApplication::where('status', 'approved')->count()
-            ];
+                    $registration->formatted_status .
+                    ($validated['status'] === 'approved' && $registration->email ? '. Email notification sent to applicant.' : '');
 
             return response()->json([
                 'success' => true,
@@ -195,8 +186,7 @@ class BoatRController extends Controller
                     'status_color' => $registration->status_color,
                     'inspection_completed' => $registration->inspection_completed,
                     'total_documents' => $registration->total_documents_count
-                ],
-                'statistics' => $statistics
+                ]
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -220,80 +210,71 @@ class BoatRController extends Controller
         }
     }
 
-    /**
-     * Complete inspection - ENHANCED with refresh data
-     */
-    public function completeInspection(Request $request, $id)
-    {
-        try {
-            $validated = $request->validate([
-                'supporting_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
-                'inspection_notes' => 'nullable|string|max:2000',
-                'approve_application' => 'sometimes|boolean'
-            ]);
+        /**
+         * Complete inspection
+         */
+        public function completeInspection(Request $request, $id)
+        {
+            try {
+                $validated = $request->validate([
+                    'supporting_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+                    'inspection_notes' => 'nullable|string|max:2000',
+                    'approve_application' => 'sometimes|boolean'
+                ]);
 
-            $registration = BoatrApplication::findOrFail($id);
+                $registration = BoatrApplication::findOrFail($id);
 
-            // Handle inspection document upload
-            if ($request->hasFile('supporting_document')) {
-                $file = $request->file('supporting_document');
-                if ($file->isValid()) {
-                    $fileName = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $filePath = $file->storeAs('boatr_documents/inspection', $fileName, 'public');
+                // Handle inspection document upload
+                if ($request->hasFile('supporting_document')) {
+                    $file = $request->file('supporting_document');
+                    if ($file->isValid()) {
+                        $fileName = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                        $filePath = $file->storeAs('boatr_documents/inspection', $fileName, 'public');
 
-                    // Add inspection document
-                    $registration->addInspectionDocument($filePath, $file->getClientOriginalName());
+                        // Add inspection document
+                        $registration->addInspectionDocument($filePath, $file->getClientOriginalName());
+                    }
                 }
+
+                // Complete inspection
+                $registration->completeInspection(
+                    $validated['inspection_notes'] ?? null,
+                    auth()->id()
+                );
+
+                // Update status based on approval decision
+                $newStatus = ($validated['approve_application'] ?? false) ? 'approved' : 'documents_pending';
+                $registration->updateStatus(
+                    $newStatus,
+                    $validated['inspection_notes'] ?? 'Inspection completed.',
+                    auth()->id()
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Inspection completed successfully' . ($newStatus === 'approved' ? ' and application approved.' : '.'),
+                    'registration' => [
+                        'id' => $registration->id,
+                        'status' => $registration->status,
+                        'formatted_status' => $registration->formatted_status,
+                        'status_color' => $registration->status_color,
+                        'inspection_completed' => $registration->inspection_completed,
+                        'total_documents' => $registration->total_documents_count
+                    ]
+                ]);
+
+            } catch (\Exception $e) {
+                Log::error('Error completing inspection', [
+                    'registration_id' => $id,
+                    'error' => $e->getMessage()
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error completing inspection: ' . $e->getMessage()
+                ], 500);
             }
-
-            // Complete inspection
-            $registration->completeInspection(
-                $validated['inspection_notes'] ?? null,
-                auth()->id()
-            );
-
-            // Update status based on approval decision
-            $newStatus = ($validated['approve_application'] ?? false) ? 'approved' : 'documents_pending';
-            $registration->updateStatus(
-                $newStatus,
-                $validated['inspection_notes'] ?? 'Inspection completed.',
-                auth()->id()
-            );
-
-            // ENHANCED: Return updated statistics for auto-refresh
-            $statistics = [
-                'total' => BoatrApplication::count(),
-                'pending' => BoatrApplication::where('status', 'pending')->count(),
-                'inspection_required' => BoatrApplication::where('status', 'inspection_required')->count(),
-                'approved' => BoatrApplication::where('status', 'approved')->count()
-            ];
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Inspection completed successfully' . ($newStatus === 'approved' ? ' and application approved.' : '.'),
-                'registration' => [
-                    'id' => $registration->id,
-                    'status' => $registration->status,
-                    'formatted_status' => $registration->formatted_status,
-                    'status_color' => $registration->status_color,
-                    'inspection_completed' => $registration->inspection_completed,
-                    'total_documents' => $registration->total_documents_count
-                ],
-                'statistics' => $statistics
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error completing inspection', [
-                'registration_id' => $id,
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error completing inspection: ' . $e->getMessage()
-            ], 500);
         }
-    }
 
     /**
      * Show individual application details - FIXED

@@ -705,22 +705,6 @@
         </div>
     </div>
 
-    <!-- Success/Error Toast -->
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-        <div id="actionToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true"
-            data-bs-autohide="true" data-bs-delay="5000">
-            <div class="toast-header">
-                <i class="fas fa-check-circle text-success me-2" id="toastIcon"></i>
-                <strong class="me-auto" id="toastTitle">Success</strong>
-                <small id="toastTime">Just now</small>
-                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body" id="toastMessage">
-                Action completed successfully.
-            </div>
-        </div>
-    </div>
-
     <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
         aria-hidden="true">
@@ -1590,6 +1574,148 @@
                 padding: 10px;
             }
         }
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i,
+        .toast-notification.toast-success .toast-header i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i,
+        .toast-notification.toast-error .toast-header i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i,
+        .toast-notification.toast-warning .toast-header i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i,
+        .toast-notification.toast-info .toast-header i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .confirmation-toast .toast-body {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification,
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
     </style>
 @endsection
 
@@ -1597,45 +1723,6 @@
     <script>
         let searchTimeout;
         let currentData = {};
-
-        // Unified refresh function for BoatR (exact same pattern as FishR)
-        function refreshData() {
-            fetch(window.location.href, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'text/html'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-
-                    // Update table content
-                    const newTable = doc.querySelector('#registrationsTable tbody');
-                    const currentTable = document.querySelector('#registrationsTable tbody');
-                    if (newTable && currentTable && newTable.innerHTML !== currentTable.innerHTML) {
-                        currentTable.innerHTML = newTable.innerHTML;
-                    }
-
-                    // Update statistics cards - BoatR structure
-                    const cards = {
-                        total: ['.stat-card:nth-child(1) .stat-number'], // Total Applications
-                        pending: ['.stat-card:nth-child(4) .stat-number'], // Pending
-                        inspection: ['.stat-card:nth-child(2) .stat-number'], // Inspection Required
-                        approved: ['.stat-card:nth-child(3) .stat-number'] // Approved
-                    };
-
-                    Object.entries(cards).forEach(([key, [selector]]) => {
-                        const newCard = doc.querySelector(selector);
-                        const currentCard = document.querySelector(selector);
-                        if (newCard && currentCard && newCard.textContent !== currentCard.textContent) {
-                            currentCard.textContent = newCard.textContent;
-                        }
-                    });
-                })
-                .catch(error => console.error('Refresh error:', error));
-        }
 
         // Auto search functionality
         function autoSearch() {
@@ -1673,28 +1760,6 @@
             }
         });
 
-        // Show toast notification
-        function showToast(type, title, message) {
-            const toast = document.getElementById('actionToast');
-            const toastIcon = document.getElementById('toastIcon');
-            const toastTitle = document.getElementById('toastTitle');
-            const toastMessage = document.getElementById('toastMessage');
-            const toastTime = document.getElementById('toastTime');
-
-            // Set icon and colors based on type
-            const iconClass = type === 'success' ? 'fas fa-check-circle text-success' :
-                type === 'error' ? 'fas fa-exclamation-circle text-danger' :
-                type === 'warning' ? 'fas fa-exclamation-triangle text-warning' :
-                'fas fa-info-circle text-info';
-
-            toastIcon.className = iconClass + ' me-2';
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-            toastTime.textContent = 'Just now';
-
-            const bsToast = new bootstrap.Toast(toast);
-            bsToast.show();
-        }
 
         // Update table row in real-time
         function updateTableRow(id, data) {
@@ -1830,7 +1895,7 @@
                 })
                 .catch(error => {
                     console.error('Error loading application details:', error);
-                    showToast('error', 'Error', 'Failed to load application details: ' + error.message);
+                    showToast('error', 'Failed to load application details: ' + error.message);
                     modal.hide();
                 });
         }
@@ -1851,34 +1916,88 @@
             modal.show();
         }
 
-        // Enhanced update registration status with real-time updates and auto-refresh
+        // UPDATED: Enhanced update registration status with confirmation toast
         function updateRegistrationStatus() {
             const id = document.getElementById('updateRegistrationId').value;
             const newStatus = document.getElementById('newStatus').value;
             const remarks = document.getElementById('remarks').value;
 
             if (!newStatus) {
-                showToast('warning', 'Warning', 'Please select a status');
+                showToast('warning', 'Please select a status');
                 return;
             }
 
-            if (!confirm(
-                    `Are you sure you want to change the status to "${document.querySelector(`#newStatus option[value="${newStatus}"]`).textContent}"?`
-                )) {
-                return;
-            }
+            // Show confirmation dialog
+            showConfirmationToast(
+                'Confirm Update',
+                `Are you sure you want to change the status to "${document.querySelector(`#newStatus option[value="${newStatus}"]`).textContent}"?`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
+        }
 
-            // Show loading state
+        // UPDATED: Proceed with inspection completion (separated for confirmation)
+        function proceedWithInspectionCompletion(id, fileInput, notes, autoApprove) {
+            const completeBtn = document.getElementById('completeInspectionBtn');
+            const originalContent = completeBtn.innerHTML;
+            completeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Processing...';
+            completeBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('supporting_document', fileInput.files[0]);
+            formData.append('inspection_notes', notes);
+            formData.append('approve_application', autoApprove ? '1' : '0');
+
+            fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message);
+
+                        // Close modal
+                        bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
+
+                        // Simple page reload after short delay (like FishR)
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        throw new Error(data.message || 'Unknown error occurred');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Failed to complete inspection: ' + error.message);
+                })
+                .finally(() => {
+                    // Restore button state
+                    completeBtn.innerHTML = originalContent;
+                    completeBtn.disabled = false;
+                });
+        }
+
+        // UPDATED: Proceed with status update (separated for confirmation)
+       function proceedWithStatusUpdate(id, newStatus, remarks) {
             const updateBtn = document.getElementById('updateStatusBtn');
             const originalContent = updateBtn.innerHTML;
-            updateBtn.classList.add('btn-loading');
-            updateBtn.innerHTML = '<span class="btn-text">Updating...</span>';
+            updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
             updateBtn.disabled = true;
 
             fetch(`/admin/boatr/requests/${id}/status`, {
                     method: 'PATCH',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-CSRF-TOKEN': getCSRFToken(),
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
                     },
@@ -1895,36 +2014,25 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', 'Success', data.message);
-
-                        // Update table row in real-time
-                        if (data.registration) {
-                            updateTableRow(id, data.registration);
-                        }
+                        showToast('success', data.message);
 
                         // Close modal
                         bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
 
-                        // AUTO-REFRESH: Refresh data immediately after successful update
+                        // Simple page reload after short delay (like FishR)
                         setTimeout(() => {
-                            refreshData();
-                        }, 500);
-
-                        // Optional: Update statistics cards if provided
-                        if (data.statistics) {
-                            updateStatisticsCards(data.statistics);
-                        }
+                            window.location.reload();
+                        }, 1500);
                     } else {
                         throw new Error(data.message || 'Unknown error occurred');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Error', 'Failed to update status: ' + error.message);
+                    showToast('error', 'Failed to update status: ' + error.message);
                 })
                 .finally(() => {
                     // Restore button state
-                    updateBtn.classList.remove('btn-loading');
                     updateBtn.innerHTML = originalContent;
                     updateBtn.disabled = false;
                 });
@@ -1941,7 +2049,7 @@
             if (!fileInput.files[0]) {
                 fileInput.classList.add('is-invalid');
                 document.getElementById('documentError').textContent = 'Please select a supporting document';
-                showToast('warning', 'Warning', 'Please select a supporting document');
+                showToast('warning', 'Please select a supporting document');
                 return;
             }
 
@@ -1949,7 +2057,7 @@
             if (fileInput.files[0].size > 10 * 1024 * 1024) {
                 fileInput.classList.add('is-invalid');
                 document.getElementById('documentError').textContent = 'File size must be less than 10MB';
-                showToast('warning', 'Warning', 'File size must be less than 10MB');
+                showToast('warning', 'File size must be less than 10MB');
                 return;
             }
 
@@ -1957,9 +2065,14 @@
             fileInput.classList.remove('is-invalid');
             document.getElementById('documentError').textContent = '';
 
-            if (!confirm('Are you sure you want to complete the inspection for this application?')) {
-                return;
-            }
+            // Show confirmation toast
+            showConfirmationToast(
+                'Confirm Inspection',
+                'Are you sure you want to complete the inspection for this application?' +
+                (autoApprove ? '\n\nThe application will be automatically approved.' : ''),
+                () => proceedWithInspectionCompletion(id, fileInput, notes, autoApprove)
+            );
+        }
 
             // Show loading state
             const completeBtn = document.getElementById('completeInspectionBtn');
@@ -1989,7 +2102,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', 'Success', data.message);
+                        showToast('success', data.message);
 
                         // Update table row in real-time
                         if (data.registration) {
@@ -2014,7 +2127,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Error', 'Failed to complete inspection: ' + error.message);
+                    showToast('error', 'Failed to complete inspection: ' + error.message);
                 })
                 .finally(() => {
                     // Restore button state
@@ -2235,12 +2348,12 @@
                         previewDocument(id, docType, docIndex);
                     } else {
                         // Show a message that no documents are available
-                        showToast('info', 'No Documents', 'No documents available for this application.');
+                        showToast('info', 'No documents available for this application.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Error', 'Failed to load documents: ' + error.message);
+                    showToast('error', 'Failed to load documents: ' + error.message);
                 });
         } // Enhanced preview document function - Improved with better file type support
         function previewDocument(id, type, index) {
@@ -2688,7 +2801,7 @@
             console.error('Unhandled promise rejection:', event.reason);
             // Optionally show a user-friendly error message
             if (typeof showToast === 'function') {
-                showToast('error', 'Error', 'An unexpected error occurred. Please try again.');
+                showToast('error', 'An unexpected error occurred. Please try again.');
             }
         });
 
@@ -2696,7 +2809,7 @@
         window.addEventListener('online', function() {
             console.log('Network connection restored');
             if (typeof showToast === 'function') {
-                showToast('success', 'Connected', 'Network connection restored');
+                showToast('success', 'Network connection restored');
             }
         });
 
@@ -2897,7 +3010,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', 'Success', 'Annex uploaded successfully');
+                        showToast('success', 'Annex uploaded successfully');
                         resetAnnexForm();
                         loadExistingAnnexes(id); // Reload annexes list
                         refreshData(); // Refresh main table if needed
@@ -2907,7 +3020,7 @@
                 })
                 .catch(error => {
                     console.error('Error uploading annex:', error);
-                    showToast('error', 'Error', 'Failed to upload annex: ' + error.message);
+                    showToast('error', 'Failed to upload annex: ' + error.message);
                 })
                 .finally(() => {
                     // Restore button state
@@ -3044,7 +3157,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', 'Success', 'Annex deleted successfully');
+                        showToast('success', 'Annex deleted successfully');
 
                         // Remove from UI
                         const annexElement = document.getElementById(`annex-${annexId}`);
@@ -3065,7 +3178,7 @@
                 })
                 .catch(error => {
                     console.error('Error deleting annex:', error);
-                    showToast('error', 'Error', 'Failed to delete annex: ' + error.message);
+                    showToast('error', 'Failed to delete annex: ' + error.message);
                 });
         }
 
@@ -3126,7 +3239,7 @@
         window.addEventListener('offline', function() {
             console.log('Network connection lost');
             if (typeof showToast === 'function') {
-                showToast('warning', 'Offline', 'Network connection lost. Some features may not work.');
+                showToast('warning', 'Network connection lost. Some features may not work.');
             }
         });
 
@@ -3394,5 +3507,138 @@
                 refreshData();
             }
         });
+        // toast container
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Confirmation toast function
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+
+            // Store the callback function on the toast element
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        // Execute confirmation action
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
+            }
+
+            // Clean up the callback reference
+            delete window[callbackId];
+            removeToast(toast);
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
+
+        // Get CSRF token utility function
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
     </script>
 @endsection
