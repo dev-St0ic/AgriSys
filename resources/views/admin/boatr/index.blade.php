@@ -705,6 +705,7 @@
         </div>
     </div>
 
+
     <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
         aria-hidden="true">
@@ -806,6 +807,148 @@
     </div>
 
     <style>
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i,
+        .toast-notification.toast-success .toast-header i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i,
+        .toast-notification.toast-error .toast-header i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i,
+        .toast-notification.toast-warning .toast-header i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i,
+        .toast-notification.toast-info .toast-header i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .confirmation-toast .toast-body {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification,
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
         /* Modern Statistics Cards */
         .stat-card {
             background: #ffffff;
@@ -1574,148 +1717,6 @@
                 padding: 10px;
             }
         }
-        /* Toast Notification Container */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            pointer-events: none;
-        }
-
-        /* Individual Toast Notification */
-        .toast-notification {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            min-width: 380px;
-            max-width: 600px;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateX(400px);
-            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
-            pointer-events: auto;
-        }
-
-        .toast-notification.show {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        /* Toast Content */
-        .toast-notification .toast-content {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            font-size: 1.05rem;
-        }
-
-        .toast-notification .toast-content i {
-            font-size: 1.5rem;
-        }
-
-        .toast-notification .toast-content span {
-            flex: 1;
-            color: #333;
-        }
-
-        /* Type-specific styles */
-        .toast-notification.toast-success {
-            border-left: 4px solid #28a745;
-        }
-
-        .toast-notification.toast-success .toast-content i,
-        .toast-notification.toast-success .toast-header i {
-            color: #28a745;
-        }
-
-        .toast-notification.toast-error {
-            border-left: 4px solid #dc3545;
-        }
-
-        .toast-notification.toast-error .toast-content i,
-        .toast-notification.toast-error .toast-header i {
-            color: #dc3545;
-        }
-
-        .toast-notification.toast-warning {
-            border-left: 4px solid #ffc107;
-        }
-
-        .toast-notification.toast-warning .toast-content i,
-        .toast-notification.toast-warning .toast-header i {
-            color: #ffc107;
-        }
-
-        .toast-notification.toast-info {
-            border-left: 4px solid #17a2b8;
-        }
-
-        .toast-notification.toast-info .toast-content i,
-        .toast-notification.toast-info .toast-header i {
-            color: #17a2b8;
-        }
-
-        /* Confirmation Toast */
-        .confirmation-toast {
-            min-width: 420px;
-            max-width: 650px;
-        }
-
-        .confirmation-toast .toast-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            font-weight: 600;
-        }
-
-        .confirmation-toast .toast-body {
-            padding: 16px;
-            background: #f8f9fa;
-        }
-
-        .confirmation-toast .toast-body p {
-            margin: 0;
-            font-size: 0.95rem;
-            color: #333;
-            line-height: 1.5;
-        }
-
-        .btn-close-toast {
-            width: auto;
-            height: auto;
-            padding: 0;
-            font-size: 1.2rem;
-            opacity: 0.5;
-            transition: opacity 0.2s;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-close-toast:hover {
-            opacity: 1;
-        }
-
-        /* Responsive */
-        @media (max-width: 576px) {
-            .toast-container {
-                top: 10px;
-                right: 10px;
-                left: 10px;
-            }
-
-            .toast-notification,
-            .confirmation-toast {
-                min-width: auto;
-                max-width: 100%;
-            }
-        }
     </style>
 @endsection
 
@@ -1723,6 +1724,45 @@
     <script>
         let searchTimeout;
         let currentData = {};
+
+        // Unified refresh function for BoatR (exact same pattern as FishR)
+        function refreshData() {
+            fetch(window.location.href, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Update table content
+                    const newTable = doc.querySelector('#registrationsTable tbody');
+                    const currentTable = document.querySelector('#registrationsTable tbody');
+                    if (newTable && currentTable && newTable.innerHTML !== currentTable.innerHTML) {
+                        currentTable.innerHTML = newTable.innerHTML;
+                    }
+
+                    // Update statistics cards - BoatR structure
+                    const cards = {
+                        total: ['.stat-card:nth-child(1) .stat-number'], // Total Applications
+                        pending: ['.stat-card:nth-child(4) .stat-number'], // Pending
+                        inspection: ['.stat-card:nth-child(2) .stat-number'], // Inspection Required
+                        approved: ['.stat-card:nth-child(3) .stat-number'] // Approved
+                    };
+
+                    Object.entries(cards).forEach(([key, [selector]]) => {
+                        const newCard = doc.querySelector(selector);
+                        const currentCard = document.querySelector(selector);
+                        if (newCard && currentCard && newCard.textContent !== currentCard.textContent) {
+                            currentCard.textContent = newCard.textContent;
+                        }
+                    });
+                })
+                .catch(error => console.error('Refresh error:', error));
+        }
 
         // Auto search functionality
         function autoSearch() {
@@ -1833,237 +1873,266 @@
         }
 
         // Enhanced show update modal with loading state
-function showUpdateModal(id, currentStatus) {
-    const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-    modal.show();
+        function showUpdateModal(id, currentStatus) {
+            const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+            modal.show();
 
-    // Show loading state
-    document.getElementById('updateModalLoading').style.display = 'block';
-    document.getElementById('updateModalContent').style.display = 'none';
-    document.getElementById('updateForm').style.display = 'none';
-    document.getElementById('updateStatusBtn').style.display = 'none';
+            // Show loading state
+            document.getElementById('updateModalLoading').style.display = 'block';
+            document.getElementById('updateModalContent').style.display = 'none';
+            document.getElementById('updateForm').style.display = 'none';
+            document.getElementById('updateStatusBtn').style.display = 'none';
 
-    fetch(`/admin/boatr/requests/${id}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+            fetch(`/admin/boatr/requests/${id}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) {
+                        throw new Error(data.message || 'Failed to load application details');
+                    }
+
+                    // Store current data
+                    currentData[id] = data;
+
+                    // Hide loading, show content
+                    document.getElementById('updateModalLoading').style.display = 'none';
+                    document.getElementById('updateModalContent').style.display = 'block';
+                    document.getElementById('updateForm').style.display = 'block';
+                    document.getElementById('updateStatusBtn').style.display = 'inline-block';
+
+                    // Populate application info
+                    document.getElementById('updateRegistrationId').value = id;
+                    document.getElementById('updateRegId').textContent = data.id;
+                    document.getElementById('updateRegNumber').textContent = data.application_number;
+                    document.getElementById('updateRegName').textContent = data.full_name;
+                    document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
+                    document.getElementById('updateRegVessel').textContent = data.vessel_name;
+                    document.getElementById('updateRegFishR').textContent = data.fishr_number;
+                    document.getElementById('updateRegBoatType').textContent = data.boat_type;
+
+                    // Show current status
+                    document.getElementById('updateRegCurrentStatus').innerHTML =
+                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+
+                    // Show inspection status
+                    document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
+                        '<span class="badge bg-success">Completed</span>' :
+                        '<span class="badge bg-warning">Pending</span>';
+
+                    // Set form values
+                    document.getElementById('newStatus').value = currentStatus;
+                    document.getElementById('remarks').value = '';
+                    document.getElementById('remarksCount').textContent = '0';
+                })
+                .catch(error => {
+                    console.error('Error loading application details:', error);
+                    showToast('error', 'Error', 'Failed to load application details: ' + error.message);
+                    modal.hide();
+                });
+        }
+
+        // Enhanced show inspection modal
+        function showInspectionModal(id) {
+            document.getElementById('inspectionRegistrationId').value = id;
+            document.getElementById('supporting_document').value = '';
+            document.getElementById('inspection_notes').value = '';
+            document.getElementById('approve_application').checked = false;
+            document.getElementById('notesCount').textContent = '0';
+
+            // Clear any previous error states
+            document.getElementById('supporting_document').classList.remove('is-invalid');
+            document.getElementById('documentError').textContent = '';
+
+            const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
+            modal.show();
+        }
+
+        // Enhanced update registration status with real-time updates and auto-refresh
+        function updateRegistrationStatus() {
+            const id = document.getElementById('updateRegistrationId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const remarks = document.getElementById('remarks').value;
+
+            if (!newStatus) {
+                showToast('warning', 'Warning', 'Please select a status');
+                return;
             }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+
+            const statusText = document.querySelector(`#newStatus option[value="${newStatus}"]`).textContent;
+                showConfirmationToast(
+                    'Update Application Status',
+                    `Are you sure you want to change the status to "${statusText}"?`,
+                    () => proceedWithStatusUpdate(id, newStatus, remarks)
+                );
+
+            // Show loading state
+            const updateBtn = document.getElementById('updateStatusBtn');
+            const originalContent = updateBtn.innerHTML;
+            updateBtn.classList.add('btn-loading');
+            updateBtn.innerHTML = '<span class="btn-text">Updating...</span>';
+            updateBtn.disabled = true;
+
+            fetch(`/admin/boatr/requests/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        remarks: remarks
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Success', data.message);
+
+                        // Update table row in real-time
+                        if (data.registration) {
+                            updateTableRow(id, data.registration);
+                        }
+
+                        // Close modal
+                        bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+
+                        // AUTO-REFRESH: Refresh data immediately after successful update
+                        setTimeout(() => {
+                            refreshData();
+                        }, 500);
+
+                        // Optional: Update statistics cards if provided
+                        if (data.statistics) {
+                            updateStatisticsCards(data.statistics);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Unknown error occurred');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error', 'Failed to update status: ' + error.message);
+                })
+                .finally(() => {
+                    // Restore button state
+                    updateBtn.classList.remove('btn-loading');
+                    updateBtn.innerHTML = originalContent;
+                    updateBtn.disabled = false;
+                });
+        }
+
+        // Enhanced complete inspection with real-time updates and auto-refresh
+        function completeInspection() {
+            const id = document.getElementById('inspectionRegistrationId').value;
+            const fileInput = document.getElementById('supporting_document');
+            const notes = document.getElementById('inspection_notes').value;
+            const autoApprove = document.getElementById('approve_application').checked;
+
+            // Validation
+            if (!fileInput.files[0]) {
+                fileInput.classList.add('is-invalid');
+                document.getElementById('documentError').textContent = 'Please select a supporting document';
+                showToast('warning', 'Please select a supporting document');
+                return;
             }
-            return response.json();
-        })
-        .then(data => {
-            if (!data.success) {
-                throw new Error(data.message || 'Failed to load application details');
+
+            // Validate file size (10MB)
+            if (fileInput.files[0].size > 10 * 1024 * 1024) {
+                fileInput.classList.add('is-invalid');
+                document.getElementById('documentError').textContent = 'File size must be less than 10MB';
+                showToast('warning', 'File size must be less than 10MB');
+                return;
             }
 
-            // Hide loading, show content
-            document.getElementById('updateModalLoading').style.display = 'none';
-            document.getElementById('updateModalContent').style.display = 'block';
-            document.getElementById('updateForm').style.display = 'block';
-            document.getElementById('updateStatusBtn').style.display = 'inline-block';
+            // Clear validation errors
+            fileInput.classList.remove('is-invalid');
+            document.getElementById('documentError').textContent = '';
 
-            // Populate application info
-            document.getElementById('updateRegistrationId').value = id;
-            document.getElementById('updateRegId').textContent = data.id;
-            document.getElementById('updateRegNumber').textContent = data.application_number;
-            document.getElementById('updateRegName').textContent = data.full_name;
-            document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
-            document.getElementById('updateRegVessel').textContent = data.vessel_name;
-            document.getElementById('updateRegFishR').textContent = data.fishr_number;
-            document.getElementById('updateRegBoatType').textContent = data.boat_type;
+            // Show confirmation toast instead of browser confirm
+            showConfirmationToast(
+                'Complete Inspection',
+                'Are you sure you want to complete the inspection for this application?',
+                () => proceedWithInspection(id, fileInput, notes, autoApprove)
+            );
 
-            // Show current status
-            document.getElementById('updateRegCurrentStatus').innerHTML =
-                `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+            // Show loading state
+            const completeBtn = document.getElementById('completeInspectionBtn');
+            const originalContent = completeBtn.innerHTML;
+            completeBtn.classList.add('btn-loading');
+            completeBtn.innerHTML = '<span class="btn-text">Processing...</span>';
+            completeBtn.disabled = true;
 
-            // Show inspection status
-            document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
-                '<span class="badge bg-success">Completed</span>' :
-                '<span class="badge bg-warning">Pending</span>';
+            const formData = new FormData();
+            formData.append('supporting_document', fileInput.files[0]);
+            formData.append('inspection_notes', notes);
+            formData.append('approve_application', autoApprove ? '1' : '0');
 
-            // Set form values
-            document.getElementById('newStatus').value = currentStatus;
-            document.getElementById('remarks').value = '';
-            document.getElementById('remarksCount').textContent = '0';
-        })
-        .catch(error => {
-            console.error('Error loading application details:', error);
-            showToast('error', 'Failed to load application details: ' + error.message);
-            modal.hide();
-        });
-}
+            fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Success', data.message);
 
+                        // Update table row in real-time
+                        if (data.registration) {
+                            updateTableRow(id, data.registration);
+                        }
 
-       // Show inspection modal
-function showInspectionModal(id) {
-    document.getElementById('inspectionRegistrationId').value = id;
-    document.getElementById('supporting_document').value = '';
-    document.getElementById('inspection_notes').value = '';
-    document.getElementById('approve_application').checked = false;
-    document.getElementById('notesCount').textContent = '0';
+                        // Close modal
+                        bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
 
-    document.getElementById('supporting_document').classList.remove('is-invalid');
-    document.getElementById('documentError').textContent = '';
+                        // AUTO-REFRESH: Refresh data immediately after successful completion
+                        setTimeout(() => {
+                            refreshData();
+                        }, 500);
 
-    const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
-    modal.show();
-}
+                        // Optional: Update statistics cards
+                        if (data.statistics) {
+                            updateStatisticsCards(data.statistics);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Unknown error occurred');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error', 'Failed to complete inspection: ' + error.message);
+                })
+                .finally(() => {
+                    // Restore button state
+                    completeBtn.classList.remove('btn-loading');
+                    completeBtn.innerHTML = originalContent;
+                    completeBtn.disabled = false;
+                });
+        }
 
-// Complete inspection
-function completeInspection() {
-    const id = document.getElementById('inspectionRegistrationId').value;
-    const fileInput = document.getElementById('supporting_document');
-    const notes = document.getElementById('inspection_notes').value;
-    const autoApprove = document.getElementById('approve_application').checked;
-
-    // Validation
-    if (!fileInput.files[0]) {
-        fileInput.classList.add('is-invalid');
-        document.getElementById('documentError').textContent = 'Please select a supporting document';
-        showToast('warning', 'Please select a supporting document');
-        return;
-    }
-
-    // Validate file size (10MB)
-    if (fileInput.files[0].size > 10 * 1024 * 1024) {
-        fileInput.classList.add('is-invalid');
-        document.getElementById('documentError').textContent = 'File size must be less than 10MB';
-        showToast('warning', 'File size must be less than 10MB');
-        return;
-    }
-
-    // Clear validation errors
-    fileInput.classList.remove('is-invalid');
-    document.getElementById('documentError').textContent = '';
-
-    // Show confirmation
-    showConfirmationToast(
-        'Confirm Inspection',
-        'Are you sure you want to complete the inspection?' +
-        (autoApprove ? '\n\nThe application will be automatically approved.' : ''),
-        () => proceedWithInspectionCompletion(id, fileInput, notes, autoApprove)
-    );
-}
-
-     // Update registration status
-function updateRegistrationStatus() {
-    const id = document.getElementById('updateRegistrationId').value;
-    const newStatus = document.getElementById('newStatus').value;
-    const remarks = document.getElementById('remarks').value;
-
-    if (!newStatus) {
-        showToast('warning', 'Please select a status');
-        return;
-    }
-
-    // Show confirmation
-    showConfirmationToast(
-        'Confirm Update',
-        `Are you sure you want to change the status to "${document.querySelector(`#newStatus option[value="${newStatus}"]`).textContent}"?`,
-        () => proceedWithStatusUpdate(id, newStatus, remarks)
-    );
-}
-      // Proceed with inspection completion
-function proceedWithInspectionCompletion(id, fileInput, notes, autoApprove) {
-    const completeBtn = document.getElementById('completeInspectionBtn');
-    const originalContent = completeBtn.innerHTML;
-    completeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Processing...';
-    completeBtn.disabled = true;
-
-    const formData = new FormData();
-    formData.append('supporting_document', fileInput.files[0]);
-    formData.append('inspection_notes', notes);
-    formData.append('approve_application', autoApprove ? '1' : '0');
-
-    fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': getCSRFToken(),
-                'Accept': 'application/json'
-            },
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                showToast('success', data.message);
-                // Close modal only - no auto-refresh
-                bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
-
-                // refresh 1.5 secs
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                throw new Error(data.message || 'Unknown error occurred');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('error', 'Failed to complete inspection: ' + error.message);
-        })
-        .finally(() => {
-            completeBtn.innerHTML = originalContent;
-            completeBtn.disabled = false;
-        });
-}
-    // Proceed with status update
-function proceedWithStatusUpdate(id, newStatus, remarks) {
-    const updateBtn = document.getElementById('updateStatusBtn');
-    const originalContent = updateBtn.innerHTML;
-    updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
-    updateBtn.disabled = true;
-
-    fetch(`/admin/boatr/requests/${id}/status`, {
-            method: 'PATCH',
-            headers: {
-                'X-CSRF-TOKEN': getCSRFToken(),
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                status: newStatus,
-                remarks: remarks
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                showToast('success', data.message);
-                // Close modal only - no auto-refresh
-                bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
-
-                // refresh page after 1.5 secs
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                throw new Error(data.message || 'Unknown error occurred');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('error', 'Failed to update status: ' + error.message);
-        })
-        .finally(() => {
-            updateBtn.innerHTML = originalContent;
-            updateBtn.disabled = false;
-        });
-}
-
-
- 
-         
         // Enhanced view application details
         function viewRegistration(id) {
             const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
@@ -2275,12 +2344,12 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                         previewDocument(id, docType, docIndex);
                     } else {
                         // Show a message that no documents are available
-                        showToast('info', 'No documents available for this application.');
+                        showToast('info', 'No Documents', 'No documents available for this application.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Failed to load documents: ' + error.message);
+                    showToast('error', 'Error', 'Failed to load documents: ' + error.message);
                 });
         } // Enhanced preview document function - Improved with better file type support
         function previewDocument(id, type, index) {
@@ -2728,7 +2797,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
             console.error('Unhandled promise rejection:', event.reason);
             // Optionally show a user-friendly error message
             if (typeof showToast === 'function') {
-                showToast('error', 'An unexpected error occurred. Please try again.');
+                showToast('error', 'Error', 'An unexpected error occurred. Please try again.');
             }
         });
 
@@ -2736,7 +2805,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
         window.addEventListener('online', function() {
             console.log('Network connection restored');
             if (typeof showToast === 'function') {
-                showToast('success', 'Network connection restored');
+                showToast('success', 'Connected', 'Network connection restored');
             }
         });
 
@@ -2907,9 +2976,11 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
             // Clear validation errors
             clearValidationErrors();
 
-            if (!confirm('Are you sure you want to upload this annex?')) {
-                return;
-            }
+            showConfirmationToast(
+                'Upload Annex',
+                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}`,
+                () => proceedWithAnnexUpload(id, fileInput, title, description)
+            );
 
             // Show loading state
             const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
@@ -2937,7 +3008,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', 'Annex uploaded successfully');
+                        showToast('success', 'Success', 'Annex uploaded successfully');
                         resetAnnexForm();
                         loadExistingAnnexes(id); // Reload annexes list
                         refreshData(); // Refresh main table if needed
@@ -2947,7 +3018,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                 })
                 .catch(error => {
                     console.error('Error uploading annex:', error);
-                    showToast('error', 'Failed to upload annex: ' + error.message);
+                    showToast('error', 'Error', 'Failed to upload annex: ' + error.message);
                 })
                 .finally(() => {
                     // Restore button state
@@ -3067,9 +3138,11 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
 
         // Delete annex
         function deleteAnnex(registrationId, annexId) {
-            if (!confirm('Are you sure you want to delete this annex? This action cannot be undone.')) {
-                return;
-            }
+            showConfirmationToast(
+                'Delete Annex',
+                'Are you sure you want to delete this annex?\n\nThis action cannot be undone.',
+                () => proceedWithAnnexDelete(registrationId, annexId)
+            );
 
             fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
                     method: 'DELETE',
@@ -3084,7 +3157,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', 'Annex deleted successfully');
+                        showToast('success', 'Success', 'Annex deleted successfully');
 
                         // Remove from UI
                         const annexElement = document.getElementById(`annex-${annexId}`);
@@ -3105,7 +3178,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                 })
                 .catch(error => {
                     console.error('Error deleting annex:', error);
-                    showToast('error', 'Failed to delete annex: ' + error.message);
+                    showToast('error', 'Error', 'Failed to delete annex: ' + error.message);
                 });
         }
 
@@ -3166,7 +3239,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
         window.addEventListener('offline', function() {
             console.log('Network connection lost');
             if (typeof showToast === 'function') {
-                showToast('warning', 'Network connection lost. Some features may not work.');
+                showToast('warning', 'Offline', 'Network connection lost. Some features may not work.');
             }
         });
 
@@ -3240,36 +3313,36 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
         console.log('BoatR Admin utilities available via window.BoatRAdmin');
 
 
-        // // Update statistics cards (optional enhancement)
-        // function updateStatisticsCards(statistics) {
-        //     if (statistics.total !== undefined) {
-        //         const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-number');
-        //         if (totalElement) {
-        //             totalElement.textContent = statistics.total;
-        //         }
-        //     }
+        // Update statistics cards (optional enhancement)
+        function updateStatisticsCards(statistics) {
+            if (statistics.total !== undefined) {
+                const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-number');
+                if (totalElement) {
+                    totalElement.textContent = statistics.total;
+                }
+            }
 
-        //     if (statistics.pending !== undefined) {
-        //         const pendingElement = document.querySelector('.stat-card:nth-child(4) .stat-number');
-        //         if (pendingElement) {
-        //             pendingElement.textContent = statistics.pending;
-        //         }
-        //     }
+            if (statistics.pending !== undefined) {
+                const pendingElement = document.querySelector('.stat-card:nth-child(4) .stat-number');
+                if (pendingElement) {
+                    pendingElement.textContent = statistics.pending;
+                }
+            }
 
-        //     if (statistics.inspection_required !== undefined) {
-        //         const inspectionElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
-        //         if (inspectionElement) {
-        //             inspectionElement.textContent = statistics.inspection_required;
-        //         }
-        //     }
+            if (statistics.inspection_required !== undefined) {
+                const inspectionElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
+                if (inspectionElement) {
+                    inspectionElement.textContent = statistics.inspection_required;
+                }
+            }
 
-        //     if (statistics.approved !== undefined) {
-        //         const approvedElement = document.querySelector('.stat-card:nth-child(3) .stat-number');
-        //         if (approvedElement) {
-        //             approvedElement.textContent = statistics.approved;
-        //         }
-        //     }
-        // }
+            if (statistics.approved !== undefined) {
+                const approvedElement = document.querySelector('.stat-card:nth-child(3) .stat-number');
+                if (approvedElement) {
+                    approvedElement.textContent = statistics.approved;
+                }
+            }
+        }
 
         // File upload validation for inspection modal
         document.addEventListener('DOMContentLoaded', function() {
@@ -3350,7 +3423,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
             const dateTo = document.getElementById('modal_date_to').value;
 
             if (dateFrom && dateTo && dateFrom > dateTo) {
-                alert('From date cannot be later than To date');
+                showToast('warning', 'From date cannot be later than To date');
                 return;
             }
 
@@ -3428,8 +3501,13 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                 });
             }
 
+            // Ctrl+R to refresh data
+            if (event.ctrlKey && event.key === 'r') {
+                event.preventDefault();
+                refreshData();
+            }
         });
-        // toast container
+        // Create toast container
         function createToastContainer() {
             let container = document.getElementById('toastContainer');
             if (!container) {
@@ -3559,9 +3637,136 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
 
         // Get CSRF token utility function
         function getCSRFToken() {
-            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            console.log('CSRF Token:', token); // Debug log
-            return token || '';
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
+        // Proceed with inspection
+        function proceedWithInspection(id, fileInput, notes, autoApprove) {
+            const completeBtn = document.getElementById('completeInspectionBtn');
+            const originalContent = completeBtn.innerHTML;
+            completeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Processing...';
+            completeBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('supporting_document', fileInput.files[0]);
+            formData.append('inspection_notes', notes);
+            formData.append('approve_application', autoApprove ? '1' : '0');
+
+            fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', data.message);
+                    if (data.registration) updateTableRow(id, data.registration);
+                    bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
+                    setTimeout(() => refreshData(), 500);
+                } else throw new Error(data.message);
+            })
+            .catch(error => showToast('error', 'Failed to complete inspection: ' + error.message))
+            .finally(() => {
+                completeBtn.innerHTML = originalContent;
+                completeBtn.disabled = false;
+            });
+        }
+
+        // Proceed with status update
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
+            const updateBtn = document.getElementById('updateStatusBtn');
+            const originalContent = updateBtn.innerHTML;
+            updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
+            updateBtn.disabled = true;
+
+            fetch(`/admin/boatr/requests/${id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus, remarks: remarks })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', data.message);
+                    if (data.registration) updateTableRow(id, data.registration);
+                    bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+                    setTimeout(() => refreshData(), 500);
+                } else throw new Error(data.message);
+            })
+            .catch(error => showToast('error', 'Failed to update status: ' + error.message))
+            .finally(() => {
+                updateBtn.innerHTML = originalContent;
+                updateBtn.disabled = false;
+            });
+        }
+
+        // Proceed with annex upload
+        function proceedWithAnnexUpload(id, fileInput, title, description) {
+            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+            const originalContent = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading...';
+            uploadBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('title', title);
+            formData.append('description', description);
+
+            fetch(`/admin/boatr/requests/${id}/annexes`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Annex uploaded successfully');
+                    resetAnnexForm();
+                    loadExistingAnnexes(id);
+                    refreshData();
+                } else throw new Error(data.message);
+            })
+            .catch(error => showToast('error', 'Failed to upload annex: ' + error.message))
+            .finally(() => {
+                uploadBtn.innerHTML = originalContent;
+                uploadBtn.disabled = false;
+            });
+        }
+
+        // Proceed with annex deletion
+        function proceedWithAnnexDelete(registrationId, annexId) {
+            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', 'Annex deleted successfully');
+                    const annexElement = document.getElementById(`annex-${annexId}`);
+                    if (annexElement) annexElement.remove();
+                    const annexesList = document.getElementById('annexesList');
+                    if (!annexesList.querySelector('.document-item')) {
+                        loadExistingAnnexes(registrationId);
+                    }
+                    refreshData();
+                } else throw new Error(data.message);
+            })
+            .catch(error => showToast('error', 'Failed to delete annex: ' + error.message));
         }
     </script>
 @endsection

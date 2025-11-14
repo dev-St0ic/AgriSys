@@ -151,13 +151,14 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     // BOATR REGISTRATIONS MANAGEMENT - COMPLETE AND FIXED
     // ==============================================
     Route::prefix('admin/boatr')->name('admin.boatr.')->group(function () {
+        
         // Main listing page
         Route::get('/requests', [BoatRController::class, 'index'])->name('requests');
         
         // Individual application routes
         Route::get('/requests/{id}', [BoatRController::class, 'show'])->name('show');
         
-        // UPDATE STATUS - FIXED: Remove the duplicate /admin/boatr prefix
+        // UPDATE STATUS
         Route::patch('/requests/{id}/status', [BoatRController::class, 'updateStatus'])
             ->name('status.update');
         
@@ -188,6 +189,7 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
+        
     });
 
     // ==============================================

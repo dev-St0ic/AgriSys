@@ -132,16 +132,17 @@ class BoatRController extends Controller
     /**
      * Update the status of the specified BoatR registration
      */
-    public function updateStatus(Request $request, $id)
+ public function updateStatus(Request $request, $id)
 {
     try {
-        Log::info('Update Status Request Received', [
-            'id' => $id,
-            'request_data' => $request->all(),
-            'method' => $request->method(),
-            'url' => $request->fullUrl()
+        // Log incoming request
+        Log::info('BoatR updateStatus called', [
+            'request_method' => $request->method(),
+            'registration_id' => $id,
+            'user_id' => auth()->id(),
         ]);
 
+        // Validate input
         $validated = $request->validate([
             'status' => 'required|in:pending,under_review,inspection_scheduled,inspection_required,documents_pending,approved,rejected',
             'remarks' => 'nullable|string|max:2000',
@@ -150,32 +151,206 @@ class BoatRController extends Controller
             'status.in' => 'Invalid status selected',
         ]);
 
+        Log::info('Validation passed', ['validated_data' => $validated]);
+
+        // Find registration
         $registration = BoatrApplication::findOrFail($id);
         $oldStatus = $registration->status;
 
-        $registration->updateStatus(
-            $validated['status'],
-            $validated['remarks'],
-            auth()->id()
-        );
+        Log::info('Registration found', [
+            'registration_id' => $registration->id,
+            'current_status' => $oldStatus,
+            'new_status' => $validated['status']
+        ]);
 
-        if ($validated['status'] === 'approved' && $registration->email) {
-            try {
-                Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
-            } catch (\Exception $e) {
-                Log::error('Failed to send approval email: ' . $e->getMessage());
-            }
-        }
+        // FIXED: Update directly instead of calling method
+        $registration->status = $validated['status'];
+        $registration->remarks = $validated['remarks'] ?? $registration->remarks;
+        $registration->reviewed_at = now();
+        $registration->reviewed_by = auth()->id();
+        $registration->save();
 
         Log::info('Status updated successfully', [
             'registration_id' => $registration->id,
             'old_status' => $oldStatus,
-            'new_status' => $validated['status']
+            'new_status' => $registration->status
+        ]);
+
+        // Refresh from database to ensure we have fresh data
+        $registration->refresh();
+
+        // Send approval email if approved
+        if ($validated['status'] === 'approved' && $registration->email) {
+            try {
+                Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
+                Log::info('Approval email sent', ['email' => $registration->email]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send approval email', [
+                    'email' => $registration->email,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
+        // Build response with fresh data from database
+        $response = [
+            'success' => true,
+            'message' => "Application {$registration->application_number} status updated to " . $this->formatStatus($registration->status),
+            'registration' => [
+                'id' => $registration->id,
+                'status' => $registration->status,
+                'formatted_status' => $this->formatStatus($registration->status),
+                'status_color' => $this->getStatusColor($registration->status),
+                'inspection_completed' => (bool) $registration->inspection_completed,
+            ]
+        ];
+
+        Log::info('Returning response', ['response_data' => $response]);
+
+        return response()->json($response, 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('Validation error in updateStatus', [
+            'registration_id' => $id,
+            'errors' => $e->errors()
         ]);
 
         return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        Log::error('Registration not found', ['registration_id' => $id]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration not found'
+        ], 404);
+
+    } catch (\Exception $e) {
+        Log::error('Unexpected error in updateStatus', [
+            'registration_id' => $id,
+            'error_message' => $e->getMessage(),
+            'error_file' => $e->getFile(),
+            'error_line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while updating the status: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * Helper method to format status
+ */
+private function formatStatus($status)
+{
+    $statusMap = [
+        'pending' => 'Pending',
+        'under_review' => 'Under Review',
+        'inspection_required' => 'Inspection Required',
+        'inspection_scheduled' => 'Inspection Scheduled',
+        'documents_pending' => 'Documents Pending',
+        'approved' => 'Approved',
+        'rejected' => 'Rejected',
+    ];
+
+    return $statusMap[$status] ?? ucfirst($status);
+}
+
+/**
+ * Helper method to get status color
+ */
+private function getStatusColor($status)
+{
+    $colorMap = [
+        'pending' => 'secondary',
+        'under_review' => 'info',
+        'inspection_required' => 'warning',
+        'inspection_scheduled' => 'warning',
+        'documents_pending' => 'warning',
+        'approved' => 'success',
+        'rejected' => 'danger',
+    ];
+
+    return $colorMap[$status] ?? 'secondary';
+}
+        /**
+ * Complete inspection - FIXED VERSION
+ */
+public function completeInspection(Request $request, $id)
+{
+    try {
+        Log::info('completeInspection called', [
+            'registration_id' => $id,
+            'user_id' => auth()->id()
+        ]);
+
+        $validated = $request->validate([
+            'supporting_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'inspection_notes' => 'nullable|string|max:2000',
+            'approve_application' => 'sometimes|boolean'
+        ]);
+
+        Log::info('Validation passed for inspection');
+
+        $registration = BoatrApplication::findOrFail($id);
+
+        Log::info('Registration found', ['registration_id' => $registration->id]);
+
+        // Handle inspection document upload
+        if ($request->hasFile('supporting_document')) {
+            $file = $request->file('supporting_document');
+            
+            Log::info('File received', [
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'file_mime' => $file->getMimeType()
+            ]);
+
+            if ($file->isValid()) {
+                $fileName = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $filePath = $file->storeAs('boatr_documents/inspection', $fileName, 'public');
+
+                Log::info('File stored', ['file_path' => $filePath]);
+
+                // Add inspection document
+                $registration->addInspectionDocument($filePath, $file->getClientOriginalName());
+
+                Log::info('Inspection document added');
+            } else {
+                throw new \Exception('File upload failed');
+            }
+        } else {
+            throw new \Exception('No file provided');
+        }
+
+        // Complete inspection
+        $registration->completeInspection(
+            $validated['inspection_notes'] ?? null,
+            auth()->id()
+        );
+
+        Log::info('Inspection completed');
+
+        // Update status based on approval decision
+        $newStatus = ($validated['approve_application'] ?? false) ? 'approved' : 'documents_pending';
+        $registration->updateStatus(
+            $newStatus,
+            $validated['inspection_notes'] ?? 'Inspection completed.',
+            auth()->id()
+        );
+
+        Log::info('Status updated after inspection', ['new_status' => $newStatus]);
+
+        return response()->json([
             'success' => true,
-            'message' => "Application {$registration->application_number} status updated to " . $registration->formatted_status,
+            'message' => 'Inspection completed successfully' . ($newStatus === 'approved' ? ' and application approved.' : '.'),
             'registration' => [
                 'id' => $registration->id,
                 'status' => $registration->status,
@@ -184,94 +359,40 @@ class BoatRController extends Controller
                 'inspection_completed' => $registration->inspection_completed,
                 'total_documents' => $registration->total_documents_count
             ]
-        ]);
+        ], 200);
 
     } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::error('Validation Error', ['errors' => $e->errors()]);
+        Log::error('Validation error in completeInspection', ['errors' => $e->errors()]);
+
         return response()->json([
             'success' => false,
-            'message' => 'Please check your input',
+            'message' => 'Validation failed',
             'errors' => $e->errors()
         ], 422);
 
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        Log::error('Registration not found in completeInspection', ['registration_id' => $id]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration not found'
+        ], 404);
+
     } catch (\Exception $e) {
-        Log::error('Update Status Error', [
-            'id' => $id,
-            'error' => $e->getMessage(),
+        Log::error('Error completing inspection', [
+            'registration_id' => $id,
+            'error_message' => $e->getMessage(),
+            'error_file' => $e->getFile(),
+            'error_line' => $e->getLine(),
             'trace' => $e->getTraceAsString()
         ]);
 
         return response()->json([
             'success' => false,
-            'message' => 'Error updating registration status: ' . $e->getMessage()
+            'message' => 'Error completing inspection: ' . $e->getMessage()
         ], 500);
     }
 }
-        /**
-         * Complete inspection
-         */
-        public function completeInspection(Request $request, $id)
-        {
-            try {
-                $validated = $request->validate([
-                    'supporting_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
-                    'inspection_notes' => 'nullable|string|max:2000',
-                    'approve_application' => 'sometimes|boolean'
-                ]);
-
-                $registration = BoatrApplication::findOrFail($id);
-
-                // Handle inspection document upload
-                if ($request->hasFile('supporting_document')) {
-                    $file = $request->file('supporting_document');
-                    if ($file->isValid()) {
-                        $fileName = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                        $filePath = $file->storeAs('boatr_documents/inspection', $fileName, 'public');
-
-                        // Add inspection document
-                        $registration->addInspectionDocument($filePath, $file->getClientOriginalName());
-                    }
-                }
-
-                // Complete inspection
-                $registration->completeInspection(
-                    $validated['inspection_notes'] ?? null,
-                    auth()->id()
-                );
-
-                // Update status based on approval decision
-                $newStatus = ($validated['approve_application'] ?? false) ? 'approved' : 'documents_pending';
-                $registration->updateStatus(
-                    $newStatus,
-                    $validated['inspection_notes'] ?? 'Inspection completed.',
-                    auth()->id()
-                );
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Inspection completed successfully' . ($newStatus === 'approved' ? ' and application approved.' : '.'),
-                    'registration' => [
-                        'id' => $registration->id,
-                        'status' => $registration->status,
-                        'formatted_status' => $registration->formatted_status,
-                        'status_color' => $registration->status_color,
-                        'inspection_completed' => $registration->inspection_completed,
-                        'total_documents' => $registration->total_documents_count
-                    ]
-                ]);
-
-            } catch (\Exception $e) {
-                Log::error('Error completing inspection', [
-                    'registration_id' => $id,
-                    'error' => $e->getMessage()
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error completing inspection: ' . $e->getMessage()
-                ], 500);
-            }
-        }
 
     /**
      * Show individual application details - FIXED
