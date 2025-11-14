@@ -1935,7 +1935,7 @@
                 })
                 .catch(error => {
                     console.error('Error loading application details:', error);
-                    showToast('error', 'Error', 'Failed to load application details: ' + error.message);
+                    showToast('error', 'Failed to load application details: ' + error.message);
                     modal.hide();
                 });
         }
@@ -1963,7 +1963,7 @@
             const remarks = document.getElementById('remarks').value;
 
             if (!newStatus) {
-                showToast('warning', 'Warning', 'Please select a status');
+                showToast('warning', 'Please select a status before updating');
                 return;
             }
 
@@ -2001,7 +2001,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', 'Success', data.message);
+                        showToast('success', data.message);
 
                         // Update table row in real-time
                         if (data.registration) {
@@ -2026,7 +2026,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Error', 'Failed to update status: ' + error.message);
+                    showToast('error', 'Failed to update status: ' + error.message);
                 })
                 .finally(() => {
                     // Restore button state
@@ -2098,7 +2098,7 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        showToast('success', 'Success', data.message);
+                        showToast('success', data.message);
 
                         // Update table row in real-time
                         if (data.registration) {
@@ -2123,7 +2123,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Error', 'Failed to complete inspection: ' + error.message);
+                    showToast('error', 'Failed to complete inspection: ' + error.message);
                 })
                 .finally(() => {
                     // Restore button state
@@ -2344,12 +2344,12 @@
                         previewDocument(id, docType, docIndex);
                     } else {
                         // Show a message that no documents are available
-                        showToast('info', 'No Documents', 'No documents available for this application.');
+                        showToast('info', 'No documents available for this application');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showToast('error', 'Error', 'Failed to load documents: ' + error.message);
+                    showToast('error', 'Failed to load documents: ' + error.message);
                 });
         } // Enhanced preview document function - Improved with better file type support
         function previewDocument(id, type, index) {
@@ -2797,7 +2797,7 @@
             console.error('Unhandled promise rejection:', event.reason);
             // Optionally show a user-friendly error message
             if (typeof showToast === 'function') {
-                showToast('error', 'Error', 'An unexpected error occurred. Please try again.');
+                showToast('error', 'An unexpected error occurred. Please try again.');
             }
         });
 
@@ -2805,7 +2805,7 @@
         window.addEventListener('online', function() {
             console.log('Network connection restored');
             if (typeof showToast === 'function') {
-                showToast('success', 'Connected', 'Network connection restored');
+                showToast('success', 'Network connection restored');
             }
         });
 
@@ -2859,7 +2859,7 @@
                 })
                 .catch(error => {
                     console.error('Error loading annexes data:', error);
-                    showToast('error', 'Error', 'Failed to load data: ' + error.message);
+                    showToast('error', 'Failed to load data: ' + error.message);
 
                     // Hide loading, show error
                     document.getElementById('annexesLoading').style.display = 'none';
@@ -3018,7 +3018,7 @@
                 })
                 .catch(error => {
                     console.error('Error uploading annex:', error);
-                    showToast('error', 'Error', 'Failed to upload annex: ' + error.message);
+                    showToast('error', 'Failed to upload annex: ' + error.message);
                 })
                 .finally(() => {
                     // Restore button state
@@ -3178,7 +3178,7 @@
                 })
                 .catch(error => {
                     console.error('Error deleting annex:', error);
-                    showToast('error', 'Error', 'Failed to delete annex: ' + error.message);
+                    showToast('error', 'Failed to delete annex: ' + error.message);
                 });
         }
 
@@ -3239,7 +3239,7 @@
         window.addEventListener('offline', function() {
             console.log('Network connection lost');
             if (typeof showToast === 'function') {
-                showToast('warning', 'Offline', 'Network connection lost. Some features may not work.');
+                showToast('warning', 'Network connection lost. Some features may not work.');
             }
         });
 
@@ -3519,27 +3519,15 @@
             return container;
         }
 
-        // Toast notification function
+       // Toast notification function - UNIFIED VERSION
         function showToast(type, message) {
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
             const iconMap = {
-                'success': {
-                    icon: 'fas fa-check-circle',
-                    color: 'success'
-                },
-                'error': {
-                    icon: 'fas fa-exclamation-circle',
-                    color: 'danger'
-                },
-                'warning': {
-                    icon: 'fas fa-exclamation-triangle',
-                    color: 'warning'
-                },
-                'info': {
-                    icon: 'fas fa-info-circle',
-                    color: 'info'
-                }
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
             };
 
             const config = iconMap[type] || iconMap['info'];
