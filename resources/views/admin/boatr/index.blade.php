@@ -305,6 +305,12 @@
                                                 <i class="fas fa-clipboard-check me-1"></i>Inspection
                                             </button>
                                         @endif
+
+                                        <button class="btn btn-sm btn-outline-danger"
+                                            onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->application_number }}')" 
+                                            title="Delete Application">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -946,6 +952,28 @@
                 min-width: auto;
                 max-width: 100%;
             }
+        }
+
+        
+        /* Delete button styling */
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .btn-outline-danger:focus,
+        .btn-outline-danger:active {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        /* Row deletion animation */
+        .row-deleting {
+            background-color: #f8d7da;
+            transition: all 0.3s ease;
         }
         /* Modern Statistics Cards */
         .stat-card {
@@ -2194,6 +2222,79 @@
             .finally(() => {
                 completeBtn.innerHTML = originalContent;
                 completeBtn.disabled = false;
+            });
+        }
+
+       // Delete registration with confirmation toast
+        function deleteRegistration(id, applicationNumber) {
+            showConfirmationToast(
+                'Delete Application',
+                `Are you sure you want to delete application ${applicationNumber}?\n\nThis action cannot be undone and will also delete:\n• All associated documents\n• All inspection records\n• All annexes`,
+                () => proceedWithRegistrationDelete(id, applicationNumber)
+            );
+        }
+
+        // Proceed with registration deletion
+        function proceedWithRegistrationDelete(id, applicationNumber) {
+            // DEBUG: Log the URL being called
+            const deleteUrl = `/admin/boatr/requests/${id}`;
+            console.log('Delete URL:', deleteUrl);
+            console.log('Method: DELETE');
+            
+            fetch(deleteUrl, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'  // Add this header
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                if (!response.ok) {
+                    // Get the response text for debugging
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        throw new Error(`HTTP ${response.status}: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Delete response:', data);
+                
+                if (data.success) {
+                    showToast('success', data.message || 'Application deleted successfully');
+                    
+                    // Remove row from table with animation
+                    const row = document.getElementById(`registration-${id}`);
+                    if (row) {
+                        row.style.transition = 'opacity 0.3s ease';
+                        row.style.opacity = '0';
+                        setTimeout(() => {
+                            row.remove();
+                            
+                            // Check if table is empty
+                            const tbody = document.querySelector('#registrationsTable tbody');
+                            if (tbody.children.length === 0) {
+                                // Reload page to show empty state
+                                setTimeout(() => window.location.reload(), 1500);
+                            }
+                        }, 300);
+                    } else {
+                        // Fallback: reload page
+                        setTimeout(() => window.location.reload(), 1500);
+                    }
+                } else {
+                    throw new Error(data.message || 'Failed to delete application');
+                }
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                showToast('error', 'Failed to delete application: ' + error.message);
             });
         }
 

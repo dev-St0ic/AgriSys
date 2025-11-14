@@ -739,7 +739,7 @@ class BoatRController extends Controller
     }
 
     /**
-     * Delete registration - FIXED
+     * Delete registration - FIXED & ENHANCED
      */
     public function destroy(Request $request, $id)
     {
@@ -760,6 +760,18 @@ class BoatRController extends Controller
                     if (isset($document['path']) && Storage::disk('public')->exists($document['path'])) {
                         Storage::disk('public')->delete($document['path']);
                     }
+                }
+            }
+
+            // Delete all associated annexes - FIXED: Get the collection first
+            $annexes = $registration->annexes; // This returns a collection
+            
+            if ($annexes->isNotEmpty()) {
+                foreach ($annexes as $annex) {
+                    if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                        Storage::disk('public')->delete($annex->file_path);
+                    }
+                    $annex->delete();
                 }
             }
 
