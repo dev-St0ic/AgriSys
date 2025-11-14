@@ -1505,6 +1505,72 @@
         .boatr-no-documents i {
             font-size: 1.25rem;
         }
+       /* Fix nested modal backdrop greying */
+        .modal {
+            background-color: rgba(0, 0, 0, 0) !important;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.5 !important;
+        }
+
+        /* Prevent multiple backdrops from stacking and turning grey */
+        .modal-backdrop + .modal-backdrop {
+            display: none !important;
+        }
+
+        /* Fix z-index for nested modals */
+        .modal:nth-of-type(1) {
+            z-index: 1050;
+        }
+
+        .modal:nth-of-type(1) ~ .modal-backdrop {
+            z-index: 1049;
+        }
+
+        .modal:nth-of-type(2) {
+            z-index: 1060;
+        }
+
+        .modal:nth-of-type(2) ~ .modal-backdrop {
+            z-index: 1059;
+        }
+
+        /* Specific nested modal handling */
+        .modal.show ~ .modal {
+            z-index: 1060 !important;
+        }
+
+        .modal.show ~ .modal ~ .modal-backdrop {
+            z-index: 1059 !important;
+        }
+
+        /* Document modal on top when opened from registration modal */
+        #documentModal {
+            z-index: 1060 !important;
+        }
+
+        #documentPreviewModal {
+            z-index: 1060 !important;
+        }
+
+        #annexesModal {
+            z-index: 1060 !important;
+        }
+
+        /* Prevent backdrop color issues */
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        /* Clear backdrop stacking */
+        .modal + .modal-backdrop + .modal-backdrop {
+            display: none !important;
+        }
 
         /* Document type specific colors for mini previews */
         .boatr-mini-doc[title*="User"] {
@@ -1949,10 +2015,7 @@
                         // Close modal
                         bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
 
-                        // AUTO-REFRESH: Refresh data immediately after successful completion
-                        setTimeout(() => {
-                            refreshData();
-                        }, 500);
+                       setTimeout(() => window.location.reload(), 1500); // refresh after 1.5 seconds
 
                         // Optional: Update statistics cards
                         if (data.statistics) {
@@ -3012,7 +3075,7 @@
                             loadExistingAnnexes(registrationId);
                         }
 
-                        refreshData(); // Refresh main table
+                        setTimeout(() => window.location.reload(), 1500); // Refresh main table after deletion
                     } else {
                         throw new Error(data.message || 'Failed to delete annex');
                     }
@@ -3342,11 +3405,6 @@
                 });
             }
 
-            // Ctrl+R to refresh data
-            if (event.ctrlKey && event.key === 'r') {
-                event.preventDefault();
-                refreshData();
-            }
         });
         // Create toast container
         function createToastContainer() {
