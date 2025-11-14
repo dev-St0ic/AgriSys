@@ -23,6 +23,10 @@ class SlideshowImage extends Model
         'order' => 'integer',
     ];
 
+    protected $appends = [
+        'image_url',
+    ];
+
     /**
      * Get the full URL for the slideshow image
      */

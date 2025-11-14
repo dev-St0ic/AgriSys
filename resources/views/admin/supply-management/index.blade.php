@@ -23,9 +23,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card metric-card border-0 shadow-sm h-100">
                     <div class="card-body text-center">
-                        <div class="metric-icon-circle bg-primary-soft mx-auto mb-3">
-                            <i class="fas fa-boxes text-primary"></i>
-                        </div>
+                        <i class="fas fa-boxes text-primary mb-3" style="font-size: 2.5rem;"></i>
                         <h2 class="metric-value mb-2">{{ number_format($totalItems) }}</h2>
                         <p class="metric-label text-primary mb-0">TOTAL ITEMS</p>
                     </div>
@@ -36,9 +34,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card metric-card border-0 shadow-sm h-100">
                     <div class="card-body text-center">
-                        <div class="metric-icon-circle bg-warning-soft mx-auto mb-3">
-                            <i class="fas fa-exclamation-triangle text-warning"></i>
-                        </div>
+                        <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 2.5rem;"></i>
                         <h2 class="metric-value mb-2">{{ number_format($lowSupplyItems) }}</h2>
                         <p class="metric-label text-warning mb-0">LOW SUPPLY</p>
                     </div>
@@ -49,9 +45,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card metric-card border-0 shadow-sm h-100">
                     <div class="card-body text-center">
-                        <div class="metric-icon-circle bg-success-soft mx-auto mb-3">
-                            <i class="fas fa-warehouse text-success"></i>
-                        </div>
+                        <i class="fas fa-warehouse text-success mb-3" style="font-size: 2.5rem;"></i>
                         <h2 class="metric-value mb-2">{{ number_format($totalSupply) }}</h2>
                         <p class="metric-label text-success mb-0">TOTAL SUPPLY</p>
                     </div>
@@ -62,9 +56,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="card metric-card border-0 shadow-sm h-100">
                     <div class="card-body text-center">
-                        <div class="metric-icon-circle bg-danger-soft mx-auto mb-3">
-                            <i class="fas fa-times-circle text-danger"></i>
-                        </div>
+                        <i class="fas fa-times-circle text-danger mb-3" style="font-size: 2.5rem;"></i>
                         <h2 class="metric-value mb-2">{{ number_format($outOfSupplyItems) }}</h2>
                         <p class="metric-label text-danger mb-0">OUT OF SUPPLY</p>
                     </div>

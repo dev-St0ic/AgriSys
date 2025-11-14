@@ -220,7 +220,7 @@
                                                         <div class="category-header d-flex align-items-center justify-content-between mb-1 p-2 bg-light rounded"
                                                             style="cursor: pointer;" data-bs-toggle="collapse"
                                                             data-bs-target="#items-{{ $request->id }}-{{ $categoryId }}"
-                                                            aria-expanded="{{ $loop->first ? 'true' : 'false' }}">
+                                                            aria-expanded="false">
                                                             <div class="d-flex align-items-center flex-grow-1">
                                                                 <i class="fas {{ $category->icon ?? 'fa-leaf' }} text-primary me-2"
                                                                     style="font-size: 0.9rem;"></i>
@@ -234,7 +234,7 @@
                                                         </div>
 
                                                         <!-- Category Items - Collapsible -->
-                                                        <div class="collapse {{ $loop->first ? 'show' : '' }}"
+                                                        <div class="collapse"
                                                             id="items-{{ $request->id }}-{{ $categoryId }}">
                                                             <div class="ps-2 pe-1">
                                                                 @if ($approvedItems->count() > 0)
@@ -290,14 +290,13 @@
                                                 @endforeach
 
                                                 <!-- Total Items Summary -->
-                                                @if ($totalItems > 5)
-                                                    <div class="mt-2 pt-1 border-top">
-                                                        <small class="text-muted">
-                                                            <i class="fas fa-info-circle me-1"></i>
-                                                            Total: <strong>{{ $totalItems }}</strong> items
-                                                        </small>
-                                                    </div>
-                                                @endif
+                                                <div class="mt-2 pt-2 border-top">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-info-circle me-1"></i>
+                                                        Total: <strong>{{ $totalItems }}</strong>
+                                                        item{{ $totalItems !== 1 ? 's' : '' }}
+                                                    </small>
+                                                </div>
                                             </div>
                                         </td>
                                         <td class="px-3 py-3 border-end">
@@ -321,15 +320,15 @@
                                                 </button>
 
                                                 <!-- Add New Request Button
-                                                            <div class="mb-3">
-                                                                <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
-                                                                    <i class="fas fa-plus-circle me-2"></i>Create New Request
-                                                                </a>
-                                                            </div>
-                                                             @if (in_array($request->status, ['pending', 'under_review']))
+                                                                <div class="mb-3">
+                                                                    <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
+                                                                        <i class="fas fa-plus-circle me-2"></i>Create New Request
+                                                                    </a>
+                                                                </div>
+                                                                 @if (in_array($request->status, ['pending', 'under_review']))
     <a href="{{ route('admin.seedlings.edit', $request) }}" class="btn btn-outline-warning">
-                                                                    <i class="fas fa-edit"></i> Edit
-                                                                </a>
+                                                                        <i class="fas fa-edit"></i> Edit
+                                                                    </a>
     @endif -->
                                                 <button type="button" class="btn btn-outline-success"
                                                     data-bs-toggle="modal"
