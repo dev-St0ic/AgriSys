@@ -60,7 +60,7 @@ class SeedlingRequestController extends Controller
         }
 
         // Paginate results
-        $requests = $query->paginate(15)->withQueryString();
+        $requests = $query->paginate(10)->withQueryString();
 
         // Get statistics
         $statsQuery = SeedlingRequest::query();

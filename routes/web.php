@@ -103,8 +103,8 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     // ==============================================
     Route::prefix('admin/rsbsa-applications')->name('admin.rsbsa.')->group(function () {
         Route::get('/', [RsbsaController::class, 'index'])->name('applications');
-        // add registration 
-        Route::post('/create', [RsbsaController::class, 'store'])->name('store'); 
+        // add registration
+        Route::post('/create', [RsbsaController::class, 'store'])->name('store');
         Route::get('/{id}', [RsbsaController::class, 'show'])->name('show');
         Route::patch('/{id}/status', [RsbsaController::class, 'updateStatus'])->name('update-status');
         Route::delete('/{id}', [RsbsaController::class, 'destroy'])->name('destroy');
@@ -119,18 +119,18 @@ Route::get('/api/validate-fishr/{number}', function($number) {
        // Static routes FIRST
         Route::get('/export', [FishRController::class, 'export'])->name('export');
 
-        // create 
+        // create
         Route::post('/create', [FishRController::class, 'store'])->name('store');
-        
+
         // DELETE route BEFORE GET/{id}
         Route::delete('/{id}', [FishRController::class, 'destroy'])->name('destroy');
-        
+
         // Index route
         Route::get('/', [FishRController::class, 'index'])->name('requests');
-        
+
         // GET by ID
         Route::get('/{id}', [FishRController::class, 'show'])->name('show');
-        
+
         // Other routes
         Route::patch('/{id}/status', [FishRController::class, 'updateStatus'])->name('update-status');
         Route::get('/{id}/download', [FishRController::class, 'downloadDocument'])->name('download-document');
@@ -236,13 +236,13 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::get('/requests/{seedlingRequest}/supply-status', [SeedlingRequestController::class, 'getSupplyStatus'])->name('supply-status');
     Route::get('/category-stats', [SeedlingRequestController::class, 'getCategoryStats'])->name('category-stats');
 
-    // Category Management
-    Route::get('/categories', [SeedlingCategoryItemController::class, 'indexCategories'])->name('categories.index');
-    Route::get('/categories/{category}', [SeedlingCategoryItemController::class, 'showCategory'])->name('categories.show');
-    Route::post('/categories', [SeedlingCategoryItemController::class, 'storeCategory'])->name('categories.store');
-    Route::put('/categories/{category}', [SeedlingCategoryItemController::class, 'updateCategory'])->name('categories.update');
-    Route::delete('/categories/{category}', [SeedlingCategoryItemController::class, 'destroyCategory'])->name('categories.destroy');
-    Route::post('/categories/{category}/toggle', [SeedlingCategoryItemController::class, 'toggleCategoryStatus'])->name('categories.toggle');
+    // Supply Management
+    Route::get('/supply-management', [SeedlingCategoryItemController::class, 'indexCategories'])->name('supply-management.index');
+    Route::get('/supply-management/{category}', [SeedlingCategoryItemController::class, 'showCategory'])->name('supply-management.show');
+    Route::post('/supply-management', [SeedlingCategoryItemController::class, 'storeCategory'])->name('supply-management.store');
+    Route::put('/supply-management/{category}', [SeedlingCategoryItemController::class, 'updateCategory'])->name('supply-management.update');
+    Route::delete('/supply-management/{category}', [SeedlingCategoryItemController::class, 'destroyCategory'])->name('supply-management.destroy');
+    Route::post('/supply-management/{category}/toggle', [SeedlingCategoryItemController::class, 'toggleCategoryStatus'])->name('supply-management.toggle');
 
   // Item Management - PUT THE MORE SPECIFIC ROUTES FIRST
     Route::post('/items', [SeedlingCategoryItemController::class, 'storeItem'])->name('items.store');

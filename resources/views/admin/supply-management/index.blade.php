@@ -1,15 +1,15 @@
-{{-- resources/views/admin/seedlings/categories/index.blade.php --}}
+{{-- resources/views/admin/supply-management/index.blade.php --}}
 
 @extends('layouts.app')
 
-@section('title', 'Manage Categories & Supply')
+@section('title', 'Supply Management')
+
+@section('page-title')
+    <i class="fas fa-boxes text-primary me-2"></i><span class="text-primary">Supply Management</span>
+@endsection
 
 @section('content')
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-layer-group me-2"></i>Manage Categories & Supply</h2>
-        </div>
-
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show">
                 {{ session('success') }}
@@ -18,64 +18,55 @@
         @endif
 
         <!-- Supply Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-primary text-uppercase mb-1">Total Items</div>
-                                <div class="h5 mb-0 fw-bold">{{ $totalItems }}</div>
-                            </div>
-                            <div class="ms-3">
-                                <i class="fas fa-boxes fa-2x text-primary"></i>
-                            </div>
+        <div class="row mb-4 g-3">
+            <!-- Total Items -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card metric-card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-icon-circle bg-primary-soft mx-auto mb-3">
+                            <i class="fas fa-boxes text-primary"></i>
                         </div>
+                        <h2 class="metric-value mb-2">{{ number_format($totalItems) }}</h2>
+                        <p class="metric-label text-primary mb-0">TOTAL ITEMS</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-success text-uppercase mb-1">Total Supply</div>
-                                <div class="h5 mb-0 fw-bold">{{ number_format($totalSupply) }}</div>
-                            </div>
-                            <div class="ms-3">
-                                <i class="fas fa-warehouse fa-2x text-success"></i>
-                            </div>
+
+            <!-- Low Supply -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card metric-card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-icon-circle bg-warning-soft mx-auto mb-3">
+                            <i class="fas fa-exclamation-triangle text-warning"></i>
                         </div>
+                        <h2 class="metric-value mb-2">{{ number_format($lowSupplyItems) }}</h2>
+                        <p class="metric-label text-warning mb-0">LOW SUPPLY</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">Low Supply</div>
-                                <div class="h5 mb-0 fw-bold">{{ $lowSupplyItems }}</div>
-                            </div>
-                            <div class="ms-3">
-                                <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
-                            </div>
+
+            <!-- Total Supply -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card metric-card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-icon-circle bg-success-soft mx-auto mb-3">
+                            <i class="fas fa-warehouse text-success"></i>
                         </div>
+                        <h2 class="metric-value mb-2">{{ number_format($totalSupply) }}</h2>
+                        <p class="metric-label text-success mb-0">TOTAL SUPPLY</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-danger text-uppercase mb-1">Out of Supply</div>
-                                <div class="h5 mb-0 fw-bold">{{ $outOfSupplyItems }}</div>
-                            </div>
-                            <div class="ms-3">
-                                <i class="fas fa-times-circle fa-2x text-danger"></i>
-                            </div>
+
+            <!-- Out of Supply -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card metric-card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <div class="metric-icon-circle bg-danger-soft mx-auto mb-3">
+                            <i class="fas fa-times-circle text-danger"></i>
                         </div>
+                        <h2 class="metric-value mb-2">{{ number_format($outOfSupplyItems) }}</h2>
+                        <p class="metric-label text-danger mb-0">OUT OF SUPPLY</p>
                     </div>
                 </div>
             </div>
@@ -85,7 +76,7 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div class="category-tabs-nav d-flex flex-wrap gap-2">
+                    <div class="category-tabs-nav d-flex flex-wrap gap-2 align-items-center">
                         <button class="category-tab-btn active" data-category="all" onclick="switchCategory('all', event)">
                             <i class="fas fa-th-large"></i> All Categories
                         </button>
@@ -129,27 +120,59 @@
                                         @if (!$category->is_active)
                                             <span class="badge bg-warning">Inactive</span>
                                         @endif
+                                        <span class="badge bg-secondary ms-1">{{ $category->items->count() }}</span>
+                                        @php
+                                            $lowSupplyCount = $category->items
+                                                ->filter(function ($item) {
+                                                    return $item->needsReorder();
+                                                })
+                                                ->count();
+                                        @endphp
+                                        @if ($lowSupplyCount > 0)
+                                            <span class="badge bg-danger ms-1" title="Items need attention">
+                                                <i class="fas fa-exclamation-triangle"></i> {{ $lowSupplyCount }}
+                                            </span>
+                                        @endif
                                     </h5>
                                     <small class="text-muted">{{ $category->description }}</small>
                                 </div>
-                                <div class="btn-group">
-                                    <button class="btn btn-sm btn-outline-primary"
-                                        onclick="editCategory({{ $category->id }})">
-                                        <i class="fas fa-edit"></i>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <button class="btn btn-sm btn-success" data-bs-toggle="modal"
+                                        data-bs-target="#createItemModal" onclick="setItemCategory({{ $category->id }})"
+                                        title="Add new item to this category">
+                                        <i class="fas fa-plus me-1"></i><span class="d-none d-sm-inline">Add Item</span>
                                     </button>
-                                    <button
-                                        class="btn btn-sm btn-outline-{{ $category->is_active ? 'warning' : 'success' }}"
-                                        onclick="toggleCategory({{ $category->id }})">
-                                        <i class="fas fa-power-off"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal"
-                                        data-bs-target="#createItemModal" onclick="setItemCategory({{ $category->id }})">
-                                        <i class="fas fa-plus"></i> Item
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger"
-                                        onclick="deleteCategory({{ $category->id }})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                            data-bs-toggle="dropdown" aria-expanded="false" title="More actions">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a class="dropdown-item" href="#"
+                                                    onclick="event.preventDefault(); editCategory({{ $category->id }})">
+                                                    <i class="fas fa-edit text-primary me-2"></i>Edit Category
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="#"
+                                                    onclick="event.preventDefault(); toggleCategory({{ $category->id }})">
+                                                    <i
+                                                        class="fas fa-{{ $category->is_active ? 'eye-slash' : 'eye' }} text-{{ $category->is_active ? 'warning' : 'success' }} me-2"></i>
+                                                    {{ $category->is_active ? 'Deactivate' : 'Activate' }}
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="#"
+                                                    onclick="event.preventDefault(); deleteCategory({{ $category->id }})">
+                                                    <i class="fas fa-trash me-2"></i>Delete Category
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -207,25 +230,56 @@
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            <div class="btn-group btn-group-sm">
-                                                                <button class="btn btn-outline-success"
+                                                            <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                                                <button class="btn btn-sm btn-success position-relative"
                                                                     onclick="manageSupply({{ $item->id }})"
-                                                                    title="Manage Supply">
+                                                                    title="Manage Supply" data-bs-toggle="tooltip"
+                                                                    data-bs-placement="top">
                                                                     <i class="fas fa-warehouse"></i>
+                                                                    @if ($item->needsReorder())
+                                                                        <span
+                                                                            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                                                                            <span class="visually-hidden">Needs
+                                                                                reorder</span>
+                                                                        </span>
+                                                                    @endif
                                                                 </button>
-                                                                <button class="btn btn-outline-primary"
-                                                                    onclick="editItem({{ $item->id }})">
+                                                                <button class="btn btn-sm btn-outline-primary"
+                                                                    onclick="editItem({{ $item->id }})"
+                                                                    title="Edit Item" data-bs-toggle="tooltip"
+                                                                    data-bs-placement="top">
                                                                     <i class="fas fa-edit"></i>
                                                                 </button>
-                                                                <button
-                                                                    class="btn btn-outline-{{ $item->is_active ? 'warning' : 'success' }}"
-                                                                    onclick="toggleItem({{ $item->id }})">
-                                                                    <i class="fas fa-power-off"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-danger"
-                                                                    onclick="deleteItem({{ $item->id }})">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
+                                                                <div class="btn-group btn-group-sm">
+                                                                    <button type="button"
+                                                                        class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+                                                                        data-bs-toggle="dropdown" aria-expanded="false"
+                                                                        title="More actions">
+                                                                        <span class="visually-hidden">Toggle
+                                                                            Dropdown</span>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                                        <li>
+                                                                            <a class="dropdown-item" href="#"
+                                                                                onclick="event.preventDefault(); toggleItem({{ $item->id }})">
+                                                                                <i
+                                                                                    class="fas fa-{{ $item->is_active ? 'eye-slash' : 'eye' }} text-{{ $item->is_active ? 'warning' : 'success' }} me-2"></i>
+                                                                                {{ $item->is_active ? 'Deactivate' : 'Activate' }}
+                                                                            </a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <hr class="dropdown-divider">
+                                                                        </li>
+                                                                        <li>
+                                                                            <a class="dropdown-item text-danger"
+                                                                                href="#"
+                                                                                onclick="event.preventDefault(); deleteItem({{ $item->id }})">
+                                                                                <i class="fas fa-trash me-2"></i>Delete
+                                                                                Item
+                                                                            </a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -255,28 +309,59 @@
                                 @if (!$category->is_active)
                                     <span class="badge bg-warning">Inactive</span>
                                 @endif
+                                <span class="badge bg-secondary ms-1">{{ $category->items->count() }}</span>
+                                @php
+                                    $lowSupplyCount = $category->items
+                                        ->filter(function ($item) {
+                                            return $item->needsReorder();
+                                        })
+                                        ->count();
+                                @endphp
+                                @if ($lowSupplyCount > 0)
+                                    <span class="badge bg-danger ms-1" title="Items need attention">
+                                        <i class="fas fa-exclamation-triangle"></i> {{ $lowSupplyCount }}
+                                    </span>
+                                @endif
                             </h4>
                             <p class="text-muted mb-0"><small>{{ $category->description }}</small></p>
                         </div>
-                        <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-primary" onclick="editCategory({{ $category->id }})"
-                                title="Edit Category">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button class="btn btn-sm btn-outline-{{ $category->is_active ? 'warning' : 'success' }}"
-                                onclick="toggleCategory({{ $category->id }})"
-                                title="{{ $category->is_active ? 'Deactivate' : 'Activate' }}">
-                                <i class="fas fa-power-off"></i>
-                            </button>
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
                             <button class="btn btn-sm btn-success" data-bs-toggle="modal"
                                 data-bs-target="#createItemModal" onclick="setItemCategory({{ $category->id }})"
-                                title="Add Item">
-                                <i class="fas fa-plus"></i> Add Item
+                                title="Add new item to this category">
+                                <i class="fas fa-plus me-1"></i><span class="d-none d-md-inline">Add Item</span>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory({{ $category->id }})"
-                                title="Delete Category">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                    data-bs-toggle="dropdown" aria-expanded="false" title="More actions">
+                                    <i class="fas fa-ellipsis-v me-1"></i><span class="d-none d-md-inline">More</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="#"
+                                            onclick="event.preventDefault(); editCategory({{ $category->id }})">
+                                            <i class="fas fa-edit text-primary me-2"></i>Edit Category
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#"
+                                            onclick="event.preventDefault(); toggleCategory({{ $category->id }})">
+                                            <i
+                                                class="fas fa-{{ $category->is_active ? 'eye-slash' : 'eye' }} text-{{ $category->is_active ? 'warning' : 'success' }} me-2"></i>
+                                            {{ $category->is_active ? 'Deactivate' : 'Activate' }} Category
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#"
+                                            onclick="event.preventDefault(); deleteCategory({{ $category->id }})">
+                                            <i class="fas fa-trash me-2"></i>Delete Category
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body p-0">
@@ -359,27 +444,52 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <div class="d-flex gap-1 justify-content-center">
-                                                        <button class="btn btn-sm btn-success"
+                                                    <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                                        <button class="btn btn-sm btn-success position-relative"
                                                             onclick="manageSupply({{ $item->id }})"
-                                                            title="Manage Supply">
+                                                            title="Manage Supply" data-bs-toggle="tooltip"
+                                                            data-bs-placement="top">
                                                             <i class="fas fa-warehouse"></i>
+                                                            @if ($item->needsReorder())
+                                                                <span
+                                                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                                    !
+                                                                    <span class="visually-hidden">needs reorder</span>
+                                                                </span>
+                                                            @endif
                                                         </button>
-                                                        <button class="btn btn-sm btn-primary"
-                                                            onclick="editItem({{ $item->id }})" title="Edit Item">
+                                                        <button class="btn btn-sm btn-outline-primary"
+                                                            onclick="editItem({{ $item->id }})" title="Edit Item"
+                                                            data-bs-toggle="tooltip" data-bs-placement="top">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
-                                                        <button
-                                                            class="btn btn-sm btn-{{ $item->is_active ? 'warning' : 'info' }}"
-                                                            onclick="toggleItem({{ $item->id }})"
-                                                            title="{{ $item->is_active ? 'Deactivate' : 'Activate' }}">
-                                                            <i class="fas fa-power-off"></i>
-                                                        </button>
-                                                        <button class="btn btn-sm btn-danger"
-                                                            onclick="deleteItem({{ $item->id }})"
-                                                            title="Delete Item">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <button type="button"
+                                                                class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+                                                                data-bs-toggle="dropdown" aria-expanded="false"
+                                                                title="More actions">
+                                                                <span class="visually-hidden">Toggle Dropdown</span>
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                <li>
+                                                                    <a class="dropdown-item" href="#"
+                                                                        onclick="event.preventDefault(); toggleItem({{ $item->id }})">
+                                                                        <i
+                                                                            class="fas fa-{{ $item->is_active ? 'eye-slash' : 'eye' }} text-{{ $item->is_active ? 'warning' : 'success' }} me-2"></i>
+                                                                        {{ $item->is_active ? 'Deactivate' : 'Activate' }}
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <hr class="dropdown-divider">
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item text-danger" href="#"
+                                                                        onclick="event.preventDefault(); deleteItem({{ $item->id }})">
+                                                                        <i class="fas fa-trash me-2"></i>Delete Item
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1109,7 +1219,7 @@
 
         async function editCategory(categoryId) {
             try {
-                const category = await makeRequest(`/admin/seedlings/categories/${categoryId}`, {
+                const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
                     method: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken
@@ -1147,7 +1257,7 @@
             const formData = new FormData(this);
 
             try {
-                const data = await makeRequest(`/admin/seedlings/categories/${categoryId}`, {
+                const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -1164,7 +1274,7 @@
         async function toggleCategory(categoryId) {
             if (!confirm('Toggle category status?')) return;
             try {
-                const data = await makeRequest(`/admin/seedlings/categories/${categoryId}/toggle`, {
+                const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}/toggle`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -1180,7 +1290,7 @@
         async function deleteCategory(categoryId) {
             if (!confirm('Delete this category permanently?')) return;
             try {
-                const data = await makeRequest(`/admin/seedlings/categories/${categoryId}`, {
+                const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -1321,7 +1431,7 @@
             const formData = new FormData(this);
 
             try {
-                const data = await makeRequest('/admin/seedlings/categories', {
+                const data = await makeRequest('/admin/seedlings/supply-management', {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -1358,7 +1468,7 @@
                 if (error.message.includes('name')) {
                     showError(
                         'An item with this name already exists in this category. Please use a different name.'
-                        );
+                    );
                 } else {
                     showError(error.message);
                 }
@@ -1615,15 +1725,92 @@
                 });
             });
         });
+
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
     </script>
 
     <style>
-        .card {
-            transition: all 0.3s ease;
+        /* Metric card styles */
+        .metric-card {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .metric-card .card-body {
+            padding: 1.25rem 1rem;
+        }
+
+        .metric-icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .metric-icon-circle i {
+            font-size: 1.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+            color: #1f2937;
+        }
+
+        /* Soft background colors */
+        .bg-primary-soft {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .bg-success-soft {
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+
+        .bg-warning-soft {
+            background-color: rgba(245, 158, 11, 0.1);
+        }
+
+        .bg-danger-soft {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .bg-purple-soft {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+
+        /* Badge soft colors */
+        .badge-primary-soft {
+            background-color: rgba(13, 110, 253, 0.15);
+            color: #0d6efd;
+        }
+
+        .badge-success-soft {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        /* Card hover effect */
+        .metric-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
         }
 
         .card:hover {
-            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
         }
 
@@ -1665,10 +1852,9 @@
             background: #ffffff;
             border: 2px solid #e0e0e0;
             padding: 0.6rem 1.2rem;
-            border-radius: 50px;
+            border-radius: 8px;
             font-weight: 500;
             color: #495057;
-            transition: all 0.3s ease;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -1680,7 +1866,6 @@
             background: #f8f9fa;
             border-color: #0d6efd;
             color: #0d6efd;
-            transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
@@ -1732,19 +1917,6 @@
 
         .category-content.active {
             display: block;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         /* Table Improvements */
@@ -1757,10 +1929,6 @@
             letter-spacing: 0.5px;
             border-bottom: 2px solid #dee2e6;
             padding: 1rem 0.75rem;
-        }
-
-        .item-row {
-            transition: all 0.2s ease;
         }
 
         .item-row:hover {
@@ -1862,6 +2030,45 @@
         .was-validated .form-select:invalid~.invalid-feedback,
         .was-validated textarea:invalid~.invalid-feedback {
             display: block;
+        }
+
+        /* Dropdown menu improvements */
+        .dropdown-menu {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background-color: #fff5f5;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Tooltip custom styles */
+        .tooltip-inner {
+            max-width: 200px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        /* Button group responsive */
+        @media (max-width: 576px) {
+            .btn-group-sm>.btn {
+                padding: 0.375rem 0.5rem;
+                font-size: 0.875rem;
+            }
         }
     </style>
 @endsection

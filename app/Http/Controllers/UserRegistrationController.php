@@ -58,7 +58,7 @@ class UserRegistrationController extends Controller
             }
         }
 
-        $registrations = $query->orderBy('created_at', 'desc')->paginate(15);
+        $registrations = $query->orderBy('created_at', 'desc')->paginate(10);
 
         $stats = [
             'total' => UserRegistration::count(),

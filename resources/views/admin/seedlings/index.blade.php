@@ -12,174 +12,140 @@
 
 @section('content')
     <div class="container-fluid">
-        <!-- Action Buttons Row -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="mb-0">Seedling Requests Management</h3>
-            <div class="btn-group">
-                <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus-circle me-2"></i>Create Request
-                </a>
-            </div>
-        </div>
-
         <!-- Statistics Cards -->
-        <div class="row g-3 mb-4">
-            <div class="col-xl-2 col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-primary text-uppercase mb-1">
-                                    Total Requests
-                                </div>
-                                <div class="h5 mb-0 fw-bold text-dark">{{ $totalRequests }}</div>
-                            </div>
-                            <div class="ms-3">
-                                <div class="icon-circle bg-primary bg-opacity-10">
-                                    <i class="fas fa-seedling text-primary"></i>
-                                </div>
-                            </div>
+        <div class="row mb-4">
+            <div class="col-xl col-md-6 mb-4 mb-xl-0">
+                <div class="card stat-card shadow h-100">
+                    <div class="card-body text-center py-3">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-seedling text-primary"></i>
                         </div>
+                        <div class="stat-number mb-2">{{ $totalRequests }}</div>
+                        <div class="stat-label text-primary">Total Requests</div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-2 col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-warning text-uppercase mb-1">
-                                    Pending
-                                </div>
-                                <div class="h5 mb-0 fw-bold text-dark">{{ $underReviewCount }}</div>
-                            </div>
-                            <div class="ms-3">
-                                <div class="icon-circle bg-warning bg-opacity-10">
-                                    <i class="fas fa-clock text-warning"></i>
-                                </div>
-                            </div>
+            <div class="col-xl col-md-6 mb-4 mb-xl-0">
+                <div class="card stat-card shadow h-100">
+                    <div class="card-body text-center py-3">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-clock text-warning"></i>
                         </div>
+                        <div class="stat-number mb-2">{{ $underReviewCount }}</div>
+                        <div class="stat-label text-warning">Pending</div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-2 col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-success text-uppercase mb-1">
-                                    Fully Approved
-                                </div>
-                                <div class="h5 mb-0 fw-bold text-dark">{{ $approvedCount }}</div>
-                            </div>
-                            <div class="ms-3">
-                                <div class="icon-circle bg-success bg-opacity-10">
-                                    <i class="fas fa-check-circle text-success"></i>
-                                </div>
-                            </div>
+            <div class="col-xl col-md-6 mb-4 mb-xl-0">
+                <div class="card stat-card shadow h-100">
+                    <div class="card-body text-center py-3">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-check-circle text-success"></i>
                         </div>
+                        <div class="stat-number mb-2">{{ $approvedCount }}</div>
+                        <div class="stat-label text-success">Fully Approved</div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-2 col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-info text-uppercase mb-1">
-                                    Partially Approved
-                                </div>
-                                <div class="h5 mb-0 fw-bold text-dark">{{ $partiallyApprovedCount }}</div>
-                            </div>
-                            <div class="ms-3">
-                                <div class="icon-circle bg-info bg-opacity-10">
-                                    <i class="fas fa-check-double text-info"></i>
-                                </div>
-                            </div>
+            <div class="col-xl col-md-6 mb-4 mb-xl-0">
+                <div class="card stat-card shadow h-100">
+                    <div class="card-body text-center py-3">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-check-double text-info"></i>
                         </div>
+                        <div class="stat-number mb-2">{{ $partiallyApprovedCount }}</div>
+                        <div class="stat-label text-info">Partially Approved</div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xl-2 col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <div class="text-xs fw-bold text-danger text-uppercase mb-1">
-                                    Rejected
-                                </div>
-                                <div class="h5 mb-0 fw-bold text-dark">{{ $rejectedCount }}</div>
-                            </div>
-                            <div class="ms-3">
-                                <div class="icon-circle bg-danger bg-opacity-10">
-                                    <i class="fas fa-times-circle text-danger"></i>
-                                </div>
-                            </div>
+            <div class="col-xl col-md-6 mb-4 mb-xl-0">
+                <div class="card stat-card shadow h-100">
+                    <div class="card-body text-center py-3">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-times-circle text-danger"></i>
                         </div>
+                        <div class="stat-number mb-2">{{ $rejectedCount }}</div>
+                        <div class="stat-label text-danger">Rejected</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Filters & Search -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-light py-3 border-bottom">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
                 <h6 class="m-0 font-weight-bold text-primary">
                     <i class="fas fa-filter me-2"></i>Filters & Search
                 </h6>
             </div>
-            <div class="card-body p-3">
+            <div class="card-body">
                 <form method="GET" action="{{ route('admin.seedlings.requests') }}" id="filterForm">
                     <input type="hidden" name="date_from" id="date_from" value="{{ request('date_from') }}">
                     <input type="hidden" name="date_to" id="date_to" value="{{ request('date_to') }}">
 
-                    <div class="row g-3">
+                    <div class="row">
                         <div class="col-md-2">
-                            <select name="status" class="form-select form-select-sm border-light" onchange="submitFilterForm()">
+                            <select name="status" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Status</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>Under Review</option>
-                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Fully Approved</option>
-                                <option value="partially_approved" {{ request('status') == 'partially_approved' ? 'selected' : '' }}>Partially Approved</option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
+                                </option>
+                                <option value="under_review" {{ request('status') == 'under_review' ? 'selected' : '' }}>
+                                    Under Review</option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Fully
+                                    Approved</option>
+                                <option value="partially_approved"
+                                    {{ request('status') == 'partially_approved' ? 'selected' : '' }}>Partially Approved
+                                </option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select name="category" class="form-select form-select-sm border-light" onchange="submitFilterForm()">
+                            <select name="category" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Categories</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}"
+                                        {{ request('category') == $category->id ? 'selected' : '' }}>
                                         {{ $category->display_name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select name="barangay" class="form-select form-select-sm border-light" onchange="submitFilterForm()">
+                            <select name="barangay" class="form-select form-select-sm" onchange="submitFilterForm()">
                                 <option value="">All Barangay</option>
                                 @foreach ($barangays as $barangay)
-                                    <option value="{{ $barangay }}" {{ request('barangay') == $barangay ? 'selected' : '' }}>
+                                    <option value="{{ $barangay }}"
+                                        {{ request('barangay') == $barangay ? 'selected' : '' }}>
                                         {{ $barangay }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <input type="text" name="search" class="form-control form-control-sm border-light"
-                                placeholder="Search..." value="{{ request('search') }}" oninput="autoSearch()">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control form-control-sm"
+                                    placeholder="Search name, number, contact..." value="{{ request('search') }}"
+                                    oninput="autoSearch()" id="searchInput">
+                                <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
+                                    id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-md-2">
-                            <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#dateFilterModal">
+                            <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal"
+                                data-bs-target="#dateFilterModal">
                                 <i class="fas fa-calendar-alt me-1"></i>Date Filter
                             </button>
                         </div>
                         <div class="col-md-1">
-                            <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-light btn-sm w-100 border">
-                                <i class="fas fa-times"></i>
+                            <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-secondary btn-sm w-100">
+                                <i class="fas fa-times"></i> Clear
                             </a>
                         </div>
                     </div>
@@ -188,7 +154,20 @@
         </div>
 
         @if ($requests->count() > 0)
-            <div class="card border-0 shadow-sm">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <div></div>
+                    <div class="text-center flex-fill">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-seedling me-2"></i>Seedling Requests
+                        </h6>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-2"></i>Add Request
+                        </a>
+                    </div>
+                </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover table-bordered align-middle mb-0">
@@ -207,7 +186,8 @@
                                 @foreach ($requests as $request)
                                     <tr class="border-bottom">
                                         <td class="px-3 py-3 border-end">
-                                            <small class="text-muted">{{ $request->created_at->format('M d, Y') }}</small><br>
+                                            <small
+                                                class="text-muted">{{ $request->created_at->format('M d, Y') }}</small><br>
                                             <small class="text-muted">{{ $request->created_at->format('g:i A') }}</small>
                                         </td>
                                         <td class="px-3 py-3 border-end">
@@ -219,108 +199,150 @@
                                         <td class="px-3 py-3 border-end">
                                             <span class="text-dark">{{ $request->barangay }}</span>
                                         </td>
-                                        <td class="px-3 py-3 border-end">
+                                        <td class="px-3 py-2 border-end" style="max-width: 400px;">
                                             @php
                                                 $itemsByCategory = $request->items->groupBy('category_id');
+                                                $totalItems = $request->items->count();
                                             @endphp
-                                            
-                                            @foreach($itemsByCategory as $categoryId => $items)
-                                                @php
-                                                    $category = $items->first()->category;
-                                                    $approvedItems = $items->where('status', 'approved');
-                                                    $rejectedItems = $items->where('status', 'rejected');
-                                                    $pendingItems = $items->where('status', 'pending');
-                                                @endphp
-                                                
-                                                <div class="mb-3">
-                                                    <strong class="text-primary">
-                                                        <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-1"></i>
-                                                        {{ $category->display_name }}:
-                                                    </strong>
-                                                    
-                                                    @if($approvedItems->count() > 0)
-                                                        <div class="mt-1">
-                                                            <small class="text-success fw-medium">✓ Approved:</small>
-                                                            <div class="d-flex flex-wrap gap-1 mt-1">
-                                                                @foreach($approvedItems as $item)
-                                                                    <span class="badge bg-success text-white">
-                                                                        <i class="fas fa-check-circle me-1"></i>
-                                                                        {{ $item->item_name }} ({{ $item->requested_quantity }})
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
 
-                                                    @if($rejectedItems->count() > 0)
-                                                        <div class="mt-1">
-                                                            <small class="text-danger fw-medium">✗ Rejected:</small>
-                                                            <div class="d-flex flex-wrap gap-1 mt-1">
-                                                                @foreach($rejectedItems as $item)
-                                                                    <span class="badge bg-danger text-white">
-                                                                        <i class="fas fa-times-circle me-1"></i>
-                                                                        {{ $item->item_name }} ({{ $item->requested_quantity }})
-                                                                    </span>
-                                                                @endforeach
-                                                            </div>
-                                                        </div>
-                                                    @endif
+                                            <div class="requested-items-container">
+                                                @foreach ($itemsByCategory as $categoryId => $items)
+                                                    @php
+                                                        $category = $items->first()->category;
+                                                        $approvedItems = $items->where('status', 'approved');
+                                                        $rejectedItems = $items->where('status', 'rejected');
+                                                        $pendingItems = $items->where('status', 'pending');
+                                                        $categoryTotal = $items->count();
+                                                    @endphp
 
-                                                    @if($pendingItems->count() > 0)
-                                                        <div class="mt-1">
-                                                            <small class="text-warning fw-medium">⏳ Pending:</small>
-                                                            <div class="d-flex flex-wrap gap-1 mt-1">
-                                                                @foreach($pendingItems as $item)
-                                                                    <span class="badge bg-warning text-white">
-                                                                        <i class="fas fa-clock me-1"></i>
-                                                                        {{ $item->item_name }} ({{ $item->requested_quantity }})
-                                                                    </span>
-                                                                @endforeach
+                                                    <div class="category-group mb-2">
+                                                        <!-- Category Header -->
+                                                        <div class="category-header d-flex align-items-center justify-content-between mb-1 p-2 bg-light rounded"
+                                                            style="cursor: pointer;" data-bs-toggle="collapse"
+                                                            data-bs-target="#items-{{ $request->id }}-{{ $categoryId }}"
+                                                            aria-expanded="{{ $loop->first ? 'true' : 'false' }}">
+                                                            <div class="d-flex align-items-center flex-grow-1">
+                                                                <i class="fas {{ $category->icon ?? 'fa-leaf' }} text-primary me-2"
+                                                                    style="font-size: 0.9rem;"></i>
+                                                                <strong class="text-dark"
+                                                                    style="font-size: 0.85rem;">{{ $category->display_name }}</strong>
+                                                                <span class="badge bg-secondary ms-2"
+                                                                    style="font-size: 0.7rem;">{{ $categoryTotal }}</span>
+                                                            </div>
+                                                            <i class="fas fa-chevron-down text-muted"
+                                                                style="font-size: 0.7rem;"></i>
+                                                        </div>
+
+                                                        <!-- Category Items - Collapsible -->
+                                                        <div class="collapse {{ $loop->first ? 'show' : '' }}"
+                                                            id="items-{{ $request->id }}-{{ $categoryId }}">
+                                                            <div class="ps-2 pe-1">
+                                                                @if ($approvedItems->count() > 0)
+                                                                    <div class="status-group mb-1">
+                                                                        <div class="d-flex flex-wrap gap-1">
+                                                                            @foreach ($approvedItems as $item)
+                                                                                <span
+                                                                                    class="border border-success text-success"
+                                                                                    style="font-size: 0.7rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; display: inline-block;">
+                                                                                    <i
+                                                                                        class="fas fa-check me-1"></i>{{ $item->item_name }}
+                                                                                    <strong>({{ $item->requested_quantity }})</strong>
+                                                                                </span>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+
+                                                                @if ($pendingItems->count() > 0)
+                                                                    <div class="status-group mb-1">
+                                                                        <div class="d-flex flex-wrap gap-1">
+                                                                            @foreach ($pendingItems as $item)
+                                                                                <span
+                                                                                    class="border border-warning text-warning"
+                                                                                    style="font-size: 0.7rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; display: inline-block;">
+                                                                                    <i
+                                                                                        class="fas fa-clock me-1"></i>{{ $item->item_name }}
+                                                                                    <strong>({{ $item->requested_quantity }})</strong>
+                                                                                </span>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
+
+                                                                @if ($rejectedItems->count() > 0)
+                                                                    <div class="status-group mb-1">
+                                                                        <div class="d-flex flex-wrap gap-1">
+                                                                            @foreach ($rejectedItems as $item)
+                                                                                <span
+                                                                                    class="border border-danger text-danger"
+                                                                                    style="font-size: 0.7rem; padding: 0.25rem 0.5rem; border-radius: 0.25rem; display: inline-block;">
+                                                                                    <i
+                                                                                        class="fas fa-times me-1"></i>{{ $item->item_name }}
+                                                                                    <strong>({{ $item->requested_quantity }})</strong>
+                                                                                </span>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
                                                             </div>
                                                         </div>
-                                                    @endif
-                                                </div>
-                                            @endforeach
+                                                    </div>
+                                                @endforeach
+
+                                                <!-- Total Items Summary -->
+                                                @if ($totalItems > 5)
+                                                    <div class="mt-2 pt-1 border-top">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-info-circle me-1"></i>
+                                                            Total: <strong>{{ $totalItems }}</strong> items
+                                                        </small>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="px-3 py-3 border-end">
-                                            <span class="badge badge-status-lg bg-{{ match ($request->status) {
-                                                'approved' => 'success',
-                                                'partially_approved' => 'warning',
-                                                'rejected' => 'danger',
-                                                'under_review', 'pending' => 'secondary',
-                                                default => 'secondary',
-                                            } }}">
+                                            <span
+                                                class="badge badge-status-lg bg-{{ match ($request->status) {
+                                                    'approved' => 'success',
+                                                    'partially_approved' => 'info',
+                                                    'rejected' => 'danger',
+                                                    'under_review', 'pending' => 'warning',
+                                                    default => 'secondary',
+                                                } }}">
                                                 {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                             </span>
                                         </td>
                                         <td class="px-3 py-3 text-center">
                                             <div class="btn-group btn-group-sm" role="group">
                                                 <button type="button" class="btn btn-outline-primary"
-                                                    data-bs-toggle="modal" data-bs-target="#viewModal{{ $request->id }}">
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewModal{{ $request->id }}">
                                                     <i class="fas fa-eye"></i> View
                                                 </button>
 
-                                                  <!-- Add New Request Button
-                                                <div class="mb-3">
-                                                    <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
-                                                        <i class="fas fa-plus-circle me-2"></i>Create New Request
-                                                    </a>
-                                                </div>
-                                                 @if(in_array($request->status, ['pending', 'under_review']))
-                                                    <a href="{{ route('admin.seedlings.edit', $request) }}" class="btn btn-outline-warning">
-                                                        <i class="fas fa-edit"></i> Edit
-                                                    </a>
-                                                @endif -->
+                                                <!-- Add New Request Button
+                                                            <div class="mb-3">
+                                                                <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
+                                                                    <i class="fas fa-plus-circle me-2"></i>Create New Request
+                                                                </a>
+                                                            </div>
+                                                             @if (in_array($request->status, ['pending', 'under_review']))
+    <a href="{{ route('admin.seedlings.edit', $request) }}" class="btn btn-outline-warning">
+                                                                    <i class="fas fa-edit"></i> Edit
+                                                                </a>
+    @endif -->
                                                 <button type="button" class="btn btn-outline-success"
-                                                    data-bs-toggle="modal" data-bs-target="#updateModal{{ $request->id }}">
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#updateModal{{ $request->id }}">
                                                     <i class="fas fa-edit"></i> Update
                                                 </button>
                                             </div>
-                                            
-                                            
+
+
                                             @if ($request->hasDocuments())
                                                 <button type="button" class="btn btn-sm btn-outline-info mt-1"
-                                                    onclick="viewDocument('{{ $request->document_path }}')" title="View Document">
+                                                    onclick="viewDocument('{{ $request->document_path }}')"
+                                                    title="View Document">
                                                     <i class="fas fa-file-alt"></i>
                                                 </button>
                                             @endif
@@ -336,7 +358,8 @@
                                                         <i class="fas fa-eye text-primary me-2"></i>
                                                         Request Details - {{ $request->request_number }}
                                                     </h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body">
                                                     <div class="row">
@@ -350,18 +373,22 @@
                                                         </div>
                                                         <div class="col-md-6">
                                                             <h6>Request Information</h6>
-                                                            <p><strong>Total Quantity:</strong> {{ $request->total_quantity }}</p>
+                                                            <p><strong>Total Quantity:</strong>
+                                                                {{ $request->total_quantity }}</p>
                                                             <p><strong>Status:</strong>
-                                                                <span class="badge bg-{{ match ($request->status) {
-                                                                    'approved' => 'success',
-                                                                    'partially_approved' => 'warning',
-                                                                    'rejected' => 'danger',
-                                                                    default => 'secondary',
-                                                                } }}">
+                                                                <span
+                                                                    class="badge bg-{{ match ($request->status) {
+                                                                        'approved' => 'success',
+                                                                        'partially_approved' => 'info',
+                                                                        'rejected' => 'danger',
+                                                                        'under_review', 'pending' => 'warning',
+                                                                        default => 'secondary',
+                                                                    } }}">
                                                                     {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                                                 </span>
                                                             </p>
-                                                            <p><strong>Date:</strong> {{ $request->created_at->format('F d, Y g:i A') }}</p>
+                                                            <p><strong>Date:</strong>
+                                                                {{ $request->created_at->format('F d, Y g:i A') }}</p>
                                                             @if ($request->remarks)
                                                                 <p><strong>Remarks:</strong> {{ $request->remarks }}</p>
                                                             @endif
@@ -375,26 +402,32 @@
                                                         $itemsByCategory = $request->items->groupBy('category_id');
                                                     @endphp
 
-                                                    @foreach($itemsByCategory as $categoryId => $items)
+                                                    @foreach ($itemsByCategory as $categoryId => $items)
                                                         @php
                                                             $category = $items->first()->category;
                                                         @endphp
                                                         <div class="mb-3 p-3 border rounded">
-                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-center mb-2">
                                                                 <strong class="text-primary">
-                                                                    <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                                    <i
+                                                                        class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
                                                                     {{ $category->display_name }}
                                                                 </strong>
                                                             </div>
                                                             <ul class="mb-0">
-                                                                @foreach($items as $item)
+                                                                @foreach ($items as $item)
                                                                     <li>
-                                                                        {{ $item->item_name }} - {{ $item->requested_quantity }} {{ $item->categoryItem->unit ?? 'pcs' }}
-                                                                        <span class="badge bg-{{ $item->status_color }} ms-2">
+                                                                        {{ $item->item_name }} -
+                                                                        {{ $item->requested_quantity }}
+                                                                        {{ $item->categoryItem->unit ?? 'pcs' }}
+                                                                        <span
+                                                                            class="badge bg-{{ $item->status_color }} ms-2">
                                                                             {{ ucfirst($item->status) }}
                                                                         </span>
-                                                                        @if($item->status === 'approved')
-                                                                            <small class="text-muted">(Stock deducted)</small>
+                                                                        @if ($item->status === 'approved')
+                                                                            <small class="text-muted">(Stock
+                                                                                deducted)</small>
                                                                         @endif
                                                                     </li>
                                                                 @endforeach
@@ -405,7 +438,8 @@
                                                     @if ($request->hasDocuments())
                                                         <hr>
                                                         <h6>Supporting Documents</h6>
-                                                        <a href="{{ $request->document_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <a href="{{ $request->document_url }}" target="_blank"
+                                                            class="btn btn-sm btn-outline-primary">
                                                             <i class="fas fa-file-alt"></i> View Document
                                                         </a>
                                                     @endif
@@ -423,10 +457,13 @@
                                                         <i class="fas fa-edit text-success me-2"></i>
                                                         Update Items - {{ $request->request_number }}
                                                     </h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <form method="POST" action="{{ route('admin.seedlings.update-items', $request) }}" id="updateForm{{ $request->id }}">
+                                                    <form method="POST"
+                                                        action="{{ route('admin.seedlings.update-items', $request) }}"
+                                                        id="updateForm{{ $request->id }}">
                                                         @csrf
                                                         @method('PATCH')
 
@@ -434,66 +471,92 @@
                                                             $itemsByCategory = $request->items->groupBy('category_id');
                                                         @endphp
 
-                                                        @foreach($itemsByCategory as $categoryId => $items)
+                                                        @foreach ($itemsByCategory as $categoryId => $items)
                                                             @php
                                                                 $category = $items->first()->category;
                                                             @endphp
                                                             <div class="mb-4 p-3 border-0 bg-light rounded-3">
                                                                 <h6 class="mb-3 fw-bold text-primary">
-                                                                    <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                                    <i
+                                                                        class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
                                                                     {{ $category->display_name }}
                                                                 </h6>
 
-                                                                @foreach($items as $item)
-                                                                   @php
-                                                                        $stockCheck = $item->categoryItem 
-                                                                            ? $item->categoryItem->checkSupplyAvailability($item->requested_quantity)
-                                                                            : ['available' => false, 'current_supply' => 0];
+                                                                @foreach ($items as $item)
+                                                                    @php
+                                                                        $stockCheck = $item->categoryItem
+                                                                            ? $item->categoryItem->checkSupplyAvailability(
+                                                                                $item->requested_quantity,
+                                                                            )
+                                                                            : [
+                                                                                'available' => false,
+                                                                                'current_supply' => 0,
+                                                                            ];
                                                                     @endphp
-                                                                                                                                        
-                                                                    <div class="item-card d-flex align-items-center justify-content-between mb-3 p-3 
-                                                                        {{ $item->status === 'approved' ? 'bg-success bg-opacity-10 border border-success' : 
-                                                                           ($item->status === 'rejected' ? 'bg-danger bg-opacity-10 border border-danger' : 'bg-white border') }} 
+
+                                                                    <div
+                                                                        class="item-card d-flex align-items-center justify-content-between mb-3 p-3
+                                                                        {{ $item->status === 'approved'
+                                                                            ? 'bg-success bg-opacity-10 border border-success'
+                                                                            : ($item->status === 'rejected'
+                                                                                ? 'bg-danger bg-opacity-10 border border-danger'
+                                                                                : 'bg-white border') }}
                                                                         rounded-3 shadow-sm">
                                                                         <div class="flex-grow-1">
                                                                             <div class="d-flex align-items-center mb-2">
-                                                                                <span class="fw-medium text-dark">{{ $item->item_name }}</span>
-                                                                                <span class="badge bg-light text-muted ms-2">
-                                                                                    {{ $item->requested_quantity }} {{ $item->categoryItem->unit ?? 'pcs' }}
+                                                                                <span
+                                                                                    class="fw-medium text-dark">{{ $item->item_name }}</span>
+                                                                                <span
+                                                                                    class="badge bg-light text-muted ms-2">
+                                                                                    {{ $item->requested_quantity }}
+                                                                                    {{ $item->categoryItem->unit ?? 'pcs' }}
                                                                                 </span>
                                                                             </div>
                                                                             <div class="d-flex align-items-center gap-2">
-                                                                                <small class="text-muted">Requested:</small>
-                                                                                <small class="fw-medium">{{ $item->requested_quantity }}</small>
+                                                                                <small
+                                                                                    class="text-muted">Requested:</small>
+                                                                                <small
+                                                                                    class="fw-medium">{{ $item->requested_quantity }}</small>
                                                                                 <span class="text-muted">•</span>
-                                                                                <small class="{{ $stockCheck['available'] ? 'text-success' : 'text-warning' }}">
+                                                                                <small
+                                                                                    class="{{ $stockCheck['available'] ? 'text-success' : 'text-warning' }}">
                                                                                     <i class="fas fa-box me-1"></i>Stock:
-                                                                                    <span class="fw-bold">{{ $stockCheck['current_supply'] }}</span>
-                                                                                    @if($stockCheck['available'])
-                                                                                        <i class="fas fa-check text-success ms-1"></i>
+                                                                                    <span
+                                                                                        class="fw-bold">{{ $stockCheck['current_supply'] }}</span>
+                                                                                    @if ($stockCheck['available'])
+                                                                                        <i
+                                                                                            class="fas fa-check text-success ms-1"></i>
                                                                                     @else
-                                                                                        <i class="fas fa-exclamation-triangle text-warning ms-1"></i>
+                                                                                        <i
+                                                                                            class="fas fa-exclamation-triangle text-warning ms-1"></i>
                                                                                     @endif
                                                                                 </small>
                                                                             </div>
-                                                                            @if(!$stockCheck['available'])
-                                                                                <span class="badge bg-warning text-dark mt-2">
-                                                                                    <i class="fas fa-exclamation-triangle me-1"></i>Insufficient Stock
+                                                                            @if (!$stockCheck['available'])
+                                                                                <span
+                                                                                    class="badge bg-warning text-dark mt-2">
+                                                                                    <i
+                                                                                        class="fas fa-exclamation-triangle me-1"></i>Insufficient
+                                                                                    Stock
                                                                                 </span>
                                                                             @endif
                                                                         </div>
                                                                         <div class="ms-3">
-                                                                            <select name="item_statuses[{{ $item->id }}]" 
-                                                                                class="form-select form-select-sm border-light" style="min-width: 130px;">
-                                                                                <option value="pending" {{ $item->status === 'pending' ? 'selected' : '' }}>
+                                                                            <select
+                                                                                name="item_statuses[{{ $item->id }}]"
+                                                                                class="form-select form-select-sm border-light"
+                                                                                style="min-width: 130px;">
+                                                                                <option value="pending"
+                                                                                    {{ $item->status === 'pending' ? 'selected' : '' }}>
                                                                                     Pending
                                                                                 </option>
-                                                                                <option value="approved" 
+                                                                                <option value="approved"
                                                                                     {{ $item->status === 'approved' ? 'selected' : '' }}
                                                                                     {{ !$stockCheck['available'] ? 'disabled' : '' }}>
                                                                                     Approved{{ !$stockCheck['available'] ? ' (No Stock)' : '' }}
                                                                                 </option>
-                                                                                <option value="rejected" {{ $item->status === 'rejected' ? 'selected' : '' }}>
+                                                                                <option value="rejected"
+                                                                                    {{ $item->status === 'rejected' ? 'selected' : '' }}>
                                                                                     Rejected
                                                                                 </option>
                                                                             </select>
@@ -504,16 +567,18 @@
                                                         @endforeach
 
                                                         <div class="mb-3">
-                                                            <label for="remarks{{ $request->id }}" class="form-label">General Remarks</label>
-                                                            <textarea name="remarks" id="remarks{{ $request->id }}" 
-                                                                class="form-control" rows="3" 
+                                                            <label for="remarks{{ $request->id }}"
+                                                                class="form-label">General Remarks</label>
+                                                            <textarea name="remarks" id="remarks{{ $request->id }}" class="form-control" rows="3"
                                                                 placeholder="Add any comments...">{{ $request->remarks }}</textarea>
                                                         </div>
                                                     </form>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    <button type="submit" form="updateForm{{ $request->id }}" class="btn btn-primary">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" form="updateForm{{ $request->id }}"
+                                                        class="btn btn-primary">
                                                         <i class="fas fa-save me-2"></i>Update Items
                                                     </button>
                                                 </div>
@@ -539,7 +604,8 @@
                                 </li>
                             @else
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ $requests->previousPageUrl() }}" rel="prev">Back</a>
+                                    <a class="page-link" href="{{ $requests->previousPageUrl() }}"
+                                        rel="prev">Back</a>
                                 </li>
                             @endif
 
@@ -607,17 +673,20 @@
         @endif
 
         <!-- Date Filter Modal -->
-        <div class="modal fade" id="dateFilterModal" tabindex="-1">
+        <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header bg-info text-white">
-                        <h5 class="modal-title">
+                        <h5 class="modal-title" id="dateFilterModalLabel">
                             <i class="fas fa-calendar-alt me-2"></i>Select Date Range
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row g-4">
+                            <!-- Date Range Inputs -->
                             <div class="col-md-6">
                                 <div class="card border-0 bg-light h-100">
                                     <div class="card-body">
@@ -626,19 +695,23 @@
                                         </h6>
                                         <div class="mb-3">
                                             <label for="modal_date_from" class="form-label">From Date</label>
-                                            <input type="date" id="modal_date_from" class="form-control" value="{{ request('date_from') }}">
+                                            <input type="date" id="modal_date_from" class="form-control"
+                                                value="{{ request('date_from') }}">
                                         </div>
                                         <div class="mb-3">
                                             <label for="modal_date_to" class="form-label">To Date</label>
-                                            <input type="date" id="modal_date_to" class="form-control" value="{{ request('date_to') }}">
+                                            <input type="date" id="modal_date_to" class="form-control"
+                                                value="{{ request('date_to') }}">
                                         </div>
-                                        <button type="button" class="btn btn-primary w-100" onclick="applyCustomDateRange()">
+                                        <button type="button" class="btn btn-primary w-100"
+                                            onclick="applyCustomDateRange()">
                                             <i class="fas fa-check me-2"></i>Apply Custom Range
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
+                            <!-- Quick Date Presets -->
                             <div class="col-md-6">
                                 <div class="card border-0 bg-light h-100">
                                     <div class="card-body">
@@ -646,21 +719,26 @@
                                             <i class="fas fa-clock me-2"></i>Quick Presets
                                         </h6>
                                         <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-success" onclick="setDateRange('today')">
+                                            <button type="button" class="btn btn-outline-success"
+                                                onclick="setDateRangeModal('today')">
                                                 <i class="fas fa-calendar-day me-2"></i>Today
                                             </button>
-                                            <button type="button" class="btn btn-outline-info" onclick="setDateRange('week')">
+                                            <button type="button" class="btn btn-outline-info"
+                                                onclick="setDateRangeModal('week')">
                                                 <i class="fas fa-calendar-week me-2"></i>This Week
                                             </button>
-                                            <button type="button" class="btn btn-outline-warning" onclick="setDateRange('month')">
+                                            <button type="button" class="btn btn-outline-warning"
+                                                onclick="setDateRangeModal('month')">
                                                 <i class="fas fa-calendar me-2"></i>This Month
                                             </button>
-                                            <button type="button" class="btn btn-outline-primary" onclick="setDateRange('year')">
+                                            <button type="button" class="btn btn-outline-primary"
+                                                onclick="setDateRangeModal('year')">
                                                 <i class="fas fa-calendar-alt me-2"></i>This Year
                                             </button>
-                                            <hr>
-                                            <button type="button" class="btn btn-outline-danger" onclick="clearDateRange()">
-                                                <i class="fas fa-calendar-times me-2"></i>Clear Date Filter
+                                            <hr class="my-3">
+                                            <button type="button" class="btn btn-outline-secondary w-100"
+                                                onclick="clearDateRangeModal()">
+                                                <i class="fas fa-times me-2"></i>Clear Date Filter
                                             </button>
                                         </div>
                                     </div>
@@ -668,9 +746,10 @@
                             </div>
                         </div>
 
-                        <div class="row mt-4">
+                        <!-- Current Filter Status -->
+                        <div class="row mt-3">
                             <div class="col-12">
-                                <div class="alert alert-info mb-0" id="currentDateFilter">
+                                <div class="alert alert-info mb-0">
                                     <i class="fas fa-info-circle me-2"></i>
                                     <span id="dateFilterStatus">
                                         @if (request('date_from') || request('date_to'))
@@ -695,6 +774,58 @@
     </div>
 
     <style>
+        /* Modern Statistics Cards */
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .stat-icon i {
+            font-size: 2.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #495057;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .text-xs {
+            font-size: 0.7rem;
+        }
+
+        .text-gray-300 {
+            color: #dddfeb !important;
+        }
+
+        .text-gray-800 {
+            color: #5a5c69 !important;
+        }
+
         .icon-circle {
             width: 40px;
             height: 40px;
@@ -781,25 +912,95 @@
             cursor: not-allowed;
         }
 
-        .btn-group > .btn {
+        .btn-group>.btn {
             margin-right: 0.25rem;
         }
 
-        .btn-group > .btn:last-child {
+        .btn-group>.btn:last-child {
             margin-right: 0;
+        }
+
+        /* Requested Items Column Improvements */
+        .requested-items-container {
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .requested-items-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .requested-items-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .requested-items-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .requested-items-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .category-header {
+            transition: all 0.2s ease;
+        }
+
+        .category-header:hover {
+            background-color: #e9ecef !important;
+        }
+
+        .category-header[aria-expanded="true"] .fa-chevron-down {
+            transform: rotate(180deg);
+            transition: transform 0.2s ease;
+        }
+
+        .category-header[aria-expanded="false"] .fa-chevron-down {
+            transform: rotate(0deg);
+            transition: transform 0.2s ease;
+        }
+
+        .category-group {
+            border-left: 3px solid transparent;
+            padding-left: 4px;
+            transition: border-color 0.2s ease;
+        }
+
+        .category-group:hover {
+            border-left-color: #007bff;
+        }
+
+        .status-group .badge {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .status-group .badge:hover {
+            max-width: none;
+            z-index: 10;
+            position: relative;
         }
     </style>
 
     <script>
         let searchTimeout;
 
+        // Auto search functionality
         function autoSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 document.getElementById('filterForm').submit();
-            }, 500);
+            }, 500); // Wait 500ms after user stops typing
         }
 
+        // Submit filter form when dropdowns change
         function submitFilterForm() {
             document.getElementById('filterForm').submit();
         }
@@ -808,33 +1009,41 @@
             window.open('/storage/' + path, '_blank');
         }
 
-        function setDateRange(range) {
+        // Date Filter Functions
+        function setDateRangeModal(period) {
             const today = new Date();
             let startDate, endDate;
 
-            switch (range) {
+            switch (period) {
                 case 'today':
                     startDate = endDate = today;
                     break;
                 case 'week':
                     startDate = new Date(today);
-                    startDate.setDate(today.getDate() - today.getDay());
+                    startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
                     endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + 6);
+                    endDate.setDate(startDate.getDate() + 6); // End of week (Saturday)
                     break;
                 case 'month':
-                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1); // First day of month
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of month
                     break;
                 case 'year':
-                    startDate = new Date(today.getFullYear(), 0, 1);
-                    endDate = new Date(today.getFullYear(), 11, 31);
+                    startDate = new Date(today.getFullYear(), 0, 1); // First day of year
+                    endDate = new Date(today.getFullYear(), 11, 31); // Last day of year
                     break;
             }
 
-            document.getElementById('modal_date_from').value = startDate.toISOString().split('T')[0];
-            document.getElementById('modal_date_to').value = endDate.toISOString().split('T')[0];
-            applyCustomDateRange();
+            // Format dates to YYYY-MM-DD
+            const startDateStr = startDate.toISOString().split('T')[0];
+            const endDateStr = endDate.toISOString().split('T')[0];
+
+            // Update modal inputs
+            document.getElementById('modal_date_from').value = startDateStr;
+            document.getElementById('modal_date_to').value = endDateStr;
+
+            // Apply the filter immediately
+            applyDateFilter(startDateStr, endDateStr);
         }
 
         function applyCustomDateRange() {
@@ -846,27 +1055,28 @@
                 return;
             }
 
+            applyDateFilter(dateFrom, dateTo);
+        }
+
+        function applyDateFilter(dateFrom, dateTo) {
+            // Update hidden inputs
             document.getElementById('date_from').value = dateFrom;
             document.getElementById('date_to').value = dateTo;
 
+            // Update status display
             updateDateFilterStatus(dateFrom, dateTo);
 
-            const modalElement = document.getElementById('dateFilterModal');
-            if (modalElement) {
-                let modal = bootstrap.Modal.getInstance(modalElement);
-                if (!modal) {
-                    modal = new bootstrap.Modal(modalElement);
-                }
-                modal.hide();
-            }
+            // Close modal and submit form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+            if (modal) modal.hide();
 
             submitFilterForm();
         }
 
-        function clearDateRange() {
+        function clearDateRangeModal() {
             document.getElementById('modal_date_from').value = '';
             document.getElementById('modal_date_to').value = '';
-            applyCustomDateRange();
+            applyDateFilter('', '');
         }
 
         function updateDateFilterStatus(dateFrom, dateTo) {

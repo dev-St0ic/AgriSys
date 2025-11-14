@@ -802,8 +802,8 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('admin.seedlings.categories.index') ? 'active' : '' }} tooltip-custom"
-                                        href="{{ route('admin.seedlings.categories.index') }}"
+                                    <a class="nav-link {{ request()->routeIs('admin.seedlings.supply-management.index') ? 'active' : '' }} tooltip-custom"
+                                        href="{{ route('admin.seedlings.supply-management.index') }}"
                                         data-tooltip="Supply Management" aria-label="Supply Management" role="menuitem">
                                         <i class="fas fa-layer-group me-2" aria-hidden="true"></i>
                                         <span class="nav-link-text">Supply Management</span>
@@ -886,7 +886,7 @@
                             <!-- Top navbar -->
                             <div
                                 class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                                <h1 class="h2">@yield('page-title', 'Dashboard')</h1>
+                                <h1 class="h2">@yield('page-title', '')</h1>
                                 <div class="btn-toolbar mb-2 mb-md-0">
                                     <div class="d-flex align-items-center profile-section">
                                         <!-- Notification Bell -->
