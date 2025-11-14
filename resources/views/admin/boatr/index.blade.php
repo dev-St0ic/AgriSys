@@ -1823,77 +1823,284 @@
                     notesCount.textContent = this.value.length;
                 });
             }
+
+            // Annex description character count
+            const annexDesc = document.getElementById('annexDescription');
+            const annexDescCount = document.getElementById('annexDescCount');
+
+            if (annexDesc && annexDescCount) {
+                annexDesc.addEventListener('input', function() {
+                    const count = this.value.length;
+                    annexDescCount.textContent = count;
+
+                    if (count > 500) {
+                        this.value = this.value.substring(0, 500);
+                        annexDescCount.textContent = '500';
+                    }
+                });
+            }
         });
 
-        // Enhanced show update modal with loading state
+        // ========== TOAST SYSTEM ==========
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+
+            const callbackId = 'confirm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            toast.dataset.confirmCallback = callbackId;
+            window[callbackId] = onConfirm;
+
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 15000);
+        }
+
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                    showToast('error', 'An error occurred: ' + error.message);
+                }
+            }
+
+            delete window[callbackId];
+            removeToast(toast);
+        }
+
+        function removeToast(toastElement) {
+            if (!toastElement || !toastElement.parentElement) return;
+            
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
+
+        // ========== CSRF TOKEN ==========
+        function getCSRFToken() {
+            const token = document.querySelector('meta[name="csrf-token"]');
+            if (!token) {
+                throw new Error('CSRF token meta tag not found in document head');
+            }
+            const csrfToken = token.getAttribute('content');
+            if (!csrfToken) {
+                throw new Error('CSRF token content is empty');
+            }
+            return csrfToken;
+        }
+
+        // ========== STATUS UPDATE ==========
         function showUpdateModal(id, currentStatus) {
             const modal = new bootstrap.Modal(document.getElementById('updateModal'));
             modal.show();
 
-            // Show loading state
             document.getElementById('updateModalLoading').style.display = 'block';
             document.getElementById('updateModalContent').style.display = 'none';
             document.getElementById('updateForm').style.display = 'none';
             document.getElementById('updateStatusBtn').style.display = 'none';
 
             fetch(`/admin/boatr/requests/${id}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) {
-                        throw new Error(data.message || 'Failed to load application details');
-                    }
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to load application details');
 
-                    // Store current data
-                    currentData[id] = data;
+                currentData[id] = data;
 
-                    // Hide loading, show content
-                    document.getElementById('updateModalLoading').style.display = 'none';
-                    document.getElementById('updateModalContent').style.display = 'block';
-                    document.getElementById('updateForm').style.display = 'block';
-                    document.getElementById('updateStatusBtn').style.display = 'inline-block';
+                document.getElementById('updateModalLoading').style.display = 'none';
+                document.getElementById('updateModalContent').style.display = 'block';
+                document.getElementById('updateForm').style.display = 'block';
+                document.getElementById('updateStatusBtn').style.display = 'inline-block';
 
-                    // Populate application info
-                    document.getElementById('updateRegistrationId').value = id;
-                    document.getElementById('updateRegId').textContent = data.id;
-                    document.getElementById('updateRegNumber').textContent = data.application_number;
-                    document.getElementById('updateRegName').textContent = data.full_name;
-                    document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
-                    document.getElementById('updateRegVessel').textContent = data.vessel_name;
-                    document.getElementById('updateRegFishR').textContent = data.fishr_number;
-                    document.getElementById('updateRegBoatType').textContent = data.boat_type;
+                document.getElementById('updateRegistrationId').value = id;
+                document.getElementById('updateRegId').textContent = data.id;
+                document.getElementById('updateRegNumber').textContent = data.application_number;
+                document.getElementById('updateRegName').textContent = data.full_name;
+                document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
+                document.getElementById('updateRegVessel').textContent = data.vessel_name;
+                document.getElementById('updateRegFishR').textContent = data.fishr_number;
+                document.getElementById('updateRegBoatType').textContent = data.boat_type;
 
-                    // Show current status
-                    document.getElementById('updateRegCurrentStatus').innerHTML =
-                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                document.getElementById('updateRegCurrentStatus').innerHTML =
+                    `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                    // Show inspection status
-                    document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
-                        '<span class="badge bg-success">Completed</span>' :
-                        '<span class="badge bg-warning">Pending</span>';
+                document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
+                    '<span class="badge bg-success">Completed</span>' :
+                    '<span class="badge bg-warning">Pending</span>';
 
-                    // Set form values
-                    document.getElementById('newStatus').value = currentStatus;
-                    document.getElementById('remarks').value = '';
-                    document.getElementById('remarksCount').textContent = '0';
-                })
-                .catch(error => {
-                    console.error('Error loading application details:', error);
-                    showToast('error', 'Failed to load application details: ' + error.message);
-                    modal.hide();
-                });
+                document.getElementById('newStatus').value = currentStatus;
+                document.getElementById('remarks').value = '';
+                document.getElementById('remarksCount').textContent = '0';
+            })
+            .catch(error => {
+                console.error('Error loading application details:', error);
+                showToast('error', 'Failed to load application details: ' + error.message);
+                modal.hide();
+            });
         }
 
-        // Enhanced show inspection modal
+        function updateRegistrationStatus() {
+            const id = document.getElementById('updateRegistrationId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const remarks = document.getElementById('remarks').value;
+
+            if (!newStatus) {
+                showToast('warning', 'Please select a status before updating');
+                return;
+            }
+
+            const statusOption = document.querySelector(`#newStatus option[value="${newStatus}"]`);
+            if (!statusOption) {
+                showToast('error', 'Invalid status selected');
+                return;
+            }
+            
+            const statusText = statusOption.textContent.trim();
+
+            showConfirmationToast(
+                'Update Application Status',
+                `Are you sure you want to change the status to: "${statusText}"?${remarks ? '\n\nRemarks: ' + remarks : ''}`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
+        }
+
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
+            const updateBtn = document.getElementById('updateStatusBtn');
+            if (!updateBtn) {
+                showToast('error', 'UI error: Button not found');
+                return;
+            }
+
+            const originalContent = updateBtn.innerHTML;
+            updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+            updateBtn.disabled = true;
+
+            fetch(`/admin/boatr/requests/${id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    remarks: remarks
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Update failed');
+
+                showToast('success', data.message || 'Status updated successfully');
+                
+                if (data.registration) {
+                    updateTableRow(id, data.registration);
+                }
+
+                const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                if (modal) modal.hide();
+
+                setTimeout(() => window.location.reload(), 1500);
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+                showToast('error', 'Update failed: ' + error.message);
+            })
+            .finally(() => {
+                updateBtn.innerHTML = originalContent;
+                updateBtn.disabled = false;
+            });
+        }
+
+        // ========== INSPECTION ==========
         function showInspectionModal(id) {
             document.getElementById('inspectionRegistrationId').value = id;
             document.getElementById('supporting_document').value = '';
@@ -1901,7 +2108,6 @@
             document.getElementById('approve_application').checked = false;
             document.getElementById('notesCount').textContent = '0';
 
-            // Clear any previous error states
             document.getElementById('supporting_document').classList.remove('is-invalid');
             document.getElementById('documentError').textContent = '';
 
@@ -1909,46 +2115,12 @@
             modal.show();
         }
 
-        // Enhanced update registration status with real-time updates and auto-refresh
-   function updateRegistrationStatus() {
-    const id = document.getElementById('updateRegistrationId').value;
-    const newStatus = document.getElementById('newStatus').value;
-    const remarks = document.getElementById('remarks').value;
-
-    if (!newStatus) {
-        showToast('warning', 'Please select a status before updating');
-        return;
-    }
-
-    // SAFE way to get status text with error handling
-    try {
-        const statusOption = document.querySelector(`#newStatus option[value="${newStatus}"]`);
-        if (!statusOption) {
-            showToast('error', 'Invalid status selected');
-            return;
-        }
-        const statusText = statusOption.textContent;
-        
-        // ONLY SHOW CONFIRMATION - NO FETCH HERE!
-        showConfirmationToast(
-            'Update Application Status',
-            `Are you sure you want to change the status to "${statusText}"?`,
-            () => proceedWithStatusUpdate(id, newStatus, remarks)
-        );
-    } catch (error) {
-        console.error('Error in updateRegistrationStatus:', error);
-        showToast('error', 'An error occurred while processing the request');
-    }
-}
-
-        // Enhanced complete inspection with real-time updates and auto-refresh
         function completeInspection() {
             const id = document.getElementById('inspectionRegistrationId').value;
             const fileInput = document.getElementById('supporting_document');
             const notes = document.getElementById('inspection_notes').value;
             const autoApprove = document.getElementById('approve_application').checked;
 
-            // Validation
             if (!fileInput.files[0]) {
                 fileInput.classList.add('is-invalid');
                 document.getElementById('documentError').textContent = 'Please select a supporting document';
@@ -1956,7 +2128,6 @@
                 return;
             }
 
-            // Validate file size (10MB)
             if (fileInput.files[0].size > 10 * 1024 * 1024) {
                 fileInput.classList.add('is-invalid');
                 document.getElementById('documentError').textContent = 'File size must be less than 10MB';
@@ -1964,22 +2135,25 @@
                 return;
             }
 
-            // Clear validation errors
             fileInput.classList.remove('is-invalid');
             document.getElementById('documentError').textContent = '';
 
-            // Show confirmation toast instead of browser confirm
             showConfirmationToast(
                 'Complete Inspection',
-                'Are you sure you want to complete the inspection for this application?',
+                `Are you sure you want to complete the inspection?\n\nFile: ${fileInput.files[0].name}`,
                 () => proceedWithInspection(id, fileInput, notes, autoApprove)
             );
+        }
 
-            // Show loading state
+        function proceedWithInspection(id, fileInput, notes, autoApprove) {
             const completeBtn = document.getElementById('completeInspectionBtn');
+            if (!completeBtn) {
+                showToast('error', 'UI error: Button not found');
+                return;
+            }
+
             const originalContent = completeBtn.innerHTML;
-            completeBtn.classList.add('btn-loading');
-            completeBtn.innerHTML = '<span class="btn-text">Processing...</span>';
+            completeBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
             completeBtn.disabled = true;
 
             const formData = new FormData();
@@ -1988,513 +2162,448 @@
             formData.append('approve_application', autoApprove ? '1' : '0');
 
             fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Inspection failed');
 
-                        // Update table row in real-time
-                        if (data.registration) {
-                            updateTableRow(id, data.registration);
-                        }
+                showToast('success', data.message || 'Inspection completed successfully');
+                
+                if (data.registration) {
+                    updateTableRow(id, data.registration);
+                }
 
-                        // Close modal
-                        bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('inspectionModal'));
+                if (modal) modal.hide();
 
-                       setTimeout(() => window.location.reload(), 1500); // refresh after 1.5 seconds
-
-                        // Optional: Update statistics cards
-                        if (data.statistics) {
-                            updateStatisticsCards(data.statistics);
-                        }
-                    } else {
-                        throw new Error(data.message || 'Unknown error occurred');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Failed to complete inspection: ' + error.message);
-                })
-                .finally(() => {
-                    // Restore button state
-                    completeBtn.classList.remove('btn-loading');
-                    completeBtn.innerHTML = originalContent;
-                    completeBtn.disabled = false;
-                });
+                setTimeout(() => window.location.reload(), 1500);
+            })
+            .catch(error => {
+                console.error('Error completing inspection:', error);
+                showToast('error', 'Inspection failed: ' + error.message);
+            })
+            .finally(() => {
+                completeBtn.innerHTML = originalContent;
+                completeBtn.disabled = false;
+            });
         }
 
-        // Enhanced view application details
+        // ========== VIEW REGISTRATION ==========
         function viewRegistration(id) {
             const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
             modal.show();
 
-            // Show loading state
             document.getElementById('registrationDetailsLoading').style.display = 'block';
             document.getElementById('registrationDetails').style.display = 'none';
 
             fetch(`/admin/boatr/requests/${id}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) {
-                        throw new Error(data.message || 'Failed to load application details');
-                    }
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to load application details');
 
-                    // Hide loading, show content
-                    document.getElementById('registrationDetailsLoading').style.display = 'none';
-                    document.getElementById('registrationDetails').style.display = 'block';
+                document.getElementById('registrationDetailsLoading').style.display = 'none';
+                document.getElementById('registrationDetails').style.display = 'block';
 
-                    // Build remarks HTML
-                    let remarksHtml = '';
-                    if (data.remarks) {
-                        remarksHtml = `
-                    <div class="col-12 mt-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fas fa-comment me-2"></i>Remarks</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="alert alert-info mb-0">
-                                    <p class="mb-1">${data.remarks}</p>
-                                    ${data.reviewed_at ? `<small class="text-muted">Updated on ${data.reviewed_at}${data.reviewed_by_name ? ` by ${data.reviewed_by_name}` : ''}</small>` : ''}
+                let remarksHtml = '';
+                if (data.remarks) {
+                    remarksHtml = `
+                        <div class="col-12 mt-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-comment me-2"></i>Remarks</h6>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                    }
-
-                    // Build documents HTML - FIXED to show both user and inspection documents
-                    let documentHtml = '';
-                    const userDocsCount = data.user_documents ? data.user_documents.length : 0;
-                    const inspectionDocsCount = data.inspection_documents ? data.inspection_documents.length : 0;
-
-                    if (userDocsCount > 0 || inspectionDocsCount > 0) {
-                        documentHtml = `
-                    <div class="col-12 mt-4">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents</h6>
-                                <button class="btn btn-sm btn-info" onclick="viewDocuments(${id})">
-                                    <i class="fas fa-eye me-1"></i>View All Documents
-                                </button>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <p><strong>User Documents:</strong> ${userDocsCount}</p>
-                                        <p><strong>Inspection Documents:</strong> ${inspectionDocsCount}</p>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <p><strong>Documents Verified:</strong> ${data.documents_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-warning">No</span>'}</p>
-                                        ${data.documents_verified_at ? `<p><strong>Verified At:</strong> ${data.documents_verified_at}</p>` : ''}
+                                <div class="card-body">
+                                    <div class="alert alert-info mb-0">
+                                        <p class="mb-1">${data.remarks}</p>
+                                        ${data.reviewed_at ? `<small class="text-muted">Updated on ${data.reviewed_at}${data.reviewed_by_name ? ` by ${data.reviewed_by_name}` : ''}</small>` : ''}
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    `;
+                }
+
+                const userDocsCount = data.user_documents ? data.user_documents.length : 0;
+                const inspectionDocsCount = data.inspection_documents ? data.inspection_documents.length : 0;
+
+                let documentHtml = '';
+                if (userDocsCount > 0 || inspectionDocsCount > 0) {
+                    documentHtml = `
+                        <div class="col-12 mt-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents</h6>
+                                    <button class="btn btn-sm btn-info" onclick="viewDocuments(${id})">
+                                        <i class="fas fa-eye me-1"></i>View All Documents
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>User Documents:</strong> ${userDocsCount}</p>
+                                            <p><strong>Inspection Documents:</strong> ${inspectionDocsCount}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Documents Verified:</strong> ${data.documents_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-warning">No</span>'}</p>
+                                            ${data.documents_verified_at ? `<p><strong>Verified At:</strong> ${data.documents_verified_at}</p>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('registrationDetails').innerHTML = `
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Application #:</strong> <span class="badge bg-primary">${data.application_number}</span></p>
+                                    <p><strong>Name:</strong> ${data.full_name}</p>
+                                    <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
+                                    <p><strong>Contact Number:</strong> ${data.contact_number || 'N/A'}</p>
+                                    <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                                    <p><strong>FishR Number:</strong> ${data.fishr_number}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Vessel Name:</strong> ${data.vessel_name}</p>
+                                    <p><strong>Boat Type:</strong> ${data.boat_type}</p>
+                                    <p><strong>Dimensions:</strong> ${data.boat_dimensions}</p>
+                                    <p><strong>Engine Type:</strong> ${data.engine_type}</p>
+                                    <p><strong>Engine HP:</strong> ${data.engine_horsepower} HP</p>
+                                    <p><strong>Primary Fishing Gear:</strong> ${data.primary_fishing_gear}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mt-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Status</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Status:</strong> <span class="badge bg-${data.status_color}">${data.formatted_status}</span></p>
+                                    <p><strong>Inspection:</strong> ${data.inspection_completed ? '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>' : '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>'}</p>
+                                    ${data.inspection_date ? `<p><strong>Inspection Date:</strong> ${data.inspection_date}</p>` : ''}
+                                    ${data.inspection_notes ? `<p><strong>Inspection Notes:</strong> ${data.inspection_notes}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mt-4">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Timeline</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Date Applied:</strong> ${data.created_at}</p>
+                                    <p><strong>Last Updated:</strong> ${data.updated_at}</p>
+                                    ${data.reviewed_at ? `<p><strong>Last Reviewed:</strong> ${data.reviewed_at}</p>` : ''}
+                                    ${data.reviewed_by_name ? `<p><strong>Reviewed By:</strong> ${data.reviewed_by_name}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        ${documentHtml}
+                        ${remarksHtml}
                     </div>
                 `;
-                    }
-
-                    // Populate modal content
-                    document.getElementById('registrationDetails').innerHTML = `
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Application #:</strong> <span class="badge bg-primary">${data.application_number}</span></p>
-                                <p><strong>Name:</strong> ${data.full_name}</p>
-                                <p><strong>Mobile:</strong> ${data.mobile || 'N/A'}</p>
-                                <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-                                <p><strong>FishR Number:</strong>${data.fishr_number}</p>
-                            </div>
-                        </div>
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('registrationDetailsLoading').style.display = 'none';
+                document.getElementById('registrationDetails').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Error loading application details: ${error.message}
                     </div>
-                    <div class="col-lg-6">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Vessel Name:</strong> ${data.vessel_name}</p>
-                                <p><strong>Boat Type:</strong> ${data.boat_type}</p>
-                                <p><strong>Dimensions:</strong> ${data.boat_dimensions}</p>
-                                <p><strong>Engine Type:</strong> ${data.engine_type}</p>
-                                <p><strong>Engine HP:</strong> ${data.engine_horsepower} HP</p>
-                                <p><strong>Primary Fishing Gear:</strong> ${data.primary_fishing_gear}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mt-4">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Status</h6>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Status:</strong> <span class="badge bg-${data.status_color}">${data.formatted_status}</span></p>
-                                <p><strong>Inspection:</strong> ${data.inspection_completed ? '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>' : '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>'}</p>
-                                ${data.inspection_date ? `<p><strong>Inspection Date:</strong> ${data.inspection_date}</p>` : ''}
-                                ${data.inspection_notes ? `<p><strong>Inspection Notes:</strong> ${data.inspection_notes}</p>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mt-4">
-                        <div class="card h-100">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Timeline</h6>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>Date Applied:</strong> ${data.created_at}</p>
-                                <p><strong>Last Updated:</strong> ${data.updated_at}</p>
-                                ${data.reviewed_at ? `<p><strong>Last Reviewed:</strong> ${data.reviewed_at}</p>` : ''}
-                                ${data.reviewed_by_name ? `<p><strong>Reviewed By:</strong> ${data.reviewed_by_name}</p>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    ${documentHtml}
-                    ${remarksHtml}
-                </div>
-            `;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('registrationDetailsLoading').style.display = 'none';
-                    document.getElementById('registrationDetails').innerHTML = `
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Error loading application details: ${error.message}
-                </div>
-            `;
-                    document.getElementById('registrationDetails').style.display = 'block';
-                });
+                `;
+                document.getElementById('registrationDetails').style.display = 'block';
+            });
         }
 
-        // Fixed BoatR Admin JavaScript - Complete Document Handling
-        // Add this to your admin BoatR index view or separate JS file
-
-        // Enhanced view documents function - Now shows preview directly when viewing documents
+        // ========== DOCUMENT VIEWING ==========
         function viewDocuments(id) {
-            // First, fetch the documents to see what's available
             fetch(`/admin/boatr/requests/${id}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) {
-                        throw new Error(data.message || 'Failed to load documents');
-                    }
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCSRFToken()
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to load documents');
 
-                    // Find the first available document to preview
-                    let docToPreview = null;
-                    let docType = '';
-                    let docIndex = 0;
+                let docToPreview = null;
+                let docType = '';
+                let docIndex = 0;
 
-                    // Check user documents first
-                    if (data.user_documents && data.user_documents.length > 0) {
-                        docToPreview = data.user_documents[0];
-                        docType = 'user';
-                        docIndex = 0;
-                    }
-                    // Then check inspection documents
-                    else if (data.inspection_documents && data.inspection_documents.length > 0) {
-                        docToPreview = data.inspection_documents[0];
-                        docType = 'inspection';
-                        docIndex = 0;
-                    }
-                    // Finally check annexes
-                    else if (data.annexes && data.annexes.length > 0) {
-                        // For annexes, use the preview annex function
-                        previewAnnex(id, data.annexes[0].id);
-                        return;
-                    }
+                if (data.user_documents && data.user_documents.length > 0) {
+                    docToPreview = data.user_documents[0];
+                    docType = 'user';
+                    docIndex = 0;
+                } else if (data.inspection_documents && data.inspection_documents.length > 0) {
+                    docToPreview = data.inspection_documents[0];
+                    docType = 'inspection';
+                    docIndex = 0;
+                } else if (data.annexes && data.annexes.length > 0) {
+                    previewAnnex(id, data.annexes[0].id);
+                    return;
+                }
 
-                    if (docToPreview) {
-                        // Preview the first available document
-                        previewDocument(id, docType, docIndex);
-                    } else {
-                        // Show a message that no documents are available
-                        showToast('info', 'No documents available for this application');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Failed to load documents: ' + error.message);
-                });
-        } // Enhanced preview document function - Improved with better file type support
+                if (docToPreview) {
+                    previewDocument(id, docType, docIndex);
+                } else {
+                    showToast('info', 'No documents available for this application');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Failed to load documents: ' + error.message);
+            });
+        }
+
         function previewDocument(id, type, index) {
             const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
             modal.show();
 
-            // Show enhanced loading state in preview
             document.getElementById('documentPreview').innerHTML = `
                 <div class="text-center py-5">
                     <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                     <p class="text-muted">Loading document preview...</p>
-                </div>`;
+                </div>
+            `;
 
-            // Clear previous title
             document.getElementById('documentPreviewTitle').innerHTML = '<i class="fas fa-eye me-2"></i>Document Preview';
 
             fetch(`/admin/boatr/requests/${id}/document-preview`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        type: type,
-                        index: index
-                    })
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    type: type,
+                    index: index
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) {
-                        throw new Error(data.message || 'Failed to load document preview');
-                    }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to load document preview');
 
-                    // Update modal title with document name
-                    document.getElementById('documentPreviewTitle').innerHTML =
-                        `<i class="fas fa-eye me-2"></i>${data.document_name}`;
+                document.getElementById('documentPreviewTitle').innerHTML =
+                    `<i class="fas fa-eye me-2"></i>${data.document_name}`;
 
-                    const fileExtension = data.document_type?.toLowerCase() ||
-                        data.document_name.split('.').pop().toLowerCase();
-                    const fileName = data.document_name;
-                    const fileUrl = data.document_url;
+                const fileExtension = data.document_type?.toLowerCase() ||
+                    data.document_name.split('.').pop().toLowerCase();
+                const fileName = data.document_name;
+                const fileUrl = data.document_url;
 
-                    // Define supported file types
-                    const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-                    const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
-                    const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
-                    const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+                const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+                const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+                const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+                const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
 
-                    // Function to add BoatR-style action buttons (matching FishR)
-                    const addActionButtons = () => {
-                        return `
-                            <div class="boatr-document-actions">
-                                <button class="btn boatr-btn boatr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
-                                    <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                                </button>
-                                <button class="btn boatr-btn boatr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
-                                    <i class="fas fa-download me-2"></i>Download
-                                </button>
+                const addActionButtons = () => {
+                    return `
+                        <div class="boatr-document-actions">
+                            <button class="btn boatr-btn boatr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
+                                <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                            </button>
+                            <button class="btn boatr-btn boatr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
+                                <i class="fas fa-download me-2"></i>Download
+                            </button>
+                        </div>
+                        <div class="boatr-document-info">
+                            <p class="boatr-file-name">File: ${fileName} (${fileExtension.toUpperCase()})</p>
+                        </div>
+                    `;
+                };
+
+                if (imageTypes.includes(fileExtension)) {
+                    const img = new Image();
+                    img.onload = function() {
+                        document.getElementById('documentPreview').innerHTML = `
+                            <div class="boatr-document-viewer">
+                                <div class="boatr-document-container">
+                                    <img src="${fileUrl}"
+                                         class="boatr-document-image"
+                                         alt="Document preview"
+                                         onclick="toggleImageZoomBoatr(this)"
+                                         style="cursor: zoom-in;">
+                                    <div class="boatr-document-overlay">
+                                        <div class="boatr-document-size-badge">
+                                            ${Math.round((this.naturalWidth * this.naturalHeight) / 1024)}KB
+                                        </div>
+                                    </div>
+                                </div>
+                                ${addActionButtons()}
                             </div>
-                            <div class="boatr-document-info">
-                                <p class="boatr-file-name">File: ${fileName} (${fileExtension.toUpperCase()})</p>
-                            </div>`;
+                        `;
                     };
+                    img.onerror = function() {
+                        document.getElementById('documentPreview').innerHTML = `
+                            <div class="boatr-document-viewer">
+                                <div class="boatr-document-placeholder">
+                                    <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
+                                    <h6>Unable to load image</h6>
+                                    <p class="mb-3">The image could not be displayed.</p>
+                                </div>
+                                ${addActionButtons()}
+                            </div>
+                        `;
+                    };
+                    img.src = fileUrl;
 
-                    // Handle different file types with enhanced capabilities
-                    try {
-                        if (imageTypes.includes(fileExtension)) {
-                            // Enhanced image handling with BoatR-style viewer
-                            const img = new Image();
-                            img.onload = function() {
-                                document.getElementById('documentPreview').innerHTML = `
-                                    <div class="boatr-document-viewer">
-                                        <div class="boatr-document-container">
-                                            <img src="${fileUrl}"
-                                                 class="boatr-document-image"
-                                                 alt="Document preview"
-                                                 onclick="toggleImageZoomBoatr(this)"
-                                                 style="cursor: zoom-in;">
-                                            <div class="boatr-document-overlay">
-                                                <div class="boatr-document-size-badge">
-                                                    ${Math.round((this.naturalWidth * this.naturalHeight) / 1024)}KB
-                                                </div>
-                                            </div>
-                                        </div>
-                                        ${addActionButtons()}
-                                    </div>`;
-                            };
-                            img.onerror = function() {
-                                document.getElementById('documentPreview').innerHTML = `
-                                    <div class="boatr-document-viewer">
-                                        <div class="boatr-document-placeholder">
-                                            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
-                                            <h6>Unable to load image</h6>
-                                            <p class="mb-3">The image could not be displayed.</p>
-                                        </div>
-                                        ${addActionButtons()}
-                                    </div>`;
-                            };
-                            img.src = fileUrl;
+                } else if (fileExtension === 'pdf') {
+                    document.getElementById('documentPreview').innerHTML = `
+                        <div class="boatr-document-viewer">
+                            <div class="boatr-document-container">
+                                <embed src="${fileUrl}"
+                                       type="application/pdf"
+                                       width="100%"
+                                       height="600px"
+                                       class="boatr-pdf-embed">
+                            </div>
+                            ${addActionButtons()}
+                        </div>
+                    `;
 
-                        } else if (fileExtension === 'pdf') {
-                            // Enhanced PDF handling with BoatR-style viewer
+                    setTimeout(() => {
+                        const embed = document.querySelector('#documentPreview embed');
+                        if (!embed || embed.offsetHeight === 0) {
                             document.getElementById('documentPreview').innerHTML = `
                                 <div class="boatr-document-viewer">
-                                    <div class="boatr-document-container">
-                                        <embed src="${fileUrl}"
-                                               type="application/pdf"
-                                               width="100%"
-                                               height="600px"
-                                               class="boatr-pdf-embed">
+                                    <div class="boatr-document-placeholder">
+                                        <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
+                                        <h5>PDF Preview Unavailable</h5>
+                                        <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
                                     </div>
-                                    ${addActionButtons()}
-                                </div>`;
-
-                            // Check PDF loading after delay
-                            setTimeout(() => {
-                                const embed = document.querySelector('#documentPreview embed');
-                                if (!embed || embed.offsetHeight === 0) {
-                                    document.getElementById('documentPreview').innerHTML = `
-                                        <div class="boatr-document-viewer">
-                                            <div class="boatr-document-placeholder">
-                                                <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
-                                                <h5>PDF Preview Unavailable</h5>
-                                                <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
-                                            </div>
-                                            <div class="boatr-document-actions">
-                                                <button class="btn boatr-btn boatr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
-                                                    <i class="fas fa-external-link-alt me-2"></i>Open PDF
-                                                </button>
-                                                <button class="btn boatr-btn boatr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
-                                                    <i class="fas fa-download me-2"></i>Download PDF
-                                                </button>
-                                            </div>
-                                            <div class="boatr-document-info">
-                                                <p class="boatr-file-name">File: ${fileName}</p>
-                                            </div>
-                                        </div>`;
-                                }
-                            }, 2000);
-
-                        } else if (videoTypes.includes(fileExtension)) {
-                            // Enhanced video handling
-                            document.getElementById('documentPreview').innerHTML = `
-                                <div class="text-center">
-                                    <video controls class="w-100 rounded shadow" style="max-height: 70vh;" preload="metadata">
-                                        <source src="${fileUrl}" type="video/${fileExtension}">
-                                        Your browser does not support the video tag.
-                                    </video>
-                                    ${addActionButtons()}
-                                </div>`;
-
-                        } else if (audioTypes.includes(fileExtension)) {
-                            // Enhanced audio handling
-                            document.getElementById('documentPreview').innerHTML = `
-                                <div class="text-center py-5">
-                                    <i class="fas fa-music fa-4x text-info mb-3"></i>
-                                    <h5>${fileName}</h5>
-                                    <audio controls class="w-100 mb-3">
-                                        <source src="${fileUrl}" type="audio/${fileExtension}">
-                                        Your browser does not support the audio tag.
-                                    </audio>
-                                    ${addActionButtons()}
-                                </div>`;
-
-                        } else if (documentTypes.includes(fileExtension)) {
-                            // Enhanced document type handling
-                            const docIcon = ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
-
-                            document.getElementById('documentPreview').innerHTML = `
-                                <div class="alert alert-info text-center">
-                                    <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
-                                    <h5>${fileExtension.toUpperCase()} Document</h5>
-                                    <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                            <i class="fas fa-external-link-alt me-2"></i>Open Document
-                                        </a>
-                                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                            <i class="fas fa-download me-2"></i>Download
-                                        </a>
+                                    <div class="boatr-document-actions">
+                                        <button class="btn boatr-btn boatr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
+                                            <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                        </button>
+                                        <button class="btn boatr-btn boatr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
+                                            <i class="fas fa-download me-2"></i>Download PDF
+                                        </button>
                                     </div>
-                                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                                </div>`;
-                        } else {
-                            // Enhanced unsupported file type handling
-                            document.getElementById('documentPreview').innerHTML = `
-                                <div class="alert alert-warning text-center">
-                                    <i class="fas fa-file fa-4x text-warning mb-3"></i>
-                                    <h5>Unsupported File Type</h5>
-                                    <p class="mb-3">File type ".${fileExtension}" is not supported for preview.</p>
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                            <i class="fas fa-external-link-alt me-2"></i>Open File
-                                        </a>
-                                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                            <i class="fas fa-download me-2"></i>Download
-                                        </a>
+                                    <div class="boatr-document-info">
+                                        <p class="boatr-file-name">File: ${fileName}</p>
                                     </div>
-                                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                                </div>`;
+                                </div>
+                            `;
                         }
-                    } catch (error) {
-                        console.error('Error processing document preview:', error);
-                        document.getElementById('documentPreview').innerHTML = `
-                            <div class="alert alert-danger text-center">
-                                <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
-                                <h5>Error Loading Document</h5>
-                                <p class="mb-3">An error occurred while trying to load the document preview.</p>
-                                ${addActionButtons()}
-                            </div>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                    }, 2000);
+
+                } else if (videoTypes.includes(fileExtension)) {
                     document.getElementById('documentPreview').innerHTML = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <h5>Error loading document preview</h5>
-                <p>${error.message}</p>
-                <small class="text-muted">Please try downloading the document instead.</small>
-            </div>
-        `;
-                });
+                        <div class="text-center">
+                            <video controls class="w-100 rounded shadow" style="max-height: 70vh;" preload="metadata">
+                                <source src="${fileUrl}" type="video/${fileExtension}">
+                                Your browser does not support the video tag.
+                            </video>
+                            ${addActionButtons()}
+                        </div>
+                    `;
+
+                } else if (audioTypes.includes(fileExtension)) {
+                    document.getElementById('documentPreview').innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-music fa-4x text-info mb-3"></i>
+                            <h5>${fileName}</h5>
+                            <audio controls class="w-100 mb-3">
+                                <source src="${fileUrl}" type="audio/${fileExtension}">
+                                Your browser does not support the audio tag.
+                            </audio>
+                            ${addActionButtons()}
+                        </div>
+                    `;
+
+                } else if (documentTypes.includes(fileExtension)) {
+                    const docIcon = ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+                    document.getElementById('documentPreview').innerHTML = `
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                            <h5>${fileExtension.toUpperCase()} Document</h5>
+                            <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open Document
+                                </a>
+                                <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                            </div>
+                            <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('documentPreview').innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                            <h5>Unsupported File Type</h5>
+                            <p class="mb-3">File type ".${fileExtension}" is not supported for preview.</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                    <i class="fas fa-external-link-alt me-2"></i>Open File
+                                </a>
+                                <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                            </div>
+                            <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('documentPreview').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <h5>Error loading document preview</h5>
+                        <p>${error.message}</p>
+                        <small class="text-muted">Please try downloading the document instead.</small>
+                    </div>
+                `;
+            });
         }
 
-        // Utility function to format file sizes
-        function formatFileSize(bytes) {
-            if (!bytes || bytes === 0) return 'Unknown size';
-
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(1024));
-            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-        }
-
-        // Helper function to toggle image zoom for boatr
         function toggleImageZoomBoatr(img) {
             if (img.style.transform === 'scale(2)') {
                 img.style.transform = 'scale(1)';
@@ -2509,296 +2618,99 @@
             }
         }
 
-        // Enhanced view application details function - FIXED user documents structure
-        function viewRegistration(id) {
-            const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
-            modal.show();
-
-            // Show loading state
-            document.getElementById('registrationDetailsLoading').style.display = 'block';
-            document.getElementById('registrationDetails').style.display = 'none';
-
-            fetch(`/admin/boatr/requests/${id}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) {
-                        throw new Error(data.message || 'Failed to load application details');
-                    }
-
-                    // Hide loading, show content
-                    document.getElementById('registrationDetailsLoading').style.display = 'none';
-                    document.getElementById('registrationDetails').style.display = 'block';
-
-                    // Build remarks HTML
-                    let remarksHtml = '';
-                    if (data.remarks) {
-                        remarksHtml = `
-                <div class="col-12 mt-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-comment me-2"></i>Remarks</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-info mb-0">
-                                <p class="mb-1">${data.remarks}</p>
-                                ${data.reviewed_at ? `<small class="text-muted">Updated on ${data.reviewed_at}${data.reviewed_by_name ? ` by ${data.reviewed_by_name}` : ''}</small>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-                    }
-
-                    // Build documents HTML - FIXED to show correct document counts
-                    let documentHtml = '';
-                    const userDocsCount = data.user_documents ? data.user_documents.length : 0;
-                    const inspectionDocsCount = data.inspection_documents ? data.inspection_documents.length : 0;
-
-                    if (userDocsCount > 0 || inspectionDocsCount > 0) {
-                        documentHtml = `
-                <div class="col-12 mt-4">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents</h6>
-                            <button class="btn btn-sm btn-info" onclick="viewDocuments(${id})">
-                                <i class="fas fa-eye me-1"></i>View All Documents
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>User Documents:</strong> ${userDocsCount}</p>
-                                    <p><strong>Inspection Documents:</strong> ${inspectionDocsCount}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Documents Verified:</strong> ${data.documents_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-warning">No</span>'}</p>
-                                    ${data.documents_verified_at ? `<p><strong>Verified At:</strong> ${data.documents_verified_at}</p>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-                    }
-
-                    // Populate modal content
-                    document.getElementById('registrationDetails').innerHTML = `
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <p><strong>Application #:</strong> <span class="badge bg-primary">${data.application_number}</span></p>
-                            <p><strong>Name:</strong> ${data.full_name}</p>
-                            <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
-                            <p><strong>Contact Number:</strong> ${data.contact_number || 'N/A'}</p>
-                            <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-                            <p><strong>FishR Number:</strong> ${data.fishr_number}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <p><strong>Vessel Name:</strong> ${data.vessel_name}</p>
-                            <p><strong>Boat Type:</strong> ${data.boat_type}</p>
-                            <p><strong>Dimensions:</strong> ${data.boat_dimensions}</p>
-                            <p><strong>Engine Type:</strong> ${data.engine_type}</p>
-                            <p><strong>Engine HP:</strong> ${data.engine_horsepower} HP</p>
-                            <p><strong>Primary Fishing Gear:</strong> ${data.primary_fishing_gear}</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 mt-4">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Status</h6>
-                        </div>
-                        <div class="card-body">
-                            <p><strong>Status:</strong> <span class="badge bg-${data.status_color}">${data.formatted_status}</span></p>
-                            <p><strong>Inspection:</strong> ${data.inspection_completed ? '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Completed</span>' : '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Pending</span>'}</p>
-                            ${data.inspection_date ? `<p><strong>Inspection Date:</strong> ${data.inspection_date}</p>` : ''}
-                            ${data.inspection_notes ? `<p><strong>Inspection Notes:</strong> ${data.inspection_notes}</p>` : ''}
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 mt-4">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Timeline</h6>
-                        </div>
-                        <div class="card-body">
-                            <p><strong>Date Applied:</strong> ${data.created_at}</p>
-                            <p><strong>Last Updated:</strong> ${data.updated_at}</p>
-                            ${data.reviewed_at ? `<p><strong>Last Reviewed:</strong> ${data.reviewed_at}</p>` : ''}
-                            ${data.reviewed_by_name ? `<p><strong>Reviewed By:</strong> ${data.reviewed_by_name}</p>` : ''}
-                        </div>
-                    </div>
-                </div>
-                ${documentHtml}
-                ${remarksHtml}
-            </div>
-        `;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('registrationDetailsLoading').style.display = 'none';
-                    document.getElementById('registrationDetails').innerHTML = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Error loading application details: ${error.message}
-            </div>
-        `;
-                    document.getElementById('registrationDetails').style.display = 'block';
-                });
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-
-
-        // Console log for debugging
-        console.log('BoatR Admin JavaScript loaded successfully ✅');
-
-        // Initialize tooltips if Bootstrap is available
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof bootstrap !== 'undefined') {
-                // Initialize tooltips
-                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
-                tooltipTriggerList.map(function(tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-            }
-        });
-
-        // Error handling for missing elements
-        function safeElementAction(elementId, action) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                action(element);
-            } else {
-                console.warn(`Element with ID '${elementId}' not found`);
-            }
+        function formatFileSize(bytes) {
+            if (!bytes || bytes === 0) return 'Unknown size';
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
         }
 
-        // Global error handler for AJAX requests
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error('Unhandled promise rejection:', event.reason);
-            // Optionally show a user-friendly error message
-            if (typeof showToast === 'function') {
-                showToast('error', 'An unexpected error occurred. Please try again.');
-            }
-        });
-
-        // Add network status detection
-        window.addEventListener('online', function() {
-            console.log('Network connection restored');
-            if (typeof showToast === 'function') {
-                showToast('success', 'Network connection restored');
-            }
-        });
-
-        // ========== ANNEXES FUNCTIONALITY ==========
-
-        // Show annexes modal
+        // ========== ANNEXES MANAGEMENT ==========
         function showAnnexesModal(id) {
             const modal = new bootstrap.Modal(document.getElementById('annexesModal'));
             modal.show();
 
-            // Show loading
             document.getElementById('annexesLoading').style.display = 'block';
             document.getElementById('annexesContent').style.display = 'none';
 
-            // Load registration details and annexes
             loadAnnexesData(id);
         }
 
-        // Load annexes data
         function loadAnnexesData(id) {
             fetch(`/admin/boatr/requests/${id}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to load data');
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to load data');
 
-                    // Hide loading, show content
-                    document.getElementById('annexesLoading').style.display = 'none';
-                    document.getElementById('annexesContent').style.display = 'block';
+                document.getElementById('annexesLoading').style.display = 'none';
+                document.getElementById('annexesContent').style.display = 'block';
 
-                    // Populate application info
-                    document.getElementById('annexRegistrationId').value = id;
-                    document.getElementById('annexAppNumber').textContent = data.application_number;
-                    document.getElementById('annexApplicantName').textContent = data.full_name;
-                    document.getElementById('annexVesselName').textContent = data.vessel_name || 'N/A';
-                    document.getElementById('annexStatus').innerHTML =
-                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                document.getElementById('annexRegistrationId').value = id;
+                document.getElementById('annexAppNumber').textContent = data.application_number;
+                document.getElementById('annexApplicantName').textContent = data.full_name;
+                document.getElementById('annexVesselName').textContent = data.vessel_name || 'N/A';
+                document.getElementById('annexStatus').innerHTML =
+                    `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                    // Load existing annexes
-                    loadExistingAnnexes(id);
+                loadExistingAnnexes(id);
+                resetAnnexForm();
+            })
+            .catch(error => {
+                console.error('Error loading annexes data:', error);
+                showToast('error', 'Failed to load data: ' + error.message);
 
-                    // Reset form
-                    resetAnnexForm();
-                })
-                .catch(error => {
-                    console.error('Error loading annexes data:', error);
-                    showToast('error', 'Failed to load data: ' + error.message);
-
-                    // Hide loading, show error
-                    document.getElementById('annexesLoading').style.display = 'none';
-                    document.getElementById('annexesContent').innerHTML = `
+                document.getElementById('annexesLoading').style.display = 'none';
+                document.getElementById('annexesContent').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Error loading data: ${error.message}
                     </div>
                 `;
-                    document.getElementById('annexesContent').style.display = 'block';
-                });
+                document.getElementById('annexesContent').style.display = 'block';
+            });
         }
 
-        // Load existing annexes
         function loadExistingAnnexes(id) {
             fetch(`/admin/boatr/requests/${id}/annexes`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const annexesList = document.getElementById('annexesList');
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const annexesList = document.getElementById('annexesList');
 
-                    if (data.success && data.annexes && data.annexes.length > 0) {
-                        let annexesHtml = '';
-                        data.annexes.forEach((annex, index) => {
-                            const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            });
+                if (data.success && data.annexes && data.annexes.length > 0) {
+                    let annexesHtml = '';
+                    data.annexes.forEach((annex) => {
+                        const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
 
-                            annexesHtml += `
+                        annexesHtml += `
                             <div class="document-item border rounded p-3 mb-3" id="annex-${annex.id}">
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
@@ -2829,36 +2741,34 @@
                                 </div>
                             </div>
                         `;
-                        });
-                        annexesList.innerHTML = annexesHtml;
-                    } else {
-                        annexesList.innerHTML = `
+                    });
+                    annexesList.innerHTML = annexesHtml;
+                } else {
+                    annexesList.innerHTML = `
                         <div class="text-center py-4">
                             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
                             <p class="text-muted">No annexes uploaded yet</p>
                         </div>
                     `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading annexes:', error);
-                    document.getElementById('annexesList').innerHTML = `
+                }
+            })
+            .catch(error => {
+                console.error('Error loading annexes:', error);
+                document.getElementById('annexesList').innerHTML = `
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Error loading annexes: ${error.message}
                     </div>
                 `;
-                });
+            });
         }
 
-        // Upload annex
         function uploadAnnex() {
             const id = document.getElementById('annexRegistrationId').value;
             const fileInput = document.getElementById('annexFile');
             const title = document.getElementById('annexTitle').value.trim();
             const description = document.getElementById('annexDescription').value.trim();
 
-            // Validation
             if (!fileInput.files[0]) {
                 showValidationError('annexFile', 'annexFileError', 'Please select a file');
                 return;
@@ -2869,13 +2779,11 @@
                 return;
             }
 
-            // File size validation (10MB)
             if (fileInput.files[0].size > 10 * 1024 * 1024) {
                 showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
                 return;
             }
 
-            // Clear validation errors
             clearValidationErrors();
 
             showConfirmationToast(
@@ -2883,12 +2791,17 @@
                 `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}`,
                 () => proceedWithAnnexUpload(id, fileInput, title, description)
             );
+        }
 
-            // Show loading state
+        function proceedWithAnnexUpload(id, fileInput, title, description) {
             const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+            if (!uploadBtn) {
+                showToast('error', 'UI error: Button not found');
+                return;
+            }
+
             const originalContent = uploadBtn.innerHTML;
-            uploadBtn.classList.add('btn-loading');
-            uploadBtn.innerHTML = '<span class="btn-text">Uploading...</span>';
+            uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Uploading...';
             uploadBtn.disabled = true;
 
             const formData = new FormData();
@@ -2897,66 +2810,54 @@
             formData.append('description', description);
 
             fetch(`/admin/boatr/requests/${id}/annexes`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', 'Success', 'Annex uploaded successfully');
-                        resetAnnexForm();
-                        loadExistingAnnexes(id); // Reload annexes list
-                        refreshData(); // Refresh main table if needed
-                    } else {
-                        throw new Error(data.message || 'Failed to upload annex');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error uploading annex:', error);
-                    showToast('error', 'Failed to upload annex: ' + error.message);
-                })
-                .finally(() => {
-                    // Restore button state
-                    uploadBtn.classList.remove('btn-loading');
-                    uploadBtn.innerHTML = originalContent;
-                    uploadBtn.disabled = false;
-                });
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to upload annex');
+
+                showToast('success', 'Annex uploaded successfully');
+                resetAnnexForm();
+                loadExistingAnnexes(id);
+                
+                setTimeout(() => window.location.reload(), 1500);
+            })
+            .catch(error => {
+                console.error('Error uploading annex:', error);
+                showToast('error', 'Upload failed: ' + error.message);
+            })
+            .finally(() => {
+                uploadBtn.innerHTML = originalContent;
+                uploadBtn.disabled = false;
+            });
         }
 
-        // Preview annex
         function previewAnnex(registrationId, annexId) {
-            // Reuse existing document preview modal with proper z-index handling
             const previewModal = document.getElementById('documentPreviewModal');
             const annexesModal = document.getElementById('annexesModal');
             const modal = new bootstrap.Modal(previewModal);
 
-            // Set higher z-index to appear above annexes modal
             previewModal.style.zIndex = '1060';
 
-            // Find and temporarily hide the annexes modal backdrop
             const annexesBackdrop = document.querySelector('.modal-backdrop');
-            let originalBackdropDisplay = '';
             if (annexesBackdrop) {
-                originalBackdropDisplay = annexesBackdrop.style.display;
                 annexesBackdrop.style.zIndex = '1058';
             }
 
-            // Add event listener to restore everything when preview modal is hidden
             previewModal.addEventListener('hidden.bs.modal', function() {
                 previewModal.style.zIndex = '';
                 if (annexesBackdrop) {
                     annexesBackdrop.style.zIndex = '';
                 }
-            }, {
-                once: true
-            });
+            }, { once: true });
 
             modal.show();
 
@@ -2970,27 +2871,27 @@
             `;
 
             fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/preview`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) throw new Error(data.message || 'Failed to load preview');
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to load preview');
 
-                    document.getElementById('documentPreviewTitle').innerHTML =
-                        `<i class="fas fa-folder me-2"></i>${data.title}`;
+                document.getElementById('documentPreviewTitle').innerHTML =
+                    `<i class="fas fa-folder me-2"></i>${data.title}`;
 
-                    const fileExtension = data.file_extension?.toLowerCase();
-                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
-                    const isPdf = fileExtension === 'pdf';
+                const fileExtension = data.file_extension?.toLowerCase();
+                const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+                const isPdf = fileExtension === 'pdf';
 
-                    if (isPdf) {
-                        document.getElementById('documentPreview').innerHTML = `
+                if (isPdf) {
+                    document.getElementById('documentPreview').innerHTML = `
                         <div class="text-center">
                             <embed src="${data.file_url}" type="application/pdf" width="100%" height="600px"
                                    style="border: none; border-radius: 8px;" />
@@ -3001,15 +2902,15 @@
                             </div>
                         </div>
                     `;
-                    } else if (isImage) {
-                        document.getElementById('documentPreview').innerHTML = `
+                } else if (isImage) {
+                    document.getElementById('documentPreview').innerHTML = `
                         <div class="text-center">
                             <img src="${data.file_url}" class="img-fluid" alt="Annex preview"
                                  style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
                         </div>
                     `;
-                    } else {
-                        document.getElementById('documentPreview').innerHTML = `
+                } else {
+                    document.getElementById('documentPreview').innerHTML = `
                         <div class="alert alert-info text-center">
                             <i class="fas fa-info-circle me-2"></i>
                             <h5>Preview not available for this file type</h5>
@@ -3019,72 +2920,67 @@
                             </a>
                         </div>
                     `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading annex preview:', error);
-                    document.getElementById('documentPreview').innerHTML = `
+                }
+            })
+            .catch(error => {
+                console.error('Error loading annex preview:', error);
+                document.getElementById('documentPreview').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <h5>Error loading annex preview</h5>
                         <p>${error.message}</p>
                     </div>
                 `;
-                });
+            });
         }
 
-        // Download annex
         function downloadAnnex(registrationId, annexId) {
             window.open(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/download`, '_blank');
         }
 
-        // Delete annex
         function deleteAnnex(registrationId, annexId) {
             showConfirmationToast(
                 'Delete Annex',
                 'Are you sure you want to delete this annex?\n\nThis action cannot be undone.',
                 () => proceedWithAnnexDelete(registrationId, annexId)
             );
-
-            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', 'Success', 'Annex deleted successfully');
-
-                        // Remove from UI
-                        const annexElement = document.getElementById(`annex-${annexId}`);
-                        if (annexElement) {
-                            annexElement.remove();
-                        }
-
-                        // Reload if no annexes left
-                        const annexesList = document.getElementById('annexesList');
-                        if (!annexesList.querySelector('.document-item')) {
-                            loadExistingAnnexes(registrationId);
-                        }
-
-                        setTimeout(() => window.location.reload(), 1500); // Refresh main table after deletion
-                    } else {
-                        throw new Error(data.message || 'Failed to delete annex');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting annex:', error);
-                    showToast('error', 'Failed to delete annex: ' + error.message);
-                });
         }
 
-        // Reset annex form
+        function proceedWithAnnexDelete(registrationId, annexId) {
+            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to delete annex');
+
+                showToast('success', 'Annex deleted successfully');
+                
+                const annexElement = document.getElementById(`annex-${annexId}`);
+                if (annexElement) {
+                    annexElement.remove();
+                }
+
+                const annexesList = document.getElementById('annexesList');
+                if (annexesList && !annexesList.querySelector('.document-item')) {
+                    loadExistingAnnexes(registrationId);
+                }
+
+                setTimeout(() => window.location.reload(), 1500);
+            })
+            .catch(error => {
+                console.error('Error deleting annex:', error);
+                showToast('error', 'Delete failed: ' + error.message);
+            });
+        }
+
         function resetAnnexForm() {
             document.getElementById('annexFile').value = '';
             document.getElementById('annexTitle').value = '';
@@ -3093,16 +2989,14 @@
             clearValidationErrors();
         }
 
-        // Show validation error
         function showValidationError(inputId, errorId, message) {
             const input = document.getElementById(inputId);
             const error = document.getElementById(errorId);
 
-            input.classList.add('is-invalid');
-            error.textContent = message;
+            if (input) input.classList.add('is-invalid');
+            if (error) error.textContent = message;
         }
 
-        // Clear validation errors
         function clearValidationErrors() {
             const inputs = ['annexFile', 'annexTitle'];
             const errors = ['annexFileError', 'annexTitleError'];
@@ -3118,172 +3012,7 @@
             });
         }
 
-        // Character count for annex description
-        document.addEventListener('DOMContentLoaded', function() {
-            const annexDesc = document.getElementById('annexDescription');
-            const annexDescCount = document.getElementById('annexDescCount');
-
-            if (annexDesc && annexDescCount) {
-                annexDesc.addEventListener('input', function() {
-                    const count = this.value.length;
-                    annexDescCount.textContent = count;
-
-                    if (count > 500) {
-                        this.value = this.value.substring(0, 500);
-                        annexDescCount.textContent = '500';
-                    }
-                });
-            }
-        });
-
-        // ========== END ANNEXES FUNCTIONALITY ==========
-
-        window.addEventListener('offline', function() {
-            console.log('Network connection lost');
-            if (typeof showToast === 'function') {
-                showToast('warning', 'Network connection lost. Some features may not work.');
-            }
-        });
-
-        // Utility function for safe JSON parsing
-        function safeJsonParse(jsonString, fallback = {}) {
-            try {
-                return JSON.parse(jsonString);
-            } catch (error) {
-                console.error('JSON parsing error:', error);
-                return fallback;
-            }
-        }
-
-        // Enhanced logging function
-        function logAction(action, data = {}) {
-            const timestamp = new Date().toISOString();
-            const logEntry = {
-                timestamp,
-                action,
-                data,
-                userAgent: navigator.userAgent,
-                url: window.location.href
-            };
-
-            console.log(`[${timestamp}] ${action}:`, data);
-
-            // Store in sessionStorage for debugging
-            try {
-                const logs = safeJsonParse(sessionStorage.getItem('boatr_admin_logs') || '[]', []);
-                logs.push(logEntry);
-
-                // Keep only last 50 logs
-                if (logs.length > 50) {
-                    logs.splice(0, logs.length - 50);
-                }
-
-                sessionStorage.setItem('boatr_admin_logs', JSON.stringify(logs));
-            } catch (error) {
-                console.warn('Could not store log entry:', error);
-            }
-        }
-
-        // Function to get debug logs
-        function getDebugLogs() {
-            return safeJsonParse(sessionStorage.getItem('boatr_admin_logs') || '[]', []);
-        }
-
-        // Function to clear debug logs
-        function clearDebugLogs() {
-            sessionStorage.removeItem('boatr_admin_logs');
-            console.log('Debug logs cleared');
-        }
-
-        // Export functions for console debugging
-        window.BoatRAdmin = {
-            viewDocuments,
-            previewDocument,
-            viewRegistration,
-            formatFileSize,
-            getDebugLogs,
-            clearDebugLogs,
-            logAction,
-            // Annexes functions
-            showAnnexesModal,
-            uploadAnnex,
-            previewAnnex,
-            downloadAnnex,
-            deleteAnnex
-        };
-
-        console.log('BoatR Admin utilities available via window.BoatRAdmin');
-
-
-        // Update statistics cards (optional enhancement)
-        function updateStatisticsCards(statistics) {
-            if (statistics.total !== undefined) {
-                const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-number');
-                if (totalElement) {
-                    totalElement.textContent = statistics.total;
-                }
-            }
-
-            if (statistics.pending !== undefined) {
-                const pendingElement = document.querySelector('.stat-card:nth-child(4) .stat-number');
-                if (pendingElement) {
-                    pendingElement.textContent = statistics.pending;
-                }
-            }
-
-            if (statistics.inspection_required !== undefined) {
-                const inspectionElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
-                if (inspectionElement) {
-                    inspectionElement.textContent = statistics.inspection_required;
-                }
-            }
-
-            if (statistics.approved !== undefined) {
-                const approvedElement = document.querySelector('.stat-card:nth-child(3) .stat-number');
-                if (approvedElement) {
-                    approvedElement.textContent = statistics.approved;
-                }
-            }
-        }
-
-        // File upload validation for inspection modal
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('supporting_document');
-            if (fileInput) {
-                fileInput.addEventListener('change', function() {
-                    const file = this.files[0];
-                    const errorElement = document.getElementById('documentError');
-
-                    // Clear previous errors
-                    this.classList.remove('is-invalid');
-                    errorElement.textContent = '';
-
-                    if (file) {
-                        // Check file size (10MB)
-                        if (file.size > 10 * 1024 * 1024) {
-                            this.classList.add('is-invalid');
-                            errorElement.textContent = 'File size must be less than 10MB';
-                            return;
-                        }
-
-                        // Check file type
-                        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-                        if (!allowedTypes.includes(file.type)) {
-                            this.classList.add('is-invalid');
-                            errorElement.textContent = 'Only PDF, JPG, JPEG, and PNG files are allowed';
-                            return;
-                        }
-
-                        // Show file info
-                        const fileSize = (file.size / 1024 / 1024).toFixed(2);
-                        errorElement.className = 'text-success small';
-                        errorElement.textContent = `Selected: ${file.name} (${fileSize} MB)`;
-                    }
-                });
-            }
-        });
-
-        // Date Filter Functions
+        // ========== DATE FILTER FUNCTIONS ==========
         function setDateRangeModal(period) {
             const today = new Date();
             let startDate, endDate;
@@ -3294,29 +3023,26 @@
                     break;
                 case 'week':
                     startDate = new Date(today);
-                    startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+                    startDate.setDate(today.getDate() - today.getDay());
                     endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + 6); // End of week (Saturday)
+                    endDate.setDate(startDate.getDate() + 6);
                     break;
                 case 'month':
-                    startDate = new Date(today.getFullYear(), today.getMonth(), 1); // First day of month
-                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of month
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                     break;
                 case 'year':
-                    startDate = new Date(today.getFullYear(), 0, 1); // First day of year
-                    endDate = new Date(today.getFullYear(), 11, 31); // Last day of year
+                    startDate = new Date(today.getFullYear(), 0, 1);
+                    endDate = new Date(today.getFullYear(), 11, 31);
                     break;
             }
 
-            // Format dates to YYYY-MM-DD
             const startDateStr = startDate.toISOString().split('T')[0];
             const endDateStr = endDate.toISOString().split('T')[0];
 
-            // Update modal inputs
             document.getElementById('modal_date_from').value = startDateStr;
             document.getElementById('modal_date_to').value = endDateStr;
 
-            // Apply the filter immediately
             applyDateFilter(startDateStr, endDateStr);
         }
 
@@ -3333,14 +3059,11 @@
         }
 
         function applyDateFilter(dateFrom, dateTo) {
-            // Update hidden inputs
             document.getElementById('date_from').value = dateFrom;
             document.getElementById('date_to').value = dateTo;
 
-            // Update status display
             updateDateFilterStatus(dateFrom, dateTo);
 
-            // Close modal and submit form
             const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
             if (modal) modal.hide();
 
@@ -3379,20 +3102,74 @@
             }
         }
 
-        // Function to download files (same as FishR)
-        function downloadFile(url, filename) {
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        // ========== TABLE UPDATE ==========
+        function updateTableRow(id, registration) {
+            try {
+                const row = document.getElementById(`registration-${id}`);
+                if (!row) {
+                    console.warn(`Row with ID registration-${id} not found`);
+                    return;
+                }
+
+                const statusBadge = document.getElementById(`status-badge-${id}`);
+                if (statusBadge) {
+                    statusBadge.className = `badge bg-${registration.status_color} fs-6`;
+                    statusBadge.textContent = registration.formatted_status;
+                }
+
+                const inspectionBadge = document.getElementById(`inspection-badge-${id}`);
+                if (inspectionBadge) {
+                    if (registration.inspection_completed) {
+                        inspectionBadge.className = 'badge bg-success';
+                        inspectionBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i>Completed';
+                    } else {
+                        inspectionBadge.className = 'badge bg-warning';
+                        inspectionBadge.innerHTML = '<i class="fas fa-clock me-1"></i>Pending';
+                    }
+                }
+
+                row.classList.add('row-updated');
+                setTimeout(() => row.classList.remove('row-updated'), 2000);
+            } catch (error) {
+                console.error('Error updating table row:', error);
+            }
         }
 
-        // Add keyboard shortcut listener for refresh and modal closing
+        // ========== FILE UPLOAD VALIDATION ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('supporting_document');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    const file = this.files[0];
+                    const errorElement = document.getElementById('documentError');
+
+                    this.classList.remove('is-invalid');
+                    errorElement.textContent = '';
+
+                    if (file) {
+                        if (file.size > 10 * 1024 * 1024) {
+                            this.classList.add('is-invalid');
+                            errorElement.textContent = 'File size must be less than 10MB';
+                            return;
+                        }
+
+                        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                        if (!allowedTypes.includes(file.type)) {
+                            this.classList.add('is-invalid');
+                            errorElement.textContent = 'Only PDF, JPG, JPEG, and PNG files are allowed';
+                            return;
+                        }
+
+                        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                        errorElement.className = 'text-success small';
+                        errorElement.textContent = `Selected: ${file.name} (${fileSize} MB)`;
+                    }
+                });
+            }
+        });
+
+        // ========== KEYBOARD SHORTCUTS ==========
         document.addEventListener('keydown', function(event) {
-            // ESC to close modals
             if (event.key === 'Escape') {
                 const modals = document.querySelectorAll('.modal.show');
                 modals.forEach(modal => {
@@ -3402,255 +3179,33 @@
                     }
                 });
             }
-
         });
-        // Create toast container
-        function createToastContainer() {
-            let container = document.getElementById('toastContainer');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'toastContainer';
-                container.className = 'toast-container';
-                document.body.appendChild(container);
-            }
-            return container;
-        }
 
-       // Toast notification function - UNIFIED VERSION
-        function showToast(type, message) {
-            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+        // ========== INITIALIZATION ==========
+        console.log('✅ BoatR Admin JavaScript loaded successfully');
 
-            const iconMap = {
-                'success': { icon: 'fas fa-check-circle', color: 'success' },
-                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
-                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
-                'info': { icon: 'fas fa-info-circle', color: 'info' }
-            };
-
-            const config = iconMap[type] || iconMap['info'];
-
-            const toast = document.createElement('div');
-            toast.className = `toast-notification toast-${type}`;
-            toast.innerHTML = `
-                <div class="toast-content">
-                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
-                    <span>${message}</span>
-                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
-                </div>
-            `;
-
-            toastContainer.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                if (document.contains(toast)) {
-                    removeToast(toast);
-                }
-            }, 5000);
-        }
-
-        // Confirmation toast function
-        function showConfirmationToast(title, message, onConfirm) {
-            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
-
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification confirmation-toast';
-
-            // Store the callback function on the toast element
-            toast.dataset.confirmCallback = Math.random().toString(36);
-            window[toast.dataset.confirmCallback] = onConfirm;
-
-            toast.innerHTML = `
-                <div class="toast-header">
-                    <i class="fas fa-question-circle me-2 text-warning"></i>
-                    <strong class="me-auto">${title}</strong>
-                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
-                </div>
-                <div class="toast-body">
-                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
-                    <div class="d-flex gap-2 justify-content-end">
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
-                            <i class="fas fa-times me-1"></i>Cancel
-                        </button>
-                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
-                            <i class="fas fa-check me-1"></i>Confirm
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            toastContainer.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-
-            // Auto-dismiss after 10 seconds
-            setTimeout(() => {
-                if (document.contains(toast)) {
-                    removeToast(toast);
-                }
-            }, 10000);
-        }
-
-        // Execute confirmation action
-        function confirmToastAction(button) {
-            const toast = button.closest('.toast-notification');
-            const callbackId = toast.dataset.confirmCallback;
-            const callback = window[callbackId];
-
-            if (typeof callback === 'function') {
-                try {
-                    callback();
-                } catch (error) {
-                    console.error('Error executing confirmation callback:', error);
-                }
-            }
-
-            // Clean up the callback reference
-            delete window[callbackId];
-            removeToast(toast);
-        }
-
-        // Remove toast notification
-        function removeToast(toastElement) {
-            toastElement.classList.remove('show');
-            setTimeout(() => {
-                if (toastElement.parentElement) {
-                    toastElement.remove();
-                }
-            }, 300);
-        }
-
-        // Get CSRF token utility function
-        function getCSRFToken() {
-            const metaTag = document.querySelector('meta[name="csrf-token"]');
-            return metaTag ? metaTag.getAttribute('content') : '';
-        }
-        // Proceed with inspection
-        function proceedWithInspection(id, fileInput, notes, autoApprove) {
-            const completeBtn = document.getElementById('completeInspectionBtn');
-            const originalContent = completeBtn.innerHTML;
-            completeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Processing...';
-            completeBtn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('supporting_document', fileInput.files[0]);
-            formData.append('inspection_notes', notes);
-            formData.append('approve_application', autoApprove ? '1' : '0');
-
-            fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', data.message);
-                    if (data.registration) updateTableRow(id, data.registration);
-                    bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
-                    setTimeout(() => window.location.reload(), 1500); // Reload to reflect status changes
-                } else throw new Error(data.message);
-            })
-            .catch(error => showToast('error', 'Failed to complete inspection: ' + error.message))
-            .finally(() => {
-                completeBtn.innerHTML = originalContent;
-                completeBtn.disabled = false;
+        if (typeof bootstrap !== 'undefined') {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         }
 
-        // Proceed with status update
-        function proceedWithStatusUpdate(id, newStatus, remarks) {
-            const updateBtn = document.getElementById('updateStatusBtn');
-            const originalContent = updateBtn.innerHTML;
-            updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
-            updateBtn.disabled = true;
+        // Global window object for debugging
+        window.BoatRAdmin = {
+            viewDocuments,
+            previewDocument,
+            viewRegistration,
+            formatFileSize,
+            showAnnexesModal,
+            uploadAnnex,
+            previewAnnex,
+            downloadAnnex,
+            deleteAnnex,
+            updateRegistrationStatus,
+            completeInspection
+        };
 
-            fetch(`/admin/boatr/requests/${id}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ status: newStatus, remarks: remarks })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', data.message);
-                    if (data.registration) updateTableRow(id, data.registration);
-                    bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
-                    setTimeout(() => window.location.reload(), 1500); // Reload to reflect status changes
-                } else throw new Error(data.message);
-            })
-            .catch(error => showToast('error', 'Failed to update status: ' + error.message))
-            .finally(() => {
-                updateBtn.innerHTML = originalContent;
-                updateBtn.disabled = false;
-            });
-        }
-        // Proceed with annex upload
-        function proceedWithAnnexUpload(id, fileInput, title, description) {
-            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
-            const originalContent = uploadBtn.innerHTML;
-            uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading...';
-            uploadBtn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-            formData.append('title', title);
-            formData.append('description', description);
-
-            fetch(`/admin/boatr/requests/${id}/annexes`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Annex uploaded successfully');
-                    resetAnnexForm();
-                    loadExistingAnnexes(id);
-                    setTimeout(() => window.location.reload(), 1500); // Reload to reflect status changes
-                } else throw new Error(data.message);
-            })
-            .catch(error => showToast('error', 'Failed to upload annex: ' + error.message))
-            .finally(() => {
-                uploadBtn.innerHTML = originalContent;
-                uploadBtn.disabled = false;
-            });
-        }
-
-        // Proceed with annex deletion
-        function proceedWithAnnexDelete(registrationId, annexId) {
-            fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Annex deleted successfully');
-                    const annexElement = document.getElementById(`annex-${annexId}`);
-                    if (annexElement) annexElement.remove();
-                    const annexesList = document.getElementById('annexesList');
-                    if (!annexesList.querySelector('.document-item')) {
-                        loadExistingAnnexes(registrationId);
-                    }
-                    setTimeout(() => window.location.reload(), 1500); // Reload to reflect status changes
-                } else throw new Error(data.message);
-            })
-            .catch(error => showToast('error', 'Failed to delete annex: ' + error.message));
-        }
+        console.log('BoatR Admin utilities available via window.BoatRAdmin');
     </script>
 @endsection
