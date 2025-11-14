@@ -133,83 +133,80 @@ class BoatRController extends Controller
      * Update the status of the specified BoatR registration
      */
     public function updateStatus(Request $request, $id)
-    {
-        try {
-            $validated = $request->validate([
-                'status' => 'required|in:pending,under_review,inspection_scheduled,inspection_required,documents_pending,approved,rejected',
-                'remarks' => 'nullable|string|max:2000',
-            ], [
-                'status.required' => 'Status is required',
-                'status.in' => 'Invalid status selected',
-            ]);
+{
+    try {
+        Log::info('Update Status Request Received', [
+            'id' => $id,
+            'request_data' => $request->all(),
+            'method' => $request->method(),
+            'url' => $request->fullUrl()
+        ]);
 
-            $registration = BoatrApplication::findOrFail($id);
-            $oldStatus = $registration->status;
+        $validated = $request->validate([
+            'status' => 'required|in:pending,under_review,inspection_scheduled,inspection_required,documents_pending,approved,rejected',
+            'remarks' => 'nullable|string|max:2000',
+        ], [
+            'status.required' => 'Status is required',
+            'status.in' => 'Invalid status selected',
+        ]);
 
-            // Update the registration using the model method
-            $registration->updateStatus(
-                $validated['status'],
-                $validated['remarks'],
-                auth()->id()
-            );
+        $registration = BoatrApplication::findOrFail($id);
+        $oldStatus = $registration->status;
 
-            // Send email notification if approved and email is available
-            if ($validated['status'] === 'approved' && $registration->email) {
-                try {
-                    Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
-                } catch (\Exception $e) {
-                    Log::error('Failed to send approval email for BoatR registration ' . $registration->id . ': ' . $e->getMessage());
-                }
+        $registration->updateStatus(
+            $validated['status'],
+            $validated['remarks'],
+            auth()->id()
+        );
+
+        if ($validated['status'] === 'approved' && $registration->email) {
+            try {
+                Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
+            } catch (\Exception $e) {
+                Log::error('Failed to send approval email: ' . $e->getMessage());
             }
-
-            Log::info('BoatR registration status updated', [
-                'registration_id' => $registration->id,
-                'application_number' => $registration->application_number,
-                'old_status' => $oldStatus,
-                'new_status' => $validated['status'],
-                'updated_by' => auth()->user()->name ?? 'System',
-                'remarks' => $validated['remarks'],
-                'email_sent' => ($validated['status'] === 'approved' && $registration->email) ? 'yes' : 'no'
-            ]);
-
-            $message = "Application {$registration->application_number} status updated to " .
-                    $registration->formatted_status .
-                    ($validated['status'] === 'approved' && $registration->email ? '. Email notification sent to applicant.' : '');
-
-            return response()->json([
-                'success' => true,
-                'message' => $message,
-                'registration' => [
-                    'id' => $registration->id,
-                    'status' => $registration->status,
-                    'formatted_status' => $registration->formatted_status,
-                    'status_color' => $registration->status_color,
-                    'inspection_completed' => $registration->inspection_completed,
-                    'total_documents' => $registration->total_documents_count
-                ]
-            ]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Please check your input',
-                'errors' => $e->errors()
-            ], 422);
-
-        } catch (\Exception $e) {
-            Log::error('Error updating BoatR registration status', [
-                'registration_id' => $id,
-                'request_data' => $request->all(),
-                'error' => $e->getMessage()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Error updating registration status: ' . $e->getMessage()
-            ], 500);
         }
-    }
 
+        Log::info('Status updated successfully', [
+            'registration_id' => $registration->id,
+            'old_status' => $oldStatus,
+            'new_status' => $validated['status']
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Application {$registration->application_number} status updated to " . $registration->formatted_status,
+            'registration' => [
+                'id' => $registration->id,
+                'status' => $registration->status,
+                'formatted_status' => $registration->formatted_status,
+                'status_color' => $registration->status_color,
+                'inspection_completed' => $registration->inspection_completed,
+                'total_documents' => $registration->total_documents_count
+            ]
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('Validation Error', ['errors' => $e->errors()]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Please check your input',
+            'errors' => $e->errors()
+        ], 422);
+
+    } catch (\Exception $e) {
+        Log::error('Update Status Error', [
+            'id' => $id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error updating registration status: ' . $e->getMessage()
+        ], 500);
+    }
+}
         /**
          * Complete inspection
          */

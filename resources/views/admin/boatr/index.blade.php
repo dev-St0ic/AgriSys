@@ -1833,310 +1833,237 @@
         }
 
         // Enhanced show update modal with loading state
-        function showUpdateModal(id, currentStatus) {
-            const modal = new bootstrap.Modal(document.getElementById('updateModal'));
-            modal.show();
+function showUpdateModal(id, currentStatus) {
+    const modal = new bootstrap.Modal(document.getElementById('updateModal'));
+    modal.show();
 
-            // Show loading state
-            document.getElementById('updateModalLoading').style.display = 'block';
-            document.getElementById('updateModalContent').style.display = 'none';
-            document.getElementById('updateForm').style.display = 'none';
-            document.getElementById('updateStatusBtn').style.display = 'none';
+    // Show loading state
+    document.getElementById('updateModalLoading').style.display = 'block';
+    document.getElementById('updateModalContent').style.display = 'none';
+    document.getElementById('updateForm').style.display = 'none';
+    document.getElementById('updateStatusBtn').style.display = 'none';
 
-            fetch(`/admin/boatr/requests/${id}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data.success) {
-                        throw new Error(data.message || 'Failed to load application details');
-                    }
-
-                    // Store current data
-                    currentData[id] = data;
-
-                    // Hide loading, show content
-                    document.getElementById('updateModalLoading').style.display = 'none';
-                    document.getElementById('updateModalContent').style.display = 'block';
-                    document.getElementById('updateForm').style.display = 'block';
-                    document.getElementById('updateStatusBtn').style.display = 'inline-block';
-
-                    // Populate application info
-                    document.getElementById('updateRegistrationId').value = id;
-                    document.getElementById('updateRegId').textContent = data.id;
-                    document.getElementById('updateRegNumber').textContent = data.application_number;
-                    document.getElementById('updateRegName').textContent = data.full_name;
-                    document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
-                    document.getElementById('updateRegVessel').textContent = data.vessel_name;
-                    document.getElementById('updateRegFishR').textContent = data.fishr_number;
-                    document.getElementById('updateRegBoatType').textContent = data.boat_type;
-
-                    // Show current status
-                    document.getElementById('updateRegCurrentStatus').innerHTML =
-                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
-
-                    // Show inspection status
-                    document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
-                        '<span class="badge bg-success">Completed</span>' :
-                        '<span class="badge bg-warning">Pending</span>';
-
-                    // Set form values
-                    document.getElementById('newStatus').value = currentStatus;
-                    document.getElementById('remarks').value = '';
-                    document.getElementById('remarksCount').textContent = '0';
-                })
-                .catch(error => {
-                    console.error('Error loading application details:', error);
-                    showToast('error', 'Failed to load application details: ' + error.message);
-                    modal.hide();
-                });
-        }
-
-        // Enhanced show inspection modal
-        function showInspectionModal(id) {
-            document.getElementById('inspectionRegistrationId').value = id;
-            document.getElementById('supporting_document').value = '';
-            document.getElementById('inspection_notes').value = '';
-            document.getElementById('approve_application').checked = false;
-            document.getElementById('notesCount').textContent = '0';
-
-            // Clear any previous error states
-            document.getElementById('supporting_document').classList.remove('is-invalid');
-            document.getElementById('documentError').textContent = '';
-
-            const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
-            modal.show();
-        }
-
-        // UPDATED: Enhanced update registration status with confirmation toast
-        function updateRegistrationStatus() {
-            const id = document.getElementById('updateRegistrationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
-
-            if (!newStatus) {
-                showToast('warning', 'Please select a status');
-                return;
+    fetch(`/admin/boatr/requests/${id}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.message || 'Failed to load application details');
             }
 
-            // Show confirmation dialog
-            showConfirmationToast(
-                'Confirm Update',
-                `Are you sure you want to change the status to "${document.querySelector(`#newStatus option[value="${newStatus}"]`).textContent}"?`,
-                () => proceedWithStatusUpdate(id, newStatus, remarks)
-            );
-        }
+            // Hide loading, show content
+            document.getElementById('updateModalLoading').style.display = 'none';
+            document.getElementById('updateModalContent').style.display = 'block';
+            document.getElementById('updateForm').style.display = 'block';
+            document.getElementById('updateStatusBtn').style.display = 'inline-block';
 
-        // UPDATED: Proceed with inspection completion (separated for confirmation)
-        function proceedWithInspectionCompletion(id, fileInput, notes, autoApprove) {
-            const completeBtn = document.getElementById('completeInspectionBtn');
-            const originalContent = completeBtn.innerHTML;
-            completeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Processing...';
-            completeBtn.disabled = true;
+            // Populate application info
+            document.getElementById('updateRegistrationId').value = id;
+            document.getElementById('updateRegId').textContent = data.id;
+            document.getElementById('updateRegNumber').textContent = data.application_number;
+            document.getElementById('updateRegName').textContent = data.full_name;
+            document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
+            document.getElementById('updateRegVessel').textContent = data.vessel_name;
+            document.getElementById('updateRegFishR').textContent = data.fishr_number;
+            document.getElementById('updateRegBoatType').textContent = data.boat_type;
 
-            const formData = new FormData();
-            formData.append('supporting_document', fileInput.files[0]);
-            formData.append('inspection_notes', notes);
-            formData.append('approve_application', autoApprove ? '1' : '0');
+            // Show current status
+            document.getElementById('updateRegCurrentStatus').innerHTML =
+                `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-            fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
+            // Show inspection status
+            document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
+                '<span class="badge bg-success">Completed</span>' :
+                '<span class="badge bg-warning">Pending</span>';
 
-                        // Close modal
-                        bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
+            // Set form values
+            document.getElementById('newStatus').value = currentStatus;
+            document.getElementById('remarks').value = '';
+            document.getElementById('remarksCount').textContent = '0';
+        })
+        .catch(error => {
+            console.error('Error loading application details:', error);
+            showToast('error', 'Failed to load application details: ' + error.message);
+            modal.hide();
+        });
+}
 
-                        // Simple page reload after short delay (like FishR)
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        throw new Error(data.message || 'Unknown error occurred');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Failed to complete inspection: ' + error.message);
-                })
-                .finally(() => {
-                    // Restore button state
-                    completeBtn.innerHTML = originalContent;
-                    completeBtn.disabled = false;
-                });
-        }
 
-        // UPDATED: Proceed with status update (separated for confirmation)
-       function proceedWithStatusUpdate(id, newStatus, remarks) {
-            const updateBtn = document.getElementById('updateStatusBtn');
-            const originalContent = updateBtn.innerHTML;
-            updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
-            updateBtn.disabled = true;
+       // Show inspection modal
+function showInspectionModal(id) {
+    document.getElementById('inspectionRegistrationId').value = id;
+    document.getElementById('supporting_document').value = '';
+    document.getElementById('inspection_notes').value = '';
+    document.getElementById('approve_application').checked = false;
+    document.getElementById('notesCount').textContent = '0';
 
-            fetch(`/admin/boatr/requests/${id}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
+    document.getElementById('supporting_document').classList.remove('is-invalid');
+    document.getElementById('documentError').textContent = '';
 
-                        // Close modal
-                        bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+    const modal = new bootstrap.Modal(document.getElementById('inspectionModal'));
+    modal.show();
+}
 
-                        // Simple page reload after short delay (like FishR)
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1500);
-                    } else {
-                        throw new Error(data.message || 'Unknown error occurred');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Failed to update status: ' + error.message);
-                })
-                .finally(() => {
-                    // Restore button state
-                    updateBtn.innerHTML = originalContent;
-                    updateBtn.disabled = false;
-                });
-        }
+// Complete inspection
+function completeInspection() {
+    const id = document.getElementById('inspectionRegistrationId').value;
+    const fileInput = document.getElementById('supporting_document');
+    const notes = document.getElementById('inspection_notes').value;
+    const autoApprove = document.getElementById('approve_application').checked;
 
-        // Enhanced complete inspection with real-time updates and auto-refresh
-        function completeInspection() {
-            const id = document.getElementById('inspectionRegistrationId').value;
-            const fileInput = document.getElementById('supporting_document');
-            const notes = document.getElementById('inspection_notes').value;
-            const autoApprove = document.getElementById('approve_application').checked;
+    // Validation
+    if (!fileInput.files[0]) {
+        fileInput.classList.add('is-invalid');
+        document.getElementById('documentError').textContent = 'Please select a supporting document';
+        showToast('warning', 'Please select a supporting document');
+        return;
+    }
 
-            // Validation
-            if (!fileInput.files[0]) {
-                fileInput.classList.add('is-invalid');
-                document.getElementById('documentError').textContent = 'Please select a supporting document';
-                showToast('warning', 'Please select a supporting document');
-                return;
+    // Validate file size (10MB)
+    if (fileInput.files[0].size > 10 * 1024 * 1024) {
+        fileInput.classList.add('is-invalid');
+        document.getElementById('documentError').textContent = 'File size must be less than 10MB';
+        showToast('warning', 'File size must be less than 10MB');
+        return;
+    }
+
+    // Clear validation errors
+    fileInput.classList.remove('is-invalid');
+    document.getElementById('documentError').textContent = '';
+
+    // Show confirmation
+    showConfirmationToast(
+        'Confirm Inspection',
+        'Are you sure you want to complete the inspection?' +
+        (autoApprove ? '\n\nThe application will be automatically approved.' : ''),
+        () => proceedWithInspectionCompletion(id, fileInput, notes, autoApprove)
+    );
+}
+
+     // Update registration status
+function updateRegistrationStatus() {
+    const id = document.getElementById('updateRegistrationId').value;
+    const newStatus = document.getElementById('newStatus').value;
+    const remarks = document.getElementById('remarks').value;
+
+    if (!newStatus) {
+        showToast('warning', 'Please select a status');
+        return;
+    }
+
+    // Show confirmation
+    showConfirmationToast(
+        'Confirm Update',
+        `Are you sure you want to change the status to "${document.querySelector(`#newStatus option[value="${newStatus}"]`).textContent}"?`,
+        () => proceedWithStatusUpdate(id, newStatus, remarks)
+    );
+}
+      // Proceed with inspection completion
+function proceedWithInspectionCompletion(id, fileInput, notes, autoApprove) {
+    const completeBtn = document.getElementById('completeInspectionBtn');
+    const originalContent = completeBtn.innerHTML;
+    completeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Processing...';
+    completeBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('supporting_document', fileInput.files[0]);
+    formData.append('inspection_notes', notes);
+    formData.append('approve_application', autoApprove ? '1' : '0');
+
+    fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Accept': 'application/json'
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showToast('success', data.message);
+                // Close modal only - no auto-refresh
+                bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
 
-            // Validate file size (10MB)
-            if (fileInput.files[0].size > 10 * 1024 * 1024) {
-                fileInput.classList.add('is-invalid');
-                document.getElementById('documentError').textContent = 'File size must be less than 10MB';
-                showToast('warning', 'File size must be less than 10MB');
-                return;
+                // refresh 1.5 secs
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                throw new Error(data.message || 'Unknown error occurred');
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Failed to complete inspection: ' + error.message);
+        })
+        .finally(() => {
+            completeBtn.innerHTML = originalContent;
+            completeBtn.disabled = false;
+        });
+}
+    // Proceed with status update
+function proceedWithStatusUpdate(id, newStatus, remarks) {
+    const updateBtn = document.getElementById('updateStatusBtn');
+    const originalContent = updateBtn.innerHTML;
+    updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
+    updateBtn.disabled = true;
 
-            // Clear validation errors
-            fileInput.classList.remove('is-invalid');
-            document.getElementById('documentError').textContent = '';
+    fetch(`/admin/boatr/requests/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                status: newStatus,
+                remarks: remarks
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showToast('success', data.message);
+                // Close modal only - no auto-refresh
+                bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
 
-            // Show confirmation toast
-            showConfirmationToast(
-                'Confirm Inspection',
-                'Are you sure you want to complete the inspection for this application?' +
-                (autoApprove ? '\n\nThe application will be automatically approved.' : ''),
-                () => proceedWithInspectionCompletion(id, fileInput, notes, autoApprove)
-            );
-        }
+                // refresh page after 1.5 secs
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                throw new Error(data.message || 'Unknown error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Failed to update status: ' + error.message);
+        })
+        .finally(() => {
+            updateBtn.innerHTML = originalContent;
+            updateBtn.disabled = false;
+        });
+}
 
-            // Show loading state
-            const completeBtn = document.getElementById('completeInspectionBtn');
-            const originalContent = completeBtn.innerHTML;
-            completeBtn.classList.add('btn-loading');
-            completeBtn.innerHTML = '<span class="btn-text">Processing...</span>';
-            completeBtn.disabled = true;
 
-            const formData = new FormData();
-            formData.append('supporting_document', fileInput.files[0]);
-            formData.append('inspection_notes', notes);
-            formData.append('approve_application', autoApprove ? '1' : '0');
-
-            fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
-
-                        // Update table row in real-time
-                        if (data.registration) {
-                            updateTableRow(id, data.registration);
-                        }
-
-                        // Close modal
-                        bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
-
-                        // AUTO-REFRESH: Refresh data immediately after successful completion
-                        setTimeout(() => {
-                            refreshData();
-                        }, 500);
-
-                        // Optional: Update statistics cards
-                        if (data.statistics) {
-                            updateStatisticsCards(data.statistics);
-                        }
-                    } else {
-                        throw new Error(data.message || 'Unknown error occurred');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Failed to complete inspection: ' + error.message);
-                })
-                .finally(() => {
-                    // Restore button state
-                    completeBtn.classList.remove('btn-loading');
-                    completeBtn.innerHTML = originalContent;
-                    completeBtn.disabled = false;
-                });
-        }
-
+ 
+         
         // Enhanced view application details
         function viewRegistration(id) {
             const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
@@ -3313,36 +3240,36 @@
         console.log('BoatR Admin utilities available via window.BoatRAdmin');
 
 
-        // Update statistics cards (optional enhancement)
-        function updateStatisticsCards(statistics) {
-            if (statistics.total !== undefined) {
-                const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-number');
-                if (totalElement) {
-                    totalElement.textContent = statistics.total;
-                }
-            }
+        // // Update statistics cards (optional enhancement)
+        // function updateStatisticsCards(statistics) {
+        //     if (statistics.total !== undefined) {
+        //         const totalElement = document.querySelector('.stat-card:nth-child(1) .stat-number');
+        //         if (totalElement) {
+        //             totalElement.textContent = statistics.total;
+        //         }
+        //     }
 
-            if (statistics.pending !== undefined) {
-                const pendingElement = document.querySelector('.stat-card:nth-child(4) .stat-number');
-                if (pendingElement) {
-                    pendingElement.textContent = statistics.pending;
-                }
-            }
+        //     if (statistics.pending !== undefined) {
+        //         const pendingElement = document.querySelector('.stat-card:nth-child(4) .stat-number');
+        //         if (pendingElement) {
+        //             pendingElement.textContent = statistics.pending;
+        //         }
+        //     }
 
-            if (statistics.inspection_required !== undefined) {
-                const inspectionElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
-                if (inspectionElement) {
-                    inspectionElement.textContent = statistics.inspection_required;
-                }
-            }
+        //     if (statistics.inspection_required !== undefined) {
+        //         const inspectionElement = document.querySelector('.stat-card:nth-child(2) .stat-number');
+        //         if (inspectionElement) {
+        //             inspectionElement.textContent = statistics.inspection_required;
+        //         }
+        //     }
 
-            if (statistics.approved !== undefined) {
-                const approvedElement = document.querySelector('.stat-card:nth-child(3) .stat-number');
-                if (approvedElement) {
-                    approvedElement.textContent = statistics.approved;
-                }
-            }
-        }
+        //     if (statistics.approved !== undefined) {
+        //         const approvedElement = document.querySelector('.stat-card:nth-child(3) .stat-number');
+        //         if (approvedElement) {
+        //             approvedElement.textContent = statistics.approved;
+        //         }
+        //     }
+        // }
 
         // File upload validation for inspection modal
         document.addEventListener('DOMContentLoaded', function() {
@@ -3501,11 +3428,6 @@
                 });
             }
 
-            // Ctrl+R to refresh data
-            if (event.ctrlKey && event.key === 'r') {
-                event.preventDefault();
-                refreshData();
-            }
         });
         // toast container
         function createToastContainer() {
@@ -3637,8 +3559,9 @@
 
         // Get CSRF token utility function
         function getCSRFToken() {
-            const metaTag = document.querySelector('meta[name="csrf-token"]');
-            return metaTag ? metaTag.getAttribute('content') : '';
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            console.log('CSRF Token:', token); // Debug log
+            return token || '';
         }
     </script>
 @endsection
