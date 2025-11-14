@@ -151,29 +151,45 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     // BOATR REGISTRATIONS MANAGEMENT - COMPLETE AND FIXED
     // ==============================================
     Route::prefix('admin/boatr')->name('admin.boatr.')->group(function () {
+        
         // Main listing page
         Route::get('/requests', [BoatRController::class, 'index'])->name('requests');
-
+        
         // Individual application routes
         Route::get('/requests/{id}', [BoatRController::class, 'show'])->name('show');
-        Route::patch('/requests/{id}/status', [BoatRController::class, 'updateStatus'])->name('update-status');
-        Route::post('/requests/{id}/complete-inspection', [BoatRController::class, 'completeInspection'])->name('complete-inspection');
+        
+        // UPDATE STATUS
+        Route::patch('/requests/{id}/status', [BoatRController::class, 'updateStatus'])
+            ->name('status.update');
+        
+        Route::post('/requests/{id}/complete-inspection', [BoatRController::class, 'completeInspection'])
+            ->name('complete-inspection');
+        
         Route::delete('/requests/{id}', [BoatRController::class, 'destroy'])->name('destroy');
-
-        // Document viewing routes - FIXED AND COMPLETE
-        Route::get('/requests/{id}/view-document', [BoatRController::class, 'viewDocument'])->name('view-document');
-        Route::post('/requests/{id}/document-preview', [BoatRController::class, 'documentPreview'])->name('document-preview');
-        Route::get('/requests/{id}/download-document', [BoatRController::class, 'downloadDocument'])->name('download-document');
-
+        
+        // Document viewing routes
+        Route::get('/requests/{id}/view-document', [BoatRController::class, 'viewDocument'])
+            ->name('view-document');
+        Route::post('/requests/{id}/document-preview', [BoatRController::class, 'documentPreview'])
+            ->name('document-preview');
+        Route::get('/requests/{id}/download-document', [BoatRController::class, 'downloadDocument'])
+            ->name('download-document');
+        
         // Annexes routes
-        Route::get('/requests/{id}/annexes', [BoatRController::class, 'getAnnexes'])->name('annexes.index');
-        Route::post('/requests/{id}/annexes', [BoatRController::class, 'uploadAnnex'])->name('annexes.upload');
-        Route::get('/requests/{id}/annexes/{annexId}/preview', [BoatRController::class, 'previewAnnex'])->name('annexes.preview');
-        Route::get('/requests/{id}/annexes/{annexId}/download', [BoatRController::class, 'downloadAnnex'])->name('annexes.download');
-        Route::delete('/requests/{id}/annexes/{annexId}', [BoatRController::class, 'deleteAnnex'])->name('annexes.delete');
-
+        Route::get('/requests/{id}/annexes', [BoatRController::class, 'getAnnexes'])
+            ->name('annexes.index');
+        Route::post('/requests/{id}/annexes', [BoatRController::class, 'uploadAnnex'])
+            ->name('annexes.upload');
+        Route::get('/requests/{id}/annexes/{annexId}/preview', [BoatRController::class, 'previewAnnex'])
+            ->name('annexes.preview');
+        Route::get('/requests/{id}/annexes/{annexId}/download', [BoatRController::class, 'downloadAnnex'])
+            ->name('annexes.download');
+        Route::delete('/requests/{id}/annexes/{annexId}', [BoatRController::class, 'deleteAnnex'])
+            ->name('annexes.delete');
+        
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
+        
     });
 
     // ==============================================

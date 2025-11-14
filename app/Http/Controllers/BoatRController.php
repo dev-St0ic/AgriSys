@@ -129,12 +129,21 @@ class BoatRController extends Controller
         }
     }
 
-    /**
-     * Update the status of the specified BoatR registration - ENHANCED with refresh data
+   /**
+     * Update the status of the specified BoatR registration - FULLY FIXED
      */
     public function updateStatus(Request $request, $id)
     {
         try {
+            // Log incoming request
+            Log::info('BoatR updateStatus called', [
+                'request_method' => $request->method(),
+                'registration_id' => $id,
+                'request_data' => $request->all(),
+                'user_id' => auth()->id(),
+            ]);
+
+            // Validate input
             $validated = $request->validate([
                 'status' => 'required|in:pending,under_review,inspection_scheduled,inspection_required,documents_pending,approved,rejected',
                 'remarks' => 'nullable|string|max:2000',
@@ -143,130 +152,223 @@ class BoatRController extends Controller
                 'status.in' => 'Invalid status selected',
             ]);
 
+            Log::info('Validation passed', ['validated_data' => $validated]);
+
+            // Find registration
             $registration = BoatrApplication::findOrFail($id);
             $oldStatus = $registration->status;
 
-            // Update the registration using the model method
-            $registration->updateStatus(
-                $validated['status'],
-                $validated['remarks'],
-                auth()->id()
-            );
+            Log::info('Registration found', [
+                'registration_id' => $registration->id,
+                'current_status' => $oldStatus,
+                'new_status' => $validated['status']
+            ]);
 
-            // Send email notification if approved and email is available
+            // Update directly (NO calling undefined methods)
+            $registration->status = $validated['status'];
+            $registration->remarks = $validated['remarks'] ?? $registration->remarks;
+            $registration->reviewed_at = now();
+            $registration->reviewed_by = auth()->id();
+            $registration->save();
+
+            Log::info('Status updated successfully', [
+                'registration_id' => $registration->id,
+                'old_status' => $oldStatus,
+                'new_status' => $registration->status
+            ]);
+
+            // Refresh from database to ensure we have fresh data
+            $registration->refresh();
+
+            // Send approval email if approved
             if ($validated['status'] === 'approved' && $registration->email) {
                 try {
                     Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
-                } catch (\Exception $e) {
-                    // Log the error but don't fail the status update
-                    Log::error('Failed to send approval email for BoatR registration ' . $registration->id . ': ' . $e->getMessage());
+                    Log::info('Approval email sent', ['email' => $registration->email]);
+                } catch (\Exception $mailError) {
+                    Log::error('Failed to send approval email', [
+                        'email' => $registration->email,
+                        'error' => $mailError->getMessage()
+                    ]);
+                    // Don't fail the request if email fails
                 }
             }
 
-            Log::info('BoatR registration status updated', [
-                'registration_id' => $registration->id,
-                'application_number' => $registration->application_number,
-                'old_status' => $oldStatus,
-                'new_status' => $validated['status'],
-                'updated_by' => auth()->user()->name ?? 'System',
-                'remarks' => $validated['remarks'],
-                'email_sent' => ($validated['status'] === 'approved' && $registration->email) ? 'yes' : 'no'
-            ]);
-
-            $message = "Application {$registration->application_number} status updated to " .
-                      $registration->formatted_status .
-                      ($validated['status'] === 'approved' && $registration->email ? '. Email notification sent to applicant.' : '');
-
-            // ENHANCED: Return updated statistics for auto-refresh
-            $statistics = [
-                'total' => BoatrApplication::count(),
-                'pending' => BoatrApplication::where('status', 'pending')->count(),
-                'inspection_required' => BoatrApplication::where('status', 'inspection_required')->count(),
-                'approved' => BoatrApplication::where('status', 'approved')->count()
-            ];
-
-            return response()->json([
+            // Build response with fresh data from database
+            $response = [
                 'success' => true,
-                'message' => $message,
+                'message' => "Application {$registration->application_number} status updated to " . $this->formatStatus($registration->status),
                 'registration' => [
                     'id' => $registration->id,
                     'status' => $registration->status,
-                    'formatted_status' => $registration->formatted_status,
-                    'status_color' => $registration->status_color,
-                    'inspection_completed' => $registration->inspection_completed,
-                    'total_documents' => $registration->total_documents_count
-                ],
-                'statistics' => $statistics
-            ]);
+                    'formatted_status' => $this->formatStatus($registration->status),
+                    'status_color' => $this->getStatusColor($registration->status),
+                    'inspection_completed' => (bool) $registration->inspection_completed,
+                ]
+            ];
+
+            Log::info('Returning success response', ['response_data' => $response]);
+
+            return response()->json($response, 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error in updateStatus', [
+                'registration_id' => $id,
+                'errors' => $e->errors()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Please check your input',
+                'message' => 'Validation failed: ' . implode(', ', $e->errors()['status'] ?? []),
                 'errors' => $e->errors()
             ], 422);
 
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Registration not found', ['registration_id' => $id]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration not found'
+            ], 404);
+
         } catch (\Exception $e) {
-            Log::error('Error updating BoatR registration status', [
+            Log::error('Unexpected error in updateStatus', [
                 'registration_id' => $id,
-                'request_data' => $request->all(),
-                'error' => $e->getMessage()
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating registration status: ' . $e->getMessage()
+                'message' => 'An error occurred: ' . $e->getMessage()
             ], 500);
         }
     }
 
+   /**
+     * Helper method to format status
+     */
+    private function formatStatus($status)
+    {
+        $statusMap = [
+            'pending' => 'Pending',
+            'under_review' => 'Under Review',
+            'inspection_required' => 'Inspection Required',
+            'inspection_scheduled' => 'Inspection Scheduled',
+            'documents_pending' => 'Documents Pending',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
+        ];
+
+        return $statusMap[$status] ?? ucfirst(str_replace('_', ' ', $status));
+    }
+ /**
+     * Helper method to get status color
+     */
+    private function getStatusColor($status)
+    {
+        $colorMap = [
+            'pending' => 'secondary',
+            'under_review' => 'info',
+            'inspection_required' => 'warning',
+            'inspection_scheduled' => 'warning',
+            'documents_pending' => 'warning',
+            'approved' => 'success',
+            'rejected' => 'danger',
+        ];
+
+        return $colorMap[$status] ?? 'secondary';
+    }
     /**
-     * Complete inspection - ENHANCED with refresh data
+     * Complete inspection - FULLY FIXED
      */
     public function completeInspection(Request $request, $id)
     {
         try {
+            Log::info('completeInspection called', [
+                'registration_id' => $id,
+                'user_id' => auth()->id()
+            ]);
+
             $validated = $request->validate([
                 'supporting_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
                 'inspection_notes' => 'nullable|string|max:2000',
                 'approve_application' => 'sometimes|boolean'
             ]);
 
+            Log::info('Validation passed for inspection');
+
             $registration = BoatrApplication::findOrFail($id);
+
+            Log::info('Registration found', ['registration_id' => $registration->id]);
 
             // Handle inspection document upload
             if ($request->hasFile('supporting_document')) {
                 $file = $request->file('supporting_document');
+
+                Log::info('File received', [
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_size' => $file->getSize(),
+                    'file_mime' => $file->getMimeType()
+                ]);
+
                 if ($file->isValid()) {
                     $fileName = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                     $filePath = $file->storeAs('boatr_documents/inspection', $fileName, 'public');
 
-                    // Add inspection document
-                    $registration->addInspectionDocument($filePath, $file->getClientOriginalName());
-                }
-            }
+                    Log::info('File stored', ['file_path' => $filePath]);
 
-            // Complete inspection
-            $registration->completeInspection(
-                $validated['inspection_notes'] ?? null,
-                auth()->id()
-            );
+                    // Store inspection document in JSON array
+                    $inspectionDocs = $registration->inspection_documents ?? [];
+                    $inspectionDocs[] = [
+                        'path' => $filePath,
+                        'original_name' => $file->getClientOriginalName(),
+                        'extension' => $file->getClientOriginalExtension(),
+                        'notes' => $validated['inspection_notes'] ?? null,
+                        'uploaded_by' => auth()->id(),
+                        'uploaded_at' => now()->toDateTimeString()
+                    ];
+
+                    $registration->inspection_documents = $inspectionDocs;
+                    $registration->inspection_completed = true;
+                    $registration->inspection_date = now();
+                    $registration->inspector_id = auth()->id();
+                    $registration->inspection_notes = $validated['inspection_notes'] ?? null;
+
+                    Log::info('Inspection document added to registration');
+                } else {
+                    throw new \Exception('File upload validation failed');
+                }
+            } else {
+                throw new \Exception('No file provided');
+            }
 
             // Update status based on approval decision
             $newStatus = ($validated['approve_application'] ?? false) ? 'approved' : 'documents_pending';
-            $registration->updateStatus(
-                $newStatus,
-                $validated['inspection_notes'] ?? 'Inspection completed.',
-                auth()->id()
-            );
+            $registration->status = $newStatus;
+            $registration->reviewed_at = now();
+            $registration->reviewed_by = auth()->id();
+            $registration->save();
 
-            // ENHANCED: Return updated statistics for auto-refresh
-            $statistics = [
-                'total' => BoatrApplication::count(),
-                'pending' => BoatrApplication::where('status', 'pending')->count(),
-                'inspection_required' => BoatrApplication::where('status', 'inspection_required')->count(),
-                'approved' => BoatrApplication::where('status', 'approved')->count()
-            ];
+            Log::info('Inspection completed and status updated', [
+                'registration_id' => $registration->id,
+                'new_status' => $newStatus,
+                'inspection_completed' => true
+            ]);
+
+            // Send email if approved
+            if ($newStatus === 'approved' && $registration->email) {
+                try {
+                    Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
+                } catch (\Exception $mailError) {
+                    Log::error('Failed to send approval email', [
+                        'email' => $registration->email,
+                        'error' => $mailError->getMessage()
+                    ]);
+                }
+            }
 
             return response()->json([
                 'success' => true,
@@ -274,23 +376,41 @@ class BoatRController extends Controller
                 'registration' => [
                     'id' => $registration->id,
                     'status' => $registration->status,
-                    'formatted_status' => $registration->formatted_status,
-                    'status_color' => $registration->status_color,
+                    'formatted_status' => $this->formatStatus($registration->status),
+                    'status_color' => $this->getStatusColor($registration->status),
                     'inspection_completed' => $registration->inspection_completed,
-                    'total_documents' => $registration->total_documents_count
-                ],
-                'statistics' => $statistics
-            ]);
+                ]
+            ], 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error in completeInspection', ['errors' => $e->errors()]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Registration not found in completeInspection', ['registration_id' => $id]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration not found'
+            ], 404);
 
         } catch (\Exception $e) {
             Log::error('Error completing inspection', [
                 'registration_id' => $id,
-                'error' => $e->getMessage()
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error completing inspection: ' . $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -619,7 +739,7 @@ class BoatRController extends Controller
     }
 
     /**
-     * Delete registration - FIXED
+     * Delete registration - FIXED & ENHANCED
      */
     public function destroy(Request $request, $id)
     {
@@ -640,6 +760,18 @@ class BoatRController extends Controller
                     if (isset($document['path']) && Storage::disk('public')->exists($document['path'])) {
                         Storage::disk('public')->delete($document['path']);
                     }
+                }
+            }
+
+            // Delete all associated annexes - FIXED: Get the collection first
+            $annexes = $registration->annexes; // This returns a collection
+            
+            if ($annexes->isNotEmpty()) {
+                foreach ($annexes as $annex) {
+                    if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
+                        Storage::disk('public')->delete($annex->file_path);
+                    }
+                    $annex->delete();
                 }
             }
 
