@@ -1,203 +1,230 @@
 @extends('layouts.app')
 
 @section('title', 'Slideshow Management - AgriSys Admin')
-@section('page-title', 'Slideshow Management')
+@section('page-title')
+    <div class="d-flex align-items-center">
+        <i class="fas fa-images text-primary me-2"></i>
+        <span class="text-primary fw-bold">Slideshow Management</span>
+    </div>
+@endsection
 
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <!-- Header Section -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h1 class="h3 mb-0 text-gray-800">
-                            <i class="fas fa-images me-2"></i>Slideshow Management
-                        </h1>
-                        <p class="text-muted mt-1">Manage landing page background slideshow images</p>
-                    </div>
-                    <button type="button" class="btn btn-primary" id="addNewSlideBtn">
-                        <i class="fas fa-plus me-2"></i>Add New Slide
-                    </button>
-                </div>
+    <style>
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
 
-                <!-- Statistics Cards -->
-                <div class="row mb-4">
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-primary shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            Total Slides
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $slides->count() }}</div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-images fa-2x text-gray-300"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-success shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                            Active Slides
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            {{ $slides->where('is_active', true)->count() }}</div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-warning shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                            Inactive Slides
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            {{ $slides->where('is_active', false)->count() }}</div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-pause-circle fa-2x text-gray-300"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-info shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                            Storage Used
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            {{ number_format($slides->count() * 0.5, 1) }} MB
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-hdd fa-2x text-gray-300"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        }
 
-                <!-- Slideshow Images Table -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-list me-2"></i>Slideshow Images
-                        </h6>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-info btn-sm" id="previewSlideshowBtn">
-                                <i class="fas fa-eye me-1"></i>Preview Slideshow
-                            </button>
-                            @if ($slides->count() > 1)
-                                <button type="button" class="btn btn-secondary btn-sm" id="reorderBtn">
-                                    <i class="fas fa-sort me-1"></i>Reorder
-                                </button>
-                            @endif
-                        </div>
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .stat-icon i {
+            font-size: 2.5rem !important;
+        }
+
+        .stat-number {
+            font-size: 2.5rem !important;
+            font-weight: 700 !important;
+            color: #495057;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem !important;
+            font-weight: 500 !important;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+
+    <div class="row">
+        <!-- Statistics Cards -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-images text-primary"></i>
                     </div>
-                    <div class="card-body">
-                        @if ($slides->count() > 0)
-                            <div class="table-responsive">
-                                <table class="table table-bordered" id="slideshowTable">
-                                    <thead>
-                                        <tr>
-                                            <th width="50">Order</th>
-                                            <th width="120">Preview</th>
-                                            <th>Title</th>
-                                            <th>Description</th>
-                                            <th width="80">Status</th>
-                                            <th width="100">Created</th>
-                                            <th width="120">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="sortableSlides">
-                                        @foreach ($slides as $slide)
-                                            <tr data-slide-id="{{ $slide->id }}">
-                                                <td class="text-center">
-                                                    <div class="drag-handle" style="cursor: move;">
-                                                        <i class="fas fa-grip-vertical text-muted"></i>
-                                                        <span class="order-number">{{ $slide->order }}</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <img src="{{ $slide->image_url }}" alt="Slide preview"
-                                                        class="img-thumbnail slide-preview"
-                                                        style="width: 100px; height: 60px; object-fit: cover; cursor: pointer;"
-                                                        onclick="showImageModal('{{ $slide->image_url }}', '{{ $slide->title }}')">
-                                                </td>
-                                                <td>
-                                                    <strong>{{ $slide->title ?: 'Untitled' }}</strong>
-                                                </td>
-                                                <td>
-                                                    <span class="text-truncate d-block" style="max-width: 200px;">
-                                                        {{ $slide->description ?: 'No description' }}
-                                                    </span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span
-                                                        class="badge {{ $slide->is_active ? 'bg-success' : 'bg-secondary' }} text-white">
-                                                        {{ $slide->is_active ? 'Active' : 'Inactive' }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <small>{{ $slide->created_at->format('M d, Y') }}</small>
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group" role="group">
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-{{ $slide->is_active ? 'warning' : 'success' }}"
-                                                            onclick="toggleStatus({{ $slide->id }})"
-                                                            title="{{ $slide->is_active ? 'Deactivate' : 'Activate' }}">
-                                                            <i
-                                                                class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }}"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-sm btn-primary"
-                                                            onclick="editSlide({{ $slide }})" title="Edit">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                            onclick="deleteSlide({{ $slide->id }})" title="Delete">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <div class="text-center py-5">
-                                <i class="fas fa-images fa-3x text-gray-300 mb-3"></i>
-                                <h5 class="text-gray-500">No slideshow images found</h5>
-                                <p class="text-muted">Add your first slideshow image to get started</p>
-                                <button type="button" class="btn btn-primary" id="addFirstSlideBtn">
-                                    <i class="fas fa-plus me-2"></i>Add First Slide
-                                </button>
-                            </div>
-                        @endif
-                    </div>
+                    <div class="stat-number mb-2">{{ $slides->count() }}</div>
+                    <div class="stat-label text-primary text-uppercase">Total Slides</div>
                 </div>
             </div>
         </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ $slides->where('is_active', true)->count() }}</div>
+                    <div class="stat-label text-success text-uppercase">Active Slides</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-pause-circle text-warning"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ $slides->where('is_active', false)->count() }}</div>
+                    <div class="stat-label text-warning text-uppercase">Inactive Slides</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stat-card shadow h-100">
+                <div class="card-body text-center py-3">
+                    <div class="stat-icon mb-2">
+                        <i class="fas fa-hdd text-info"></i>
+                    </div>
+                    <div class="stat-number mb-2">{{ number_format($slides->count() * 0.5, 1) }} MB</div>
+                    <div class="stat-label text-info text-uppercase">Storage Used</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12"> <!-- Slideshow Images Table -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <div style="flex: 1;"></div>
+                    <h6 class="m-0 font-weight-bold text-primary text-center" style="flex: 1;">
+                        <i class="fas fa-list me-2"></i>Slideshow Images
+                    </h6>
+                    <div class="d-flex gap-2 flex-nowrap" style="flex: 1; justify-content: flex-end;">
+                        <button type="button" class="btn btn-primary btn-sm" id="addNewSlideBtn"><i
+                                class="fas fa-plus me-1"></i>Add New Slide</button>
+                        <button type="button" class="btn btn-info btn-sm" id="previewSlideshowBtn"><i
+                                class="fas fa-eye me-1"></i>Preview</button>
+                        @if ($slides->count() > 1)
+                            <button type="button" class="btn btn-secondary btn-sm" id="reorderBtn"><i
+                                    class="fas fa-sort me-1"></i>Reorder</button>
+                        @endif
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if ($slides->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="slideshowTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th class="text-center" width="50">Order</th>
+                                        <th class="text-center" width="120">Preview</th>
+                                        <th class="text-center">Title</th>
+                                        <th class="text-center">Description</th>
+                                        <th class="text-center" width="80">Status</th>
+                                        <th class="text-center" width="100">Created</th>
+                                        <th class="text-center" width="120">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sortableSlides">
+                                    @foreach ($slides as $slide)
+                                        <tr data-slide-id="{{ $slide->id }}">
+                                            <td class="text-center">
+                                                <div class="drag-handle" style="cursor: move;">
+                                                    <i class="fas fa-grip-vertical text-muted"></i>
+                                                    <span class="order-number">{{ $slide->order }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <img src="{{ $slide->image_url }}" alt="Slide preview"
+                                                    class="img-thumbnail slide-preview"
+                                                    style="width: 100px; height: 60px; object-fit: cover; cursor: pointer; display: block; margin: 0 auto;"
+                                                    onclick="showImageModal('{{ $slide->image_url }}', '{{ $slide->title }}')">
+                                            </td>
+                                            <td class="text-start">
+                                                <strong>{{ $slide->title ?: 'Untitled' }}</strong>
+                                            </td>
+                                            <td class="text-start">
+                                                <span class="text-truncate d-block" style="max-width: 200px;">
+                                                    {{ $slide->description ?: 'No description' }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span
+                                                    class="badge {{ $slide->is_active ? 'bg-success' : 'bg-secondary' }} fs-6">
+                                                    {{ $slide->is_active ? 'Active' : 'Inactive' }}
+                                                </span>
+                                            </td>
+                                            <td class="text-start">
+                                                <small>{{ $slide->created_at->format('M d, Y') }}</small>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                                        onclick='viewSlide(@json($slide))'>
+                                                        <i class="fas fa-eye me-1"></i>View
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-success"
+                                                        onclick='editSlide(@json($slide))'>
+                                                        <i class="fas fa-edit me-1"></i>Edit
+                                                    </button>
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button"
+                                                            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <a class="dropdown-item" href="javascript:void(0)"
+                                                                    onclick="toggleStatus({{ $slide->id }})">
+                                                                    <i
+                                                                        class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2"></i>
+                                                                    {{ $slide->is_active ? 'Deactivate' : 'Activate' }}
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <hr class="dropdown-divider">
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item text-danger"
+                                                                    href="javascript:void(0)"
+                                                                    onclick="deleteSlide({{ $slide->id }})">
+                                                                    <i class="fas fa-trash me-2"></i>Delete
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5">
+                            <i class="fas fa-images fa-3x text-gray-300 mb-3"></i>
+                            <h5 class="text-gray-500">No slideshow images found</h5>
+                            <p class="text-muted">Add your first slideshow image to get started</p>
+                            <button type="button" class="btn btn-primary" id="addFirstSlideBtn">
+                                <i class="fas fa-plus me-2"></i>Add First Slide
+                            </button>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- New Improved Add Slide Modal -->
@@ -482,6 +509,68 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Slide Modal -->
+    <div class="modal fade" id="viewSlideModal" tabindex="-1" aria-labelledby="viewSlideModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewSlideModalLabel">
+                        <i class="fas fa-eye me-2"></i>View Slide Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Slide Image</label>
+                                <img id="viewSlideImage" src="#" alt="Slide image" class="img-thumbnail w-100"
+                                    style="max-height: 300px; object-fit: cover;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Title</label>
+                                <p id="viewSlideTitle" class="form-control-plaintext border rounded p-2 bg-light"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Description</label>
+                                <p id="viewSlideDescription" class="form-control-plaintext border rounded p-2 bg-light"
+                                    style="min-height: 80px;"></p>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Display Order</label>
+                                        <p id="viewSlideOrder" class="form-control-plaintext border rounded p-2 bg-light">
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Status</label>
+                                        <p id="viewSlideStatus" class="form-control-plaintext p-2"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Created</label>
+                                <p id="viewSlideCreated" class="form-control-plaintext border rounded p-2 bg-light"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="editFromViewBtn">
+                        <i class="fas fa-edit me-2"></i>Edit Slide
+                    </button>
                 </div>
             </div>
         </div>
@@ -839,6 +928,42 @@
             $('#imagePreviewModal').modal('show');
         }
 
+        // View slide function
+        function viewSlide(slide) {
+            $('#viewSlideImage').attr('src', slide.image_url);
+            $('#viewSlideTitle').text(slide.title || 'Untitled');
+            $('#viewSlideDescription').text(slide.description || 'No description');
+            $('#viewSlideOrder').text(slide.order);
+
+            const statusBadge = slide.is_active ?
+                '<span class="badge bg-success">Active</span>' :
+                '<span class="badge bg-secondary">Inactive</span>';
+            $('#viewSlideStatus').html(statusBadge);
+
+            // Format created date
+            const createdDate = new Date(slide.created_at);
+            const formattedDate = createdDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            $('#viewSlideCreated').text(formattedDate);
+
+            // Store slide data for edit button
+            $('#editFromViewBtn').data('slide', slide);
+
+            $('#viewSlideModal').modal('show');
+        }
+
+        // Edit from view modal
+        $('#editFromViewBtn').click(function() {
+            const slide = $(this).data('slide');
+            $('#viewSlideModal').modal('hide');
+            editSlide(slide);
+        });
+
         // Edit slide function
         function editSlide(slide) {
             $('#editSlideForm').attr('action', `/admin/slideshow/${slide.id}`);
@@ -1006,175 +1131,4 @@
             }, 5000);
         }
     </script>
-@endsection
-
-@section('styles')
-    <style>
-        .border-left-primary {
-            border-left: 0.25rem solid #4e73df !important;
-        }
-
-        .border-left-success {
-            border-left: 0.25rem solid #1cc88a !important;
-        }
-
-        .border-left-warning {
-            border-left: 0.25rem solid #f6c23e !important;
-        }
-
-        .border-left-info {
-            border-left: 0.25rem solid #36b9cc !important;
-        }
-
-        .text-xs {
-            font-size: 0.7rem;
-        }
-
-        .text-gray-300 {
-            color: #dddfeb !important;
-        }
-
-        .text-gray-800 {
-            color: #5a5c69 !important;
-        }
-
-        .bg-success {
-            background-color: #1cc88a !important;
-        }
-
-        .bg-secondary {
-            background-color: #858796 !important;
-        }
-
-        .badge {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            border-radius: 0.375rem;
-        }
-
-        .drag-handle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 5px;
-            border-radius: 3px;
-            transition: background-color 0.2s;
-        }
-
-        .drag-handle:hover {
-            background-color: #f8f9fa;
-        }
-
-        .slide-preview:hover {
-            transform: scale(1.05);
-            transition: transform 0.2s;
-        }
-
-        .btn-group .btn {
-            margin-right: 2px;
-        }
-
-        .preview-slide {
-            border-radius: 8px;
-        }
-
-        /* New Add Slide Modal Styles */
-        .upload-area {
-            background: #f8f9fa;
-            border-color: #dee2e6 !important;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .upload-area:hover {
-            background: #e9ecef;
-            border-color: #007bff !important;
-        }
-
-        .upload-area.drag-over {
-            background: #e3f2fd;
-            border-color: #2196f3 !important;
-            transform: scale(1.02);
-        }
-
-        .modal-xl {
-            max-width: 1200px;
-        }
-
-        .progress {
-            background-color: #e9ecef;
-        }
-
-        .card {
-            border: 1px solid #e3e6f0;
-        }
-
-        .card-header {
-            background-color: #f8f9fc;
-            border-bottom: 1px solid #e3e6f0;
-        }
-
-        .form-switch .form-check-input {
-            width: 2em;
-            margin-left: -2.5em;
-        }
-
-        .form-switch .form-check-input:checked {
-            background-color: #28a745;
-            border-color: #28a745;
-        }
-
-        #newImagePreview {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-
-        .alert {
-            border: none;
-            border-radius: 8px;
-        }
-
-        .alert-success {
-            background-color: #d1edff;
-            color: #0c5460;
-        }
-
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        .alert-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-
-        @media (max-width: 768px) {
-            .table-responsive {
-                font-size: 0.875rem;
-            }
-
-            .btn-group .btn {
-                padding: 0.25rem 0.4rem;
-                font-size: 0.75rem;
-            }
-
-            .slide-preview {
-                width: 60px !important;
-                height: 40px !important;
-            }
-
-            .modal-xl {
-                max-width: 95%;
-            }
-
-            .upload-area {
-                min-height: 150px !important;
-            }
-        }
-    </style>
 @endsection
