@@ -191,7 +191,6 @@
                             <th class="text-center">Date Applied</th>
                             <th class="text-center">Application #</th>
                             <th class="text-center">Name</th>
-                            <th class="text-center">Barangay</th>
                             <th class="text-center">Inspection</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Documents</th>
@@ -206,7 +205,6 @@
                                     <strong class="text-primary">{{ $registration->application_number }}</strong>
                                 </td>
                                 <td>{{ $registration->full_name }}</td>
-                                <td>{{ $registration->barangay ?? 'N/A' }}</td>
                                 <td>
                                     @if ($registration->inspection_completed)
                                         <span class="badge bg-success" id="inspection-badge-{{ $registration->id }}">
@@ -1437,7 +1435,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid #e9ecef;
+            border: 2px solid  #1cc88a;
             display: flex;
             align-items: center;
             justify-content: center;
