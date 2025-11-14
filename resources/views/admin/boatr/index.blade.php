@@ -1725,45 +1725,6 @@
         let searchTimeout;
         let currentData = {};
 
-        // Unified refresh function for BoatR (exact same pattern as FishR)
-        function refreshData() {
-            fetch(window.location.href, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'text/html'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-
-                    // Update table content
-                    const newTable = doc.querySelector('#registrationsTable tbody');
-                    const currentTable = document.querySelector('#registrationsTable tbody');
-                    if (newTable && currentTable && newTable.innerHTML !== currentTable.innerHTML) {
-                        currentTable.innerHTML = newTable.innerHTML;
-                    }
-
-                    // Update statistics cards - BoatR structure
-                    const cards = {
-                        total: ['.stat-card:nth-child(1) .stat-number'], // Total Applications
-                        pending: ['.stat-card:nth-child(4) .stat-number'], // Pending
-                        inspection: ['.stat-card:nth-child(2) .stat-number'], // Inspection Required
-                        approved: ['.stat-card:nth-child(3) .stat-number'] // Approved
-                    };
-
-                    Object.entries(cards).forEach(([key, [selector]]) => {
-                        const newCard = doc.querySelector(selector);
-                        const currentCard = document.querySelector(selector);
-                        if (newCard && currentCard && newCard.textContent !== currentCard.textContent) {
-                            currentCard.textContent = newCard.textContent;
-                        }
-                    });
-                })
-                .catch(error => console.error('Refresh error:', error));
-        }
-
         // Auto search functionality
         function autoSearch() {
             clearTimeout(searchTimeout);
@@ -1799,78 +1760,6 @@
                 });
             }
         });
-
-
-        // Update table row in real-time
-        function updateTableRow(id, data) {
-            const row = document.getElementById(`registration-${id}`);
-            if (!row) return;
-
-            // Update status badge
-            const statusBadge = document.getElementById(`status-badge-${id}`);
-            if (statusBadge) {
-                statusBadge.className = `badge bg-${data.status_color}`;
-                statusBadge.textContent = data.formatted_status;
-            }
-
-            // Update inspection badge
-            const inspectionBadge = document.getElementById(`inspection-badge-${id}`);
-            if (inspectionBadge) {
-                if (data.inspection_completed) {
-                    inspectionBadge.className = 'badge bg-success';
-                    inspectionBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i>Completed';
-                } else {
-                    inspectionBadge.className = 'badge bg-warning';
-                    inspectionBadge.innerHTML = '<i class="fas fa-clock me-1"></i>Pending';
-                }
-            }
-
-            // Update documents in actions
-            const actionsCell = document.getElementById(`actions-${id}`);
-            if (actionsCell && data.total_documents !== undefined) {
-                // Find the documents button or "None" span in the actions
-                const documentsBtn = actionsCell.querySelector('[onclick*="viewDocuments"]');
-                const noneSpan = actionsCell.querySelector('.btn-outline-danger.disabled');
-
-                if (data.total_documents > 0) {
-                    if (noneSpan) {
-                        // Replace "None" span with documents button
-                        noneSpan.outerHTML = `
-                            <button class="btn btn-sm btn-outline-info" onclick="viewDocuments(${id})" title="View Documents">
-                                <i class="fas fa-file-alt"></i>Docs
-                            </button>
-                        `;
-                    } else if (documentsBtn) {
-                        // Update existing button tooltip
-                        documentsBtn.setAttribute('title', `View Documents (${data.total_documents})`);
-                    }
-                } else {
-                    if (documentsBtn) {
-                        // Replace documents button with "None" span
-                        documentsBtn.outerHTML = `
-                            <span class="btn btn-sm btn-outline-danger disabled text-danger" title="No Documents Available">
-                                <i class="fas fa-file-slash text-danger"></i> None
-                            </span>
-                        `;
-                    }
-                }
-            }
-
-            // Update actions buttons for inspection
-            if (actionsCell && data.inspection_completed) {
-                // Remove inspection button if inspection is completed
-                const inspectionBtn = actionsCell.querySelector('[onclick*="showInspectionModal"]');
-                if (inspectionBtn) {
-                    inspectionBtn.remove();
-                }
-            }
-
-            // Add update animation
-            row.classList.add('row-updated');
-            setTimeout(() => {
-                row.classList.remove('row-updated');
-            }, 2000);
-        }
 
         // Enhanced show update modal with loading state
         function showUpdateModal(id, currentStatus) {
@@ -3606,7 +3495,7 @@
                     showToast('success', data.message);
                     if (data.registration) updateTableRow(id, data.registration);
                     bootstrap.Modal.getInstance(document.getElementById('inspectionModal')).hide();
-                    // setTimeout(() => refreshData(), 500);
+                    setTimeout(() => window.location.reload(), 1500); // Reload to reflect status changes
                 } else throw new Error(data.message);
             })
             .catch(error => showToast('error', 'Failed to complete inspection: ' + error.message))
@@ -3638,7 +3527,7 @@
                     showToast('success', data.message);
                     if (data.registration) updateTableRow(id, data.registration);
                     bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
-                    // setTimeout(() => refreshData(), 500);
+                    setTimeout(() => window.location.reload(), 1500); // Reload to reflect status changes
                 } else throw new Error(data.message);
             })
             .catch(error => showToast('error', 'Failed to update status: ' + error.message))
@@ -3673,7 +3562,7 @@
                     showToast('success', 'Annex uploaded successfully');
                     resetAnnexForm();
                     loadExistingAnnexes(id);
-                    refreshData();
+                    setTimeout(() => window.location.reload(), 1500); // Reload to reflect status changes
                 } else throw new Error(data.message);
             })
             .catch(error => showToast('error', 'Failed to upload annex: ' + error.message))
@@ -3702,7 +3591,7 @@
                     if (!annexesList.querySelector('.document-item')) {
                         loadExistingAnnexes(registrationId);
                     }
-                    refreshData();
+                    setTimeout(() => window.location.reload(), 1500); // Reload to reflect status changes
                 } else throw new Error(data.message);
             })
             .catch(error => showToast('error', 'Failed to delete annex: ' + error.message));
