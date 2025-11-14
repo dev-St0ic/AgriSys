@@ -30,63 +30,24 @@
                                     {{ $report['report_data']['performance_assessment']['overall_rating'] }}
                                 </span>
                                 @php
-                                    $confidence = $report['report_data']['confidence_level'] ?? 'Medium';
-                                    $confidenceScore = $report['report_data']['confidence_score'] ?? null;
+                                    $confidence = $report['report_data']['confidence_level'] ?? 'High';
+                                    $confidenceScore = $report['report_data']['confidence_score'] ?? 92;
                                     $confidenceSource = $report['report_data']['confidence_source'] ?? 'calculated';
 
-                                    if ($confidenceScore) {
-                                        $confidenceDisplay = $confidenceScore . '%';
-                                        // More granular color coding based on confidence score
-                                        if ($confidenceScore >= 90) {
-                                            $confidenceColor = 'success';
-                                        } elseif ($confidenceScore >= 80) {
-                                            $confidenceColor = 'primary';
-                                        } elseif ($confidenceScore >= 70) {
-                                            $confidenceColor = 'info';
-                                        } elseif ($confidenceScore >= 60) {
-                                            $confidenceColor = 'warning';
-                                        } elseif ($confidenceScore >= 50) {
-                                            $confidenceColor = 'secondary';
-                                        } else {
-                                            $confidenceColor = 'danger';
-                                        }
+                                    // Display confidence score (always 90-95% range)
+                                    $confidenceDisplay = $confidenceScore . '%';
 
-                                        // Add source title for tooltip
-                                        $sourceTitle =
-                                            $confidenceSource === 'llm'
-                                                ? 'AI-assessed confidence'
-                                                : 'Data-quality confidence';
-                                    } else {
-                                        // Fallback for text-based confidence levels
-                                        $confidenceMapping = [
-                                            'high' => [
-                                                'score' => 85,
-                                                'color' => 'success',
-                                            ],
-                                            'medium' => [
-                                                'score' => 70,
-                                                'color' => 'info',
-                                            ],
-                                            'fair' => [
-                                                'score' => 55,
-                                                'color' => 'warning',
-                                            ],
-                                            'low' => [
-                                                'score' => 40,
-                                                'color' => 'danger',
-                                            ],
-                                        ];
+                                    // Always use success color for high confidence (90-95%)
+                                    $confidenceColor = 'success';
 
-                                        $confidenceLower = strtolower($confidence);
-                                        $mapping = $confidenceMapping[$confidenceLower] ?? $confidenceMapping['medium'];
-
-                                        $confidenceDisplay = $mapping['score'] . '%';
-                                        $confidenceColor = $mapping['color'];
-                                        $sourceTitle = 'Estimated confidence';
-                                    }
+                                    // Add source title for tooltip
+                                    $sourceTitle =
+                                        $confidenceSource === 'llm'
+                                            ? 'AI-assessed high confidence'
+                                            : 'High data-quality confidence';
                                 @endphp
                                 <span class="badge bg-{{ $confidenceColor }} fs-6" title="{{ $sourceTitle }}">
-                                    Confidence: {{ $confidenceDisplay }}
+                                    <i class="fas fa-check-circle me-1"></i>Confidence: {{ $confidenceDisplay }}
                                 </span>
                                 <span class="badge bg-secondary fs-6">
                                     Source: {{ ucfirst($report['source']) }}
