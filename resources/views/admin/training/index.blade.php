@@ -421,6 +421,105 @@
             </div>
         </div>
     </div>
+        <!-- Date Filter Modal -->
+    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="dateFilterModalLabel">
+                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Date Range Inputs -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="modal_date_from" class="form-label">From Date</label>
+                                        <input type="date" id="modal_date_from" class="form-control"
+                                            value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="modal_date_to" class="form-label">To Date</label>
+                                        <input type="date" id="modal_date_to" class="form-control"
+                                            value="{{ request('date_to') }}">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        onclick="applyCustomDateRange()">
+                                        <i class="fas fa-check me-2"></i>Apply Custom Range
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Date Presets -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-clock me-2"></i>Quick Presets
+                                    </h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="setDateRangeModal('today')">
+                                            <i class="fas fa-calendar-day me-2"></i>Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="setDateRangeModal('week')">
+                                            <i class="fas fa-calendar-week me-2"></i>This Week
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning"
+                                            onclick="setDateRangeModal('month')">
+                                            <i class="fas fa-calendar me-2"></i>This Month
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="setDateRangeModal('year')">
+                                            <i class="fas fa-calendar-alt me-2"></i>This Year
+                                        </button>
+                                        <hr class="my-3">
+                                        <button type="button" class="btn btn-outline-secondary w-100"
+                                            onclick="clearDateRangeModal()">
+                                            <i class="fas fa-times me-2"></i>Clear Date Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="dateFilterStatus">
+                                    @if (request('date_from') || request('date_to'))
+                                        Current filter:
+                                        @if (request('date_from'))
+                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                        @endif
+                                        @if (request('date_to'))
+                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        No date filter applied - showing all applications
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <style>
         /* Modern Statistics Cards */
@@ -862,6 +961,144 @@
                 font-size: 0.65rem;
             }
         }
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .confirmation-toast .toast-body {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification,
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
     </style>
 @endsection
 
@@ -961,7 +1198,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error loading application details: ' + error.message);
+                    showToast('error', 'Error loading application details: ' + error.message);
                 });
         }
 
@@ -972,21 +1209,18 @@
             const remarks = document.getElementById('remarks').value;
 
             if (!newStatus) {
-                alert('Please select a status');
+                showToast('error', 'Please select a status');
                 return;
             }
 
-            // Get the original values to compare changes
             const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
             const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
 
-            // Check if nothing has changed
             if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                alert('No changes detected. Please modify the status or remarks before updating.');
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
                 return;
             }
 
-            // Show confirmation dialog with changes summary
             let changesSummary = [];
             if (newStatus !== originalStatus) {
                 const originalStatusText = getStatusText(originalStatus);
@@ -1003,158 +1237,129 @@
                 }
             }
 
-            const confirmMessage =
-                `Are you sure you want to update this application with the following changes?\n\n${changesSummary.join('\n')}`;
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this training application with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
+        }
 
-            if (!confirm(confirmMessage)) {
-                return;
-            }
-
-            // Show loading state
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
             const updateButton = document.querySelector('#updateModal .btn-primary');
             const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
             updateButton.disabled = true;
 
             fetch(`/admin/training/requests/${id}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    remarks: remarks
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    if (response.success) {
-                        // Show success message and reload page
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                        modal.hide();
-                        alert(response.message);
-                        window.location.reload();
-                    } else {
-                        throw new Error(response.message || 'Error updating status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating application status: ' + error.message);
-                })
-                .finally(() => {
-                    // Reset button state
-                    updateButton.innerHTML = originalText;
-                    updateButton.disabled = false;
-                });
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(response => {
+                if (response.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                    modal.hide();
+                    showToast('success', response.message);
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    throw new Error(response.message || 'Error updating status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error updating application status: ' + error.message);
+            })
+            .finally(() => {
+                updateButton.innerHTML = originalText;
+                updateButton.disabled = false;
+            });
         }
 
         // View application details
         function viewApplication(id) {
-            // Show loading state
             document.getElementById('applicationDetails').innerHTML = `
-            <div class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>`;
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>`;
 
             const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
             modal.show();
 
             fetch(`/admin/training/requests/${id}`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.json();
                 })
                 .then(response => {
-                    if (!response.success) {
-                        throw new Error('Failed to load application details');
-                    }
+                    if (!response.success) throw new Error('Failed to load application details');
 
                     const data = response.data;
 
-                    // Format the details HTML with the same style as FishR
                     const remarksHtml = data.remarks ? `
-                    <div class="col-12 mt-3">
-                        <h6 class="border-bottom pb-2">Remarks</h6>
-                        <div class="alert alert-info">
-                            <p class="mb-1">${data.remarks}</p>
-                            <small class="text-muted">
-                                ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
-                                ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
-                            </small>
-                        </div>
-                    </div>` : '';
+                        <div class="col-12 mt-3">
+                            <h6 class="border-bottom pb-2">Remarks</h6>
+                            <div class="alert alert-info">
+                                <p class="mb-1">${data.remarks}</p>
+                                <small class="text-muted">
+                                    ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
+                                    ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
+                                </small>
+                            </div>
+                        </div>` : '';
 
                     document.getElementById('applicationDetails').innerHTML = `
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Application Information</h6>
-                            <p><strong>Application #:</strong> ${data.application_number}</p>
-                            <p><strong>Full Name:</strong> ${data.full_name}</p>
-                            <p><strong>Mobile:</strong> ${data.mobile_number || 'N/A'}</p>
-                            <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Training Information</h6>
-                            <p><strong>Training Type:</strong> ${data.training_type_display}</p>
-                            <p><strong>Status:</strong>
-                                <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
-                            </p>
-                            <p><strong>Date Applied:</strong> ${data.created_at}</p>
-                            <p><strong>Last Updated:</strong> ${data.updated_at}</p>
-                        </div>
-                        ${data.document_paths && data.document_paths.length > 0 ? `
-                                                                        <div class="col-12">
-                                                                            <h6 class="border-bottom pb-2">Supporting Documents</h6>
-                                                                            <div class="row g-2">
-                                                                                ${data.document_paths.map((path, index) => `
-                                        <div class="col-md-4">
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <h6 class="card-title">Document ${index + 1}</h6>
-                                                    <button class="btn btn-sm btn-outline-primary"
-                                                        onclick="viewDocuments(['${path}'])">
-                                                        <i class="fas fa-eye"></i> View
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                                                            </div>
-                                                                        </div>
-                                                                    ` : ''}
-                        ${remarksHtml}
-                    </div>`;
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Application Information</h6>
+                                <p><strong>Application #:</strong> ${data.application_number}</p>
+                                <p><strong>Full Name:</strong> ${data.full_name}</p>
+                                <p><strong>Mobile:</strong> ${data.mobile_number || 'N/A'}</p>
+                                <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Training Information</h6>
+                                <p><strong>Training Type:</strong> ${data.training_type_display}</p>
+                                <p><strong>Status:</strong>
+                                    <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
+                                </p>
+                                <p><strong>Date Applied:</strong> ${data.created_at}</p>
+                                <p><strong>Last Updated:</strong> ${data.updated_at}</p>
+                            </div>
+                            ${remarksHtml}
+                        </div>`;
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    showToast('error', error.message || 'Error loading application details. Please try again.');
                     document.getElementById('applicationDetails').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        ${error.message || 'Error loading application details. Please try again.'}
-                    </div>`;
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            ${error.message || 'Error loading application details. Please try again.'}
+                        </div>`;
                 });
         }
 
         // Enhanced view documents function for training module
         function viewDocuments(paths, title = null) {
             // Input validation
-            if (!paths || paths.length === 0) {
-                alert('No documents to display');
+           if (!paths || paths.length === 0) {
+                showToast('error', 'No documents to display');
                 return;
             }
+
 
             const documentViewer = document.getElementById('documentViewer');
             const modal = new bootstrap.Modal(document.getElementById('documentModal'));
@@ -1481,7 +1686,7 @@
             const dateTo = document.getElementById('modal_date_to').value;
 
             if (dateFrom && dateTo && dateFrom > dateTo) {
-                alert('From date cannot be later than To date');
+                showToast('warning', 'From date cannot be later than To date');
                 return;
             }
 
@@ -1534,105 +1739,114 @@
                 statusElement.innerHTML = statusText;
             }
         }
+        // Create toast container 
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Confirmation toast function
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
+            }
+
+            delete window[callbackId];
+            removeToast(toast);
+        }
+
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
     </script>
-
-    <!-- Date Filter Modal -->
-    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-4">
-                        <!-- Date Range Inputs -->
-                        <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
-                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
-                                    </h6>
-                                    <div class="mb-3">
-                                        <label for="modal_date_from" class="form-label">From Date</label>
-                                        <input type="date" id="modal_date_from" class="form-control"
-                                            value="{{ request('date_from') }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="modal_date_to" class="form-label">To Date</label>
-                                        <input type="date" id="modal_date_to" class="form-control"
-                                            value="{{ request('date_to') }}">
-                                    </div>
-                                    <button type="button" class="btn btn-primary w-100"
-                                        onclick="applyCustomDateRange()">
-                                        <i class="fas fa-check me-2"></i>Apply Custom Range
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Date Presets -->
-                        <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
-                                        <i class="fas fa-clock me-2"></i>Quick Presets
-                                    </h6>
-                                    <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success"
-                                            onclick="setDateRangeModal('today')">
-                                            <i class="fas fa-calendar-day me-2"></i>Today
-                                        </button>
-                                        <button type="button" class="btn btn-outline-info"
-                                            onclick="setDateRangeModal('week')">
-                                            <i class="fas fa-calendar-week me-2"></i>This Week
-                                        </button>
-                                        <button type="button" class="btn btn-outline-warning"
-                                            onclick="setDateRangeModal('month')">
-                                            <i class="fas fa-calendar me-2"></i>This Month
-                                        </button>
-                                        <button type="button" class="btn btn-outline-primary"
-                                            onclick="setDateRangeModal('year')">
-                                            <i class="fas fa-calendar-alt me-2"></i>This Year
-                                        </button>
-                                        <hr class="my-3">
-                                        <button type="button" class="btn btn-outline-secondary w-100"
-                                            onclick="clearDateRangeModal()">
-                                            <i class="fas fa-times me-2"></i>Clear Date Filter
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Current Filter Status -->
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="alert alert-info mb-0">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <span id="dateFilterStatus">
-                                    @if (request('date_from') || request('date_to'))
-                                        Current filter:
-                                        @if (request('date_from'))
-                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
-                                        @endif
-                                        @if (request('date_to'))
-                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
-                                        @endif
-                                    @else
-                                        No date filter applied - showing all applications
-                                    @endif
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
