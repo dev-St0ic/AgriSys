@@ -748,7 +748,7 @@
                     <form id="inspectionForm" enctype="multipart/form-data">
                         <input type="hidden" id="inspectionRegistrationId">
                         <div class="mb-3">
-                            <label for="supporting_document" class="form-label">Supporting Document *</label>
+                            <label for="supporting_document" class="form-label">Supporting Document <span class="text-danger">*</span></label>
                             <input type="file" class="form-control" id="supporting_document"
                                 accept=".pdf,.jpg,.jpeg,.png" required>
                             <div class="form-text">Upload inspection report, boat photos, or other supporting documents.
@@ -820,7 +820,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-0">
+                <div class="modal-body">
                     <div id="documentViewerLoading" class="text-center py-5">
                         <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                             <span class="visually-hidden">Loading...</span>
@@ -912,7 +912,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexFile" class="form-label">Select File *</label>
+                                                <label for="annexFile" class="form-label">Select File <span class="text-danger">*</span></label>
                                                 <input type="file" class="form-control" id="annexFile"
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required>
                                                 <div class="invalid-feedback" id="annexFileError"></div>
@@ -922,7 +922,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexTitle" class="form-label">Document Title *</label>
+                                                <label for="annexTitle" class="form-label">Document Title <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" id="annexTitle"
                                                     placeholder="e.g., Additional Certificate, Supporting Document"
                                                     required>
@@ -1068,6 +1068,24 @@
     </div>
 
     <style>
+        /* Document count badge on mini docs */
+        .boatr-doc-count {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
         /* Toast Notification Container */
         .toast-container {
             position: fixed;
@@ -1570,6 +1588,33 @@
             z-index: 1059 !important;
         }
 
+        /* Fix nested modal backdrop greying */
+        .modal {
+            background-color: rgba(0, 0, 0, 0) !important;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.5 !important;
+        }
+
+        /* Prevent multiple backdrops from stacking and turning grey */
+        .modal-backdrop + .modal-backdrop {
+            display: none !important;
+        }
+
+        /* Only show one backdrop at a time */
+        body.modal-open .modal-backdrop {
+            opacity: 0.5;
+        }
+
+        body.modal-open .modal-backdrop:nth-child(n+2) {
+            display: none !important;
+        }
+
         /* Enhanced Document Viewer Styles */
         #documentModal .modal-content,
         #documentPreviewModal .modal-content {
@@ -1943,6 +1988,21 @@
 
         .modal.show ~ .modal ~ .modal-backdrop {
             z-index: 1059 !important;
+        }
+
+         /* close modal */
+        .modal-header .btn-close {
+            background-color: rgba(255, 255, 255, 0.7);
+            opacity: 1;
+        }
+
+        .modal-header .btn-close:hover {
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        .modal-header .btn-close:focus {
+            background-color: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
         }
 
         /* Document modal on top when opened from registration modal */
@@ -2884,7 +2944,7 @@
             });
         }
 
-        // ========== VIEW REGISTRATION ==========
+        // View registration details - UPDATED WITH DOCUMENTS SECTION
         function viewRegistration(id) {
             const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
             modal.show();
@@ -2908,6 +2968,7 @@
                 document.getElementById('registrationDetailsLoading').style.display = 'none';
                 document.getElementById('registrationDetails').style.display = 'block';
 
+                // Build remarks section
                 let remarksHtml = '';
                 if (data.remarks) {
                     remarksHtml = `
@@ -2927,12 +2988,15 @@
                     `;
                 }
 
+                // Build documents section - SIMILAR TO FISHR
+                let documentsHtml = '';
                 const userDocsCount = data.user_documents ? data.user_documents.length : 0;
                 const inspectionDocsCount = data.inspection_documents ? data.inspection_documents.length : 0;
+                const annexesCount = data.annexes ? data.annexes.length : 0;
+                const totalDocs = userDocsCount + inspectionDocsCount + annexesCount;
 
-                let documentHtml = '';
-                if (userDocsCount > 0 || inspectionDocsCount > 0) {
-                    documentHtml = `
+                if (totalDocs > 0) {
+                    documentsHtml = `
                         <div class="col-12 mt-4">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -2944,13 +3008,74 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p><strong>User Documents:</strong> ${userDocsCount}</p>
-                                            <p><strong>Inspection Documents:</strong> ${inspectionDocsCount}</p>
+                                            <p><strong>User Documents:</strong> <span class="badge bg-info">${userDocsCount}</span></p>
+                                            <p><strong>Inspection Documents:</strong> <span class="badge bg-success">${inspectionDocsCount}</span></p>
+                                            <p><strong>Annexes:</strong> <span class="badge bg-warning">${annexesCount}</span></p>
                                         </div>
                                         <div class="col-md-6">
-                                            <p><strong>Documents Verified:</strong> ${data.documents_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-warning">No</span>'}</p>
-                                            ${data.documents_verified_at ? `<p><strong>Verified At:</strong> ${data.documents_verified_at}</p>` : ''}
+                                            <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
                                         </div>
+                                    </div>
+                                    
+                                   <!-- Document preview thumbnails section -->
+                                    <div class="mt-4">
+                                        <h6 class="border-bottom pb-2">Document Preview</h6>
+                                        <div class="boatr-table-documents mt-3">
+                                            <div class="boatr-document-previews">
+                                                ${userDocsCount > 0 ? `
+                                                    <div class="boatr-mini-doc"
+                                                        onclick="viewDocumentsByType(${id}, 'user')"
+                                                        title="User Documents (${userDocsCount})">
+                                                        <div class="boatr-mini-doc-icon">
+                                                            <i class="fas fa-file-image text-info"></i>
+                                                        </div>
+                                                        ${userDocsCount > 1 ? `<span class="boatr-doc-count">${userDocsCount}</span>` : ''}
+                                                    </div>
+                                                ` : ''}
+                                                ${inspectionDocsCount > 0 ? `
+                                                    <div class="boatr-mini-doc"
+                                                        onclick="viewDocumentsByType(${id}, 'inspection')"
+                                                        title="Inspection Documents (${inspectionDocsCount})">
+                                                        <div class="boatr-mini-doc-icon">
+                                                            <i class="fas fa-clipboard-check text-success"></i>
+                                                        </div>
+                                                        ${inspectionDocsCount > 1 ? `<span class="boatr-doc-count">${inspectionDocsCount}</span>` : ''}
+                                                    </div>
+                                                ` : ''}
+                                                ${annexesCount > 0 ? `
+                                                    <div class="boatr-mini-doc"
+                                                        onclick="viewDocumentsByType(${id}, 'annexes')"
+                                                        title="Annexes (${annexesCount})">
+                                                        <div class="boatr-mini-doc-icon">
+                                                            <i class="fas fa-folder text-warning"></i>
+                                                        </div>
+                                                        ${annexesCount > 1 ? `<span class="boatr-doc-count">${annexesCount}</span>` : ''}
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                            <div class="boatr-document-summary mt-2"
+                                                onclick="viewDocuments(${id})">
+                                                <small class="text-muted" style="cursor: pointer;">
+                                                    <i class="fas fa-eye me-1"></i>View all ${totalDocs} document${totalDocs > 1 ? 's' : ''}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    documentsHtml = `
+                        <div class="col-12 mt-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No documents available</p>
                                     </div>
                                 </div>
                             </div>
@@ -2958,6 +3083,7 @@
                     `;
                 }
 
+                // Build the complete details HTML
                 document.getElementById('registrationDetails').innerHTML = `
                     <div class="row">
                         <div class="col-lg-6">
@@ -3016,7 +3142,7 @@
                                 </div>
                             </div>
                         </div>
-                        ${documentHtml}
+                        ${documentsHtml}
                         ${remarksHtml}
                     </div>
                 `;
@@ -3033,9 +3159,15 @@
                 document.getElementById('registrationDetails').style.display = 'block';
             });
         }
+        
+        // view documents
+       function viewDocuments(id) {
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            modal.show();
 
-        // ========== DOCUMENT VIEWING ==========
-        function viewDocuments(id) {
+            document.getElementById('documentViewerLoading').style.display = 'block';
+            document.getElementById('documentViewer').style.display = 'none';
+
             fetch(`/admin/boatr/requests/${id}`, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -3050,35 +3182,124 @@
             .then(data => {
                 if (!data.success) throw new Error(data.message || 'Failed to load documents');
 
-                let docToPreview = null;
-                let docType = '';
-                let docIndex = 0;
+                document.getElementById('documentViewerLoading').style.display = 'none';
+                document.getElementById('documentViewer').style.display = 'block';
 
+                let documentsHtml = '';
+
+                // User Documents Section
                 if (data.user_documents && data.user_documents.length > 0) {
-                    docToPreview = data.user_documents[0];
-                    docType = 'user';
-                    docIndex = 0;
-                } else if (data.inspection_documents && data.inspection_documents.length > 0) {
-                    docToPreview = data.inspection_documents[0];
-                    docType = 'inspection';
-                    docIndex = 0;
-                } else if (data.annexes && data.annexes.length > 0) {
-                    previewAnnex(id, data.annexes[0].id);
-                    return;
+                    documentsHtml += `
+                        <div class="document-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-file-image text-info me-2"></i>User Documents
+                            </h5>
+                    `;
+                    data.user_documents.forEach((doc, index) => {
+                        documentsHtml += `
+                            <div class="document-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${doc.name || 'User Document ' + (index + 1)}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>${doc.uploaded_at || 'N/A'}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="previewDocument(${id}, 'user', ${index})">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    documentsHtml += `</div>`;
                 }
 
-                if (docToPreview) {
-                    previewDocument(id, docType, docIndex);
-                } else {
-                    showToast('info', 'No documents available for this application');
+                // Inspection Documents Section
+                if (data.inspection_documents && data.inspection_documents.length > 0) {
+                    documentsHtml += `
+                        <div class="document-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-clipboard-check text-success me-2"></i>Inspection Documents
+                            </h5>
+                    `;
+                    data.inspection_documents.forEach((doc, index) => {
+                        documentsHtml += `
+                            <div class="document-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${doc.name || 'Inspection Document ' + (index + 1)}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>${doc.uploaded_at || 'N/A'}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="previewDocument(${id}, 'inspection', ${index})">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    documentsHtml += `</div>`;
                 }
+
+                // Annexes Section
+                if (data.annexes && data.annexes.length > 0) {
+                    documentsHtml += `
+                        <div class="document-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-folder text-warning me-2"></i>Annexes
+                            </h5>
+                    `;
+                    data.annexes.forEach((annex) => {
+                        documentsHtml += `
+                            <div class="document-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${annex.title}</h6>
+                                        <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>${annex.created_at || 'N/A'}
+                                            <span class="mx-2">|</span>
+                                            <i class="fas fa-file me-1"></i>${formatFileSize(annex.file_size)}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="previewAnnex(${id}, ${annex.id})">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    documentsHtml += `</div>`;
+                }
+
+                // No documents message
+                if (!documentsHtml) {
+                    documentsHtml = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No documents available</p>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('documentViewer').innerHTML = documentsHtml;
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('error', 'Failed to load documents: ' + error.message);
+                document.getElementById('documentViewerLoading').style.display = 'none';
+                document.getElementById('documentViewer').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load documents: ${error.message}
+                    </div>
+                `;
+                document.getElementById('documentViewer').style.display = 'block';
             });
         }
 
+        // FIXED: previewDocument function 
         function previewDocument(id, type, index) {
             const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
             modal.show();
@@ -3116,8 +3337,14 @@
                 document.getElementById('documentPreviewTitle').innerHTML =
                     `<i class="fas fa-eye me-2"></i>${data.document_name}`;
 
-                const fileExtension = data.document_type?.toLowerCase() ||
-                    data.document_name.split('.').pop().toLowerCase();
+                // FIXED: Extract file extension from filename, NOT from mime type
+                let fileExtension = '';
+                if (data.document_name) {
+                    fileExtension = data.document_name.split('.').pop().toLowerCase();
+                } else {
+                    fileExtension = data.document_type?.toLowerCase() || 'unknown';
+                }
+                
                 const fileName = data.document_name;
                 const fileUrl = data.document_url;
 
@@ -3149,10 +3376,10 @@
                             <div class="boatr-document-viewer">
                                 <div class="boatr-document-container">
                                     <img src="${fileUrl}"
-                                         class="boatr-document-image"
-                                         alt="Document preview"
-                                         onclick="toggleImageZoomBoatr(this)"
-                                         style="cursor: zoom-in;">
+                                        class="boatr-document-image"
+                                        alt="Document preview"
+                                        onclick="toggleImageZoomBoatr(this)"
+                                        style="cursor: zoom-in;">
                                     <div class="boatr-document-overlay">
                                         <div class="boatr-document-size-badge">
                                             ${Math.round((this.naturalWidth * this.naturalHeight) / 1024)}KB
@@ -3182,10 +3409,10 @@
                         <div class="boatr-document-viewer">
                             <div class="boatr-document-container">
                                 <embed src="${fileUrl}"
-                                       type="application/pdf"
-                                       width="100%"
-                                       height="600px"
-                                       class="boatr-pdf-embed">
+                                    type="application/pdf"
+                                    width="100%"
+                                    height="600px"
+                                    class="boatr-pdf-embed">
                             </div>
                             ${addActionButtons()}
                         </div>
@@ -4288,6 +4515,163 @@
             .finally(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
+            });
+        }
+        // ========== MODAL BACKDROP CLEANUP ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            const allModals = document.querySelectorAll('.modal');
+            
+            allModals.forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Remove all modal backdrops
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                    
+                    // Check if any modals are still open
+                    const openModals = document.querySelectorAll('.modal.show');
+                    
+                    if (openModals.length === 0) {
+                        // No modals open, clean up body
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+                    }
+                });
+            });
+        });
+
+        // View documents by type (user, inspection, or annexes only)
+        function viewDocumentsByType(id, type) {
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            modal.show();
+
+            document.getElementById('documentViewerLoading').style.display = 'block';
+            document.getElementById('documentViewer').style.display = 'none';
+
+            fetch(`/admin/boatr/requests/${id}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': getCSRFToken()
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (!data.success) throw new Error(data.message || 'Failed to load documents');
+
+                document.getElementById('documentViewerLoading').style.display = 'none';
+                document.getElementById('documentViewer').style.display = 'block';
+
+                let documentsHtml = '';
+
+                // Show only the requested type
+                if (type === 'user' && data.user_documents && data.user_documents.length > 0) {
+                    documentsHtml += `
+                        <div class="document-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-file-image text-info me-2"></i>User Documents
+                            </h5>
+                    `;
+                    data.user_documents.forEach((doc, index) => {
+                        documentsHtml += `
+                            <div class="document-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${doc.name || 'User Document ' + (index + 1)}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>${doc.uploaded_at || 'N/A'}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="previewDocument(${id}, 'user', ${index})">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    documentsHtml += `</div>`;
+                }
+
+                if (type === 'inspection' && data.inspection_documents && data.inspection_documents.length > 0) {
+                    documentsHtml += `
+                        <div class="document-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-clipboard-check text-success me-2"></i>Inspection Documents
+                            </h5>
+                    `;
+                    data.inspection_documents.forEach((doc, index) => {
+                        documentsHtml += `
+                            <div class="document-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${doc.name || 'Inspection Document ' + (index + 1)}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>${doc.uploaded_at || 'N/A'}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="previewDocument(${id}, 'inspection', ${index})">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    documentsHtml += `</div>`;
+                }
+
+                if (type === 'annexes' && data.annexes && data.annexes.length > 0) {
+                    documentsHtml += `
+                        <div class="document-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-folder text-warning me-2"></i>Annexes
+                            </h5>
+                    `;
+                    data.annexes.forEach((annex) => {
+                        documentsHtml += `
+                            <div class="document-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${annex.title}</h6>
+                                        <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>${annex.created_at || 'N/A'}
+                                            <span class="mx-2">|</span>
+                                            <i class="fas fa-file me-1"></i>${formatFileSize(annex.file_size)}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="previewAnnex(${id}, ${annex.id})">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    documentsHtml += `</div>`;
+                }
+
+                if (!documentsHtml) {
+                    documentsHtml = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No documents available in this category</p>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('documentViewer').innerHTML = documentsHtml;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('documentViewerLoading').style.display = 'none';
+                document.getElementById('documentViewer').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load documents: ${error.message}
+                    </div>
+                `;
+                document.getElementById('documentViewer').style.display = 'block';
             });
         }
 
