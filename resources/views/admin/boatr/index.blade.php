@@ -4200,27 +4200,7 @@
             completeInspection
         };
 
-        // Show add BoatR modal
-        function showAddBoatrModal() {
-            const modal = new bootstrap.Modal(document.getElementById('addBoatrModal'));
-            
-            // Reset form
-            document.getElementById('addBoatrForm').reset();
-            
-            // Remove any validation errors
-            document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
-            document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => el.textContent = '');
-            
-            // Clear document preview
-            const preview = document.getElementById('boatr_doc_preview');
-            if (preview) {
-                preview.innerHTML = '';
-                preview.style.display = 'none';
-            }
-            
-            modal.show();
-        }
-
+      
         // Real-time validation for contact number
         document.getElementById('boatr_contact_number')?.addEventListener('input', function() {
             validateBoatrContactNumber(this.value);
@@ -4361,62 +4341,15 @@
             reader.readAsDataURL(file);
         }
 
-        // Validate BoatR form
-        function validateBoatrForm() {
-            let isValid = true;
-            
-            // Required fields
-            const requiredFields = [
-                { id: 'boatr_first_name', label: 'First Name' },
-                { id: 'boatr_last_name', label: 'Last Name' },
-                { id: 'boatr_contact_number', label: 'Contact Number' },
-                { id: 'boatr_barangay', label: 'Barangay' },
-                { id: 'boatr_fishr_number', label: 'FishR Number' },
-                { id: 'boatr_vessel_name', label: 'Vessel Name' },
-                { id: 'boatr_boat_type', label: 'Boat Type' },
-                { id: 'boatr_boat_length', label: 'Boat Length' },
-                { id: 'boatr_boat_width', label: 'Boat Width' },
-                { id: 'boatr_boat_depth', label: 'Boat Depth' },
-                { id: 'boatr_engine_type', label: 'Engine Type' },
-                { id: 'boatr_engine_horsepower', label: 'Engine Horsepower' },
-                { id: 'boatr_primary_fishing_gear', label: 'Primary Fishing Gear' },
-                { id: 'boatr_status', label: 'Status' }
-            ];
-            
-            requiredFields.forEach(field => {
-                const input = document.getElementById(field.id);
-                if (input && (!input.value || input.value.trim() === '')) {
-                    const feedback = input.parentNode.querySelector('.invalid-feedback');
-                    if (feedback) feedback.textContent = '';
-                    
-                    input.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = field.label + ' is required';
-                    input.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-            });
-            
-            // Validate contact number
-            const contactNumber = document.getElementById('boatr_contact_number').value.trim();
-            if (!validateBoatrContactNumber(contactNumber)) {
-                isValid = false;
-            }
-            
-            // Validate email if provided
-            const email = document.getElementById('boatr_email').value.trim();
-            if (email && !validateBoatrEmail(email)) {
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-
         // Submit add BoatR form
-        function submitAddBoatr() {
+        async function submitAddBoatr() {
+            // Remove any old validation errors first
+            document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => el.textContent = '');
+            
             // Validate form
-            if (!validateBoatrForm()) {
+            const isValid = await validateBoatrForm();
+            if (!isValid) {
                 showToast('error', 'Please fix all validation errors before submitting');
                 return;
             }
@@ -4460,7 +4393,7 @@
             }
             
             // Find submit button
-            const submitBtn = document.querySelector('#addBoatrModal .btn-primary');
+            const submitBtn = document.querySelector('#addBoatrModal .modal-footer .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
             submitBtn.disabled = true;
@@ -4675,6 +4608,484 @@
             });
         }
 
-        console.log('✅ BoatR Add Registration functionality loaded successfully');
+        // Validate FishR number exists and auto-fill data
+        async function validateFishrNumber(fishrNumber) {
+            const input = document.getElementById('boatr_fishr_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            if (feedback) feedback.textContent = '';
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!fishrNumber || fishrNumber.trim() === '') {
+                return false;
+            }
+            
+            try {
+                // Use the correct endpoint: /admin/boatr/validate-fishr
+                const endpoint = `/admin/boatr/validate-fishr/${encodeURIComponent(fishrNumber.trim())}`;
+                console.log('Validating FishR at endpoint:', endpoint);
+                
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('FishR validation response:', data);
+                
+                if (data.exists) {
+                    input.classList.add('is-valid');
+                    if (feedback) {
+                        feedback.classList.remove('invalid-feedback');
+                        feedback.classList.add('valid-feedback', 'd-block');
+                        feedback.textContent = `✓ Valid FishR: ${data.fisher_name}`;
+                        feedback.style.color = '#28a745';
+                    }
+                    
+                    // Auto-fill fisher information
+                    if (data.first_name) document.getElementById('boatr_first_name').value = data.first_name;
+                    if (data.middle_name) document.getElementById('boatr_middle_name').value = data.middle_name;
+                    if (data.last_name) document.getElementById('boatr_last_name').value = data.last_name;
+                    if (data.name_extension) document.getElementById('boatr_name_extension').value = data.name_extension;
+                    if (data.contact_number) document.getElementById('boatr_contact_number').value = data.contact_number;
+                    if (data.email) document.getElementById('boatr_email').value = data.email;
+                    if (data.barangay) document.getElementById('boatr_barangay').value = data.barangay;
+                    if (data.user_id) document.getElementById('boatr_user_id').value = data.user_id;
+                    if (data.fishr_app_id) document.getElementById('boatr_fishr_app_id').value = data.fishr_app_id;
+                    
+                    showToast('success', `✓ Fisher information auto-filled for: ${data.fisher_name}`);
+                    return true;
+                } else {
+                    input.classList.add('is-invalid');
+                    if (feedback) {
+                        feedback.textContent = data.message || 'FishR number not found in the system. Please verify the FishR number.';
+                    }
+                    clearFisherFields();
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error validating FishR:', error);
+                input.classList.add('is-invalid');
+                if (feedback) {
+                    feedback.textContent = 'Error validating FishR number. Please check your connection and try again.';
+                }
+                showToast('error', 'Error validating FishR: ' + error.message);
+                return false;
+            }
+        }
+
+
+        // Clear fisher fields helper function
+        function clearFisherFields() {
+            document.getElementById('boatr_first_name').value = '';
+            document.getElementById('boatr_middle_name').value = '';
+            document.getElementById('boatr_last_name').value = '';
+            document.getElementById('boatr_name_extension').value = '';
+            document.getElementById('boatr_contact_number').value = '';
+            document.getElementById('boatr_email').value = '';
+            document.getElementById('boatr_user_id').value = '';
+            document.getElementById('boatr_fishr_app_id').value = '';
+            // Don't clear barangay as it might be manually set
+        }
+
+        /**
+         * Initialize admin FishR validation when modal is shown
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            const addBoatrModal = document.getElementById('addBoatrModal');
+            
+            if (addBoatrModal) {
+                // Show event - initializes when modal opens
+                addBoatrModal.addEventListener('shown.bs.modal', function() {
+                    console.log('BoatR modal shown - initializing FishR validation');
+                    initializeAdminFishRValidation();
+                });
+                
+                // Hide event - cleans up when modal closes
+                addBoatrModal.addEventListener('hidden.bs.modal', function() {
+                    console.log('BoatR modal hidden - cleaning up');
+                    cleanupFishrValidation();
+                });
+            }
+        });
+
+        /**
+         * Initialize FishR validation for admin add form
+         */
+        function initializeAdminFishRValidation() {
+            const fishrInput = document.getElementById('boatr_fishr_number');
+            
+            if (!fishrInput) {
+                console.error('FishR input not found');
+                return;
+            }
+            
+            console.log('Setting up FishR event listeners');
+            
+            // Remove old listeners to prevent duplicates
+            fishrInput.removeEventListener('blur', handleAdminFishRBlur);
+            fishrInput.removeEventListener('input', handleAdminFishRInput);
+            fishrInput.removeEventListener('focus', handleAdminFishRFocus);
+            
+            // Add new listeners
+            fishrInput.addEventListener('input', handleAdminFishRInput);
+            fishrInput.addEventListener('blur', handleAdminFishRBlur);
+            fishrInput.addEventListener('focus', handleAdminFishRFocus);
+        }
+
+        /**
+         * Clean up FishR validation
+         */
+        function cleanupFishrValidation() {
+            const fishrInput = document.getElementById('boatr_fishr_number');
+            if (fishrInput) {
+                fishrInput.removeEventListener('blur', handleAdminFishRBlur);
+                fishrInput.removeEventListener('input', handleAdminFishRInput);
+                fishrInput.removeEventListener('focus', handleAdminFishRFocus);
+                
+                if (fishrInput.validationTimeout) {
+                    clearTimeout(fishrInput.validationTimeout);
+                }
+            }
+        }
+
+        /**
+         * Handle FishR input - real-time formatting
+         */
+        function handleAdminFishRInput(event) {
+            const input = event.target;
+            let value = input.value.trim().toUpperCase();
+            
+            // Auto-format: add FISHR- prefix if not present
+            if (value && !value.startsWith('FISHR-')) {
+                value = 'FISHR-' + value;
+            }
+            
+            input.value = value;
+            clearAdminValidationMessage(input);
+
+            console.log('FishR input updated:', value);
+        }
+
+       /**
+         * Handle FishR blur - trigger validation
+         */
+        function handleAdminFishRBlur(event) {
+            const input = event.target;
+            const value = input.value.trim();
+            
+            console.log('FishR blur event, value:', value);
+            
+            if (!value) {
+                clearAdminValidationMessage(input);
+                input.classList.remove('is-invalid', 'is-valid');
+                return;
+            }
+            
+            // Validate format: FISHR-XXXXXXXX (8 alphanumeric characters)
+            const formatValid = /^FISHR-[A-Z0-9]{8}$/i.test(value);
+            
+            if (!formatValid) {
+                input.classList.add('is-invalid');
+                input.classList.remove('is-valid');
+                showAdminValidationMessage(input, 'Invalid format. Use: FISHR-XXXXXXXX', 'error');
+                console.log('Invalid format');
+                return;
+            }
+            
+            console.log('Format valid, checking if exists in database...');
+            
+            // Format is valid, check if exists in database
+            input.classList.remove('is-invalid', 'is-valid');
+            showAdminValidationMessage(input, '🔄 Checking FishR registration...', 'warning');
+            
+            // Validate asynchronously - pass the full value with FISHR- prefix
+            validateAdminFishRNumber(input, value);
+        }
+        /**
+         * Handle FishR focus - show help text
+         */
+        function handleAdminFishRFocus(event) {
+            const input = event.target;
+            if (!input.value.trim()) {
+                showAdminValidationMessage(input, 'Format: FISHR-XXXXXXXX', 'info');
+            }
+        }
+
+         /**
+         * Validate FishR number with database (async)
+         */
+       async function validateAdminFishRNumber(input, fishrNumber) {
+        try {
+            // URL encode the full registration number (with FISHR- prefix)
+            const encodedFishrNumber = encodeURIComponent(fishrNumber);
+            const endpoint = `/admin/boatr/validate-fishr/${encodedFishrNumber}`;
+            console.log('Fetching from:', endpoint);
+            
+            const response = await fetch(endpoint, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                console.error('Server error:', response.status);
+                throw new Error(`Server error ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('FishR validation result:', data);
+
+            if (data.exists) {
+                // ✅ Valid FishR found
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+                showAdminValidationMessage(input, `✓ Valid: ${data.fisher_name}`, 'success');
+                
+                // Auto-fill the form
+                autoFillAdminFisherInfo(data);
+                
+                showToast('success', `✓ Auto-filled: ${data.fisher_name}`);
+            } else {
+                // ❌ FishR not found
+                input.classList.remove('is-valid');
+                input.classList.add('is-invalid');
+                showAdminValidationMessage(input, '❌ ' + (data.message || 'FishR not found in system'), 'error');
+                
+                clearAdminFisherFields();
+                showToast('warning', data.message || 'Registration number not found');
+            }
+        } catch (error) {
+            console.error('Validation error:', error);
+
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+            showAdminValidationMessage(input, '⚠️ Connection error. Check your internet.', 'error');
+
+            showToast('error', 'Connection error: ' + error.message);
+        }
+    }
+
+        /**
+         * Auto-fill admin form with Fisher info
+         */
+        function autoFillAdminFisherInfo(data) {
+            try {
+                const fieldMap = {
+                    'boatr_first_name': 'first_name',
+                    'boatr_middle_name': 'middle_name',
+                    'boatr_last_name': 'last_name',
+                    'boatr_name_extension': 'name_extension',
+                    'boatr_contact_number': 'contact_number',
+                    'boatr_email': 'email',
+                    'boatr_barangay': 'barangay',
+                    'boatr_user_id': 'user_id',
+                    'boatr_fishr_app_id': 'fishr_app_id'
+                };
+                
+                Object.keys(fieldMap).forEach(fieldId => {
+                    const dataKey = fieldMap[fieldId];
+                    const element = document.getElementById(fieldId);
+                    
+                    if (element && data[dataKey]) {
+                        element.value = data[dataKey];
+                        console.log(`Filled ${fieldId} with ${data[dataKey]}`);
+                    }
+                });
+            } catch (error) {
+                console.error('Auto-fill error:', error);
+            }
+        }
+
+        /**
+         * Show admin validation message
+         */
+        function showAdminValidationMessage(input, message, type) {
+            clearAdminValidationMessage(input);
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `admin-validation-message admin-validation-${type}`;
+            messageDiv.style.cssText = `
+                display: block;
+                margin-top: 5px;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-size: 13px;
+                border-left: 3px solid;
+            `;
+            
+            // Set colors
+            const colors = {
+                success: { bg: '#d4edda', border: '#28a745', text: '#155724' },
+                error: { bg: '#f8d7da', border: '#dc3545', text: '#721c24' },
+                warning: { bg: '#fff3cd', border: '#ffc107', text: '#856404' },
+                info: { bg: '#d1ecf1', border: '#17a2b8', text: '#0c5460' }
+            };
+            
+            const color = colors[type] || colors.info;
+            messageDiv.style.backgroundColor = color.bg;
+            messageDiv.style.borderColor = color.border;
+            messageDiv.style.color = color.text;
+            messageDiv.innerHTML = `<small>${message}</small>`;
+            
+            input.parentNode.insertBefore(messageDiv, input.nextSibling);
+            
+            // Auto-remove success/info after 4 seconds
+            if (type === 'success' || type === 'info') {
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.remove();
+                    }
+                }, 4000);
+            }
+        }
+
+        /**
+         * Clear admin validation message
+         */
+        function clearAdminValidationMessage(input) {
+            const existingMessage = input.parentNode.querySelector('.admin-validation-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+        }
+
+        /**
+         * Clear admin fisher fields
+         */
+        function clearAdminFisherFields() {
+            const fields = [
+                'boatr_first_name',
+                'boatr_middle_name',
+                'boatr_last_name',
+                'boatr_name_extension',
+                'boatr_contact_number',
+                'boatr_email',
+                'boatr_user_id',
+                'boatr_fishr_app_id'
+            ];
+            
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) field.value = '';
+            });
+        }
+
+        /**
+         * Update the showAddBoatrModal function
+         */
+        function showAddBoatrModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addBoatrModal'));
+            
+            // Reset form
+            document.getElementById('addBoatrForm').reset();
+            
+            // Remove validation errors
+            document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+            
+            document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => {
+                el.textContent = '';
+            });
+            
+            // Remove validation messages
+            document.querySelectorAll('#addBoatrModal .admin-validation-message').forEach(el => {
+                el.remove();
+            });
+            
+            // Clear document preview
+            const preview = document.getElementById('boatr_doc_preview');
+            if (preview) {
+                preview.innerHTML = '';
+                preview.style.display = 'none';
+            }
+            
+            modal.show();
+            
+            // Init FishR after modal opens
+            setTimeout(() => {
+                initializeAdminFishRValidation();
+            }, 100);
+        }
+
+        /**
+         * Update validateBoatrForm to NOT validate FishR during submission
+         */
+        async function validateBoatrForm() {
+            let isValid = true;
+            
+            const requiredFields = [
+                { id: 'boatr_first_name', label: 'First Name' },
+                { id: 'boatr_last_name', label: 'Last Name' },
+                { id: 'boatr_contact_number', label: 'Contact Number' },
+                { id: 'boatr_barangay', label: 'Barangay' },
+                { id: 'boatr_fishr_number', label: 'FishR Number' },
+                { id: 'boatr_vessel_name', label: 'Vessel Name' },
+                { id: 'boatr_boat_type', label: 'Boat Type' },
+                { id: 'boatr_boat_length', label: 'Boat Length' },
+                { id: 'boatr_boat_width', label: 'Boat Width' },
+                { id: 'boatr_boat_depth', label: 'Boat Depth' },
+                { id: 'boatr_engine_type', label: 'Engine Type' },
+                { id: 'boatr_engine_horsepower', label: 'Engine Horsepower' },
+                { id: 'boatr_primary_fishing_gear', label: 'Primary Fishing Gear' },
+                { id: 'boatr_status', label: 'Status' }
+            ];
+            
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input && (!input.value || input.value.trim() === '')) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                }
+            });
+            
+            // Validate contact number format
+            const contactNumber = document.getElementById('boatr_contact_number').value.trim();
+            if (contactNumber) {
+                const phoneRegex = /^(\+639|09)\d{9}$/;
+                if (!phoneRegex.test(contactNumber)) {
+                    document.getElementById('boatr_contact_number').classList.add('is-invalid');
+                    isValid = false;
+                }
+            }
+            
+            // Validate email format if provided
+            const email = document.getElementById('boatr_email').value.trim();
+            if (email) {
+                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailPattern.test(email)) {
+                    document.getElementById('boatr_email').classList.add('is-invalid');
+                    isValid = false;
+                }
+            }
+            
+            // Check if FishR was validated
+            const fishrInput = document.getElementById('boatr_fishr_number');
+            if (!fishrInput.classList.contains('is-valid')) {
+                fishrInput.classList.add('is-invalid');
+                showToast('warning', 'Please validate FishR number first by clicking away from the field');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        console.log('✅ Admin FishR validation initialized');
     </script>
 @endsection

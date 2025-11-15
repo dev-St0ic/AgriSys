@@ -169,6 +169,7 @@ Route::get('/api/validate-fishr/{number}', function($number) {
             ->name('complete-inspection');
         
         Route::delete('/requests/{id}', [BoatRController::class, 'destroy'])->name('destroy');
+
         
         // Document viewing routes
         Route::get('/requests/{id}/view-document', [BoatRController::class, 'viewDocument'])
@@ -193,6 +194,10 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
         
+        // FishR Validation 
+        Route::get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFishrNumber'])
+        ->name('validate-fishr')
+        ->where('fishrNumber', '.*'); // Allow special characters like dashes
     });
 
     // ==============================================
