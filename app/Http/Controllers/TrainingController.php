@@ -6,6 +6,7 @@ use App\Models\TrainingApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log; 
 
 class TrainingController extends Controller
 {
@@ -119,28 +120,53 @@ class TrainingController extends Controller
         ]);
     }
 
-    /**
+  /**
      * Delete a training application
      */
     public function destroy($id)
     {
-        $training = TrainingApplication::findOrFail($id);
+        try {
+            $training = TrainingApplication::findOrFail($id);
+            $applicationNumber = $training->application_number;
 
-        // Delete associated documents
-        if ($training->hasDocuments()) {
-            foreach ($training->document_paths as $path) {
-                Storage::disk('public')->delete($path);
+            // Delete associated documents
+            if ($training->hasDocuments()) {
+                foreach ($training->document_paths as $path) {
+                    if (Storage::disk('public')->exists($path)) {
+                        Storage::disk('public')->delete($path);
+                    }
+                }
             }
+
+            // Delete the training application
+            $training->delete();
+
+            Log::info('Training application deleted', [
+                'application_id' => $id,
+                'application_number' => $applicationNumber,
+                'deleted_by' => auth()->user()->name ?? 'System'
+            ]);
+
+            $message = "Application {$applicationNumber} has been deleted successfully";
+
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting training application', [
+                'application_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting application: ' . $e->getMessage()
+            ], 500);
         }
-
-        $training->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Training application deleted successfully'
-        ]);
     }
-
     /**
      * Export training applications to CSV
      */
