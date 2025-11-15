@@ -820,7 +820,7 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-0">
+                <div class="modal-body">
                     <div id="documentViewerLoading" class="text-center py-5">
                         <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                             <span class="visually-hidden">Loading...</span>
@@ -3148,8 +3148,14 @@
             });
         }
         
-        // ========== DOCUMENT VIEWING ==========
-        function viewDocuments(id) {
+        // view documents
+       function viewDocuments(id) {
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            modal.show();
+
+            document.getElementById('documentViewerLoading').style.display = 'block';
+            document.getElementById('documentViewer').style.display = 'none';
+
             fetch(`/admin/boatr/requests/${id}`, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -3164,32 +3170,120 @@
             .then(data => {
                 if (!data.success) throw new Error(data.message || 'Failed to load documents');
 
-                let docToPreview = null;
-                let docType = '';
-                let docIndex = 0;
+                document.getElementById('documentViewerLoading').style.display = 'none';
+                document.getElementById('documentViewer').style.display = 'block';
 
+                let documentsHtml = '';
+
+                // User Documents Section
                 if (data.user_documents && data.user_documents.length > 0) {
-                    docToPreview = data.user_documents[0];
-                    docType = 'user';
-                    docIndex = 0;
-                } else if (data.inspection_documents && data.inspection_documents.length > 0) {
-                    docToPreview = data.inspection_documents[0];
-                    docType = 'inspection';
-                    docIndex = 0;
-                } else if (data.annexes && data.annexes.length > 0) {
-                    previewAnnex(id, data.annexes[0].id);
-                    return;
+                    documentsHtml += `
+                        <div class="document-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-file-image text-info me-2"></i>User Documents
+                            </h5>
+                    `;
+                    data.user_documents.forEach((doc, index) => {
+                        documentsHtml += `
+                            <div class="document-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${doc.name || 'User Document ' + (index + 1)}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>${doc.uploaded_at || 'N/A'}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="previewDocument(${id}, 'user', ${index})">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    documentsHtml += `</div>`;
                 }
 
-                if (docToPreview) {
-                    previewDocument(id, docType, docIndex);
-                } else {
-                    showToast('info', 'No documents available for this application');
+                // Inspection Documents Section
+                if (data.inspection_documents && data.inspection_documents.length > 0) {
+                    documentsHtml += `
+                        <div class="document-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-clipboard-check text-success me-2"></i>Inspection Documents
+                            </h5>
+                    `;
+                    data.inspection_documents.forEach((doc, index) => {
+                        documentsHtml += `
+                            <div class="document-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${doc.name || 'Inspection Document ' + (index + 1)}</h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>${doc.uploaded_at || 'N/A'}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="previewDocument(${id}, 'inspection', ${index})">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    documentsHtml += `</div>`;
                 }
+
+                // Annexes Section
+                if (data.annexes && data.annexes.length > 0) {
+                    documentsHtml += `
+                        <div class="document-section mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-folder text-warning me-2"></i>Annexes
+                            </h5>
+                    `;
+                    data.annexes.forEach((annex) => {
+                        documentsHtml += `
+                            <div class="document-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${annex.title}</h6>
+                                        <p class="mb-1 text-muted small">${annex.description || 'No description'}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>${annex.created_at || 'N/A'}
+                                            <span class="mx-2">|</span>
+                                            <i class="fas fa-file me-1"></i>${formatFileSize(annex.file_size)}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" onclick="previewAnnex(${id}, ${annex.id})">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    documentsHtml += `</div>`;
+                }
+
+                // No documents message
+                if (!documentsHtml) {
+                    documentsHtml = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No documents available</p>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('documentViewer').innerHTML = documentsHtml;
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('error', 'Failed to load documents: ' + error.message);
+                document.getElementById('documentViewerLoading').style.display = 'none';
+                document.getElementById('documentViewer').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load documents: ${error.message}
+                    </div>
+                `;
+                document.getElementById('documentViewer').style.display = 'block';
             });
         }
 
@@ -4411,6 +4505,27 @@
                 submitBtn.disabled = false;
             });
         }
+        // ========== MODAL BACKDROP CLEANUP ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            const allModals = document.querySelectorAll('.modal');
+            
+            allModals.forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Remove all modal backdrops
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+                    
+                    // Check if any modals are still open
+                    const openModals = document.querySelectorAll('.modal.show');
+                    
+                    if (openModals.length === 0) {
+                        // No modals open, clean up body
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+                    }
+                });
+            });
+        });
 
         console.log('✅ BoatR Add Registration functionality loaded successfully');
     </script>
