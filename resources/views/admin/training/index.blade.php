@@ -198,8 +198,7 @@
                                                 @foreach (array_slice($training->document_paths, 0, 3) as $index => $path)
                                                     <button type="button" class="training-mini-doc"
                                                         onclick="viewDocument('{{ $path }}', 'Training Request - {{ $training->full_name }} (Document {{ $index + 1 }})')"
-                                                        title="Document {{ $index + 1 }}"
-                                                        style="background: none; border: none; padding: 0; cursor: pointer;">
+                                                        title="Document {{ $index + 1 }}">
                                                         <div class="training-mini-doc-icon">
                                                             <i class="fas fa-file-image text-info"></i>
                                                         </div>
@@ -837,7 +836,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid #e9ecef;
+            border: 2px solid  #17a2b8;
             display: flex;
             align-items: center;
             justify-content: center;
