@@ -197,21 +197,13 @@
                                             <div class="training-document-previews">
                                                 @foreach (array_slice($training->document_paths, 0, 3) as $index => $path)
                                                     <button type="button" class="training-mini-doc"
-                                                        onclick="viewDocument('{{ $path }}', 'Training Request - {{ $training->full_name }} (Document {{ $index + 1 }})')"
+                                                        onclick="viewDocument('{{ $path }}', 'Training Request - {{ $training->full_name }}')"
                                                         title="Document {{ $index + 1 }}">
                                                         <div class="training-mini-doc-icon">
                                                             <i class="fas fa-file-image text-info"></i>
                                                         </div>
                                                     </button>
                                                 @endforeach
-                                                @if (count($training->document_paths) > 3)
-                                                    <button type="button" class="training-mini-doc training-mini-doc-more"
-                                                        onclick="viewDocument('{{ $training->document_paths[3] }}', 'Training Request - {{ $training->full_name }} (Document 4)')"
-                                                        title="View all {{ count($training->document_paths) }} documents"
-                                                        style="background: none; border: none; padding: 0; cursor: pointer;">
-                                                        <span class="training-more-count">+{{ count($training->document_paths) - 3 }}</span>
-                                                    </button>
-                                                @endif
                                             </div>
                                             <button type="button" class="training-document-summary"
                                                 onclick="viewDocument('{{ $training->document_paths[0] }}', 'Training Request - {{ $training->full_name }}')"
@@ -1338,7 +1330,7 @@
                                             <h6>Supporting Document</h6>
                                             <span class="badge bg-secondary mb-2">Uploaded</span>
                                             <br>
-                                            <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.document_paths[0]}', 'Training Request - ${data.full_name} - Document 1')">
+                                            <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.document_paths[0]}', 'Training Request - ${data.full_name}')">
                                                 <i class="fas fa-eye"></i> View Document
                                             </button>
                                         </div>
