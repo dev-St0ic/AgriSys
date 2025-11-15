@@ -119,7 +119,7 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search name, number, email..." value="{{ request('search') }}"
@@ -136,7 +136,7 @@
                             <i class="fas fa-calendar-alt me-1"></i>Date Filter
                         </button>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-2">
                         <a href="{{ route('admin.training.requests') }}" class="btn btn-secondary btn-sm w-100">
                             <i class="fas fa-times"></i> Clear
                         </a>
