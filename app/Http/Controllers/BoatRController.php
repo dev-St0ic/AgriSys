@@ -1380,4 +1380,114 @@ class BoatRController extends Controller
             ], 500);
         }
     }
+        /**
+     * Validate FishR number and return fisher information
+     * FIXED: Uses correct 'registration_number' column from fishr_applications table
+     */
+    public function validateFishrNumber($fishrNumber)
+    {
+        try {
+            // Decode and sanitize the parameter
+            $fishrNumber = urldecode(trim($fishrNumber));
+            
+            \Log::info('Validating FishR registration number', [
+                'registration_number' => $fishrNumber,
+                'user_id' => auth()->id()
+            ]);
+
+            if (empty($fishrNumber)) {
+                return response()->json([
+                    'exists' => false,
+                    'message' => 'Registration number is required'
+                ], 200);
+            }
+
+            // Query using the correct column name: registration_number
+            // The registration_number includes the FISHR- prefix in the database
+            $searchValue = $fishrNumber;
+            
+            // If user didn't include FISHR- prefix, add it for the search
+            if (!str_starts_with(strtoupper($searchValue), 'FISHR-')) {
+                $searchValue = 'FISHR-' . $searchValue;
+            }
+            
+            \Log::info('Searching for registration', [
+                'original_input' => $fishrNumber,
+                'search_value' => $searchValue
+            ]);
+
+            $fishrApp = \App\Models\FishrApplication::where('registration_number', $searchValue)
+                ->orWhere('registration_number', strtoupper($searchValue))
+                ->orWhere('registration_number', strtolower($searchValue))
+                ->first();
+
+            \Log::info('FishR registration search result', [
+                'registration_number' => $fishrNumber,
+                'found' => $fishrApp ? 'Yes' : 'No'
+            ]);
+
+            if ($fishrApp) {
+                // Build full name from components
+                $fullName = $fishrApp->first_name;
+                if ($fishrApp->middle_name) {
+                    $fullName .= ' ' . $fishrApp->middle_name;
+                }
+                $fullName .= ' ' . $fishrApp->last_name;
+                if ($fishrApp->name_extension) {
+                    $fullName .= ' ' . $fishrApp->name_extension;
+                }
+
+                \Log::info('FishR registration found', [
+                    'id' => $fishrApp->id,
+                    'name' => $fullName,
+                    'registration_number' => $fishrApp->registration_number
+                ]);
+
+                return response()->json([
+                    'exists' => true,
+                    'fisher_name' => trim($fullName),
+                    'first_name' => $fishrApp->first_name ?? '',
+                    'middle_name' => $fishrApp->middle_name ?? '',
+                    'last_name' => $fishrApp->last_name ?? '',
+                    'name_extension' => $fishrApp->name_extension ?? '',
+                    'contact_number' => $fishrApp->contact_number ?? '',
+                    'email' => $fishrApp->email ?? '',
+                    'barangay' => $fishrApp->barangay ?? '',
+                    'sex' => $fishrApp->sex ?? '',
+                    'main_livelihood' => $fishrApp->main_livelihood ?? '',
+                    'user_id' => $fishrApp->user_id ?? null,
+                    'fishr_app_id' => $fishrApp->id,
+                    'registration_number' => $fishrApp->registration_number
+                ], 200);
+            }
+
+            \Log::info('FishR registration not found', [
+                'registration_number' => $fishrNumber
+            ]);
+
+            return response()->json([
+                'exists' => false,
+                'message' => 'Registration number not found in the system. Please verify the FishR registration number.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            \Log::error('Error validating FishR registration number', [
+                'registration_number' => $fishrNumber,
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'exists' => false,
+                'message' => 'Error validating registration: ' . $e->getMessage(),
+                'debug' => env('APP_DEBUG') ? [
+                    'error' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ] : null
+            ], 200);
+        }
+    }
 }
