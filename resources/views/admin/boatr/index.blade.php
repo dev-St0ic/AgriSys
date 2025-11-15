@@ -748,7 +748,7 @@
                     <form id="inspectionForm" enctype="multipart/form-data">
                         <input type="hidden" id="inspectionRegistrationId">
                         <div class="mb-3">
-                            <label for="supporting_document" class="form-label">Supporting Document *</label>
+                            <label for="supporting_document" class="form-label">Supporting Document <span class="text-danger">*</span></label>
                             <input type="file" class="form-control" id="supporting_document"
                                 accept=".pdf,.jpg,.jpeg,.png" required>
                             <div class="form-text">Upload inspection report, boat photos, or other supporting documents.
@@ -912,7 +912,7 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexFile" class="form-label">Select File *</label>
+                                                <label for="annexFile" class="form-label">Select File <span class="text-danger">*</span></label>
                                                 <input type="file" class="form-control" id="annexFile"
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required>
                                                 <div class="invalid-feedback" id="annexFileError"></div>
@@ -922,7 +922,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexTitle" class="form-label">Document Title *</label>
+                                                <label for="annexTitle" class="form-label">Document Title <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" id="annexTitle"
                                                     placeholder="e.g., Additional Certificate, Supporting Document"
                                                     required>
@@ -3014,8 +3014,6 @@
                                         </div>
                                         <div class="col-md-6">
                                             <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
-                                            <p><strong>Documents Verified:</strong> ${data.documents_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-warning">No</span>'}</p>
-                                            ${data.documents_verified_at ? `<p><strong>Verified At:</strong> ${data.documents_verified_at}</p>` : ''}
                                         </div>
                                     </div>
                                     
@@ -4540,7 +4538,7 @@
                 });
             });
         });
-        
+
         // View documents by type (user, inspection, or annexes only)
         function viewDocumentsByType(id, type) {
             const modal = new bootstrap.Modal(document.getElementById('documentModal'));
