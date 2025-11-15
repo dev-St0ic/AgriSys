@@ -79,6 +79,17 @@ class TrainingApplicationFactory extends Factory
         $middleName = $this->faker->optional(0.8)->randomElement($filipinoFirstNames);
         $nameExtension = $this->faker->optional(0.15)->randomElement($nameExtensions);
 
+        // FIXED: Single document path only (60% chance of having a document)
+        $singleDocument = $this->faker->optional(0.6)->randomElement([
+            'training_documents/sample_id.pdf',
+            'training_documents/barangay_cert.jpg',
+            'training_documents/valid_id.png',
+            'training_documents/proof_residence.pdf',
+            'training_documents/experience_cert.jpg',
+            'training_documents/training_cert.pdf',
+            'training_documents/qualification_letter.jpg'
+        ]);
+
         return [
             'user_id' => UserRegistration::inRandomOrder()->first()?->id ?? UserRegistration::factory()->create()->id,
             'application_number' => 'TRAIN-' . strtoupper(Str::random(8)),
@@ -100,12 +111,7 @@ class TrainingApplicationFactory extends Factory
                 'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
             ]),
             'training_type' => $trainingType,
-            'document_paths' => $this->faker->optional(0.6)->randomElement([
-                ['training_documents/sample_id.pdf'],
-                ['training_documents/barangay_cert.jpg', 'training_documents/valid_id.png'],
-                ['training_documents/proof_residence.pdf', 'training_documents/experience_cert.jpg'],
-                null
-            ]),
+            'document_paths' => $singleDocument ? [$singleDocument] : null, // FIXED: Wrap in array or null
             'status' => $status,
             'remarks' => $remarks,
             'status_updated_at' => $statusUpdatedAt,
