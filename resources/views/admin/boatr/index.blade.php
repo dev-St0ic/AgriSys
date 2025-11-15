@@ -181,6 +181,9 @@
                 <a href="{{ route('admin.boatr.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
+                <button type="button" class="btn btn-primary btn-sm" onclick="showAddBoatrModal()">
+                    <i class="fas fa-plus me-2"></i>Add Registration
+                </button>
             </div>
         </div>
         <div class="card-body">
@@ -388,6 +391,260 @@
                     </nav>
                 </div>
             @endif
+        </div>
+    </div>
+
+    <!-- Add BoatR Registration Modal -->
+    <div class="modal fade" id="addBoatrModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-ship me-2"></i>Add New BoatR Application
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addBoatrForm" enctype="multipart/form-data">
+                        <!-- Personal Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="boatr_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_first_name" required maxlength="100">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="boatr_middle_name" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="boatr_middle_name" maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="boatr_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_last_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="boatr_name_extension" class="form-label">Extension</label>
+                                        <select class="form-select" id="boatr_name_extension">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="boatr_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="boatr_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="boatr_email" class="form-label">Email (Optional)</label>
+                                        <input type="email" class="form-control" id="boatr_email" maxlength="254">
+                                        <div class="form-text">For status notifications</div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="boatr_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="boatr_barangay" required>
+                                            <option value="">Select Barangay</option>
+                                            @foreach ($barangays as $barangay)
+                                                <option value="{{ $barangay }}">{{ $barangay }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FishR and Vessel Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-link me-2"></i>FishR & Vessel Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="boatr_fishr_number" class="form-label">FishR Number <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_fishr_number" required maxlength="50">
+                                        <div class="form-text">FishR registration number (e.g., FISHR-XXXXXXXX)</div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="boatr_vessel_name" class="form-label">Vessel Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_vessel_name" required maxlength="100">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="boatr_boat_type" class="form-label">Boat Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="boatr_boat_type" required>
+                                            <option value="">Select Boat Type</option>
+                                            <option value="Spoon">Spoon</option>
+                                            <option value="Plumb">Plumb</option>
+                                            <option value="Banca">Banca</option>
+                                            <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
+                                            <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom/Spoon/Plumb Stern</option>
+                                            <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boat Dimensions -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-ruler me-2"></i>Boat Dimensions (in feet)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="boatr_boat_length" class="form-label">Length <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="boatr_boat_length" step="0.01" min="0.1" max="999.99" required placeholder="0.00">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="boatr_boat_width" class="form-label">Width <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="boatr_boat_width" step="0.01" min="0.1" max="999.99" required placeholder="0.00">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="boatr_boat_depth" class="form-label">Depth <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="boatr_boat_depth" step="0.01" min="0.1" max="999.99" required placeholder="0.00">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Engine Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Engine Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_engine_type" class="form-label">Engine Type <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_engine_type" required maxlength="100" placeholder="e.g., Diesel, Gasoline, Outboard">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_engine_horsepower" class="form-label">Engine Horsepower <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="boatr_engine_horsepower" min="1" max="9999" required placeholder="0" value="0">
+                                        <div class="form-text">HP</div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fishing Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Fishing Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="boatr_primary_fishing_gear" class="form-label">Primary Fishing Gear <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="boatr_primary_fishing_gear" required>
+                                            <option value="">Select Primary Fishing Gear</option>
+                                            <option value="Hook and Line">Hook and Line</option>
+                                            <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
+                                            <option value="Fish Trap">Fish Trap</option>
+                                            <option value="Fish Coral">Fish Coral</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supporting Document -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_user_document" class="form-label">Upload Document</label>
+                                        <input type="file" class="form-control" id="boatr_user_document" accept="image/*,.pdf" onchange="previewBoatrDocument('boatr_user_document', 'boatr_doc_preview')">
+                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="boatr_doc_preview" style="margin-top: 10px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Application Status -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Application Status</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="boatr_status" required>
+                                            <option value="pending" selected>Pending</option>
+                                            <option value="under_review">Under Review</option>
+                                            <option value="inspection_required">Inspection Required</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="rejected">Rejected</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_remarks" class="form-label">Remarks (Optional)</label>
+                                        <textarea class="form-control" id="boatr_remarks" rows="3" maxlength="2000" placeholder="Any notes or comments..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Optional Links -->
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-link me-2"></i>Optional Links</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_user_id" class="form-label">Link to User Account</label>
+                                        <input type="number" class="form-control" id="boatr_user_id" placeholder="Enter User ID if exists">
+                                        <div class="form-text">Leave blank if not associated with any user account</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="boatr_fishr_app_id" class="form-label">Link to FishR Application</label>
+                                        <input type="number" class="form-control" id="boatr_fishr_app_id" placeholder="Enter FishR Application ID if exists">
+                                        <div class="form-text">Leave blank if not linked to a FishR application</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAddBoatr()">
+                        <i class="fas fa-save me-1"></i>Create Application
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -3716,6 +3973,324 @@
             completeInspection
         };
 
-        console.log('BoatR Admin utilities available via window.BoatRAdmin');
+        // Show add BoatR modal
+        function showAddBoatrModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addBoatrModal'));
+            
+            // Reset form
+            document.getElementById('addBoatrForm').reset();
+            
+            // Remove any validation errors
+            document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => el.textContent = '');
+            
+            // Clear document preview
+            const preview = document.getElementById('boatr_doc_preview');
+            if (preview) {
+                preview.innerHTML = '';
+                preview.style.display = 'none';
+            }
+            
+            modal.show();
+        }
+
+        // Real-time validation for contact number
+        document.getElementById('boatr_contact_number')?.addEventListener('input', function() {
+            validateBoatrContactNumber(this.value);
+        });
+
+        function validateBoatrContactNumber(contactNumber) {
+            const input = document.getElementById('boatr_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            if (feedback) feedback.textContent = '';
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!contactNumber || contactNumber.trim() === '') {
+                return;
+            }
+            
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+            
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                if (feedback) {
+                    feedback.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                }
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Real-time validation for email
+        document.getElementById('boatr_email')?.addEventListener('input', function() {
+            validateBoatrEmail(this.value);
+        });
+
+        function validateBoatrEmail(email) {
+            const input = document.getElementById('boatr_email');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            if (feedback) feedback.textContent = '';
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!email || email.trim() === '') {
+                return true; // Email is optional
+            }
+            
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if (!emailPattern.test(email.trim())) {
+                input.classList.add('is-invalid');
+                if (feedback) {
+                    feedback.textContent = 'Invalid email format';
+                }
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Auto-capitalize name fields
+        function capitalizeBoatrName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        }
+
+        document.getElementById('boatr_first_name')?.addEventListener('blur', function() {
+            capitalizeBoatrName(this);
+        });
+
+        document.getElementById('boatr_middle_name')?.addEventListener('blur', function() {
+            capitalizeBoatrName(this);
+        });
+
+        document.getElementById('boatr_last_name')?.addEventListener('blur', function() {
+            capitalizeBoatrName(this);
+        });
+
+        // Document preview
+        function previewBoatrDocument(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            
+            if (!input.files || !input.files[0]) {
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+            
+            const file = input.files[0];
+            
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('error', 'File size must not exceed 10MB');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                if (preview) {
+                    if (file.type.startsWith('image/')) {
+                        preview.innerHTML = `
+                            <div class="document-preview-item">
+                                <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                                    <i class="fas fa-file-image me-1"></i>${file.name} (${formatFileSize(file.size)})
+                                </p>
+                            </div>
+                        `;
+                    } else {
+                        preview.innerHTML = `
+                            <div class="document-preview-item">
+                                <div class="text-center p-3 border rounded">
+                                    <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                                    <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name} (${formatFileSize(file.size)})</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    preview.style.display = 'block';
+                }
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Validate BoatR form
+        function validateBoatrForm() {
+            let isValid = true;
+            
+            // Required fields
+            const requiredFields = [
+                { id: 'boatr_first_name', label: 'First Name' },
+                { id: 'boatr_last_name', label: 'Last Name' },
+                { id: 'boatr_contact_number', label: 'Contact Number' },
+                { id: 'boatr_barangay', label: 'Barangay' },
+                { id: 'boatr_fishr_number', label: 'FishR Number' },
+                { id: 'boatr_vessel_name', label: 'Vessel Name' },
+                { id: 'boatr_boat_type', label: 'Boat Type' },
+                { id: 'boatr_boat_length', label: 'Boat Length' },
+                { id: 'boatr_boat_width', label: 'Boat Width' },
+                { id: 'boatr_boat_depth', label: 'Boat Depth' },
+                { id: 'boatr_engine_type', label: 'Engine Type' },
+                { id: 'boatr_engine_horsepower', label: 'Engine Horsepower' },
+                { id: 'boatr_primary_fishing_gear', label: 'Primary Fishing Gear' },
+                { id: 'boatr_status', label: 'Status' }
+            ];
+            
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input && (!input.value || input.value.trim() === '')) {
+                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) feedback.textContent = '';
+                    
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = field.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            });
+            
+            // Validate contact number
+            const contactNumber = document.getElementById('boatr_contact_number').value.trim();
+            if (!validateBoatrContactNumber(contactNumber)) {
+                isValid = false;
+            }
+            
+            // Validate email if provided
+            const email = document.getElementById('boatr_email').value.trim();
+            if (email && !validateBoatrEmail(email)) {
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Submit add BoatR form
+        function submitAddBoatr() {
+            // Validate form
+            if (!validateBoatrForm()) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return;
+            }
+            
+            // Prepare form data
+            const formData = new FormData();
+            
+            formData.append('first_name', document.getElementById('boatr_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('boatr_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('boatr_last_name').value.trim());
+            formData.append('name_extension', document.getElementById('boatr_name_extension').value);
+            formData.append('contact_number', document.getElementById('boatr_contact_number').value.trim());
+            formData.append('email', document.getElementById('boatr_email').value.trim());
+            formData.append('barangay', document.getElementById('boatr_barangay').value);
+            formData.append('fishr_number', document.getElementById('boatr_fishr_number').value.trim());
+            formData.append('vessel_name', document.getElementById('boatr_vessel_name').value.trim());
+            formData.append('boat_type', document.getElementById('boatr_boat_type').value);
+            formData.append('boat_length', parseFloat(document.getElementById('boatr_boat_length').value));
+            formData.append('boat_width', parseFloat(document.getElementById('boatr_boat_width').value));
+            formData.append('boat_depth', parseFloat(document.getElementById('boatr_boat_depth').value));
+            formData.append('engine_type', document.getElementById('boatr_engine_type').value.trim());
+            formData.append('engine_horsepower', parseInt(document.getElementById('boatr_engine_horsepower').value));
+            formData.append('primary_fishing_gear', document.getElementById('boatr_primary_fishing_gear').value);
+            formData.append('status', document.getElementById('boatr_status').value);
+            formData.append('remarks', document.getElementById('boatr_remarks').value.trim());
+            
+            const userId = document.getElementById('boatr_user_id').value.trim();
+            if (userId) {
+                formData.append('user_id', userId);
+            }
+            
+            const fishrAppId = document.getElementById('boatr_fishr_app_id').value.trim();
+            if (fishrAppId) {
+                formData.append('fishr_application_id', fishrAppId);
+            }
+            
+            // Add document if uploaded
+            const docInput = document.getElementById('boatr_user_document');
+            if (docInput.files && docInput.files[0]) {
+                formData.append('user_document', docInput.files[0]);
+            }
+            
+            // Find submit button
+            const submitBtn = document.querySelector('#addBoatrModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
+            submitBtn.disabled = true;
+            
+            // Submit to backend
+            fetch('/admin/boatr/requests/create', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addBoatrModal'));
+                    modal.hide();
+                    
+                    // Show success message
+                    showToast('success', data.message || 'BoatR application created successfully');
+                    
+                    // Reload page after short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Show validation errors
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            const input = document.getElementById('boatr_' + field);
+                            if (input) {
+                                const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                if (feedback) feedback.textContent = '';
+                                
+                                input.classList.add('is-invalid');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback d-block';
+                                errorDiv.textContent = data.errors[field][0];
+                                input.parentNode.appendChild(errorDiv);
+                            }
+                        });
+                    }
+                    showToast('error', data.message || 'Failed to create BoatR application');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'An error occurred while creating the application');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+
+        console.log('✅ BoatR Add Registration functionality loaded successfully');
     </script>
 @endsection

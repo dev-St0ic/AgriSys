@@ -129,6 +129,171 @@ class BoatRController extends Controller
         }
     }
 
+        /**
+     * Store a newly created BoatR registration
+     */
+    public function store(Request $request)
+    {
+        try {
+            // Validate the incoming data
+            $validated = $request->validate([
+                // Personal Information
+                'first_name' => 'required|string|max:100',
+                'middle_name' => 'nullable|string|max:100',
+                'last_name' => 'required|string|max:100',
+                'name_extension' => 'nullable|string|in:Jr.,Sr.,II,III,IV,V',
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'email' => 'nullable|email|max:254',
+                'barangay' => 'required|string|max:100',
+                'fishr_number' => 'required|string|max:50',
+
+                // Vessel Information
+                'vessel_name' => 'required|string|max:100',
+                'boat_type' => 'required|in:Spoon,Plumb,Banca,Rake Stem - Rake Stern,Rake Stem - Transom/Spoon/Plumb Stern,Skiff (Typical Design)',
+                
+                // Boat Dimensions
+                'boat_length' => 'required|numeric|min:0.1|max:999.99',
+                'boat_width' => 'required|numeric|min:0.1|max:999.99',
+                'boat_depth' => 'required|numeric|min:0.1|max:999.99',
+
+                // Engine Information
+                'engine_type' => 'required|string|max:100',
+                'engine_horsepower' => 'required|integer|min:1|max:9999',
+
+                // Fishing Information
+                'primary_fishing_gear' => 'required|in:Hook and Line,Bottom Set Gill Net,Fish Trap,Fish Coral',
+
+                // Status
+                'status' => 'nullable|in:pending,under_review,inspection_required,inspection_scheduled,documents_pending,approved,rejected',
+                'remarks' => 'nullable|string|max:2000',
+
+                // Document
+                'user_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+
+                // IMPORTANT: Make user_id optional (like FishR)
+                'user_id' => 'nullable|exists:user_registration,id',
+                'fishr_application_id' => 'nullable|exists:fishr_applications,id'
+            ]);
+
+            // Set user_id to null if not provided
+            if (!isset($validated['user_id'])) {
+                $validated['user_id'] = null;
+            }
+
+            if (!isset($validated['fishr_application_id'])) {
+                $validated['fishr_application_id'] = null;
+            }
+
+            // Generate unique application number
+            $validated['application_number'] = $this->generateApplicationNumber();
+
+            // Build full_name
+            $fullName = $validated['first_name'] . ' ' . 
+                    ($validated['middle_name'] ? $validated['middle_name'] . ' ' : '') . 
+                    $validated['last_name'] .
+                    ($validated['name_extension'] ? ' ' . $validated['name_extension'] : '');
+            
+            $validated['full_name'] = trim($fullName);
+
+            // Calculate boat_dimensions string (Length × Width × Depth)
+            $validated['boat_dimensions'] = $validated['boat_length'] . '×' . 
+                                        $validated['boat_width'] . '×' . 
+                                        $validated['boat_depth'] . ' ft';
+
+            // Handle document upload
+            if ($request->hasFile('user_document')) {
+                $file = $request->file('user_document');
+                $filename = 'boatr_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('boatr_documents', $filename, 'public');
+                
+                $validated['user_document_path'] = $path;
+                $validated['user_document_name'] = $file->getClientOriginalName();
+                $validated['user_document_type'] = $file->getMimeType();
+                $validated['user_document_size'] = $file->getSize();
+                $validated['user_document_uploaded_at'] = now();
+            }
+
+            // Set default status if not provided
+            $validated['status'] = $validated['status'] ?? 'pending';
+
+            // Set reviewed fields if status is not pending
+            if ($validated['status'] !== 'pending') {
+                $validated['reviewed_at'] = now();
+                $validated['reviewed_by'] = auth()->id();
+            }
+
+            // Create the registration
+            $registration = BoatrApplication::create($validated);
+
+            Log::info('BoatR application created by admin', [
+                'application_id' => $registration->id,
+                'application_number' => $registration->application_number,
+                'vessel_name' => $registration->vessel_name,
+                'created_by' => auth()->user()->name,
+                'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)',
+                'linked_to_fishr' => $validated['fishr_application_id'] ? 'Yes (ID: ' . $validated['fishr_application_id'] . ')' : 'No'
+            ]);
+
+            // Send email notification if approved and email is provided
+            if ($validated['status'] === 'approved' && !empty($validated['email'])) {
+                try {
+                    Mail::to($validated['email'])->send(new ApplicationApproved($registration, 'boatr'));
+                    Log::info('Approval email sent for BoatR application', ['email' => $validated['email']]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send BoatR approval email: ' . $e->getMessage());
+                    // Don't fail the request if email fails
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'BoatR application created successfully',
+                'data' => [
+                    'id' => $registration->id,
+                    'application_number' => $registration->application_number,
+                    'vessel_name' => $registration->vessel_name,
+                    'status' => $registration->status,
+                    'linked_to_user' => $validated['user_id'] ? true : false,
+                    'linked_to_fishr' => $validated['fishr_application_id'] ? true : false
+                ]
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Validation error creating BoatR application', [
+                'errors' => $e->errors()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Error creating BoatR application', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while creating the application: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate unique BoatR application number
+     */
+    private function generateApplicationNumber()
+    {
+        do {
+            $number = 'BOATR-' . strtoupper(\Illuminate\Support\Str::random(8));
+        } while (BoatrApplication::where('application_number', $number)->exists());
+
+        return $number;
+    }
+
    /**
      * Update the status of the specified BoatR registration - FULLY FIXED
      */
