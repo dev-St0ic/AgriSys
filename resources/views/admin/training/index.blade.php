@@ -343,7 +343,7 @@
                                     <p class="mb-1"><strong>Email:</strong> <span id="updateAppEmail"></span></p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Mobile:</strong> <span id="updateAppMobile"></span></p>
+                                    <p class="mb-1"><strong>Contact:</strong> <span id="updateAppMobile"></span></p>
                                     <p class="mb-1"><strong>Training Type:</strong> <span id="updateAppTraining"></span>
                                     </p>
                                     <p class="mb-1"><strong>Current Status:</strong> <span
@@ -1170,7 +1170,7 @@
                     document.getElementById('updateAppNumber').textContent = data.application_number;
                     document.getElementById('updateAppName').textContent = data.full_name;
                     document.getElementById('updateAppEmail').textContent = data.email || 'N/A';
-                    document.getElementById('updateAppMobile').textContent = data.mobile_number || 'N/A';
+                    document.getElementById('updateAppMobile').textContent = data.contact_number || 'N/A';
                     document.getElementById('updateAppTraining').textContent = data.training_type_display;
                     document.getElementById('updateAppCurrentStatus').innerHTML = `
                     <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
@@ -1375,7 +1375,7 @@
                                 <h6 class="border-bottom pb-2">Application Information</h6>
                                 <p><strong>Application #:</strong> ${data.application_number}</p>
                                 <p><strong>Full Name:</strong> ${data.full_name}</p>
-                                <p><strong>Mobile:</strong> ${data.mobile_number || 'N/A'}</p>
+                                <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
                                 <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
                             </div>
                             <div class="col-md-6">

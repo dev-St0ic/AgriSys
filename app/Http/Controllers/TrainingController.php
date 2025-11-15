@@ -75,7 +75,7 @@ class TrainingController extends Controller
                 'middle_name' => $training->middle_name,
                 'last_name' => $training->last_name,
                 'full_name' => $training->full_name,
-                'mobile_number' => $training->mobile_number,
+                'contact_number' => $training->contact_number,
                 'email' => $training->email,
                 'training_type' => $training->training_type,
                 'training_type_display' => $training->training_type_display,
