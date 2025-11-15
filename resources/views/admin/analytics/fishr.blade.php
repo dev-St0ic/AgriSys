@@ -3,65 +3,45 @@
 @extends('layouts.app')
 
 @section('title', 'FISHR Analytics - AgriSys Admin')
-@section('page-title', 'FISHR Analytics Dashboard')
+@section('page-title')
+    <i class="fas fa-chart-bar me-2"></i>FISHR Analytics Dashboard
+@endsection
 
 @section('content')
-    <!-- Header with Service Navigation -->
+    <!-- Service Navigation -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <!-- Title and Description -->
-                    <div class="text-center mb-4">
-                        <h4 class="fw-bold mb-2">FISHR Analytics Dashboard</h4>
-                        <p class="text-muted mb-0">Comprehensive insights into Fishermen Registration Services</p>
-                    </div>
-
-                    <!-- Service Navigation Tabs -->
-                    <div class="d-flex justify-content-center">
-                        <ul class="nav nav-pills service-nav" id="serviceTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.seedlings') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                                    <i class="fas fa-seedling me-2"></i>Seedlings
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.rsbsa') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                                    <i class="fas fa-user-check me-2"></i>RSBSA
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.fishr') }}" class="nav-link active">
-                                    <i class="fas fa-fish me-2"></i>FISHR
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.boatr') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                                    <i class="fas fa-ship me-2"></i>BOATR
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.training') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                                    <i class="fas fa-graduation-cap me-2"></i>Training
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.supply-management') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
-                                    <i class="fas fa-boxes me-1"></i> Supply Management
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.user-registration') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                                    <i class="fas fa-user-plus me-2"></i>User Registration
-                                </a>
-                            </li>
-                        </ul>
+            <div class="card shadow-sm border-0 navigation-container">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                        <a href="{{ route('admin.analytics.seedlings') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
+                            <i class="fas fa-seedling me-2"></i>Seedlings
+                        </a>
+                        <a href="{{ route('admin.analytics.rsbsa') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
+                            <i class="fas fa-user-check me-2"></i>RSBSA
+                        </a>
+                        <a href="{{ route('admin.analytics.fishr') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
+                            <i class="fas fa-fish me-2"></i>FISHR
+                        </a>
+                        <a href="{{ route('admin.analytics.boatr') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                            <i class="fas fa-ship me-2"></i>BOATR
+                        </a>
+                        <a href="{{ route('admin.analytics.training') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                            <i class="fas fa-graduation-cap me-2"></i>Training
+                        </a>
+                        <a href="{{ route('admin.analytics.supply-management') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
+                            <i class="fas fa-boxes me-2"></i>Supply Management
+                        </a>
+                        <a href="{{ route('admin.analytics.user-registration') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
+                            <i class="fas fa-user-plus me-2"></i>User Registration
+                        </a>
                     </div>
                 </div>
             </div>
@@ -105,80 +85,58 @@
         </div>
     </div>
 
-    <!-- Key Metrics Cards -->
-    <div class="row mb-4 g-3">
-        <!-- Total Applications -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="metric-label text-muted mb-2">Total Applications</p>
-                            <h2 class="metric-value mb-1">{{ number_format($overview['total_applications']) }}</h2>
-                            <span class="badge badge-success-soft">
-                                <i class="fas fa-arrow-up me-1"></i>Active
-                            </span>
-                        </div>
-                        <div class="metric-icon bg-primary-soft">
-                            <i class="fas fa-fish text-primary"></i>
-                        </div>
+    <!-- Key Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100 metric-card">
+                <div class="card-body text-center p-4">
+                    <div class="metric-icon mb-3">
+                        <i class="fas fa-fish fa-2x text-primary"></i>
                     </div>
+                    <h2 class="text-dark mb-1">{{ number_format($overview['total_applications']) }}</h2>
+                    <h6 class="text-muted mb-2">Total Applications</h6>
+                    <small class="text-success">
+                        <i class="fas fa-arrow-up me-1"></i>Active
+                    </small>
                 </div>
             </div>
         </div>
 
-        <!-- Approval Rate -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="metric-label text-muted mb-2">Approval Rate</p>
-                            <h2 class="metric-value mb-1">{{ $overview['approval_rate'] }}%</h2>
-                            <small class="text-muted">{{ number_format($overview['approved_applications']) }}
-                                approved</small>
-                        </div>
-                        <div class="metric-icon bg-success-soft">
-                            <i class="fas fa-check-circle text-success"></i>
-                        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100 metric-card">
+                <div class="card-body text-center p-4">
+                    <div class="metric-icon mb-3">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
                     </div>
+                    <h2 class="text-dark mb-1">{{ $overview['approval_rate'] }}%</h2>
+                    <h6 class="text-muted mb-2">Approval Rate</h6>
+                    <small class="text-muted">{{ number_format($overview['approved_applications']) }} approved</small>
                 </div>
             </div>
         </div>
 
-        <!-- Community Reach -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="metric-label text-muted mb-2">Community Reach</p>
-                            <h2 class="metric-value mb-1">{{ $overview['active_barangays'] }}</h2>
-                            <small class="text-muted">{{ number_format($overview['unique_applicants']) }}
-                                fishermen</small>
-                        </div>
-                        <div class="metric-icon bg-purple-soft">
-                            <i class="fas fa-map-marker-alt text-purple"></i>
-                        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100 metric-card">
+                <div class="card-body text-center p-4">
+                    <div class="metric-icon mb-3">
+                        <i class="fas fa-map-marker-alt fa-2x text-purple"></i>
                     </div>
+                    <h2 class="text-dark mb-1">{{ $overview['active_barangays'] }}</h2>
+                    <h6 class="text-muted mb-2">Community Reach</h6>
+                    <small class="text-muted">{{ number_format($overview['unique_applicants']) }} fishermen</small>
                 </div>
             </div>
         </div>
 
-        <!-- Document Submission -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="metric-label text-muted mb-2">Document Submission</p>
-                            <h2 class="metric-value mb-1">{{ $overview['document_submission_rate'] }}%</h2>
-                            <small class="text-muted">{{ number_format($overview['with_documents']) }} with docs</small>
-                        </div>
-                        <div class="metric-icon bg-warning-soft">
-                            <i class="fas fa-file-alt text-warning"></i>
-                        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100 metric-card">
+                <div class="card-body text-center p-4">
+                    <div class="metric-icon mb-3">
+                        <i class="fas fa-file-alt fa-2x text-warning"></i>
                     </div>
+                    <h2 class="text-dark mb-1">{{ $overview['document_submission_rate'] }}%</h2>
+                    <h6 class="text-muted mb-2">Document Submission</h6>
+                    <small class="text-muted">{{ number_format($overview['with_documents']) }} with docs</small>
                 </div>
             </div>
         </div>
@@ -495,6 +453,120 @@
 
 @section('styles')
     <style>
+        /* Navigation Card */
+        .navigation-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+            overflow-x: auto;
+        }
+
+        /* Enhanced Analytics Navigation */
+        .analytics-nav {
+            gap: 0.5rem;
+            min-height: 50px;
+        }
+
+        .analytics-nav .nav-item {
+            flex-shrink: 0;
+        }
+
+        .analytics-nav .nav-link {
+            border-radius: 12px;
+            padding: 0.65rem 1.5rem;
+            margin: 0.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748b;
+            background: transparent;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analytics-nav .nav-link i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .analytics-nav .nav-link span {
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .analytics-nav .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .analytics-nav .nav-link:hover {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.08);
+            border-color: rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .analytics-nav .nav-link:hover::before {
+            opacity: 1;
+        }
+
+        .analytics-nav .nav-link:hover i {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .analytics-nav .nav-link.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4), 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .analytics-nav .nav-link.active i {
+            transform: scale(1.1);
+        }
+
+        .analytics-nav .nav-link.active:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5), 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .analytics-nav .nav-link {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .analytics-nav {
+                justify-content: flex-start !important;
+            }
+
+            .analytics-nav .nav-link {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .analytics-nav .nav-link i {
+                font-size: 1rem;
+            }
+        }
+
         /* Custom Color Variables */
         :root {
             --primary-color: #3b82f6;
@@ -506,22 +578,42 @@
             --dark-color: #1f2937;
         }
 
-        /* Service Navigation */
-        .service-nav {
-            background: #f8fafc;
-            padding: 0.5rem;
-            border-radius: 50px;
-            display: inline-flex;
+        /* Metric Cards */
+        .metric-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 10px;
+            cursor: pointer;
         }
 
-        .service-nav .nav-link {
-            border-radius: 30px;
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Service Navigation */
+        .nav-pills .nav-link {
+            border-radius: 20px;
             padding: 0.5rem 1.25rem;
             margin: 0 0.25rem;
-            font-weight: 500;
-            color: #64748b;
             transition: all 0.3s ease;
-            border: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .nav-pills .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.5) !important;
+        }
         }
 
         .service-nav .nav-link:hover {
@@ -1105,7 +1197,7 @@
                             const ctx = chart.ctx;
                             const meta = chart.getDatasetMeta(0);
                             const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
-                            0);
+                                0);
 
                             ctx.save();
                             ctx.font = 'bold 14px Inter, sans-serif';
@@ -1343,4 +1435,143 @@
             });
         });
     </script>
+@endsection
+
+@section('styles')
+    <style>
+        /* Navigation Container */
+        .navigation-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Modern Analytics Navigation */
+        .analytics-nav-btn {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            color: #495057;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+        }
+
+        .analytics-nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transition: left 0.5s;
+        }
+
+        .analytics-nav-btn:hover {
+            background: #6c757d;
+            border-color: #5a6268;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .analytics-nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .analytics-nav-btn:hover i {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .analytics-nav-btn.active {
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+            border-color: #495057;
+            color: white;
+            box-shadow: 0 4px 20px rgba(73, 80, 87, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .analytics-nav-btn.active:hover {
+            background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+            border-color: #343a40;
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(73, 80, 87, 0.6);
+        }
+
+        .analytics-nav-btn i {
+            font-size: 0.875rem;
+            transition: transform 0.3s ease;
+        }
+
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        }
+
+        .analytics-nav-btn:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+            color: #495057;
+            text-decoration: none;
+        }
+
+        .analytics-nav-btn.active {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+            box-shadow: 0 2px 4px rgba(13, 110, 253, 0.25);
+        }
+
+        .analytics-nav-btn.active:hover {
+            background: #0b5ed7;
+            border-color: #0a58ca;
+            color: white;
+        }
+
+        .analytics-nav-btn i {
+            font-size: 0.875rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .analytics-nav-btn {
+                font-size: 0.75rem;
+                padding: 0.375rem 0.75rem;
+            }
+
+            .analytics-nav-btn i {
+                font-size: 0.75rem;
+            }
+        }
+
+        .metric-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 @endsection

@@ -3,66 +3,45 @@
 @extends('layouts.app')
 
 @section('title', 'RSBSA Analytics - AgriSys Admin')
-@section('page-title', 'RSBSA Analytics Dashboard')
+@section('page-title')
+    <i class="fas fa-chart-bar me-2"></i>RSBSA Analytics Dashboard
+@endsection
 
 @section('content')
-    <!-- Header with Service Navigation -->
+    <!-- Service Navigation -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <!-- Title and Description -->
-                    <div class="text-center mb-4">
-                        <h4 class="fw-bold mb-2">RSBSA Analytics Dashboard</h4>
-                        <p class="text-muted mb-0">Comprehensive insights into Registry System for Basic Sectors in
-                            Agriculture</p>
-                    </div>
-
-                    <!-- Service Navigation Tabs -->
-                    <div class="d-flex justify-content-center">
-                        <ul class="nav nav-pills service-nav" id="serviceTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.seedlings') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                                    <i class="fas fa-seedling me-2"></i>Seedlings
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.rsbsa') }}" class="nav-link active">
-                                    <i class="fas fa-user-check me-2"></i>RSBSA
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.fishr') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                                    <i class="fas fa-fish me-2"></i>FISHR
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.boatr') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                                    <i class="fas fa-ship me-2"></i>BOATR
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.training') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                                    <i class="fas fa-graduation-cap me-2"></i>Training
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.supply-management') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
-                                    <i class="fas fa-boxes me-1"></i> Supply Management
-                                </a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a href="{{ route('admin.analytics.user-registration') }}"
-                                    class="nav-link {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                                    <i class="fas fa-user-plus me-2"></i>User Registration
-                                </a>
-                            </li>
-                        </ul>
+            <div class="card shadow-sm border-0 navigation-container">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                        <a href="{{ route('admin.analytics.seedlings') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
+                            <i class="fas fa-seedling me-2"></i>Seedlings
+                        </a>
+                        <a href="{{ route('admin.analytics.rsbsa') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
+                            <i class="fas fa-user-check me-2"></i>RSBSA
+                        </a>
+                        <a href="{{ route('admin.analytics.fishr') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
+                            <i class="fas fa-fish me-2"></i>FISHR
+                        </a>
+                        <a href="{{ route('admin.analytics.boatr') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                            <i class="fas fa-ship me-2"></i>BOATR
+                        </a>
+                        <a href="{{ route('admin.analytics.training') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                            <i class="fas fa-graduation-cap me-2"></i>Training
+                        </a>
+                        <a href="{{ route('admin.analytics.supply-management') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
+                            <i class="fas fa-boxes me-2"></i>Supply Management
+                        </a>
+                        <a href="{{ route('admin.analytics.user-registration') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
+                            <i class="fas fa-user-plus me-2"></i>User Registration
+                        </a>
                     </div>
                 </div>
             </div>
@@ -106,80 +85,58 @@
         </div>
     </div>
 
-    <!-- Key Metrics Cards -->
-    <div class="row mb-4 g-3">
-        <!-- Total Applications -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="metric-label text-muted mb-2">Total Applications</p>
-                            <h2 class="metric-value mb-1">{{ number_format($overview['total_applications']) }}</h2>
-                            <span class="badge badge-success-soft">
-                                <i class="fas fa-users me-1"></i>{{ $overview['unique_applicants'] }} farmers
-                            </span>
-                        </div>
-                        <div class="metric-icon bg-primary-soft">
-                            <i class="fas fa-file-alt text-primary"></i>
-                        </div>
+    <!-- Key Metrics Row -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100 metric-card">
+                <div class="card-body text-center p-4">
+                    <div class="metric-icon mb-3">
+                        <i class="fas fa-file-alt fa-2x text-primary"></i>
                     </div>
+                    <h2 class="text-dark mb-1">{{ number_format($overview['total_applications']) }}</h2>
+                    <h6 class="text-muted mb-2">Total Applications</h6>
+                    <small class="text-success">
+                        <i class="fas fa-users me-1"></i>{{ $overview['unique_applicants'] }} farmers
+                    </small>
                 </div>
             </div>
         </div>
 
-        <!-- Approval Rate -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="metric-label text-muted mb-2">Approval Rate</p>
-                            <h2 class="metric-value mb-1">{{ $overview['approval_rate'] }}%</h2>
-                            <small class="text-muted">{{ number_format($overview['approved_applications']) }}
-                                approved</small>
-                        </div>
-                        <div class="metric-icon bg-success-soft">
-                            <i class="fas fa-check-circle text-success"></i>
-                        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100 metric-card">
+                <div class="card-body text-center p-4">
+                    <div class="metric-icon mb-3">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
                     </div>
+                    <h2 class="text-dark mb-1">{{ $overview['approval_rate'] }}%</h2>
+                    <h6 class="text-muted mb-2">Approval Rate</h6>
+                    <small class="text-muted">{{ number_format($overview['approved_applications']) }} approved</small>
                 </div>
             </div>
         </div>
 
-        <!-- Agricultural Impact -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="metric-label text-muted mb-2">Total Land Coverage</p>
-                            <h2 class="metric-value mb-1">{{ number_format($overview['total_land_area'], 1) }}ha</h2>
-                            <small class="text-muted">{{ $overview['active_barangays'] }} barangays</small>
-                        </div>
-                        <div class="metric-icon bg-purple-soft">
-                            <i class="fas fa-map-marked-alt text-purple"></i>
-                        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100 metric-card">
+                <div class="card-body text-center p-4">
+                    <div class="metric-icon mb-3">
+                        <i class="fas fa-map-marked-alt fa-2x text-purple"></i>
                     </div>
+                    <h2 class="text-dark mb-1">{{ number_format($overview['total_land_area'], 1) }}ha</h2>
+                    <h6 class="text-muted mb-2">Total Land Coverage</h6>
+                    <small class="text-muted">{{ $overview['active_barangays'] }} barangays</small>
                 </div>
             </div>
         </div>
 
-        <!-- Processing Efficiency -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card metric-card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="metric-label text-muted mb-2">Processing Time</p>
-                            <h2 class="metric-value mb-1">{{ $processingTimeAnalysis['avg_processing_days'] }}d</h2>
-                            <small class="text-muted">{{ $processingTimeAnalysis['median_processing_days'] }}d
-                                median</small>
-                        </div>
-                        <div class="metric-icon bg-warning-soft">
-                            <i class="fas fa-clock text-warning"></i>
-                        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100 metric-card">
+                <div class="card-body text-center p-4">
+                    <div class="metric-icon mb-3">
+                        <i class="fas fa-clock fa-2x text-warning"></i>
                     </div>
+                    <h2 class="text-dark mb-1">{{ $processingTimeAnalysis['avg_processing_days'] }}d</h2>
+                    <h6 class="text-muted mb-2">Avg. Processing Time</h6>
+                    <small class="text-muted">{{ $processingTimeAnalysis['median_processing_days'] }}d median</small>
                 </div>
             </div>
         </div>
@@ -389,6 +346,56 @@
 
             @section('styles')
                 <style>
+                    /* Modern Analytics Navigation */
+                    .analytics-nav-btn {
+                        background: #f8f9fa;
+                        border: 1px solid #e9ecef;
+                        color: #6c757d;
+                        font-weight: 500;
+                        font-size: 0.875rem;
+                        padding: 0.5rem 1rem;
+                        border-radius: 2rem;
+                        text-decoration: none;
+                        transition: all 0.2s ease;
+                        white-space: nowrap;
+                    }
+
+                    .analytics-nav-btn:hover {
+                        background: #e9ecef;
+                        border-color: #dee2e6;
+                        color: #495057;
+                        text-decoration: none;
+                    }
+
+                    .analytics-nav-btn.active {
+                        background: #0d6efd;
+                        border-color: #0d6efd;
+                        color: white;
+                        box-shadow: 0 2px 4px rgba(13, 110, 253, 0.25);
+                    }
+
+                    .analytics-nav-btn.active:hover {
+                        background: #0b5ed7;
+                        border-color: #0a58ca;
+                        color: white;
+                    }
+
+                    .analytics-nav-btn i {
+                        font-size: 0.875rem;
+                    }
+
+                    /* Responsive adjustments */
+                    @media (max-width: 768px) {
+                        .analytics-nav-btn {
+                            font-size: 0.75rem;
+                            padding: 0.375rem 0.75rem;
+                        }
+
+                        .analytics-nav-btn i {
+                            font-size: 0.75rem;
+                        }
+                    }
+
                     /* Custom Color Variables */
                     :root {
                         --primary-color: #3b82f6;
@@ -400,23 +407,7 @@
                         --dark-color: #1f2937;
                     }
 
-                    /* Service Navigation */
-                    .service-nav {
-                        background: #f8fafc;
-                        padding: 0.5rem;
-                        border-radius: 50px;
-                        display: inline-flex;
-                    }
 
-                    .service-nav .nav-link {
-                        border-radius: 30px;
-                        padding: 0.5rem 1.25rem;
-                        margin: 0 0.25rem;
-                        font-weight: 500;
-                        color: #64748b;
-                        transition: all 0.3s ease;
-                        border: none;
-                    }
 
                     .service-nav .nav-link:hover {
                         color: var(--primary-color);
@@ -833,7 +824,7 @@
 
                                         // Get the total
                                         const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
-                                        0);
+                                            0);
 
                                         // Draw center text
                                         ctx.save();
@@ -852,7 +843,7 @@
                                         const ctx = chart.ctx;
                                         const meta = chart.getDatasetMeta(0);
                                         const total = chart.data.datasets[0].data.reduce((a, b) => a + b,
-                                        0);
+                                            0);
 
                                         ctx.save();
                                         ctx.font = 'bold 14px Inter, sans-serif';
@@ -1139,4 +1130,116 @@
                         });
                     });
                 </script>
+            @endsection
+
+            @section('styles')
+                <style>
+                    /* Navigation Container */
+                    .navigation-container {
+                        background: #f8f9fa;
+                        border-radius: 15px;
+                        border: 1px solid #dee2e6;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+                    }
+
+                    /* Modern Analytics Navigation */
+                    .analytics-nav-btn {
+                        background: #e9ecef;
+                        border: 1px solid #ced4da;
+                        color: #495057;
+                        font-weight: 500;
+                        font-size: 0.875rem;
+                        padding: 0.6rem 1.2rem;
+                        border-radius: 2rem;
+                        text-decoration: none;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        white-space: nowrap;
+                        position: relative;
+                        overflow: hidden;
+                        transform: translateY(0);
+                    }
+
+                    .analytics-nav-btn::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+                        transition: left 0.5s;
+                    }
+
+                    .analytics-nav-btn:hover {
+                        background: #6c757d;
+                        border-color: #5a6268;
+                        color: white;
+                        text-decoration: none;
+                        transform: translateY(-3px);
+                        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+                    }
+
+                    .analytics-nav-btn:hover::before {
+                        left: 100%;
+                    }
+
+                    .analytics-nav-btn:hover i {
+                        transform: scale(1.15) rotate(5deg);
+                    }
+
+                    .analytics-nav-btn.active {
+                        background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+                        border-color: #495057;
+                        color: white;
+                        box-shadow: 0 4px 20px rgba(73, 80, 87, 0.4);
+                        transform: translateY(-1px);
+                    }
+
+                    .analytics-nav-btn.active:hover {
+                        background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+                        border-color: #343a40;
+                        color: white;
+                        transform: translateY(-4px);
+                        box-shadow: 0 8px 30px rgba(73, 80, 87, 0.6);
+                    }
+
+                    .analytics-nav-btn i {
+                        font-size: 0.875rem;
+                        transition: transform 0.3s ease;
+                    }
+
+                    /* Responsive adjustments */
+                    @media (max-width: 768px) {
+                        .analytics-nav-btn {
+                            font-size: 0.75rem;
+                            padding: 0.375rem 0.75rem;
+                        }
+
+                        .analytics-nav-btn i {
+                            font-size: 0.75rem;
+                        }
+                    }
+
+                    .metric-card {
+                        transition: transform 0.3s ease, box-shadow 0.3s ease;
+                        border-radius: 10px;
+                        cursor: pointer;
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+
+                    .metric-card:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                    }
+
+                    .card {
+                        border-radius: 10px;
+                        transition: all 0.3s ease;
+                    }
+
+                    .card:hover {
+                        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+                    }
+                </style>
             @endsection
