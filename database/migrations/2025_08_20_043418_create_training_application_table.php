@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('training_applications', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
 
             $table->string('application_number')->unique();
             $table->string('first_name');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('name_extension')->nullable();
             $table->string('contact_number', 20);
-            $table->string('email');
+            $table->string('email')->nullable();
             $table->string('barangay'); // Barangay location
             $table->enum('training_type', [
                 'tilapia_hito',

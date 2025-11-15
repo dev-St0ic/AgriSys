@@ -208,6 +208,9 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         // Training Applications Management
         Route::get('/requests', [TrainingController::class, 'index'])->name('requests');
         Route::get('/requests/{id}', [TrainingController::class, 'show'])->name('requests.show');
+        // add
+        Route::post('/requests/create', [TrainingController::class, 'store'])->name('requests.store');
+         
         Route::patch('/requests/{id}/status', [TrainingController::class, 'updateStatus'])->name('requests.update-status');
         Route::delete('/requests/{id}', [TrainingController::class, 'destroy'])->name('requests.destroy');
 

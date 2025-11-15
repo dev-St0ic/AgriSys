@@ -159,6 +159,9 @@
                 <a href="{{ route('admin.training.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
+                <button type="button" class="btn btn-primary btn-sm" onclick="showAddTrainingModal()">
+                    <i class="fas fa-plus me-2"></i>Add Registration
+                </button>
             </div>
         </div>
         <div class="card-body">
@@ -177,7 +180,7 @@
                     </thead>
                     <tbody>
                         @forelse($trainings as $training)
-                            <tr>
+                             <tr data-application-id="{{ $training->id }}">
                                 <td class="text-start">{{ $training->created_at->format('M d, Y g:i A') }}</td>
                                 <td class="text-start">
                                     <strong class="text-primary">{{ $training->application_number }}</strong>
@@ -515,6 +518,191 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+   <!-- Add training Modal  -->
+    <div class="modal fade" id="addTrainingModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-graduation-cap me-2"></i>Add New Training Application
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTrainingForm" enctype="multipart/form-data">
+                        <!-- Personal Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="training_first_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_middle_name" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="training_middle_name" maxlength="100">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="training_last_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="training_name_extension" class="form-label">Extension</label>
+                                        <select class="form-select" id="training_name_extension">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="training_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_email" class="form-label">Email (Optional)</label>
+                                        <input type="email" class="form-control" id="training_email" maxlength="254">
+                                        <div class="form-text">For status notifications</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_user_id" class="form-label">Link to User Account (Optional)</label>
+                                        <input type="number" class="form-control" id="training_user_id" placeholder="Enter User ID if exists">
+                                        <div class="form-text">Leave blank if not associated with any user account</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="training_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="training_barangay" required>
+                                            <option value="">Select Barangay</option>
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Training Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-book me-2"></i>Training Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="training_type" class="form-label">Training Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="training_type" required>
+                                            <option value="">Select Training Type</option>
+                                            <option value="tilapia_hito">Tilapia and Hito</option>
+                                            <option value="hydroponics">Hydroponics</option>
+                                            <option value="aquaponics">Aquaponics</option>
+                                            <option value="mushrooms">Mushrooms Production</option>
+                                            <option value="livestock_poultry">Livestock and Poultry</option>
+                                            <option value="high_value_crops">High Value Crops</option>
+                                            <option value="sampaguita_propagation">Sampaguita Propagation</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supporting Documents -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Documents (Optional)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="training_supporting_documents" class="form-label">Upload Documents</label>
+                                        <input type="file" class="form-control" id="training_supporting_documents" accept="image/*,.pdf" multiple onchange="previewTrainingDocuments()">
+                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB each, up to 5 files)</div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div id="training_doc_preview" class="d-flex flex-wrap gap-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Application Status -->
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Application Status</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="training_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="training_status" required>
+                                            <option value="under_review" selected>Under Review</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="rejected">Rejected</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="training_remarks" class="form-label">Remarks (Optional)</label>
+                                        <textarea class="form-control" id="training_remarks" rows="3" maxlength="1000" placeholder="Any notes or comments..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAddTraining()">
+                        <i class="fas fa-save me-1"></i>Create Application
+                    </button>
                 </div>
             </div>
         </div>
@@ -1975,5 +2163,350 @@
             const metaTag = document.querySelector('meta[name="csrf-token"]');
             return metaTag ? metaTag.getAttribute('content') : '';
         }
+
+        // Show add training modal
+        function showAddTrainingModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addTrainingModal'));
+            
+            // Reset form
+            document.getElementById('addTrainingForm').reset();
+            
+            // Remove any validation errors
+            document.querySelectorAll('#addTrainingModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('#addTrainingModal .invalid-feedback').forEach(el => el.remove());
+            
+            // Clear document preview
+            const preview = document.getElementById('training_doc_preview');
+            if (preview) {
+                preview.innerHTML = '';
+            }
+            
+            modal.show();
+        }
+
+        // Real-time validation for contact number
+        document.getElementById('training_contact_number')?.addEventListener('input', function() {
+            validateTrainingContactNumber(this.value);
+        });
+
+        function validateTrainingContactNumber(contactNumber) {
+            const input = document.getElementById('training_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!contactNumber || contactNumber.trim() === '') {
+                return;
+            }
+            
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+            
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Real-time validation for email
+        document.getElementById('training_email')?.addEventListener('input', function() {
+            validateTrainingEmail(this.value);
+        });
+
+        function validateTrainingEmail(email) {
+            const input = document.getElementById('training_email');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!email || email.trim() === '') {
+                return true; // Email is optional
+            }
+            
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if (!emailPattern.test(email.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Invalid email format';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Auto-capitalize name fields
+        function capitalizeTrainingName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        }
+
+        document.getElementById('training_first_name')?.addEventListener('blur', function() {
+            capitalizeTrainingName(this);
+        });
+
+        document.getElementById('training_middle_name')?.addEventListener('blur', function() {
+            capitalizeTrainingName(this);
+        });
+
+        document.getElementById('training_last_name')?.addEventListener('blur', function() {
+            capitalizeTrainingName(this);
+        });
+
+        // Document preview for multiple files
+        function previewTrainingDocuments() {
+            const input = document.getElementById('training_supporting_documents');
+            const preview = document.getElementById('training_doc_preview');
+            
+            if (!input.files || input.files.length === 0) {
+                if (preview) {
+                    preview.innerHTML = '';
+                }
+                return;
+            }
+            
+            // Validate total number of files
+            if (input.files.length > 5) {
+                showToast('error', 'Maximum 5 files allowed');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                }
+                return;
+            }
+            
+            let previewHtml = '';
+            let totalSize = 0;
+            
+            for (let i = 0; i < input.files.length; i++) {
+                const file = input.files[i];
+                totalSize += file.size;
+                
+                // Validate individual file size (10MB max)
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('error', `File "${file.name}" exceeds 10MB limit`);
+                    input.value = '';
+                    if (preview) {
+                        preview.innerHTML = '';
+                    }
+                    return;
+                }
+                
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+                
+                if (isImage) {
+                    const reader = new FileReader();
+                    reader.onload = (function(index) {
+                        return function(e) {
+                            const imgDiv = document.createElement('div');
+                            imgDiv.className = 'document-preview-item';
+                            imgDiv.style.cssText = 'width: 120px; position: relative;';
+                            imgDiv.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview ${index + 1}" 
+                                    style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                <p style="margin-top: 8px; font-size: 11px; color: #666; word-break: break-all;">
+                                    <i class="fas fa-file-image me-1"></i>${file.name.substring(0, 15)}...
+                                </p>
+                            `;
+                            preview.appendChild(imgDiv);
+                        };
+                    })(i);
+                    reader.readAsDataURL(file);
+                } else {
+                    const docDiv = document.createElement('div');
+                    docDiv.className = 'document-preview-item';
+                    docDiv.style.cssText = 'width: 120px;';
+                    docDiv.innerHTML = `
+                        <div class="text-center p-3 border rounded" style="height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                        </div>
+                        <p style="margin-top: 8px; font-size: 11px; color: #666; word-break: break-all;">
+                            ${file.name.substring(0, 15)}...
+                        </p>
+                    `;
+                    preview.appendChild(docDiv);
+                }
+            }
+            
+            // Show total file info
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'w-100 mt-2';
+            infoDiv.innerHTML = `
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    ${input.files.length} file(s) selected (Total: ${formatFileSize(totalSize)})
+                </small>
+            `;
+            preview.appendChild(infoDiv);
+        }
+
+        // Validate training form
+        function validateTrainingForm() {
+            let isValid = true;
+            
+            // Required fields
+            const requiredFields = [
+                { id: 'training_first_name', label: 'First Name' },
+                { id: 'training_last_name', label: 'Last Name' },
+                { id: 'training_barangay', label: 'Barangay' },  
+                { id: 'training_contact_number', label: 'Contact Number' },
+                { id: 'training_type', label: 'Training Type' },
+                { id: 'training_status', label: 'Status' }
+            ];
+            
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input && (!input.value || input.value.trim() === '')) {
+                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) feedback.remove();
+                    
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = field.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            });
+            
+            // Validate contact number
+            const contactNumber = document.getElementById('training_contact_number').value.trim();
+            if (!validateTrainingContactNumber(contactNumber)) {
+                isValid = false;
+            }
+            
+            // Validate email if provided
+            const email = document.getElementById('training_email').value.trim();
+            if (email && !validateTrainingEmail(email)) {
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Submit add training form
+        function submitAddTraining() {
+            // Validate form
+            if (!validateTrainingForm()) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return;
+            }
+            
+            // Prepare form data
+            const formData = new FormData();
+            
+            formData.append('first_name', document.getElementById('training_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('training_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('training_last_name').value.trim());
+            formData.append('name_extension', document.getElementById('training_name_extension').value);  
+            formData.append('barangay', document.getElementById('training_barangay').value.trim()); 
+            formData.append('contact_number', document.getElementById('training_contact_number').value.trim());
+            formData.append('email', document.getElementById('training_email').value.trim());
+            formData.append('training_type', document.getElementById('training_type').value);
+            formData.append('status', document.getElementById('training_status').value);
+            formData.append('remarks', document.getElementById('training_remarks').value.trim());
+            
+            const userId = document.getElementById('training_user_id').value.trim();
+            if (userId) {
+                formData.append('user_id', userId);
+            }
+            
+            // Add documents if uploaded
+            const docInput = document.getElementById('training_supporting_documents');
+            if (docInput.files && docInput.files.length > 0) {
+                for (let i = 0; i < docInput.files.length; i++) {
+                    formData.append('supporting_documents[]', docInput.files[i]);
+                }
+            }
+            
+            // Find submit button
+            const submitBtn = document.querySelector('#addTrainingModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
+            submitBtn.disabled = true;
+            
+            // Submit to backend
+            fetch('/admin/training/requests/create', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addTrainingModal'));
+                    modal.hide();
+                    
+                    // Show success message
+                    showToast('success', data.message || 'Training registration created successfully');
+                    
+                    // Reload page after short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Show validation errors
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            const input = document.getElementById('training_' + field);
+                            if (input) {
+                                const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                if (feedback) feedback.remove();
+                                
+                                input.classList.add('is-invalid');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback d-block';
+                                errorDiv.textContent = data.errors[field][0];
+                                input.parentNode.appendChild(errorDiv);
+                            }
+                        });
+                    }
+                    showToast('error', data.message || 'Failed to create training application');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'An error occurred while creating the application');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+
+        // Helper function to format file sizes
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        console.log('Training Add Application functionality loaded successfully');
     </script>
 @endsection
