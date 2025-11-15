@@ -1570,6 +1570,33 @@
             z-index: 1059 !important;
         }
 
+        /* Fix nested modal backdrop greying */
+        .modal {
+            background-color: rgba(0, 0, 0, 0) !important;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-backdrop.show {
+            opacity: 0.5 !important;
+        }
+
+        /* Prevent multiple backdrops from stacking and turning grey */
+        .modal-backdrop + .modal-backdrop {
+            display: none !important;
+        }
+
+        /* Only show one backdrop at a time */
+        body.modal-open .modal-backdrop {
+            opacity: 0.5;
+        }
+
+        body.modal-open .modal-backdrop:nth-child(n+2) {
+            display: none !important;
+        }
+
         /* Enhanced Document Viewer Styles */
         #documentModal .modal-content,
         #documentPreviewModal .modal-content {
@@ -1943,6 +1970,21 @@
 
         .modal.show ~ .modal ~ .modal-backdrop {
             z-index: 1059 !important;
+        }
+
+         /* close modal */
+        .modal-header .btn-close {
+            background-color: rgba(255, 255, 255, 0.7);
+            opacity: 1;
+        }
+
+        .modal-header .btn-close:hover {
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        .modal-header .btn-close:focus {
+            background-color: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5);
         }
 
         /* Document modal on top when opened from registration modal */
