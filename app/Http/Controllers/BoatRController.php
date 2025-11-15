@@ -281,7 +281,7 @@ class BoatRController extends Controller
 
         return $colorMap[$status] ?? 'secondary';
     }
-    /**
+   /**
      * Complete inspection - FULLY FIXED
      */
     public function completeInspection(Request $request, $id)
@@ -289,13 +289,20 @@ class BoatRController extends Controller
         try {
             Log::info('completeInspection called', [
                 'registration_id' => $id,
-                'user_id' => auth()->id()
+                'user_id' => auth()->id(),
+                'request_data' => $request->all()
             ]);
 
+            // Validate with better error messages
             $validated = $request->validate([
                 'supporting_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
                 'inspection_notes' => 'nullable|string|max:2000',
-                'approve_application' => 'sometimes|boolean'
+                'approve_application' => 'nullable'
+            ], [
+                'supporting_document.required' => 'Please upload a supporting document',
+                'supporting_document.file' => 'The supporting document must be a valid file',
+                'supporting_document.mimes' => 'Only PDF, JPG, JPEG, and PNG files are allowed',
+                'supporting_document.max' => 'File size must not exceed 10MB'
             ]);
 
             Log::info('Validation passed for inspection');
@@ -305,74 +312,106 @@ class BoatRController extends Controller
             Log::info('Registration found', ['registration_id' => $registration->id]);
 
             // Handle inspection document upload
-            if ($request->hasFile('supporting_document')) {
-                $file = $request->file('supporting_document');
-
-                Log::info('File received', [
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_size' => $file->getSize(),
-                    'file_mime' => $file->getMimeType()
-                ]);
-
-                if ($file->isValid()) {
-                    $fileName = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $filePath = $file->storeAs('boatr_documents/inspection', $fileName, 'public');
-
-                    Log::info('File stored', ['file_path' => $filePath]);
-
-                    // Store inspection document in JSON array
-                    $inspectionDocs = $registration->inspection_documents ?? [];
-                    $inspectionDocs[] = [
-                        'path' => $filePath,
-                        'original_name' => $file->getClientOriginalName(),
-                        'extension' => $file->getClientOriginalExtension(),
-                        'notes' => $validated['inspection_notes'] ?? null,
-                        'uploaded_by' => auth()->id(),
-                        'uploaded_at' => now()->toDateTimeString()
-                    ];
-
-                    $registration->inspection_documents = $inspectionDocs;
-                    $registration->inspection_completed = true;
-                    $registration->inspection_date = now();
-                    $registration->inspector_id = auth()->id();
-                    $registration->inspection_notes = $validated['inspection_notes'] ?? null;
-
-                    Log::info('Inspection document added to registration');
-                } else {
-                    throw new \Exception('File upload validation failed');
-                }
-            } else {
-                throw new \Exception('No file provided');
+            if (!$request->hasFile('supporting_document')) {
+                throw new \Exception('No file uploaded. Please select a supporting document.');
             }
 
+            $file = $request->file('supporting_document');
+
+            Log::info('File received', [
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'file_mime' => $file->getMimeType(),
+                'is_valid' => $file->isValid()
+            ]);
+
+            if (!$file->isValid()) {
+                throw new \Exception('Uploaded file is not valid. Please try again.');
+            }
+
+            // Store the file
+            $fileName = 'inspection_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('boatr_documents/inspection', $fileName, 'public');
+
+            if (!$filePath) {
+                throw new \Exception('Failed to store file. Please check server storage permissions.');
+            }
+
+            Log::info('File stored successfully', ['file_path' => $filePath]);
+
+            // Store inspection document in JSON array
+            $inspectionDocs = $registration->inspection_documents ?? [];
+            $inspectionDocs[] = [
+                'path' => $filePath,
+                'original_name' => $file->getClientOriginalName(),
+                'extension' => $file->getClientOriginalExtension(),
+                'size' => $file->getSize(),
+                'notes' => $validated['inspection_notes'] ?? null,
+                'uploaded_by' => auth()->id(),
+                'uploaded_at' => now()->toDateTimeString()
+            ];
+
+            // Update registration
+            $registration->inspection_documents = $inspectionDocs;
+            $registration->inspection_completed = true;
+            $registration->inspection_date = now();
+            $registration->inspected_by = auth()->id();  // ✅ FIXED: Use correct column name
+            $registration->inspection_notes = $validated['inspection_notes'] ?? null;
+
+            // Handle approval decision - convert checkbox value to boolean
+            $approveApplication = $request->input('approve_application') === '1' || 
+                                $request->input('approve_application') === 'on' || 
+                                $request->input('approve_application') === true;
+
+            Log::info('Approval decision', [
+                'raw_value' => $request->input('approve_application'),
+                'converted_to_boolean' => $approveApplication
+            ]);
+
             // Update status based on approval decision
-            $newStatus = ($validated['approve_application'] ?? false) ? 'approved' : 'documents_pending';
+            $newStatus = $approveApplication ? 'approved' : 'documents_pending';
             $registration->status = $newStatus;
             $registration->reviewed_at = now();
             $registration->reviewed_by = auth()->id();
-            $registration->save();
+            
+            // Save to database
+            $saved = $registration->save();
+
+            if (!$saved) {
+                throw new \Exception('Failed to save inspection data to database');
+            }
 
             Log::info('Inspection completed and status updated', [
                 'registration_id' => $registration->id,
                 'new_status' => $newStatus,
-                'inspection_completed' => true
+                'inspection_completed' => true,
+                'auto_approved' => $approveApplication
             ]);
 
             // Send email if approved
             if ($newStatus === 'approved' && $registration->email) {
                 try {
                     Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
+                    Log::info('Approval email sent successfully', ['email' => $registration->email]);
                 } catch (\Exception $mailError) {
                     Log::error('Failed to send approval email', [
                         'email' => $registration->email,
                         'error' => $mailError->getMessage()
                     ]);
+                    // Don't fail the request if email fails
                 }
+            }
+
+            $message = 'Inspection completed successfully';
+            if ($newStatus === 'approved') {
+                $message .= ' and application approved.';
+            } else {
+                $message .= '. Status set to Documents Pending.';
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Inspection completed successfully' . ($newStatus === 'approved' ? ' and application approved.' : '.'),
+                'message' => $message,
                 'registration' => [
                     'id' => $registration->id,
                     'status' => $registration->status,
@@ -383,11 +422,15 @@ class BoatRController extends Controller
             ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Validation error in completeInspection', ['errors' => $e->errors()]);
+            Log::error('Validation error in completeInspection', [
+                'registration_id' => $id,
+                'errors' => $e->errors(),
+                'messages' => $e->getMessage()
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Validation failed',
+                'message' => 'Validation failed: ' . collect($e->errors())->flatten()->first(),
                 'errors' => $e->errors()
             ], 422);
 
@@ -396,7 +439,7 @@ class BoatRController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Registration not found'
+                'message' => 'Application not found'
             ], 404);
 
         } catch (\Exception $e) {
@@ -410,11 +453,10 @@ class BoatRController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Inspection failed: ' . $e->getMessage()
             ], 500);
         }
     }
-
     /**
      * Show individual application details - FIXED
      */
