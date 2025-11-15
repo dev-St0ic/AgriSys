@@ -2884,7 +2884,7 @@
             });
         }
 
-        // ========== VIEW REGISTRATION ==========
+        // View registration details - UPDATED WITH DOCUMENTS SECTION
         function viewRegistration(id) {
             const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
             modal.show();
@@ -2908,6 +2908,7 @@
                 document.getElementById('registrationDetailsLoading').style.display = 'none';
                 document.getElementById('registrationDetails').style.display = 'block';
 
+                // Build remarks section
                 let remarksHtml = '';
                 if (data.remarks) {
                     remarksHtml = `
@@ -2927,12 +2928,15 @@
                     `;
                 }
 
+                // Build documents section - SIMILAR TO FISHR
+                let documentsHtml = '';
                 const userDocsCount = data.user_documents ? data.user_documents.length : 0;
                 const inspectionDocsCount = data.inspection_documents ? data.inspection_documents.length : 0;
+                const annexesCount = data.annexes ? data.annexes.length : 0;
+                const totalDocs = userDocsCount + inspectionDocsCount + annexesCount;
 
-                let documentHtml = '';
-                if (userDocsCount > 0 || inspectionDocsCount > 0) {
-                    documentHtml = `
+                if (totalDocs > 0) {
+                    documentsHtml = `
                         <div class="col-12 mt-4">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -2944,13 +2948,80 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <p><strong>User Documents:</strong> ${userDocsCount}</p>
-                                            <p><strong>Inspection Documents:</strong> ${inspectionDocsCount}</p>
+                                            <p><strong>User Documents:</strong> <span class="badge bg-info">${userDocsCount}</span></p>
+                                            <p><strong>Inspection Documents:</strong> <span class="badge bg-success">${inspectionDocsCount}</span></p>
+                                            <p><strong>Annexes:</strong> <span class="badge bg-warning">${annexesCount}</span></p>
                                         </div>
                                         <div class="col-md-6">
+                                            <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
                                             <p><strong>Documents Verified:</strong> ${data.documents_verified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-warning">No</span>'}</p>
                                             ${data.documents_verified_at ? `<p><strong>Verified At:</strong> ${data.documents_verified_at}</p>` : ''}
                                         </div>
+                                    </div>
+                                    
+                                    <!-- Document preview thumbnails section -->
+                                    <div class="mt-4">
+                                        <h6 class="border-bottom pb-2">Document Preview</h6>
+                                        <div class="boatr-table-documents mt-3">
+                                            <div class="boatr-document-previews">
+                                                ${userDocsCount > 0 ? `
+                                                    <div class="boatr-mini-doc"
+                                                        onclick="viewDocuments(${id})"
+                                                        title="User Documents">
+                                                        <div class="boatr-mini-doc-icon">
+                                                            <i class="fas fa-file-image text-info"></i>
+                                                        </div>
+                                                    </div>
+                                                ` : ''}
+                                                ${inspectionDocsCount > 0 ? `
+                                                    <div class="boatr-mini-doc"
+                                                        onclick="viewDocuments(${id})"
+                                                        title="Inspection Documents">
+                                                        <div class="boatr-mini-doc-icon">
+                                                            <i class="fas fa-clipboard-check text-success"></i>
+                                                        </div>
+                                                    </div>
+                                                ` : ''}
+                                                ${annexesCount > 0 ? `
+                                                    <div class="boatr-mini-doc"
+                                                        onclick="viewDocuments(${id})"
+                                                        title="Annexes">
+                                                        <div class="boatr-mini-doc-icon">
+                                                            <i class="fas fa-folder text-warning"></i>
+                                                        </div>
+                                                    </div>
+                                                ` : ''}
+                                                ${totalDocs > 3 ? `
+                                                    <div class="boatr-mini-doc boatr-mini-doc-more"
+                                                        onclick="viewDocuments(${id})"
+                                                        title="+${totalDocs - 3} more documents">
+                                                        <div class="boatr-more-count">+${totalDocs - 3}</div>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                            <div class="boatr-document-summary mt-2"
+                                                onclick="viewDocuments(${id})">
+                                                <small class="text-muted" style="cursor: pointer;">
+                                                    <i class="fas fa-eye me-1"></i>${totalDocs} document${totalDocs > 1 ? 's' : ''} available
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    documentsHtml = `
+                        <div class="col-12 mt-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No documents available</p>
                                     </div>
                                 </div>
                             </div>
@@ -2958,6 +3029,7 @@
                     `;
                 }
 
+                // Build the complete details HTML
                 document.getElementById('registrationDetails').innerHTML = `
                     <div class="row">
                         <div class="col-lg-6">
@@ -3016,7 +3088,7 @@
                                 </div>
                             </div>
                         </div>
-                        ${documentHtml}
+                        ${documentsHtml}
                         ${remarksHtml}
                     </div>
                 `;
@@ -3033,7 +3105,7 @@
                 document.getElementById('registrationDetails').style.display = 'block';
             });
         }
-
+        
         // ========== DOCUMENT VIEWING ==========
         function viewDocuments(id) {
             fetch(`/admin/boatr/requests/${id}`, {
@@ -3079,6 +3151,7 @@
             });
         }
 
+        // FIXED: previewDocument function 
         function previewDocument(id, type, index) {
             const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
             modal.show();
@@ -3116,8 +3189,14 @@
                 document.getElementById('documentPreviewTitle').innerHTML =
                     `<i class="fas fa-eye me-2"></i>${data.document_name}`;
 
-                const fileExtension = data.document_type?.toLowerCase() ||
-                    data.document_name.split('.').pop().toLowerCase();
+                // FIXED: Extract file extension from filename, NOT from mime type
+                let fileExtension = '';
+                if (data.document_name) {
+                    fileExtension = data.document_name.split('.').pop().toLowerCase();
+                } else {
+                    fileExtension = data.document_type?.toLowerCase() || 'unknown';
+                }
+                
                 const fileName = data.document_name;
                 const fileUrl = data.document_url;
 
@@ -3149,10 +3228,10 @@
                             <div class="boatr-document-viewer">
                                 <div class="boatr-document-container">
                                     <img src="${fileUrl}"
-                                         class="boatr-document-image"
-                                         alt="Document preview"
-                                         onclick="toggleImageZoomBoatr(this)"
-                                         style="cursor: zoom-in;">
+                                        class="boatr-document-image"
+                                        alt="Document preview"
+                                        onclick="toggleImageZoomBoatr(this)"
+                                        style="cursor: zoom-in;">
                                     <div class="boatr-document-overlay">
                                         <div class="boatr-document-size-badge">
                                             ${Math.round((this.naturalWidth * this.naturalHeight) / 1024)}KB
@@ -3182,10 +3261,10 @@
                         <div class="boatr-document-viewer">
                             <div class="boatr-document-container">
                                 <embed src="${fileUrl}"
-                                       type="application/pdf"
-                                       width="100%"
-                                       height="600px"
-                                       class="boatr-pdf-embed">
+                                    type="application/pdf"
+                                    width="100%"
+                                    height="600px"
+                                    class="boatr-pdf-embed">
                             </div>
                             ${addActionButtons()}
                         </div>
