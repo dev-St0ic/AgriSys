@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('boatr_applications', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
 
             // Application identification
             $table->string('application_number')->unique();
