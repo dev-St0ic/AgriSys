@@ -5,6 +5,42 @@
 
     RewriteEngine On
 
+    # Security Headers
+    <IfModule mod_headers.c>
+        # Prevent MIME type sniffing
+        Header always set X-Content-Type-Options "nosniff"
+
+        # Enable XSS Protection
+        Header always set X-XSS-Protection "1; mode=block"
+
+        # Prevent clickjacking
+        Header always set X-Frame-Options "SAMEORIGIN"
+
+        # Referrer Policy
+        Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+        # Content Security Policy (adjust as needed)
+        Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'"
+
+        # HSTS (uncomment for production with SSL)
+        # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    </IfModule>
+
+    # Hide server signature
+    ServerTokens Prod
+
+    # Prevent access to sensitive files
+    <FilesMatch "\.(env|log|json|lock)$">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    # Prevent access to hidden files
+    <FilesMatch "^\.">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
