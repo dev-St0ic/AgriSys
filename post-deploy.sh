@@ -7,6 +7,13 @@
 
 echo "🔧 Running AgriSys post-deployment setup..."
 
+# 0. CRITICAL: Clear all caches FIRST to avoid cached 'env' errors
+echo "🧹 Clearing any old cached configuration..."
+php artisan config:clear || true
+php artisan cache:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
+
 # 1. Set proper ownership (adjust www-data to your web server user)
 echo "👤 Setting proper file ownership..."
 sudo chown -R www-data:www-data /var/www/html/agrisys
@@ -36,6 +43,9 @@ php artisan db:seed --force
 echo "🧹 Final cache optimization..."
 php artisan config:clear
 php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+# Now cache for production
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
