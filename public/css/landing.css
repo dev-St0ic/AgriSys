@@ -9,6 +9,8 @@ body, html {
     height: 100%;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 /* --- Header Styles --- */
@@ -2387,30 +2389,44 @@ header {
 
     /* Services Section Mobile */
     .services {
-        padding: 50px 15px;
+        padding: 50px 10px;
+        overflow-x: hidden;
     }
 
     .services h2 {
         font-size: 2rem;
         margin-bottom: 15px;
+        padding: 0 10px;
     }
 
     .services-subtitle {
         font-size: 1.1rem;
         margin-bottom: 40px;
+        padding: 0 10px;
+    }
+
+    .services-grid {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
     }
 
     .row-three,
     .row-two-centered {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 15px;
+        padding: 0;
+        margin: 0;
+        width: 100%;
     }
 
     .card {
         width: 100%;
         max-width: 100%;
-        padding: 20px;
-        margin-bottom: 15px;
+        padding: 15px;
+        margin: 0 0 15px 0;
+        box-sizing: border-box;
     }
 
     .card-image {
