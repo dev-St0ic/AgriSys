@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('slideshow_images', function (Blueprint $table) {
             $table->id();
-            $table->string('image_path'); // Path to the uploaded image
+            $table->string('image_path')->nullable(); // Path to the uploaded image
             $table->string('title')->nullable(); // Optional title for the slide
             $table->text('description')->nullable(); // Optional description
             $table->integer('order')->default(0); // Order/position in slideshow

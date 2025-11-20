@@ -11,9 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Apply security headers to all requests in production
+        //if (app()->environment('production')) {
+         //   $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+       // }
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'verified.user' => \App\Http\Middleware\VerifiedUser::class,
+            'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -17,21 +17,21 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
 
             // Application identification
-            $table->string('application_number')->unique();
+            $table->string('application_number')->unique()->nullable();
 
             // Personal Information
-            $table->string('first_name');
+            $table->string('first_name')->nullable();
             $table->string('middle_name')->nullable();
-            $table->string('last_name');
+            $table->string('last_name')->nullable();
             $table->string('name_extension')->nullable();
-            $table->string('contact_number', 20);
+            $table->string('contact_number', 20)->nullable();
             $table->string('email')->nullable();
-            $table->string('barangay'); // Barangay location
-            $table->string('fishr_number'); // FishR registration number
+            $table->string('barangay')->nullable(); // Barangay location
+            $table->string('fishr_number')->nullable(); // FishR registration number
             $table->unsignedBigInteger('fishr_application_id')->nullable(); // Foreign key to fishr_applications table
 
             // Vessel Information
-            $table->string('vessel_name');
+            $table->string('vessel_name')->nullable();
             $table->enum('boat_type', [
                 'Spoon',
                 'Plumb',
@@ -39,16 +39,16 @@ return new class extends Migration
                 'Rake Stem - Rake Stern',
                 'Rake Stem - Transom/Spoon/Plumb Stern',
                 'Skiff (Typical Design)'
-            ]);
+            ])->nullable();
 
             // Boat Dimensions
-            $table->decimal('boat_length', 5, 2); // in feet
-            $table->decimal('boat_width', 5, 2);  // in feet
-            $table->decimal('boat_depth', 5, 2);  // in feet
+            $table->decimal('boat_length', 5, 2)->nullable(); // in feet
+            $table->decimal('boat_width', 5, 2)->nullable();  // in feet
+            $table->decimal('boat_depth', 5, 2)->nullable();  // in feet
 
             // Engine Information
-            $table->string('engine_type');
-            $table->integer('engine_horsepower');
+            $table->string('engine_type')->nullable();
+            $table->integer('engine_horsepower')->nullable();
 
             // Fishing Information
             $table->enum('primary_fishing_gear', [
@@ -56,7 +56,7 @@ return new class extends Migration
                 'Bottom Set Gill Net',
                 'Fish Trap',
                 'Fish Coral'
-            ]);
+            ])->nullable();
 
             // FIXED: Single User Document (not array)
             $table->string('user_document_path')->nullable();

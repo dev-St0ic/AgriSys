@@ -1,15 +1,47 @@
 # 🌾 AgriSys - Agricultural Management System
 
-A comprehensive Laravel-based agricultural management system with role-based authentication and admin panel.
+A comprehensive Laravel-based agricultural management system designed to streamline agricultural processes, manage applications, track supplies, and provide analytics for agricultural operations.
 
-## 📋 Prerequisites
+## ✨ Features
 
-Before setting up the project, ensure you have the following installed:
+-   **Application Management**: Handle RSBSA, Seedling Requests, FishR, BoatR, and Training applications
+-   **Supply Management**: Track and manage agricultural supplies and inventory
+-   **Analytics Dashboard**: Comprehensive analytics with charts and reports
+-   **User Management**: Multi-level user authentication and registration
+-   **Event Management**: Track and manage agricultural events
+-   **PDF Generation**: Generate reports and application documents
+-   **Activity Logging**: Complete audit trail of system activities
+-   **Email Notifications**: Automated email notifications for applications
 
--   **XAMPP** (PHP 8.1+, MySQL, Apache) - [Download here](https://www.apachefriends.org/)
--   **Composer** (PHP dependency manager) - [Download here](https://getcomposer.org/)
--   **Node.js & npm** (for frontend assets) - [Download here](https://nodejs.org/)
--   **Git** (version control) - [Download here](https://git-scm.com/)
+## 🔧 Technical Stack
+
+-   **Backend**: Laravel 12.x (PHP 8.2+)
+-   **Frontend**: Blade Templates with Bootstrap & Chart.js
+-   **Database**: MySQL
+-   **Authentication**: Laravel's built-in authentication
+-   **PDF Generation**: DomPDF
+-   **Activity Logging**: Spatie Laravel Activity Log
+-   **Build Tool**: Vite
+-   **Testing**: Pest PHP
+
+## 📋 System Requirements
+
+### Development
+
+-   PHP 8.2 or higher
+-   Composer
+-   Node.js & NPM
+-   MySQL 8.0+
+-   Apache/Nginx web server
+
+### Production (Recommended Hostinger KVM 2)
+
+-   2 CPU cores
+-   8 GB RAM
+-   100 GB NVMe storage
+-   PHP 8.2+
+-   MySQL database
+-   SSL certificate
 
 ## 🚀 Installation & Setup
 

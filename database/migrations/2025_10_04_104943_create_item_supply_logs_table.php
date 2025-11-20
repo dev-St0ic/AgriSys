@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('item_supply_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_item_id')->constrained('category_items')->onDelete('cascade');
-            
+            $table->foreignId('category_item_id')->nullable()->constrained('category_items')->onDelete('cascade');
+
             // Transaction details
             $table->enum('transaction_type', [
                 'received',           // New supplies received
@@ -20,25 +20,25 @@ return new class extends Migration
                 'returned',           // Returned from cancelled/rejected requests
                 'loss',              // Expired/damaged/lost
                 'initial_supply'     // Initial supply setup
-            ]);
-            
-            $table->integer('quantity');
-            $table->integer('old_supply');
-            $table->integer('new_supply');
-            
+            ])->nullable();
+
+            $table->integer('quantity')->nullable();
+            $table->integer('old_supply')->nullable();
+            $table->integer('new_supply')->nullable();
+
             // Who performed the transaction
-            $table->foreignId('performed_by')->constrained('users')->onDelete('cascade');
-            
+            $table->foreignId('performed_by')->nullable()->constrained('users')->onDelete('cascade');
+
             // Additional details
             $table->text('notes')->nullable();
             $table->string('source')->nullable(); // For received supplies (supplier name, etc.)
-            
+
             // Reference to related entities (polymorphic)
             $table->string('reference_type')->nullable(); // e.g., 'SeedlingRequest'
             $table->unsignedBigInteger('reference_id')->nullable();
-            
+
             $table->timestamps();
-            
+
             // Indexes
             $table->index('category_item_id');
             $table->index('transaction_type');

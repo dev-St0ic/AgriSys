@@ -22,72 +22,50 @@
 @extends('layouts.app')
 
 @section('title', 'Analytics - AgriSys Admin')
-@section('page-title', 'Seedling Analytics Dashboard')
+@section('page-title')
+    <i class="fas fa-chart-bar me-2"></i>Seedling Analytics Dashboard
+@endsection
 
 @section('content')
-    <!-- Header with Service Navigation -->
+    <!-- Service Navigation -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <div>
-                            <h4 class="mb-2 text-dark">Seedling Analytics</h4>
-                            <p class="text-muted mb-0">Analytics Dashboard</p>
-                        </div>
-                        <div class="d-flex justify-content-center">
-                            <ul class="nav nav-pills" id="serviceTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <a href="{{ route('admin.analytics.seedlings') }}"
-                                        class="nav-link {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
-                                        <i class="fas fa-seedling me-1"></i> Seedlings
-                                    </a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a href="{{ route('admin.analytics.rsbsa') }}"
-                                        class="nav-link {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
-                                        <i class="fas fa-user-check me-1"></i> RSBSA
-                                    </a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a href="{{ route('admin.analytics.fishr') }}"
-                                        class="nav-link {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
-                                        <i class="fas fa-fish me-1"></i> FISHR
-                                    </a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a href="{{ route('admin.analytics.boatr') }}"
-                                        class="nav-link {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
-                                        <i class="fas fa-ship me-1"></i> BOATR
-                                    </a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a href="{{ route('admin.analytics.training') }}"
-                                        class="nav-link {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
-                                        <i class="fas fa-graduation-cap me-1"></i> Training
-                                    </a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a href="{{ route('admin.analytics.supply-management') }}"
-                                        class="nav-link {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
-                                        <i class="fas fa-boxes me-1"></i> Supply Management
-                                    </a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a href="{{ route('admin.analytics.user-registration') }}"
-                                        class="nav-link {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
-                                        <i class="fas fa-user-edit"></i> User Registration
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+            <div class="card shadow-sm border-0 navigation-container">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                        <a href="{{ route('admin.analytics.seedlings') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.seedlings') ? 'active' : '' }}">
+                            <i class="fas fa-seedling me-2"></i>Seedlings
+                        </a>
+                        <a href="{{ route('admin.analytics.rsbsa') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.rsbsa') ? 'active' : '' }}">
+                            <i class="fas fa-user-check me-2"></i>RSBSA
+                        </a>
+                        <a href="{{ route('admin.analytics.fishr') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.fishr') ? 'active' : '' }}">
+                            <i class="fas fa-fish me-2"></i>FISHR
+                        </a>
+                        <a href="{{ route('admin.analytics.boatr') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.boatr') ? 'active' : '' }}">
+                            <i class="fas fa-ship me-2"></i>BOATR
+                        </a>
+                        <a href="{{ route('admin.analytics.training') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.training') ? 'active' : '' }}">
+                            <i class="fas fa-graduation-cap me-2"></i>Training
+                        </a>
+                        <a href="{{ route('admin.analytics.supply-management') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.supply-management') ? 'active' : '' }}">
+                            <i class="fas fa-boxes me-2"></i>Supply Management
+                        </a>
+                        <a href="{{ route('admin.analytics.user-registration') }}"
+                            class="btn analytics-nav-btn {{ request()->routeIs('admin.analytics.user-registration') ? 'active' : '' }}">
+                            <i class="fas fa-user-plus me-2"></i>User Registration
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Date Range Filter -->
+    </div> <!-- Date Range Filter -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0">
@@ -456,6 +434,92 @@
 
 @section('styles')
     <style>
+        /* Navigation Container */
+        .navigation-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Modern Analytics Navigation */
+        .analytics-nav-btn {
+            background: #e9ecef;
+            border: 1px solid #ced4da;
+            color: #495057;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+        }
+
+        .analytics-nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transition: left 0.5s;
+        }
+
+        .analytics-nav-btn:hover {
+            background: #6c757d;
+            border-color: #5a6268;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .analytics-nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .analytics-nav-btn:hover i {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .analytics-nav-btn.active {
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+            border-color: #495057;
+            color: white;
+            box-shadow: 0 4px 20px rgba(73, 80, 87, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .analytics-nav-btn.active:hover {
+            background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+            border-color: #343a40;
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(73, 80, 87, 0.6);
+        }
+
+        .analytics-nav-btn i {
+            font-size: 0.875rem;
+            transition: transform 0.3s ease;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .analytics-nav-btn {
+                font-size: 0.75rem;
+                padding: 0.375rem 0.75rem;
+            }
+
+            .analytics-nav-btn i {
+                font-size: 0.75rem;
+            }
+        }
+
         .metric-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border-radius: 10px;
@@ -477,15 +541,27 @@
         }
 
         .nav-pills .nav-link {
-            border-radius: 25px;
-            margin: 0 5px;
+            border-radius: 20px;
+            padding: 0.5rem 1.25rem;
+            margin: 0 0.25rem;
             transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .nav-pills .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .nav-pills .nav-link.active {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+            color: white !important;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.5) !important;
         }
 
         .table-hover tbody tr {
