@@ -119,7 +119,7 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search name, number, email..." value="{{ request('search') }}"
@@ -136,7 +136,7 @@
                             <i class="fas fa-calendar-alt me-1"></i>Date Filter
                         </button>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-2">
                         <a href="{{ route('admin.training.requests') }}" class="btn btn-secondary btn-sm w-100">
                             <i class="fas fa-times"></i> Clear
                         </a>
@@ -159,6 +159,9 @@
                 <a href="{{ route('admin.training.export') }}" class="btn btn-success btn-sm">
                     <i class="fas fa-download"></i> Export CSV
                 </a>
+                <button type="button" class="btn btn-primary btn-sm" onclick="showAddTrainingModal()">
+                    <i class="fas fa-plus me-2"></i>Add Registration
+                </button>
             </div>
         </div>
         <div class="card-body">
@@ -177,7 +180,7 @@
                     </thead>
                     <tbody>
                         @forelse($trainings as $training)
-                            <tr>
+                             <tr data-application-id="{{ $training->id }}">
                                 <td class="text-start">{{ $training->created_at->format('M d, Y g:i A') }}</td>
                                 <td class="text-start">
                                     <strong class="text-primary">{{ $training->application_number }}</strong>
@@ -196,28 +199,21 @@
                                         @if ($training->document_paths && count($training->document_paths) > 0)
                                             <div class="training-document-previews">
                                                 @foreach (array_slice($training->document_paths, 0, 3) as $index => $path)
-                                                    <div class="training-mini-doc"
-                                                        onclick="viewDocuments({{ json_encode($training->document_paths) }}, 'Training Request - {{ $training->full_name }}')"
+                                                    <button type="button" class="training-mini-doc"
+                                                        onclick="viewDocument('{{ $path }}', 'Training Request - {{ $training->full_name }}')"
                                                         title="Document {{ $index + 1 }}">
                                                         <div class="training-mini-doc-icon">
                                                             <i class="fas fa-file-image text-info"></i>
                                                         </div>
-                                                    </div>
+                                                    </button>
                                                 @endforeach
-                                                @if (count($training->document_paths) > 3)
-                                                    <div class="training-mini-doc training-mini-doc-more"
-                                                        onclick="viewDocuments({{ json_encode($training->document_paths) }}, 'Training Request - {{ $training->full_name }}')"
-                                                        title="View all {{ count($training->document_paths) }} documents">
-                                                        <span
-                                                            class="training-more-count">+{{ count($training->document_paths) - 3 }}</span>
-                                                    </div>
-                                                @endif
                                             </div>
-                                            <div class="training-document-summary"
-                                                onclick="viewDocuments({{ json_encode($training->document_paths) }}, 'Training Request - {{ $training->full_name }}')">
+                                            <button type="button" class="training-document-summary"
+                                                onclick="viewDocument('{{ $training->document_paths[0] }}', 'Training Request - {{ $training->full_name }}')"
+                                                style="background: none; border: none; padding: 0; cursor: pointer;">
                                                 <small class="text-muted">{{ count($training->document_paths) }}
                                                     document{{ count($training->document_paths) > 1 ? 's' : '' }}</small>
-                                            </div>
+                                            </button>
                                         @else
                                             <div class="training-no-documents">
                                                 <i class="fas fa-folder-open text-muted"></i>
@@ -237,6 +233,12 @@
                                             onclick="showUpdateModal({{ $training->id }}, '{{ $training->status }}')"
                                             title="Update Status">
                                             <i class="fas fa-edit"></i> Update
+                                        </button>
+
+                                         <button class="btn btn-sm btn-outline-danger"
+                                            onclick="deleteApplication({{ $training->id }}, '{{ $training->application_number }}')" 
+                                            title="Delete Application">
+                                            <i class="fas fa-trash"></i> Delete
                                         </button>
                                     </div>
                                 </td>
@@ -341,7 +343,7 @@
                                     <p class="mb-1"><strong>Email:</strong> <span id="updateAppEmail"></span></p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p class="mb-1"><strong>Mobile:</strong> <span id="updateAppMobile"></span></p>
+                                    <p class="mb-1"><strong>Contact:</strong> <span id="updateAppMobile"></span></p>
                                     <p class="mb-1"><strong>Training Type:</strong> <span id="updateAppTraining"></span>
                                     </p>
                                     <p class="mb-1"><strong>Current Status:</strong> <span
@@ -416,6 +418,290 @@
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- Date Filter Modal -->
+    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="dateFilterModalLabel">
+                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Date Range Inputs -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="modal_date_from" class="form-label">From Date</label>
+                                        <input type="date" id="modal_date_from" class="form-control"
+                                            value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="modal_date_to" class="form-label">To Date</label>
+                                        <input type="date" id="modal_date_to" class="form-control"
+                                            value="{{ request('date_to') }}">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        onclick="applyCustomDateRange()">
+                                        <i class="fas fa-check me-2"></i>Apply Custom Range
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Date Presets -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-clock me-2"></i>Quick Presets
+                                    </h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="setDateRangeModal('today')">
+                                            <i class="fas fa-calendar-day me-2"></i>Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="setDateRangeModal('week')">
+                                            <i class="fas fa-calendar-week me-2"></i>This Week
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning"
+                                            onclick="setDateRangeModal('month')">
+                                            <i class="fas fa-calendar me-2"></i>This Month
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="setDateRangeModal('year')">
+                                            <i class="fas fa-calendar-alt me-2"></i>This Year
+                                        </button>
+                                        <hr class="my-3">
+                                        <button type="button" class="btn btn-outline-secondary w-100"
+                                            onclick="clearDateRangeModal()">
+                                            <i class="fas fa-times me-2"></i>Clear Date Filter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="dateFilterStatus">
+                                    @if (request('date_from') || request('date_to'))
+                                        Current filter:
+                                        @if (request('date_from'))
+                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
+                                        @endif
+                                        @if (request('date_to'))
+                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        No date filter applied - showing all applications
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+   <!-- Add training Modal  -->
+    <div class="modal fade" id="addTrainingModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-graduation-cap me-2"></i>Add New Training Application
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTrainingForm" enctype="multipart/form-data">
+                        <!-- Personal Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="training_first_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_middle_name" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="training_middle_name" maxlength="100">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="training_last_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="training_name_extension" class="form-label">Extension</label>
+                                        <select class="form-select" id="training_name_extension">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="training_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_email" class="form-label">Email (Optional)</label>
+                                        <input type="email" class="form-control" id="training_email" maxlength="254">
+                                        <div class="form-text">For status notifications</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="training_user_id" class="form-label">Link to User Account (Optional)</label>
+                                        <input type="number" class="form-control" id="training_user_id" placeholder="Enter User ID if exists">
+                                        <div class="form-text">Leave blank if not associated with any user account</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="training_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="training_barangay" required>
+                                            <option value="">Select Barangay</option>
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Training Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-book me-2"></i>Training Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="training_type" class="form-label">Training Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="training_type" required>
+                                            <option value="">Select Training Type</option>
+                                            <option value="tilapia_hito">Tilapia and Hito</option>
+                                            <option value="hydroponics">Hydroponics</option>
+                                            <option value="aquaponics">Aquaponics</option>
+                                            <option value="mushrooms">Mushrooms Production</option>
+                                            <option value="livestock_poultry">Livestock and Poultry</option>
+                                            <option value="high_value_crops">High Value Crops</option>
+                                            <option value="sampaguita_propagation">Sampaguita Propagation</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supporting Documents -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Documents (Optional)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="training_supporting_documents" class="form-label">Upload Documents</label>
+                                        <input type="file" class="form-control" id="training_supporting_documents" accept="image/*,.pdf" multiple onchange="previewTrainingDocuments()">
+                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB each, up to 5 files)</div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div id="training_doc_preview" class="d-flex flex-wrap gap-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Application Status -->
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Application Status</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="training_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="training_status" required>
+                                            <option value="under_review" selected>Under Review</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="rejected">Rejected</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="training_remarks" class="form-label">Remarks (Optional)</label>
+                                        <textarea class="form-control" id="training_remarks" rows="3" maxlength="1000" placeholder="Any notes or comments..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAddTraining()">
+                        <i class="fas fa-save me-1"></i>Create Application
                     </button>
                 </div>
             </div>
@@ -516,6 +802,21 @@
 
         .change-indicator.changed::after {
             opacity: 1;
+        }
+
+        /* Delete button styling */
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .btn-outline-danger:focus,
+        .btn-outline-danger:active {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
         }
 
         /* Card styling */
@@ -736,7 +1037,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid #e9ecef;
+            border: 2px solid  #17a2b8;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -862,6 +1163,144 @@
                 font-size: 0.65rem;
             }
         }
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .confirmation-toast .toast-body {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification,
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
     </style>
 @endsection
 
@@ -931,7 +1370,7 @@
                     document.getElementById('updateAppNumber').textContent = data.application_number;
                     document.getElementById('updateAppName').textContent = data.full_name;
                     document.getElementById('updateAppEmail').textContent = data.email || 'N/A';
-                    document.getElementById('updateAppMobile').textContent = data.mobile_number || 'N/A';
+                    document.getElementById('updateAppMobile').textContent = data.contact_number || 'N/A';
                     document.getElementById('updateAppTraining').textContent = data.training_type_display;
                     document.getElementById('updateAppCurrentStatus').innerHTML = `
                     <span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
@@ -961,7 +1400,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error loading application details: ' + error.message);
+                    showToast('error', 'Error loading application details: ' + error.message);
                 });
         }
 
@@ -972,21 +1411,18 @@
             const remarks = document.getElementById('remarks').value;
 
             if (!newStatus) {
-                alert('Please select a status');
+                showToast('error', 'Please select a status');
                 return;
             }
 
-            // Get the original values to compare changes
             const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
             const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
 
-            // Check if nothing has changed
             if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                alert('No changes detected. Please modify the status or remarks before updating.');
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
                 return;
             }
 
-            // Show confirmation dialog with changes summary
             let changesSummary = [];
             if (newStatus !== originalStatus) {
                 const originalStatusText = getStatusText(originalStatus);
@@ -1003,156 +1439,174 @@
                 }
             }
 
-            const confirmMessage =
-                `Are you sure you want to update this application with the following changes?\n\n${changesSummary.join('\n')}`;
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this training application with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
+        }
 
-            if (!confirm(confirmMessage)) {
-                return;
-            }
-
-            // Show loading state
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
             const updateButton = document.querySelector('#updateModal .btn-primary');
             const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
             updateButton.disabled = true;
 
             fetch(`/admin/training/requests/${id}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    remarks: remarks
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    if (response.success) {
-                        // Show success message and reload page
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                        modal.hide();
-                        alert(response.message);
-                        window.location.reload();
-                    } else {
-                        throw new Error(response.message || 'Error updating status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating application status: ' + error.message);
-                })
-                .finally(() => {
-                    // Reset button state
-                    updateButton.innerHTML = originalText;
-                    updateButton.disabled = false;
-                });
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(response => {
+                if (response.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                    modal.hide();
+                    showToast('success', response.message);
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    throw new Error(response.message || 'Error updating status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error updating application status: ' + error.message);
+            })
+            .finally(() => {
+                updateButton.innerHTML = originalText;
+                updateButton.disabled = false;
+            });
         }
 
         // View application details
         function viewApplication(id) {
-            // Show loading state
             document.getElementById('applicationDetails').innerHTML = `
-            <div class="text-center">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>`;
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>`;
 
             const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
             modal.show();
 
             fetch(`/admin/training/requests/${id}`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return response.json();
                 })
                 .then(response => {
-                    if (!response.success) {
-                        throw new Error('Failed to load application details');
-                    }
+                    if (!response.success) throw new Error('Failed to load application details');
 
                     const data = response.data;
 
-                    // Format the details HTML with the same style as FishR
+                    // Build remarks HTML if exists
                     const remarksHtml = data.remarks ? `
-                    <div class="col-12 mt-3">
-                        <h6 class="border-bottom pb-2">Remarks</h6>
-                        <div class="alert alert-info">
-                            <p class="mb-1">${data.remarks}</p>
-                            <small class="text-muted">
-                                ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
-                                ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
-                            </small>
-                        </div>
-                    </div>` : '';
+                        <div class="col-12 mt-3">
+                            <h6 class="border-bottom pb-2">Remarks</h6>
+                            <div class="alert alert-info">
+                                <p class="mb-1">${data.remarks}</p>
+                                <small class="text-muted">
+                                    ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
+                                    ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
+                                </small>
+                            </div>
+                        </div>` : '';
+
+                    //  supporting documents 
+                    let documentHtml = '';
+                    if (data.document_paths && data.document_paths.length > 0) {
+                        // Show first document with badge
+                        documentHtml = `
+                            <div class="col-12">
+                                <div class="card border-secondary">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center p-3 border border-secondary rounded bg-light">
+                                            <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
+                                            <h6>Supporting Document</h6>
+                                            <span class="badge bg-secondary mb-2">Uploaded</span>
+                                            <br>
+                                            <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.document_paths[0]}', 'Training Request - ${data.full_name}')">
+                                                <i class="fas fa-eye"></i> View Document
+                                            </button>
+                                        </div>
+                                        ${data.document_paths.length > 1 ? `
+                                            <div class="mt-3 pt-3 border-top">
+                                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i><strong>${data.document_paths.length}</strong> document(s) total</small>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>`;
+                    } else {
+                        documentHtml = `
+                            <div class="col-12">
+                                <div class="card border-secondary">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center p-3 border border-secondary rounded">
+                                            <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
+                                            <h6>No Document Uploaded</h6>
+                                            <span class="badge bg-secondary mb-2">Not Uploaded</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    }
 
                     document.getElementById('applicationDetails').innerHTML = `
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Application Information</h6>
-                            <p><strong>Application #:</strong> ${data.application_number}</p>
-                            <p><strong>Full Name:</strong> ${data.full_name}</p>
-                            <p><strong>Mobile:</strong> ${data.mobile_number || 'N/A'}</p>
-                            <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2">Training Information</h6>
-                            <p><strong>Training Type:</strong> ${data.training_type_display}</p>
-                            <p><strong>Status:</strong>
-                                <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
-                            </p>
-                            <p><strong>Date Applied:</strong> ${data.created_at}</p>
-                            <p><strong>Last Updated:</strong> ${data.updated_at}</p>
-                        </div>
-                        ${data.document_paths && data.document_paths.length > 0 ? `
-                                                                        <div class="col-12">
-                                                                            <h6 class="border-bottom pb-2">Supporting Documents</h6>
-                                                                            <div class="row g-2">
-                                                                                ${data.document_paths.map((path, index) => `
-                                        <div class="col-md-4">
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <h6 class="card-title">Document ${index + 1}</h6>
-                                                    <button class="btn btn-sm btn-outline-primary"
-                                                        onclick="viewDocuments(['${path}'])">
-                                                        <i class="fas fa-eye"></i> View
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                                                            </div>
-                                                                        </div>
-                                                                    ` : ''}
-                        ${remarksHtml}
-                    </div>`;
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Application Information</h6>
+                                <p><strong>Application #:</strong> ${data.application_number}</p>
+                                <p><strong>Full Name:</strong> ${data.full_name}</p>
+                                <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
+                                <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="border-bottom pb-2">Training Information</h6>
+                                <p><strong>Training Type:</strong> ${data.training_type_display}</p>
+                                <p><strong>Status:</strong>
+                                    <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
+                                </p>
+                                <p><strong>Date Applied:</strong> ${data.created_at}</p>
+                                <p><strong>Last Updated:</strong> ${data.updated_at}</p>
+                            </div>
+                            ${documentHtml}
+                            ${remarksHtml}
+                        </div>`;
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    showToast('error', error.message || 'Error loading application details. Please try again.');
                     document.getElementById('applicationDetails').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        ${error.message || 'Error loading application details. Please try again.'}
-                    </div>`;
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            ${error.message || 'Error loading application details. Please try again.'}
+                        </div>`;
                 });
         }
 
-        // Enhanced view documents function for training module
-        function viewDocuments(paths, title = null) {
+        // UNIFIED document viewing function 
+        function viewDocument(path, filename = null, applicationId = null) {
             // Input validation
-            if (!paths || paths.length === 0) {
-                alert('No documents to display');
+            if (!path || path.trim() === '') {
+                showToast('error', 'No document path provided');
                 return;
             }
 
@@ -1163,21 +1617,26 @@
             documentViewer.innerHTML = `
                 <div class="text-center py-5">
                     <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Loading documents...</span>
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="text-muted">Loading ${paths.length} document(s)...</p>
+                    <p class="text-muted">Loading document...</p>
                 </div>`;
 
             // Show modal immediately with loading state
             modal.show();
 
-            // Update modal title if provided
+            // Update modal title if filename is provided
             const modalTitle = document.querySelector('#documentModal .modal-title');
-            if (title) {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${title}`;
+            if (filename) {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
             } else {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Documents (${paths.length})`;
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
             }
+
+            // Extract file extension and name
+            const fileExtension = path.split('.').pop().toLowerCase();
+            const fileName = filename || path.split('/').pop();
+            const fileUrl = `/storage/${path}`;
 
             // Define supported file types
             const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
@@ -1185,179 +1644,178 @@
             const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
             const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
 
-            // Function to handle loading errors
-            const handleLoadError = (fileName, type, path) => {
+            // Function to add download button
+            const addDownloadButton = () => {
                 return `
-                    <div class="alert alert-warning text-center">
-                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
-                        <h6>Unable to preview ${fileName}</h6>
-                        <p class="mb-3">The ${type} could not be loaded or displayed.</p>
+                    <div class="text-center mt-3 p-3 bg-light">
                         <div class="d-flex justify-content-center gap-2">
-                            <a href="/storage/${path}" target="_blank" class="btn btn-primary">
+                            <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
                             </a>
-                            <a href="/storage/${path}" download="${fileName}" class="btn btn-success">
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success btn-sm">
                                 <i class="fas fa-download me-1"></i>Download
                             </a>
                         </div>
+                        <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
                     </div>`;
             };
 
-            // Function to add action buttons for each document
-            const addDocumentActions = (path, fileName) => {
-                return `
-                    <div class="document-actions mt-3 p-3 bg-light rounded text-center">
-                        <div class="d-flex justify-content-center gap-2 mb-2">
-                            <a href="/storage/${path}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
-                            </a>
-                            <a href="/storage/${path}" download="${fileName}" class="btn btn-sm btn-outline-success">
-                                <i class="fas fa-download me-1"></i>Download
-                            </a>
-                        </div>
-                        <small class="text-muted d-block">${fileName}</small>
-                    </div>`;
-            };
-
-            // Process documents with delay to show loading state
+            // Handle different file types
             setTimeout(() => {
-                let documentsHtml = '<div class="container-fluid p-3 d-flex flex-column align-items-center">';
-
-                paths.forEach((path, index) => {
-                    const fileExtension = path.split('.').pop().toLowerCase();
-                    const fileName = path.split('/').pop();
-                    const fileUrl = `/storage/${path}`;
-
-                    documentsHtml += `
-                        <div class="document-container mb-4 border rounded p-3" style="max-width: 600px; width: 100%;">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="mb-0 text-primary">
-                                    <i class="fas fa-file me-2"></i>Document ${index + 1}
-                                </h6>
-                                <span class="badge bg-secondary">${fileExtension.toUpperCase()}</span>
-                            </div>
-                            <div class="document-content" id="doc-content-${index}">`;
-
-                    // Handle different file types
+                try {
                     if (imageTypes.includes(fileExtension)) {
-                        // Handle images with error fallback
-                        documentsHtml += `
-                            <div class="text-center">
-                                <div class="position-relative d-inline-block">
-                                    <img src="${fileUrl}"
-                                         class="img-fluid border rounded shadow-sm document-image"
-                                         alt="Supporting Document"
-                                         style="max-height: 400px; cursor: zoom-in;"
-                                         onclick="toggleImageZoomTraining(this)"
-                                         onerror="showImageError(this, '${fileName}', '${path}')">
-                                </div>
-                                ${addDocumentActions(path, fileName)}
-                            </div>`;
+                        // Handle images
+                        const img = new Image();
+                        img.onload = function() {
+                            documentViewer.innerHTML = `
+                                <div class="text-center">
+                                    <div class="position-relative d-inline-block">
+                                        <img src="${fileUrl}"
+                                            class="img-fluid border rounded shadow-sm"
+                                            alt="Supporting Document"
+                                            style="max-height: 70vh; cursor: zoom-in;"
+                                            onclick="toggleImageZoom(this)">
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
+                                        </div>
+                                    </div>
+                                    ${addDownloadButton()}
+                                </div>`;
+                        };
+                        img.onerror = function() {
+                            documentViewer.innerHTML = `
+                                <div class="alert alert-warning text-center">
+                                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                    <h5>Unable to Load Image</h5>
+                                    <p class="mb-3">The image could not be loaded.</p>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                            <i class="fas fa-external-link-alt me-2"></i>Open Image
+                                        </a>
+                                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                            <i class="fas fa-download me-2"></i>Download
+                                        </a>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                </div>`;
+                        };
+                        img.src = fileUrl;
 
                     } else if (fileExtension === 'pdf') {
                         // Handle PDF documents
-                        documentsHtml += `
+                        documentViewer.innerHTML = `
                             <div class="pdf-container">
                                 <embed src="${fileUrl}"
-                                       type="application/pdf"
-                                       width="100%"
-                                       height="500px"
-                                       class="border rounded"
-                                       onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <div style="display:none;" class="pdf-fallback">
-                                    ${handleLoadError(fileName, 'PDF document', path)}
-                                </div>
-                                ${addDocumentActions(path, fileName)}
+                                    type="application/pdf"
+                                    width="100%"
+                                    height="600px"
+                                    class="border rounded">
+                                ${addDownloadButton()}
                             </div>`;
+
+                        // Check if PDF loaded successfully after a short delay
+                        setTimeout(() => {
+                            const embed = documentViewer.querySelector('embed');
+                            if (!embed || embed.offsetHeight === 0) {
+                                documentViewer.innerHTML = `
+                                    <div class="alert alert-info text-center">
+                                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                        <h5>PDF Preview Unavailable</h5>
+                                        <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                                <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                            </a>
+                                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                                <i class="fas fa-download me-2"></i>Download PDF
+                                            </a>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                    </div>`;
+                            }
+                        }, 2000);
 
                     } else if (videoTypes.includes(fileExtension)) {
                         // Handle video files
-                        documentsHtml += `
+                        documentViewer.innerHTML = `
                             <div class="text-center">
-                                <video controls class="w-100 rounded shadow" style="max-height: 400px;" preload="metadata">
+                                <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
                                     <source src="${fileUrl}" type="video/${fileExtension}">
                                     Your browser does not support the video tag.
                                 </video>
-                                ${addDocumentActions(path, fileName)}
+                                ${addDownloadButton()}
                             </div>`;
 
                     } else if (audioTypes.includes(fileExtension)) {
                         // Handle audio files
-                        documentsHtml += `
-                            <div class="text-center py-4">
-                                <i class="fas fa-music fa-3x text-info mb-3"></i>
-                                <h6>${fileName}</h6>
+                        documentViewer.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-music fa-4x text-info mb-3"></i>
+                                <h5>Audio File</h5>
                                 <audio controls class="w-100 mb-3">
                                     <source src="${fileUrl}" type="audio/${fileExtension}">
                                     Your browser does not support the audio tag.
                                 </audio>
-                                ${addDocumentActions(path, fileName)}
+                                ${addDownloadButton()}
                             </div>`;
 
                     } else if (documentTypes.includes(fileExtension)) {
                         // Handle other document types
-                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
-                            fileExtension) ? 'file-word' : 'file-alt';
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : 
+                                    ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
 
-                        documentsHtml += `
+                        documentViewer.innerHTML = `
                             <div class="alert alert-info text-center">
-                                <i class="fas fa-${docIcon} fa-3x text-primary mb-3"></i>
-                                <h6>${fileName}</h6>
-                                <p class="mb-3">This document type cannot be previewed directly.</p>
+                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                                <h5>${fileExtension.toUpperCase()} Document</h5>
+                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                                        <i class="fas fa-external-link-alt me-2"></i>Open Document
                                     </a>
                                     <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                        <i class="fas fa-download me-1"></i>Download
+                                        <i class="fas fa-download me-2"></i>Download
                                     </a>
                                 </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
                             </div>`;
 
                     } else {
                         // Handle unsupported file types
-                        documentsHtml += `
+                        documentViewer.innerHTML = `
                             <div class="alert alert-warning text-center">
-                                <i class="fas fa-file fa-3x text-warning mb-3"></i>
-                                <h6>Unsupported File Type</h6>
-                                <p class="mb-3">File type ".${fileExtension}" is not supported for preview.</p>
+                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                                <h5>Unsupported File Type</h5>
+                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                                        <i class="fas fa-external-link-alt me-2"></i>Open File
                                     </a>
                                     <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                        <i class="fas fa-download me-1"></i>Download
+                                        <i class="fas fa-download me-2"></i>Download
                                     </a>
                                 </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
                             </div>`;
                     }
-
-                    documentsHtml += `
+                } catch (error) {
+                    console.error('Error processing document:', error);
+                    documentViewer.innerHTML = `
+                        <div class="alert alert-danger text-center">
+                            <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                            <h5>Error Loading Document</h5>
+                            <p class="mb-3">${error.message}</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                    <i class="fas fa-external-link-alt me-2"></i>Try Opening Directly
+                                </a>
+                                <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
                             </div>
                         </div>`;
-
-                    // Add separator between documents (except for the last one)
-                    if (index < paths.length - 1) {
-                        documentsHtml += '<hr class="my-4">';
-                    }
-                });
-
-                documentsHtml += '</div>';
-
-                // Update the document viewer
-                documentViewer.innerHTML = documentsHtml;
-
-                // Add timeout check for PDF embeds
-                setTimeout(() => {
-                    document.querySelectorAll('.pdf-container embed').forEach(embed => {
-                        if (embed.offsetHeight === 0) {
-                            embed.style.display = 'none';
-                            embed.nextElementSibling.style.display = 'block';
-                        }
-                    });
-                }, 2000);
-
-            }, 500); // Small delay to show loading state
+                }
+            }, 500);
         }
 
         // Helper function to toggle image zoom for training
@@ -1481,7 +1939,7 @@
             const dateTo = document.getElementById('modal_date_to').value;
 
             if (dateFrom && dateTo && dateFrom > dateTo) {
-                alert('From date cannot be later than To date');
+                showToast('warning', 'From date cannot be later than To date');
                 return;
             }
 
@@ -1534,105 +1992,521 @@
                 statusElement.innerHTML = statusText;
             }
         }
+        // Create toast container 
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': { icon: 'fas fa-check-circle', color: 'success' },
+                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+                'info': { icon: 'fas fa-info-circle', color: 'info' }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
+
+        // Confirmation toast function
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
+            }
+
+            delete window[callbackId];
+            removeToast(toast);
+        }
+
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
+        }
+
+        // Delete application with confirmation toast
+        function deleteApplication(id, applicationNumber) {
+            showConfirmationToast(
+                'Delete Application',
+                `Are you sure you want to delete application ${applicationNumber}?\n\nThis action cannot be undone and will also delete all associated documents.`,
+                () => proceedWithApplicationDelete(id, applicationNumber)
+            );
+        }
+
+        // Proceed with application deletion
+        function proceedWithApplicationDelete(id, applicationNumber) {
+            fetch(`/admin/training/requests/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message || 'Application deleted successfully');
+                        
+                        // Remove row from table with animation
+                        const row = document.querySelector(`tr[data-application-id="${id}"]`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s ease';
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+                                
+                                // Check if table is empty
+                                const tbody = document.querySelector('#applicationsTable tbody');
+                                if (tbody.children.length === 0) {
+                                    // Reload page to show empty state
+                                    setTimeout(() => window.location.reload(), 1500);
+                                }
+                            }, 300);
+                        } else {
+                            // Fallback: reload page
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Failed to delete application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Failed to delete application: ' + error.message);
+                });
+        }
+
+        // Get CSRF token utility function
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
+
+        // Show add training modal
+        function showAddTrainingModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addTrainingModal'));
+            
+            // Reset form
+            document.getElementById('addTrainingForm').reset();
+            
+            // Remove any validation errors
+            document.querySelectorAll('#addTrainingModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('#addTrainingModal .invalid-feedback').forEach(el => el.remove());
+            
+            // Clear document preview
+            const preview = document.getElementById('training_doc_preview');
+            if (preview) {
+                preview.innerHTML = '';
+            }
+            
+            modal.show();
+        }
+
+        // Real-time validation for contact number
+        document.getElementById('training_contact_number')?.addEventListener('input', function() {
+            validateTrainingContactNumber(this.value);
+        });
+
+        function validateTrainingContactNumber(contactNumber) {
+            const input = document.getElementById('training_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!contactNumber || contactNumber.trim() === '') {
+                return;
+            }
+            
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+            
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Real-time validation for email
+        document.getElementById('training_email')?.addEventListener('input', function() {
+            validateTrainingEmail(this.value);
+        });
+
+        function validateTrainingEmail(email) {
+            const input = document.getElementById('training_email');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (!email || email.trim() === '') {
+                return true; // Email is optional
+            }
+            
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if (!emailPattern.test(email.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Invalid email format';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Auto-capitalize name fields
+        function capitalizeTrainingName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        }
+
+        document.getElementById('training_first_name')?.addEventListener('blur', function() {
+            capitalizeTrainingName(this);
+        });
+
+        document.getElementById('training_middle_name')?.addEventListener('blur', function() {
+            capitalizeTrainingName(this);
+        });
+
+        document.getElementById('training_last_name')?.addEventListener('blur', function() {
+            capitalizeTrainingName(this);
+        });
+
+        // Document preview for multiple files
+        function previewTrainingDocuments() {
+            const input = document.getElementById('training_supporting_documents');
+            const preview = document.getElementById('training_doc_preview');
+            
+            if (!input.files || input.files.length === 0) {
+                if (preview) {
+                    preview.innerHTML = '';
+                }
+                return;
+            }
+            
+            // Validate total number of files
+            if (input.files.length > 5) {
+                showToast('error', 'Maximum 5 files allowed');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                }
+                return;
+            }
+            
+            let previewHtml = '';
+            let totalSize = 0;
+            
+            for (let i = 0; i < input.files.length; i++) {
+                const file = input.files[i];
+                totalSize += file.size;
+                
+                // Validate individual file size (10MB max)
+                if (file.size > 10 * 1024 * 1024) {
+                    showToast('error', `File "${file.name}" exceeds 10MB limit`);
+                    input.value = '';
+                    if (preview) {
+                        preview.innerHTML = '';
+                    }
+                    return;
+                }
+                
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+                
+                if (isImage) {
+                    const reader = new FileReader();
+                    reader.onload = (function(index) {
+                        return function(e) {
+                            const imgDiv = document.createElement('div');
+                            imgDiv.className = 'document-preview-item';
+                            imgDiv.style.cssText = 'width: 120px; position: relative;';
+                            imgDiv.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview ${index + 1}" 
+                                    style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                <p style="margin-top: 8px; font-size: 11px; color: #666; word-break: break-all;">
+                                    <i class="fas fa-file-image me-1"></i>${file.name.substring(0, 15)}...
+                                </p>
+                            `;
+                            preview.appendChild(imgDiv);
+                        };
+                    })(i);
+                    reader.readAsDataURL(file);
+                } else {
+                    const docDiv = document.createElement('div');
+                    docDiv.className = 'document-preview-item';
+                    docDiv.style.cssText = 'width: 120px;';
+                    docDiv.innerHTML = `
+                        <div class="text-center p-3 border rounded" style="height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                        </div>
+                        <p style="margin-top: 8px; font-size: 11px; color: #666; word-break: break-all;">
+                            ${file.name.substring(0, 15)}...
+                        </p>
+                    `;
+                    preview.appendChild(docDiv);
+                }
+            }
+            
+            // Show total file info
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'w-100 mt-2';
+            infoDiv.innerHTML = `
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    ${input.files.length} file(s) selected (Total: ${formatFileSize(totalSize)})
+                </small>
+            `;
+            preview.appendChild(infoDiv);
+        }
+
+        // Validate training form
+        function validateTrainingForm() {
+            let isValid = true;
+            
+            // Required fields
+            const requiredFields = [
+                { id: 'training_first_name', label: 'First Name' },
+                { id: 'training_last_name', label: 'Last Name' },
+                { id: 'training_barangay', label: 'Barangay' },  
+                { id: 'training_contact_number', label: 'Contact Number' },
+                { id: 'training_type', label: 'Training Type' },
+                { id: 'training_status', label: 'Status' }
+            ];
+            
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input && (!input.value || input.value.trim() === '')) {
+                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) feedback.remove();
+                    
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = field.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            });
+            
+            // Validate contact number
+            const contactNumber = document.getElementById('training_contact_number').value.trim();
+            if (!validateTrainingContactNumber(contactNumber)) {
+                isValid = false;
+            }
+            
+            // Validate email if provided
+            const email = document.getElementById('training_email').value.trim();
+            if (email && !validateTrainingEmail(email)) {
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Submit add training form
+        function submitAddTraining() {
+            // Validate form
+            if (!validateTrainingForm()) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return;
+            }
+            
+            // Prepare form data
+            const formData = new FormData();
+            
+            formData.append('first_name', document.getElementById('training_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('training_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('training_last_name').value.trim());
+            formData.append('name_extension', document.getElementById('training_name_extension').value);  
+            formData.append('barangay', document.getElementById('training_barangay').value.trim()); 
+            formData.append('contact_number', document.getElementById('training_contact_number').value.trim());
+            formData.append('email', document.getElementById('training_email').value.trim());
+            formData.append('training_type', document.getElementById('training_type').value);
+            formData.append('status', document.getElementById('training_status').value);
+            formData.append('remarks', document.getElementById('training_remarks').value.trim());
+            
+            const userId = document.getElementById('training_user_id').value.trim();
+            if (userId) {
+                formData.append('user_id', userId);
+            }
+            
+            // Add documents if uploaded
+            const docInput = document.getElementById('training_supporting_documents');
+            if (docInput.files && docInput.files.length > 0) {
+                for (let i = 0; i < docInput.files.length; i++) {
+                    formData.append('supporting_documents[]', docInput.files[i]);
+                }
+            }
+            
+            // Find submit button
+            const submitBtn = document.querySelector('#addTrainingModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
+            submitBtn.disabled = true;
+            
+            // Submit to backend
+            fetch('/admin/training/requests/create', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addTrainingModal'));
+                    modal.hide();
+                    
+                    // Show success message
+                    showToast('success', data.message || 'Training registration created successfully');
+                    
+                    // Reload page after short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Show validation errors
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            const input = document.getElementById('training_' + field);
+                            if (input) {
+                                const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                if (feedback) feedback.remove();
+                                
+                                input.classList.add('is-invalid');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback d-block';
+                                errorDiv.textContent = data.errors[field][0];
+                                input.parentNode.appendChild(errorDiv);
+                            }
+                        });
+                    }
+                    showToast('error', data.message || 'Failed to create training application');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'An error occurred while creating the application');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+
+        // Helper function to format file sizes
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        console.log('Training Add Application functionality loaded successfully');
     </script>
-
-    <!-- Date Filter Modal -->
-    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="dateFilterModalLabel">
-                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-4">
-                        <!-- Date Range Inputs -->
-                        <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
-                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
-                                    </h6>
-                                    <div class="mb-3">
-                                        <label for="modal_date_from" class="form-label">From Date</label>
-                                        <input type="date" id="modal_date_from" class="form-control"
-                                            value="{{ request('date_from') }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="modal_date_to" class="form-label">To Date</label>
-                                        <input type="date" id="modal_date_to" class="form-control"
-                                            value="{{ request('date_to') }}">
-                                    </div>
-                                    <button type="button" class="btn btn-primary w-100"
-                                        onclick="applyCustomDateRange()">
-                                        <i class="fas fa-check me-2"></i>Apply Custom Range
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Date Presets -->
-                        <div class="col-md-6">
-                            <div class="card border-0 bg-light h-100">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
-                                        <i class="fas fa-clock me-2"></i>Quick Presets
-                                    </h6>
-                                    <div class="d-grid gap-2">
-                                        <button type="button" class="btn btn-outline-success"
-                                            onclick="setDateRangeModal('today')">
-                                            <i class="fas fa-calendar-day me-2"></i>Today
-                                        </button>
-                                        <button type="button" class="btn btn-outline-info"
-                                            onclick="setDateRangeModal('week')">
-                                            <i class="fas fa-calendar-week me-2"></i>This Week
-                                        </button>
-                                        <button type="button" class="btn btn-outline-warning"
-                                            onclick="setDateRangeModal('month')">
-                                            <i class="fas fa-calendar me-2"></i>This Month
-                                        </button>
-                                        <button type="button" class="btn btn-outline-primary"
-                                            onclick="setDateRangeModal('year')">
-                                            <i class="fas fa-calendar-alt me-2"></i>This Year
-                                        </button>
-                                        <hr class="my-3">
-                                        <button type="button" class="btn btn-outline-secondary w-100"
-                                            onclick="clearDateRangeModal()">
-                                            <i class="fas fa-times me-2"></i>Clear Date Filter
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Current Filter Status -->
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="alert alert-info mb-0">
-                                <i class="fas fa-info-circle me-2"></i>
-                                <span id="dateFilterStatus">
-                                    @if (request('date_from') || request('date_to'))
-                                        Current filter:
-                                        @if (request('date_from'))
-                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
-                                        @endif
-                                        @if (request('date_to'))
-                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
-                                        @endif
-                                    @else
-                                        No date filter applied - showing all applications
-                                    @endif
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
