@@ -773,7 +773,7 @@ header {
     align-items: center;
     gap: 15px;
     margin-bottom: 40px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 /* Logo styling - INCREASED SIZE */
@@ -1193,18 +1193,20 @@ header {
     }
 
     .events-header {
-        flex-direction: column;
-        gap: 10px;
+        flex-direction: row;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: nowrap;
     }
 
     .logo-icon {
-        width: 80px;
-        height: 80px;
+        width: 60px;
+        height: 60px;
     }
 
     .agrisys-logo-large {
-        width: 100px !important;
-        height: 100px !important;
+        width: 75px !important;
+        height: 75px !important;
     }
 
     .events h2 {
@@ -1253,14 +1255,21 @@ header {
         padding: 40px 15px;
     }
 
+    .events-header {
+        flex-direction: row;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: nowrap;
+    }
+
     .logo-icon {
-        width: 70px;
-        height: 70px;
+        width: 50px;
+        height: 50px;
     }
 
     .agrisys-logo-large {
-        width: 85px !important;
-        height: 85px !important;
+        width: 65px !important;
+        height: 65px !important;
     }
 
     .events h2 {
