@@ -28,6 +28,127 @@ header {
     min-height: 60px; /* Reduced from 50px to 60px but with smaller logo will be more compact */
 }
 
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    background: #40916c;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.mobile-menu-toggle:hover {
+    background: #2d6a4f;
+}
+
+.mobile-menu-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Mobile Navigation Overlay */
+.mobile-nav-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1100;
+    backdrop-filter: blur(2px);
+}
+
+.mobile-nav-overlay.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Mobile Navigation Menu */
+.mobile-nav-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: white;
+    z-index: 1101;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -2px 0 20px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+}
+
+.mobile-nav-menu.active {
+    right: 0;
+}
+
+.mobile-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 2px solid #e8f5e9;
+    background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+}
+
+.mobile-nav-title {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.mobile-nav-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: transform 0.2s;
+}
+
+.mobile-nav-close:hover {
+    transform: scale(1.1);
+}
+
+.mobile-nav-items {
+    padding: 20px 0;
+}
+
+.mobile-nav-item {
+    display: block;
+    padding: 15px 20px;
+    color: #2d6a4f;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.mobile-nav-item:hover,
+.mobile-nav-item:active {
+    background: #f0f8f5;
+    border-left-color: #40916c;
+    color: #1a5f3f;
+}
+
+.mobile-nav-item i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+    color: #40916c;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 
 
 .logo-text {
@@ -2068,83 +2189,738 @@ header {
         flex-wrap: wrap;
     }
 }
-/* --- Responsive Design --- */
-@media (max-width: 768px) {
+/* =================================================================
+   ENHANCED MOBILE RESPONSIVENESS FOR LANDING PAGE
+   ================================================================= */
+
+/* Tablet Landscape */
+@media (max-width: 1024px) {
     header {
-        flex-direction: column;
-        gap: 15px;
-        padding: 15px 20px;
+        padding: 10px 25px;
     }
 
-    .header-left {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
+    .header-center {
+        gap: 8px;
+    }
+
+    .header-center .btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        min-width: 60px;
+    }
+
+    .auth-buttons .btn {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+        min-width: 65px;
+    }
+
+    .welcome-content {
+        padding: 50px 40px;
     }
 
     .welcome h2 {
-        font-size: 2rem;
+        font-size: 3rem;
+    }
+}
+
+/* Tablet Portrait and Small Laptops */
+@media (max-width: 968px) {
+    header {
+        padding: 12px 20px;
     }
 
-    #home .welcome p {
-        font-size: 1.2rem;
+    .header-center {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .header-center .btn {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        min-width: 55px;
+    }
+
+    .welcome h2 {
+        font-size: 2.8rem;
     }
 
     .services h2,
     .how-it-works h2 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Mobile - Primary Breakpoint */
+@media (max-width: 768px) {
+    /* Header Mobile Optimization */
+    header {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 12px 15px;
+        min-height: 60px;
+    }
+
+    .header-left {
+        flex-direction: row;
+        width: auto;
+        gap: 15px;
+        align-items: center;
+        flex: 1;
+    }
+
+    .logo-container {
+        margin-bottom: 0;
+    }
+
+    .main-logo {
+        height: 50px;
+        max-width: 160px;
+    }
+
+    /* Hide Desktop Navigation on Mobile */
+    .header-center {
+        display: none !important;
+    }
+
+    /* Show Mobile Menu Toggle */
+    .mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        order: 1; /* Position after auth buttons */
+    }
+
+    /* Mobile Auth Buttons - Adjusted */
+    .header-right {
+        width: auto;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-left: auto;
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .auth-buttons .btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        min-width: 70px;
+    }
+
+    /* User Profile Mobile */
+    .user-profile {
+        width: 100%;
+        max-width: 300px;
+        padding: 10px 15px;
+    }
+
+    .user-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+
+    .user-name {
+        font-size: 0.9rem;
+    }
+
+    .user-status {
+        font-size: 0.75rem;
+    }
+
+    .user-dropdown {
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90vw;
+        max-width: 320px;
+    }
+
+    /* Welcome Section Mobile */
+    .welcome {
+        min-height: 70vh;
+        height: auto;
+    }
+
+    .welcome-content {
+        padding: 40px 20px;
+        max-width: 100%;
+    }
+
+    .welcome h2 {
         font-size: 2rem;
+        margin-bottom: 15px;
+        line-height: 1.2;
+    }
+
+    .welcome-content p {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .welcome-content .btn-services {
+        padding: 14px 28px;
+        font-size: 0.95rem;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    /* Slideshow Controls Mobile */
+    .slideshow-controls {
+        bottom: 20px;
+        gap: 12px;
+    }
+
+    .indicator {
+        width: 9px;
+        height: 9px;
+    }
+
+    .slideshow-nav {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    /* Services Section Mobile */
+    .services {
+        padding: 50px 15px;
+    }
+
+    .services h2 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+
+    .services-subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+    }
+
+    .row-three,
+    .row-two-centered {
+        grid-template-columns: 1fr;
+        gap: 20px;
     }
 
     .card {
         width: 100%;
-        max-width: 350px;
+        max-width: 100%;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+
+    .card-image {
+        height: 140px;
+    }
+
+    .card h3 {
+        font-size: 1.35rem;
+    }
+
+    .card p {
+        font-size: 0.95rem;
+    }
+
+    .card .btn,
+    .card .btn-choice {
+        padding: 12px 20px;
+        font-size: 0.95rem;
+    }
+
+    /* How It Works Mobile */
+    .how-it-works {
+        padding: 50px 15px;
+    }
+
+    .how-it-works h2 {
+        font-size: 2rem;
+    }
+
+    .HowItWorks-subtitle {
+        font-size: 1.05rem;
+        margin-bottom: 40px;
     }
 
     .steps {
-        flex-direction: column;
-        align-items: center;
+        grid-template-columns: 1fr;
+        gap: 25px;
     }
 
     .step {
-        max-width: 100%;
+        padding: 30px 20px;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3rem;
+    }
+
+    .step h3 {
+        font-size: 1.3rem;
+    }
+
+    .step p {
+        font-size: 1rem;
+    }
+
+    /* Help Section Mobile */
+    .help-section {
+        padding: 50px 15px;
+    }
+
+    .help-section h2 {
+        font-size: 2rem;
+    }
+
+    .help-section p {
+        font-size: 1.1rem;
     }
 
     .help-buttons {
         flex-direction: column;
         align-items: center;
+        gap: 15px;
+    }
+
+    .btn-help {
+        width: 100%;
+        max-width: 280px;
+        padding: 14px 28px;
+    }
+
+    /* Footer Mobile */
+    .footer {
+        padding: 40px 15px 15px;
     }
 
     .footer-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .footer-main {
+        max-width: 100%;
+    }
+
+    .footer-logo h2 {
+        font-size: 1.5rem;
+    }
+
+    .footer-column h3 {
+        font-size: 1rem;
+    }
+
+    .footer-bottom {
         flex-direction: column;
+        gap: 15px;
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .footer-bottom-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    /* Contact Modal Mobile */
+    .contact-modal-content {
+        width: 95%;
+        max-width: 95%;
+        margin: 10px;
+    }
+
+    .contact-modal-header {
+        padding: 15px;
+    }
+
+    .contact-modal-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .contact-modal-body {
+        padding: 20px 15px;
+    }
+
+    .contact-info-item {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .contact-info-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .contact-info-text strong {
+        font-size: 13px;
+    }
+
+    .contact-info-text a,
+    .contact-info-text span {
+        font-size: 14px;
     }
 }
 
+/* Small Mobile Devices */
 @media (max-width: 480px) {
-    .logo {
-        font-size: 20px;
-        padding: 6px 12px;
+    /* Header Extra Small */
+    header {
+        padding: 10px 12px;
     }
 
+    .main-logo {
+        height: 45px;
+        max-width: 140px;
+    }
+
+    .mobile-menu-toggle {
+        padding: 8px 12px;
+        font-size: 1.1rem;
+    }
+
+    .auth-buttons .btn {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        min-width: 60px;
+    }
+
+    .mobile-nav-menu {
+        width: 85vw;
+        max-width: 280px;
+    }
+
+    /* Welcome Extra Small */
     .welcome {
+        min-height: 60vh;
+    }
+
+    .welcome-content {
         padding: 30px 15px;
+    }
+
+    .welcome h2 {
+        font-size: 1.6rem;
+        margin-bottom: 12px;
+    }
+
+    .welcome-content p {
+        font-size: 0.9rem;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    .welcome-content .btn-services {
+        padding: 12px 24px;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+
+    /* Services Extra Small */
+    .services {
+        padding: 40px 12px;
+    }
+
+    .services h2 {
+        font-size: 1.75rem;
+    }
+
+    .services-subtitle {
+        font-size: 1rem;
+        padding: 0 10px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .card-image {
+        height: 130px;
+    }
+
+    .card h3 {
+        font-size: 1.25rem;
+    }
+
+    .card p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .card .btn,
+    .card .btn-choice {
+        padding: 11px 18px;
+        font-size: 0.9rem;
+    }
+
+    /* Events Extra Small */
+    .events {
+        padding: 40px 12px;
+    }
+
+    .events h2 {
+        font-size: 1.75rem;
+    }
+
+    .logo-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .agrisys-logo-large {
+        width: 75px !important;
+        height: 75px !important;
+    }
+
+    /* How It Works Extra Small */
+    .how-it-works {
+        padding: 40px 12px;
+    }
+
+    .how-it-works h2 {
+        font-size: 1.75rem;
+    }
+
+    .HowItWorks-subtitle {
+        font-size: 1rem;
+        padding: 0 10px;
+    }
+
+    .step {
+        padding: 25px 15px;
+    }
+
+    .step-number {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+
+    .step h3 {
+        font-size: 1.2rem;
+    }
+
+    .step p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    /* Help Section Extra Small */
+    .help-section {
+        padding: 40px 12px;
+    }
+
+    .help-section h2 {
+        font-size: 1.75rem;
+    }
+
+    .help-section p {
+        font-size: 1rem;
+        padding: 0 10px;
+    }
+
+    .btn-help {
+        padding: 12px 24px;
+        font-size: 1rem;
+    }
+
+    /* Footer Extra Small */
+    .footer {
+        padding: 30px 12px 12px;
+    }
+
+    .footer-main p,
+    .footer-column p,
+    .footer-column a {
+        font-size: 0.9rem;
+    }
+
+    .footer-column h3 {
+        font-size: 0.95rem;
+    }
+
+    .social-links a {
+        width: 32px;
+        height: 32px;
+    }
+
+    .footer-bottom {
+        font-size: 0.8rem;
+    }
+}
+
+/* Extra Small Devices */
+@media (max-width: 360px) {
+    header {
+        padding: 8px 10px;
+    }
+
+    .main-logo {
+        height: 55px;
+        max-width: 160px;
+    }
+
+    .header-center .btn {
+        padding: 8px 5px;
+        font-size: 0.75rem;
+    }
+
+    .welcome h2 {
+        font-size: 1.4rem;
+    }
+
+    .welcome-content p {
+        font-size: 0.85rem;
+    }
+
+    .welcome-content .btn-services {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+
+    .services h2,
+    .how-it-works h2,
+    .help-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .card {
+        padding: 15px;
+    }
+
+    .card-image {
+        height: 120px;
+    }
+
+    .card h3 {
+        font-size: 1.15rem;
+    }
+
+    .card p {
+        font-size: 0.85rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets for mobile */
+    .header-center .btn,
+    .auth-buttons .btn,
+    .btn-services,
+    .btn-help,
+    .card .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Remove hover effects on touch devices */
+    .header-center .btn:hover,
+    .auth-buttons .btn:hover,
+    .card:hover,
+    .step:hover {
+        transform: none;
+    }
+
+    /* Better tap feedback */
+    .header-center .btn:active,
+    .auth-buttons .btn:active {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+}
+
+/* Landscape Mobile Orientation */
+@media (max-width: 968px) and (orientation: landscape) {
+    .welcome {
+        min-height: 100vh;
+    }
+
+    .welcome-content {
+        padding: 30px 20px;
     }
 
     .welcome h2 {
         font-size: 1.8rem;
     }
 
-    #home .welcome p {
-        font-size: 1rem;
+    .welcome-content p {
+        font-size: 0.95rem;
     }
 
-    .services,
-    .how-it-works,
-    .help-section {
-        padding: 40px 15px;
+    header {
+        padding: 8px 15px;
+    }
+
+    .header-center .btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    header {
+        border-bottom: 2px solid #000;
+    }
+
+    .header-center .btn,
+    .auth-buttons .btn {
+        border: 2px solid #000;
     }
 
     .card {
-        padding: 20px;
-        width: 100%;
+        border: 3px solid #000;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .slide {
+        transition: none;
+    }
+
+    .event-card:hover,
+    .card:hover,
+    .step:hover {
+        transform: none;
+    }
+}
+
+/* Print Styles */
+@media print {
+    header,
+    .slideshow-controls,
+    .help-buttons,
+    .footer,
+    .auth-buttons {
+        display: none !important;
+    }
+
+    .welcome,
+    .services,
+    .events,
+    .how-it-works {
+        page-break-inside: avoid;
+    }
+
+    body {
+        font-size: 12pt;
     }
 }
