@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{{ asset('css/toast-notifications.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     @if (isset($user))
         <script>
@@ -57,6 +58,37 @@
         </div>
     @endif
 
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="closeMobileNav()"></div>
+
+    <!-- Mobile Navigation Menu -->
+    <nav class="mobile-nav-menu" id="mobileNavMenu">
+        <div class="mobile-nav-header">
+            <span class="mobile-nav-title">Navigation</span>
+            <button class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Close menu">&times;</button>
+        </div>
+        <div class="mobile-nav-items">
+            <a href="javascript:void(0)" class="mobile-nav-item" onclick="goHome(event); closeMobileNav();">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="javascript:void(0)" class="mobile-nav-item" onclick="openRSBSAForm(event); closeMobileNav();">
+                <i class="fas fa-file-alt"></i> RSBSA Application
+            </a>
+            <a href="javascript:void(0)" class="mobile-nav-item" onclick="openFormSeedlings(event); closeMobileNav();">
+                <i class="fas fa-seedling"></i> Seedlings Request
+            </a>
+            <a href="javascript:void(0)" class="mobile-nav-item" onclick="openFormFishR(event); closeMobileNav();">
+                <i class="fas fa-fish"></i> FishR Registration
+            </a>
+            <a href="javascript:void(0)" class="mobile-nav-item" onclick="openFormBoatR(event); closeMobileNav();">
+                <i class="fas fa-ship"></i> BoatR Registration
+            </a>
+            <a href="javascript:void(0)" class="mobile-nav-item" onclick="openFormTraining(event); closeMobileNav();">
+                <i class="fas fa-chalkboard-teacher"></i> Training Registration
+            </a>
+        </div>
+    </nav>
+
     <header>
         <div class="header-left">
             <div class="logo-text">
@@ -64,6 +96,8 @@
                     <img src="{{ asset('images/logos/agrii-removebg.png') }}" alt="AgriSys Logo" class="main-logo">
                 </div>
             </div>
+
+            <!-- Desktop Navigation (hidden on mobile) -->
             <div class="header-center nav-buttons">
                 <button type="button" class="btn" onclick="goHome(event)">Home</button>
                 <button type="button" class="btn" onclick="openRSBSAForm(event)">RSBSA</button>
@@ -74,6 +108,11 @@
             </div>
 
             <div class="header-right auth-buttons">
+                <!-- Mobile Menu Toggle Button (visible only on mobile) -->
+                <button class="mobile-menu-toggle" onclick="toggleMobileNav()" aria-label="Toggle navigation menu">
+                    <span>☰</span>
+                </button>
+
                 @if (isset($user))
                     <!-- User Profile Dropdown -->
                     <div class="user-profile" id="user-profile" onclick="toggleUserDropdown()">
@@ -132,14 +171,16 @@
 
                             <div class="dropdown-menu">
                                 <a href="#" class="dropdown-item" onclick="showMyApplicationsModal()">
-                                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="dropdown-icon" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                     My Applications
                                 </a>
                                 <a href="#" class="dropdown-item" onclick="showProfileModal()">
-                                    <svg class="dropdown-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="dropdown-icon" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                     </svg>
@@ -1221,8 +1262,9 @@
                         <div class="form-group">
                             <label for="new-password">New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="new-password" name="new_password" required minlength="8"
-                                    autocomplete="new-password" placeholder="Enter your new password"
+                                <input type="password" id="new-password" name="new_password" required
+                                    minlength="8" autocomplete="new-password"
+                                    placeholder="Enter your new password"
                                     oninput="checkNewPasswordStrength(this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('new-password')">
@@ -1241,8 +1283,8 @@
                         <div class="form-group">
                             <label for="confirm-new-password">Confirm New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="confirm-new-password" name="confirm_new_password" required
-                                    autocomplete="new-password" placeholder="Confirm your new password"
+                                <input type="password" id="confirm-new-password" name="confirm_new_password"
+                                    required autocomplete="new-password" placeholder="Confirm your new password"
                                     oninput="checkNewPasswordMatch(document.getElementById('new-password').value, this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('confirm-new-password')">
@@ -1348,6 +1390,54 @@
     <script src="{{ asset('js/seedlings-autofill.js') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}"></script>
     <script src="{{ asset('js/toast-notifications.js') }}"></script>
+
+    <!-- Mobile Navigation Script -->
+    <script>
+        // Mobile Navigation Functions
+        function toggleMobileNav() {
+            const menu = document.getElementById('mobileNavMenu');
+            const overlay = document.getElementById('mobileNavOverlay');
+            const isActive = menu.classList.contains('active');
+
+            if (isActive) {
+                closeMobileNav();
+            } else {
+                openMobileNav();
+            }
+        }
+
+        function openMobileNav() {
+            const menu = document.getElementById('mobileNavMenu');
+            const overlay = document.getElementById('mobileNavOverlay');
+
+            menu.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileNav() {
+            const menu = document.getElementById('mobileNavMenu');
+            const overlay = document.getElementById('mobileNavOverlay');
+
+            menu.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close mobile nav when pressing Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileNav();
+            }
+        });
+
+        // Close mobile nav when window is resized to desktop size
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMobileNav();
+            }
+        });
+    </script>
 
     <!-- reCAPTCHA initialization callback -->
     <script>

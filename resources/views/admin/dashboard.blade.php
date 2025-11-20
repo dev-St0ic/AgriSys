@@ -362,16 +362,16 @@
         }
 
         /* .welcome-banner::before {
-                                        content: '';
-                                        position: absolute;
-                                        top: 0;
-                                        right: 0;
-                                        width: 100px;
-                                        height: 100px;
-                                        background: rgba(255, 255, 255, 0.1);
-                                        border-radius: 50%;
-                                        transform: translate(20px, -20px);
-                                    } */
+                                            content: '';
+                                            position: absolute;
+                                            top: 0;
+                                            right: 0;
+                                            width: 100px;
+                                            height: 100px;
+                                            background: rgba(255, 255, 255, 0.1);
+                                            border-radius: 50%;
+                                            transform: translate(20px, -20px);
+                                        } */
 
         /* Metric Cards */
         .metric-card {
@@ -694,6 +694,72 @@
             .action-icon {
                 font-size: 1.5rem;
                 margin-bottom: 0.5rem;
+            }
+
+            .welcome-banner {
+                margin-bottom: 1.5rem;
+            }
+
+            .welcome-banner h2 {
+                font-size: 1.25rem;
+            }
+
+            .welcome-banner p {
+                font-size: 0.875rem;
+            }
+
+            .metric-card {
+                margin-bottom: 1rem;
+            }
+
+            .metric-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .metric-label {
+                font-size: 0.7rem;
+            }
+
+            .service-card {
+                margin-bottom: 1rem;
+            }
+
+            .status-number {
+                font-size: 1.25rem;
+            }
+
+            .card-header h5 {
+                font-size: 1rem;
+            }
+
+            /* Make tables horizontally scrollable */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .welcome-banner h2 {
+                font-size: 1.1rem;
+            }
+
+            .metric-value {
+                font-size: 1.25rem;
+            }
+
+            .metric-label {
+                font-size: 0.65rem;
+            }
+
+            .status-label small {
+                font-size: 0.7rem;
+            }
+
+            .card-body {
+                padding: 0.75rem;
             }
         }
 

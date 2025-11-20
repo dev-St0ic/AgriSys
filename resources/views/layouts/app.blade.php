@@ -11,6 +11,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Mobile Optimizations -->
+    <link href="{{ asset('css/mobile-optimizations.css') }}" rel="stylesheet">
 
     <!-- Apply sidebar state IMMEDIATELY to prevent flash -->
     <script>
@@ -657,13 +659,133 @@
             }
 
             .main-content {
-                margin-left: 0;
-                width: 100%;
-                max-width: 100%;
+                margin-left: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
             }
 
-            .toggle-sidebar-btn {
-                margin: 0.25rem;
+            .main-content.sidebar-collapsed {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+
+            /* Mobile Hamburger Button */
+            .mobile-menu-btn {
+                position: fixed;
+                top: 20px;
+                left: 15px;
+                z-index: 1060;
+                background: #10b981;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 8px 12px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem;
+                width: 40px;
+                height: 40px;
+            }
+
+            .mobile-menu-btn:hover {
+                background: #059669;
+            }
+
+            /* Hide desktop toggle button on mobile */
+            .sidebar-header .toggle-sidebar-btn {
+                display: none !important;
+            }
+
+            /* Adjust top navbar for mobile */
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn-toolbar {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .profile-section {
+                flex-direction: row;
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            /* Mobile-friendly tables */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin-bottom: 1rem;
+            }
+
+            /* Mobile-friendly cards */
+            .card {
+                margin-bottom: 1rem;
+            }
+
+            /* Adjust padding for mobile */
+            .container-fluid {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            /* Mobile-friendly page title */
+            .h2 {
+                font-size: 1.5rem;
+            }
+
+            /* Stack stat cards on mobile */
+            .col-xl-3,
+            .col-md-6 {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Small mobile screens */
+        @media (max-width: 576px) {
+            .metric-value {
+                font-size: 1.5rem;
+            }
+
+            .metric-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            /* Reduce font sizes */
+            .h2 {
+                font-size: 1.25rem;
+            }
+
+            .btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        /* Tablet landscape */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+
+            .main-content {
+                margin-left: 240px;
+                width: calc(100vw - 240px);
+            }
+
+            .main-content.sidebar-collapsed {
+                margin-left: 75px;
+                width: calc(100vw - 75px);
             }
         }
 
@@ -707,6 +829,12 @@
         <div class="row g-0">
             @auth
                 @if (auth()->check() && (request()->routeIs('admin.*') || request()->routeIs('dashboard')))
+                    <!-- Mobile Menu Button (visible on mobile only) -->
+                    <button class="mobile-menu-btn d-md-none" onclick="toggleSidebarMobile()"
+                        aria-label="Toggle mobile menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
                     <!-- Sidebar Overlay for mobile -->
                     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebarMobile()"></div>
 
@@ -1080,6 +1208,56 @@
             // Save the new state (this also updates HTML class)
             saveSidebarState(willBeCollapsed);
         }
+
+        // Mobile sidebar toggle functions
+        function toggleSidebarMobile() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (!sidebar || !overlay) return;
+
+            const isOpen = sidebar.classList.contains('show');
+
+            if (isOpen) {
+                closeSidebarMobile();
+            } else {
+                openSidebarMobile();
+            }
+        }
+
+        function openSidebarMobile() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (sidebar && overlay) {
+                sidebar.classList.add('show');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeSidebarMobile() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (sidebar && overlay) {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close mobile sidebar when clicking nav links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        closeSidebarMobile();
+                    }
+                });
+            });
+        });
 
         function applySidebarState() {
             const sidebar = document.getElementById('sidebar');
