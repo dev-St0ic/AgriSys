@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Creates the event_logs table for audit trail and change tracking
      * Helps track all modifications to events for accountability
      */
@@ -17,20 +17,20 @@ return new class extends Migration
         Schema::create('event_logs', function (Blueprint $table) {
             // Primary Key
             $table->id();
-            
+
             // ========================================
             // FOREIGN KEY REFERENCES
             // ========================================
-            $table->unsignedBigInteger('event_id');
-            $table->unsignedBigInteger('performed_by');
-            
+            $table->unsignedBigInteger('event_id')->nullable();
+            $table->unsignedBigInteger('performed_by')->nullable();
+
             // ========================================
             // LOG INFORMATION
             // ========================================
-            $table->string('action', 100); // created, updated, deleted, published, unpublished, toggled
+            $table->string('action', 100)->nullable(); // created, updated, deleted, published, unpublished, toggled
             $table->json('changes')->nullable(); // Track what fields changed: {field: {old: val, new: val}}
             $table->text('notes')->nullable(); // Additional context or reason for change
-            
+
             // ========================================
             // METADATA
             // ========================================
@@ -38,7 +38,7 @@ return new class extends Migration
             $table->string('user_agent', 500)->nullable(); // Browser/client info
             $table->string('method', 10)->nullable(); // HTTP method (POST, PUT, DELETE)
             $table->json('request_data')->nullable(); // Full request payload for debugging
-            
+
             // ========================================
             // TIMESTAMPS (Immutable - logs are never updated)
             // ========================================
@@ -60,13 +60,13 @@ return new class extends Migration
             // ========================================
             // INDEXES FOR QUERY PERFORMANCE
             // ========================================
-            // DO NOT add index() to column that already has foreign() 
+            // DO NOT add index() to column that already has foreign()
             // Foreign keys automatically create indexes in MySQL
-            
+
             // Single column indexes
             $table->index('action'); // Query by action type
             $table->index('created_at'); // Time-based queries
-            
+
             // Composite indexes for common query patterns
             $table->index(['event_id', 'created_at']); // Get event logs in order
             $table->index(['performed_by', 'created_at']); // Get user activity timeline

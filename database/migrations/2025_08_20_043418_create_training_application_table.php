@@ -14,16 +14,16 @@ return new class extends Migration
         Schema::create('training_applications', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
 
-            $table->string('application_number')->unique();
-            $table->string('first_name');
+            $table->string('application_number')->unique()->nullable();
+            $table->string('first_name')->nullable();
             $table->string('middle_name')->nullable();
-            $table->string('last_name');
+            $table->string('last_name')->nullable();
             $table->string('name_extension')->nullable();
-            $table->string('contact_number', 20);
-            $table->string('email');
-            $table->string('barangay'); // Barangay location
+            $table->string('contact_number', 20)->nullable();
+            $table->string('email')->nullable();
+            $table->string('barangay')->nullable(); // Barangay location
             $table->enum('training_type', [
                 'tilapia_hito',
                 'hydroponics',
@@ -32,7 +32,7 @@ return new class extends Migration
                 'livestock_poultry',
                 'high_value_crops',
                 'sampaguita_propagation'
-            ]);
+            ])->nullable();
             $table->json('document_paths')->nullable(); // Store multiple document paths
             $table->enum('status', ['under_review', 'approved', 'rejected'])->default('under_review');
 

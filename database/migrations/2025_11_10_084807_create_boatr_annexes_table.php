@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('boatr_annexes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('boatr_application_id');
-            $table->string('title');
+            $table->unsignedBigInteger('boatr_application_id')->nullable();
+            $table->string('title')->nullable();
             $table->text('description')->nullable();
-            $table->string('file_path');
-            $table->string('file_name');
-            $table->string('file_extension');
-            $table->string('mime_type');
-            $table->unsignedBigInteger('file_size');
-            $table->unsignedBigInteger('uploaded_by');
+            $table->string('file_path')->nullable();
+            $table->string('file_name')->nullable();
+            $table->string('file_extension')->nullable();
+            $table->string('mime_type')->nullable();
+            $table->unsignedBigInteger('file_size')->nullable();
+            $table->unsignedBigInteger('uploaded_by')->nullable();
             $table->timestamps();
 
             // Foreign key constraints

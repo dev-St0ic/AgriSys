@@ -16,18 +16,18 @@ return new class extends Migration
 
             $table->unsignedBigInteger('user_id')->nullable();
 
-            $table->string('registration_number')->unique();
-            $table->string('first_name');
+            $table->string('registration_number')->unique()->nullable();
+            $table->string('first_name')->nullable();
             $table->string('middle_name')->nullable();
-            $table->string('last_name');
+            $table->string('last_name')->nullable();
             $table->string('name_extension')->nullable();
-            $table->enum('sex', ['Male', 'Female', 'Preferred not to say']);
-            $table->string('barangay');
+            $table->enum('sex', ['Male', 'Female', 'Preferred not to say'])->nullable();
+            $table->string('barangay')->nullable();
             $table->unsignedBigInteger('barangay_id')->nullable(); // Foreign key to barangays table
-            $table->string('contact_number', 20);
+            $table->string('contact_number', 20)->nullable();
             $table->string('email')->nullable();
-            $table->enum('main_livelihood', ['capture', 'aquaculture', 'vending', 'processing', 'others']);
-            $table->string('livelihood_description');
+            $table->enum('main_livelihood', ['capture', 'aquaculture', 'vending', 'processing', 'others'])->nullable();
+            $table->string('livelihood_description')->nullable();
             $table->string('other_livelihood')->nullable();
             $table->string('document_path')->nullable();
             $table->enum('status', ['under_review', 'approved', 'rejected'])->default('under_review');
