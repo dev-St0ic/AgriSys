@@ -582,18 +582,25 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Initialize sortable for reordering
-            const sortable = Sortable.create(document.getElementById('sortableSlides'), {
-                handle: '.drag-handle',
-                animation: 150,
-                disabled: true, // Initially disabled
-                onEnd: function(evt) {
-                    updateSlidesOrder();
-                }
-            });
+            // Initialize sortable for reordering (only if element exists)
+            const sortableElement = document.getElementById('sortableSlides');
+            let sortable = null;
+
+            if (sortableElement) {
+                sortable = Sortable.create(sortableElement, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    disabled: true, // Initially disabled
+                    onEnd: function(evt) {
+                        updateSlidesOrder();
+                    }
+                });
+            }
 
             // Toggle reorder mode
             $('#reorderBtn').click(function() {
+                if (!sortable) return; // Exit if sortable wasn't initialized
+
                 const isReorderMode = $(this).hasClass('active');
 
                 if (isReorderMode) {
