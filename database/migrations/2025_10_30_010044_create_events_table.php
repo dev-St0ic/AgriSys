@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Creates the events table for Agricultural Events Management System
      * Supports dynamic event display with categorization, ordering, and archiving
      */
@@ -17,14 +17,14 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             // Primary Key
             $table->id();
-            
+
             // ========================================
             // BASIC INFORMATION
             // ========================================
-            $table->string('title', 255)->index();
-            $table->longText('description');
+            $table->string('title', 255)->nullable()->index();
+            $table->longText('description')->nullable();
             $table->text('short_description')->nullable(); // Optional short desc for cards
-            
+
             // ========================================
             // CATEGORIZATION
             // ========================================
@@ -32,34 +32,34 @@ return new class extends Migration
                 ->default('upcoming')
                 ->index();
             $table->string('category_label', 100)->nullable(); // Stores "Ongoing", "Upcoming" etc
-            
+
             // ========================================
             // MEDIA & VISUAL
             // ========================================
             $table->string('image_path')->nullable()->index();
             $table->string('image_alt_text', 500)->nullable(); // For accessibility
-            
+
             // ========================================
             // EVENT DETAILS
             // ========================================
             $table->string('date', 255)->nullable();
             $table->string('location', 500)->nullable();
             $table->json('details')->nullable(); // Store flexible details (participants, cost, etc)
-            
+
             // ========================================
             // STATUS & DISPLAY CONTROL
             // ========================================
             $table->boolean('is_active')->default(true)->index(); // Controls visibility on landing page
             $table->integer('display_order')->default(0)->index(); // Controls ordering on frontend
             $table->boolean('is_featured')->default(false)->index(); // Flag for featured event
-            
+
             // ========================================
             // ARCHIVE FUNCTIONALITY (NEW)
             // ========================================
             $table->boolean('is_archived')->default(false)->index(); // Archive flag
             $table->timestamp('archived_at')->nullable(); // When event was archived
             $table->text('archive_reason')->nullable(); // Why it was archived (optional)
-            
+
             // ========================================
             // USER TRACKING (Audit Trail)
             // ========================================
@@ -67,7 +67,7 @@ return new class extends Migration
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->unsignedBigInteger('archived_by')->nullable(); // Who archived it
             $table->timestamp('published_at')->nullable(); // When event was published
-            
+
             // ========================================
             // SOFT DELETE & TIMESTAMPS
             // ========================================
@@ -81,7 +81,7 @@ return new class extends Migration
                 ->references('id')
                 ->on('users')
                 ->onDelete('set null');
-                
+
             $table->foreign('updated_by')
                 ->references('id')
                 ->on('users')

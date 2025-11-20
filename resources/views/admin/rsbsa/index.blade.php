@@ -1144,8 +1144,8 @@
 
         /* Application Details Modal - Simple Professional Look */
         /* ============================================
-                VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
-                ============================================ */
+                        VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
+                        ============================================ */
 
         /* Application Details Modal - Enhanced Styling */
         #applicationModal .modal-content {
@@ -1271,8 +1271,8 @@
         }
 
         /* #updateModal .modal-header {
-                border-bottom: 1px solid #dee2e6;
-            } */
+                        border-bottom: 1px solid #dee2e6;
+                    } */
 
         #updateModal .modal-header .modal-title {
             /* color: black; */
@@ -2250,22 +2250,34 @@
 
         // Date picker modal functions
         function openDatePicker() {
-            const modal = document.getElementById('datePickerModal');
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+            const modal = document.getElementById('dateFilterModal');
+            if (!modal) return;
+
+            const dateFrom = document.getElementById('date_from');
+            const dateTo = document.getElementById('date_to');
+            const modalDateFrom = document.getElementById('modal_date_from');
+            const modalDateTo = document.getElementById('modal_date_to');
 
             // Set current values in modal
-            document.getElementById('modalStartDate').value = startDate;
-            document.getElementById('modalEndDate').value = endDate;
+            if (dateFrom && modalDateFrom) {
+                modalDateFrom.value = dateFrom.value;
+            }
+            if (dateTo && modalDateTo) {
+                modalDateTo.value = dateTo.value;
+            }
 
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            const bootstrapModal = new bootstrap.Modal(modal);
+            bootstrapModal.show();
         }
 
         function closeDatePicker() {
-            const modal = document.getElementById('datePickerModal');
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
+            const modal = document.getElementById('dateFilterModal');
+            if (!modal) return;
+
+            const bootstrapModal = bootstrap.Modal.getInstance(modal);
+            if (bootstrapModal) {
+                bootstrapModal.hide();
+            }
         }
 
         function setModalDateRange(period) {
@@ -2311,8 +2323,15 @@
             }
 
             if (startDate && endDate) {
-                document.getElementById('modalStartDate').value = startDate.toISOString().split('T')[0];
-                document.getElementById('modalEndDate').value = endDate.toISOString().split('T')[0];
+                const modalDateFrom = document.getElementById('modal_date_from');
+                const modalDateTo = document.getElementById('modal_date_to');
+
+                if (modalDateFrom) {
+                    modalDateFrom.value = startDate.toISOString().split('T')[0];
+                }
+                if (modalDateTo) {
+                    modalDateTo.value = endDate.toISOString().split('T')[0];
+                }
 
                 // Add active class to clicked button
                 event.target.classList.add('active');
@@ -2320,14 +2339,23 @@
         }
 
         function clearModalDates() {
-            document.getElementById('modalStartDate').value = '';
-            document.getElementById('modalEndDate').value = '';
+            const modalDateFrom = document.getElementById('modal_date_from');
+            const modalDateTo = document.getElementById('modal_date_to');
+
+            if (modalDateFrom) modalDateFrom.value = '';
+            if (modalDateTo) modalDateTo.value = '';
+
             document.querySelectorAll('.quick-date-btn').forEach(btn => btn.classList.remove('active'));
         }
 
         function applyDateRange() {
-            const startDate = document.getElementById('modalStartDate').value;
-            const endDate = document.getElementById('modalEndDate').value;
+            const modalDateFrom = document.getElementById('modal_date_from');
+            const modalDateTo = document.getElementById('modal_date_to');
+
+            if (!modalDateFrom || !modalDateTo) return;
+
+            const startDate = modalDateFrom.value;
+            const endDate = modalDateTo.value;
 
             // Validate date range
             if (startDate && endDate && startDate > endDate) {
@@ -2336,11 +2364,14 @@
             }
 
             // Update hidden inputs
-            document.getElementById('startDate').value = startDate;
-            document.getElementById('endDate').value = endDate;
+            const dateFrom = document.getElementById('date_from');
+            const dateTo = document.getElementById('date_to');
+
+            if (dateFrom) dateFrom.value = startDate;
+            if (dateTo) dateTo.value = endDate;
 
             // Update display
-            updateDateRangeDisplay(startDate, endDate);
+            updateDateFilterStatus(startDate, endDate);
 
             // Close modal
             closeDatePicker();
@@ -2350,37 +2381,12 @@
         }
 
         function updateDateRangeDisplay(startDate, endDate) {
-            const displayInput = document.getElementById('dateRangePicker');
-
-            if (startDate && endDate) {
-                const start = new Date(startDate).toLocaleDateString();
-                const end = new Date(endDate).toLocaleDateString();
-                displayInput.value = `${start} - ${end}`;
-            } else if (startDate) {
-                displayInput.value = new Date(startDate).toLocaleDateString();
-            } else {
-                displayInput.value = '';
-            }
+            // This function is kept for compatibility but uses updateDateFilterStatus
+            updateDateFilterStatus(startDate, endDate);
         }
 
         // Initialize date picker
         document.addEventListener('DOMContentLoaded', function() {
-            // Make date range picker clickable
-            const dateRangePicker = document.getElementById('dateRangePicker');
-            if (dateRangePicker) {
-                dateRangePicker.addEventListener('click', openDatePicker);
-            }
-
-            // Close modal when clicking outside
-            const datePickerModal = document.getElementById('datePickerModal');
-            if (datePickerModal) {
-                datePickerModal.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        closeDatePicker();
-                    }
-                });
-            }
-
             // Add Enter key listeners to date inputs
             const modalDateFrom = document.getElementById('modal_date_from');
             if (modalDateFrom) {
@@ -2402,11 +2408,15 @@
                 });
             }
 
-            // Initialize display with current values
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            if (startDate || endDate) {
-                updateDateRangeDisplay(startDate, endDate);
+            // Initialize display with current values (use correct IDs)
+            const dateFromInput = document.getElementById('date_from');
+            const dateToInput = document.getElementById('date_to');
+            if (dateFromInput && dateToInput) {
+                const dateFrom = dateFromInput.value;
+                const dateTo = dateToInput.value;
+                if (dateFrom || dateTo) {
+                    updateDateFilterStatus(dateFrom, dateTo);
+                }
             }
         });
 
@@ -3031,7 +3041,8 @@
             const statusSelect = document.getElementById('newStatus');
             const remarksTextarea = document.getElementById('remarks');
 
-            if (!statusSelect || !statusSelect.dataset.originalStatus) return;
+            if (!statusSelect || !remarksTextarea) return;
+            if (!statusSelect.dataset.originalStatus) return;
 
             const originalStatus = statusSelect.dataset.originalStatus || '';
             const originalRemarks = remarksTextarea.dataset.originalRemarks || '';
@@ -3067,11 +3078,19 @@
             const remarksTextarea = document.getElementById('remarks');
 
             if (statusSelect) {
-                statusSelect.addEventListener('change', checkForChanges);
+                statusSelect.addEventListener('change', function() {
+                    if (typeof checkForChanges === 'function') {
+                        checkForChanges();
+                    }
+                });
             }
 
             if (remarksTextarea) {
-                remarksTextarea.addEventListener('input', checkForChanges);
+                remarksTextarea.addEventListener('input', function() {
+                    if (typeof checkForChanges === 'function') {
+                        checkForChanges();
+                    }
+                });
             }
 
             // Add keyboard shortcuts for document modal
@@ -3482,12 +3501,16 @@
         }
 
         // Real-time validation for contact number
-        document.getElementById('rsbsa_contact_number')?.addEventListener('input', function() {
-            validateRsbsaContactNumber(this.value);
-        });
+        const rsbsaContactInput = document.getElementById('rsbsa_contact_number');
+        if (rsbsaContactInput) {
+            rsbsaContactInput.addEventListener('input', function() {
+                validateRsbsaContactNumber(this.value);
+            });
+        }
 
         function validateRsbsaContactNumber(contactNumber) {
             const input = document.getElementById('rsbsa_contact_number');
+            if (!input) return;
             const feedback = input.parentNode.querySelector('.invalid-feedback');
 
             if (feedback) feedback.remove();
@@ -3513,12 +3536,16 @@
         }
 
         // Real-time validation for email
-        document.getElementById('rsbsa_email')?.addEventListener('input', function() {
-            validateRsbsaEmail(this.value);
-        });
+        const rsbsaEmailInput = document.getElementById('rsbsa_email');
+        if (rsbsaEmailInput) {
+            rsbsaEmailInput.addEventListener('input', function() {
+                validateRsbsaEmail(this.value);
+            });
+        }
 
         function validateRsbsaEmail(email) {
             const input = document.getElementById('rsbsa_email');
+            if (!input) return;
             const feedback = input.parentNode.querySelector('.invalid-feedback');
 
             if (feedback) feedback.remove();
@@ -3555,17 +3582,26 @@
             }
         }
 
-        document.getElementById('rsbsa_first_name')?.addEventListener('blur', function() {
-            capitalizeRsbsaName(this);
-        });
+        const rsbsaFirstName = document.getElementById('rsbsa_first_name');
+        if (rsbsaFirstName) {
+            rsbsaFirstName.addEventListener('blur', function() {
+                capitalizeRsbsaName(this);
+            });
+        }
 
-        document.getElementById('rsbsa_middle_name')?.addEventListener('blur', function() {
-            capitalizeRsbsaName(this);
-        });
+        const rsbsaMiddleName = document.getElementById('rsbsa_middle_name');
+        if (rsbsaMiddleName) {
+            rsbsaMiddleName.addEventListener('blur', function() {
+                capitalizeRsbsaName(this);
+            });
+        }
 
-        document.getElementById('rsbsa_last_name')?.addEventListener('blur', function() {
-            capitalizeRsbsaName(this);
-        });
+        const rsbsaLastName = document.getElementById('rsbsa_last_name');
+        if (rsbsaLastName) {
+            rsbsaLastName.addEventListener('blur', function() {
+                capitalizeRsbsaName(this);
+            });
+        }
 
         // Document preview
         function previewRsbsaDocument(inputId, previewId) {

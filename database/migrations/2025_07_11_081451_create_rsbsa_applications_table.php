@@ -18,23 +18,23 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
 
             // Application identification
-            $table->string('application_number')->unique();
+            $table->string('application_number')->unique()->nullable();
 
             // Personal Information (simplified)
-            $table->string('first_name');
+            $table->string('first_name')->nullable();
             $table->string('middle_name')->nullable();
-            $table->string('last_name');
+            $table->string('last_name')->nullable();
             $table->string('name_extension')->nullable();
-            $table->enum('sex', ['Male', 'Female', 'Preferred not to say']);
+            $table->enum('sex', ['Male', 'Female', 'Preferred not to say'])->nullable();
 
             // Contact Information
-            $table->string('contact_number', 20);
+            $table->string('contact_number', 20)->nullable();
             $table->string('email')->nullable();
-            $table->string('barangay');
+            $table->string('barangay')->nullable();
             $table->unsignedBigInteger('barangay_id')->nullable();
 
             // Registration Details
-            $table->enum('main_livelihood', ['Farmer', 'Farmworker/Laborer', 'Fisherfolk', 'Agri-youth']);
+            $table->enum('main_livelihood', ['Farmer', 'Farmworker/Laborer', 'Fisherfolk', 'Agri-youth'])->nullable();
 
             // Farm/Livelihood Information
             $table->decimal('land_area', 8, 2)->nullable();

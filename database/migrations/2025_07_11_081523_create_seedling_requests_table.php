@@ -11,18 +11,18 @@ return new class extends Migration
         Schema::create('seedling_requests', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
 
             // Basic request info
-            $table->string('request_number')->unique();
-            $table->string('first_name');
+            $table->string('request_number')->unique()->nullable();
+            $table->string('first_name')->nullable();
             $table->string('middle_name')->nullable();
-            $table->string('last_name');
+            $table->string('last_name')->nullable();
             $table->string('extension_name')->nullable();
-            $table->string('contact_number');
+            $table->string('contact_number')->nullable();
             $table->string('email')->nullable();
-            $table->text('address');
-            $table->string('barangay');
+            $table->text('address')->nullable();
+            $table->string('barangay')->nullable();
             $table->text('planting_location')->nullable();
             $table->text('purpose')->nullable();
 

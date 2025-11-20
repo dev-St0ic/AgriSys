@@ -10,19 +10,19 @@ return new class extends Migration
     {
         Schema::create('seedling_request_items', function (Blueprint $table) {
             $table->id();
-            
-            $table->unsignedBigInteger('user_id');
 
-            $table->foreignId('seedling_request_id')->constrained('seedling_requests')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('request_categories')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id')->nullable();
+
+            $table->foreignId('seedling_request_id')->nullable()->constrained('seedling_requests')->onDelete('cascade');
+            $table->foreignId('category_id')->nullable()->constrained('request_categories')->onDelete('cascade');
             $table->foreignId('category_item_id')->nullable()->constrained('category_items')->onDelete('set null');
-            $table->string('item_name');
-            $table->integer('requested_quantity');
+            $table->string('item_name')->nullable();
+            $table->integer('requested_quantity')->nullable();
             $table->integer('approved_quantity')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('rejection_reason')->nullable();
             $table->timestamps();
-            
+
             $table->index(['seedling_request_id', 'category_id']);
             $table->index('status');
         });
