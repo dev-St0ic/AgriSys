@@ -121,106 +121,103 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    @if ($slides->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="slideshowTable">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th class="text-center" width="50">Order</th>
-                                        <th class="text-center" width="120">Preview</th>
-                                        <th class="text-center">Title</th>
-                                        <th class="text-center">Description</th>
-                                        <th class="text-center" width="80">Status</th>
-                                        <th class="text-center" width="100">Created</th>
-                                        <th class="text-center" width="120">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="sortableSlides">
-                                    @foreach ($slides as $slide)
-                                        <tr data-slide-id="{{ $slide->id }}">
-                                            <td class="text-center">
-                                                <div class="drag-handle" style="cursor: move;">
-                                                    <i class="fas fa-grip-vertical text-muted"></i>
-                                                    <span class="order-number">{{ $slide->order }}</span>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <img src="{{ $slide->image_url }}" alt="Slide preview"
-                                                    class="img-thumbnail slide-preview"
-                                                    style="width: 100px; height: 60px; object-fit: cover; cursor: pointer; display: block; margin: 0 auto;"
-                                                    onclick="showImageModal('{{ $slide->image_url }}', '{{ $slide->title }}')">
-                                            </td>
-                                            <td class="text-start">
-                                                <strong>{{ $slide->title ?: 'Untitled' }}</strong>
-                                            </td>
-                                            <td class="text-start">
-                                                <span class="text-truncate d-block" style="max-width: 200px;">
-                                                    {{ $slide->description ?: 'No description' }}
-                                                </span>
-                                            </td>
-                                            <td class="text-center">
-                                                <span
-                                                    class="badge {{ $slide->is_active ? 'bg-success' : 'bg-secondary' }} fs-6">
-                                                    {{ $slide->is_active ? 'Active' : 'Inactive' }}
-                                                </span>
-                                            </td>
-                                            <td class="text-start">
-                                                <small>{{ $slide->created_at->format('M d, Y') }}</small>
-                                            </td>
-                                            <td class="text-center">
+                    <div class="table-responsive" style="display: {{ $slides->count() > 0 ? 'block' : 'none' }};">
+                        <table class="table table-bordered" id="slideshowTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="text-center" width="50">Order</th>
+                                    <th class="text-center" width="120">Preview</th>
+                                    <th class="text-center">Title</th>
+                                    <th class="text-center">Description</th>
+                                    <th class="text-center" width="80">Status</th>
+                                    <th class="text-center" width="100">Created</th>
+                                    <th class="text-center" width="120">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sortableSlides">
+                                @foreach ($slides as $slide)
+                                    <tr data-slide-id="{{ $slide->id }}">
+                                        <td class="text-center">
+                                            <div class="drag-handle" style="cursor: move;">
+                                                <i class="fas fa-grip-vertical text-muted"></i>
+                                                <span class="order-number">{{ $slide->order }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <img src="{{ $slide->image_url }}" alt="Slide preview"
+                                                class="img-thumbnail slide-preview"
+                                                style="width: 100px; height: 60px; object-fit: cover; cursor: pointer; display: block; margin: 0 auto;"
+                                                onclick="showImageModal('{{ $slide->image_url }}', '{{ $slide->title }}')">
+                                        </td>
+                                        <td class="text-start">
+                                            <strong>{{ $slide->title ?: 'Untitled' }}</strong>
+                                        </td>
+                                        <td class="text-start">
+                                            <span class="text-truncate d-block" style="max-width: 200px;">
+                                                {{ $slide->description ?: 'No description' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span
+                                                class="badge {{ $slide->is_active ? 'bg-success' : 'bg-secondary' }} fs-6">
+                                                {{ $slide->is_active ? 'Active' : 'Inactive' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-start">
+                                            <small>{{ $slide->created_at->format('M d, Y') }}</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                    onclick='viewSlide(@json($slide))'>
+                                                    <i class="fas fa-eye me-1"></i>View
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-success"
+                                                    onclick='editSlide(@json($slide))'>
+                                                    <i class="fas fa-edit me-1"></i>Edit
+                                                </button>
                                                 <div class="btn-group" role="group">
-                                                    <button type="button" class="btn btn-sm btn-outline-primary"
-                                                        onclick='viewSlide(@json($slide))'>
-                                                        <i class="fas fa-eye me-1"></i>View
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fas fa-ellipsis-v"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-success"
-                                                        onclick='editSlide(@json($slide))'>
-                                                        <i class="fas fa-edit me-1"></i>Edit
-                                                    </button>
-                                                    <div class="btn-group" role="group">
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu">
-                                                            <li>
-                                                                <a class="dropdown-item" href="javascript:void(0)"
-                                                                    onclick="toggleStatus({{ $slide->id }})">
-                                                                    <i
-                                                                        class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2"></i>
-                                                                    {{ $slide->is_active ? 'Deactivate' : 'Activate' }}
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <hr class="dropdown-divider">
-                                                            </li>
-                                                            <li>
-                                                                <a class="dropdown-item text-danger"
-                                                                    href="javascript:void(0)"
-                                                                    onclick="deleteSlide({{ $slide->id }})">
-                                                                    <i class="fas fa-trash me-2"></i>Delete
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class="dropdown-item" href="javascript:void(0)"
+                                                                onclick="toggleStatus({{ $slide->id }})">
+                                                                <i
+                                                                    class="fas fa-{{ $slide->is_active ? 'pause' : 'play' }} me-2"></i>
+                                                                {{ $slide->is_active ? 'Deactivate' : 'Activate' }}
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <hr class="dropdown-divider">
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" href="javascript:void(0)"
+                                                                onclick="deleteSlide({{ $slide->id }})">
+                                                                <i class="fas fa-trash me-2"></i>Delete
+                                                            </a>
+                                                        </li>
+                                                    </ul>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-images fa-3x text-gray-300 mb-3"></i>
-                            <h5 class="text-gray-500">No slideshow images found</h5>
-                            <p class="text-muted">Add your first slideshow image to get started</p>
-                            <button type="button" class="btn btn-primary" id="addFirstSlideBtn">
-                                <i class="fas fa-plus me-2"></i>Add First Slide
-                            </button>
-                        </div>
-                    @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="text-center py-5" style="display: {{ $slides->count() > 0 ? 'none' : 'block' }};">
+                        <i class="fas fa-images fa-3x text-gray-300 mb-3"></i>
+                        <h5 class="text-gray-500">No slideshow images found</h5>
+                        <p class="text-muted">Add your first slideshow image to get started</p>
+                        <button type="button" class="btn btn-primary" id="addFirstSlideBtn">
+                            <i class="fas fa-plus me-2"></i>Add First Slide
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
