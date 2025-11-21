@@ -634,7 +634,7 @@
                                                     <button type="button" class="btn btn-secondary"
                                                         data-bs-dismiss="modal">Cancel</button>
                                                     <button type="submit" form="updateForm{{ $request->id }}"
-                                                        class="btn btn-primary">
+                                                        class="btn btn-primary" id="submitBtn{{ $request->id }}">
                                                         <i class="fas fa-save me-2"></i>Update Items
                                                     </button>
                                                 </div>
@@ -1269,630 +1269,855 @@
         }
     }
 
+    /* Form Change Detection Styles */
+    .form-changed {
+        background-color: #fff3cd !important;
+        border-left: 3px solid #ffc107 !important;
+        transition: all 0.2s ease;
+    }
+
+    .change-indicator {
+        position: relative;
+        display: block;
+    }
+
+    .change-indicator::after {
+        content: "●";
+        color: #ffc107;
+        font-size: 12px;
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .change-indicator.changed::after {
+        opacity: 1;
+    }
+
+    /* Button "No Changes" State */
+    .no-changes {
+        opacity: 0.65 !important;
+        cursor: not-allowed !important;
+        pointer-events: none !important;
+    }
+
+    .no-changes:hover,
+    .no-changes:focus,
+    .no-changes:active {
+        background-color: inherit !important;
+        border-color: inherit !important;
+        box-shadow: none !important;
+    }
+
+    /* Item card change highlight */
+    .item-card.form-changed {
+        background: #fff3cd !important;
+        border: 1px solid #ffc107 !important;
+        transition: all 0.2s ease;
+    }
+
+    .item-card.form-changed:hover {
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2) !important;
+    }
+
+    /* Remarks textarea change highlight */
+    textarea.form-changed {
+        border-color: #ffc107 !important;
+        background-color: #fff3cd !important;
+        transition: all 0.2s ease;
+    }
+
+    textarea.form-changed:focus {
+        border-color: #ffc107 !important;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
+        background-color: #fff3cd !important;
+    }
+
+    /* Enhanced visual feedback for changed items */
+    .item-card.form-changed .fw-medium {
+        color: #ff8c00;
+        font-weight: 600;
+    }
+
     </style>
 
     <script>
+// AJAX setup for CSRF token
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
 
-        // AJAX setup for CSRF token
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
-        // Handle update form submissions with toast notifications
-        document.addEventListener('DOMContentLoaded', function() {
-            // Handle all update forms
-            const updateForms = document.querySelectorAll('form[id^="updateForm"]');
-            
-            updateForms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    const formData = new FormData(this);
-                    const requestId = this.id.replace('updateForm', '');
-                    const submitButton = this.querySelector('button[type="submit"]');
-                    const originalButtonText = submitButton.innerHTML;
-                    
-                    // Show loading state
-                    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
-                    submitButton.disabled = true;
-                    
-                    fetch(this.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': getCSRFToken(),
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Close modal
-                            const modalId = 'updateModal' + requestId;
-                            const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-                            if (modal) modal.hide();
-                            
-                            // Show success toast
-                            showToast('success', data.message || 'Items updated successfully');
-                            
-                            // Reload page after short delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1500);
-                        } else {
-                            showToast('error', data.message || 'Failed to update items');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('error', 'An error occurred while updating items');
-                    })
-                    .finally(() => {
-                        submitButton.innerHTML = originalButtonText;
-                        submitButton.disabled = false;
-                    });
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle all update forms
+    const updateForms = document.querySelectorAll('form[id^="updateForm"]');
+    
+    updateForms.forEach(form => {
+        const requestId = form.id.replace('updateForm', '');
+        const remarksTextarea = form.querySelector(`#remarks${requestId}`);
+        const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+        const modalElement = document.getElementById(`updateModal${requestId}`);
+        const submitButton = document.getElementById(`submitBtn${requestId}`);
+        
+        // Store original values when modal opens
+        if (modalElement) {
+            modalElement.addEventListener('show.bs.modal', function() {
+                // Store original remarks value
+                if (remarksTextarea) {
+                    remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
+                }
+                
+                // Store original status values for each select
+                statusSelects.forEach(select => {
+                    select.dataset.originalStatus = select.value;
                 });
+                
+                // Clear any previous change indicators
+                if (remarksTextarea) {
+                    remarksTextarea.classList.remove('form-changed');
+                    remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
+                }
+                
+                statusSelects.forEach(select => {
+                    select.classList.remove('form-changed');
+                    const itemCard = select.closest('.item-card');
+                    if (itemCard) {
+                        itemCard.classList.remove('form-changed');
+                    }
+                });
+                
+                // Reset button state
+                if (submitButton) {
+                    submitButton.classList.add('no-changes');
+                    submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+                    submitButton.disabled = true;
+                }
             });
+        }
+        
+        // Add change detection listeners
+        if (remarksTextarea) {
+            remarksTextarea.addEventListener('input', () => checkForSeedlingChanges(requestId));
+        }
+        
+        statusSelects.forEach(select => {
+            select.addEventListener('change', () => checkForSeedlingChanges(requestId));
         });
-
-        let searchTimeout;
-
-        // Auto search functionality
-        function autoSearch() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                document.getElementById('filterForm').submit();
-            }, 500); // Wait 500ms after user stops typing
+        
+        // Handle form submission
+        if (submitButton) {
+            submitButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleSeedlingUpdateSubmit(form, requestId);
+            });
         }
+    });
+});
 
-        // Submit filter form when dropdowns change
-        function submitFilterForm() {
-            document.getElementById('filterForm').submit();
+// Check for changes and update button/visual states
+function checkForSeedlingChanges(requestId) {
+    const form = document.getElementById(`updateForm${requestId}`);
+    if (!form) return;
+    
+    const remarksTextarea = form.querySelector(`#remarks${requestId}`);
+    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+    const submitButton = document.getElementById(`submitBtn${requestId}`);
+    
+    let hasChanges = false;
+    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+    
+    // Check remarks for changes
+    if (remarksTextarea) {
+        const remarksChanged = remarksTextarea.value.trim() !== originalRemarks.trim();
+        
+        if (remarksChanged) {
+            hasChanges = true;
+            remarksTextarea.parentElement.classList.add('change-indicator', 'changed');
+            remarksTextarea.classList.add('form-changed');
+        } else {
+            remarksTextarea.parentElement.classList.remove('changed');
+            remarksTextarea.classList.remove('form-changed');
         }
-
-        // view document
-        function viewDocument(path, filename = null, applicationId = null) {
-            // Input validation
-            if (!path || path.trim() === '') {
-                showToast('error', 'No document path provided');
-                return;
+    }
+    
+    // Check item statuses for changes
+    statusSelects.forEach(select => {
+        const originalStatus = select.dataset.originalStatus;
+        
+        if (select.value !== originalStatus) {
+            hasChanges = true;
+            const itemCard = select.closest('.item-card');
+            if (itemCard) {
+                itemCard.classList.add('form-changed');
             }
+        } else {
+            const itemCard = select.closest('.item-card');
+            if (itemCard) {
+                itemCard.classList.remove('form-changed');
+            }
+        }
+    });
+    
+    // Update button state based on changes
+    if (submitButton) {
+        if (hasChanges) {
+            submitButton.classList.remove('no-changes');
+            submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
+            submitButton.disabled = false;
+        } else {
+            submitButton.classList.add('no-changes');
+            submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+            submitButton.disabled = true;
+        }
+    }
+}
 
-            // Create modal if it doesn't exist
-            if (!document.getElementById('documentModal')) {
-                const modalHTML = `
-                    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-xl modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header bg-light">
-                                    <h5 class="modal-title" id="documentModalLabel">
-                                        <i class="fas fa-file-alt me-2"></i>Supporting Document
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body p-0" id="documentViewer">
-                                    <!-- Document will be loaded here -->
-                                </div>
-                                <div class="modal-footer bg-light">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                        <i class="fas fa-times me-1"></i>Close
-                                    </button>
+// Handle update form submission with confirmation
+function handleSeedlingUpdateSubmit(form, requestId) {
+    const remarksTextarea = form.querySelector(`#remarks${requestId}`);
+    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+    const submitButton = form.querySelector('button[type="submit"]');
+    
+    let hasChanges = false;
+    let changesSummary = [];
+    
+    // Check for changes in item statuses
+    statusSelects.forEach(select => {
+        const originalStatus = select.dataset.originalStatus;
+        
+        if (select.value !== originalStatus) {
+            hasChanges = true;
+            const itemCard = select.closest('.item-card');
+            const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
+            const oldStatusText = getStatusText(originalStatus);
+            const newStatusText = getStatusText(select.value);
+            changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
+        }
+    });
+    
+    // Check for changes in remarks
+    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+    if (remarksTextarea && remarksTextarea.value.trim() !== originalRemarks.trim()) {
+        hasChanges = true;
+        if (originalRemarks.trim() === '') {
+            changesSummary.push('Remarks: Added new remarks');
+        } else if (remarksTextarea.value.trim() === '') {
+            changesSummary.push('Remarks: Removed remarks');
+        } else {
+            changesSummary.push('Remarks: Modified');
+        }
+    }
+    
+    // If no changes, show warning toast
+    if (!hasChanges) {
+        showToast('warning', 'No changes detected. Please modify items or remarks before updating.');
+        return;
+    }
+    
+    // Show confirmation toast with changes
+    showConfirmationToast(
+        'Confirm Update',
+        `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
+        () => proceedWithSeedlingUpdate(form, requestId, submitButton)
+    );
+}
+
+// Helper function to get status text
+function getStatusText(status) {
+    switch (status) {
+        case 'pending':
+            return 'Pending';
+        case 'approved':
+            return 'Approved';
+        case 'rejected':
+            return 'Rejected';
+        case 'under_review':
+            return 'Under Review';
+        default:
+            return status;
+    }
+}
+
+// Proceed with seedling update after confirmation
+function proceedWithSeedlingUpdate(form, requestId, submitButton) {
+    const formData = new FormData(form);
+    
+    // Show loading state
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
+    submitButton.disabled = true;
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal
+            const modalId = 'updateModal' + requestId;
+            const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+            if (modal) modal.hide();
+            
+            // Show success toast
+            showToast('success', data.message || 'Items updated successfully');
+            
+            // Reload page after short delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showToast('error', data.message || 'Failed to update items');
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'An error occurred while updating items');
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    });
+}
+
+let searchTimeout;
+
+// Auto search functionality
+function autoSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        document.getElementById('filterForm').submit();
+    }, 500); // Wait 500ms after user stops typing
+}
+
+// Submit filter form when dropdowns change
+function submitFilterForm() {
+    document.getElementById('filterForm').submit();
+}
+
+// View document function
+function viewDocument(path, filename = null, applicationId = null) {
+    // Input validation
+    if (!path || path.trim() === '') {
+        showToast('error', 'No document path provided');
+        return;
+    }
+
+    // Create modal if it doesn't exist
+    if (!document.getElementById('documentModal')) {
+        const modalHTML = `
+            <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light">
+                            <h5 class="modal-title" id="documentModalLabel">
+                                <i class="fas fa-file-alt me-2"></i>Supporting Document
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-0" id="documentViewer">
+                            <!-- Document will be loaded here -->
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i>Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+
+    const documentViewer = document.getElementById('documentViewer');
+    const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+
+    // Show loading state first
+    documentViewer.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted">Loading document...</p>
+        </div>`;
+
+    // Show modal immediately with loading state
+    modal.show();
+
+    // Update modal title if filename is provided
+    const modalTitle = document.querySelector('#documentModal .modal-title');
+    if (filename) {
+        modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+    } else {
+        modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
+    }
+
+    // Extract file extension and name
+    const fileExtension = path.split('.').pop().toLowerCase();
+    const fileName = filename || path.split('/').pop();
+    const fileUrl = `/storage/${path}`;
+
+    // Define supported file types
+    const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+    const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+    const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+    const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+
+    // Function to add download button
+    const addDownloadButton = () => {
+        return `
+            <div class="text-center mt-3 p-3 bg-light">
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                    </a>
+                    <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-download me-1"></i>Download
+                    </a>
+                </div>
+                <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
+            </div>`;
+    };
+
+    // Handle different file types
+    setTimeout(() => {
+        try {
+            if (imageTypes.includes(fileExtension)) {
+                // Handle images
+                const img = new Image();
+                img.onload = function() {
+                    documentViewer.innerHTML = `
+                        <div class="text-center p-3">
+                            <div class="position-relative d-inline-block">
+                                <img src="${fileUrl}"
+                                    class="img-fluid border rounded shadow-sm"
+                                    alt="Supporting Document"
+                                    style="max-height: 70vh; cursor: zoom-in;"
+                                    onclick="toggleImageZoom(this)">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                `;
-                document.body.insertAdjacentHTML('beforeend', modalHTML);
-            }
-
-            const documentViewer = document.getElementById('documentViewer');
-            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
-
-            // Show loading state first
-            documentViewer.innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="text-muted">Loading document...</p>
-                </div>`;
-
-            // Show modal immediately with loading state
-            modal.show();
-
-            // Update modal title if filename is provided
-            const modalTitle = document.querySelector('#documentModal .modal-title');
-            if (filename) {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
-            } else {
-                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
-            }
-
-            // Extract file extension and name
-            const fileExtension = path.split('.').pop().toLowerCase();
-            const fileName = filename || path.split('/').pop();
-            const fileUrl = `/storage/${path}`;
-
-            // Define supported file types
-            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-            const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
-            const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
-            const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
-
-            // Function to add download button
-            const addDownloadButton = () => {
-                return `
-                    <div class="text-center mt-3 p-3 bg-light">
-                        <div class="d-flex justify-content-center gap-2">
-                            <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
-                            </a>
-                            <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success btn-sm">
-                                <i class="fas fa-download me-1"></i>Download
-                            </a>
-                        </div>
-                        <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
-                    </div>`;
-            };
-
-            // Handle different file types
-            setTimeout(() => {
-                try {
-                    if (imageTypes.includes(fileExtension)) {
-                        // Handle images
-                        const img = new Image();
-                        img.onload = function() {
-                            documentViewer.innerHTML = `
-                                <div class="text-center p-3">
-                                    <div class="position-relative d-inline-block">
-                                        <img src="${fileUrl}"
-                                            class="img-fluid border rounded shadow-sm"
-                                            alt="Supporting Document"
-                                            style="max-height: 70vh; cursor: zoom-in;"
-                                            onclick="toggleImageZoom(this)">
-                                        <div class="position-absolute top-0 end-0 m-2">
-                                            <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
-                                        </div>
-                                    </div>
-                                    ${addDownloadButton()}
-                                </div>`;
-                        };
-                        img.onerror = function() {
-                            documentViewer.innerHTML = `
-                                <div class="alert alert-warning text-center m-3">
-                                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                                    <h5>Unable to Load Image</h5>
-                                    <p class="mb-3">The image could not be loaded.</p>
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                            <i class="fas fa-external-link-alt me-2"></i>Open Image
-                                        </a>
-                                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                            <i class="fas fa-download me-2"></i>Download
-                                        </a>
-                                    </div>
-                                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                                </div>`;
-                        };
-                        img.src = fileUrl;
-
-                    } else if (fileExtension === 'pdf') {
-                        // Handle PDF documents
-                        documentViewer.innerHTML = `
-                            <div class="pdf-container p-3">
-                                <embed src="${fileUrl}"
-                                    type="application/pdf"
-                                    width="100%"
-                                    height="600px"
-                                    class="border rounded">
-                                ${addDownloadButton()}
-                            </div>`;
-
-                        // Check if PDF loaded successfully after a short delay
-                        setTimeout(() => {
-                            const embed = documentViewer.querySelector('embed');
-                            if (!embed || embed.offsetHeight === 0) {
-                                documentViewer.innerHTML = `
-                                    <div class="alert alert-info text-center m-3">
-                                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
-                                        <h5>PDF Preview Unavailable</h5>
-                                        <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                                <i class="fas fa-external-link-alt me-2"></i>Open PDF
-                                            </a>
-                                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                                <i class="fas fa-download me-2"></i>Download PDF
-                                            </a>
-                                        </div>
-                                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                                    </div>`;
-                            }
-                        }, 2000);
-
-                    } else if (videoTypes.includes(fileExtension)) {
-                        // Handle video files
-                        documentViewer.innerHTML = `
-                            <div class="text-center p-3">
-                                <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
-                                    <source src="${fileUrl}" type="video/${fileExtension}">
-                                    Your browser does not support the video tag.
-                                </video>
-                                ${addDownloadButton()}
-                            </div>`;
-
-                    } else if (audioTypes.includes(fileExtension)) {
-                        // Handle audio files
-                        documentViewer.innerHTML = `
-                            <div class="text-center py-5">
-                                <i class="fas fa-music fa-4x text-info mb-3"></i>
-                                <h5>Audio File</h5>
-                                <audio controls class="w-100 mb-3">
-                                    <source src="${fileUrl}" type="audio/${fileExtension}">
-                                    Your browser does not support the audio tag.
-                                </audio>
-                                ${addDownloadButton()}
-                            </div>`;
-
-                    } else if (documentTypes.includes(fileExtension)) {
-                        // Handle other document types
-                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : 
-                                    ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
-
-                        documentViewer.innerHTML = `
-                            <div class="alert alert-info text-center m-3">
-                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
-                                <h5>${fileExtension.toUpperCase()} Document</h5>
-                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-2"></i>Open Document
-                                    </a>
-                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                        <i class="fas fa-download me-2"></i>Download
-                                    </a>
-                                </div>
-                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                            </div>`;
-
-                    } else {
-                        // Handle unsupported file types
-                        documentViewer.innerHTML = `
-                            <div class="alert alert-warning text-center m-3">
-                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
-                                <h5>Unsupported File Type</h5>
-                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                        <i class="fas fa-external-link-alt me-2"></i>Open File
-                                    </a>
-                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                                        <i class="fas fa-download me-2"></i>Download
-                                    </a>
-                                </div>
-                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
-                            </div>`;
-                    }
-                } catch (error) {
-                    console.error('Error processing document:', error);
+                            ${addDownloadButton()}
+                        </div>`;
+                };
+                img.onerror = function() {
                     documentViewer.innerHTML = `
-                        <div class="alert alert-danger text-center m-3">
-                            <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
-                            <h5>Error Loading Document</h5>
-                            <p class="mb-3">${error.message}</p>
+                        <div class="alert alert-warning text-center m-3">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <h5>Unable to Load Image</h5>
+                            <p class="mb-3">The image could not be loaded.</p>
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="${fileUrl}" target="_blank" class="btn btn-primary">
-                                    <i class="fas fa-external-link-alt me-2"></i>Try Opening Directly
+                                    <i class="fas fa-external-link-alt me-2"></i>Open Image
                                 </a>
                                 <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
                                     <i class="fas fa-download me-2"></i>Download
                                 </a>
                             </div>
+                            <small class="text-muted d-block mt-2">File: ${fileName}</small>
                         </div>`;
-                }
-            }, 500);
-        }
+                };
+                img.src = fileUrl;
 
-        // Helper function to toggle image zoom
-        function toggleImageZoom(img) {
-            if (img.style.transform === 'scale(2)') {
-                img.style.transform = 'scale(1)';
-                img.style.cursor = 'zoom-in';
-                img.style.transition = 'transform 0.3s ease';
+            } else if (fileExtension === 'pdf') {
+                // Handle PDF documents
+                documentViewer.innerHTML = `
+                    <div class="pdf-container p-3">
+                        <embed src="${fileUrl}"
+                            type="application/pdf"
+                            width="100%"
+                            height="600px"
+                            class="border rounded">
+                        ${addDownloadButton()}
+                    </div>`;
+
+                // Check if PDF loaded successfully after a short delay
+                setTimeout(() => {
+                    const embed = documentViewer.querySelector('embed');
+                    if (!embed || embed.offsetHeight === 0) {
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-info text-center m-3">
+                                <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                <h5>PDF Preview Unavailable</h5>
+                                <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download PDF
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+                    }
+                }, 2000);
+
+            } else if (videoTypes.includes(fileExtension)) {
+                // Handle video files
+                documentViewer.innerHTML = `
+                    <div class="text-center p-3">
+                        <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
+                            <source src="${fileUrl}" type="video/${fileExtension}">
+                            Your browser does not support the video tag.
+                        </video>
+                        ${addDownloadButton()}
+                    </div>`;
+
+            } else if (audioTypes.includes(fileExtension)) {
+                // Handle audio files
+                documentViewer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-music fa-4x text-info mb-3"></i>
+                        <h5>Audio File</h5>
+                        <audio controls class="w-100 mb-3">
+                            <source src="${fileUrl}" type="audio/${fileExtension}">
+                            Your browser does not support the audio tag.
+                        </audio>
+                        ${addDownloadButton()}
+                    </div>`;
+
+            } else if (documentTypes.includes(fileExtension)) {
+                // Handle other document types
+                const docIcon = fileExtension === 'pdf' ? 'file-pdf' : 
+                            ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+
+                documentViewer.innerHTML = `
+                    <div class="alert alert-info text-center m-3">
+                        <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                        <h5>${fileExtension.toUpperCase()} Document</h5>
+                        <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>Open Document
+                            </a>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                <i class="fas fa-download me-2"></i>Download
+                            </a>
+                        </div>
+                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                    </div>`;
+
             } else {
-                img.style.transform = 'scale(2)';
-                img.style.cursor = 'zoom-out';
-                img.style.transition = 'transform 0.3s ease';
-                img.style.zIndex = '1050';
+                // Handle unsupported file types
+                documentViewer.innerHTML = `
+                    <div class="alert alert-warning text-center m-3">
+                        <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                        <h5>Unsupported File Type</h5>
+                        <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt me-2"></i>Open File
+                            </a>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                <i class="fas fa-download me-2"></i>Download
+                            </a>
+                        </div>
+                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                    </div>`;
             }
-        }
-
-        // Date Filter Functions
-        function setDateRangeModal(period) {
-            const today = new Date();
-            let startDate, endDate;
-
-            switch (period) {
-                case 'today':
-                    startDate = endDate = today;
-                    break;
-                case 'week':
-                    startDate = new Date(today);
-                    startDate.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
-                    endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + 6); // End of week (Saturday)
-                    break;
-                case 'month':
-                    startDate = new Date(today.getFullYear(), today.getMonth(), 1); // First day of month
-                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of month
-                    break;
-                case 'year':
-                    startDate = new Date(today.getFullYear(), 0, 1); // First day of year
-                    endDate = new Date(today.getFullYear(), 11, 31); // Last day of year
-                    break;
-            }
-
-            // Format dates to YYYY-MM-DD
-            const startDateStr = startDate.toISOString().split('T')[0];
-            const endDateStr = endDate.toISOString().split('T')[0];
-
-            // Update modal inputs
-            document.getElementById('modal_date_from').value = startDateStr;
-            document.getElementById('modal_date_to').value = endDateStr;
-
-            // Apply the filter immediately
-            applyDateFilter(startDateStr, endDateStr);
-        }
-
-        function applyCustomDateRange() {
-            const dateFrom = document.getElementById('modal_date_from').value;
-            const dateTo = document.getElementById('modal_date_to').value;
-
-            if (dateFrom && dateTo && dateFrom > dateTo) {
-                showToast('warning', 'From date cannot be later than To date');
-                return;
-            }
-
-            applyDateFilter(dateFrom, dateTo);
-        }
-
-        function applyDateFilter(dateFrom, dateTo) {
-            // Update hidden inputs
-            document.getElementById('date_from').value = dateFrom;
-            document.getElementById('date_to').value = dateTo;
-
-            // Update status display
-            updateDateFilterStatus(dateFrom, dateTo);
-
-            // Close modal and submit form
-            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
-            if (modal) modal.hide();
-
-            submitFilterForm();
-        }
-
-        function clearDateRangeModal() {
-            document.getElementById('modal_date_from').value = '';
-            document.getElementById('modal_date_to').value = '';
-            applyDateFilter('', '');
-        }
-
-        function updateDateFilterStatus(dateFrom, dateTo) {
-            const statusElement = document.getElementById('dateFilterStatus');
-            if (!dateFrom && !dateTo) {
-                statusElement.innerHTML = 'No date filter applied - showing all requests';
-            } else {
-                let statusText = 'Current filter: ';
-                if (dateFrom) {
-                    const fromDate = new Date(dateFrom).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                    statusText += `From ${fromDate} `;
-                }
-                if (dateTo) {
-                    const toDate = new Date(dateTo).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                    statusText += `To ${toDate}`;
-                }
-                statusElement.innerHTML = statusText;
-            }
-        }
-
-       function createToastContainer() {
-            let container = document.getElementById('toastContainer');
-            if (!container) {
-                container = document.createElement('div');
-                container.id = 'toastContainer';
-                container.className = 'toast-container';
-                document.body.appendChild(container);
-            }
-            return container;
-        }
-
-        // Basic toast notification
-        function showToast(type, message) {
-            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
-
-            const iconMap = {
-                'success': {
-                    icon: 'fas fa-check-circle',
-                    color: 'success'
-                },
-                'error': {
-                    icon: 'fas fa-exclamation-circle',
-                    color: 'danger'
-                },
-                'warning': {
-                    icon: 'fas fa-exclamation-triangle',
-                    color: 'warning'
-                },
-                'info': {
-                    icon: 'fas fa-info-circle',
-                    color: 'info'
-                }
-            };
-
-            const config = iconMap[type] || iconMap['info'];
-
-            const toast = document.createElement('div');
-            toast.className = `toast-notification toast-${type}`;
-            toast.innerHTML = `
-                <div class="toast-content">
-                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
-                    <span>${message}</span>
-                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
-                </div>
-            `;
-
-            toastContainer.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                if (document.contains(toast)) {
-                    removeToast(toast);
-                }
-            }, 5000);
-        }
-
-        // Confirmation toast - NOW UNIFIED WITH 8 SECOND AUTO-DISMISS
-        function showConfirmationToast(title, message, onConfirm) {
-            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
-
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification confirmation-toast';
-
-            // Store the callback function on the toast element
-            toast.dataset.confirmCallback = Math.random().toString(36);
-            window[toast.dataset.confirmCallback] = onConfirm;
-
-            toast.innerHTML = `
-                <div class="toast-header">
-                    <i class="fas fa-question-circle me-2 text-warning"></i>
-                    <strong class="me-auto">${title}</strong>
-                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
-                </div>
-                <div class="toast-body">
-                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
-                    <div class="d-flex gap-2 justify-content-end">
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
-                            <i class="fas fa-times me-1"></i>Cancel
-                        </button>
-                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
-                            <i class="fas fa-check me-1"></i>Confirm
-                        </button>
+        } catch (error) {
+            console.error('Error processing document:', error);
+            documentViewer.innerHTML = `
+                <div class="alert alert-danger text-center m-3">
+                    <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                    <h5>Error Loading Document</h5>
+                    <p class="mb-3">${error.message}</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt me-2"></i>Try Opening Directly
+                        </a>
+                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Download
+                        </a>
                     </div>
-                </div>
-            `;
-
-            toastContainer.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-
-            // Auto-dismiss after 8 seconds (unified across both)
-            setTimeout(() => {
-                if (document.contains(toast)) {
-                    removeToast(toast);
-                }
-            }, 8000);
+                </div>`;
         }
+    }, 500);
+}
 
-        // Execute confirmation action
-        function confirmToastAction(button) {
-            const toast = button.closest('.toast-notification');
-            const callbackId = toast.dataset.confirmCallback;
-            const callback = window[callbackId];
+// Helper function to toggle image zoom
+function toggleImageZoom(img) {
+    if (img.style.transform === 'scale(2)') {
+        img.style.transform = 'scale(1)';
+        img.style.cursor = 'zoom-in';
+        img.style.transition = 'transform 0.3s ease';
+    } else {
+        img.style.transform = 'scale(2)';
+        img.style.cursor = 'zoom-out';
+        img.style.transition = 'transform 0.3s ease';
+        img.style.zIndex = '1050';
+    }
+}
 
-            if (typeof callback === 'function') {
-                try {
-                    callback();
-                } catch (error) {
-                    console.error('Error executing confirmation callback:', error);
-                }
-            }
+// Date Filter Functions
+function setDateRangeModal(period) {
+    const today = new Date();
+    let startDate, endDate;
 
-            // Clean up the callback reference
-            delete window[callbackId];
+    switch (period) {
+        case 'today':
+            startDate = endDate = today;
+            break;
+        case 'week':
+            startDate = new Date(today);
+            startDate.setDate(today.getDate() - today.getDay());
+            endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 6);
+            break;
+        case 'month':
+            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            break;
+        case 'year':
+            startDate = new Date(today.getFullYear(), 0, 1);
+            endDate = new Date(today.getFullYear(), 11, 31);
+            break;
+    }
+
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
+
+    document.getElementById('modal_date_from').value = startDateStr;
+    document.getElementById('modal_date_to').value = endDateStr;
+
+    applyDateFilter(startDateStr, endDateStr);
+}
+
+function applyCustomDateRange() {
+    const dateFrom = document.getElementById('modal_date_from').value;
+    const dateTo = document.getElementById('modal_date_to').value;
+
+    if (dateFrom && dateTo && dateFrom > dateTo) {
+        showToast('warning', 'From date cannot be later than To date');
+        return;
+    }
+
+    applyDateFilter(dateFrom, dateTo);
+}
+
+function applyDateFilter(dateFrom, dateTo) {
+    document.getElementById('date_from').value = dateFrom;
+    document.getElementById('date_to').value = dateTo;
+
+    updateDateFilterStatus(dateFrom, dateTo);
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+    if (modal) modal.hide();
+
+    submitFilterForm();
+}
+
+function clearDateRangeModal() {
+    document.getElementById('modal_date_from').value = '';
+    document.getElementById('modal_date_to').value = '';
+    applyDateFilter('', '');
+}
+
+function updateDateFilterStatus(dateFrom, dateTo) {
+    const statusElement = document.getElementById('dateFilterStatus');
+    if (!dateFrom && !dateTo) {
+        statusElement.innerHTML = 'No date filter applied - showing all requests';
+    } else {
+        let statusText = 'Current filter: ';
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            statusText += `From ${fromDate} `;
+        }
+        if (dateTo) {
+            const toDate = new Date(dateTo).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            statusText += `To ${toDate}`;
+        }
+        statusElement.innerHTML = statusText;
+    }
+}
+
+function createToastContainer() {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    return container;
+}
+
+// Basic toast notification
+function showToast(type, message) {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+    const iconMap = {
+        'success': { icon: 'fas fa-check-circle', color: 'success' },
+        'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
+        'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
+        'info': { icon: 'fas fa-info-circle', color: 'info' }
+    };
+
+    const config = iconMap[type] || iconMap['info'];
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+            <span>${message}</span>
+            <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+        </div>
+    `;
+
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    setTimeout(() => {
+        if (document.contains(toast)) {
             removeToast(toast);
         }
+    }, 5000);
+}
 
-        // Remove toast notification
-        function removeToast(toastElement) {
-            toastElement.classList.remove('show');
-            setTimeout(() => {
-                if (toastElement.parentElement) {
-                    toastElement.remove();
-                }
-            }, 300);
-        }
+// Confirmation toast with 8 second auto-dismiss
+function showConfirmationToast(title, message, onConfirm) {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
-        // Get CSRF token utility function
-        function getCSRFToken() {
-            const metaTag = document.querySelector('meta[name="csrf-token"]');
-            return metaTag ? metaTag.getAttribute('content') : '';
-        }
-        
-        // Delete seedling request with confirmation toast
-        function deleteSeedlingRequest(id, requestNumber) {
-            showConfirmationToast(
-                'Delete Seedling Request',
-                `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
-                () => proceedWithSeedlingDelete(id, requestNumber)
-            );
-        }
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification confirmation-toast';
 
-        // Proceed with seedling request deletion
-        function proceedWithSeedlingDelete(id, requestNumber) {
-            // CORRECTED: Use /admin/seedlings/requests/ based on your routes
-            fetch(`/admin/seedlings/requests/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
+    toast.dataset.confirmCallback = Math.random().toString(36);
+    window[toast.dataset.confirmCallback] = onConfirm;
+
+    toast.innerHTML = `
+        <div class="toast-header" style="background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; padding: 12px 16px; display: flex; align-items: center; font-weight: 600;">
+            <i class="fas fa-question-circle me-2 text-warning"></i>
+            <strong class="me-auto">${title}</strong>
+            <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))" style="width: auto; height: auto; padding: 0; font-size: 1.2rem; opacity: 0.5; transition: opacity 0.2s; background: none; border: none; cursor: pointer;"></button>
+        </div>
+        <div class="toast-body" style="padding: 16px; background: #f8f9fa;">
+            <p class="mb-3" style="margin: 0; font-size: 0.95rem; color: #333; line-height: 1.5; white-space: pre-wrap;">${message}</p>
+            <div class="d-flex gap-2 justify-content-end">
+                <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)" style="padding: 0.375rem 0.75rem; font-size: 0.875rem;">
+                    <i class="fas fa-check me-1"></i>Confirm
+                </button>
+            </div>
+        </div>
+    `;
+
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    setTimeout(() => {
+        if (document.contains(toast)) {
+            removeToast(toast);
+        }
+    }, 8000);
+}
+
+// Execute confirmation action
+function confirmToastAction(button) {
+    const toast = button.closest('.toast-notification');
+    const callbackId = toast.dataset.confirmCallback;
+    const callback = window[callbackId];
+
+    if (typeof callback === 'function') {
+        try {
+            callback();
+        } catch (error) {
+            console.error('Error executing confirmation callback:', error);
+        }
+    }
+
+    delete window[callbackId];
+    removeToast(toast);
+}
+
+// Remove toast notification
+function removeToast(toastElement) {
+    toastElement.classList.remove('show');
+    setTimeout(() => {
+        if (toastElement.parentElement) {
+            toastElement.remove();
+        }
+    }, 300);
+}
+
+// Get CSRF token utility function
+function getCSRFToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    return metaTag ? metaTag.getAttribute('content') : '';
+}
+
+// Delete seedling request with confirmation toast
+function deleteSeedlingRequest(id, requestNumber) {
+    showConfirmationToast(
+        'Delete Seedling Request',
+        `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
+        () => proceedWithSeedlingDelete(id, requestNumber)
+    );
+}
+
+// Proceed with seedling request deletion
+function proceedWithSeedlingDelete(id, requestNumber) {
+    fetch(`/admin/seedlings/requests/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showToast('success', data.message || 'Seedling request deleted successfully');
+            
+            const row = document.querySelector(`tr[data-request-id="${id}"]`);
+            if (row) {
+                row.style.transition = 'opacity 0.3s ease';
+                row.style.opacity = '0';
+                setTimeout(() => {
+                    row.remove();
+                    
+                    const tbody = document.querySelector('table tbody');
+                    if (tbody && tbody.children.length === 0) {
+                        setTimeout(() => window.location.reload(), 1500);
                     }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message || 'Seedling request deleted successfully');
-                        
-                        // Remove row from table with animation
-                        const row = document.querySelector(`tr[data-request-id="${id}"]`);
-                        if (row) {
-                            row.style.transition = 'opacity 0.3s ease';
-                            row.style.opacity = '0';
-                            setTimeout(() => {
-                                row.remove();
-                                
-                                // Check if table is empty
-                                const tbody = document.querySelector('table tbody');
-                                if (tbody && tbody.children.length === 0) {
-                                    // Reload page to show empty state
-                                    setTimeout(() => window.location.reload(), 1500);
-                                }
-                            }, 300);
-                        } else {
-                            // Fallback: reload page
-                            setTimeout(() => window.location.reload(), 1500);
-                        }
-                    } else {
-                        throw new Error(data.message || 'Failed to delete seedling request');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Failed to delete seedling request: ' + error.message);
-                });
+                }, 300);
+            } else {
+                setTimeout(() => window.location.reload(), 1500);
+            }
+        } else {
+            throw new Error(data.message || 'Failed to delete seedling request');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'Failed to delete seedling request: ' + error.message);
+    });
+}
     </script>
 @endsection
