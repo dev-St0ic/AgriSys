@@ -179,7 +179,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($requests as $request)
-                                    <tr class="border-bottom">
+                                    <tr class="border-bottom" data-request-id="{{ $request->id }}">
                                         <td class="px-3 py-3 border-end">
                                             <small
                                                 class="text-muted">{{ $request->created_at->format('M d, Y') }}</small><br>
@@ -314,23 +314,18 @@
                                                     <i class="fas fa-eye"></i> View
                                                 </button>
 
-                                                <!-- Add New Request Button
-                                                                <div class="mb-3">
-                                                                    <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary">
-                                                                        <i class="fas fa-plus-circle me-2"></i>Create New Request
-                                                                    </a>
-                                                                </div>
-                                                                 @if (in_array($request->status, ['pending', 'under_review']))
-    <a href="{{ route('admin.seedlings.edit', $request) }}" class="btn btn-outline-warning">
-                                                                        <i class="fas fa-edit"></i> Edit
-                                                                    </a>
-    @endif -->
                                                 <button type="button" class="btn btn-outline-success"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#updateModal{{ $request->id }}">
                                                     <i class="fas fa-edit"></i> Update
                                                 </button>
-                                            </div>
+
+                                                <button type="button" class="btn btn-outline-danger"
+                                                    onclick="deleteSeedlingRequest({{ $request->id }}, '{{ $request->request_number }}')" 
+                                                    title="Delete Request">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                             </div>
 
 
                                             @if ($request->hasDocuments())
@@ -1318,7 +1313,7 @@
             }
         }
 
-        function createToastContainer() {
+       function createToastContainer() {
             let container = document.getElementById('toastContainer');
             if (!container) {
                 container = document.createElement('div');
@@ -1329,7 +1324,7 @@
             return container;
         }
 
-        // Toast notification function
+        // Basic toast notification
         function showToast(type, message) {
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
@@ -1375,7 +1370,7 @@
             }, 5000);
         }
 
-        // Confirmation toast function
+        // Confirmation toast - NOW UNIFIED WITH 8 SECOND AUTO-DISMISS
         function showConfirmationToast(title, message, onConfirm) {
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
@@ -1408,12 +1403,12 @@
             toastContainer.appendChild(toast);
             setTimeout(() => toast.classList.add('show'), 10);
 
-            // Auto-dismiss after 10 seconds
+            // Auto-dismiss after 8 seconds (unified across both)
             setTimeout(() => {
                 if (document.contains(toast)) {
                     removeToast(toast);
                 }
-            }, 10000);
+            }, 8000);
         }
 
         // Execute confirmation action
@@ -1449,6 +1444,63 @@
         function getCSRFToken() {
             const metaTag = document.querySelector('meta[name="csrf-token"]');
             return metaTag ? metaTag.getAttribute('content') : '';
+        }
+        
+        // Delete seedling request with confirmation toast
+        function deleteSeedlingRequest(id, requestNumber) {
+            showConfirmationToast(
+                'Delete Seedling Request',
+                `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
+                () => proceedWithSeedlingDelete(id, requestNumber)
+            );
+        }
+
+        // Proceed with seedling request deletion
+        function proceedWithSeedlingDelete(id, requestNumber) {
+            // CORRECTED: Use /admin/seedlings/requests/ based on your routes
+            fetch(`/admin/seedlings/requests/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message || 'Seedling request deleted successfully');
+                        
+                        // Remove row from table with animation
+                        const row = document.querySelector(`tr[data-request-id="${id}"]`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s ease';
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+                                
+                                // Check if table is empty
+                                const tbody = document.querySelector('table tbody');
+                                if (tbody && tbody.children.length === 0) {
+                                    // Reload page to show empty state
+                                    setTimeout(() => window.location.reload(), 1500);
+                                }
+                            }, 300);
+                        } else {
+                            // Fallback: reload page
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Failed to delete seedling request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Failed to delete seedling request: ' + error.message);
+                });
         }
     </script>
 @endsection

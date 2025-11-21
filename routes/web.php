@@ -249,6 +249,8 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 //     Route::delete('/seedlings/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('admin.seedlings.destroy');
 //     Route::patch('/requests/{seedlingRequest}/status', [SeedlingRequestController::class, 'updateStatus'])->name('update-status');
 //     Route::patch('/requests/{seedlingRequest}/items', [SeedlingRequestController::class, 'updateItems'])->name('update-items');
+
+
 // Seedling Requests Routes
 Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])->group(function () {
      Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');

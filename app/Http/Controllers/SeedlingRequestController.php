@@ -357,19 +357,14 @@ class SeedlingRequestController extends Controller
         }
     }
 
+   
     /**
-     * Remove a seedling request (soft delete)
+     * Remove a seedling request - ALLOWS ALL STATUSES WITH SUPPLY RETURN
      */
     public function destroy(SeedlingRequest $seedlingRequest)
     {
         try {
-            // Only allow deletion of pending, under_review, or rejected requests
-            if (!in_array($seedlingRequest->status, ['pending', 'under_review', 'rejected'])) {
-                return redirect()->back()
-                    ->with('error', 'Cannot delete approved requests. Please reject it first.');
-            }
-
-            // If there are approved items, return supplies
+            // If there are approved items, return supplies to inventory
             $approvedItems = $seedlingRequest->items()->where('status', 'approved')->get();
             if ($approvedItems->count() > 0) {
                 foreach ($approvedItems as $item) {
@@ -385,13 +380,55 @@ class SeedlingRequestController extends Controller
                 }
             }
 
+            // Delete the request
+            $requestNumber = $seedlingRequest->request_number;
             $seedlingRequest->delete();
 
+            // Log the deletion
+            \Log::info('Seedling request deleted', [
+                'request_id' => $seedlingRequest->id,
+                'request_number' => $requestNumber,
+                'deleted_by' => auth()->user()->name ?? 'System',
+                'supplies_returned' => $approvedItems->count() > 0 ? 'Yes' : 'No'
+            ]);
+
+            // For AJAX requests, return JSON
+            if (request()->expectsJson()) {
+                $message = "Request {$requestNumber} deleted successfully!";
+                if ($approvedItems->count() > 0) {
+                    $message .= " {$approvedItems->count()} approved item(s) supplies returned to inventory.";
+                }
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => $message
+                ]);
+            }
+
+            // For regular requests, redirect
+            $message = "Seedling request {$requestNumber} deleted successfully!";
+            if ($approvedItems->count() > 0) {
+                $message .= " {$approvedItems->count()} approved item(s) supplies have been returned to inventory.";
+            }
+            
             return redirect()->route('admin.seedlings.requests')
-                ->with('success', 'Seedling request deleted successfully!');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
-            \Log::error('Failed to delete seedling request: ' . $e->getMessage());
+            \Log::error('Failed to delete seedling request', [
+                'request_id' => $seedlingRequest->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // For AJAX requests, return JSON error
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete request: ' . $e->getMessage()
+                ], 500);
+            }
+
             return redirect()->back()
                 ->with('error', 'Failed to delete request: ' . $e->getMessage());
         }
