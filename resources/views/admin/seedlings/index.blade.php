@@ -1208,7 +1208,7 @@
         height: 32px;
         border-radius: 6px;
         background: white;
-        border: 2px solid #e9ecef;
+        border: 2px solid #28a745;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1608,7 +1608,7 @@
                 img.style.zIndex = '1050';
             }
         }
-        
+
         // Date Filter Functions
         function setDateRangeModal(period) {
             const today = new Date();
