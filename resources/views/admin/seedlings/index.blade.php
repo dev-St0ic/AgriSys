@@ -174,6 +174,7 @@
                                     <th class="px-3 py-3 fw-medium text-white border-end">Barangay</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Requested Items</th>
                                     <th class="px-3 py-3 fw-medium text-white border-end">Status</th>
+                                    <th class="px-3 py-3 fw-medium text-white text-center">Documents</th>
                                     <th class="px-3 py-3 fw-medium text-white text-center">Actions</th>
                                 </tr>
                             </thead>
@@ -307,6 +308,31 @@
                                             </span>
                                         </td>
                                         <td class="px-3 py-3 text-center">
+                                            <div class="seedling-table-documents">
+                                                @if ($request->hasDocuments())
+                                                    <div class="seedling-document-previews">
+                                                        <button type="button" class="seedling-mini-doc"
+                                                            onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')"
+                                                            title="Supporting Document">
+                                                            <div class="seedling-mini-doc-icon">
+                                                                <i class="fas fa-file-image text-info"></i>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                    <button type="button" class="seedling-document-summary"
+                                                        onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')"
+                                                        style="background: none; border: none; padding: 0; cursor: pointer;">
+                                                        <small class="text-muted">1 document</small>
+                                                    </button>
+                                                @else
+                                                    <div class="seedling-no-documents">
+                                                        <i class="fas fa-folder-open text-muted"></i>
+                                                        <small class="text-muted">No documents</small>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </td>
+                                        <td class="px-3 py-3 text-center">
                                             <div class="btn-group btn-group-sm" role="group">
                                                 <button type="button" class="btn btn-outline-primary"
                                                     data-bs-toggle="modal"
@@ -325,16 +351,7 @@
                                                     title="Delete Request">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>
-                                             </div>
-
-
-                                            @if ($request->hasDocuments())
-                                                <button type="button" class="btn btn-sm btn-outline-info mt-1"
-                                                    onclick="viewDocument('{{ $request->document_path }}')"
-                                                    title="View Document">
-                                                    <i class="fas fa-file-alt"></i>
-                                                </button>
-                                            @endif
+                                            </div>
                                         </td>
                                     </tr>
 
@@ -1171,6 +1188,87 @@
             }
         }
 
+        /* SEEDLING-Style Table Document Previews */
+    .seedling-table-documents {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+    }
+
+    .seedling-document-previews {
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+    }
+
+    .seedling-mini-doc {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background: white;
+        border: 2px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .seedling-mini-doc:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        border-color: #28a745;
+    }
+
+    .seedling-mini-doc-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+    }
+
+    .seedling-document-summary {
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .seedling-document-summary:hover {
+        color: #28a745 !important;
+    }
+
+    .seedling-document-summary:hover small {
+        color: #28a745 !important;
+    }
+
+    .seedling-no-documents {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.5rem;
+        opacity: 0.7;
+    }
+
+    .seedling-no-documents i {
+        font-size: 1.25rem;
+    }
+
+    /* Responsive adjustments for table documents */
+    @media (max-width: 768px) {
+        .seedling-mini-doc {
+            width: 28px;
+            height: 28px;
+        }
+
+        .seedling-mini-doc-icon {
+            font-size: 0.75rem;
+        }
+    }
+
     </style>
 
     <script>
@@ -1254,19 +1352,263 @@
             document.getElementById('filterForm').submit();
         }
 
-        function viewDocument(path) {
+        // view document
+        function viewDocument(path, filename = null, applicationId = null) {
+            // Input validation
             if (!path || path.trim() === '') {
                 showToast('error', 'No document path provided');
                 return;
             }
-            
-            try {
-                window.open('/storage/' + path, '_blank');
-            } catch (error) {
-                showToast('error', 'Failed to open document: ' + error.message);
+
+            // Create modal if it doesn't exist
+            if (!document.getElementById('documentModal')) {
+                const modalHTML = `
+                    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-light">
+                                    <h5 class="modal-title" id="documentModalLabel">
+                                        <i class="fas fa-file-alt me-2"></i>Supporting Document
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-0" id="documentViewer">
+                                    <!-- Document will be loaded here -->
+                                </div>
+                                <div class="modal-footer bg-light">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-1"></i>Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
             }
+
+            const documentViewer = document.getElementById('documentViewer');
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+
+            // Show loading state first
+            documentViewer.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted">Loading document...</p>
+                </div>`;
+
+            // Show modal immediately with loading state
+            modal.show();
+
+            // Update modal title if filename is provided
+            const modalTitle = document.querySelector('#documentModal .modal-title');
+            if (filename) {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+            } else {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
+            }
+
+            // Extract file extension and name
+            const fileExtension = path.split('.').pop().toLowerCase();
+            const fileName = filename || path.split('/').pop();
+            const fileUrl = `/storage/${path}`;
+
+            // Define supported file types
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+            const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+            const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+
+            // Function to add download button
+            const addDownloadButton = () => {
+                return `
+                    <div class="text-center mt-3 p-3 bg-light">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-external-link-alt me-1"></i>Open in New Tab
+                            </a>
+                            <a href="${fileUrl}" download="${fileName}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-download me-1"></i>Download
+                            </a>
+                        </div>
+                        <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
+                    </div>`;
+            };
+
+            // Handle different file types
+            setTimeout(() => {
+                try {
+                    if (imageTypes.includes(fileExtension)) {
+                        // Handle images
+                        const img = new Image();
+                        img.onload = function() {
+                            documentViewer.innerHTML = `
+                                <div class="text-center p-3">
+                                    <div class="position-relative d-inline-block">
+                                        <img src="${fileUrl}"
+                                            class="img-fluid border rounded shadow-sm"
+                                            alt="Supporting Document"
+                                            style="max-height: 70vh; cursor: zoom-in;"
+                                            onclick="toggleImageZoom(this)">
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge bg-dark bg-opacity-75">${this.naturalWidth}x${this.naturalHeight}</span>
+                                        </div>
+                                    </div>
+                                    ${addDownloadButton()}
+                                </div>`;
+                        };
+                        img.onerror = function() {
+                            documentViewer.innerHTML = `
+                                <div class="alert alert-warning text-center m-3">
+                                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                    <h5>Unable to Load Image</h5>
+                                    <p class="mb-3">The image could not be loaded.</p>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                            <i class="fas fa-external-link-alt me-2"></i>Open Image
+                                        </a>
+                                        <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                            <i class="fas fa-download me-2"></i>Download
+                                        </a>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                </div>`;
+                        };
+                        img.src = fileUrl;
+
+                    } else if (fileExtension === 'pdf') {
+                        // Handle PDF documents
+                        documentViewer.innerHTML = `
+                            <div class="pdf-container p-3">
+                                <embed src="${fileUrl}"
+                                    type="application/pdf"
+                                    width="100%"
+                                    height="600px"
+                                    class="border rounded">
+                                ${addDownloadButton()}
+                            </div>`;
+
+                        // Check if PDF loaded successfully after a short delay
+                        setTimeout(() => {
+                            const embed = documentViewer.querySelector('embed');
+                            if (!embed || embed.offsetHeight === 0) {
+                                documentViewer.innerHTML = `
+                                    <div class="alert alert-info text-center m-3">
+                                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                        <h5>PDF Preview Unavailable</h5>
+                                        <p class="mb-3">Your browser doesn't support PDF preview or the file couldn't be loaded.</p>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                                <i class="fas fa-external-link-alt me-2"></i>Open PDF
+                                            </a>
+                                            <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                                <i class="fas fa-download me-2"></i>Download PDF
+                                            </a>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                                    </div>`;
+                            }
+                        }, 2000);
+
+                    } else if (videoTypes.includes(fileExtension)) {
+                        // Handle video files
+                        documentViewer.innerHTML = `
+                            <div class="text-center p-3">
+                                <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
+                                    <source src="${fileUrl}" type="video/${fileExtension}">
+                                    Your browser does not support the video tag.
+                                </video>
+                                ${addDownloadButton()}
+                            </div>`;
+
+                    } else if (audioTypes.includes(fileExtension)) {
+                        // Handle audio files
+                        documentViewer.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-music fa-4x text-info mb-3"></i>
+                                <h5>Audio File</h5>
+                                <audio controls class="w-100 mb-3">
+                                    <source src="${fileUrl}" type="audio/${fileExtension}">
+                                    Your browser does not support the audio tag.
+                                </audio>
+                                ${addDownloadButton()}
+                            </div>`;
+
+                    } else if (documentTypes.includes(fileExtension)) {
+                        // Handle other document types
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : 
+                                    ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-info text-center m-3">
+                                <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
+                                <h5>${fileExtension.toUpperCase()} Document</h5>
+                                <p class="mb-3">This document type cannot be previewed directly in the browser.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open Document
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+
+                    } else {
+                        // Handle unsupported file types
+                        documentViewer.innerHTML = `
+                            <div class="alert alert-warning text-center m-3">
+                                <i class="fas fa-file fa-4x text-warning mb-3"></i>
+                                <h5>Unsupported File Type</h5>
+                                <p class="mb-3">The file type ".${fileExtension}" is not supported for preview.</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                        <i class="fas fa-external-link-alt me-2"></i>Open File
+                                    </a>
+                                    <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                        <i class="fas fa-download me-2"></i>Download
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">File: ${fileName}</small>
+                            </div>`;
+                    }
+                } catch (error) {
+                    console.error('Error processing document:', error);
+                    documentViewer.innerHTML = `
+                        <div class="alert alert-danger text-center m-3">
+                            <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
+                            <h5>Error Loading Document</h5>
+                            <p class="mb-3">${error.message}</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="${fileUrl}" target="_blank" class="btn btn-primary">
+                                    <i class="fas fa-external-link-alt me-2"></i>Try Opening Directly
+                                </a>
+                                <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
+                                    <i class="fas fa-download me-2"></i>Download
+                                </a>
+                            </div>
+                        </div>`;
+                }
+            }, 500);
         }
 
+        // Helper function to toggle image zoom
+        function toggleImageZoom(img) {
+            if (img.style.transform === 'scale(2)') {
+                img.style.transform = 'scale(1)';
+                img.style.cursor = 'zoom-in';
+                img.style.transition = 'transform 0.3s ease';
+            } else {
+                img.style.transform = 'scale(2)';
+                img.style.cursor = 'zoom-out';
+                img.style.transition = 'transform 0.3s ease';
+                img.style.zIndex = '1050';
+            }
+        }
+        
         // Date Filter Functions
         function setDateRangeModal(period) {
             const today = new Date();
