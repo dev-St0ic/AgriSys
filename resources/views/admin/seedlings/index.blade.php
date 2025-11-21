@@ -338,7 +338,7 @@
                                         </td>
                                     </tr>
 
-                                     <!-- View Modal -->
+                                    <!-- View Modal -->
                                     <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
                                         <div class="modal-dialog modal-lg">
                                             <div class="modal-content">
