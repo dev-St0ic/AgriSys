@@ -18,8 +18,8 @@ class DSSReportService
     public function __construct()
     {
         $this->anthropicApiKey = config('services.anthropic.key');
-        $this->model = config('services.anthropic.model', 'claude-3-5-sonnet-20241022');
-        $this->maxTokens = config('services.anthropic.max_tokens', 4096);
+        $this->model = config('services.anthropic.model', 'claude-sonnet-4-5-20250929');
+        $this->maxTokens = config('services.anthropic.max_tokens', 8192);
         $this->temperature = config('services.anthropic.temperature', 0.1);
 
         if (empty($this->anthropicApiKey)) {
