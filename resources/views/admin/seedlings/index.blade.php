@@ -162,11 +162,6 @@
                             <i class="fas fa-seedling me-2"></i>Seedling Requests
                         </h6>
                     </div>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('admin.seedlings.create') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus me-2"></i>Add Request
-                        </a>
-                    </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
