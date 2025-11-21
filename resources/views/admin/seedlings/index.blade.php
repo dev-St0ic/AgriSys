@@ -338,7 +338,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- View Modal -->
+                                     <!-- View Modal -->
                                     <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
                                         <div class="modal-dialog modal-lg">
                                             <div class="modal-content">
@@ -351,9 +351,10 @@
                                                         data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <div class="row">
+                                                    <div class="row g-3">
                                                         <div class="col-md-6">
-                                                            <h6>Personal Information</h6>
+                                                            <h6 class="border-bottom pb-2">Personal Information</h6>
+                                                            <p><strong>Request #:</strong> {{ $request->request_number }}</p>
                                                             <p><strong>Name:</strong> {{ $request->full_name }}</p>
                                                             <p><strong>Contact:</strong> {{ $request->contact_number }}</p>
                                                             <p><strong>Email:</strong> {{ $request->email ?? 'N/A' }}</p>
@@ -361,10 +362,10 @@
                                                             <p><strong>Address:</strong> {{ $request->address }}</p>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <h6>Request Information</h6>
+                                                            <h6 class="border-bottom pb-2">Request Information</h6>
                                                             <p><strong>Total Quantity:</strong>
                                                                 {{ $request->total_quantity }}</p>
-                                                            <p><strong>Status:</strong>
+                                                            <p><strong>Current Status:</strong>
                                                                 <span
                                                                     class="badge bg-{{ match ($request->status) {
                                                                         'approved' => 'success',
@@ -376,62 +377,111 @@
                                                                     {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                                                 </span>
                                                             </p>
-                                                            <p><strong>Date:</strong>
+                                                            <p><strong>Date Applied:</strong>
                                                                 {{ $request->created_at->format('F d, Y g:i A') }}</p>
-                                                            @if ($request->remarks)
-                                                                <p><strong>Remarks:</strong> {{ $request->remarks }}</p>
+                                                            <p><strong>Last Updated:</strong>
+                                                                {{ $request->updated_at->format('F d, Y g:i A') }}</p>
+                                                        </div>
+
+                                                        <!-- Requested Items Section -->
+                                                        <div class="col-12">
+                                                            <div class="card border-primary">
+                                                                <div class="card-header bg-light">
+                                                                    <h6 class="mb-0" style="color: #495057;">
+                                                                        <i class="fas fa-seedling me-2 text-primary"></i>Requested Items by Category
+                                                                    </h6>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                    @php
+                                                                        $itemsByCategory = $request->items->groupBy('category_id');
+                                                                    @endphp
+
+                                                                    @foreach ($itemsByCategory as $categoryId => $items)
+                                                                        @php
+                                                                            $category = $items->first()->category;
+                                                                        @endphp
+                                                                        <div class="mb-3 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
+                                                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                                                <strong class="text-primary">
+                                                                                    <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                                                    {{ $category->display_name }}
+                                                                                </strong>
+                                                                                <span class="badge bg-secondary">{{ $items->count() }} items</span>
+                                                                            </div>
+                                                                            <ul class="mb-0">
+                                                                                @foreach ($items as $item)
+                                                                                    <li>
+                                                                                        {{ $item->item_name }} -
+                                                                                        {{ $item->requested_quantity }}
+                                                                                        {{ $item->categoryItem->unit ?? 'pcs' }}
+                                                                                        <span class="badge bg-{{ $item->status_color }} ms-2">
+                                                                                            {{ ucfirst($item->status) }}
+                                                                                        </span>
+                                                                                        @if ($item->status === 'approved')
+                                                                                            <small class="text-muted">(Stock deducted)</small>
+                                                                                        @endif
+                                                                                    </li>
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        </div>
+                                                                    @endforeach
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Supporting Document Section -->
+                                                        <div class="col-12">
+                                                            @if ($request->hasDocuments())
+                                                                <div class="card border-secondary">
+                                                                    <div class="card-header bg-light">
+                                                                        <h6 class="mb-0" style="color: #495057;">
+                                                                            <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                                                        </h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div class="text-center p-3 border border-secondary rounded bg-light">
+                                                                            <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
+                                                                            <h6>Supporting Document</h6>
+                                                                            <span class="badge bg-secondary mb-2">Uploaded</span>
+                                                                            <br>
+                                                                            <button class="btn btn-sm btn-outline-info mt-2" 
+                                                                                onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
+                                                                                <i class="fas fa-eye"></i> View Document
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            @else
+                                                                <div class="card border-secondary">
+                                                                    <div class="card-header bg-light">
+                                                                        <h6 class="mb-0" style="color: #495057;">
+                                                                            <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                                                        </h6>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div class="text-center p-3 border border-secondary rounded">
+                                                                            <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
+                                                                            <h6>No Document Uploaded</h6>
+                                                                            <span class="badge bg-secondary mb-2">Not Uploaded</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             @endif
                                                         </div>
-                                                    </div>
 
-                                                    <hr>
-                                                    <h6>Requested Items by Category</h6>
-
-                                                    @php
-                                                        $itemsByCategory = $request->items->groupBy('category_id');
-                                                    @endphp
-
-                                                    @foreach ($itemsByCategory as $categoryId => $items)
-                                                        @php
-                                                            $category = $items->first()->category;
-                                                        @endphp
-                                                        <div class="mb-3 p-3 border rounded">
-                                                            <div
-                                                                class="d-flex justify-content-between align-items-center mb-2">
-                                                                <strong class="text-primary">
-                                                                    <i
-                                                                        class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                                    {{ $category->display_name }}
-                                                                </strong>
+                                                        <!-- Remarks Section -->
+                                                        @if ($request->remarks)
+                                                            <div class="col-12">
+                                                                <h6 class="border-bottom pb-2">Remarks</h6>
+                                                                <div class="alert alert-info">
+                                                                    <p class="mb-0">{{ $request->remarks }}</p>
+                                                                </div>
                                                             </div>
-                                                            <ul class="mb-0">
-                                                                @foreach ($items as $item)
-                                                                    <li>
-                                                                        {{ $item->item_name }} -
-                                                                        {{ $item->requested_quantity }}
-                                                                        {{ $item->categoryItem->unit ?? 'pcs' }}
-                                                                        <span
-                                                                            class="badge bg-{{ $item->status_color }} ms-2">
-                                                                            {{ ucfirst($item->status) }}
-                                                                        </span>
-                                                                        @if ($item->status === 'approved')
-                                                                            <small class="text-muted">(Stock
-                                                                                deducted)</small>
-                                                                        @endif
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
-                                                    @endforeach
-
-                                                    @if ($request->hasDocuments())
-                                                        <hr>
-                                                        <h6>Supporting Documents</h6>
-                                                        <a href="{{ $request->document_url }}" target="_blank"
-                                                            class="btn btn-sm btn-outline-primary">
-                                                            <i class="fas fa-file-alt"></i> View Document
-                                                        </a>
-                                                    @endif
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                 </div>
                                             </div>
                                         </div>
