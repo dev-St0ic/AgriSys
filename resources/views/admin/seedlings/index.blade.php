@@ -162,6 +162,11 @@
                             <i class="fas fa-seedling me-2"></i>Seedling Requests
                         </h6>
                     </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="showAddSeedlingModal()">
+                            <i class="fas fa-plus me-2"></i>Add Request
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -655,6 +660,186 @@
                     </div>
                 </div>
             @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Seedling Request Modal -->
+            <div class="modal fade" id="addSeedlingModal" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title">
+                                <i class="fas fa-seedling me-2"></i>Add New Seedling Request
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addSeedlingForm" enctype="multipart/form-data">
+                                <!-- Personal Information -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3 mb-3">
+                                                <label for="seedling_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="seedling_first_name" required maxlength="100">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="seedling_middle_name" class="form-label">Middle Name</label>
+                                                <input type="text" class="form-control" id="seedling_middle_name" maxlength="100">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="seedling_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="seedling_last_name" required maxlength="100">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="seedling_extension" class="form-label">Extension</label>
+                                                <select class="form-select" id="seedling_extension">
+                                                    <option value="">None</option>
+                                                    <option value="Jr.">Jr.</option>
+                                                    <option value="Sr.">Sr.</option>
+                                                    <option value="II">II</option>
+                                                    <option value="III">III</option>
+                                                    <option value="IV">IV</option>
+                                                    <option value="V">V</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="seedling_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                                <input type="tel" class="form-control" id="seedling_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                                <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="seedling_email" class="form-label">Email (Optional)</label>
+                                                <input type="email" class="form-control" id="seedling_email" maxlength="254">
+                                                <div class="form-text">For status notifications</div>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label for="seedling_user_id" class="form-label">Link to User Account (Optional)</label>
+                                                <input type="number" class="form-control" id="seedling_user_id" placeholder="Enter User ID if exists">
+                                                <div class="form-text">Leave blank if not associated with any user account</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Location Information -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="seedling_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                                <select class="form-select" id="seedling_barangay" required>
+                                                    <option value="">Select Barangay</option>
+                                                    <!-- Barangays will be populated from server data -->
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="seedling_address" class="form-label">Address <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="seedling_address" required maxlength="500" placeholder="Full address">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Request Items -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0"><i class="fas fa-leaf me-2"></i>Requested Items</h6>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSeedlingItemRow()">
+                                                <i class="fas fa-plus me-1"></i>Add Item
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="seedling_items_container">
+                                            <!-- Item rows will be added here -->
+                                        </div>
+                                        <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Add at least one item to the request</p>
+                                    </div>
+                                </div>
+
+                                <!-- Supporting Document -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="seedling_supporting_document" class="form-label">Upload Document</label>
+                                                <input type="file" class="form-control" id="seedling_supporting_document" accept="image/*,.pdf" onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
+                                                <div class="form-text">Accepted: JPG, PNG, PDF (Max 5MB)</div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="seedling_doc_preview" style="margin-top: 10px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Information -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="fas fa-pencil-alt me-2"></i>Additional Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="seedling_planting_location" class="form-label">Planting Location</label>
+                                                <input type="text" class="form-control" id="seedling_planting_location" maxlength="500" placeholder="Where will the seedlings be planted?">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="seedling_preferred_delivery_date" class="form-label">Preferred Delivery Date</label>
+                                                <input type="date" class="form-control" id="seedling_preferred_delivery_date">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="seedling_purpose" class="form-label">Purpose</label>
+                                            <textarea class="form-control" id="seedling_purpose" rows="3" maxlength="1000" placeholder="Why are you requesting these seedlings?"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Request Status -->
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Request Status</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="seedling_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="seedling_status" required>
+                                                <option value="pending" selected>Pending</option>
+                                                <option value="under_review">Under Review</option>
+                                                <option value="approved">Approved</option>
+                                                <option value="partially_approved">Partially Approved</option>
+                                                <option value="rejected">Rejected</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="seedling_remarks" class="form-label">Remarks (Optional)</label>
+                                            <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="500" placeholder="Any notes or comments..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="submitAddSeedling()">
+                                <i class="fas fa-save me-1"></i>Create Request
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2207,6 +2392,447 @@ document.addEventListener('DOMContentLoaded', function() {
             remarksTextarea.addEventListener('change', () => checkForSeedlingChanges(requestId));
         }
     });
+});
+
+// Initialize seedling item counter
+let seedlingItemCounter = 0;
+
+// Show add seedling modal
+function showAddSeedlingModal() {
+    const modal = new bootstrap.Modal(document.getElementById('addSeedlingModal'));
+    
+    // Reset form
+    document.getElementById('addSeedlingForm').reset();
+    seedlingItemCounter = 0;
+    
+    // Populate barangays
+    populateSeedlingBarangays();
+    
+    // Add one empty item row
+    addSeedlingItemRow();
+    
+    // Remove any validation errors
+    document.querySelectorAll('#addSeedlingModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    document.querySelectorAll('#addSeedlingModal .invalid-feedback').forEach(el => el.remove());
+    
+    // Clear document preview
+    const preview = document.getElementById('seedling_doc_preview');
+    if (preview) {
+        preview.innerHTML = '';
+        preview.style.display = 'none';
+    }
+    
+    modal.show();
+}
+
+// Populate barangays dropdown
+function populateSeedlingBarangays() {
+    const barangaySelect = document.getElementById('seedling_barangay');
+    
+    // Get barangays from the page's data (if available)
+    const barangayElements = document.querySelectorAll('option[value*=""]');
+    
+    // If barangays are already populated, return
+    if (barangaySelect.querySelectorAll('option').length > 1) {
+        return;
+    }
+    
+    // Fetch barangays from server or use hardcoded list
+    const barangays = @json($barangays ?? collect());
+    
+    if (barangays && barangays.length > 0) {
+        barangays.forEach(barangay => {
+            const option = document.createElement('option');
+            option.value = barangay;
+            option.textContent = barangay;
+            barangaySelect.appendChild(option);
+        });
+    }
+}
+
+// Add item row
+function addSeedlingItemRow() {
+    seedlingItemCounter++;
+    const container = document.getElementById('seedling_items_container');
+    
+    const itemRow = document.createElement('div');
+    itemRow.className = 'seedling-item-row mb-3 p-3 border rounded';
+    itemRow.id = `seedling_item_${seedlingItemCounter}`;
+    itemRow.innerHTML = `
+        <div class="row align-items-end">
+            <div class="col-md-5 mb-3">
+                <label class="form-label">Category & Item <span class="text-danger">*</span></label>
+                <select class="form-select seedling-category-select" data-row-id="${seedlingItemCounter}" required onchange="loadSeedlingItems(this)">
+                    <option value="">Select Item</option>
+                    <!-- Categories and items will be populated here -->
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                <input type="number" class="form-control seedling-quantity" data-row-id="${seedlingItemCounter}" min="1" required placeholder="Enter quantity">
+            </div>
+            <div class="col-md-3 mb-3">
+                <button type="button" class="btn btn-outline-danger w-100" onclick="removeSeedlingItemRow(${seedlingItemCounter})">
+                    <i class="fas fa-trash me-1"></i>Remove
+                </button>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(itemRow);
+    
+    // Populate category select
+    populateSeedlingCategorySelect(container.querySelector(`select[data-row-id="${seedlingItemCounter}"]`));
+}
+
+// Populate category select
+function populateSeedlingCategorySelect(selectElement) {
+    const categories = @json($categories ?? collect());
+    
+    selectElement.innerHTML = '<option value="">Select Item</option>';
+    
+    categories.forEach(category => {
+        if (category.items && category.items.length > 0) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = category.display_name;
+            
+            category.items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = `${item.name}`;
+                optgroup.appendChild(option);
+            });
+            
+            selectElement.appendChild(optgroup);
+        }
+    });
+}
+
+// Remove item row
+function removeSeedlingItemRow(rowId) {
+    const row = document.getElementById(`seedling_item_${rowId}`);
+    if (row) {
+        row.remove();
+    }
+    
+    // Check if at least one item remains
+    const itemCount = document.querySelectorAll('.seedling-item-row').length;
+    if (itemCount === 0) {
+        addSeedlingItemRow();
+    }
+}
+
+// Load items for category
+function loadSeedlingItems(selectElement) {
+    // This is handled by the optgroup structure
+}
+
+// Validate seedling contact number
+function validateSeedlingContactNumber(contactNumber) {
+    const input = document.getElementById('seedling_contact_number');
+    const feedback = input.parentNode.querySelector('.invalid-feedback');
+    
+    if (feedback) feedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+    
+    if (!contactNumber || contactNumber.trim() === '') {
+        return;
+    }
+    
+    const phoneRegex = /^(\+639|09)\d{9}$/;
+    
+    if (!phoneRegex.test(contactNumber.trim())) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+    
+    input.classList.add('is-valid');
+    return true;
+}
+
+// Validate seedling email
+function validateSeedlingEmail(email) {
+    const input = document.getElementById('seedling_email');
+    const feedback = input.parentNode.querySelector('.invalid-feedback');
+    
+    if (feedback) feedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+    
+    if (!email || email.trim() === '') {
+        return true;
+    }
+    
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    if (!emailPattern.test(email.trim())) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback d-block';
+        errorDiv.textContent = 'Invalid email format';
+        input.parentNode.appendChild(errorDiv);
+        return false;
+    }
+    
+    input.classList.add('is-valid');
+    return true;
+}
+
+// Auto-capitalize name fields
+function capitalizeSeedlingName(input) {
+    const value = input.value;
+    if (value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+}
+
+document.getElementById('seedling_first_name')?.addEventListener('blur', function() {
+    capitalizeSeedlingName(this);
+});
+
+document.getElementById('seedling_middle_name')?.addEventListener('blur', function() {
+    capitalizeSeedlingName(this);
+});
+
+document.getElementById('seedling_last_name')?.addEventListener('blur', function() {
+    capitalizeSeedlingName(this);
+});
+
+// Document preview
+function previewSeedlingDocument(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    
+    if (!input.files || !input.files[0]) {
+        if (preview) {
+            preview.innerHTML = '';
+            preview.style.display = 'none';
+        }
+        return;
+    }
+    
+    const file = input.files[0];
+    
+    if (file.size > 5 * 1024 * 1024) {
+        showToast('error', 'File size must not exceed 5MB');
+        input.value = '';
+        if (preview) {
+            preview.innerHTML = '';
+            preview.style.display = 'none';
+        }
+        return;
+    }
+    
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        if (preview) {
+            if (file.type.startsWith('image/')) {
+                preview.innerHTML = `
+                    <div class="document-preview-item">
+                        <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <p style="margin-top: 8px; font-size: 12px; color: #666;">
+                            <i class="fas fa-file-image me-1"></i>${file.name}
+                        </p>
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = `
+                    <div class="document-preview-item">
+                        <div class="text-center p-3 border rounded">
+                            <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                            <p style="margin-top: 8px; font-size: 12px; color: #666;">${file.name}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            preview.style.display = 'block';
+        }
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+// Validate seedling form
+function validateSeedlingForm() {
+    let isValid = true;
+    
+    const requiredFields = [
+        { id: 'seedling_first_name', label: 'First Name' },
+        { id: 'seedling_last_name', label: 'Last Name' },
+        { id: 'seedling_contact_number', label: 'Contact Number' },
+        { id: 'seedling_barangay', label: 'Barangay' },
+        { id: 'seedling_address', label: 'Address' }
+    ];
+    
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (input && (!input.value || input.value.trim() === '')) {
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            input.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    });
+    
+    // Validate contact number
+    const contactNumber = document.getElementById('seedling_contact_number').value.trim();
+    if (!validateSeedlingContactNumber(contactNumber)) {
+        isValid = false;
+    }
+    
+    // Validate email if provided
+    const email = document.getElementById('seedling_email').value.trim();
+    if (email && !validateSeedlingEmail(email)) {
+        isValid = false;
+    }
+    
+    // Validate at least one item
+    const items = document.querySelectorAll('.seedling-item-row');
+    let itemsValid = true;
+    
+    items.forEach(item => {
+        const categorySelect = item.querySelector('.seedling-category-select');
+        const quantityInput = item.querySelector('.seedling-quantity');
+        
+        if (!categorySelect.value) {
+            categorySelect.classList.add('is-invalid');
+            itemsValid = false;
+        }
+        
+        if (!quantityInput.value || quantityInput.value < 1) {
+            quantityInput.classList.add('is-invalid');
+            itemsValid = false;
+        }
+    });
+    
+    if (!itemsValid) {
+        showToast('error', 'Please add at least one valid item');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// Submit add seedling form
+function submitAddSeedling() {
+    if (!validateSeedlingForm()) {
+        showToast('error', 'Please fix all validation errors before submitting');
+        return;
+    }
+    
+    // Prepare form data
+    const formData = new FormData();
+    
+    formData.append('first_name', document.getElementById('seedling_first_name').value.trim());
+    formData.append('middle_name', document.getElementById('seedling_middle_name').value.trim());
+    formData.append('last_name', document.getElementById('seedling_last_name').value.trim());
+    formData.append('extension_name', document.getElementById('seedling_extension').value);
+    formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
+    formData.append('email', document.getElementById('seedling_email').value.trim());
+    formData.append('barangay', document.getElementById('seedling_barangay').value);
+    formData.append('address', document.getElementById('seedling_address').value.trim());
+    formData.append('planting_location', document.getElementById('seedling_planting_location').value.trim());
+    formData.append('purpose', document.getElementById('seedling_purpose').value.trim());
+    formData.append('preferred_delivery_date', document.getElementById('seedling_preferred_delivery_date').value);
+    formData.append('status', document.getElementById('seedling_status').value);
+    formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
+    
+    const userId = document.getElementById('seedling_user_id').value.trim();
+    if (userId) {
+        formData.append('user_id', userId);
+    }
+    
+    // Add items
+    const items = document.querySelectorAll('.seedling-item-row');
+    items.forEach((item, index) => {
+        const categorySelect = item.querySelector('.seedling-category-select');
+        const quantityInput = item.querySelector('.seedling-quantity');
+        
+        formData.append(`items[${index}][category_item_id]`, categorySelect.value);
+        formData.append(`items[${index}][quantity]`, quantityInput.value);
+    });
+    
+    // Add document if uploaded
+    const docInput = document.getElementById('seedling_supporting_document');
+    if (docInput.files && docInput.files[0]) {
+        formData.append('document', docInput.files[0]);
+    }
+    
+    // Find submit button
+    const submitBtn = document.querySelector('#addSeedlingModal .btn-primary');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
+    submitBtn.disabled = true;
+    
+    // Submit to backend
+    fetch('/admin/seedlings/requests', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addSeedlingModal'));
+            modal.hide();
+            
+            showToast('success', data.message || 'Seedling request created successfully');
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            if (data.errors) {
+                Object.keys(data.errors).forEach(field => {
+                    const input = document.getElementById('seedling_' + field);
+                    if (input) {
+                        const feedback = input.parentNode.querySelector('.invalid-feedback');
+                        if (feedback) feedback.remove();
+                        
+                        input.classList.add('is-invalid');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback d-block';
+                        errorDiv.textContent = data.errors[field][0];
+                        input.parentNode.appendChild(errorDiv);
+                    }
+                });
+            }
+            showToast('error', data.message || 'Failed to create seedling request');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'An error occurred while creating the request');
+    })
+    .finally(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+// Add event listeners for real-time validation
+document.getElementById('seedling_contact_number')?.addEventListener('input', function() {
+    validateSeedlingContactNumber(this.value);
+});
+
+document.getElementById('seedling_email')?.addEventListener('input', function() {
+    validateSeedlingEmail(this.value);
 });
     </script>
 @endsection

@@ -177,8 +177,8 @@ class SeedlingRequestController extends Controller
                 $documentPath = $request->file('document')->store('seedling-requests', 'public');
             }
 
-            // Get user ID from session
-            $userId = session('user.id');
+            // Get user ID from session or auth
+            $userId = auth()->id() ?? session('user.id');
 
             // Create the main request
             $seedlingRequest = SeedlingRequest::create([
@@ -220,19 +220,46 @@ class SeedlingRequestController extends Controller
 
             \DB::commit();
 
+            // ✅ CHECK IF AJAX REQUEST FIRST
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Seedling request created successfully!'
+                ], 201);
+            }
+
+            // Otherwise redirect
             return redirect()->route('admin.seedlings.requests')
                 ->with('success', 'Seedling request created successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
 
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error('Failed to create seedling request: ' . $e->getMessage());
+
+            // Check if it's an AJAX request (our modal will be)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create request: ' . $e->getMessage()
+                ], 400);
+            }
 
             return redirect()->back()
                 ->withErrors(['error' => 'Failed to create request: ' . $e->getMessage()])
                 ->withInput();
         }
     }
-
     /**
      * Show the form for editing a seedling request
      */
