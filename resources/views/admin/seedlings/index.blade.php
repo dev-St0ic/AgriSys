@@ -637,10 +637,9 @@
                                                     </form>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Cancel</button>
-                                                    <button type="submit" form="updateForm{{ $request->id }}"
-                                                        class="btn btn-primary" id="submitBtn{{ $request->id }}">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-primary" id="submitBtn{{ $request->id }}"
+                                                        onclick="handleSeedlingUpdateSubmit(document.getElementById('updateForm{{ $request->id }}'), {{ $request->id }})">
                                                         <i class="fas fa-save me-2"></i>Update Items
                                                     </button>
                                                 </div>
@@ -1275,7 +1274,7 @@
         }
     }
 
-   /* Form Change Detection Styles */
+  /* Form Change Detection Styles */
 .form-changed {
     background-color: #fff3cd !important;
     border-left: 3px solid #ffc107 !important;
@@ -1341,12 +1340,6 @@ textarea.form-changed:focus {
     border-color: #ffc107 !important;
     box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
     background-color: #fff3cd !important;
-}
-
-/* Enhanced visual feedback for changed items */
-.item-card.form-changed .fw-medium {
-    color: #ff8c00;
-    font-weight: 600;
 }
     </style>
 
@@ -1882,16 +1875,6 @@ function proceedWithSeedlingDelete(id, requestNumber) {
     });
 }
 
-// Initialize modal when opened
-document.addEventListener('DOMContentLoaded', function() {
-    const modalElement = document.getElementById('updateModal{{ $request->id }}');
-    
-    if (modalElement) {
-        modalElement.addEventListener('show.bs.modal', function() {
-            initializeSeedlingUpdateModal({{ $request->id }});
-        });
-    }
-});
 
 // Initialize the update modal with original values
 function initializeSeedlingUpdateModal(requestId) {
@@ -1923,7 +1906,7 @@ function initializeSeedlingUpdateModal(requestId) {
         }
     });
     
-    // Reset button state
+    // Reset button state to "No Changes"
     if (submitButton) {
         submitButton.classList.add('no-changes');
         submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
@@ -1994,27 +1977,9 @@ function checkForSeedlingChanges(requestId) {
 }
 
 // Handle update form submission with confirmation
-document.addEventListener('DOMContentLoaded', function() {
-    const updateForms = document.querySelectorAll('form[id^="updateForm"]');
-    
-    updateForms.forEach(form => {
-        const requestId = form.id.replace('updateForm', '');
-        const submitButton = document.getElementById('submitBtn' + requestId);
-        
-        if (submitButton) {
-            submitButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                handleSeedlingUpdateSubmit(form, requestId);
-            });
-        }
-    });
-});
-
-// Handle update form submission with confirmation
 function handleSeedlingUpdateSubmit(form, requestId) {
     const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
     const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-    const submitButton = form.querySelector('button[type="submit"]');
     
     let hasChanges = false;
     let changesSummary = [];
@@ -2052,11 +2017,11 @@ function handleSeedlingUpdateSubmit(form, requestId) {
         return;
     }
     
-    // Show confirmation toast with changes
+    // Show confirmation toast with changes - THIS IS THE ONLY PLACE WE CALL IT
     showConfirmationToast(
         'Confirm Update',
         `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
-        () => proceedWithSeedlingUpdate(form, requestId, submitButton)
+        () => proceedWithSeedlingUpdate(form, requestId)
     );
 }
 
@@ -2077,8 +2042,9 @@ function getStatusText(status) {
 }
 
 // Proceed with seedling update after confirmation
-function proceedWithSeedlingUpdate(form, requestId, submitButton) {
+function proceedWithSeedlingUpdate(form, requestId) {
     const formData = new FormData(form);
+    const submitButton = document.getElementById('submitBtn' + requestId);
     
     // Show loading state
     const originalText = submitButton.innerHTML;
@@ -2127,5 +2093,38 @@ function getCSRFToken() {
     const metaTag = document.querySelector('meta[name="csrf-token"]');
     return metaTag ? metaTag.getAttribute('content') : '';
 }
+// Initialize modal when opened
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all update modals for seedlings
+    const updateModals = document.querySelectorAll('[id^="updateModal"]');
+    
+    updateModals.forEach(modalElement => {
+        const requestId = modalElement.id.replace('updateModal', '');
+        
+        modalElement.addEventListener('show.bs.modal', function() {
+            initializeSeedlingUpdateModal(requestId);
+        });
+    });
+    
+    // Add event listeners for real-time change detection only
+    const updateForms = document.querySelectorAll('form[id^="updateForm"]');
+    
+    updateForms.forEach(form => {
+        const requestId = form.id.replace('updateForm', '');
+        
+        // Add event listeners for real-time change detection
+        const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+        const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
+        
+        statusSelects.forEach(select => {
+            select.addEventListener('change', () => checkForSeedlingChanges(requestId));
+        });
+        
+        if (remarksTextarea) {
+            remarksTextarea.addEventListener('input', () => checkForSeedlingChanges(requestId));
+            remarksTextarea.addEventListener('change', () => checkForSeedlingChanges(requestId));
+        }
+    });
+});
     </script>
 @endsection
