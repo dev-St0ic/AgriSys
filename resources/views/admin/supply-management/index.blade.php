@@ -661,9 +661,9 @@
     <div class="modal fade" id="createItemModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header border-0 d-flex justify-content-center">
                     <h5 class="modal-title">Add New Item</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="createItemForm" enctype="multipart/form-data" novalidate>
                     @csrf
@@ -671,12 +671,12 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Name *</label>
+                                <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
                                 <input type="text" name="name" class="form-control" required>
                                 <div class="invalid-feedback">Please provide an item name.</div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Unit *</label>
+                                <label class="form-label">Unit <span style="color: #dc3545;">*</span></label>
                                 <select name="unit" class="form-select" required>
                                     <option value="">Select unit...</option>
                                     <option value="pcs" selected>Pieces (pcs)</option>
@@ -689,8 +689,9 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="2"></textarea>
+                            <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                            <div class="invalid-feedback">Please provide a description.</div>
                         </div>
 
                         <hr>
@@ -698,25 +699,29 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Initial Supply</label>
+                                <label class="form-label">Initial Supply <span style="color: #dc3545;">*</span></label>
                                 <input type="number" name="current_supply" class="form-control" value="0"
-                                    min="0">
+                                    min="0" required>
+                                <div class="invalid-feedback">Please provide initial supply.</div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Minimum Supply</label>
+                                <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
                                 <input type="number" name="minimum_supply" class="form-control" value="0"
-                                    min="0">
+                                    min="0" required>
+                                <div class="invalid-feedback">Please provide minimum supply.</div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Maximum Supply</label>
-                                <input type="number" name="maximum_supply" class="form-control" min="0">
+                                <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
+                                <input type="number" name="maximum_supply" class="form-control" min="0" required>
+                                <div class="invalid-feedback">Please provide maximum supply.</div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Reorder Point</label>
-                                <input type="number" name="reorder_point" class="form-control" min="0">
+                                <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
+                                <input type="number" name="reorder_point" class="form-control" min="0" required>
                                 <small class="text-muted">Alert when supply reaches this level</small>
+                                <div class="invalid-feedback">Please provide reorder point.</div>
                             </div>
                         </div>
 
@@ -724,9 +729,10 @@
                         <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
 
                         <div class="mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Recommended: 300x300px, max 2MB</small>
+                            <label class="form-label">Image <span style="color: #dc3545;">*</span></label>
+                            <input type="file" name="image" class="form-control" accept="image/*" required>
+                            <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
+                            <div class="invalid-feedback">Please select an image file.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -805,8 +811,8 @@
                         <div class="mb-3">
                             <div id="current_image_preview" class="mb-2"></div>
                             <label class="form-label">Change Image</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Recommended: 300x300px, max 2MB</small>
+                            <input type="file" name="image" class="form-control" accept="image/*" required>
+                            <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1883,6 +1889,32 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
+
+        // File size validation for Add Item Modal
+        document.getElementById('createItemForm').addEventListener('change', function(e) {
+            if (e.target.name === 'image') {
+                const file = e.target.files[0];
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                
+                if (file && file.size > maxSize) {
+                    showError(`File size must not exceed 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+                    e.target.value = ''; // Clear the input
+                }
+            }
+        });
+
+        // File size validation for Edit Item Modal
+        document.getElementById('editItemForm').addEventListener('change', function(e) {
+            if (e.target.name === 'image') {
+                const file = e.target.files[0];
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                
+                if (file && file.size > maxSize) {
+                    showError(`File size must not exceed 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+                    e.target.value = ''; // Clear the input
+                }
+            }
+        });``
     </script>
 
     <style>
