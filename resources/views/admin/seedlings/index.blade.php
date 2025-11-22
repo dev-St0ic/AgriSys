@@ -1980,7 +1980,6 @@ function checkForSeedlingChanges(requestId) {
 
 // Handle update form submission with confirmation
 function handleSeedlingUpdateSubmit(requestId) {
-    // Get fresh reference to form - DON'T pass it as parameter
     const form = document.getElementById('updateForm' + requestId);
     
     if (!form) {
@@ -1992,7 +1991,8 @@ function handleSeedlingUpdateSubmit(requestId) {
     console.log('=== DEBUG: Form Submission Started ===');
     console.log('Request ID:', requestId);
     console.log('Form found:', !!form);
-    console.log('Form children count:', form.children.length);
+    console.log('Form action:', form.getAttribute('action'));
+    console.log('Form method:', form.getAttribute('method'));
     
     const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
     const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
@@ -2058,7 +2058,7 @@ function handleSeedlingUpdateSubmit(requestId) {
     showConfirmationToast(
         'Confirm Update',
         `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
-        () => proceedWithSeedlingUpdate(form, requestId)
+        () => proceedWithSeedlingUpdate(form, requestId)  // Pass form reference here
     );
 }
 
@@ -2080,7 +2080,30 @@ function getStatusText(status) {
 
 // Proceed with seedling update after confirmation
 function proceedWithSeedlingUpdate(form, requestId) {
+    // Create a new FormData object to ensure all fields are properly included
     const formData = new FormData(form);
+    
+    // Debug: Log what's being sent
+    console.log('=== FormData Contents ===');
+    for (let [key, value] of formData.entries()) {
+        console.log(key, ':', value);
+    }
+    
+    // Verify that item_statuses exists in the form data
+    let hasItemStatuses = false;
+    for (let [key] of formData.entries()) {
+        if (key.startsWith('item_statuses')) {
+            hasItemStatuses = true;
+            break;
+        }
+    }
+    
+    if (!hasItemStatuses) {
+        console.error('ERROR: item_statuses not found in form data!');
+        showToast('error', 'Form validation error: Item statuses missing');
+        return;
+    }
+    
     const submitButton = document.getElementById('submitBtn' + requestId);
     
     // Show loading state
@@ -2088,7 +2111,11 @@ function proceedWithSeedlingUpdate(form, requestId) {
     submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
     submitButton.disabled = true;
     
-    fetch(form.action, {
+    // Get the form action URL
+    const formAction = form.getAttribute('action');
+    console.log('Form action:', formAction);
+    
+    fetch(formAction, {
         method: 'POST',
         body: formData,
         headers: {
@@ -2096,8 +2123,26 @@ function proceedWithSeedlingUpdate(form, requestId) {
             'Accept': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        
+        if (response.status === 422) {
+            // Handle validation errors
+            return response.json().then(data => {
+                console.error('Validation errors:', data);
+                throw new Error('Validation failed: ' + JSON.stringify(data.errors || data.message));
+            });
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return response.json();
+    })
     .then(data => {
+        console.log('Success response:', data);
+        
         if (data.success) {
             // Close modal
             const modalId = 'updateModal' + requestId;
@@ -2118,8 +2163,8 @@ function proceedWithSeedlingUpdate(form, requestId) {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
-        showToast('error', 'An error occurred while updating items');
+        console.error('Error during update:', error);
+        showToast('error', 'Error: ' + error.message);
         submitButton.innerHTML = originalText;
         submitButton.disabled = false;
     });

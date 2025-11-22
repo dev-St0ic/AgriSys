@@ -439,16 +439,28 @@ class SeedlingRequestController extends Controller
      */
     public function updateItems(Request $request, SeedlingRequest $seedlingRequest)
     {
-        $request->validate([
-            'item_statuses' => 'required|array',
-            'item_statuses.*' => 'required|in:pending,approved,rejected',
-            'remarks' => 'nullable|string|max:500',
-        ]);
+        try {
+            $validated = $request->validate([
+                'item_statuses' => 'required|array',
+                'item_statuses.*' => 'required|in:pending,approved,rejected',
+                'remarks' => 'nullable|string|max:500',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return JSON error response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        }
 
         try {
             \DB::beginTransaction();
 
-            $itemStatuses = $request->item_statuses;
+            $itemStatuses = $validated['item_statuses'];
             $approvedCount = 0;
             $rejectedCount = 0;
             $totalCount = count($itemStatuses);
@@ -541,7 +553,7 @@ class SeedlingRequestController extends Controller
 
             $seedlingRequest->update([
                 'status' => $overallStatus,
-                'remarks' => $request->remarks,
+                'remarks' => $validated['remarks'] ?? $seedlingRequest->remarks,
                 'reviewed_by' => auth()->id(),
                 'reviewed_at' => now(),
                 'approved_at' => ($overallStatus === 'approved' || $overallStatus === 'partially_approved') ? now() : null,
@@ -559,11 +571,27 @@ class SeedlingRequestController extends Controller
                 }
             }
 
+            // Return JSON response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Items updated successfully and supplies automatically adjusted.'
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Items updated successfully and supplies automatically adjusted.');
 
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error('Failed to update items: ' . $e->getMessage());
+
+            // Return JSON error response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 400);
+            }
 
             return redirect()->back()
                 ->withErrors(['error' => $e->getMessage()])
