@@ -522,51 +522,46 @@
     <div class="modal fade" id="createCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header border-0 d-flex justify-content-center">
                     <h5 class="modal-title">Create New Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="createCategoryForm" novalidate>
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Name *</label>
+                            <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
                             <input type="text" name="name" class="form-control" required>
-                            <small class="text-muted">Internal name (lowercase, no spaces)</small>
+                            <input type="hidden" name="display_name" id="display_name_hidden">
                             <div class="invalid-feedback">Please provide a category name.</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Display Name *</label>
-                            <input type="text" name="display_name" class="form-control" required>
-                            <div class="invalid-feedback">Please provide a display name.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Icon *</label>
+                       <div class="mb-3">
+                            <label class="form-label">Icon <span style="color: #dc3545;">*</span></label>
                             <select name="icon" id="create_icon" class="form-select" required
                                 onchange="updateIconPreview('create')">
                                 <option value="">Select an icon...</option>
-                                <option value="fa-seedling">🌱 Seedling</option>
-                                <option value="fa-leaf">🍃 Leaf</option>
-                                <option value="fa-tree">🌲 Tree</option>
-                                <option value="fa-spa">🌿 Herbs/Spa</option>
-                                <option value="fa-cannabis">🌿 Cannabis/Plant</option>
-                                <option value="fa-pepper-hot">🌶️ Pepper</option>
-                                <option value="fa-carrot">🥕 Carrot/Vegetable</option>
-                                <option value="fa-apple-alt">🍎 Apple/Fruit</option>
-                                <option value="fa-lemon">🍋 Lemon/Citrus</option>
-                                <option value="fa-wheat-awn">🌾 Wheat/Grain/Corn</option>
-                                <option value="fa-flask">🧪 Flask/Chemical</option>
-                                <option value="fa-tint">💧 Tint/Water</option>
-                                <option value="fa-sun">☀️ Sun</option>
-                                <option value="fa-cloud-rain">🌧️ Rain</option>
-                                <option value="fa-hand-holding-heart">💚 Hand Holding Heart</option>
-                                <option value="fa-tractor">🚜 Tractor/Farm</option>
-                                <option value="fa-warehouse">🏭 Warehouse</option>
-                                <option value="fa-tools">🔧 Tools</option>
-                                <option value="fa-person-digging">🔨 Shovel</option>
-                                <option value="fa-recycle">♻️ Recycle</option>
-                                <option value="fa-boxes">📦 Boxes</option>
-                                <option value="fa-box-open">📤 Box Open</option>
+                                <option value="fa-seedling">Seedling</option>
+                                <option value="fa-leaf">Leaf</option>
+                                <option value="fa-tree">Tree</option>
+                                <option value="fa-spa">Herbs/Spa</option>
+                                <option value="fa-cannabis">Cannabis/Plant</option>
+                                <option value="fa-pepper-hot">Pepper</option>
+                                <option value="fa-carrot">Carrot/Vegetable</option>
+                                <option value="fa-apple-alt">Apple/Fruit</option>
+                                <option value="fa-lemon">Lemon/Citrus</option>
+                                <option value="fa-wheat-awn">Wheat/Grain/Corn</option>
+                                <option value="fa-flask">Flask/Chemical</option>
+                                <option value="fa-tint">Tint/Water</option>
+                                <option value="fa-sun">Sun</option>
+                                <option value="fa-cloud-rain">Rain</option>
+                                <option value="fa-hand-holding-heart">Hand Holding Heart</option>
+                                <option value="fa-tractor">Tractor/Farm</option>
+                                <option value="fa-warehouse">Warehouse</option>
+                                <option value="fa-tools">Tools</option>
+                                <option value="fa-person-digging">Shovel</option>
+                                <option value="fa-recycle">Recycle</option>
+                                <option value="fa-boxes">Boxes</option>
+                                <option value="fa-box-open">Box Open</option>
                             </select>
                             <div class="invalid-feedback">Please select an icon.</div>
                             <div class="mt-2">
@@ -575,8 +570,9 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="2"></textarea>
+                            <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                            <div class="invalid-feedback">Please provide a description.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -975,6 +971,23 @@
 
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+        // Auto-fill display_name when name changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const createCategoryForm = document.getElementById('createCategoryForm');
+            const nameInput = createCategoryForm.querySelector('input[name="name"]');
+            const displayNameHidden = document.getElementById('display_name_hidden');
+            
+            nameInput.addEventListener('change', function() {
+                displayNameHidden.value = this.value;
+            });
+            
+            // Set it on form submission as well
+            createCategoryForm.addEventListener('submit', function() {
+                const nameValue = nameInput.value;
+                displayNameHidden.value = nameValue;
+            });
+        });
 
          // Show More/Less functionality
         function toggleShowMore() {
