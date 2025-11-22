@@ -557,7 +557,9 @@
                                                                             : ($item->status === 'rejected'
                                                                                 ? 'bg-danger bg-opacity-10 border border-danger'
                                                                                 : 'bg-white border') }}
-                                                                        rounded-3 shadow-sm">
+                                                                        rounded-3 shadow-sm"
+                                                                        data-item-id="{{ $item->id }}"
+                                                                        data-original-status="{{ $item->status }}">
                                                                         <div class="flex-grow-1">
                                                                             <div class="d-flex align-items-center mb-2">
                                                                                 <span
@@ -601,7 +603,9 @@
                                                                             <select
                                                                                 name="item_statuses[{{ $item->id }}]"
                                                                                 class="form-select form-select-sm border-light"
-                                                                                style="min-width: 130px;">
+                                                                                style="min-width: 130px;"
+                                                                                data-item-id="{{ $item->id }}"
+                                                                                onchange="checkForSeedlingChanges({{ $request->id }})">
                                                                                 <option value="pending"
                                                                                     {{ $item->status === 'pending' ? 'selected' : '' }}>
                                                                                     Pending
@@ -626,7 +630,9 @@
                                                             <label for="remarks{{ $request->id }}"
                                                                 class="form-label">General Remarks</label>
                                                             <textarea name="remarks" id="remarks{{ $request->id }}" class="form-control" rows="3"
-                                                                placeholder="Add any comments...">{{ $request->remarks }}</textarea>
+                                                                placeholder="Add any comments..."
+                                                                onchange="checkForSeedlingChanges({{ $request->id }})"
+                                                                oninput="checkForSeedlingChanges({{ $request->id }})">{{ $request->remarks }}</textarea>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -1269,326 +1275,82 @@
         }
     }
 
-    /* Form Change Detection Styles */
-    .form-changed {
-        background-color: #fff3cd !important;
-        border-left: 3px solid #ffc107 !important;
-        transition: all 0.2s ease;
-    }
+   /* Form Change Detection Styles */
+.form-changed {
+    background-color: #fff3cd !important;
+    border-left: 3px solid #ffc107 !important;
+    transition: all 0.2s ease;
+}
 
-    .change-indicator {
-        position: relative;
-        display: block;
-    }
+.change-indicator {
+    position: relative;
+    display: block;
+}
 
-    .change-indicator::after {
-        content: "●";
-        color: #ffc107;
-        font-size: 12px;
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        transform: translateY(-50%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-    }
+.change-indicator::after {
+    content: "●";
+    color: #ffc107;
+    font-size: 12px;
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
 
-    .change-indicator.changed::after {
-        opacity: 1;
-    }
+.change-indicator.changed::after {
+    opacity: 1;
+}
 
-    /* Button "No Changes" State */
-    .no-changes {
-        opacity: 0.65 !important;
-        cursor: not-allowed !important;
-        pointer-events: none !important;
-    }
+/* Button "No Changes" State */
+.no-changes {
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
 
-    .no-changes:hover,
-    .no-changes:focus,
-    .no-changes:active {
-        background-color: inherit !important;
-        border-color: inherit !important;
-        box-shadow: none !important;
-    }
+.no-changes:hover,
+.no-changes:focus,
+.no-changes:active {
+    background-color: inherit !important;
+    border-color: inherit !important;
+    box-shadow: none !important;
+}
 
-    /* Item card change highlight */
-    .item-card.form-changed {
-        background: #fff3cd !important;
-        border: 1px solid #ffc107 !important;
-        transition: all 0.2s ease;
-    }
+/* Item card change highlight */
+.item-card.form-changed {
+    background: #fff3cd !important;
+    border: 1px solid #ffc107 !important;
+    transition: all 0.2s ease;
+}
 
-    .item-card.form-changed:hover {
-        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2) !important;
-    }
+.item-card.form-changed:hover {
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2) !important;
+}
 
-    /* Remarks textarea change highlight */
-    textarea.form-changed {
-        border-color: #ffc107 !important;
-        background-color: #fff3cd !important;
-        transition: all 0.2s ease;
-    }
+/* Remarks textarea change highlight */
+textarea.form-changed {
+    border-color: #ffc107 !important;
+    background-color: #fff3cd !important;
+    transition: all 0.2s ease;
+}
 
-    textarea.form-changed:focus {
-        border-color: #ffc107 !important;
-        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
-        background-color: #fff3cd !important;
-    }
+textarea.form-changed:focus {
+    border-color: #ffc107 !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
+    background-color: #fff3cd !important;
+}
 
-    /* Enhanced visual feedback for changed items */
-    .item-card.form-changed .fw-medium {
-        color: #ff8c00;
-        font-weight: 600;
-    }
-
+/* Enhanced visual feedback for changed items */
+.item-card.form-changed .fw-medium {
+    color: #ff8c00;
+    font-weight: 600;
+}
     </style>
 
     <script>
-// AJAX setup for CSRF token
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle all update forms
-    const updateForms = document.querySelectorAll('form[id^="updateForm"]');
-    
-    updateForms.forEach(form => {
-        const requestId = form.id.replace('updateForm', '');
-        const remarksTextarea = form.querySelector(`#remarks${requestId}`);
-        const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-        const modalElement = document.getElementById(`updateModal${requestId}`);
-        const submitButton = document.getElementById(`submitBtn${requestId}`);
-        
-        // Store original values when modal opens
-        if (modalElement) {
-            modalElement.addEventListener('show.bs.modal', function() {
-                // Store original remarks value
-                if (remarksTextarea) {
-                    remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
-                }
-                
-                // Store original status values for each select
-                statusSelects.forEach(select => {
-                    select.dataset.originalStatus = select.value;
-                });
-                
-                // Clear any previous change indicators
-                if (remarksTextarea) {
-                    remarksTextarea.classList.remove('form-changed');
-                    remarksTextarea.parentElement.classList.remove('change-indicator', 'changed');
-                }
-                
-                statusSelects.forEach(select => {
-                    select.classList.remove('form-changed');
-                    const itemCard = select.closest('.item-card');
-                    if (itemCard) {
-                        itemCard.classList.remove('form-changed');
-                    }
-                });
-                
-                // Reset button state
-                if (submitButton) {
-                    submitButton.classList.add('no-changes');
-                    submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-                    submitButton.disabled = true;
-                }
-            });
-        }
-        
-        // Add change detection listeners
-        if (remarksTextarea) {
-            remarksTextarea.addEventListener('input', () => checkForSeedlingChanges(requestId));
-        }
-        
-        statusSelects.forEach(select => {
-            select.addEventListener('change', () => checkForSeedlingChanges(requestId));
-        });
-        
-        // Handle form submission
-        if (submitButton) {
-            submitButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                handleSeedlingUpdateSubmit(form, requestId);
-            });
-        }
-    });
-});
-
-// Check for changes and update button/visual states
-function checkForSeedlingChanges(requestId) {
-    const form = document.getElementById(`updateForm${requestId}`);
-    if (!form) return;
-    
-    const remarksTextarea = form.querySelector(`#remarks${requestId}`);
-    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-    const submitButton = document.getElementById(`submitBtn${requestId}`);
-    
-    let hasChanges = false;
-    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
-    
-    // Check remarks for changes
-    if (remarksTextarea) {
-        const remarksChanged = remarksTextarea.value.trim() !== originalRemarks.trim();
-        
-        if (remarksChanged) {
-            hasChanges = true;
-            remarksTextarea.parentElement.classList.add('change-indicator', 'changed');
-            remarksTextarea.classList.add('form-changed');
-        } else {
-            remarksTextarea.parentElement.classList.remove('changed');
-            remarksTextarea.classList.remove('form-changed');
-        }
-    }
-    
-    // Check item statuses for changes
-    statusSelects.forEach(select => {
-        const originalStatus = select.dataset.originalStatus;
-        
-        if (select.value !== originalStatus) {
-            hasChanges = true;
-            const itemCard = select.closest('.item-card');
-            if (itemCard) {
-                itemCard.classList.add('form-changed');
-            }
-        } else {
-            const itemCard = select.closest('.item-card');
-            if (itemCard) {
-                itemCard.classList.remove('form-changed');
-            }
-        }
-    });
-    
-    // Update button state based on changes
-    if (submitButton) {
-        if (hasChanges) {
-            submitButton.classList.remove('no-changes');
-            submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
-            submitButton.disabled = false;
-        } else {
-            submitButton.classList.add('no-changes');
-            submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-            submitButton.disabled = true;
-        }
-    }
-}
-
-// Handle update form submission with confirmation
-function handleSeedlingUpdateSubmit(form, requestId) {
-    const remarksTextarea = form.querySelector(`#remarks${requestId}`);
-    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-    const submitButton = form.querySelector('button[type="submit"]');
-    
-    let hasChanges = false;
-    let changesSummary = [];
-    
-    // Check for changes in item statuses
-    statusSelects.forEach(select => {
-        const originalStatus = select.dataset.originalStatus;
-        
-        if (select.value !== originalStatus) {
-            hasChanges = true;
-            const itemCard = select.closest('.item-card');
-            const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
-            const oldStatusText = getStatusText(originalStatus);
-            const newStatusText = getStatusText(select.value);
-            changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
-        }
-    });
-    
-    // Check for changes in remarks
-    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
-    if (remarksTextarea && remarksTextarea.value.trim() !== originalRemarks.trim()) {
-        hasChanges = true;
-        if (originalRemarks.trim() === '') {
-            changesSummary.push('Remarks: Added new remarks');
-        } else if (remarksTextarea.value.trim() === '') {
-            changesSummary.push('Remarks: Removed remarks');
-        } else {
-            changesSummary.push('Remarks: Modified');
-        }
-    }
-    
-    // If no changes, show warning toast
-    if (!hasChanges) {
-        showToast('warning', 'No changes detected. Please modify items or remarks before updating.');
-        return;
-    }
-    
-    // Show confirmation toast with changes
-    showConfirmationToast(
-        'Confirm Update',
-        `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
-        () => proceedWithSeedlingUpdate(form, requestId, submitButton)
-    );
-}
-
-// Helper function to get status text
-function getStatusText(status) {
-    switch (status) {
-        case 'pending':
-            return 'Pending';
-        case 'approved':
-            return 'Approved';
-        case 'rejected':
-            return 'Rejected';
-        case 'under_review':
-            return 'Under Review';
-        default:
-            return status;
-    }
-}
-
-// Proceed with seedling update after confirmation
-function proceedWithSeedlingUpdate(form, requestId, submitButton) {
-    const formData = new FormData(form);
-    
-    // Show loading state
-    const originalText = submitButton.innerHTML;
-    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
-    submitButton.disabled = true;
-    
-    fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': getCSRFToken(),
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Close modal
-            const modalId = 'updateModal' + requestId;
-            const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-            if (modal) modal.hide();
-            
-            // Show success toast
-            showToast('success', data.message || 'Items updated successfully');
-            
-            // Reload page after short delay
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        } else {
-            showToast('error', data.message || 'Failed to update items');
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('error', 'An error occurred while updating items');
-        submitButton.innerHTML = originalText;
-        submitButton.disabled = false;
-    });
-}
-
 let searchTimeout;
 
 // Auto search functionality
@@ -2118,6 +1880,252 @@ function proceedWithSeedlingDelete(id, requestNumber) {
         console.error('Error:', error);
         showToast('error', 'Failed to delete seedling request: ' + error.message);
     });
+}
+
+// Initialize modal when opened
+document.addEventListener('DOMContentLoaded', function() {
+    const modalElement = document.getElementById('updateModal{{ $request->id }}');
+    
+    if (modalElement) {
+        modalElement.addEventListener('show.bs.modal', function() {
+            initializeSeedlingUpdateModal({{ $request->id }});
+        });
+    }
+});
+
+// Initialize the update modal with original values
+function initializeSeedlingUpdateModal(requestId) {
+    const form = document.getElementById('updateForm' + requestId);
+    const remarksTextarea = document.getElementById('remarks' + requestId);
+    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+    const submitButton = document.getElementById('submitBtn' + requestId);
+    
+    // Store original remarks value
+    if (remarksTextarea) {
+        remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
+    }
+    
+    // Store original status values for each select
+    statusSelects.forEach(select => {
+        select.dataset.originalStatus = select.value;
+    });
+    
+    // Clear any previous change indicators
+    if (remarksTextarea) {
+        remarksTextarea.classList.remove('form-changed');
+    }
+    
+    statusSelects.forEach(select => {
+        select.classList.remove('form-changed');
+        const itemCard = select.closest('.item-card');
+        if (itemCard) {
+            itemCard.classList.remove('form-changed');
+        }
+    });
+    
+    // Reset button state
+    if (submitButton) {
+        submitButton.classList.add('no-changes');
+        submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+        submitButton.disabled = true;
+    }
+}
+
+// Open update modal and initialize
+function openUpdateModal(requestId) {
+    const modal = new bootstrap.Modal(document.getElementById('updateModal' + requestId));
+    modal.show();
+}
+
+// Check for changes and update button/visual states
+function checkForSeedlingChanges(requestId) {
+    const form = document.getElementById('updateForm' + requestId);
+    if (!form) return;
+    
+    const remarksTextarea = document.getElementById('remarks' + requestId);
+    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+    const submitButton = document.getElementById('submitBtn' + requestId);
+    
+    let hasChanges = false;
+    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+    
+    // Check remarks for changes
+    if (remarksTextarea) {
+        const remarksChanged = remarksTextarea.value.trim() !== originalRemarks.trim();
+        
+        if (remarksChanged) {
+            hasChanges = true;
+            remarksTextarea.classList.add('form-changed');
+        } else {
+            remarksTextarea.classList.remove('form-changed');
+        }
+    }
+    
+    // Check item statuses for changes
+    statusSelects.forEach(select => {
+        const originalStatus = select.dataset.originalStatus;
+        
+        if (select.value !== originalStatus) {
+            hasChanges = true;
+            const itemCard = select.closest('.item-card');
+            if (itemCard) {
+                itemCard.classList.add('form-changed');
+            }
+        } else {
+            const itemCard = select.closest('.item-card');
+            if (itemCard) {
+                itemCard.classList.remove('form-changed');
+            }
+        }
+    });
+    
+    // Update button state based on changes
+    if (submitButton) {
+        if (hasChanges) {
+            submitButton.classList.remove('no-changes');
+            submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
+            submitButton.disabled = false;
+        } else {
+            submitButton.classList.add('no-changes');
+            submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+            submitButton.disabled = true;
+        }
+    }
+}
+
+// Handle update form submission with confirmation
+document.addEventListener('DOMContentLoaded', function() {
+    const updateForms = document.querySelectorAll('form[id^="updateForm"]');
+    
+    updateForms.forEach(form => {
+        const requestId = form.id.replace('updateForm', '');
+        const submitButton = document.getElementById('submitBtn' + requestId);
+        
+        if (submitButton) {
+            submitButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                handleSeedlingUpdateSubmit(form, requestId);
+            });
+        }
+    });
+});
+
+// Handle update form submission with confirmation
+function handleSeedlingUpdateSubmit(form, requestId) {
+    const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
+    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+    const submitButton = form.querySelector('button[type="submit"]');
+    
+    let hasChanges = false;
+    let changesSummary = [];
+    
+    // Check for changes in item statuses
+    statusSelects.forEach(select => {
+        const originalStatus = select.dataset.originalStatus;
+        
+        if (select.value !== originalStatus) {
+            hasChanges = true;
+            const itemCard = select.closest('.item-card');
+            const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
+            const oldStatusText = getStatusText(originalStatus);
+            const newStatusText = getStatusText(select.value);
+            changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
+        }
+    });
+    
+    // Check for changes in remarks
+    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+    if (remarksTextarea && remarksTextarea.value.trim() !== originalRemarks.trim()) {
+        hasChanges = true;
+        if (originalRemarks.trim() === '') {
+            changesSummary.push('Remarks: Added new remarks');
+        } else if (remarksTextarea.value.trim() === '') {
+            changesSummary.push('Remarks: Removed remarks');
+        } else {
+            changesSummary.push('Remarks: Modified');
+        }
+    }
+    
+    // If no changes, show warning toast
+    if (!hasChanges) {
+        showToast('warning', 'No changes detected. Please modify items or remarks before updating.');
+        return;
+    }
+    
+    // Show confirmation toast with changes
+    showConfirmationToast(
+        'Confirm Update',
+        `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
+        () => proceedWithSeedlingUpdate(form, requestId, submitButton)
+    );
+}
+
+// Helper function to get status text
+function getStatusText(status) {
+    switch (status) {
+        case 'pending':
+            return 'Pending';
+        case 'approved':
+            return 'Approved';
+        case 'rejected':
+            return 'Rejected';
+        case 'under_review':
+            return 'Under Review';
+        default:
+            return status;
+    }
+}
+
+// Proceed with seedling update after confirmation
+function proceedWithSeedlingUpdate(form, requestId, submitButton) {
+    const formData = new FormData(form);
+    
+    // Show loading state
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
+    submitButton.disabled = true;
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modal
+            const modalId = 'updateModal' + requestId;
+            const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+            if (modal) modal.hide();
+            
+            // Show success toast
+            showToast('success', data.message || 'Items updated successfully');
+            
+            // Reload page after short delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            showToast('error', data.message || 'Failed to update items');
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'An error occurred while updating items');
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    });
+}
+
+// Get CSRF token utility function
+function getCSRFToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    return metaTag ? metaTag.getAttribute('content') : '';
 }
     </script>
 @endsection
