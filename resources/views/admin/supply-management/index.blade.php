@@ -68,16 +68,25 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div class="category-tabs-nav d-flex flex-wrap gap-2 align-items-center">
+                    <div class="category-tabs-nav d-flex flex-wrap gap-2 align-items-center" id="categoryTabsNav">
                         <button class="category-tab-btn active" data-category="all" onclick="switchCategory('all', event)">
                             <i class="fas fa-th-large"></i> All Categories
                         </button>
                         @foreach ($categories as $cat)
-                            <button class="category-tab-btn" data-category="{{ $cat->id }}"
-                                onclick="switchCategory('{{ $cat->id }}', event)">
+                            <button class="category-tab-btn category-btn" data-category="{{ $cat->id }}"
+                                onclick="switchCategory('{{ $cat->id }}', event)"
+                                style="display: {{ $loop->index < 6 ? '' : 'none' }};">
                                 <i class="fas {{ $cat->icon ?? 'fa-leaf' }}"></i> {{ $cat->display_name }}
                             </button>
                         @endforeach
+                        @if ($categories->count() > 6)
+                            <button class="category-tab-btn" id="showMoreBtn" onclick="toggleShowMore()">
+                                <i class="fas fa-chevron-down"></i> Show More
+                            </button>
+                            <button class="category-tab-btn" id="showLessBtn" onclick="toggleShowLess()" style="display: none;">
+                                <i class="fas fa-chevron-up"></i> Show Less
+                            </button>
+                        @endif
                     </div>
                     <div class="d-flex gap-2 align-items-center">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
@@ -97,6 +106,7 @@
                 </div>
             </div>
         </div>
+
 
         <!-- All Categories View -->
         <div class="category-content active" id="category-all">
@@ -1004,6 +1014,29 @@
 
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+         // Show More/Less functionality
+        function toggleShowMore() {
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            categoryBtns.forEach((btn, index) => {
+                if (index >= 6) {
+                    btn.style.display = '';
+                }
+            });
+            document.getElementById('showMoreBtn').style.display = 'none';
+            document.getElementById('showLessBtn').style.display = 'inline-block';
+        }
+
+        function toggleShowLess() {
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            categoryBtns.forEach((btn, index) => {
+                if (index >= 6) {
+                    btn.style.display = 'none';
+                }
+            });
+            document.getElementById('showMoreBtn').style.display = 'inline-block';
+            document.getElementById('showLessBtn').style.display = 'none';
+        }
 
         // Category Tab Switching
         function switchCategory(categoryId, event) {
