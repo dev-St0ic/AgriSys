@@ -88,11 +88,7 @@
                             </button>
                         @endif
                     </div>
-                    <div class="d-flex gap-2 align-items-center">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
-                            style="white-space: nowrap;">
-                            <i class="fas fa-plus me-2"></i>Add Category
-                        </button>
+                    <div class="d-flex gap-2 align-items-center flex-wrap"  style="margin-left: auto;">
                         <div class="search-box">
                             <div class="input-group">
                                 <span class="input-group-text bg-white">
@@ -102,6 +98,10 @@
                                     onkeyup="searchItems()">
                             </div>
                         </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
+                            style="white-space: nowrap;">
+                            <i class="fas fa-plus me-2"></i>Add Category
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1979,7 +1979,7 @@
             }
 
             .card-body>.d-flex {
-                justify-content: center !important;
+                justify-content: flex-end !important;
             }
         }
 
