@@ -739,84 +739,85 @@
     </div>
 
 
-    <!-- Edit Item Modal -->
-    <div class="modal fade" id="editItemModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Item</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <!-- Edit Item Modal -->
+        <div class="modal fade" id="editItemModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header border-0 d-flex justify-content-center">
+                        <h5 class="modal-title">Edit Item</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                    </div>
+                    <form id="editItemForm" enctype="multipart/form-data" novalidate>
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="edit_item_id" name="item_id">
+                        <input type="hidden" id="edit_item_category_id" name="category_id" required>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
+                                    <input type="text" id="edit_item_name" name="name" class="form-control" required>
+                                    <div class="invalid-feedback">Please provide an item name.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Unit <span style="color: #dc3545;">*</span></label>
+                                    <select id="edit_item_unit" name="unit" class="form-select" required>
+                                        <option value="">Select unit...</option>
+                                        <option value="pcs">Pieces (pcs)</option>
+                                        <option value="kg">Kilogram (kg)</option>
+                                        <option value="L">Liter (L)</option>
+                                        <option value="pack">Pack</option>
+                                        <option value="bag">Bag</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a unit.</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                                <textarea id="edit_item_description" name="description" class="form-control" rows="2" required></textarea>
+                                <div class="invalid-feedback">Please provide a description.</div>
+                            </div>
+
+                            <hr>
+                            <h6 class="text-primary"><i class="fas fa-warehouse me-2"></i>Supply Settings</h6>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
+                                    <input type="number" id="edit_item_minimum_supply" name="minimum_supply" class="form-control" value="0" min="0" required>
+                                    <div class="invalid-feedback">Please provide minimum supply.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
+                                    <input type="number" id="edit_item_maximum_supply" name="maximum_supply" class="form-control" min="0" required>
+                                    <div class="invalid-feedback">Please provide maximum supply.</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
+                                <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control" min="0" required>
+                                <small class="text-muted">Alert when supply reaches this level</small>
+                                <div class="invalid-feedback">Please provide reorder point.</div>
+                            </div>
+
+                            <hr>
+                            <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
+
+                            <div class="mb-3">
+                                <div id="current_image_preview" class="mb-2"></div>
+                                <label class="form-label">Change Image (Optional)</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
+                                <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="editItemSubmitBtn">Update Item</button>
+                        </div>
+                    </form>
                 </div>
-                <form id="editItemForm" enctype="multipart/form-data" novalidate>
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" id="edit_item_id" name="item_id">
-                    <input type="hidden" id="edit_item_category_id" name="category_id" required>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Name *</label>
-                                <input type="text" id="edit_item_name" name="name" class="form-control" required>
-                                <div class="invalid-feedback">Please provide an item name.</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Unit *</label>
-                                <select id="edit_item_unit" name="unit" class="form-select" required>
-                                    <option value="">Select unit...</option>
-                                    <option value="pcs">Pieces (pcs)</option>
-                                    <option value="kg">Kilogram (kg)</option>
-                                    <option value="L">Liter (L)</option>
-                                    <option value="pack">Pack</option>
-                                    <option value="bag">Bag</option>
-                                </select>
-                                <div class="invalid-feedback">Please select a unit.</div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea id="edit_item_description" name="description" class="form-control" rows="2"></textarea>
-                        </div>
-
-                        <hr>
-                        <h6 class="text-primary"><i class="fas fa-warehouse me-2"></i>Supply Settings</h6>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Minimum Supply</label>
-                                <input type="number" id="edit_item_minimum_supply" name="minimum_supply"
-                                    class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Maximum Supply</label>
-                                <input type="number" id="edit_item_maximum_supply" name="maximum_supply"
-                                    class="form-control" min="0">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Reorder Point</label>
-                            <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control"
-                                min="0">
-                            <small class="text-muted">Alert when supply reaches this level</small>
-                        </div>
-
-                        <hr>
-                        <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
-
-                        <div class="mb-3">
-                            <div id="current_image_preview" class="mb-2"></div>
-                            <label class="form-label">Change Image</label>
-                            <input type="file" name="image" class="form-control" accept="image/*" required>
-                            <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Item</button>
-                    </div>
-                </form>
             </div>
         </div>
-    </div>
 
     <!-- Supply Management Modal -->
     <div class="modal fade" id="supplyModal" tabindex="-1">
@@ -1808,7 +1809,7 @@
             }
         }
 
-        async function editItem(itemId) {
+            async function editItem(itemId) {
             try {
                 const item = await makeRequest(`/admin/seedlings/items/${itemId}`, {
                     method: 'GET',
@@ -1817,30 +1818,63 @@
                     }
                 });
 
+                // Get form fields
+                const nameInput = document.getElementById('edit_item_name');
+                const unitSelect = document.getElementById('edit_item_unit');
+                const descriptionInput = document.getElementById('edit_item_description');
+                const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+                const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+                const reorderPointInput = document.getElementById('edit_item_reorder_point');
+                const submitBtn = document.getElementById('editItemSubmitBtn');
+
                 // Populate form fields
                 document.getElementById('edit_item_id').value = item.id;
                 document.getElementById('edit_item_category_id').value = item.category_id;
-                document.getElementById('edit_item_name').value = item.name;
-                document.getElementById('edit_item_unit').value = item.unit;
-                document.getElementById('edit_item_description').value = item.description || '';
-                document.getElementById('edit_item_minimum_supply').value = item.minimum_supply || 0;
-                document.getElementById('edit_item_maximum_supply').value = item.maximum_supply || '';
-                document.getElementById('edit_item_reorder_point').value = item.reorder_point || '';
+                nameInput.value = item.name;
+                unitSelect.value = item.unit;
+                descriptionInput.value = item.description || '';
+                minSupplyInput.value = item.minimum_supply || 0;
+                maxSupplyInput.value = item.maximum_supply || '';
+                reorderPointInput.value = item.reorder_point || '';
+
+                // Store original values in data attributes
+                nameInput.dataset.originalValue = item.name;
+                unitSelect.dataset.originalValue = item.unit;
+                descriptionInput.dataset.originalValue = item.description || '';
+                minSupplyInput.dataset.originalValue = item.minimum_supply || 0;
+                maxSupplyInput.dataset.originalValue = item.maximum_supply || '';
+                reorderPointInput.dataset.originalValue = item.reorder_point || '';
 
                 // Show current image if exists
                 const imagePreview = document.getElementById('current_image_preview');
                 if (item.image_path) {
                     imagePreview.innerHTML = `
-                <label class="form-label">Current Image:</label><br>
-                <img src="/storage/${item.image_path}" alt="${item.name}"
-                     class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
-            `;
+                        <label class="form-label">Current Image:</label><br>
+                        <img src="/storage/${item.image_path}" alt="${item.name}"
+                            class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                    `;
                 } else {
                     imagePreview.innerHTML = '';
                 }
 
                 // Reset validation
                 document.getElementById('editItemForm').classList.remove('was-validated');
+
+                // Clear any previous change styling
+                nameInput.classList.remove('form-changed');
+                unitSelect.classList.remove('form-changed');
+                descriptionInput.classList.remove('form-changed');
+                minSupplyInput.classList.remove('form-changed');
+                maxSupplyInput.classList.remove('form-changed');
+                reorderPointInput.classList.remove('form-changed');
+
+                // Reset submit button to initial state
+                submitBtn.classList.add('no-changes');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+
+                // Initialize change detection
+                checkForItemChanges();
 
                 // Show modal
                 new bootstrap.Modal(document.getElementById('editItemModal')).show();
@@ -2040,6 +2074,68 @@
             
             if (descriptionInput) {
                 descriptionInput.addEventListener('input', checkForCategoryChanges);
+            }
+        });
+
+       // Check for changes in Edit Item Modal
+        function checkForItemChanges() {
+            const nameInput = document.getElementById('edit_item_name');
+            const unitSelect = document.getElementById('edit_item_unit');
+            const descriptionInput = document.getElementById('edit_item_description');
+            const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+            const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+            const reorderPointInput = document.getElementById('edit_item_reorder_point');
+            const submitBtn = document.getElementById('editItemSubmitBtn');
+
+            // Get original values from data attributes
+            const originalName = nameInput.dataset.originalValue || '';
+            const originalUnit = unitSelect.dataset.originalValue || '';
+            const originalDescription = descriptionInput.dataset.originalValue || '';
+            const originalMinSupply = minSupplyInput.dataset.originalValue || '0';
+            const originalMaxSupply = maxSupplyInput.dataset.originalValue || '';
+            const originalReorderPoint = reorderPointInput.dataset.originalValue || '';
+
+            // Check for changes
+            const nameChanged = nameInput.value.trim() !== originalName;
+            const unitChanged = unitSelect.value !== originalUnit;
+            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+            const minSupplyChanged = minSupplyInput.value.trim() !== originalMinSupply.toString().trim();
+            const maxSupplyChanged = maxSupplyInput.value.trim() !== originalMaxSupply.toString().trim();
+            const reorderPointChanged = reorderPointInput.value.trim() !== originalReorderPoint.toString().trim();
+
+            const anyChanges = nameChanged || unitChanged || descriptionChanged || minSupplyChanged || maxSupplyChanged || reorderPointChanged;
+
+            // Update visual feedback for each field
+            nameInput.classList.toggle('form-changed', nameChanged);
+            unitSelect.classList.toggle('form-changed', unitChanged);
+            descriptionInput.classList.toggle('form-changed', descriptionChanged);
+            minSupplyInput.classList.toggle('form-changed', minSupplyChanged);
+            maxSupplyInput.classList.toggle('form-changed', maxSupplyChanged);
+            reorderPointInput.classList.toggle('form-changed', reorderPointChanged);
+
+            // Update submit button state
+            if (anyChanges) {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Update Item';
+            } else {
+                submitBtn.classList.add('no-changes');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+            }
+        }
+
+        // Add event listeners for real-time change detection in Edit Item Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editItemForm = document.getElementById('editItemForm');
+            
+            if (editItemForm) {
+                const inputs = editItemForm.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
+                
+                inputs.forEach(input => {
+                    input.addEventListener('input', checkForItemChanges);
+                    input.addEventListener('change', checkForItemChanges);
+                });
             }
         });
     </script>
@@ -2557,6 +2653,34 @@
         }
 
         #editCategorySubmitBtn.no-changes:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+     /* Edit Item Modal - Change Detection Styles */
+        #editItemModal .form-control.form-changed,
+        #editItemModal .form-select.form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd !important;
+            transition: all 0.3s ease;
+        }
+
+        #editItemModal .form-control.form-changed:focus,
+        #editItemModal .form-select.form-changed:focus {
+            border-color: #ffc107 !important;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
+        }
+
+        #editItemSubmitBtn {
+            transition: all 0.3s ease;
+        }
+
+        #editItemSubmitBtn.no-changes {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #editItemSubmitBtn.no-changes:hover {
             background-color: #6c757d;
             border-color: #6c757d;
         }
