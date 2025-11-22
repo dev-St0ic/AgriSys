@@ -354,301 +354,307 @@
                                             </div>
                                         </td>
                                     </tr>
-
-                                    <!-- View Modal -->
-                                    <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
-                                        <div class="modal-dialog modal-lg">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-light border-bottom">
-                                                    <h5 class="modal-title fw-bold text-dark">
-                                                        <i class="fas fa-eye text-primary me-2"></i>
-                                                        Request Details - {{ $request->request_number }}
-                                                    </h5>
-                                                    <button type="button" class="btn-close"
-                                                        data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <div class="row g-3">
-                                                        <div class="col-md-6">
-                                                            <h6 class="border-bottom pb-2">Personal Information</h6>
-                                                            <p><strong>Request #:</strong> {{ $request->request_number }}</p>
-                                                            <p><strong>Name:</strong> {{ $request->full_name }}</p>
-                                                            <p><strong>Contact:</strong> {{ $request->contact_number }}</p>
-                                                            <p><strong>Email:</strong> {{ $request->email ?? 'N/A' }}</p>
-                                                            <p><strong>Barangay:</strong> {{ $request->barangay }}</p>
-                                                            <p><strong>Address:</strong> {{ $request->address }}</p>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <h6 class="border-bottom pb-2">Request Information</h6>
-                                                            <p><strong>Total Quantity:</strong>
-                                                                {{ $request->total_quantity }}</p>
-                                                            <p><strong>Current Status:</strong>
-                                                                <span
-                                                                    class="badge bg-{{ match ($request->status) {
-                                                                        'approved' => 'success',
-                                                                        'partially_approved' => 'info',
-                                                                        'rejected' => 'danger',
-                                                                        'under_review', 'pending' => 'warning',
-                                                                        default => 'secondary',
-                                                                    } }}">
-                                                                    {{ ucfirst(str_replace('_', ' ', $request->status)) }}
-                                                                </span>
-                                                            </p>
-                                                            <p><strong>Date Applied:</strong>
-                                                                {{ $request->created_at->format('F d, Y g:i A') }}</p>
-                                                            <p><strong>Last Updated:</strong>
-                                                                {{ $request->updated_at->format('F d, Y g:i A') }}</p>
-                                                        </div>
-
-                                                        <!-- Requested Items Section -->
-                                                        <div class="col-12">
-                                                            <div class="card border-primary">
-                                                                <div class="card-header bg-light">
-                                                                    <h6 class="mb-0" style="color: #495057;">
-                                                                        <i class="fas fa-seedling me-2 text-primary"></i>Requested Items by Category
-                                                                    </h6>
-                                                                </div>
-                                                                <div class="card-body">
-                                                                    @php
-                                                                        $itemsByCategory = $request->items->groupBy('category_id');
-                                                                    @endphp
-
-                                                                    @foreach ($itemsByCategory as $categoryId => $items)
-                                                                        @php
-                                                                            $category = $items->first()->category;
-                                                                        @endphp
-                                                                        <div class="mb-3 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
-                                                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                                                <strong class="text-primary">
-                                                                                    <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                                                    {{ $category->display_name }}
-                                                                                </strong>
-                                                                                <span class="badge bg-secondary">{{ $items->count() }} items</span>
-                                                                            </div>
-                                                                            <ul class="mb-0">
-                                                                                @foreach ($items as $item)
-                                                                                    <li>
-                                                                                        {{ $item->item_name }} -
-                                                                                        {{ $item->requested_quantity }}
-                                                                                        {{ $item->categoryItem->unit ?? 'pcs' }}
-                                                                                        <span class="badge bg-{{ $item->status_color }} ms-2">
-                                                                                            {{ ucfirst($item->status) }}
-                                                                                        </span>
-                                                                                        @if ($item->status === 'approved')
-                                                                                            <small class="text-muted">(Stock deducted)</small>
-                                                                                        @endif
-                                                                                    </li>
-                                                                                @endforeach
-                                                                            </ul>
-                                                                        </div>
-                                                                    @endforeach
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Supporting Document Section -->
-                                                        <div class="col-12">
-                                                            @if ($request->hasDocuments())
-                                                                <div class="card border-secondary">
-                                                                    <div class="card-header bg-light">
-                                                                        <h6 class="mb-0" style="color: #495057;">
-                                                                            <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="card-body">
-                                                                        <div class="text-center p-3 border border-secondary rounded bg-light">
-                                                                            <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
-                                                                            <h6>Supporting Document</h6>
-                                                                            <span class="badge bg-secondary mb-2">Uploaded</span>
-                                                                            <br>
-                                                                            <button class="btn btn-sm btn-outline-info mt-2" 
-                                                                                onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
-                                                                                <i class="fas fa-eye"></i> View Document
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            @else
-                                                                <div class="card border-secondary">
-                                                                    <div class="card-header bg-light">
-                                                                        <h6 class="mb-0" style="color: #495057;">
-                                                                            <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="card-body">
-                                                                        <div class="text-center p-3 border border-secondary rounded">
-                                                                            <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
-                                                                            <h6>No Document Uploaded</h6>
-                                                                            <span class="badge bg-secondary mb-2">Not Uploaded</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-
-                                                        <!-- Remarks Section -->
-                                                        @if ($request->remarks)
-                                                            <div class="col-12">
-                                                                <h6 class="border-bottom pb-2">Remarks</h6>
-                                                                <div class="alert alert-info">
-                                                                    <p class="mb-0">{{ $request->remarks }}</p>
-                                                                </div>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Update Modal -->
-                                    <div class="modal fade" id="updateModal{{ $request->id }}" tabindex="-1">
-                                        <div class="modal-dialog modal-xl">
-                                            <div class="modal-content">
-                                                <div class="modal-header bg-light border-bottom">
-                                                    <h5 class="modal-title fw-bold text-dark">
-                                                        <i class="fas fa-edit text-success me-2"></i>
-                                                        Update Items - {{ $request->request_number }}
-                                                    </h5>
-                                                    <button type="button" class="btn-close"
-                                                        data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form method="POST"
-                                                        action="{{ route('admin.seedlings.update-items', $request) }}"
-                                                        id="updateForm{{ $request->id }}">
-                                                        @csrf
-                                                        @method('PATCH')
-
-                                                        @php
-                                                            $itemsByCategory = $request->items->groupBy('category_id');
-                                                        @endphp
-
-                                                        @foreach ($itemsByCategory as $categoryId => $items)
-                                                            @php
-                                                                $category = $items->first()->category;
-                                                            @endphp
-                                                            <div class="mb-4 p-3 border-0 bg-light rounded-3">
-                                                                <h6 class="mb-3 fw-bold text-primary">
-                                                                    <i
-                                                                        class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
-                                                                    {{ $category->display_name }}
-                                                                </h6>
-
-                                                                @foreach ($items as $item)
-                                                                    @php
-                                                                        $stockCheck = $item->categoryItem
-                                                                            ? $item->categoryItem->checkSupplyAvailability(
-                                                                                $item->requested_quantity,
-                                                                            )
-                                                                            : [
-                                                                                'available' => false,
-                                                                                'current_supply' => 0,
-                                                                            ];
-                                                                    @endphp
-
-                                                                    <div
-                                                                        class="item-card d-flex align-items-center justify-content-between mb-3 p-3
-                                                                        {{ $item->status === 'approved'
-                                                                            ? 'bg-success bg-opacity-10 border border-success'
-                                                                            : ($item->status === 'rejected'
-                                                                                ? 'bg-danger bg-opacity-10 border border-danger'
-                                                                                : 'bg-white border') }}
-                                                                        rounded-3 shadow-sm"
-                                                                        data-item-id="{{ $item->id }}"
-                                                                        data-original-status="{{ $item->status }}">
-                                                                        <div class="flex-grow-1">
-                                                                            <div class="d-flex align-items-center mb-2">
-                                                                                <span
-                                                                                    class="fw-medium text-dark">{{ $item->item_name }}</span>
-                                                                                <span
-                                                                                    class="badge bg-light text-muted ms-2">
-                                                                                    {{ $item->requested_quantity }}
-                                                                                    {{ $item->categoryItem->unit ?? 'pcs' }}
-                                                                                </span>
-                                                                            </div>
-                                                                            <div class="d-flex align-items-center gap-2">
-                                                                                <small
-                                                                                    class="text-muted">Requested:</small>
-                                                                                <small
-                                                                                    class="fw-medium">{{ $item->requested_quantity }}</small>
-                                                                                <span class="text-muted">•</span>
-                                                                                <small
-                                                                                    class="{{ $stockCheck['available'] ? 'text-success' : 'text-warning' }}">
-                                                                                    <i class="fas fa-box me-1"></i>Stock:
-                                                                                    <span
-                                                                                        class="fw-bold">{{ $stockCheck['current_supply'] }}</span>
-                                                                                    @if ($stockCheck['available'])
-                                                                                        <i
-                                                                                            class="fas fa-check text-success ms-1"></i>
-                                                                                    @else
-                                                                                        <i
-                                                                                            class="fas fa-exclamation-triangle text-warning ms-1"></i>
-                                                                                    @endif
-                                                                                </small>
-                                                                            </div>
-                                                                            @if (!$stockCheck['available'])
-                                                                                <span
-                                                                                    class="badge bg-warning text-dark mt-2">
-                                                                                    <i
-                                                                                        class="fas fa-exclamation-triangle me-1"></i>Insufficient
-                                                                                    Stock
-                                                                                </span>
-                                                                            @endif
-                                                                        </div>
-                                                                        <div class="ms-3">
-                                                                            <select
-                                                                                name="item_statuses[{{ $item->id }}]"
-                                                                                class="form-select form-select-sm border-light"
-                                                                                style="min-width: 130px;"
-                                                                                data-item-id="{{ $item->id }}"
-                                                                                onchange="checkForSeedlingChanges({{ $request->id }})">
-                                                                                <option value="pending"
-                                                                                    {{ $item->status === 'pending' ? 'selected' : '' }}>
-                                                                                    Pending
-                                                                                </option>
-                                                                                <option value="approved"
-                                                                                    {{ $item->status === 'approved' ? 'selected' : '' }}
-                                                                                    {{ !$stockCheck['available'] ? 'disabled' : '' }}>
-                                                                                    Approved{{ !$stockCheck['available'] ? ' (No Stock)' : '' }}
-                                                                                </option>
-                                                                                <option value="rejected"
-                                                                                    {{ $item->status === 'rejected' ? 'selected' : '' }}>
-                                                                                    Rejected
-                                                                                </option>
-                                                                            </select>
-                                                                        </div>
-                                                                    </div>
-                                                                @endforeach
-                                                            </div>
-                                                        @endforeach
-
-                                                        <div class="mb-3">
-                                                            <label for="remarks{{ $request->id }}"
-                                                                class="form-label">General Remarks</label>
-                                                            <textarea name="remarks" id="remarks{{ $request->id }}" class="form-control" rows="3"
-                                                                placeholder="Add any comments..."
-                                                                onchange="checkForSeedlingChanges({{ $request->id }})"
-                                                                oninput="checkForSeedlingChanges({{ $request->id }})">{{ $request->remarks }}</textarea>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                    <button type="button" class="btn btn-primary" id="submitBtn{{ $request->id }}"
-                                                        onclick="handleSeedlingUpdateSubmit(document.getElementById('updateForm{{ $request->id }}'), {{ $request->id }})">
-                                                        <i class="fas fa-save me-2"></i>Update Items
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modals Section - OUTSIDE the table -->
+            @foreach ($requests as $request)
+                <!-- View Modal -->
+                <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light border-bottom">
+                                <h5 class="modal-title fw-bold text-dark">
+                                    <i class="fas fa-eye text-primary me-2"></i>
+                                    Request Details - {{ $request->request_number }}
+                                </h5>
+                                <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <h6 class="border-bottom pb-2">Personal Information</h6>
+                                        <p><strong>Request #:</strong> {{ $request->request_number }}</p>
+                                        <p><strong>Name:</strong> {{ $request->full_name }}</p>
+                                        <p><strong>Contact:</strong> {{ $request->contact_number }}</p>
+                                        <p><strong>Email:</strong> {{ $request->email ?? 'N/A' }}</p>
+                                        <p><strong>Barangay:</strong> {{ $request->barangay }}</p>
+                                        <p><strong>Address:</strong> {{ $request->address }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="border-bottom pb-2">Request Information</h6>
+                                        <p><strong>Total Quantity:</strong>
+                                            {{ $request->total_quantity }}</p>
+                                        <p><strong>Current Status:</strong>
+                                            <span
+                                                class="badge bg-{{ match ($request->status) {
+                                                    'approved' => 'success',
+                                                    'partially_approved' => 'info',
+                                                    'rejected' => 'danger',
+                                                    'under_review', 'pending' => 'warning',
+                                                    default => 'secondary',
+                                                } }}">
+                                                {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                            </span>
+                                        </p>
+                                        <p><strong>Date Applied:</strong>
+                                            {{ $request->created_at->format('F d, Y g:i A') }}</p>
+                                        <p><strong>Last Updated:</strong>
+                                            {{ $request->updated_at->format('F d, Y g:i A') }}</p>
+                                    </div>
+
+                                    <!-- Requested Items Section -->
+                                    <div class="col-12">
+                                        <div class="card border-primary">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0" style="color: #495057;">
+                                                    <i class="fas fa-seedling me-2 text-primary"></i>Requested Items by Category
+                                                </h6>
+                                            </div>
+                                            <div class="card-body">
+                                                @php
+                                                    $itemsByCategory = $request->items->groupBy('category_id');
+                                                @endphp
+
+                                                @foreach ($itemsByCategory as $categoryId => $items)
+                                                    @php
+                                                        $category = $items->first()->category;
+                                                    @endphp
+                                                    <div class="mb-3 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
+                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <strong class="text-primary">
+                                                                <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                                {{ $category->display_name }}
+                                                            </strong>
+                                                            <span class="badge bg-secondary">{{ $items->count() }} items</span>
+                                                        </div>
+                                                        <ul class="mb-0">
+                                                            @foreach ($items as $item)
+                                                                <li>
+                                                                    {{ $item->item_name }} -
+                                                                    {{ $item->requested_quantity }}
+                                                                    {{ $item->categoryItem->unit ?? 'pcs' }}
+                                                                    <span class="badge bg-{{ $item->status_color }} ms-2">
+                                                                        {{ ucfirst($item->status) }}
+                                                                    </span>
+                                                                    @if ($item->status === 'approved')
+                                                                        <small class="text-muted">(Stock deducted)</small>
+                                                                    @endif
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Supporting Document Section -->
+                                    <div class="col-12">
+                                        @if ($request->hasDocuments())
+                                            <div class="card border-secondary">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0" style="color: #495057;">
+                                                        <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="text-center p-3 border border-secondary rounded bg-light">
+                                                        <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
+                                                        <h6>Supporting Document</h6>
+                                                        <span class="badge bg-secondary mb-2">Uploaded</span>
+                                                        <br>
+                                                        <button class="btn btn-sm btn-outline-info mt-2" 
+                                                            onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
+                                                            <i class="fas fa-eye"></i> View Document
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="card border-secondary">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="mb-0" style="color: #495057;">
+                                                        <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="text-center p-3 border border-secondary rounded">
+                                                        <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
+                                                        <h6>No Document Uploaded</h6>
+                                                        <span class="badge bg-secondary mb-2">Not Uploaded</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Remarks Section -->
+                                    @if ($request->remarks)
+                                        <div class="col-12">
+                                            <h6 class="border-bottom pb-2">Remarks</h6>
+                                            <div class="alert alert-info">
+                                                <p class="mb-0">{{ $request->remarks }}</p>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update Modal -->
+                <div class="modal fade" id="updateModal{{ $request->id }}" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light border-bottom">
+                                <h5 class="modal-title fw-bold text-dark">
+                                    <i class="fas fa-edit text-success me-2"></i>
+                                    Update Items - {{ $request->request_number }}
+                                </h5>
+                                <button type="button" class="btn-close"
+                                    data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST"
+                                    action="{{ route('admin.seedlings.update-items', $request) }}"
+                                    id="updateForm{{ $request->id }}">
+                                    @csrf
+                                    @method('PATCH')
+
+                                    @php
+                                        $itemsByCategory = $request->items->groupBy('category_id');
+                                    @endphp
+
+                                    @foreach ($itemsByCategory as $categoryId => $items)
+                                        @php
+                                            $category = $items->first()->category;
+                                        @endphp
+                                        <div class="mb-4 p-3 border-0 bg-light rounded-3">
+                                            <h6 class="mb-3 fw-bold text-primary">
+                                                <i
+                                                    class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                {{ $category->display_name }}
+                                            </h6>
+
+                                            @foreach ($items as $item)
+                                                @php
+                                                    $stockCheck = $item->categoryItem
+                                                        ? $item->categoryItem->checkSupplyAvailability(
+                                                            $item->requested_quantity,
+                                                        )
+                                                        : [
+                                                            'available' => false,
+                                                            'current_supply' => 0,
+                                                        ];
+                                                @endphp
+
+                                                <div
+                                                    class="item-card d-flex align-items-center justify-content-between mb-3 p-3
+                                                    {{ $item->status === 'approved'
+                                                        ? 'bg-success bg-opacity-10 border border-success'
+                                                        : ($item->status === 'rejected'
+                                                            ? 'bg-danger bg-opacity-10 border border-danger'
+                                                            : 'bg-white border') }}
+                                                    rounded-3 shadow-sm"
+                                                    data-item-id="{{ $item->id }}"
+                                                    data-original-status="{{ $item->status }}">
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <span
+                                                                class="fw-medium text-dark">{{ $item->item_name }}</span>
+                                                            <span
+                                                                class="badge bg-light text-muted ms-2">
+                                                                {{ $item->requested_quantity }}
+                                                                {{ $item->categoryItem->unit ?? 'pcs' }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <small
+                                                                class="text-muted">Requested:</small>
+                                                            <small
+                                                                class="fw-medium">{{ $item->requested_quantity }}</small>
+                                                            <span class="text-muted">•</span>
+                                                            <small
+                                                                class="{{ $stockCheck['available'] ? 'text-success' : 'text-warning' }}">
+                                                                <i class="fas fa-box me-1"></i>Stock:
+                                                                <span
+                                                                    class="fw-bold">{{ $stockCheck['current_supply'] }}</span>
+                                                                @if ($stockCheck['available'])
+                                                                    <i
+                                                                        class="fas fa-check text-success ms-1"></i>
+                                                                @else
+                                                                    <i
+                                                                        class="fas fa-exclamation-triangle text-warning ms-1"></i>
+                                                                @endif
+                                                            </small>
+                                                        </div>
+                                                        @if (!$stockCheck['available'])
+                                                            <span
+                                                                class="badge bg-warning text-dark mt-2">
+                                                                <i
+                                                                    class="fas fa-exclamation-triangle me-1"></i>Insufficient
+                                                                Stock
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="ms-3">
+                                                        <select
+                                                            name="item_statuses[{{ $item->id }}]"
+                                                            class="form-select form-select-sm border-light"
+                                                            style="min-width: 130px;"
+                                                            data-item-id="{{ $item->id }}"
+                                                            onchange="checkForSeedlingChanges({{ $request->id }})">
+                                                            <option value="pending"
+                                                                {{ $item->status === 'pending' ? 'selected' : '' }}>
+                                                                Pending
+                                                            </option>
+                                                            <option value="approved"
+                                                                {{ $item->status === 'approved' ? 'selected' : '' }}
+                                                                {{ !$stockCheck['available'] ? 'disabled' : '' }}>
+                                                                Approved{{ !$stockCheck['available'] ? ' (No Stock)' : '' }}
+                                                            </option>
+                                                            <option value="rejected"
+                                                                {{ $item->status === 'rejected' ? 'selected' : '' }}>
+                                                                Rejected
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endforeach
+
+                                    <div class="mb-3">
+                                        <label for="remarks{{ $request->id }}"
+                                            class="form-label">General Remarks</label>
+                                        <textarea name="remarks" id="remarks{{ $request->id }}" class="form-control" rows="3"
+                                            placeholder="Add any comments..."
+                                            onchange="checkForSeedlingChanges({{ $request->id }})"
+                                            oninput="checkForSeedlingChanges({{ $request->id }})">{{ $request->remarks }}</textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="submitBtn{{ $request->id }}"
+                                    onclick="handleSeedlingUpdateSubmit({{ $request->id }})">
+                                    <i class="fas fa-save me-2"></i>Update Items
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
                     </div>
                 </div>
             </div>
@@ -1875,7 +1881,6 @@ function proceedWithSeedlingDelete(id, requestNumber) {
     });
 }
 
-
 // Initialize the update modal with original values
 function initializeSeedlingUpdateModal(requestId) {
     const form = document.getElementById('updateForm' + requestId);
@@ -1888,10 +1893,8 @@ function initializeSeedlingUpdateModal(requestId) {
         remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
     }
     
-    // Store original status values for each select
-    statusSelects.forEach(select => {
-        select.dataset.originalStatus = select.value;
-    });
+    // DON'T overwrite originalStatus - it's already set in Blade template
+    // Just ensure item cards keep their data-original-status from the server
     
     // Clear any previous change indicators
     if (remarksTextarea) {
@@ -1944,18 +1947,17 @@ function checkForSeedlingChanges(requestId) {
         }
     }
     
-    // Check item statuses for changes
+    // Check item statuses for changes - USE ITEM CARD DATA ATTRIBUTE
     statusSelects.forEach(select => {
-        const originalStatus = select.dataset.originalStatus;
+        const itemCard = select.closest('.item-card');
+        const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
         
         if (select.value !== originalStatus) {
             hasChanges = true;
-            const itemCard = select.closest('.item-card');
             if (itemCard) {
                 itemCard.classList.add('form-changed');
             }
         } else {
-            const itemCard = select.closest('.item-card');
             if (itemCard) {
                 itemCard.classList.remove('form-changed');
             }
@@ -1977,39 +1979,74 @@ function checkForSeedlingChanges(requestId) {
 }
 
 // Handle update form submission with confirmation
-function handleSeedlingUpdateSubmit(form, requestId) {
+function handleSeedlingUpdateSubmit(requestId) {
+    // Get fresh reference to form - DON'T pass it as parameter
+    const form = document.getElementById('updateForm' + requestId);
+    
+    if (!form) {
+        console.error('Form not found:', 'updateForm' + requestId);
+        showToast('error', 'Form not found. Please try again.');
+        return;
+    }
+    
+    console.log('=== DEBUG: Form Submission Started ===');
+    console.log('Request ID:', requestId);
+    console.log('Form found:', !!form);
+    console.log('Form children count:', form.children.length);
+    
     const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
     const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+    
+    console.log('Remarks textarea found:', !!remarksTextarea);
+    console.log('Status selects found:', statusSelects.length);
     
     let hasChanges = false;
     let changesSummary = [];
     
     // Check for changes in item statuses
-    statusSelects.forEach(select => {
-        const originalStatus = select.dataset.originalStatus;
+    statusSelects.forEach((select, index) => {
+        const itemCard = select.closest('.item-card');
+        const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
+        const currentStatus = select.value;
         
-        if (select.value !== originalStatus) {
+        console.log(`Item ${index + 1}:`, {
+            original: originalStatus,
+            current: currentStatus,
+            different: currentStatus !== originalStatus
+        });
+        
+        if (currentStatus !== originalStatus) {
             hasChanges = true;
-            const itemCard = select.closest('.item-card');
             const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
             const oldStatusText = getStatusText(originalStatus);
-            const newStatusText = getStatusText(select.value);
+            const newStatusText = getStatusText(currentStatus);
             changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
         }
     });
     
     // Check for changes in remarks
     const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
-    if (remarksTextarea && remarksTextarea.value.trim() !== originalRemarks.trim()) {
+    const currentRemarks = remarksTextarea?.value || '';
+    
+    console.log('Remarks:', {
+        original: originalRemarks,
+        current: currentRemarks,
+        hasChanged: currentRemarks.trim() !== originalRemarks.trim()
+    });
+    
+    if (remarksTextarea && currentRemarks.trim() !== originalRemarks.trim()) {
         hasChanges = true;
         if (originalRemarks.trim() === '') {
             changesSummary.push('Remarks: Added new remarks');
-        } else if (remarksTextarea.value.trim() === '') {
+        } else if (currentRemarks.trim() === '') {
             changesSummary.push('Remarks: Removed remarks');
         } else {
             changesSummary.push('Remarks: Modified');
         }
     }
+    
+    console.log('Has changes:', hasChanges);
+    console.log('Changes summary:', changesSummary);
     
     // If no changes, show warning toast
     if (!hasChanges) {
@@ -2017,7 +2054,7 @@ function handleSeedlingUpdateSubmit(form, requestId) {
         return;
     }
     
-    // Show confirmation toast with changes - THIS IS THE ONLY PLACE WE CALL IT
+    // Show confirmation toast with changes
     showConfirmationToast(
         'Confirm Update',
         `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
