@@ -157,7 +157,7 @@ class SeedlingRequestController extends Controller
             'planting_location' => 'nullable|string|max:500',
             'purpose' => 'nullable|string|max:1000',
             'preferred_delivery_date' => 'nullable|date|after:today',
-            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
 
             // Items - Dynamic array structure
             'items' => 'required|array|min:1',
@@ -308,7 +308,7 @@ class SeedlingRequestController extends Controller
             'planting_location' => 'nullable|string|max:500',
             'purpose' => 'nullable|string|max:1000',
             'preferred_delivery_date' => 'nullable|date|after:today',
-            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
 
             // Items - Dynamic array structure
             'items' => 'required|array|min:1',

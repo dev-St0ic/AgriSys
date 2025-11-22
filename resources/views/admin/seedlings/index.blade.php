@@ -781,7 +781,7 @@
                                             <div class="col-md-6 mb-3">
                                                 <label for="seedling_supporting_document" class="form-label">Upload Document</label>
                                                 <input type="file" class="form-control" id="seedling_supporting_document" accept="image/*,.pdf" onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
-                                                <div class="form-text">Accepted: JPG, PNG, PDF (Max 5MB)</div>
+                                                <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div id="seedling_doc_preview" style="margin-top: 10px;"></div>
@@ -2623,8 +2623,8 @@ function previewSeedlingDocument(inputId, previewId) {
     
     const file = input.files[0];
     
-    if (file.size > 5 * 1024 * 1024) {
-        showToast('error', 'File size must not exceed 5MB');
+    if (file.size > 10 * 1024 * 1024) {
+        showToast('error', 'File size must not exceed 10MB');
         input.value = '';
         if (preview) {
             preview.innerHTML = '';
