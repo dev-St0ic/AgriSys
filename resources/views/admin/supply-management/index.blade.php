@@ -605,8 +605,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Icon <span style="color: #dc3545;">*</span></label>
-                            <select name="icon" id="edit_icon" class="form-select" required
-                                onchange="updateIconPreview('edit')">
+                            <select name="icon" id="edit_icon" class="form-select" required onchange="updateIconPreview('edit'); checkForCategoryChanges()">
                                 <option value="">Select an icon...</option>
                                 <option value="fa-seedling">Seedling</option>
                                 <option value="fa-leaf">Leaf</option>
@@ -645,7 +644,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Category</button>
+                        <button type="submit" class="btn btn-primary" id="editCategorySubmitBtn">Update Category</button>
                     </div>
                 </form>
             </div>
@@ -1928,7 +1927,121 @@
                     e.target.value = ''; // Clear the input
                 }
             }
-        });``
+        });
+
+       // Check for changes in Edit Category Modal
+        function checkForCategoryChanges() {
+            const nameInput = document.getElementById('edit_category_name');
+            const iconSelect = document.getElementById('edit_icon');
+            const descriptionInput = document.getElementById('edit_category_description');
+            
+            const submitBtn = document.getElementById('editCategorySubmitBtn');
+            
+            // Get original values from data attributes
+            const originalName = nameInput.dataset.originalValue || '';
+            const originalIcon = iconSelect.dataset.originalValue || '';
+            const originalDescription = descriptionInput.dataset.originalValue || '';
+            
+            // Check for changes
+            const nameChanged = nameInput.value.trim() !== originalName;
+            const iconChanged = iconSelect.value !== originalIcon;
+            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+            
+            const anyChanges = nameChanged || iconChanged || descriptionChanged;
+            
+            // Update visual feedback for each field
+            nameInput.classList.toggle('form-changed', nameChanged);
+            iconSelect.classList.toggle('form-changed', iconChanged);
+            descriptionInput.classList.toggle('form-changed', descriptionChanged);
+            
+            // Update submit button state
+            if (anyChanges) {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Update Category';
+            } else {
+                submitBtn.classList.add('no-changes');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+            }
+        }
+
+        // Load category and initialize change detection
+        async function editCategory(categoryId) {
+            try {
+                const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+
+                // Get form fields
+                const nameInput = document.getElementById('edit_category_name');
+                const iconSelect = document.getElementById('edit_icon');
+                const descriptionInput = document.getElementById('edit_category_description');
+                const displayNameHidden = document.getElementById('edit_display_name_hidden');
+                
+                // Populate form fields
+                document.getElementById('edit_category_id').value = category.id;
+                nameInput.value = category.name;
+                iconSelect.value = category.icon || 'fa-leaf';
+                descriptionInput.value = category.description || '';
+                displayNameHidden.value = category.display_name;
+                
+                // Store original values in data attributes
+                nameInput.dataset.originalValue = category.name;
+                iconSelect.dataset.originalValue = category.icon || 'fa-leaf';
+                descriptionInput.dataset.originalValue = category.description || '';
+                
+                // Update icon preview
+                updateIconPreview('edit');
+                
+                // Reset validation
+                document.getElementById('editCategoryForm').classList.remove('was-validated');
+                
+                // Clear any previous change styling
+                nameInput.classList.remove('form-changed');
+                iconSelect.classList.remove('form-changed');
+                descriptionInput.classList.remove('form-changed');
+                
+                // Reset submit button to initial state
+                const submitBtn = document.getElementById('editCategorySubmitBtn');
+                submitBtn.classList.add('no-changes');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+                
+                // Initialize change detection
+                checkForCategoryChanges();
+                
+                // Show modal
+                new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+            } catch (error) {
+                showError('Error loading category: ' + error.message);
+            }
+        }
+
+        // Add event listeners for real-time change detection
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.getElementById('edit_category_name');
+            const iconSelect = document.getElementById('edit_icon');
+            const descriptionInput = document.getElementById('edit_category_description');
+            
+            if (nameInput) {
+                nameInput.addEventListener('input', function() {
+                    document.getElementById('edit_display_name_hidden').value = this.value;
+                    checkForCategoryChanges();
+                });
+            }
+            
+            if (iconSelect) {
+                iconSelect.addEventListener('change', checkForCategoryChanges);
+            }
+            
+            if (descriptionInput) {
+                descriptionInput.addEventListener('input', checkForCategoryChanges);
+            }
+        });
     </script>
 
     <style>
@@ -2404,6 +2517,48 @@
                 padding: 0.375rem 0.5rem;
                 font-size: 0.875rem;
             }
+        }
+
+        /* Change Detection Styles */
+        .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd !important;
+            transition: all 0.3s ease;
+        }
+
+        .no-changes {
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        /* Change indicator */
+        .change-indicator {
+            position: relative;
+        }
+
+        .change-indicator::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .change-indicator.changed::after {
+            opacity: 1;
+        }
+
+        #editCategorySubmitBtn {
+            transition: all 0.3s ease;
+        }
+
+        #editCategorySubmitBtn.no-changes:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
         }
     </style>
 @endsection
