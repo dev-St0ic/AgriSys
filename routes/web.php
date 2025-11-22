@@ -256,7 +256,11 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
      Route::get('/requests', [SeedlingRequestController::class, 'index'])->name('requests');
     Route::get('/requests/create', [SeedlingRequestController::class, 'create'])->name('create');
     Route::post('/requests', [SeedlingRequestController::class, 'store'])->name('store');
-    Route::get('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
+    // Route::get('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'show'])->name('show');
+
+    // export csv
+    Route::get('/requests/export', [SeedlingRequestController::class, 'export'])->name('export');
+
     Route::get('/requests/{seedlingRequest}/edit', [SeedlingRequestController::class, 'edit'])->name('edit');
     Route::put('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'update'])->name('update');
     Route::delete('/requests/{seedlingRequest}', [SeedlingRequestController::class, 'destroy'])->name('destroy');
@@ -264,7 +268,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::patch('/requests/{seedlingRequest}/items', [SeedlingRequestController::class, 'updateItems'])->name('update-items');
     Route::get('/requests/{seedlingRequest}/supply-status', [SeedlingRequestController::class, 'getSupplyStatus'])->name('supply-status');
     Route::get('/category-stats', [SeedlingRequestController::class, 'getCategoryStats'])->name('category-stats');
-
+ 
     // Supply Management
     Route::get('/supply-management', [SeedlingCategoryItemController::class, 'indexCategories'])->name('supply-management.index');
     Route::get('/supply-management/{category}', [SeedlingCategoryItemController::class, 'showCategory'])->name('supply-management.show');

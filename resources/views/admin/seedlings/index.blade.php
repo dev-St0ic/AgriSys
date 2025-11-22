@@ -163,6 +163,9 @@
                         </h6>
                     </div>
                     <div class="d-flex gap-2">
+                         <a href="{{ route('admin.seedlings.export', request()->query()) }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-download"></i> Export CSV
+                        </a>
                         <button type="button" class="btn btn-primary btn-sm" onclick="showAddSeedlingModal()">
                             <i class="fas fa-plus me-2"></i>Add Request
                         </button>
