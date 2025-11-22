@@ -514,47 +514,8 @@
                 </div>
             </div>
         @endforeach
-
-        <!-- Error Modal -->
-        <div class="modal fade" id="errorModal" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title">
-                            <i class="fas fa-exclamation-circle me-2"></i>Error
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="errorMessage" class="mb-0"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Success Modal -->
-        <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title">
-                            <i class="fas fa-check-circle me-2"></i>Success
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="successMessage" class="mb-0"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                            onclick="location.reload()">OK</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+         <!-- Toast Container for Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
     </div>
 
     <!-- Create Category Modal -->
@@ -1166,45 +1127,153 @@
         }
 
         // Show error modal (closes any open modal first)
-        function showError(message) {
-            // Close all open modals first
-            const openModals = document.querySelectorAll('.modal.show');
-            openModals.forEach(modal => {
-                const bsModal = bootstrap.Modal.getInstance(modal);
-                if (bsModal) bsModal.hide();
-            });
-
-            // Small delay to ensure previous modal is closed
-            setTimeout(() => {
-                document.getElementById('errorMessage').textContent = message;
-                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                errorModal.show();
-            }, 300);
+       function showError(message) {
+            showToast('error', message);
         }
 
         // Show success modal (closes any open modal first)
         function showSuccess(message, shouldReload = true) {
-            // Close all open modals first
-            const openModals = document.querySelectorAll('.modal.show');
-            openModals.forEach(modal => {
-                const bsModal = bootstrap.Modal.getInstance(modal);
-                if (bsModal) bsModal.hide();
-            });
+            showToast('success', message);
+            
+            if (shouldReload) {
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        }
 
-            // Small delay to ensure previous modal is closed
+        // create toast container 
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
             setTimeout(() => {
-                document.getElementById('successMessage').textContent = message;
-                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                successModal.show();
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
 
-                if (shouldReload) {
-                    document.getElementById('successModal').addEventListener('hidden.bs.modal', function() {
-                        location.reload();
-                    }, {
-                        once: true
-                    });
+        // Confirmation toast function
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+
+            // Store the callback function on the toast element
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        // Execute confirmation action
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
+            }
+
+            // Clean up the callback reference
+            delete window[callbackId];
+            removeToast(toast);
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
                 }
             }, 300);
+        }
+
+        // Get CSRF token utility function
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
         }
 
         // Icon preview
@@ -1272,32 +1341,49 @@
         }
 
         document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        e.preventDefault();
 
-            if (!validateForm(this)) {
-                return;
-            }
+        if (!validateForm(this)) {
+            return;
+        }
 
-            const categoryId = document.getElementById('edit_category_id').value;
-            const formData = new FormData(this);
+        const categoryId = document.getElementById('edit_category_id').value;
+        const formData = new FormData(this);
+        const submitBtn = document.querySelector('#editCategoryModal .btn-primary');
+        const originalText = submitBtn.innerHTML;
 
-            try {
-                const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    }
-                });
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            }
-        });
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
+        submitBtn.disabled = true;
+
+        try {
+            const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                }
+            });
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editCategoryModal'));
+            modal.hide();
+            showSuccess(data.message);
+        } catch (error) {
+            showError(error.message);
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
 
         async function toggleCategory(categoryId) {
-            if (!confirm('Toggle category status?')) return;
+            showConfirmationToast(
+                'Toggle Category Status',
+                'Are you sure you want to toggle this category status?',
+                () => proceedToggleCategory(categoryId)
+            );
+        }
+
+        async function proceedToggleCategory(categoryId) {
             try {
                 const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}/toggle`, {
                     method: 'POST',
@@ -1313,7 +1399,14 @@
         }
 
         async function deleteCategory(categoryId) {
-            if (!confirm('Delete this category permanently?')) return;
+            showConfirmationToast(
+                'Delete Category',
+                'Are you sure you want to delete this category permanently?\n\nAll items in this category will also be deleted.',
+                () => proceedDeleteCategory(categoryId)
+            );
+        }
+
+        async function proceedDeleteCategory(categoryId) {
             try {
                 const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
                     method: 'DELETE',
@@ -1454,6 +1547,11 @@
             }
 
             const formData = new FormData(this);
+            const submitBtn = document.querySelector('#createCategoryModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Creating...';
+            submitBtn.disabled = true;
 
             try {
                 const data = await makeRequest('/admin/seedlings/supply-management', {
@@ -1464,9 +1562,14 @@
                         'Accept': 'application/json'
                     }
                 });
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('createCategoryModal'));
+                modal.hide();
                 showSuccess(data.message);
             } catch (error) {
                 showError(error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         });
 
@@ -1478,6 +1581,11 @@
             }
 
             const formData = new FormData(this);
+            const submitBtn = document.querySelector('#createItemModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Adding...';
+            submitBtn.disabled = true;
 
             try {
                 const data = await makeRequest('/admin/seedlings/items', {
@@ -1488,6 +1596,8 @@
                         'Accept': 'application/json'
                     }
                 });
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('createItemModal'));
+                modal.hide();
                 showSuccess(data.message);
             } catch (error) {
                 if (error.message.includes('name')) {
@@ -1497,6 +1607,9 @@
                 } else {
                     showError(error.message);
                 }
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         });
 
@@ -1522,17 +1635,8 @@
                     body: JSON.stringify(Object.fromEntries(formData))
                 });
 
-                // Show success message without closing modal
-                const toast = document.createElement('div');
-                toast.className =
-                    'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
-                toast.style.zIndex = '9999';
-                toast.innerHTML = `
-            ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
+                // Show success message using toast
+                showToast('success', data.message);
 
                 // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
@@ -1567,16 +1671,8 @@
                     body: JSON.stringify(Object.fromEntries(formData))
                 });
 
-                const toast = document.createElement('div');
-                toast.className =
-                    'alert alert-warning alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
-                toast.style.zIndex = '9999';
-                toast.innerHTML = `
-            ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
+                // Show success message using toast
+                showToast('success', data.message);
 
                 // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
@@ -1617,16 +1713,8 @@
                     })
                 });
 
-                const toast = document.createElement('div');
-                toast.className =
-                    'alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
-                toast.style.zIndex = '9999';
-                toast.innerHTML = `
-            ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
+                // Show success message using toast
+                showToast('success', data.message);
 
                 // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
@@ -1642,8 +1730,15 @@
             location.reload();
         });
 
-        async function toggleItem(itemId) {
-            if (!confirm('Toggle item status?')) return;
+     async function toggleItem(itemId) {
+            showConfirmationToast(
+                'Toggle Item Status',
+                'Are you sure you want to toggle this item status?',
+                () => proceedToggleItem(itemId)
+            );
+        }
+
+        async function proceedToggleItem(itemId) {
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}/toggle`, {
                     method: 'POST',
@@ -1659,7 +1754,14 @@
         }
 
         async function deleteItem(itemId) {
-            if (!confirm('Delete this item permanently?')) return;
+            showConfirmationToast(
+                'Delete Item',
+                'Are you sure you want to delete this item permanently?\n\nThis action cannot be undone.',
+                () => proceedDeleteItem(itemId)
+            );
+        }
+
+        async function proceedDeleteItem(itemId) {
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
                     method: 'DELETE',
@@ -1724,6 +1826,11 @@
 
             const itemId = document.getElementById('edit_item_id').value;
             const formData = new FormData(this);
+            const submitBtn = document.querySelector('#editItemModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
+            submitBtn.disabled = true;
 
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
@@ -1734,9 +1841,14 @@
                         'Accept': 'application/json'
                     }
                 });
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editItemModal'));
+                modal.hide();
                 showSuccess(data.message);
             } catch (error) {
                 showError(error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         });
 
@@ -1761,6 +1873,145 @@
     </script>
 
     <style>
+
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .confirmation-toast .toast-body {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification,
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
         /* Metric card styles */
         .metric-card {
             border-radius: 12px;
