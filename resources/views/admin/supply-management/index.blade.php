@@ -588,9 +588,9 @@
     <div class="modal fade" id="editCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header border-0 d-flex justify-content-center">
                     <h5 class="modal-title">Edit Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="editCategoryForm" novalidate>
                     @csrf
@@ -598,44 +598,38 @@
                     <input type="hidden" id="edit_category_id" name="category_id">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Name *</label>
+                            <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
                             <input type="text" id="edit_category_name" name="name" class="form-control" required>
-                            <small class="text-muted">Internal name (lowercase, no spaces)</small>
+                            <input type="hidden" id="edit_display_name_hidden" name="display_name">
                             <div class="invalid-feedback">Please provide a category name.</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Display Name *</label>
-                            <input type="text" id="edit_category_display_name" name="display_name"
-                                class="form-control" required>
-                            <div class="invalid-feedback">Please provide a display name.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Icon *</label>
+                            <label class="form-label">Icon <span style="color: #dc3545;">*</span></label>
                             <select name="icon" id="edit_icon" class="form-select" required
                                 onchange="updateIconPreview('edit')">
                                 <option value="">Select an icon...</option>
-                                <option value="fa-seedling">🌱 Seedling</option>
-                                <option value="fa-leaf">🍃 Leaf</option>
-                                <option value="fa-tree">🌲 Tree</option>
-                                <option value="fa-spa">🌿 Herbs/Spa</option>
-                                <option value="fa-cannabis">🌿 Cannabis/Plant</option>
-                                <option value="fa-pepper-hot">🌶️ Pepper</option>
-                                <option value="fa-carrot">🥕 Carrot/Vegetable</option>
-                                <option value="fa-apple-alt">🍎 Apple/Fruit</option>
-                                <option value="fa-lemon">🍋 Lemon/Citrus</option>
-                                <option value="fa-wheat-awn">🌾 Wheat/Grain/Corn</option>
-                                <option value="fa-flask">🧪 Flask/Chemical</option>
-                                <option value="fa-tint">💧 Tint/Water</option>
-                                <option value="fa-sun">☀️ Sun</option>
-                                <option value="fa-cloud-rain">🌧️ Rain</option>
-                                <option value="fa-hand-holding-heart">💚 Hand Holding Heart</option>
-                                <option value="fa-tractor">🚜 Tractor/Farm</option>
-                                <option value="fa-warehouse">🏭 Warehouse</option>
-                                <option value="fa-tools">🔧 Tools</option>
-                                <option value="fa-person-digging">🔨 Shovel</option>
-                                <option value="fa-recycle">♻️ Recycle</option>
-                                <option value="fa-boxes">📦 Boxes</option>
-                                <option value="fa-box-open">📤 Box Open</option>
+                                <option value="fa-seedling">Seedling</option>
+                                <option value="fa-leaf">Leaf</option>
+                                <option value="fa-tree">Tree</option>
+                                <option value="fa-spa">Herbs/Spa</option>
+                                <option value="fa-cannabis">Cannabis/Plant</option>
+                                <option value="fa-pepper-hot">Pepper</option>
+                                <option value="fa-carrot">Carrot/Vegetable</option>
+                                <option value="fa-apple-alt">Apple/Fruit</option>
+                                <option value="fa-lemon">Lemon/Citrus</option>
+                                <option value="fa-wheat-awn">Wheat/Grain/Corn</option>
+                                <option value="fa-flask">Flask/Chemical</option>
+                                <option value="fa-tint">Tint/Water</option>
+                                <option value="fa-sun">Sun</option>
+                                <option value="fa-cloud-rain">Rain</option>
+                                <option value="fa-hand-holding-heart">Hand Holding Heart</option>
+                                <option value="fa-tractor">Tractor/Farm</option>
+                                <option value="fa-warehouse">Warehouse</option>
+                                <option value="fa-tools">Tools</option>
+                                <option value="fa-person-digging">Shovel</option>
+                                <option value="fa-recycle">Recycle</option>
+                                <option value="fa-boxes">Boxes</option>
+                                <option value="fa-box-open">Box Open</option>
                             </select>
                             <div class="invalid-feedback">Please select an icon.</div>
                             <div class="mt-2">
@@ -644,8 +638,9 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea id="edit_category_description" name="description" class="form-control" rows="2"></textarea>
+                            <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                            <textarea id="edit_category_description" name="description" class="form-control" rows="2" required></textarea>
+                            <div class="invalid-feedback">Please provide a description.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -995,6 +990,25 @@
             });
         });
 
+        // Auto-fill display_name when name changes in Edit Category Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editCategoryForm = document.getElementById('editCategoryForm');
+            if (editCategoryForm) {
+                const nameInput = editCategoryForm.querySelector('input[name="name"]');
+                const displayNameHidden = document.getElementById('edit_display_name_hidden');
+                
+                nameInput.addEventListener('change', function() {
+                    displayNameHidden.value = this.value;
+                });
+                
+                // Set it on form submission as well
+                editCategoryForm.addEventListener('submit', function() {
+                    const nameValue = nameInput.value;
+                    displayNameHidden.value = nameValue;
+                });
+            }
+        });
+
          // Show More/Less functionality
         function toggleShowMore() {
             const categoryBtns = document.querySelectorAll('.category-btn');
@@ -1331,33 +1345,33 @@
         }
 
         async function editCategory(categoryId) {
-            try {
-                const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                });
+        try {
+            const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            });
 
-                // Populate form fields
-                document.getElementById('edit_category_id').value = category.id;
-                document.getElementById('edit_category_name').value = category.name;
-                document.getElementById('edit_category_display_name').value = category.display_name;
-                document.getElementById('edit_icon').value = category.icon || 'fa-leaf';
-                document.getElementById('edit_category_description').value = category.description || '';
+            // Populate form fields
+            document.getElementById('edit_category_id').value = category.id;
+            document.getElementById('edit_category_name').value = category.name;
+            document.getElementById('edit_display_name_hidden').value = category.display_name;
+            document.getElementById('edit_icon').value = category.icon || 'fa-leaf';
+            document.getElementById('edit_category_description').value = category.description || '';
 
-                // Update icon preview
-                updateIconPreview('edit');
+            // Update icon preview
+            updateIconPreview('edit');
 
-                // Reset validation
-                document.getElementById('editCategoryForm').classList.remove('was-validated');
+            // Reset validation
+            document.getElementById('editCategoryForm').classList.remove('was-validated');
 
-                // Show modal
-                new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
-            } catch (error) {
-                showError('Error loading category: ' + error.message);
-            }
+            // Show modal
+            new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+        } catch (error) {
+            showError('Error loading category: ' + error.message);
         }
+    }
 
         document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
         e.preventDefault();
