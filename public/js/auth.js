@@ -223,7 +223,7 @@ function refreshProfileVerifyButton() {
 function updateHeaderStatusDisplay(status) {
     const statusText = document.getElementById('status-text');
     const statusDiv = document.getElementById('header-user-status');
-    
+
     if (!statusText || !statusDiv) return;
 
     const statusLower = (status || '').toLowerCase();
@@ -238,28 +238,28 @@ function updateHeaderStatusDisplay(status) {
             displayText = 'Verified';
             badgeClass = 'status-verified';
             break;
-            
+
         case 'pending':
         case 'pending_verification':
             displayText = 'Under Review';
             badgeClass = 'status-pending';
             break;
-            
+
         case 'rejected':
             displayText = 'Verification Failed';
             badgeClass = 'status-rejected';
             break;
-            
+
         case 'unverified':
             displayText = 'Not Verified';
             badgeClass = 'status-unverified';
             break;
-            
+
         case 'banned':
             displayText = 'Account Restricted';
             badgeClass = 'status-banned';
             break;
-            
+
         default:
             displayText = statusLower.charAt(0).toUpperCase() + statusLower.slice(1);
             badgeClass = `status-${statusLower}`;
@@ -267,7 +267,7 @@ function updateHeaderStatusDisplay(status) {
 
     // Update the text content
     statusText.textContent = displayText;
-    
+
     // Update the parent div class for styling
     statusDiv.className = `user-status ${badgeClass}`;
 
@@ -1227,7 +1227,7 @@ if (verificationDobInput) {
     });
 }
 // ==============================================
-// EDIT PROFILE 
+// EDIT PROFILE
 // ==============================================
 /**
  * Load current profile data into edit form
@@ -1974,7 +1974,7 @@ function logoutUser() {
         if (typeof stopVerificationPolling === 'function') {
             stopVerificationPolling();
         }
-        
+
         fetch('/auth/logout', {
             method: 'POST',
             headers: {
@@ -1987,12 +1987,12 @@ function logoutUser() {
         .then(data => {
             if (data.success) {
                 showNotification('success', 'Successfully logged out!');
-                
+
                 // Hide all forms before redirecting
                 if (typeof hideAllForms === 'function') {
                     hideAllForms();
                 }
-                
+
                 // Small delay to show notification, then redirect to home
                 setTimeout(() => {
                     window.location.href = '/';
@@ -2003,12 +2003,12 @@ function logoutUser() {
         })
         .catch(error => {
             console.error('Logout error:', error);
-            
+
             // Hide all forms before redirecting
             if (typeof hideAllForms === 'function') {
                 hideAllForms();
             }
-            
+
             // Fallback: redirect to home anyway
             window.location.href = '/';
         });
@@ -2223,35 +2223,82 @@ function validateEmail(email) {
 }
 
 /**
- * Real-time email validation for signup form
+ * Comprehensive contact number validation
+ * Validates Philippine mobile numbers and general phone formats
  */
-function checkEmailValidity(email) {
-    const emailInput = document.getElementById('signup-email');
-    const validation = validateEmail(email);
+function validateContactNumber(contactNumber) {
+    const validation = {
+        valid: true,
+        error: ''
+    };
 
-    if (!email) {
-        emailInput.classList.remove('is-valid', 'is-invalid');
+    // Check if contact number is empty
+    if (!contactNumber || contactNumber.trim() === '') {
+        validation.valid = false;
+        validation.error = 'Contact number is required';
+        return validation;
+    }
+
+    // Remove whitespace and common separators for validation
+    const cleanNumber = contactNumber.trim().replace(/[\s\-\(\)]/g, '');
+
+    // Check if it's exactly 11 digits for Philippine mobile numbers
+    if (cleanNumber.length !== 11) {
+        validation.valid = false;
+        validation.error = 'Contact number must be exactly 11 digits (09XXXXXXXXX)';
+        return validation;
+    }
+
+    // Check if contains only numbers
+    if (!/^[0-9]+$/.test(cleanNumber)) {
+        validation.valid = false;
+        validation.error = 'Contact number can only contain numbers';
+        return validation;
+    }
+
+    // Philippine mobile number patterns - only accept numbers starting with 09
+    const philippinePatterns = [
+        /^09[0-9]{9}$/,                   // 09XXXXXXXXX (11 digits total)
+        /^09[0-9]{2}[-\s]?[0-9]{3}[-\s]?[0-9]{4}$/ // 09XX-XXX-XXXX format with separators
+    ];
+
+    // Check if it matches Philippine mobile pattern
+    const isValidPhilippineNumber = philippinePatterns.some(pattern => pattern.test(cleanNumber));
+
+    if (!isValidPhilippineNumber) {
+        validation.valid = false;
+        validation.error = 'Please enter a valid Philippine mobile number starting with 09';
+        return validation;
+    }
+
+    return validation; // Valid Philippine number
+    if (!/^[\+]?[1-9]\d{1,14}$/.test(cleanNumber)) {
+        validation.valid = false;
+        validation.error = 'Please enter a valid contact number (e.g., 09123456789, +639123456789)';
+        return validation;
+    }
+
+    return validation;
+}
+
+/**
+ * Real-time contact number validation for signup form
+ */
+function checkContactValidity(contactNumber) {
+    const contactInput = document.getElementById('signup-contact');
+    const validation = validateContactNumber(contactNumber);
+
+    if (!contactNumber) {
+        contactInput.classList.remove('is-valid', 'is-invalid');
         return;
     }
 
     if (validation.valid) {
-        emailInput.classList.remove('is-invalid');
-        emailInput.classList.add('is-valid');
+        contactInput.classList.remove('is-invalid');
+        contactInput.classList.add('is-valid');
     } else {
-        emailInput.classList.remove('is-valid');
-        emailInput.classList.add('is-invalid');
-
-        // Show validation message
-        let errorMsg = emailInput.parentElement.querySelector('.email-error');
-        if (!errorMsg) {
-            errorMsg = document.createElement('div');
-            errorMsg.className = 'email-error field-error';
-            errorMsg.style.color = '#dc3545';
-            errorMsg.style.fontSize = '12px';
-            errorMsg.style.marginTop = '4px';
-            emailInput.parentElement.appendChild(errorMsg);
-        }
-        errorMsg.textContent = validation.error;
+        contactInput.classList.remove('is-valid');
+        contactInput.classList.add('is-invalid');
     }
 }
 
@@ -2559,7 +2606,7 @@ function checkPasswordMatch(password, confirmPassword) {
 
 function validateBasicSignupForm() {
     const username = document.getElementById('signup-username').value.trim();
-    const email = document.getElementById('signup-email').value.trim();
+    const contactNumber = document.getElementById('signup-contact').value.trim();
     const password = document.getElementById('signup-password').value.trim();
     const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
     const agreeTerms = document.getElementById('agree-terms').checked;
@@ -2578,10 +2625,10 @@ function validateBasicSignupForm() {
         isValid = false;
     }
 
-   // Updated email validation
-    const emailValidation = validateEmail(email);
-    if (!emailValidation.valid) {
-        errors.push(emailValidation.error);
+   // Contact number validation
+    const contactValidation = validateContactNumber(contactNumber);
+    if (!contactValidation.valid) {
+        errors.push(contactValidation.error);
         isValid = false;
     }
 
@@ -3186,7 +3233,7 @@ function handleSignupSubmit(event) {
 
     const formData = {
         username: document.getElementById('signup-username').value.trim(),
-        email: document.getElementById('signup-email').value.trim(),
+        contact_number: document.getElementById('signup-contact').value.trim(),
         password: document.getElementById('signup-password').value.trim(),
         password_confirmation: document.getElementById('signup-confirm-password').value.trim(),
         terms_accepted: document.getElementById('agree-terms').checked,
@@ -3222,7 +3269,7 @@ function handleSignupSubmit(event) {
 
              // IMPORTANT: Clear all input values immediately to stop validation
             document.getElementById('signup-username').value = '';
-            document.getElementById('signup-email').value = '';
+            document.getElementById('signup-contact').value = '';
             document.getElementById('signup-password').value = '';
             document.getElementById('signup-confirm-password').value = '';
             document.getElementById('agree-terms').checked = false;
@@ -3328,7 +3375,7 @@ function handleValidationErrors(errors) {
     errorFields.forEach(field => {
         const fieldMapping = {
             'username': 'signup-username',
-            'email': 'signup-email',
+            'contact_number': 'signup-contact',
             'password': 'signup-password',
             'terms_accepted': 'agree-terms'
         };
@@ -3363,7 +3410,7 @@ function handleValidationErrors(errors) {
 /**
  * Robust verification-status poller that checks for status updates
  * when user is in 'pending' or 'pending_verification' state.
- * 
+ *
  * Features:
  * - Auto-starts when verification form is submitted
  * - Probes multiple endpoints for compatibility
@@ -3396,8 +3443,8 @@ let verificationStatusPoll = {
 
         for (const url of endpoints) {
             try {
-                const res = await fetch(url, { 
-                    method: 'GET', 
+                const res = await fetch(url, {
+                    method: 'GET',
                     headers,
                     credentials: 'same-origin'
                 });
@@ -3411,11 +3458,11 @@ let verificationStatusPoll = {
                 if (!res.ok) continue;
 
                 const json = await res.json();
-                
+
                 // Support multiple response shapes
                 const user = (json && (
-                    json.user || 
-                    (json.data && json.data.user) || 
+                    json.user ||
+                    (json.data && json.data.user) ||
                     (json.data && typeof json.data === 'object' && json.data.status ? json.data : null) ||
                     json
                 )) || null;
@@ -3641,7 +3688,7 @@ function maybeStartVerificationPoll() {
         }
 
         const s = (window.userData.status || '').toLowerCase();
-        
+
         // Only start if status is pending
         if (['pending', 'pending_verification'].includes(s)) {
             verificationStatusPoll.start();
@@ -3694,7 +3741,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function logoutUserWithPolling() {
     // Stop polling before logging out
     stopVerificationPolling();
-    
+
     // Then logout (your existing logout logic)
     logoutUser();
 }
@@ -3739,7 +3786,7 @@ function addPollingIndicator() {
             }
         </style>
     `;
-    
+
     if (btn && !btn.querySelector('.polling-indicator')) {
         btn.insertBefore(indicator, btn.firstChild);
     }
@@ -3790,16 +3837,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Email validation checker
-    const emailInput = document.getElementById('signup-email');
-    if (emailInput) {
-        emailInput.addEventListener('input', function() {
-            checkEmailValidity(this.value);
+    // Contact number validation checker
+    const contactInput = document.getElementById('signup-contact');
+    if (contactInput) {
+        contactInput.addEventListener('input', function() {
+            checkContactValidity(this.value);
         });
 
         // Also validate on blur
-        emailInput.addEventListener('blur', function() {
-            checkEmailValidity(this.value);
+        contactInput.addEventListener('blur', function() {
+            checkContactValidity(this.value);
         });
     }
 

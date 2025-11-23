@@ -163,7 +163,8 @@
                         </h6>
                     </div>
                     <div class="d-flex gap-2">
-                         <a href="{{ route('admin.seedlings.export', request()->query()) }}" class="btn btn-success btn-sm">
+                        <a href="{{ route('admin.seedlings.export', request()->query()) }}"
+                            class="btn btn-success btn-sm">
                             <i class="fas fa-download"></i> Export CSV
                         </a>
                         <button type="button" class="btn btn-primary btn-sm" onclick="showAddSeedlingModal()">
@@ -355,7 +356,7 @@
                                                 </button>
 
                                                 <button type="button" class="btn btn-outline-danger"
-                                                    onclick="deleteSeedlingRequest({{ $request->id }}, '{{ $request->request_number }}')" 
+                                                    onclick="deleteSeedlingRequest({{ $request->id }}, '{{ $request->request_number }}')"
                                                     title="Delete Request">
                                                     <i class="fas fa-trash"></i> Delete
                                                 </button>
@@ -380,8 +381,7 @@
                                     <i class="fas fa-eye text-primary me-2"></i>
                                     Request Details - {{ $request->request_number }}
                                 </h5>
-                                <button type="button" class="btn-close"
-                                    data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="row g-3">
@@ -421,7 +421,8 @@
                                         <div class="card border-primary">
                                             <div class="card-header bg-light">
                                                 <h6 class="mb-0" style="color: #495057;">
-                                                    <i class="fas fa-seedling me-2 text-primary"></i>Requested Items by Category
+                                                    <i class="fas fa-seedling me-2 text-primary"></i>Requested Items by
+                                                    Category
                                                 </h6>
                                             </div>
                                             <div class="card-body">
@@ -434,12 +435,15 @@
                                                         $category = $items->first()->category;
                                                     @endphp
                                                     <div class="mb-3 p-3 border rounded {{ !$loop->last ? 'mb-3' : '' }}">
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center mb-2">
                                                             <strong class="text-primary">
-                                                                <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                                <i
+                                                                    class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
                                                                 {{ $category->display_name }}
                                                             </strong>
-                                                            <span class="badge bg-secondary">{{ $items->count() }} items</span>
+                                                            <span class="badge bg-secondary">{{ $items->count() }}
+                                                                items</span>
                                                         </div>
                                                         <ul class="mb-0">
                                                             @foreach ($items as $item)
@@ -468,7 +472,8 @@
                                             <div class="card border-secondary">
                                                 <div class="card-header bg-light">
                                                     <h6 class="mb-0" style="color: #495057;">
-                                                        <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                                        <i class="fas fa-folder-open me-2"
+                                                            style="color: #6c757d;"></i>Supporting Document
                                                     </h6>
                                                 </div>
                                                 <div class="card-body">
@@ -477,7 +482,7 @@
                                                         <h6>Supporting Document</h6>
                                                         <span class="badge bg-secondary mb-2">Uploaded</span>
                                                         <br>
-                                                        <button class="btn btn-sm btn-outline-info mt-2" 
+                                                        <button class="btn btn-sm btn-outline-info mt-2"
                                                             onclick="viewDocument('{{ $request->document_path }}', 'Seedling Request #{{ $request->request_number }} - Supporting Document')">
                                                             <i class="fas fa-eye"></i> View Document
                                                         </button>
@@ -488,12 +493,14 @@
                                             <div class="card border-secondary">
                                                 <div class="card-header bg-light">
                                                     <h6 class="mb-0" style="color: #495057;">
-                                                        <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                                        <i class="fas fa-folder-open me-2"
+                                                            style="color: #6c757d;"></i>Supporting Document
                                                     </h6>
                                                 </div>
                                                 <div class="card-body">
                                                     <div class="text-center p-3 border border-secondary rounded">
-                                                        <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
+                                                        <i class="fas fa-file-slash fa-3x mb-2"
+                                                            style="color: #6c757d;"></i>
                                                         <h6>No Document Uploaded</h6>
                                                         <span class="badge bg-secondary mb-2">Not Uploaded</span>
                                                     </div>
@@ -529,12 +536,10 @@
                                     <i class="fas fa-edit text-success me-2"></i>
                                     Update Items - {{ $request->request_number }}
                                 </h5>
-                                <button type="button" class="btn-close"
-                                    data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <form method="POST"
-                                    action="{{ route('admin.seedlings.update-items', $request) }}"
+                                <form method="POST" action="{{ route('admin.seedlings.update-items', $request) }}"
                                     id="updateForm{{ $request->id }}">
                                     @csrf
                                     @method('PATCH')
@@ -549,8 +554,7 @@
                                         @endphp
                                         <div class="mb-4 p-3 border-0 bg-light rounded-3">
                                             <h6 class="mb-3 fw-bold text-primary">
-                                                <i
-                                                    class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
+                                                <i class="fas {{ $category->icon ?? 'fa-leaf' }} me-2"></i>
                                                 {{ $category->display_name }}
                                             </h6>
 
@@ -566,8 +570,7 @@
                                                         ];
                                                 @endphp
 
-                                                <div
-                                                    class="item-card d-flex align-items-center justify-content-between mb-3 p-3
+                                                <div class="item-card d-flex align-items-center justify-content-between mb-3 p-3
                                                     {{ $item->status === 'approved'
                                                         ? 'bg-success bg-opacity-10 border border-success'
                                                         : ($item->status === 'rejected'
@@ -580,15 +583,13 @@
                                                         <div class="d-flex align-items-center mb-2">
                                                             <span
                                                                 class="fw-medium text-dark">{{ $item->item_name }}</span>
-                                                            <span
-                                                                class="badge bg-light text-muted ms-2">
+                                                            <span class="badge bg-light text-muted ms-2">
                                                                 {{ $item->requested_quantity }}
                                                                 {{ $item->categoryItem->unit ?? 'pcs' }}
                                                             </span>
                                                         </div>
                                                         <div class="d-flex align-items-center gap-2">
-                                                            <small
-                                                                class="text-muted">Requested:</small>
+                                                            <small class="text-muted">Requested:</small>
                                                             <small
                                                                 class="fw-medium">{{ $item->requested_quantity }}</small>
                                                             <span class="text-muted">•</span>
@@ -598,8 +599,7 @@
                                                                 <span
                                                                     class="fw-bold">{{ $stockCheck['current_supply'] }}</span>
                                                                 @if ($stockCheck['available'])
-                                                                    <i
-                                                                        class="fas fa-check text-success ms-1"></i>
+                                                                    <i class="fas fa-check text-success ms-1"></i>
                                                                 @else
                                                                     <i
                                                                         class="fas fa-exclamation-triangle text-warning ms-1"></i>
@@ -607,8 +607,7 @@
                                                             </small>
                                                         </div>
                                                         @if (!$stockCheck['available'])
-                                                            <span
-                                                                class="badge bg-warning text-dark mt-2">
+                                                            <span class="badge bg-warning text-dark mt-2">
                                                                 <i
                                                                     class="fas fa-exclamation-triangle me-1"></i>Insufficient
                                                                 Stock
@@ -616,11 +615,9 @@
                                                         @endif
                                                     </div>
                                                     <div class="ms-3">
-                                                        <select
-                                                            name="item_statuses[{{ $item->id }}]"
+                                                        <select name="item_statuses[{{ $item->id }}]"
                                                             class="form-select form-select-sm border-light"
-                                                            style="min-width: 130px;"
-                                                            data-item-id="{{ $item->id }}"
+                                                            style="min-width: 130px;" data-item-id="{{ $item->id }}"
                                                             onchange="checkForSeedlingChanges({{ $request->id }})">
                                                             <option value="pending"
                                                                 {{ $item->status === 'pending' ? 'selected' : '' }}>
@@ -643,11 +640,10 @@
                                     @endforeach
 
                                     <div class="mb-3">
-                                        <label for="remarks{{ $request->id }}"
-                                            class="form-label">General Remarks</label>
+                                        <label for="remarks{{ $request->id }}" class="form-label">General
+                                            Remarks</label>
                                         <textarea name="remarks" id="remarks{{ $request->id }}" class="form-control" rows="3"
-                                            placeholder="Add any comments..."
-                                            onchange="checkForSeedlingChanges({{ $request->id }})"
+                                            placeholder="Add any comments..." onchange="checkForSeedlingChanges({{ $request->id }})"
                                             oninput="checkForSeedlingChanges({{ $request->id }})">{{ $request->remarks }}</textarea>
                                     </div>
                                 </form>
@@ -663,369 +659,392 @@
                     </div>
                 </div>
             @endforeach
-                    </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Add Seedling Request Modal -->
+    <div class="modal fade" id="addSeedlingModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-seedling me-2"></i>Add New Seedling Request
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addSeedlingForm" enctype="multipart/form-data">
+                        <!-- Personal Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="seedling_first_name" class="form-label">First Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="seedling_first_name" required
+                                            maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="seedling_middle_name" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="seedling_middle_name"
+                                            maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="seedling_last_name" class="form-label">Last Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="seedling_last_name" required
+                                            maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="seedling_extension" class="form-label">Extension</label>
+                                        <select class="form-select" id="seedling_extension">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="seedling_contact_number" class="form-label">Contact Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="seedling_contact_number" required
+                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="seedling_email" class="form-label">Email (Optional)</label>
+                                        <input type="email" class="form-control" id="seedling_email" maxlength="254">
+                                        <div class="form-text">For status notifications</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="seedling_user_id" class="form-label">Link to User Account
+                                            (Optional)</label>
+                                        <input type="number" class="form-control" id="seedling_user_id"
+                                            placeholder="Enter User ID if exists">
+                                        <div class="form-text">Leave blank if not associated with any user account</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="seedling_barangay" class="form-label">Barangay <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-select" id="seedling_barangay" required>
+                                            <option value="">Select Barangay</option>
+                                            <!-- Barangays will be populated from server data -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="seedling_address" class="form-label">Address <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="seedling_address" required
+                                            maxlength="500" placeholder="Full address">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Request Items -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="fas fa-leaf me-2"></i>Requested Items</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="addSeedlingItemRow()">
+                                        <i class="fas fa-plus me-1"></i>Add Item
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="seedling_items_container">
+                                    <!-- Item rows will be added here -->
+                                </div>
+                                <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Add at least one
+                                    item to the request</p>
+                            </div>
+                        </div>
+
+                        <!-- Supporting Document -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="seedling_supporting_document" class="form-label">Upload
+                                            Document</label>
+                                        <input type="file" class="form-control" id="seedling_supporting_document"
+                                            accept="image/*,.pdf"
+                                            onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
+                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="seedling_doc_preview" style="margin-top: 10px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-pencil-alt me-2"></i>Additional Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="seedling_planting_location" class="form-label">Planting
+                                            Location</label>
+                                        <input type="text" class="form-control" id="seedling_planting_location"
+                                            maxlength="500" placeholder="Where will the seedlings be planted?">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="seedling_preferred_delivery_date" class="form-label">Preferred
+                                            Delivery Date</label>
+                                        <input type="date" class="form-control" id="seedling_preferred_delivery_date">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="seedling_purpose" class="form-label">Purpose</label>
+                                    <textarea class="form-control" id="seedling_purpose" rows="3" maxlength="1000"
+                                        placeholder="Why are you requesting these seedlings?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Request Status -->
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Request Status</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="seedling_status" class="form-label">Initial Status <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="seedling_status" required>
+                                        <option value="pending" selected>Pending</option>
+                                        <option value="under_review">Under Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="partially_approved">Partially Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="seedling_remarks" class="form-label">Remarks (Optional)</label>
+                                    <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="500"
+                                        placeholder="Any notes or comments..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAddSeedling()">
+                        <i class="fas fa-save me-1"></i>Create Request
+                    </button>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Add Seedling Request Modal -->
-            <div class="modal fade" id="addSeedlingModal" tabindex="-1">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title">
-                                <i class="fas fa-seedling me-2"></i>Add New Seedling Request
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="addSeedlingForm" enctype="multipart/form-data">
-                                <!-- Personal Information -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-3 mb-3">
-                                                <label for="seedling_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="seedling_first_name" required maxlength="100">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="seedling_middle_name" class="form-label">Middle Name</label>
-                                                <input type="text" class="form-control" id="seedling_middle_name" maxlength="100">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="seedling_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="seedling_last_name" required maxlength="100">
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <label for="seedling_extension" class="form-label">Extension</label>
-                                                <select class="form-select" id="seedling_extension">
-                                                    <option value="">None</option>
-                                                    <option value="Jr.">Jr.</option>
-                                                    <option value="Sr.">Sr.</option>
-                                                    <option value="II">II</option>
-                                                    <option value="III">III</option>
-                                                    <option value="IV">IV</option>
-                                                    <option value="V">V</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-4 mb-3">
-                                                <label for="seedling_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                                <input type="tel" class="form-control" id="seedling_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                                <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="seedling_email" class="form-label">Email (Optional)</label>
-                                                <input type="email" class="form-control" id="seedling_email" maxlength="254">
-                                                <div class="form-text">For status notifications</div>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label for="seedling_user_id" class="form-label">Link to User Account (Optional)</label>
-                                                <input type="number" class="form-control" id="seedling_user_id" placeholder="Enter User ID if exists">
-                                                <div class="form-text">Leave blank if not associated with any user account</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Location Information -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="seedling_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
-                                                <select class="form-select" id="seedling_barangay" required>
-                                                    <option value="">Select Barangay</option>
-                                                    <!-- Barangays will be populated from server data -->
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="seedling_address" class="form-label">Address <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="seedling_address" required maxlength="500" placeholder="Full address">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Request Items -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h6 class="mb-0"><i class="fas fa-leaf me-2"></i>Requested Items</h6>
-                                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addSeedlingItemRow()">
-                                                <i class="fas fa-plus me-1"></i>Add Item
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="seedling_items_container">
-                                            <!-- Item rows will be added here -->
-                                        </div>
-                                        <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Add at least one item to the request</p>
-                                    </div>
-                                </div>
-
-                                <!-- Supporting Document -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="seedling_supporting_document" class="form-label">Upload Document</label>
-                                                <input type="file" class="form-control" id="seedling_supporting_document" accept="image/*,.pdf" onchange="previewSeedlingDocument('seedling_supporting_document', 'seedling_doc_preview')">
-                                                <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div id="seedling_doc_preview" style="margin-top: 10px;"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Additional Information -->
-                                <div class="card mb-3">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0"><i class="fas fa-pencil-alt me-2"></i>Additional Information</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="seedling_planting_location" class="form-label">Planting Location</label>
-                                                <input type="text" class="form-control" id="seedling_planting_location" maxlength="500" placeholder="Where will the seedlings be planted?">
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label for="seedling_preferred_delivery_date" class="form-label">Preferred Delivery Date</label>
-                                                <input type="date" class="form-control" id="seedling_preferred_delivery_date">
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="seedling_purpose" class="form-label">Purpose</label>
-                                            <textarea class="form-control" id="seedling_purpose" rows="3" maxlength="1000" placeholder="Why are you requesting these seedlings?"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Request Status -->
-                                <div class="card">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Request Status</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label for="seedling_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
-                                            <select class="form-select" id="seedling_status" required>
-                                                <option value="pending" selected>Pending</option>
-                                                <option value="under_review">Under Review</option>
-                                                <option value="approved">Approved</option>
-                                                <option value="partially_approved">Partially Approved</option>
-                                                <option value="rejected">Rejected</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="seedling_remarks" class="form-label">Remarks (Optional)</label>
-                                            <textarea class="form-control" id="seedling_remarks" rows="3" maxlength="500" placeholder="Any notes or comments..."></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" onclick="submitAddSeedling()">
-                                <i class="fas fa-save me-1"></i>Create Request
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pagination -->
-            @if ($requests->hasPages())
-                <div class="d-flex justify-content-center mt-4">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination pagination-sm">
-                            {{-- Previous Page Link --}}
-                            @if ($requests->onFirstPage())
-                                <li class="page-item disabled">
-                                    <span class="page-link">Back</span>
-                                </li>
-                            @else
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $requests->previousPageUrl() }}"
-                                        rel="prev">Back</a>
-                                </li>
-                            @endif
-
-                            {{-- Pagination Elements --}}
-                            @php
-                                $currentPage = $requests->currentPage();
-                                $lastPage = $requests->lastPage();
-                                $startPage = max(1, $currentPage - 2);
-                                $endPage = min($lastPage, $currentPage + 2);
-
-                                if ($endPage - $startPage < 4) {
-                                    if ($startPage == 1) {
-                                        $endPage = min($lastPage, $startPage + 4);
-                                    } else {
-                                        $startPage = max(1, $endPage - 4);
-                                    }
-                                }
-                            @endphp
-
-                            @for ($page = $startPage; $page <= $endPage; $page++)
-                                @if ($page == $currentPage)
-                                    <li class="page-item active">
-                                        <span class="page-link bg-primary border-primary">{{ $page }}</span>
-                                    </li>
-                                @else
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $requests->url($page) }}">{{ $page }}</a>
-                                    </li>
-                                @endif
-                            @endfor
-
-                            {{-- Next Page Link --}}
-                            @if ($requests->hasMorePages())
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $requests->nextPageUrl() }}" rel="next">Next</a>
-                                </li>
-                            @else
-                                <li class="page-item disabled">
-                                    <span class="page-link">Next</span>
-                                </li>
-                            @endif
-                        </ul>
-                    </nav>
-                </div>
-            @endif
-        @else
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No seedling requests found</h5>
-                    <p class="text-muted">
-                        @if (request('search') || request('status'))
-                            No requests match your search criteria.
-                        @else
-                            There are no seedling requests yet.
-                        @endif
-                    </p>
-                    @if (request('search') || request('status'))
-                        <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-times"></i> Clear Filters
-                        </a>
+    <!-- Pagination -->
+    @if ($requests->hasPages())
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm">
+                    {{-- Previous Page Link --}}
+                    @if ($requests->onFirstPage())
+                        <li class="page-item disabled">
+                            <span class="page-link">Back</span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $requests->previousPageUrl() }}" rel="prev">Back</a>
+                        </li>
                     @endif
-                </div>
-            </div>
-        @endif
 
-        <!-- Date Filter Modal -->
-        <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-info text-white">
-                        <h5 class="modal-title" id="dateFilterModalLabel">
-                            <i class="fas fa-calendar-alt me-2"></i>Select Date Range
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row g-4">
-                            <!-- Date Range Inputs -->
-                            <div class="col-md-6">
-                                <div class="card border-0 bg-light h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title text-primary mb-3">
-                                            <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
-                                        </h6>
-                                        <div class="mb-3">
-                                            <label for="modal_date_from" class="form-label">From Date</label>
-                                            <input type="date" id="modal_date_from" class="form-control"
-                                                value="{{ request('date_from') }}">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="modal_date_to" class="form-label">To Date</label>
-                                            <input type="date" id="modal_date_to" class="form-control"
-                                                value="{{ request('date_to') }}">
-                                        </div>
-                                        <button type="button" class="btn btn-primary w-100"
-                                            onclick="applyCustomDateRange()">
-                                            <i class="fas fa-check me-2"></i>Apply Custom Range
+                    {{-- Pagination Elements --}}
+                    @php
+                        $currentPage = $requests->currentPage();
+                        $lastPage = $requests->lastPage();
+                        $startPage = max(1, $currentPage - 2);
+                        $endPage = min($lastPage, $currentPage + 2);
+
+                        if ($endPage - $startPage < 4) {
+                            if ($startPage == 1) {
+                                $endPage = min($lastPage, $startPage + 4);
+                            } else {
+                                $startPage = max(1, $endPage - 4);
+                            }
+                        }
+                    @endphp
+
+                    @for ($page = $startPage; $page <= $endPage; $page++)
+                        @if ($page == $currentPage)
+                            <li class="page-item active">
+                                <span class="page-link bg-primary border-primary">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $requests->url($page) }}">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endfor
+
+                    {{-- Next Page Link --}}
+                    @if ($requests->hasMorePages())
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $requests->nextPageUrl() }}" rel="next">Next</a>
+                        </li>
+                    @else
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
+        </div>
+    @endif
+@else
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No seedling requests found</h5>
+            <p class="text-muted">
+                @if (request('search') || request('status'))
+                    No requests match your search criteria.
+                @else
+                    There are no seedling requests yet.
+                @endif
+            </p>
+            @if (request('search') || request('status'))
+                <a href="{{ route('admin.seedlings.requests') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-times"></i> Clear Filters
+                </a>
+            @endif
+        </div>
+    </div>
+    @endif
+
+    <!-- Date Filter Modal -->
+    <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="dateFilterModalLabel">
+                        <i class="fas fa-calendar-alt me-2"></i>Select Date Range
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <!-- Date Range Inputs -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-calendar-plus me-2"></i>Custom Date Range
+                                    </h6>
+                                    <div class="mb-3">
+                                        <label for="modal_date_from" class="form-label">From Date</label>
+                                        <input type="date" id="modal_date_from" class="form-control"
+                                            value="{{ request('date_from') }}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="modal_date_to" class="form-label">To Date</label>
+                                        <input type="date" id="modal_date_to" class="form-control"
+                                            value="{{ request('date_to') }}">
+                                    </div>
+                                    <button type="button" class="btn btn-primary w-100"
+                                        onclick="applyCustomDateRange()">
+                                        <i class="fas fa-check me-2"></i>Apply Custom Range
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Date Presets -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary mb-3">
+                                        <i class="fas fa-clock me-2"></i>Quick Presets
+                                    </h6>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-success"
+                                            onclick="setDateRangeModal('today')">
+                                            <i class="fas fa-calendar-day me-2"></i>Today
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info"
+                                            onclick="setDateRangeModal('week')">
+                                            <i class="fas fa-calendar-week me-2"></i>This Week
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning"
+                                            onclick="setDateRangeModal('month')">
+                                            <i class="fas fa-calendar me-2"></i>This Month
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            onclick="setDateRangeModal('year')">
+                                            <i class="fas fa-calendar-alt me-2"></i>This Year
+                                        </button>
+                                        <hr class="my-3">
+                                        <button type="button" class="btn btn-outline-secondary w-100"
+                                            onclick="clearDateRangeModal()">
+                                            <i class="fas fa-times me-2"></i>Clear Date Filter
                                         </button>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Quick Date Presets -->
-                            <div class="col-md-6">
-                                <div class="card border-0 bg-light h-100">
-                                    <div class="card-body">
-                                        <h6 class="card-title text-primary mb-3">
-                                            <i class="fas fa-clock me-2"></i>Quick Presets
-                                        </h6>
-                                        <div class="d-grid gap-2">
-                                            <button type="button" class="btn btn-outline-success"
-                                                onclick="setDateRangeModal('today')">
-                                                <i class="fas fa-calendar-day me-2"></i>Today
-                                            </button>
-                                            <button type="button" class="btn btn-outline-info"
-                                                onclick="setDateRangeModal('week')">
-                                                <i class="fas fa-calendar-week me-2"></i>This Week
-                                            </button>
-                                            <button type="button" class="btn btn-outline-warning"
-                                                onclick="setDateRangeModal('month')">
-                                                <i class="fas fa-calendar me-2"></i>This Month
-                                            </button>
-                                            <button type="button" class="btn btn-outline-primary"
-                                                onclick="setDateRangeModal('year')">
-                                                <i class="fas fa-calendar-alt me-2"></i>This Year
-                                            </button>
-                                            <hr class="my-3">
-                                            <button type="button" class="btn btn-outline-secondary w-100"
-                                                onclick="clearDateRangeModal()">
-                                                <i class="fas fa-times me-2"></i>Clear Date Filter
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
+                    </div>
 
-                        <!-- Current Filter Status -->
-                        <div class="row mt-3">
-                            <div class="col-12">
-                                <div class="alert alert-info mb-0">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    <span id="dateFilterStatus">
-                                        @if (request('date_from') || request('date_to'))
-                                            Current filter:
-                                            @if (request('date_from'))
-                                                From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
-                                            @endif
-                                            @if (request('date_to'))
-                                                To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
-                                            @endif
-                                        @else
-                                            No date filter applied - showing all requests
+                    <!-- Current Filter Status -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <span id="dateFilterStatus">
+                                    @if (request('date_from') || request('date_to'))
+                                        Current filter:
+                                        @if (request('date_from'))
+                                            From {{ \Carbon\Carbon::parse(request('date_from'))->format('M d, Y') }}
                                         @endif
-                                    </span>
-                                </div>
+                                        @if (request('date_to'))
+                                            To {{ \Carbon\Carbon::parse(request('date_to'))->format('M d, Y') }}
+                                        @endif
+                                    @else
+                                        No date filter applied - showing all requests
+                                    @endif
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <style>
@@ -1243,7 +1262,7 @@
             position: relative;
         }
 
-        
+
         /* Toast Notification Container */
         .toast-container {
             position: fixed;
@@ -1388,182 +1407,182 @@
         }
 
         /* SEEDLING-Style Table Document Previews */
-    .seedling-table-documents {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 0;
-    }
+        .seedling-table-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
 
-    .seedling-document-previews {
-        display: flex;
-        gap: 0.25rem;
-        align-items: center;
-    }
+        .seedling-document-previews {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
 
-    .seedling-mini-doc {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        background: white;
-        border: 2px solid #28a745;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .seedling-mini-doc:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        border-color: #28a745;
-    }
-
-    .seedling-mini-doc-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.875rem;
-    }
-
-    .seedling-document-summary {
-        cursor: pointer;
-        transition: color 0.2s ease;
-    }
-
-    .seedling-document-summary:hover {
-        color: #28a745 !important;
-    }
-
-    .seedling-document-summary:hover small {
-        color: #28a745 !important;
-    }
-
-    .seedling-no-documents {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.25rem;
-        padding: 0.5rem;
-        opacity: 0.7;
-    }
-
-    .seedling-no-documents i {
-        font-size: 1.25rem;
-    }
-
-    /* Responsive adjustments for table documents */
-    @media (max-width: 768px) {
         .seedling-mini-doc {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: white;
+            border: 2px solid #28a745;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .seedling-mini-doc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-color: #28a745;
         }
 
         .seedling-mini-doc-icon {
-            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
         }
-    }
 
-  /* Form Change Detection Styles */
-.form-changed {
-    background-color: #fff3cd !important;
-    border-left: 3px solid #ffc107 !important;
-    transition: all 0.2s ease;
-}
+        .seedling-document-summary {
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
 
-.change-indicator {
-    position: relative;
-    display: block;
-}
+        .seedling-document-summary:hover {
+            color: #28a745 !important;
+        }
 
-.change-indicator::after {
-    content: "●";
-    color: #ffc107;
-    font-size: 12px;
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-}
+        .seedling-document-summary:hover small {
+            color: #28a745 !important;
+        }
 
-.change-indicator.changed::after {
-    opacity: 1;
-}
+        .seedling-no-documents {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            opacity: 0.7;
+        }
 
-/* Button "No Changes" State */
-.no-changes {
-    opacity: 0.65 !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
-}
+        .seedling-no-documents i {
+            font-size: 1.25rem;
+        }
 
-.no-changes:hover,
-.no-changes:focus,
-.no-changes:active {
-    background-color: inherit !important;
-    border-color: inherit !important;
-    box-shadow: none !important;
-}
+        /* Responsive adjustments for table documents */
+        @media (max-width: 768px) {
+            .seedling-mini-doc {
+                width: 28px;
+                height: 28px;
+            }
 
-/* Item card change highlight */
-.item-card.form-changed {
-    background: #fff3cd !important;
-    border: 1px solid #ffc107 !important;
-    transition: all 0.2s ease;
-}
+            .seedling-mini-doc-icon {
+                font-size: 0.75rem;
+            }
+        }
 
-.item-card.form-changed:hover {
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2) !important;
-}
+        /* Form Change Detection Styles */
+        .form-changed {
+            background-color: #fff3cd !important;
+            border-left: 3px solid #ffc107 !important;
+            transition: all 0.2s ease;
+        }
 
-/* Remarks textarea change highlight */
-textarea.form-changed {
-    border-color: #ffc107 !important;
-    background-color: #fff3cd !important;
-    transition: all 0.2s ease;
-}
+        .change-indicator {
+            position: relative;
+            display: block;
+        }
 
-textarea.form-changed:focus {
-    border-color: #ffc107 !important;
-    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
-    background-color: #fff3cd !important;
-}
+        .change-indicator::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .change-indicator.changed::after {
+            opacity: 1;
+        }
+
+        /* Button "No Changes" State */
+        .no-changes {
+            opacity: 0.65 !important;
+            cursor: not-allowed !important;
+            pointer-events: none !important;
+        }
+
+        .no-changes:hover,
+        .no-changes:focus,
+        .no-changes:active {
+            background-color: inherit !important;
+            border-color: inherit !important;
+            box-shadow: none !important;
+        }
+
+        /* Item card change highlight */
+        .item-card.form-changed {
+            background: #fff3cd !important;
+            border: 1px solid #ffc107 !important;
+            transition: all 0.2s ease;
+        }
+
+        .item-card.form-changed:hover {
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2) !important;
+        }
+
+        /* Remarks textarea change highlight */
+        textarea.form-changed {
+            border-color: #ffc107 !important;
+            background-color: #fff3cd !important;
+            transition: all 0.2s ease;
+        }
+
+        textarea.form-changed:focus {
+            border-color: #ffc107 !important;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
+            background-color: #fff3cd !important;
+        }
     </style>
 
     <script>
-let searchTimeout;
+        let searchTimeout;
 
-// Auto search functionality
-function autoSearch() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        document.getElementById('filterForm').submit();
-    }, 500); // Wait 500ms after user stops typing
-}
+        // Auto search functionality
+        function autoSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500); // Wait 500ms after user stops typing
+        }
 
-// Submit filter form when dropdowns change
-function submitFilterForm() {
-    document.getElementById('filterForm').submit();
-}
+        // Submit filter form when dropdowns change
+        function submitFilterForm() {
+            document.getElementById('filterForm').submit();
+        }
 
-// View document function
-function viewDocument(path, filename = null, applicationId = null) {
-    // Input validation
-    if (!path || path.trim() === '') {
-        showToast('error', 'No document path provided');
-        return;
-    }
+        // View document function
+        function viewDocument(path, filename = null, applicationId = null) {
+            // Input validation
+            if (!path || path.trim() === '') {
+                showToast('error', 'No document path provided');
+                return;
+            }
 
-    // Create modal if it doesn't exist
-    if (!document.getElementById('documentModal')) {
-        const modalHTML = `
+            // Create modal if it doesn't exist
+            if (!document.getElementById('documentModal')) {
+                const modalHTML = `
             <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered">
                     <div class="modal-content">
@@ -1585,14 +1604,14 @@ function viewDocument(path, filename = null, applicationId = null) {
                 </div>
             </div>
         `;
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-    }
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+            }
 
-    const documentViewer = document.getElementById('documentViewer');
-    const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+            const documentViewer = document.getElementById('documentViewer');
+            const modal = new bootstrap.Modal(document.getElementById('documentModal'));
 
-    // Show loading state first
-    documentViewer.innerHTML = `
+            // Show loading state first
+            documentViewer.innerHTML = `
         <div class="text-center py-5">
             <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                 <span class="visually-hidden">Loading...</span>
@@ -1600,31 +1619,31 @@ function viewDocument(path, filename = null, applicationId = null) {
             <p class="text-muted">Loading document...</p>
         </div>`;
 
-    // Show modal immediately with loading state
-    modal.show();
+            // Show modal immediately with loading state
+            modal.show();
 
-    // Update modal title if filename is provided
-    const modalTitle = document.querySelector('#documentModal .modal-title');
-    if (filename) {
-        modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
-    } else {
-        modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
-    }
+            // Update modal title if filename is provided
+            const modalTitle = document.querySelector('#documentModal .modal-title');
+            if (filename) {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>${filename}`;
+            } else {
+                modalTitle.innerHTML = `<i class="fas fa-file-alt me-2"></i>Supporting Document`;
+            }
 
-    // Extract file extension and name
-    const fileExtension = path.split('.').pop().toLowerCase();
-    const fileName = filename || path.split('/').pop();
-    const fileUrl = `/storage/${path}`;
+            // Extract file extension and name
+            const fileExtension = path.split('.').pop().toLowerCase();
+            const fileName = filename || path.split('/').pop();
+            const fileUrl = `/storage/${path}`;
 
-    // Define supported file types
-    const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-    const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
-    const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
-    const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+            // Define supported file types
+            const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+            const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+            const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
 
-    // Function to add download button
-    const addDownloadButton = () => {
-        return `
+            // Function to add download button
+            const addDownloadButton = () => {
+                return `
             <div class="text-center mt-3 p-3 bg-light">
                 <div class="d-flex justify-content-center gap-2">
                     <a href="${fileUrl}" target="_blank" class="btn btn-outline-primary btn-sm">
@@ -1636,16 +1655,16 @@ function viewDocument(path, filename = null, applicationId = null) {
                 </div>
                 <small class="text-muted">File: ${fileName} (${fileExtension.toUpperCase()})</small>
             </div>`;
-    };
+            };
 
-    // Handle different file types
-    setTimeout(() => {
-        try {
-            if (imageTypes.includes(fileExtension)) {
-                // Handle images
-                const img = new Image();
-                img.onload = function() {
-                    documentViewer.innerHTML = `
+            // Handle different file types
+            setTimeout(() => {
+                try {
+                    if (imageTypes.includes(fileExtension)) {
+                        // Handle images
+                        const img = new Image();
+                        img.onload = function() {
+                            documentViewer.innerHTML = `
                         <div class="text-center p-3">
                             <div class="position-relative d-inline-block">
                                 <img src="${fileUrl}"
@@ -1659,9 +1678,9 @@ function viewDocument(path, filename = null, applicationId = null) {
                             </div>
                             ${addDownloadButton()}
                         </div>`;
-                };
-                img.onerror = function() {
-                    documentViewer.innerHTML = `
+                        };
+                        img.onerror = function() {
+                            documentViewer.innerHTML = `
                         <div class="alert alert-warning text-center m-3">
                             <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
                             <h5>Unable to Load Image</h5>
@@ -1676,12 +1695,12 @@ function viewDocument(path, filename = null, applicationId = null) {
                             </div>
                             <small class="text-muted d-block mt-2">File: ${fileName}</small>
                         </div>`;
-                };
-                img.src = fileUrl;
+                        };
+                        img.src = fileUrl;
 
-            } else if (fileExtension === 'pdf') {
-                // Handle PDF documents
-                documentViewer.innerHTML = `
+                    } else if (fileExtension === 'pdf') {
+                        // Handle PDF documents
+                        documentViewer.innerHTML = `
                     <div class="pdf-container p-3">
                         <embed src="${fileUrl}"
                             type="application/pdf"
@@ -1691,11 +1710,11 @@ function viewDocument(path, filename = null, applicationId = null) {
                         ${addDownloadButton()}
                     </div>`;
 
-                // Check if PDF loaded successfully after a short delay
-                setTimeout(() => {
-                    const embed = documentViewer.querySelector('embed');
-                    if (!embed || embed.offsetHeight === 0) {
-                        documentViewer.innerHTML = `
+                        // Check if PDF loaded successfully after a short delay
+                        setTimeout(() => {
+                            const embed = documentViewer.querySelector('embed');
+                            if (!embed || embed.offsetHeight === 0) {
+                                documentViewer.innerHTML = `
                             <div class="alert alert-info text-center m-3">
                                 <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
                                 <h5>PDF Preview Unavailable</h5>
@@ -1710,12 +1729,12 @@ function viewDocument(path, filename = null, applicationId = null) {
                                 </div>
                                 <small class="text-muted d-block mt-2">File: ${fileName}</small>
                             </div>`;
-                    }
-                }, 2000);
+                            }
+                        }, 2000);
 
-            } else if (videoTypes.includes(fileExtension)) {
-                // Handle video files
-                documentViewer.innerHTML = `
+                    } else if (videoTypes.includes(fileExtension)) {
+                        // Handle video files
+                        documentViewer.innerHTML = `
                     <div class="text-center p-3">
                         <video controls class="w-100" style="max-height: 70vh;" preload="metadata">
                             <source src="${fileUrl}" type="video/${fileExtension}">
@@ -1724,9 +1743,9 @@ function viewDocument(path, filename = null, applicationId = null) {
                         ${addDownloadButton()}
                     </div>`;
 
-            } else if (audioTypes.includes(fileExtension)) {
-                // Handle audio files
-                documentViewer.innerHTML = `
+                    } else if (audioTypes.includes(fileExtension)) {
+                        // Handle audio files
+                        documentViewer.innerHTML = `
                     <div class="text-center py-5">
                         <i class="fas fa-music fa-4x text-info mb-3"></i>
                         <h5>Audio File</h5>
@@ -1737,12 +1756,12 @@ function viewDocument(path, filename = null, applicationId = null) {
                         ${addDownloadButton()}
                     </div>`;
 
-            } else if (documentTypes.includes(fileExtension)) {
-                // Handle other document types
-                const docIcon = fileExtension === 'pdf' ? 'file-pdf' : 
-                            ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+                    } else if (documentTypes.includes(fileExtension)) {
+                        // Handle other document types
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
+                            fileExtension) ? 'file-word' : 'file-alt';
 
-                documentViewer.innerHTML = `
+                        documentViewer.innerHTML = `
                     <div class="alert alert-info text-center m-3">
                         <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
                         <h5>${fileExtension.toUpperCase()} Document</h5>
@@ -1758,9 +1777,9 @@ function viewDocument(path, filename = null, applicationId = null) {
                         <small class="text-muted d-block mt-2">File: ${fileName}</small>
                     </div>`;
 
-            } else {
-                // Handle unsupported file types
-                documentViewer.innerHTML = `
+                    } else {
+                        // Handle unsupported file types
+                        documentViewer.innerHTML = `
                     <div class="alert alert-warning text-center m-3">
                         <i class="fas fa-file fa-4x text-warning mb-3"></i>
                         <h5>Unsupported File Type</h5>
@@ -1775,10 +1794,10 @@ function viewDocument(path, filename = null, applicationId = null) {
                         </div>
                         <small class="text-muted d-block mt-2">File: ${fileName}</small>
                     </div>`;
-            }
-        } catch (error) {
-            console.error('Error processing document:', error);
-            documentViewer.innerHTML = `
+                    }
+                } catch (error) {
+                    console.error('Error processing document:', error);
+                    documentViewer.innerHTML = `
                 <div class="alert alert-danger text-center m-3">
                     <i class="fas fa-exclamation-circle fa-3x text-danger mb-3"></i>
                     <h5>Error Loading Document</h5>
@@ -1792,141 +1811,153 @@ function viewDocument(path, filename = null, applicationId = null) {
                         </a>
                     </div>
                 </div>`;
+                }
+            }, 500);
         }
-    }, 500);
-}
 
-// Helper function to toggle image zoom
-function toggleImageZoom(img) {
-    if (img.style.transform === 'scale(2)') {
-        img.style.transform = 'scale(1)';
-        img.style.cursor = 'zoom-in';
-        img.style.transition = 'transform 0.3s ease';
-    } else {
-        img.style.transform = 'scale(2)';
-        img.style.cursor = 'zoom-out';
-        img.style.transition = 'transform 0.3s ease';
-        img.style.zIndex = '1050';
-    }
-}
-
-// Date Filter Functions
-function setDateRangeModal(period) {
-    const today = new Date();
-    let startDate, endDate;
-
-    switch (period) {
-        case 'today':
-            startDate = endDate = today;
-            break;
-        case 'week':
-            startDate = new Date(today);
-            startDate.setDate(today.getDate() - today.getDay());
-            endDate = new Date(startDate);
-            endDate.setDate(startDate.getDate() + 6);
-            break;
-        case 'month':
-            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-            endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            break;
-        case 'year':
-            startDate = new Date(today.getFullYear(), 0, 1);
-            endDate = new Date(today.getFullYear(), 11, 31);
-            break;
-    }
-
-    const startDateStr = startDate.toISOString().split('T')[0];
-    const endDateStr = endDate.toISOString().split('T')[0];
-
-    document.getElementById('modal_date_from').value = startDateStr;
-    document.getElementById('modal_date_to').value = endDateStr;
-
-    applyDateFilter(startDateStr, endDateStr);
-}
-
-function applyCustomDateRange() {
-    const dateFrom = document.getElementById('modal_date_from').value;
-    const dateTo = document.getElementById('modal_date_to').value;
-
-    if (dateFrom && dateTo && dateFrom > dateTo) {
-        showToast('warning', 'From date cannot be later than To date');
-        return;
-    }
-
-    applyDateFilter(dateFrom, dateTo);
-}
-
-function applyDateFilter(dateFrom, dateTo) {
-    document.getElementById('date_from').value = dateFrom;
-    document.getElementById('date_to').value = dateTo;
-
-    updateDateFilterStatus(dateFrom, dateTo);
-
-    const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
-    if (modal) modal.hide();
-
-    submitFilterForm();
-}
-
-function clearDateRangeModal() {
-    document.getElementById('modal_date_from').value = '';
-    document.getElementById('modal_date_to').value = '';
-    applyDateFilter('', '');
-}
-
-function updateDateFilterStatus(dateFrom, dateTo) {
-    const statusElement = document.getElementById('dateFilterStatus');
-    if (!dateFrom && !dateTo) {
-        statusElement.innerHTML = 'No date filter applied - showing all requests';
-    } else {
-        let statusText = 'Current filter: ';
-        if (dateFrom) {
-            const fromDate = new Date(dateFrom).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-            statusText += `From ${fromDate} `;
+        // Helper function to toggle image zoom
+        function toggleImageZoom(img) {
+            if (img.style.transform === 'scale(2)') {
+                img.style.transform = 'scale(1)';
+                img.style.cursor = 'zoom-in';
+                img.style.transition = 'transform 0.3s ease';
+            } else {
+                img.style.transform = 'scale(2)';
+                img.style.cursor = 'zoom-out';
+                img.style.transition = 'transform 0.3s ease';
+                img.style.zIndex = '1050';
+            }
         }
-        if (dateTo) {
-            const toDate = new Date(dateTo).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-            statusText += `To ${toDate}`;
+
+        // Date Filter Functions
+        function setDateRangeModal(period) {
+            const today = new Date();
+            let startDate, endDate;
+
+            switch (period) {
+                case 'today':
+                    startDate = endDate = today;
+                    break;
+                case 'week':
+                    startDate = new Date(today);
+                    startDate.setDate(today.getDate() - today.getDay());
+                    endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + 6);
+                    break;
+                case 'month':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    break;
+                case 'year':
+                    startDate = new Date(today.getFullYear(), 0, 1);
+                    endDate = new Date(today.getFullYear(), 11, 31);
+                    break;
+            }
+
+            const startDateStr = startDate.toISOString().split('T')[0];
+            const endDateStr = endDate.toISOString().split('T')[0];
+
+            document.getElementById('modal_date_from').value = startDateStr;
+            document.getElementById('modal_date_to').value = endDateStr;
+
+            applyDateFilter(startDateStr, endDateStr);
         }
-        statusElement.innerHTML = statusText;
-    }
-}
 
-function createToastContainer() {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
-    return container;
-}
+        function applyCustomDateRange() {
+            const dateFrom = document.getElementById('modal_date_from').value;
+            const dateTo = document.getElementById('modal_date_to').value;
 
-// Basic toast notification
-function showToast(type, message) {
-    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            if (dateFrom && dateTo && dateFrom > dateTo) {
+                showToast('warning', 'From date cannot be later than To date');
+                return;
+            }
 
-    const iconMap = {
-        'success': { icon: 'fas fa-check-circle', color: 'success' },
-        'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
-        'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
-        'info': { icon: 'fas fa-info-circle', color: 'info' }
-    };
+            applyDateFilter(dateFrom, dateTo);
+        }
 
-    const config = iconMap[type] || iconMap['info'];
+        function applyDateFilter(dateFrom, dateTo) {
+            document.getElementById('date_from').value = dateFrom;
+            document.getElementById('date_to').value = dateTo;
 
-    const toast = document.createElement('div');
-    toast.className = `toast-notification toast-${type}`;
-    toast.innerHTML = `
+            updateDateFilterStatus(dateFrom, dateTo);
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('dateFilterModal'));
+            if (modal) modal.hide();
+
+            submitFilterForm();
+        }
+
+        function clearDateRangeModal() {
+            document.getElementById('modal_date_from').value = '';
+            document.getElementById('modal_date_to').value = '';
+            applyDateFilter('', '');
+        }
+
+        function updateDateFilterStatus(dateFrom, dateTo) {
+            const statusElement = document.getElementById('dateFilterStatus');
+            if (!dateFrom && !dateTo) {
+                statusElement.innerHTML = 'No date filter applied - showing all requests';
+            } else {
+                let statusText = 'Current filter: ';
+                if (dateFrom) {
+                    const fromDate = new Date(dateFrom).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `From ${fromDate} `;
+                }
+                if (dateTo) {
+                    const toDate = new Date(dateTo).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    statusText += `To ${toDate}`;
+                }
+                statusElement.innerHTML = statusText;
+            }
+        }
+
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Basic toast notification
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
         <div class="toast-content">
             <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
             <span>${message}</span>
@@ -1934,27 +1965,27 @@ function showToast(type, message) {
         </div>
     `;
 
-    toastContainer.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 10);
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
 
-    setTimeout(() => {
-        if (document.contains(toast)) {
-            removeToast(toast);
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
         }
-    }, 5000);
-}
 
-// Confirmation toast with 8 second auto-dismiss
-function showConfirmationToast(title, message, onConfirm) {
-    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+        // Confirmation toast with 8 second auto-dismiss
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification confirmation-toast';
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
 
-    toast.dataset.confirmCallback = Math.random().toString(36);
-    window[toast.dataset.confirmCallback] = onConfirm;
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
 
-    toast.innerHTML = `
+            toast.innerHTML = `
         <div class="toast-header" style="background-color: #f8f9fa; border-bottom: 1px solid #e9ecef; padding: 12px 16px; display: flex; align-items: center; font-weight: 600;">
             <i class="fas fa-question-circle me-2 text-warning"></i>
             <strong class="me-auto">${title}</strong>
@@ -1973,495 +2004,533 @@ function showConfirmationToast(title, message, onConfirm) {
         </div>
     `;
 
-    toastContainer.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 10);
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
 
-    setTimeout(() => {
-        if (document.contains(toast)) {
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 8000);
+        }
+
+        // Execute confirmation action
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
+            }
+
+            delete window[callbackId];
             removeToast(toast);
         }
-    }, 8000);
-}
 
-// Execute confirmation action
-function confirmToastAction(button) {
-    const toast = button.closest('.toast-notification');
-    const callbackId = toast.dataset.confirmCallback;
-    const callback = window[callbackId];
-
-    if (typeof callback === 'function') {
-        try {
-            callback();
-        } catch (error) {
-            console.error('Error executing confirmation callback:', error);
-        }
-    }
-
-    delete window[callbackId];
-    removeToast(toast);
-}
-
-// Remove toast notification
-function removeToast(toastElement) {
-    toastElement.classList.remove('show');
-    setTimeout(() => {
-        if (toastElement.parentElement) {
-            toastElement.remove();
-        }
-    }, 300);
-}
-
-// Get CSRF token utility function
-function getCSRFToken() {
-    const metaTag = document.querySelector('meta[name="csrf-token"]');
-    return metaTag ? metaTag.getAttribute('content') : '';
-}
-
-// Delete seedling request with confirmation toast
-function deleteSeedlingRequest(id, requestNumber) {
-    showConfirmationToast(
-        'Delete Seedling Request',
-        `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
-        () => proceedWithSeedlingDelete(id, requestNumber)
-    );
-}
-
-// Proceed with seedling request deletion
-function proceedWithSeedlingDelete(id, requestNumber) {
-    fetch(`/admin/seedlings/requests/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRF-TOKEN': getCSRFToken(),
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            showToast('success', data.message || 'Seedling request deleted successfully');
-            
-            const row = document.querySelector(`tr[data-request-id="${id}"]`);
-            if (row) {
-                row.style.transition = 'opacity 0.3s ease';
-                row.style.opacity = '0';
-                setTimeout(() => {
-                    row.remove();
-                    
-                    const tbody = document.querySelector('table tbody');
-                    if (tbody && tbody.children.length === 0) {
-                        setTimeout(() => window.location.reload(), 1500);
-                    }
-                }, 300);
-            } else {
-                setTimeout(() => window.location.reload(), 1500);
-            }
-        } else {
-            throw new Error(data.message || 'Failed to delete seedling request');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('error', 'Failed to delete seedling request: ' + error.message);
-    });
-}
-
-// Initialize the update modal with original values
-function initializeSeedlingUpdateModal(requestId) {
-    const form = document.getElementById('updateForm' + requestId);
-    const remarksTextarea = document.getElementById('remarks' + requestId);
-    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-    const submitButton = document.getElementById('submitBtn' + requestId);
-    
-    // Store original remarks value
-    if (remarksTextarea) {
-        remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
-    }
-    
-    // DON'T overwrite originalStatus - it's already set in Blade template
-    // Just ensure item cards keep their data-original-status from the server
-    
-    // Clear any previous change indicators
-    if (remarksTextarea) {
-        remarksTextarea.classList.remove('form-changed');
-    }
-    
-    statusSelects.forEach(select => {
-        select.classList.remove('form-changed');
-        const itemCard = select.closest('.item-card');
-        if (itemCard) {
-            itemCard.classList.remove('form-changed');
-        }
-    });
-    
-    // Reset button state to "No Changes"
-    if (submitButton) {
-        submitButton.classList.add('no-changes');
-        submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-        submitButton.disabled = true;
-    }
-}
-
-// Open update modal and initialize
-function openUpdateModal(requestId) {
-    const modal = new bootstrap.Modal(document.getElementById('updateModal' + requestId));
-    modal.show();
-}
-
-// Check for changes and update button/visual states
-function checkForSeedlingChanges(requestId) {
-    const form = document.getElementById('updateForm' + requestId);
-    if (!form) return;
-    
-    const remarksTextarea = document.getElementById('remarks' + requestId);
-    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-    const submitButton = document.getElementById('submitBtn' + requestId);
-    
-    let hasChanges = false;
-    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
-    
-    // Check remarks for changes
-    if (remarksTextarea) {
-        const remarksChanged = remarksTextarea.value.trim() !== originalRemarks.trim();
-        
-        if (remarksChanged) {
-            hasChanges = true;
-            remarksTextarea.classList.add('form-changed');
-        } else {
-            remarksTextarea.classList.remove('form-changed');
-        }
-    }
-    
-    // Check item statuses for changes - USE ITEM CARD DATA ATTRIBUTE
-    statusSelects.forEach(select => {
-        const itemCard = select.closest('.item-card');
-        const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
-        
-        if (select.value !== originalStatus) {
-            hasChanges = true;
-            if (itemCard) {
-                itemCard.classList.add('form-changed');
-            }
-        } else {
-            if (itemCard) {
-                itemCard.classList.remove('form-changed');
-            }
-        }
-    });
-    
-    // Update button state based on changes
-    if (submitButton) {
-        if (hasChanges) {
-            submitButton.classList.remove('no-changes');
-            submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
-            submitButton.disabled = false;
-        } else {
-            submitButton.classList.add('no-changes');
-            submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-            submitButton.disabled = true;
-        }
-    }
-}
-
-// Handle update form submission with confirmation
-function handleSeedlingUpdateSubmit(requestId) {
-    const form = document.getElementById('updateForm' + requestId);
-    
-    if (!form) {
-        console.error('Form not found:', 'updateForm' + requestId);
-        showToast('error', 'Form not found. Please try again.');
-        return;
-    }
-    
-    console.log('=== DEBUG: Form Submission Started ===');
-    console.log('Request ID:', requestId);
-    console.log('Form found:', !!form);
-    console.log('Form action:', form.getAttribute('action'));
-    console.log('Form method:', form.getAttribute('method'));
-    
-    const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
-    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-    
-    console.log('Remarks textarea found:', !!remarksTextarea);
-    console.log('Status selects found:', statusSelects.length);
-    
-    let hasChanges = false;
-    let changesSummary = [];
-    
-    // Check for changes in item statuses
-    statusSelects.forEach((select, index) => {
-        const itemCard = select.closest('.item-card');
-        const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
-        const currentStatus = select.value;
-        
-        console.log(`Item ${index + 1}:`, {
-            original: originalStatus,
-            current: currentStatus,
-            different: currentStatus !== originalStatus
-        });
-        
-        if (currentStatus !== originalStatus) {
-            hasChanges = true;
-            const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
-            const oldStatusText = getStatusText(originalStatus);
-            const newStatusText = getStatusText(currentStatus);
-            changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
-        }
-    });
-    
-    // Check for changes in remarks
-    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
-    const currentRemarks = remarksTextarea?.value || '';
-    
-    console.log('Remarks:', {
-        original: originalRemarks,
-        current: currentRemarks,
-        hasChanged: currentRemarks.trim() !== originalRemarks.trim()
-    });
-    
-    if (remarksTextarea && currentRemarks.trim() !== originalRemarks.trim()) {
-        hasChanges = true;
-        if (originalRemarks.trim() === '') {
-            changesSummary.push('Remarks: Added new remarks');
-        } else if (currentRemarks.trim() === '') {
-            changesSummary.push('Remarks: Removed remarks');
-        } else {
-            changesSummary.push('Remarks: Modified');
-        }
-    }
-    
-    console.log('Has changes:', hasChanges);
-    console.log('Changes summary:', changesSummary);
-    
-    // If no changes, show warning toast
-    if (!hasChanges) {
-        showToast('warning', 'No changes detected. Please modify items or remarks before updating.');
-        return;
-    }
-    
-    // Show confirmation toast with changes
-    showConfirmationToast(
-        'Confirm Update',
-        `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
-        () => proceedWithSeedlingUpdate(form, requestId)  // Pass form reference here
-    );
-}
-
-// Helper function to get status text
-function getStatusText(status) {
-    switch (status) {
-        case 'pending':
-            return 'Pending';
-        case 'approved':
-            return 'Approved';
-        case 'rejected':
-            return 'Rejected';
-        case 'under_review':
-            return 'Under Review';
-        default:
-            return status;
-    }
-}
-
-// Proceed with seedling update after confirmation
-function proceedWithSeedlingUpdate(form, requestId) {
-    // Create a new FormData object to ensure all fields are properly included
-    const formData = new FormData(form);
-    
-    // Debug: Log what's being sent
-    console.log('=== FormData Contents ===');
-    for (let [key, value] of formData.entries()) {
-        console.log(key, ':', value);
-    }
-    
-    // Verify that item_statuses exists in the form data
-    let hasItemStatuses = false;
-    for (let [key] of formData.entries()) {
-        if (key.startsWith('item_statuses')) {
-            hasItemStatuses = true;
-            break;
-        }
-    }
-    
-    if (!hasItemStatuses) {
-        console.error('ERROR: item_statuses not found in form data!');
-        showToast('error', 'Form validation error: Item statuses missing');
-        return;
-    }
-    
-    const submitButton = document.getElementById('submitBtn' + requestId);
-    
-    // Show loading state
-    const originalText = submitButton.innerHTML;
-    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Updating...';
-    submitButton.disabled = true;
-    
-    // Get the form action URL
-    const formAction = form.getAttribute('action');
-    console.log('Form action:', formAction);
-    
-    fetch(formAction, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': getCSRFToken(),
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-        
-        if (response.status === 422) {
-            // Handle validation errors
-            return response.json().then(data => {
-                console.error('Validation errors:', data);
-                throw new Error('Validation failed: ' + JSON.stringify(data.errors || data.message));
-            });
-        }
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return response.json();
-    })
-    .then(data => {
-        console.log('Success response:', data);
-        
-        if (data.success) {
-            // Close modal
-            const modalId = 'updateModal' + requestId;
-            const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-            if (modal) modal.hide();
-            
-            // Show success toast
-            showToast('success', data.message || 'Items updated successfully');
-            
-            // Reload page after short delay
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
             setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        } else {
-            showToast('error', data.message || 'Failed to update items');
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
+                if (toastElement.parentElement) {
+                    toastElement.remove();
+                }
+            }, 300);
         }
-    })
-    .catch(error => {
-        console.error('Error during update:', error);
-        showToast('error', 'Error: ' + error.message);
-        submitButton.innerHTML = originalText;
-        submitButton.disabled = false;
-    });
-}
 
-// Get CSRF token utility function
-function getCSRFToken() {
-    const metaTag = document.querySelector('meta[name="csrf-token"]');
-    return metaTag ? metaTag.getAttribute('content') : '';
-}
-// Initialize modal when opened
-document.addEventListener('DOMContentLoaded', function() {
-    // Get all update modals for seedlings
-    const updateModals = document.querySelectorAll('[id^="updateModal"]');
-    
-    updateModals.forEach(modalElement => {
-        const requestId = modalElement.id.replace('updateModal', '');
-        
-        modalElement.addEventListener('show.bs.modal', function() {
-            initializeSeedlingUpdateModal(requestId);
-        });
-    });
-    
-    // Add event listeners for real-time change detection only
-    const updateForms = document.querySelectorAll('form[id^="updateForm"]');
-    
-    updateForms.forEach(form => {
-        const requestId = form.id.replace('updateForm', '');
-        
-        // Add event listeners for real-time change detection
-        const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-        const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
-        
-        statusSelects.forEach(select => {
-            select.addEventListener('change', () => checkForSeedlingChanges(requestId));
-        });
-        
-        if (remarksTextarea) {
-            remarksTextarea.addEventListener('input', () => checkForSeedlingChanges(requestId));
-            remarksTextarea.addEventListener('change', () => checkForSeedlingChanges(requestId));
+        // Get CSRF token utility function
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
         }
-    });
-});
 
-// Initialize seedling item counter
-let seedlingItemCounter = 0;
+        // Delete seedling request with confirmation toast
+        function deleteSeedlingRequest(id, requestNumber) {
+            showConfirmationToast(
+                'Delete Seedling Request',
+                `Are you sure you want to delete request ${requestNumber}?\n\nThis action cannot be undone and will:\n• Delete all associated documents\n• Return approved supplies back to inventory`,
+                () => proceedWithSeedlingDelete(id, requestNumber)
+            );
+        }
 
-// Show add seedling modal
-function showAddSeedlingModal() {
-    const modal = new bootstrap.Modal(document.getElementById('addSeedlingModal'));
-    
-    // Reset form
-    document.getElementById('addSeedlingForm').reset();
-    seedlingItemCounter = 0;
-    
-    // Populate barangays
-    populateSeedlingBarangays();
-    
-    // Add one empty item row
-    addSeedlingItemRow();
-    
-    // Remove any validation errors
-    document.querySelectorAll('#addSeedlingModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    document.querySelectorAll('#addSeedlingModal .invalid-feedback').forEach(el => el.remove());
-    
-    // Clear document preview
-    const preview = document.getElementById('seedling_doc_preview');
-    if (preview) {
-        preview.innerHTML = '';
-        preview.style.display = 'none';
-    }
-    
-    modal.show();
-}
+        // Proceed with seedling request deletion
+        function proceedWithSeedlingDelete(id, requestNumber) {
+            fetch(`/admin/seedlings/requests/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', data.message || 'Seedling request deleted successfully');
 
-// Populate barangays dropdown
-function populateSeedlingBarangays() {
-    const barangaySelect = document.getElementById('seedling_barangay');
-    
-    // Get barangays from the page's data (if available)
-    const barangayElements = document.querySelectorAll('option[value*=""]');
-    
-    // If barangays are already populated, return
-    if (barangaySelect.querySelectorAll('option').length > 1) {
-        return;
-    }
-    
-    // Fetch barangays from server or use hardcoded list
-    const barangays = @json($barangays ?? collect());
-    
-    if (barangays && barangays.length > 0) {
-        barangays.forEach(barangay => {
-            const option = document.createElement('option');
-            option.value = barangay;
-            option.textContent = barangay;
-            barangaySelect.appendChild(option);
+                        const row = document.querySelector(`tr[data-request-id="${id}"]`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s ease';
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+
+                                const tbody = document.querySelector('table tbody');
+                                if (tbody && tbody.children.length === 0) {
+                                    setTimeout(() => window.location.reload(), 1500);
+                                }
+                            }, 300);
+                        } else {
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Failed to delete seedling request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Failed to delete seedling request: ' + error.message);
+                });
+        }
+
+        // Initialize the update modal with original values
+        function initializeSeedlingUpdateModal(requestId) {
+            const form = document.getElementById('updateForm' + requestId);
+            const remarksTextarea = document.getElementById('remarks' + requestId);
+            const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+            const submitButton = document.getElementById('submitBtn' + requestId);
+
+            // Store original remarks value
+            if (remarksTextarea) {
+                remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
+            }
+
+            // DON'T overwrite originalStatus - it's already set in Blade template
+            // Just ensure item cards keep their data-original-status from the server
+
+            // Clear any previous change indicators
+            if (remarksTextarea) {
+                remarksTextarea.classList.remove('form-changed');
+            }
+
+            statusSelects.forEach(select => {
+                select.classList.remove('form-changed');
+                const itemCard = select.closest('.item-card');
+                if (itemCard) {
+                    itemCard.classList.remove('form-changed');
+                }
+            });
+
+            // Reset button state to "No Changes"
+            if (submitButton) {
+                submitButton.classList.add('no-changes');
+                submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+                submitButton.disabled = true;
+            }
+        }
+
+        // Open update modal and initialize
+        function openUpdateModal(requestId) {
+            const modal = new bootstrap.Modal(document.getElementById('updateModal' + requestId));
+            modal.show();
+        }
+
+        // Check for changes and update button/visual states
+        function checkForSeedlingChanges(requestId) {
+            const form = document.getElementById('updateForm' + requestId);
+            if (!form) return;
+
+            const remarksTextarea = document.getElementById('remarks' + requestId);
+            const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+            const submitButton = document.getElementById('submitBtn' + requestId);
+
+            let hasChanges = false;
+            const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+
+            // Check remarks for changes
+            if (remarksTextarea) {
+                const remarksChanged = remarksTextarea.value.trim() !== originalRemarks.trim();
+
+                if (remarksChanged) {
+                    hasChanges = true;
+                    remarksTextarea.classList.add('form-changed');
+                } else {
+                    remarksTextarea.classList.remove('form-changed');
+                }
+            }
+
+            // Check item statuses for changes - USE ITEM CARD DATA ATTRIBUTE
+            statusSelects.forEach(select => {
+                const itemCard = select.closest('.item-card');
+                const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
+
+                if (select.value !== originalStatus) {
+                    hasChanges = true;
+                    if (itemCard) {
+                        itemCard.classList.add('form-changed');
+                    }
+                } else {
+                    if (itemCard) {
+                        itemCard.classList.remove('form-changed');
+                    }
+                }
+            });
+
+            // Update button state based on changes
+            if (submitButton) {
+                if (hasChanges) {
+                    submitButton.classList.remove('no-changes');
+                    submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
+                    submitButton.disabled = false;
+                } else {
+                    submitButton.classList.add('no-changes');
+                    submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+                    submitButton.disabled = true;
+                }
+            }
+        }
+
+        // Handle update form submission with confirmation
+        function handleSeedlingUpdateSubmit(requestId) {
+            const form = document.getElementById('updateForm' + requestId);
+
+            if (!form) {
+                console.error('Form not found:', 'updateForm' + requestId);
+                showToast('error', 'Form not found. Please try again.');
+                return;
+            }
+
+            console.log('=== DEBUG: Form Submission Started ===');
+            console.log('Request ID:', requestId);
+            console.log('Form found:', !!form);
+            console.log('Form action:', form.getAttribute('action'));
+            console.log('Form method:', form.getAttribute('method'));
+
+            const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
+            const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+
+            console.log('Remarks textarea found:', !!remarksTextarea);
+            console.log('Status selects found:', statusSelects.length);
+
+            let hasChanges = false;
+            let changesSummary = [];
+
+            // Check for changes in item statuses
+            statusSelects.forEach((select, index) => {
+                const itemCard = select.closest('.item-card');
+                const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
+                const currentStatus = select.value;
+
+                console.log(`Item ${index + 1}:`, {
+                    original: originalStatus,
+                    current: currentStatus,
+                    different: currentStatus !== originalStatus
+                });
+
+                if (currentStatus !== originalStatus) {
+                    hasChanges = true;
+                    const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
+                    const oldStatusText = getStatusText(originalStatus);
+                    const newStatusText = getStatusText(currentStatus);
+                    changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
+                }
+            });
+
+            // Check for changes in remarks
+            const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+            const currentRemarks = remarksTextarea?.value || '';
+
+            console.log('Remarks:', {
+                original: originalRemarks,
+                current: currentRemarks,
+                hasChanged: currentRemarks.trim() !== originalRemarks.trim()
+            });
+
+            if (remarksTextarea && currentRemarks.trim() !== originalRemarks.trim()) {
+                hasChanges = true;
+                if (originalRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Added new remarks');
+                } else if (currentRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Removed remarks');
+                } else {
+                    changesSummary.push('Remarks: Modified');
+                }
+            }
+
+            console.log('Has changes:', hasChanges);
+            console.log('Changes summary:', changesSummary);
+
+            // If no changes, show warning toast
+            if (!hasChanges) {
+                showToast('warning', 'No changes detected. Please modify items or remarks before updating.');
+                return;
+            }
+
+            // Show confirmation toast with changes
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithSeedlingUpdate(form, requestId) // Pass form reference here
+            );
+        }
+
+        // Helper function to get status text
+        function getStatusText(status) {
+            switch (status) {
+                case 'pending':
+                    return 'Pending';
+                case 'approved':
+                    return 'Approved';
+                case 'rejected':
+                    return 'Rejected';
+                case 'under_review':
+                    return 'Under Review';
+                default:
+                    return status;
+            }
+        }
+
+        // Proceed with seedling update after confirmation
+        function proceedWithSeedlingUpdate(form, requestId) {
+            // Create a new FormData object to ensure all fields are properly included
+            const formData = new FormData(form);
+
+            // Ensure _method field is included for PATCH request
+            if (!formData.has('_method')) {
+                formData.append('_method', 'PATCH');
+            }
+
+            // Ensure CSRF token is in FormData
+            const csrfToken = getCSRFToken();
+            if (!formData.has('_token')) {
+                formData.append('_token', csrfToken);
+            }
+
+            // Debug: Log what's being sent
+            console.log('=== FormData Contents ===');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, ':', value);
+            }
+
+            // Verify that item_statuses exists in the form data
+            let hasItemStatuses = false;
+            for (let [key] of formData.entries()) {
+                if (key.startsWith('item_statuses')) {
+                    hasItemStatuses = true;
+                    break;
+                }
+            }
+
+            if (!hasItemStatuses) {
+                console.error('ERROR: item_statuses not found in form data!');
+                showToast('error', 'Form validation error: Item statuses missing');
+                return;
+            }
+
+            const submitButton = document.getElementById('submitBtn' + requestId);
+
+            // Show loading state
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
+            submitButton.disabled = true;
+
+            // OPTIMIZATION: Disable all form inputs to prevent changes during submission
+            const formInputs = form.querySelectorAll('select, textarea, input');
+            formInputs.forEach(input => input.disabled = true);
+
+            // Get the form action URL
+            const formAction = form.getAttribute('action');
+            console.log('Form action:', formAction);
+            console.log('CSRF Token:', csrfToken);
+
+            fetch(formAction, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+
+                    // Clone the response so we can read it multiple times
+                    const responseClone = response.clone();
+
+                    if (response.status === 422) {
+                        // Handle validation errors
+                        return response.json().then(data => {
+                            console.error('Validation errors:', data);
+                            throw new Error('Validation failed: ' + JSON.stringify(data.errors || data
+                            .message));
+                        });
+                    }
+
+                    if (!response.ok) {
+                        // Try to get error message from response
+                        return responseClone.text().then(text => {
+                            console.error('Error response body:', text);
+                            let errorMessage = `HTTP error! status: ${response.status}`;
+                            try {
+                                const data = JSON.parse(text);
+                                if (data.message) {
+                                    errorMessage = data.message;
+                                } else if (data.error) {
+                                    errorMessage = data.error;
+                                }
+                            } catch (e) {
+                                // If not JSON, use the text directly (truncated)
+                                if (text.length > 0) {
+                                    errorMessage += ` - ${text.substring(0, 200)}`;
+                                }
+                            }
+                            throw new Error(errorMessage);
+                        });
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success response:', data);
+
+                    if (data.success) {
+                        // Close modal immediately
+                        const modalId = 'updateModal' + requestId;
+                        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                        if (modal) modal.hide();
+
+                        // Show success toast
+                        showToast('success', data.message || 'Items updated successfully');
+
+                        // OPTIMIZATION: Reload page immediately without delay
+                        window.location.reload();
+                    } else {
+                        showToast('error', data.message || 'Failed to update items');
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during update:', error);
+                    showToast('error', 'Error: ' + error.message);
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                });
+        }
+
+        // Get CSRF token utility function
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
+        // Initialize modal when opened
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all update modals for seedlings
+            const updateModals = document.querySelectorAll('[id^="updateModal"]');
+
+            updateModals.forEach(modalElement => {
+                const requestId = modalElement.id.replace('updateModal', '');
+
+                modalElement.addEventListener('show.bs.modal', function() {
+                    initializeSeedlingUpdateModal(requestId);
+                });
+            });
+
+            // Add event listeners for real-time change detection only
+            const updateForms = document.querySelectorAll('form[id^="updateForm"]');
+
+            updateForms.forEach(form => {
+                const requestId = form.id.replace('updateForm', '');
+
+                // Add event listeners for real-time change detection
+                const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+                const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
+
+                statusSelects.forEach(select => {
+                    select.addEventListener('change', () => checkForSeedlingChanges(requestId));
+                });
+
+                if (remarksTextarea) {
+                    remarksTextarea.addEventListener('input', () => checkForSeedlingChanges(requestId));
+                    remarksTextarea.addEventListener('change', () => checkForSeedlingChanges(requestId));
+                }
+            });
         });
-    }
-}
 
-// Add item row
-function addSeedlingItemRow() {
-    seedlingItemCounter++;
-    const container = document.getElementById('seedling_items_container');
-    
-    const itemRow = document.createElement('div');
-    itemRow.className = 'seedling-item-row mb-3 p-3 border rounded';
-    itemRow.id = `seedling_item_${seedlingItemCounter}`;
-    itemRow.innerHTML = `
+        // Initialize seedling item counter
+        let seedlingItemCounter = 0;
+
+        // Show add seedling modal
+        function showAddSeedlingModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addSeedlingModal'));
+
+            // Reset form
+            document.getElementById('addSeedlingForm').reset();
+            seedlingItemCounter = 0;
+
+            // Populate barangays
+            populateSeedlingBarangays();
+
+            // Add one empty item row
+            addSeedlingItemRow();
+
+            // Remove any validation errors
+            document.querySelectorAll('#addSeedlingModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('#addSeedlingModal .invalid-feedback').forEach(el => el.remove());
+
+            // Clear document preview
+            const preview = document.getElementById('seedling_doc_preview');
+            if (preview) {
+                preview.innerHTML = '';
+                preview.style.display = 'none';
+            }
+
+            modal.show();
+        }
+
+        // Populate barangays dropdown
+        function populateSeedlingBarangays() {
+            const barangaySelect = document.getElementById('seedling_barangay');
+
+            // Get barangays from the page's data (if available)
+            const barangayElements = document.querySelectorAll('option[value*=""]');
+
+            // If barangays are already populated, return
+            if (barangaySelect.querySelectorAll('option').length > 1) {
+                return;
+            }
+
+            // Fetch barangays from server or use hardcoded list
+            const barangays = @json($barangays ?? collect());
+
+            if (barangays && barangays.length > 0) {
+                barangays.forEach(barangay => {
+                    const option = document.createElement('option');
+                    option.value = barangay;
+                    option.textContent = barangay;
+                    barangaySelect.appendChild(option);
+                });
+            }
+        }
+
+        // Add item row
+        function addSeedlingItemRow() {
+            seedlingItemCounter++;
+            const container = document.getElementById('seedling_items_container');
+
+            const itemRow = document.createElement('div');
+            itemRow.className = 'seedling-item-row mb-3 p-3 border rounded';
+            itemRow.id = `seedling_item_${seedlingItemCounter}`;
+            itemRow.innerHTML = `
         <div class="row align-items-end">
             <div class="col-md-5 mb-3">
                 <label class="form-label">Category & Item <span class="text-danger">*</span></label>
@@ -2481,164 +2550,164 @@ function addSeedlingItemRow() {
             </div>
         </div>
     `;
-    
-    container.appendChild(itemRow);
-    
-    // Populate category select
-    populateSeedlingCategorySelect(container.querySelector(`select[data-row-id="${seedlingItemCounter}"]`));
-}
 
-// Populate category select
-function populateSeedlingCategorySelect(selectElement) {
-    const categories = @json($categories ?? collect());
-    
-    selectElement.innerHTML = '<option value="">Select Item</option>';
-    
-    categories.forEach(category => {
-        if (category.items && category.items.length > 0) {
-            const optgroup = document.createElement('optgroup');
-            optgroup.label = category.display_name;
-            
-            category.items.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.textContent = `${item.name}`;
-                optgroup.appendChild(option);
+            container.appendChild(itemRow);
+
+            // Populate category select
+            populateSeedlingCategorySelect(container.querySelector(`select[data-row-id="${seedlingItemCounter}"]`));
+        }
+
+        // Populate category select
+        function populateSeedlingCategorySelect(selectElement) {
+            const categories = @json($categories ?? collect());
+
+            selectElement.innerHTML = '<option value="">Select Item</option>';
+
+            categories.forEach(category => {
+                if (category.items && category.items.length > 0) {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = category.display_name;
+
+                    category.items.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.id;
+                        option.textContent = `${item.name}`;
+                        optgroup.appendChild(option);
+                    });
+
+                    selectElement.appendChild(optgroup);
+                }
             });
-            
-            selectElement.appendChild(optgroup);
         }
-    });
-}
 
-// Remove item row
-function removeSeedlingItemRow(rowId) {
-    const row = document.getElementById(`seedling_item_${rowId}`);
-    if (row) {
-        row.remove();
-    }
-    
-    // Check if at least one item remains
-    const itemCount = document.querySelectorAll('.seedling-item-row').length;
-    if (itemCount === 0) {
-        addSeedlingItemRow();
-    }
-}
+        // Remove item row
+        function removeSeedlingItemRow(rowId) {
+            const row = document.getElementById(`seedling_item_${rowId}`);
+            if (row) {
+                row.remove();
+            }
 
-// Load items for category
-function loadSeedlingItems(selectElement) {
-    // This is handled by the optgroup structure
-}
-
-// Validate seedling contact number
-function validateSeedlingContactNumber(contactNumber) {
-    const input = document.getElementById('seedling_contact_number');
-    const feedback = input.parentNode.querySelector('.invalid-feedback');
-    
-    if (feedback) feedback.remove();
-    input.classList.remove('is-invalid', 'is-valid');
-    
-    if (!contactNumber || contactNumber.trim() === '') {
-        return;
-    }
-    
-    const phoneRegex = /^(\+639|09)\d{9}$/;
-    
-    if (!phoneRegex.test(contactNumber.trim())) {
-        input.classList.add('is-invalid');
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'invalid-feedback d-block';
-        errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-        input.parentNode.appendChild(errorDiv);
-        return false;
-    }
-    
-    input.classList.add('is-valid');
-    return true;
-}
-
-// Validate seedling email
-function validateSeedlingEmail(email) {
-    const input = document.getElementById('seedling_email');
-    const feedback = input.parentNode.querySelector('.invalid-feedback');
-    
-    if (feedback) feedback.remove();
-    input.classList.remove('is-invalid', 'is-valid');
-    
-    if (!email || email.trim() === '') {
-        return true;
-    }
-    
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    
-    if (!emailPattern.test(email.trim())) {
-        input.classList.add('is-invalid');
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'invalid-feedback d-block';
-        errorDiv.textContent = 'Invalid email format';
-        input.parentNode.appendChild(errorDiv);
-        return false;
-    }
-    
-    input.classList.add('is-valid');
-    return true;
-}
-
-// Auto-capitalize name fields
-function capitalizeSeedlingName(input) {
-    const value = input.value;
-    if (value.length > 0) {
-        input.value = value
-            .toLowerCase()
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-    }
-}
-
-document.getElementById('seedling_first_name')?.addEventListener('blur', function() {
-    capitalizeSeedlingName(this);
-});
-
-document.getElementById('seedling_middle_name')?.addEventListener('blur', function() {
-    capitalizeSeedlingName(this);
-});
-
-document.getElementById('seedling_last_name')?.addEventListener('blur', function() {
-    capitalizeSeedlingName(this);
-});
-
-// Document preview
-function previewSeedlingDocument(inputId, previewId) {
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(previewId);
-    
-    if (!input.files || !input.files[0]) {
-        if (preview) {
-            preview.innerHTML = '';
-            preview.style.display = 'none';
+            // Check if at least one item remains
+            const itemCount = document.querySelectorAll('.seedling-item-row').length;
+            if (itemCount === 0) {
+                addSeedlingItemRow();
+            }
         }
-        return;
-    }
-    
-    const file = input.files[0];
-    
-    if (file.size > 10 * 1024 * 1024) {
-        showToast('error', 'File size must not exceed 10MB');
-        input.value = '';
-        if (preview) {
-            preview.innerHTML = '';
-            preview.style.display = 'none';
+
+        // Load items for category
+        function loadSeedlingItems(selectElement) {
+            // This is handled by the optgroup structure
         }
-        return;
-    }
-    
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        if (preview) {
-            if (file.type.startsWith('image/')) {
-                preview.innerHTML = `
+
+        // Validate seedling contact number
+        function validateSeedlingContactNumber(contactNumber) {
+            const input = document.getElementById('seedling_contact_number');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            if (!contactNumber || contactNumber.trim() === '') {
+                return;
+            }
+
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+
+            if (!phoneRegex.test(contactNumber.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Validate seedling email
+        function validateSeedlingEmail(email) {
+            const input = document.getElementById('seedling_email');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            if (!email || email.trim() === '') {
+                return true;
+            }
+
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (!emailPattern.test(email.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Invalid email format';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Auto-capitalize name fields
+        function capitalizeSeedlingName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        }
+
+        document.getElementById('seedling_first_name')?.addEventListener('blur', function() {
+            capitalizeSeedlingName(this);
+        });
+
+        document.getElementById('seedling_middle_name')?.addEventListener('blur', function() {
+            capitalizeSeedlingName(this);
+        });
+
+        document.getElementById('seedling_last_name')?.addEventListener('blur', function() {
+            capitalizeSeedlingName(this);
+        });
+
+        // Document preview
+        function previewSeedlingDocument(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+
+            if (!input.files || !input.files[0]) {
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            const file = input.files[0];
+
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('error', 'File size must not exceed 10MB');
+                input.value = '';
+                if (preview) {
+                    preview.innerHTML = '';
+                    preview.style.display = 'none';
+                }
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                if (preview) {
+                    if (file.type.startsWith('image/')) {
+                        preview.innerHTML = `
                     <div class="document-preview-item">
                         <img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <p style="margin-top: 8px; font-size: 12px; color: #666;">
@@ -2646,8 +2715,8 @@ function previewSeedlingDocument(inputId, previewId) {
                         </p>
                     </div>
                 `;
-            } else {
-                preview.innerHTML = `
+                    } else {
+                        preview.innerHTML = `
                     <div class="document-preview-item">
                         <div class="text-center p-3 border rounded">
                             <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
@@ -2655,187 +2724,201 @@ function previewSeedlingDocument(inputId, previewId) {
                         </div>
                     </div>
                 `;
-            }
-            preview.style.display = 'block';
-        }
-    };
-    
-    reader.readAsDataURL(file);
-}
-
-// Validate seedling form
-function validateSeedlingForm() {
-    let isValid = true;
-    
-    const requiredFields = [
-        { id: 'seedling_first_name', label: 'First Name' },
-        { id: 'seedling_last_name', label: 'Last Name' },
-        { id: 'seedling_contact_number', label: 'Contact Number' },
-        { id: 'seedling_barangay', label: 'Barangay' },
-        { id: 'seedling_address', label: 'Address' }
-    ];
-    
-    requiredFields.forEach(field => {
-        const input = document.getElementById(field.id);
-        if (input && (!input.value || input.value.trim() === '')) {
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-            if (feedback) feedback.remove();
-            
-            input.classList.add('is-invalid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = field.label + ' is required';
-            input.parentNode.appendChild(errorDiv);
-            isValid = false;
-        }
-    });
-    
-    // Validate contact number
-    const contactNumber = document.getElementById('seedling_contact_number').value.trim();
-    if (!validateSeedlingContactNumber(contactNumber)) {
-        isValid = false;
-    }
-    
-    // Validate email if provided
-    const email = document.getElementById('seedling_email').value.trim();
-    if (email && !validateSeedlingEmail(email)) {
-        isValid = false;
-    }
-    
-    // Validate at least one item
-    const items = document.querySelectorAll('.seedling-item-row');
-    let itemsValid = true;
-    
-    items.forEach(item => {
-        const categorySelect = item.querySelector('.seedling-category-select');
-        const quantityInput = item.querySelector('.seedling-quantity');
-        
-        if (!categorySelect.value) {
-            categorySelect.classList.add('is-invalid');
-            itemsValid = false;
-        }
-        
-        if (!quantityInput.value || quantityInput.value < 1) {
-            quantityInput.classList.add('is-invalid');
-            itemsValid = false;
-        }
-    });
-    
-    if (!itemsValid) {
-        showToast('error', 'Please add at least one valid item');
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-// Submit add seedling form
-function submitAddSeedling() {
-    if (!validateSeedlingForm()) {
-        showToast('error', 'Please fix all validation errors before submitting');
-        return;
-    }
-    
-    // Prepare form data
-    const formData = new FormData();
-    
-    formData.append('first_name', document.getElementById('seedling_first_name').value.trim());
-    formData.append('middle_name', document.getElementById('seedling_middle_name').value.trim());
-    formData.append('last_name', document.getElementById('seedling_last_name').value.trim());
-    formData.append('extension_name', document.getElementById('seedling_extension').value);
-    formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
-    formData.append('email', document.getElementById('seedling_email').value.trim());
-    formData.append('barangay', document.getElementById('seedling_barangay').value);
-    formData.append('address', document.getElementById('seedling_address').value.trim());
-    formData.append('planting_location', document.getElementById('seedling_planting_location').value.trim());
-    formData.append('purpose', document.getElementById('seedling_purpose').value.trim());
-    formData.append('preferred_delivery_date', document.getElementById('seedling_preferred_delivery_date').value);
-    formData.append('status', document.getElementById('seedling_status').value);
-    formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
-    
-    const userId = document.getElementById('seedling_user_id').value.trim();
-    if (userId) {
-        formData.append('user_id', userId);
-    }
-    
-    // Add items
-    const items = document.querySelectorAll('.seedling-item-row');
-    items.forEach((item, index) => {
-        const categorySelect = item.querySelector('.seedling-category-select');
-        const quantityInput = item.querySelector('.seedling-quantity');
-        
-        formData.append(`items[${index}][category_item_id]`, categorySelect.value);
-        formData.append(`items[${index}][quantity]`, quantityInput.value);
-    });
-    
-    // Add document if uploaded
-    const docInput = document.getElementById('seedling_supporting_document');
-    if (docInput.files && docInput.files[0]) {
-        formData.append('document', docInput.files[0]);
-    }
-    
-    // Find submit button
-    const submitBtn = document.querySelector('#addSeedlingModal .btn-primary');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
-    submitBtn.disabled = true;
-    
-    // Submit to backend
-    fetch('/admin/seedlings/requests', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-            'Accept': 'application/json'
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addSeedlingModal'));
-            modal.hide();
-            
-            showToast('success', data.message || 'Seedling request created successfully');
-            
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        } else {
-            if (data.errors) {
-                Object.keys(data.errors).forEach(field => {
-                    const input = document.getElementById('seedling_' + field);
-                    if (input) {
-                        const feedback = input.parentNode.querySelector('.invalid-feedback');
-                        if (feedback) feedback.remove();
-                        
-                        input.classList.add('is-invalid');
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'invalid-feedback d-block';
-                        errorDiv.textContent = data.errors[field][0];
-                        input.parentNode.appendChild(errorDiv);
                     }
-                });
-            }
-            showToast('error', data.message || 'Failed to create seedling request');
+                    preview.style.display = 'block';
+                }
+            };
+
+            reader.readAsDataURL(file);
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('error', 'An error occurred while creating the request');
-    })
-    .finally(() => {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    });
-}
 
-// Add event listeners for real-time validation
-document.getElementById('seedling_contact_number')?.addEventListener('input', function() {
-    validateSeedlingContactNumber(this.value);
-});
+        // Validate seedling form
+        function validateSeedlingForm() {
+            let isValid = true;
 
-document.getElementById('seedling_email')?.addEventListener('input', function() {
-    validateSeedlingEmail(this.value);
-});
+            const requiredFields = [{
+                    id: 'seedling_first_name',
+                    label: 'First Name'
+                },
+                {
+                    id: 'seedling_last_name',
+                    label: 'Last Name'
+                },
+                {
+                    id: 'seedling_contact_number',
+                    label: 'Contact Number'
+                },
+                {
+                    id: 'seedling_barangay',
+                    label: 'Barangay'
+                },
+                {
+                    id: 'seedling_address',
+                    label: 'Address'
+                }
+            ];
+
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input && (!input.value || input.value.trim() === '')) {
+                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) feedback.remove();
+
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = field.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            });
+
+            // Validate contact number
+            const contactNumber = document.getElementById('seedling_contact_number').value.trim();
+            if (!validateSeedlingContactNumber(contactNumber)) {
+                isValid = false;
+            }
+
+            // Validate email if provided
+            const email = document.getElementById('seedling_email').value.trim();
+            if (email && !validateSeedlingEmail(email)) {
+                isValid = false;
+            }
+
+            // Validate at least one item
+            const items = document.querySelectorAll('.seedling-item-row');
+            let itemsValid = true;
+
+            items.forEach(item => {
+                const categorySelect = item.querySelector('.seedling-category-select');
+                const quantityInput = item.querySelector('.seedling-quantity');
+
+                if (!categorySelect.value) {
+                    categorySelect.classList.add('is-invalid');
+                    itemsValid = false;
+                }
+
+                if (!quantityInput.value || quantityInput.value < 1) {
+                    quantityInput.classList.add('is-invalid');
+                    itemsValid = false;
+                }
+            });
+
+            if (!itemsValid) {
+                showToast('error', 'Please add at least one valid item');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Submit add seedling form
+        function submitAddSeedling() {
+            if (!validateSeedlingForm()) {
+                showToast('error', 'Please fix all validation errors before submitting');
+                return;
+            }
+
+            // Prepare form data
+            const formData = new FormData();
+
+            formData.append('first_name', document.getElementById('seedling_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('seedling_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('seedling_last_name').value.trim());
+            formData.append('extension_name', document.getElementById('seedling_extension').value);
+            formData.append('contact_number', document.getElementById('seedling_contact_number').value.trim());
+            formData.append('email', document.getElementById('seedling_email').value.trim());
+            formData.append('barangay', document.getElementById('seedling_barangay').value);
+            formData.append('address', document.getElementById('seedling_address').value.trim());
+            formData.append('planting_location', document.getElementById('seedling_planting_location').value.trim());
+            formData.append('purpose', document.getElementById('seedling_purpose').value.trim());
+            formData.append('preferred_delivery_date', document.getElementById('seedling_preferred_delivery_date').value);
+            formData.append('status', document.getElementById('seedling_status').value);
+            formData.append('remarks', document.getElementById('seedling_remarks').value.trim());
+
+            const userId = document.getElementById('seedling_user_id').value.trim();
+            if (userId) {
+                formData.append('user_id', userId);
+            }
+
+            // Add items
+            const items = document.querySelectorAll('.seedling-item-row');
+            items.forEach((item, index) => {
+                const categorySelect = item.querySelector('.seedling-category-select');
+                const quantityInput = item.querySelector('.seedling-quantity');
+
+                formData.append(`items[${index}][category_item_id]`, categorySelect.value);
+                formData.append(`items[${index}][quantity]`, quantityInput.value);
+            });
+
+            // Add document if uploaded
+            const docInput = document.getElementById('seedling_supporting_document');
+            if (docInput.files && docInput.files[0]) {
+                formData.append('document', docInput.files[0]);
+            }
+
+            // Find submit button
+            const submitBtn = document.querySelector('#addSeedlingModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
+            submitBtn.disabled = true;
+
+            // Submit to backend
+            fetch('/admin/seedlings/requests', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addSeedlingModal'));
+                        modal.hide();
+
+                        showToast('success', data.message || 'Seedling request created successfully');
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        if (data.errors) {
+                            Object.keys(data.errors).forEach(field => {
+                                const input = document.getElementById('seedling_' + field);
+                                if (input) {
+                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                    if (feedback) feedback.remove();
+
+                                    input.classList.add('is-invalid');
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'invalid-feedback d-block';
+                                    errorDiv.textContent = data.errors[field][0];
+                                    input.parentNode.appendChild(errorDiv);
+                                }
+                            });
+                        }
+                        showToast('error', data.message || 'Failed to create seedling request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while creating the request');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+        }
+
+        // Add event listeners for real-time validation
+        document.getElementById('seedling_contact_number')?.addEventListener('input', function() {
+            validateSeedlingContactNumber(this.value);
+        });
+
+        document.getElementById('seedling_email')?.addEventListener('input', function() {
+            validateSeedlingEmail(this.value);
+        });
     </script>
 @endsection

@@ -98,7 +98,7 @@ class RsbsaApplicationFactory extends Factory
             'sex' => $this->faker->randomElement(['Male', 'Female']),
             'contact_number' => $this->faker->randomElement([
                 '09' . $this->faker->numerify('#########'),
-                '+639' . $this->faker->numerify('#########')
+                '09' . $this->faker->numerify('#########')
             ]),
             'barangay' => $this->faker->randomElement($barangays),
             'main_livelihood' => $mainLivelihood,

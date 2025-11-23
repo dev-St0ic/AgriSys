@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Auth;
 class ApplicationController extends Controller
 {
     /**
-     * Normalize Philippine mobile number to +639 format
-     * Converts 09XXXXXXXXX to +639XXXXXXXXX
+     * Validate Philippine mobile number format
+     * Only accepts 09XXXXXXXXX format
      */
     private function normalizeMobileNumber($mobileNumber)
     {
@@ -28,24 +28,14 @@ class ApplicationController extends Controller
         }
 
         // Remove any spaces or dashes
-        $mobileNumber = preg_replace('/[\s\-]/', '', $mobileNumber);
+        $cleanNumber = preg_replace('/[\s\-]/', '', $mobileNumber);
 
-        // If starts with 09, convert to +639
-        if (preg_match('/^09\d{9}$/', $mobileNumber)) {
-            return '+63' . substr($mobileNumber, 1);
+        // Only accept 09XXXXXXXXX format
+        if (preg_match('/^09\d{9}$/', $cleanNumber)) {
+            return $cleanNumber;
         }
 
-        // If already in +639 format, return as is
-        if (preg_match('/^\+639\d{9}$/', $mobileNumber)) {
-            return $mobileNumber;
-        }
-
-        // If starts with 639, add + prefix
-        if (preg_match('/^639\d{9}$/', $mobileNumber)) {
-            return '+' . $mobileNumber;
-        }
-
-        // Return original if doesn't match any pattern
+        // Return original if doesn't match pattern (will fail validation)
         return $mobileNumber;
     }
 
@@ -103,7 +93,7 @@ class ApplicationController extends Controller
                 'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
                 'sex' => 'required|in:Male,Female,Preferred not to say',
                 'barangay' => 'required|string|max:255',
-                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'email' => 'required|email|max:255',
                 'main_livelihood' => 'required|in:capture,aquaculture,vending,processing,others',
                 'other_livelihood' => 'nullable|string|max:255|required_if:main_livelihood,others',
@@ -118,7 +108,7 @@ class ApplicationController extends Controller
                 'sex.required' => 'Please select your sex',
                 'barangay.required' => 'Please select your barangay',
                 'contact_number.required' => 'Contact number is required',
-                'contact_number.regex' => 'Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
+                'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
                 'main_livelihood.required' => 'Please select your main livelihood',
@@ -423,7 +413,7 @@ public function submitSeedlings(Request $request)
             'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
             'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
             'extension_name' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
-            'mobile' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+            'mobile' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'email' => 'required|email|max:255',
             'barangay' => 'required|string|max:255',
             'address' => 'required|string|max:500',
@@ -435,7 +425,7 @@ public function submitSeedlings(Request $request)
             'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
             'extension_name.regex' => 'Name extension can only contain letters, periods, and spaces',
             'mobile.required' => 'Mobile number is required',
-            'mobile.regex' => 'Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
+            'mobile.regex' => 'Mobile number must be in the format 09XXXXXXXXX',
         ]);
 
         // Parse selected seedlings
@@ -457,7 +447,7 @@ public function submitSeedlings(Request $request)
         // Generate unique request number
         $requestNumber = 'SEED-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
-        // Normalize mobile number to +639 format
+        // Validate mobile number format
         $normalizedMobile = $this->normalizeMobileNumber($validated['mobile']);
 
         // ✅ CREATE THE SEEDLING REQUEST WITH USER_ID
@@ -611,7 +601,7 @@ public function submitRsbsa(Request $request)
             'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
             'sex' => 'required|in:Male,Female,Preferred not to say',
             'barangay' => 'required|string|max:255',
-            'mobile' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+            'mobile' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'email' => 'required|email|max:255',
             'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
             'land_area' => 'nullable|numeric|min:0|max:1000',
@@ -624,7 +614,7 @@ public function submitRsbsa(Request $request)
             'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
             'name_extension.regex' => 'Name extension can only contain letters, periods, and spaces',
             'mobile.required' => 'Mobile number is required',
-            'mobile.regex' => 'Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
+            'mobile.regex' => 'Mobile number must be in the format 09XXXXXXXXX',
         ]);
 
         // Handle file upload
@@ -641,7 +631,7 @@ public function submitRsbsa(Request $request)
         // Generate application number
         $applicationNumber = $this->generateUniqueRsbsaApplicationNumber();
 
-        // Normalize mobile number to +639 format
+        // Validate mobile number format
         $normalizedMobile = $this->normalizeMobileNumber($validated['mobile']);
 
         // Create application
@@ -772,7 +762,7 @@ public function submitRsbsa(Request $request)
                 'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
                 'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
                 'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
-                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'email' => 'required|email|max:255',
                 'barangay' => 'required|string|max:255',
                 'fishr_number' => 'required|string|max:255',
@@ -793,7 +783,7 @@ public function submitRsbsa(Request $request)
                 'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
                 'name_extension.regex' => 'Name extension can only contain letters, periods, and spaces',
                 'contact_number.required' => 'Contact number is required',
-                'contact_number.regex' => 'Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
+                'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
                 'barangay.required' => 'Barangay is required',
@@ -998,7 +988,7 @@ public function submitRsbsa(Request $request)
                 'middle_name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
                 'last_name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\'-]+$/'],
                 'name_extension' => ['nullable', 'string', 'max:10', 'regex:/^[a-zA-Z.\s]+$/'],
-                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'email' => 'required|email|max:255',
                 'barangay' => 'required|string|max:255',
                 'training_type' => 'required|string',
@@ -1011,7 +1001,7 @@ public function submitRsbsa(Request $request)
                 'last_name.regex' => 'Last name can only contain letters, spaces, hyphens, and apostrophes',
                 'name_extension.regex' => 'Name extension can only contain letters, periods, and spaces',
                 'contact_number.required' => 'Contact number is required',
-                'contact_number.regex' => 'Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX',
+                'contact_number.regex' => 'Contact number must be in the format 09XXXXXXXXX',
                 'email.required' => 'Email address is required',
                 'email.email' => 'Please enter a valid email address',
                 'barangay.required' => 'Barangay is required',

@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
+use App\Traits\SendsApplicationSms;
 
 class BoatrApplication extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, SendsApplicationSms;
 
     protected $fillable = [
         'user_id', // Foreign key to user_registration table
@@ -547,5 +548,29 @@ class BoatrApplication extends Model
             'with_inspection_docs' => self::whereNotNull('inspection_documents')->count(),
             'inspection_completed' => self::where('inspection_completed', true)->count()
         ];
+    }
+
+    /**
+     * Get applicant phone number for SMS notifications
+     */
+    protected function getApplicantPhone(): ?string
+    {
+        return $this->contact_number;
+    }
+
+    /**
+     * Get applicant name for SMS notifications
+     */
+    protected function getApplicantName(): ?string
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
+    }
+
+    /**
+     * Get application type name for SMS notifications
+     */
+    protected function getApplicationTypeName(): string
+    {
+        return 'BoatR Registration';
     }
 }

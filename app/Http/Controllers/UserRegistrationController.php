@@ -114,7 +114,7 @@ class UserRegistrationController extends Controller
 
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|min:3|max:50|regex:/^[a-zA-Z0-9_]+$/|unique:user_registration,username',
-            'email' => 'required|string|email|max:255|unique:user_registration,email',
+            'contact_number' => 'required|string|min:11|max:11|regex:/^09[0-9]{9}$/|unique:user_registration,contact_number',
             'password' => 'required|string|min:8|confirmed',
             'password_confirmation' => 'required',
             'terms_accepted' => 'required|boolean',
@@ -125,9 +125,11 @@ class UserRegistrationController extends Controller
             'username.min' => 'Username must be at least 3 characters',
             'username.max' => 'Username cannot exceed 50 characters',
             'username.regex' => 'Username can only contain letters, numbers, and underscores',
-            'email.required' => 'Email address is required',
-            'email.unique' => 'This email is already registered',
-            'email.email' => 'Please enter a valid email address',
+            'contact_number.required' => 'Contact number is required',
+            'contact_number.unique' => 'This contact number is already registered',
+            'contact_number.regex' => 'Contact number must start with 09 followed by 9 digits (e.g., 09123456789)',
+            'contact_number.min' => 'Contact number must be exactly 11 digits',
+            'contact_number.max' => 'Contact number must be exactly 11 digits',
             'password.min' => 'Password must be at least 8 characters',
             'password.confirmed' => 'Password confirmation does not match',
             'terms_accepted.required' => 'You must accept the Terms of Service',
@@ -189,7 +191,7 @@ class UserRegistrationController extends Controller
         try {
             $registrationData = [
                 'username' => $request->username,
-                'email' => $request->email,
+                'contact_number' => $request->contact_number,
                 'password' => $request->password,
                 'status' => 'unverified',
                 'terms_accepted' => (bool)$request->terms_accepted,
@@ -201,7 +203,7 @@ class UserRegistrationController extends Controller
             \Log::info('New user registration created', [
                 'id' => $registration->id,
                 'username' => $registration->username,
-                'email' => $registration->email,
+                'contact_number' => $registration->contact_number,
             ]);
 
             return response()->json([
@@ -380,8 +382,8 @@ class UserRegistrationController extends Controller
             'contactNumber' => [
                 'required',
                 'string',
-                'max:20',
-                'regex:/^(\+639|09)\d{9}$/'
+                'max:11',
+                'regex:/^09\d{9}$/'
             ],
             'dateOfBirth' => 'required|date|before:today|after:' . now()->subYears(100)->toDateString(),
             'barangay' => 'required|string|max:100',
@@ -390,8 +392,8 @@ class UserRegistrationController extends Controller
             'emergencyContactPhone' => [
                 'required',
                 'string',
-                'max:20',
-                'regex:/^(\+639|09)\d{9}$/'
+                'max:11',
+                'regex:/^09\d{9}$/'
             ],
             'idFront' => 'required|file|image|max:5120',
             'idBack' => 'required|file|image|max:5120',
@@ -749,13 +751,8 @@ class UserRegistrationController extends Controller
             ], 404);
         }
 
-        $registration->update([
-            'status' => 'approved',
-            'approved_at' => now(),
-            'approved_by' => auth()->id(),
-            'rejection_reason' => null,
-            'rejected_at' => null
-        ]);
+        // Use the model's approve method to trigger SMS notification
+        $registration->approve(null, auth()->id());
 
         return response()->json([
             'success' => true,
@@ -777,13 +774,8 @@ class UserRegistrationController extends Controller
             ], 404);
         }
 
-        $registration->update([
-            'status' => 'rejected',
-            'rejected_at' => now(),
-            'approved_by' => auth()->id(),
-            'rejection_reason' => $request->reason ?? 'No reason provided',
-            'approved_at' => null
-        ]);
+        // Use the model's reject method to trigger SMS notification
+        $registration->reject($request->reason ?? 'No reason provided', auth()->id());
 
         return response()->json([
             'success' => true,
@@ -813,12 +805,12 @@ class UserRegistrationController extends Controller
             'name_extension' => 'nullable|string|max:20',
             'date_of_birth' => 'required|date|before:today',
             'gender' => 'nullable|in:male,female',
-            'contact_number' => ['required', 'string', 'max:20', 'regex:/^(\+639|09)\d{9}$/'],
+            'contact_number' => ['required', 'string', 'max:11', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:100',
             'complete_address' => 'required|string',
             'user_type' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member',
             'emergency_contact_name' => 'required|string|max:100',
-            'emergency_contact_phone' => ['required', 'string', 'max:20', 'regex:/^(\+639|09)\d{9}$/'],
+            'emergency_contact_phone' => ['required', 'string', 'max:11', 'regex:/^09\d{9}$/'],
             'status' => 'required|in:unverified,pending,approved',
             'email_verified' => 'boolean',
             'id_front' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
@@ -998,32 +990,36 @@ class UserRegistrationController extends Controller
         }
 
         try {
-            $updateData = [
-                'status' => $request->status,
-                'approved_by' => auth()->id(),
-            ];
+            $oldStatus = $registration->status;
+            $newStatus = $request->status;
 
-            if ($request->status === 'approved') {
-                $updateData['approved_at'] = now();
-                $updateData['rejected_at'] = null;
-                $updateData['rejection_reason'] = null;
-            } elseif ($request->status === 'rejected') {
-                $updateData['rejected_at'] = now();
-                $updateData['approved_at'] = null;
-                $updateData['rejection_reason'] = $request->remarks;
+            // Use model methods that trigger SMS notifications
+            if ($newStatus === 'approved') {
+                // Use approve method which triggers SMS
+                $registration->approve(auth()->id());
+            } elseif ($newStatus === 'rejected') {
+                // Use reject method which triggers SMS
+                $registration->reject($request->remarks ?? 'No reason provided', auth()->id());
             } else {
+                // For unverified and pending status, update directly
+                $updateData = [
+                    'status' => $newStatus,
+                    'approved_by' => auth()->id(),
+                ];
+
                 if ($request->remarks) {
                     $updateData['rejection_reason'] = $request->remarks;
                 }
-            }
 
-            $registration->update($updateData);
+                $registration->update($updateData);
+            }
 
             \Log::info('Registration status updated', [
                 'registration_id' => $id,
-                'old_status' => $registration->getOriginal('status'),
-                'new_status' => $request->status,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
                 'admin_user' => auth()->user()->email,
+                'sms_triggered' => in_array($newStatus, ['approved', 'rejected'])
             ]);
 
             return response()->json([
@@ -1542,8 +1538,8 @@ class UserRegistrationController extends Controller
             'contact_number' => [
                 'sometimes',
                 'string',
-                'max:20',
-                'regex:/^(\+639|09)\d{9}$/'
+                'max:11',
+                'regex:/^09\d{9}$/'
             ],
             'complete_address' => 'sometimes|string|max:500',
             'barangay' => 'sometimes|string|max:100',

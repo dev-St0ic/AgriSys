@@ -1009,9 +1009,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="signup-email">Email Address</label>
-                                <input type="email" id="signup-email" name="email" required
-                                    placeholder="e.g. juan.farmer@gmail.com" autocomplete="email" maxlength="254">
+                                <label for="signup-contact">Contact Number</label>
+                                <input type="tel" id="signup-contact" name="contact_number" required
+                                    placeholder="e.g. 09123456789" autocomplete="tel" maxlength="11"
+                                    pattern="09[0-9]{9}">
+                                <div class="form-text">Enter your active mobile number starting with 09 for SMS
+                                    notifications.</div>
                             </div>
 
                             <div class="form-group">

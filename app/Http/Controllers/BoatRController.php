@@ -142,7 +142,7 @@ class BoatRController extends Controller
                 'middle_name' => 'nullable|string|max:100',
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|in:Jr.,Sr.,II,III,IV,V',
-                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:100',
                 'fishr_number' => 'required|string|max:50',
@@ -150,7 +150,7 @@ class BoatRController extends Controller
                 // Vessel Information
                 'vessel_name' => 'required|string|max:100',
                 'boat_type' => 'required|in:Spoon,Plumb,Banca,Rake Stem - Rake Stern,Rake Stem - Transom/Spoon/Plumb Stern,Skiff (Typical Design)',
-                
+
                 // Boat Dimensions
                 'boat_length' => 'required|numeric|min:0.1|max:999.99',
                 'boat_width' => 'required|numeric|min:0.1|max:999.99',
@@ -188,16 +188,16 @@ class BoatRController extends Controller
             $validated['application_number'] = $this->generateApplicationNumber();
 
             // Build full_name
-            $fullName = $validated['first_name'] . ' ' . 
-                    ($validated['middle_name'] ? $validated['middle_name'] . ' ' : '') . 
+            $fullName = $validated['first_name'] . ' ' .
+                    ($validated['middle_name'] ? $validated['middle_name'] . ' ' : '') .
                     $validated['last_name'] .
                     ($validated['name_extension'] ? ' ' . $validated['name_extension'] : '');
-            
+
             $validated['full_name'] = trim($fullName);
 
             // Calculate boat_dimensions string (Length × Width × Depth)
-            $validated['boat_dimensions'] = $validated['boat_length'] . '×' . 
-                                        $validated['boat_width'] . '×' . 
+            $validated['boat_dimensions'] = $validated['boat_length'] . '×' .
+                                        $validated['boat_width'] . '×' .
                                         $validated['boat_depth'] . ' ft';
 
             // Handle document upload
@@ -205,7 +205,7 @@ class BoatRController extends Controller
                 $file = $request->file('user_document');
                 $filename = 'boatr_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('boatr_documents', $filename, 'public');
-                
+
                 $validated['user_document_path'] = $path;
                 $validated['user_document_name'] = $file->getClientOriginalName();
                 $validated['user_document_type'] = $file->getMimeType();
@@ -329,12 +329,14 @@ class BoatRController extends Controller
                 'new_status' => $validated['status']
             ]);
 
-            // Update directly (NO calling undefined methods)
-            $registration->status = $validated['status'];
-            $registration->remarks = $validated['remarks'] ?? $registration->remarks;
-            $registration->reviewed_at = now();
-            $registration->reviewed_by = auth()->id();
-            $registration->save();
+            // Update using trait method to trigger SMS notification
+            $registration->updateStatusWithNotification($validated['status'], $validated['remarks']);
+
+            // Update additional fields manually
+            $registration->update([
+                'reviewed_at' => now(),
+                'reviewed_by' => auth()->id()
+            ]);
 
             Log::info('Status updated successfully', [
                 'registration_id' => $registration->id,
@@ -524,8 +526,8 @@ class BoatRController extends Controller
             $registration->inspection_notes = $validated['inspection_notes'] ?? null;
 
             // Handle approval decision - convert checkbox value to boolean
-            $approveApplication = $request->input('approve_application') === '1' || 
-                                $request->input('approve_application') === 'on' || 
+            $approveApplication = $request->input('approve_application') === '1' ||
+                                $request->input('approve_application') === 'on' ||
                                 $request->input('approve_application') === true;
 
             Log::info('Approval decision', [
@@ -538,7 +540,7 @@ class BoatRController extends Controller
             $registration->status = $newStatus;
             $registration->reviewed_at = now();
             $registration->reviewed_by = auth()->id();
-            
+
             // Save to database
             $saved = $registration->save();
 
@@ -972,7 +974,7 @@ class BoatRController extends Controller
 
             // Delete all associated annexes - FIXED: Get the collection first
             $annexes = $registration->annexes; // This returns a collection
-            
+
             if ($annexes->isNotEmpty()) {
                 foreach ($annexes as $annex) {
                     if ($annex->file_path && Storage::disk('public')->exists($annex->file_path)) {
@@ -1389,7 +1391,7 @@ class BoatRController extends Controller
         try {
             // Decode and sanitize the parameter
             $fishrNumber = urldecode(trim($fishrNumber));
-            
+
             \Log::info('Validating FishR registration number', [
                 'registration_number' => $fishrNumber,
                 'user_id' => auth()->id()
@@ -1405,12 +1407,12 @@ class BoatRController extends Controller
             // Query using the correct column name: registration_number
             // The registration_number includes the FISHR- prefix in the database
             $searchValue = $fishrNumber;
-            
+
             // If user didn't include FISHR- prefix, add it for the search
             if (!str_starts_with(strtoupper($searchValue), 'FISHR-')) {
                 $searchValue = 'FISHR-' . $searchValue;
             }
-            
+
             \Log::info('Searching for registration', [
                 'original_input' => $fishrNumber,
                 'search_value' => $searchValue

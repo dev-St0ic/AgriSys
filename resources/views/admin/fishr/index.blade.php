@@ -318,7 +318,7 @@
                                         </button>
 
                                         <button class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->registration_number }}')" 
+                                            onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->registration_number }}')"
                                             title="Delete Registration">
                                             <i class="fas fa-trash"></i> Delete
                                         </button>
@@ -402,7 +402,7 @@
         </div>
     </div>
 
- 
+
     <!-- Update Status Modal -->
     <div class="modal fade" id="updateModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -754,16 +754,21 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fishr_first_name" required maxlength="100">
+                                        <label for="fishr_first_name" class="form-label">First Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="fishr_first_name" required
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="fishr_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="fishr_middle_name" maxlength="100">
+                                        <input type="text" class="form-control" id="fishr_middle_name"
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fishr_last_name" required maxlength="100">
+                                        <label for="fishr_last_name" class="form-label">Last Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="fishr_last_name" required
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="fishr_name_extension" class="form-label">Extension</label>
@@ -780,7 +785,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="fishr_sex" class="form-label">Sex <span class="text-danger">*</span></label>
+                                        <label for="fishr_sex" class="form-label">Sex <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="fishr_sex" required>
                                             <option value="">Select</option>
                                             <option value="Male">Male</option>
@@ -789,8 +795,10 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="fishr_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="fishr_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <label for="fishr_contact_number" class="form-label">Contact Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="fishr_contact_number" required
+                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
                                     </div>
                                     <div class="col-md-4 mb-3">
@@ -799,8 +807,10 @@
                                         <div class="form-text">For status notifications</div>
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="fishr_user_id" class="form-label">Link to User Account (Optional)</label>
-                                        <input type="number" class="form-control" id="fishr_user_id" placeholder="Enter User ID if exists">
+                                        <label for="fishr_user_id" class="form-label">Link to User Account
+                                            (Optional)</label>
+                                        <input type="number" class="form-control" id="fishr_user_id"
+                                            placeholder="Enter User ID if exists">
                                         <div class="form-text">Leave blank if not associated with any user account</div>
                                     </div>
                                 </div>
@@ -815,7 +825,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="fishr_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <label for="fishr_barangay" class="form-label">Barangay <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="fishr_barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -859,8 +870,10 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="fishr_main_livelihood" class="form-label">Main Livelihood <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="fishr_main_livelihood" required onchange="toggleOtherLivelihood()">
+                                        <label for="fishr_main_livelihood" class="form-label">Main Livelihood <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-select" id="fishr_main_livelihood" required
+                                            onchange="toggleOtherLivelihood()">
                                             <option value="">Select Livelihood</option>
                                             <option value="capture">Capture Fishing</option>
                                             <option value="aquaculture">Aquaculture</option>
@@ -870,8 +883,10 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3" id="other_livelihood_container" style="display: none;">
-                                        <label for="fishr_other_livelihood" class="form-label">Specify Other Livelihood <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fishr_other_livelihood" maxlength="255" placeholder="Please specify...">
+                                        <label for="fishr_other_livelihood" class="form-label">Specify Other Livelihood
+                                            <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="fishr_other_livelihood"
+                                            maxlength="255" placeholder="Please specify...">
                                     </div>
                                 </div>
                             </div>
@@ -880,13 +895,16 @@
                         <!-- Supporting Document -->
                         <div class="card mb-3">
                             <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)</h6>
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="fishr_supporting_document" class="form-label">Upload Document</label>
-                                        <input type="file" class="form-control" id="fishr_supporting_document" accept="image/*,.pdf" onchange="previewFishrDocument('fishr_supporting_document', 'fishr_doc_preview')">
+                                        <input type="file" class="form-control" id="fishr_supporting_document"
+                                            accept="image/*,.pdf"
+                                            onchange="previewFishrDocument('fishr_supporting_document', 'fishr_doc_preview')">
                                         <div class="form-text">Accepted: JPG, PNG, PDF (Max 5MB)</div>
                                     </div>
                                     <div class="col-md-6">
@@ -904,7 +922,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="fishr_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
+                                        <label for="fishr_status" class="form-label">Initial Status <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="fishr_status" required>
                                             <option value="under_review" selected>Under Review</option>
                                             <option value="approved">Approved</option>
@@ -913,7 +932,8 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="fishr_remarks" class="form-label">Remarks (Optional)</label>
-                                        <textarea class="form-control" id="fishr_remarks" rows="3" maxlength="1000" placeholder="Any notes or comments..."></textarea>
+                                        <textarea class="form-control" id="fishr_remarks" rows="3" maxlength="1000"
+                                            placeholder="Any notes or comments..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -1932,149 +1952,59 @@
                 });
         }
 
-        // Enhanced update registration status function with change detection
-        function updateRegistrationStatus() {
-            const id = document.getElementById('updateRegistrationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
 
-            if (!newStatus) {
-                showToast('error', 'Please select a status');
-                return;
-            }
-
-            // Get the original values to compare changes
-            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
-
-            // Check if nothing has changed
-            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
-                return;
-            }
-
-            // Show confirmation dialog with changes summary
-            let changesSummary = [];
-            if (newStatus !== originalStatus) {
-                const originalStatusText = getStatusText(originalStatus);
-                const newStatusText = getStatusText(newStatus);
-                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-            }
-            if (remarks.trim() !== originalRemarks.trim()) {
-                if (originalRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Added new remarks');
-                } else if (remarks.trim() === '') {
-                    changesSummary.push('Remarks: Removed existing remarks');
-                } else {
-                    changesSummary.push('Remarks: Modified');
-                }
-            }
-
-            //confirm 
-            showConfirmationToast(
-                'Confirm Update',
-                `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
-                () => proceedWithStatusUpdate(id, newStatus, remarks)
-            );
-
-            // Show loading state
-            const updateButton = document.querySelector('#updateModal .btn-primary');
-            const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
-            updateButton.disabled = true;
-
-            fetch(`/admin/fishr-registrations/${id}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    if (response.success) {
-                        // Show success message and reload page
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                        modal.hide();
-                        showToast('success', response.message);
-                        window.location.reload();
-                    } else {
-                        throw new Error(response.message || 'Error updating status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error updating registration status: ' + error.message);
-                })
-                .finally(() => {
-                    // Reset button state
-                    updateButton.innerHTML = originalText;
-                    updateButton.disabled = false;
-                });
-        }
 
         // View registration details
         function viewRegistration(id) {
-        if (!id) {
-            showToast('error', 'Invalid registration ID');
-            return;
-        }
+            if (!id) {
+                showToast('error', 'Invalid registration ID');
+                return;
+            }
 
-        // Show loading state
-        document.getElementById('registrationDetails').innerHTML = `
+            // Show loading state
+            document.getElementById('registrationDetails').innerHTML = `
             <div class="text-center">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>`;
 
-        // Show modal while loading
-        const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
-        modal.show();
+            // Show modal while loading
+            const modal = new bootstrap.Modal(document.getElementById('registrationModal'));
+            modal.show();
 
-        // Fetch registration details
-        fetch(`/admin/fishr-registrations/${id}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(response => {
-                console.log('Response:', response);
+            // Fetch registration details
+            fetch(`/admin/fishr-registrations/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    console.log('Response:', response);
 
-                if (!response.success) {
-                    throw new Error('Failed to load registration details');
-                }
+                    if (!response.success) {
+                        throw new Error('Failed to load registration details');
+                    }
 
-                const data = response.data;
+                    const data = response.data;
 
-                if (!data) {
-                    throw new Error('No registration data received');
-                }
+                    if (!data) {
+                        throw new Error('No registration data received');
+                    }
 
-                // Build remarks HTML if exists
-                const remarksHtml = data.remarks ? `
+                    // Build remarks HTML if exists
+                    const remarksHtml = data.remarks ? `
                     <div class="col-12 mt-3">
                         <h6 class="border-bottom pb-2">Remarks</h6>
                         <div class="alert alert-info">
@@ -2086,10 +2016,10 @@
                         </div>
                     </div>` : '';
 
-                // Build document section HTML - ADD THIS SECTION
-                let documentHtml = '';
-                if (data.document_path) {
-                    documentHtml = `
+                    // Build document section HTML - ADD THIS SECTION
+                    let documentHtml = '';
+                    if (data.document_path) {
+                        documentHtml = `
                         <div class="col-12">
                             <div class="card border-secondary">
                                 <div class="card-header bg-light">
@@ -2108,8 +2038,8 @@
                                 </div>
                             </div>
                         </div>`;
-                } else {
-                    documentHtml = `
+                    } else {
+                        documentHtml = `
                         <div class="col-12">
                             <div class="card border-secondary">
                                 <div class="card-header bg-light">
@@ -2124,10 +2054,10 @@
                                 </div>
                             </div>
                         </div>`;
-                }
+                    }
 
-                // Update modal content
-                document.getElementById('registrationDetails').innerHTML = `
+                    // Update modal content
+                    document.getElementById('registrationDetails').innerHTML = `
                     <div class="row g-3">
                         <div class="col-md-6">
                             <h6 class="border-bottom pb-2">Personal Information</h6>
@@ -2151,17 +2081,17 @@
                         ${documentHtml}
                         ${remarksHtml}
                     </div>`;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', error.message || 'Error loading registration details. Please try again.');
-                document.getElementById('registrationDetails').innerHTML = `
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', error.message || 'Error loading registration details. Please try again.');
+                    document.getElementById('registrationDetails').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-circle me-2"></i>
                         ${error.message || 'Error loading registration details. Please try again.'}
                     </div>`;
-            });
-    }
+                });
+        }
 
         // FIXED: Unified document viewing function - use this ONLY ONCE
         function viewDocument(path, filename = null, applicationId = null) {
@@ -2322,8 +2252,8 @@
 
                     } else if (documentTypes.includes(fileExtension)) {
                         // Handle other document types
-                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : 
-                                    ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
+                            fileExtension) ? 'file-word' : 'file-alt';
 
                         documentViewer.innerHTML = `
                             <div class="alert alert-info text-center">
@@ -2694,217 +2624,218 @@
                 });
         }
 
-    // Upload annex with toast notifications
-    function uploadAnnex() {
-        const id = document.getElementById('annexRegistrationId').value;
-        const fileInput = document.getElementById('annexFile');
-        const title = document.getElementById('annexTitle').value.trim();
-        const description = document.getElementById('annexDescription').value.trim();
+        // Upload annex with toast notifications
+        function uploadAnnex() {
+            const id = document.getElementById('annexRegistrationId').value;
+            const fileInput = document.getElementById('annexFile');
+            const title = document.getElementById('annexTitle').value.trim();
+            const description = document.getElementById('annexDescription').value.trim();
 
-        // Validation
-        if (!fileInput.files[0]) {
-            showValidationError('annexFile', 'annexFileError', 'Please select a file');
-            return;
-        }
-
-        if (!title) {
-            showValidationError('annexTitle', 'annexTitleError', 'Please enter a document title');
-            return;
-        }
-
-        // File size validation (10MB)
-        if (fileInput.files[0].size > 10 * 1024 * 1024) {
-            showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
-            return;
-        }
-
-        // Clear validation errors
-        clearValidationErrors();
-
-        // Show confirmation toast instead of browser confirm
-        showConfirmationToast(
-            'Upload Annex',
-            `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}`,
-            () => proceedWithAnnexUpload(id, fileInput, title, description)
-        );
-    }
-
-    // Proceed with annex upload
-    function proceedWithAnnexUpload(id, fileInput, title, description) {
-        // Show loading state
-        const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
-        const originalContent = uploadBtn.innerHTML;
-        uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading...';
-        uploadBtn.disabled = true;
-
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        formData.append('title', title);
-        formData.append('description', description);
-
-        fetch(`/admin/fishr-registrations/${id}/annexes`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Annex uploaded successfully');
-                    resetAnnexForm();
-                    loadExistingAnnexes(id);
-                } else {
-                    throw new Error(data.message || 'Failed to upload annex');
-                }
-            })
-            .catch(error => {
-                console.error('Error uploading annex:', error);
-                showToast('error', 'Failed to upload annex: ' + error.message);
-            })
-            .finally(() => {
-                uploadBtn.innerHTML = originalContent;
-                uploadBtn.disabled = false;
-            });
-    }
-
-    // Delete annex with confirmation toast
-    function deleteAnnex(registrationId, annexId) {
-        showConfirmationToast(
-            'Delete Annex',
-            'Are you sure you want to delete this annex?\n\nThis action cannot be undone.',
-            () => proceedWithAnnexDelete(registrationId, annexId)
-        );
-    }
-
-    // Proceed with annex deletion
-    function proceedWithAnnexDelete(registrationId, annexId) {
-        fetch(`/admin/fishr-registrations/${registrationId}/annexes/${annexId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Annex deleted successfully');
-
-                    // Remove from UI
-                    const annexElement = document.getElementById(`annex-${annexId}`);
-                    if (annexElement) {
-                        annexElement.remove();
-                    }
-
-                    // Reload if no annexes left
-                    const annexesList = document.getElementById('annexesList');
-                    if (!annexesList.querySelector('.document-item')) {
-                        loadExistingAnnexes(registrationId);
-                    }
-                } else {
-                    throw new Error(data.message || 'Failed to delete annex');
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting annex:', error);
-                showToast('error', 'Failed to delete annex: ' + error.message);
-            });
-    }
-
-    // Updated updateRegistrationStatus with toast notifications
-    function updateRegistrationStatus() {
-        const id = document.getElementById('updateRegistrationId').value;
-        const newStatus = document.getElementById('newStatus').value;
-        const remarks = document.getElementById('remarks').value;
-
-        if (!newStatus) {
-            showToast('error', 'Please select a status');
-            return;
-        }
-
-        const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
-        const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
-
-        if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-            showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
-            return;
-        }
-
-        let changesSummary = [];
-        if (newStatus !== originalStatus) {
-            const originalStatusText = getStatusText(originalStatus);
-            const newStatusText = getStatusText(newStatus);
-            changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-        }
-        if (remarks.trim() !== originalRemarks.trim()) {
-            if (originalRemarks.trim() === '') {
-                changesSummary.push('Remarks: Added new remarks');
-            } else if (remarks.trim() === '') {
-                changesSummary.push('Remarks: Removed existing remarks');
-            } else {
-                changesSummary.push('Remarks: Modified');
+            // Validation
+            if (!fileInput.files[0]) {
+                showValidationError('annexFile', 'annexFileError', 'Please select a file');
+                return;
             }
+
+            if (!title) {
+                showValidationError('annexTitle', 'annexTitleError', 'Please enter a document title');
+                return;
+            }
+
+            // File size validation (10MB)
+            if (fileInput.files[0].size > 10 * 1024 * 1024) {
+                showValidationError('annexFile', 'annexFileError', 'File size must be less than 10MB');
+                return;
+            }
+
+            // Clear validation errors
+            clearValidationErrors();
+
+            // Show confirmation toast instead of browser confirm
+            showConfirmationToast(
+                'Upload Annex',
+                `Are you sure you want to upload this annex?\n\nFile: ${fileInput.files[0].name}`,
+                () => proceedWithAnnexUpload(id, fileInput, title, description)
+            );
         }
 
-        // Only show confirmation - callback handles the actual update
-        showConfirmationToast(
-            'Confirm Update',
-            `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
-            () => proceedWithStatusUpdate(id, newStatus, remarks)
-        );
-    }
+        // Proceed with annex upload
+        function proceedWithAnnexUpload(id, fileInput, title, description) {
+            // Show loading state
+            const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
+            const originalContent = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading...';
+            uploadBtn.disabled = true;
 
-    // And the separate proceedWithStatusUpdate function handles the fetch
-    function proceedWithStatusUpdate(id, newStatus, remarks) {
-        const updateButton = document.querySelector('#updateModal .btn-primary');
-        const originalText = updateButton.innerHTML;
-        updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
-        updateButton.disabled = true;
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('title', title);
+            formData.append('description', description);
 
-        fetch(`/admin/fishr-registrations/${id}/status`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCSRFToken(),
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                status: newStatus,
-                remarks: remarks
-            })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(response => {
-            if (response.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                modal.hide();
-                showToast('success', response.message);  
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                throw new Error(response.message || 'Error updating status');
+            fetch(`/admin/fishr-registrations/${id}/annexes`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Annex uploaded successfully');
+                        resetAnnexForm();
+                        loadExistingAnnexes(id);
+                    } else {
+                        throw new Error(data.message || 'Failed to upload annex');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error uploading annex:', error);
+                    showToast('error', 'Failed to upload annex: ' + error.message);
+                })
+                .finally(() => {
+                    uploadBtn.innerHTML = originalContent;
+                    uploadBtn.disabled = false;
+                });
+        }
+
+        // Delete annex with confirmation toast
+        function deleteAnnex(registrationId, annexId) {
+            showConfirmationToast(
+                'Delete Annex',
+                'Are you sure you want to delete this annex?\n\nThis action cannot be undone.',
+                () => proceedWithAnnexDelete(registrationId, annexId)
+            );
+        }
+
+        // Proceed with annex deletion
+        function proceedWithAnnexDelete(registrationId, annexId) {
+            fetch(`/admin/fishr-registrations/${registrationId}/annexes/${annexId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Annex deleted successfully');
+
+                        // Remove from UI
+                        const annexElement = document.getElementById(`annex-${annexId}`);
+                        if (annexElement) {
+                            annexElement.remove();
+                        }
+
+                        // Reload if no annexes left
+                        const annexesList = document.getElementById('annexesList');
+                        if (!annexesList.querySelector('.document-item')) {
+                            loadExistingAnnexes(registrationId);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Failed to delete annex');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting annex:', error);
+                    showToast('error', 'Failed to delete annex: ' + error.message);
+                });
+        }
+
+        // Updated updateRegistrationStatus with toast notifications
+        function updateRegistrationStatus() {
+            const id = document.getElementById('updateRegistrationId').value;
+            const newStatus = document.getElementById('newStatus').value;
+            const remarks = document.getElementById('remarks').value;
+
+            if (!newStatus) {
+                showToast('error', 'Please select a status');
+                return;
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('error', 'Error updating registration status: ' + error.message);
-        })
-        .finally(() => {
-            updateButton.innerHTML = originalText;
-            updateButton.disabled = false;
-        });
-    }
+
+            const originalStatus = document.getElementById('newStatus').dataset.originalStatus;
+            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+
+            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
+                return;
+            }
+
+            let changesSummary = [];
+            if (newStatus !== originalStatus) {
+                const originalStatusText = getStatusText(originalStatus);
+                const newStatusText = getStatusText(newStatus);
+                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+            }
+            if (remarks.trim() !== originalRemarks.trim()) {
+                if (originalRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Added new remarks');
+                } else if (remarks.trim() === '') {
+                    changesSummary.push('Remarks: Removed existing remarks');
+                } else {
+                    changesSummary.push('Remarks: Modified');
+                }
+            }
+
+            // Only show confirmation - callback handles the actual update
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this registration with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithStatusUpdate(id, newStatus, remarks)
+            );
+        }
+
+        // And the separate proceedWithStatusUpdate function handles the fetch
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
+            const updateButton = document.querySelector('#updateModal .btn-primary');
+            const originalText = updateButton.innerHTML;
+            updateButton.innerHTML =
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.disabled = true;
+
+            fetch(`/admin/fishr-registrations/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        remarks: remarks
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(response => {
+                    if (response.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                        modal.hide();
+                        showToast('success', response.message);
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        throw new Error(response.message || 'Error updating status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error updating registration status: ' + error.message);
+                })
+                .finally(() => {
+                    updateButton.innerHTML = originalText;
+                    updateButton.disabled = false;
+                });
+        }
 
 
         // Reset annex form
@@ -3006,7 +2937,7 @@
                 .then(data => {
                     if (data.success) {
                         showToast('success', data.message || 'Registration deleted successfully');
-                        
+
                         // Remove row from table with animation
                         const row = document.querySelector(`tr[data-registration-id="${id}"]`);
                         if (row) {
@@ -3014,7 +2945,7 @@
                             row.style.opacity = '0';
                             setTimeout(() => {
                                 row.remove();
-                                
+
                                 // Check if table is empty
                                 const tbody = document.querySelector('#registrationsTable tbody');
                                 if (tbody.children.length === 0) {
@@ -3039,24 +2970,24 @@
         // Show add FishR modal
         function showAddFishrModal() {
             const modal = new bootstrap.Modal(document.getElementById('addFishrModal'));
-            
+
             // Reset form
             document.getElementById('addFishrForm').reset();
-            
+
             // Remove any validation errors
             document.querySelectorAll('#addFishrModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
             document.querySelectorAll('#addFishrModal .invalid-feedback').forEach(el => el.remove());
-            
+
             // Clear document preview
             const preview = document.getElementById('fishr_doc_preview');
             if (preview) {
                 preview.innerHTML = '';
                 preview.style.display = 'none';
             }
-            
+
             // Hide other livelihood field
             document.getElementById('other_livelihood_container').style.display = 'none';
-            
+
             modal.show();
         }
 
@@ -3065,7 +2996,7 @@
             const livelihood = document.getElementById('fishr_main_livelihood').value;
             const container = document.getElementById('other_livelihood_container');
             const input = document.getElementById('fishr_other_livelihood');
-            
+
             if (livelihood === 'others') {
                 container.style.display = 'block';
                 input.required = true;
@@ -3084,16 +3015,16 @@
         function validateFishrContactNumber(contactNumber) {
             const input = document.getElementById('fishr_contact_number');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
-            
+
             if (feedback) feedback.remove();
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             if (!contactNumber || contactNumber.trim() === '') {
                 return;
             }
-            
+
             const phoneRegex = /^(\+639|09)\d{9}$/;
-            
+
             if (!phoneRegex.test(contactNumber.trim())) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
@@ -3102,7 +3033,7 @@
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -3115,16 +3046,16 @@
         function validateFishrEmail(email) {
             const input = document.getElementById('fishr_email');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
-            
+
             if (feedback) feedback.remove();
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             if (!email || email.trim() === '') {
                 return true; // Email is optional
             }
-            
+
             const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            
+
             if (!emailPattern.test(email.trim())) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
@@ -3133,7 +3064,7 @@
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -3166,7 +3097,7 @@
         function previewFishrDocument(inputId, previewId) {
             const input = document.getElementById(inputId);
             const preview = document.getElementById(previewId);
-            
+
             if (!input.files || !input.files[0]) {
                 if (preview) {
                     preview.innerHTML = '';
@@ -3174,9 +3105,9 @@
                 }
                 return;
             }
-            
+
             const file = input.files[0];
-            
+
             // Validate file size (5MB max)
             if (file.size > 5 * 1024 * 1024) {
                 showToast('error', 'File size must not exceed 5MB');
@@ -3187,9 +3118,9 @@
                 }
                 return;
             }
-            
+
             const reader = new FileReader();
-            
+
             reader.onload = function(e) {
                 if (preview) {
                     if (file.type.startsWith('image/')) {
@@ -3214,31 +3145,51 @@
                     preview.style.display = 'block';
                 }
             };
-            
+
             reader.readAsDataURL(file);
         }
 
         // Validate FishR form
         function validateFishrForm() {
             let isValid = true;
-            
+
             // Required fields
-            const requiredFields = [
-                { id: 'fishr_first_name', label: 'First Name' },
-                { id: 'fishr_last_name', label: 'Last Name' },
-                { id: 'fishr_sex', label: 'Sex' },
-                { id: 'fishr_contact_number', label: 'Contact Number' },
-                { id: 'fishr_barangay', label: 'Barangay' },
-                { id: 'fishr_main_livelihood', label: 'Main Livelihood' },
-                { id: 'fishr_status', label: 'Status' }
+            const requiredFields = [{
+                    id: 'fishr_first_name',
+                    label: 'First Name'
+                },
+                {
+                    id: 'fishr_last_name',
+                    label: 'Last Name'
+                },
+                {
+                    id: 'fishr_sex',
+                    label: 'Sex'
+                },
+                {
+                    id: 'fishr_contact_number',
+                    label: 'Contact Number'
+                },
+                {
+                    id: 'fishr_barangay',
+                    label: 'Barangay'
+                },
+                {
+                    id: 'fishr_main_livelihood',
+                    label: 'Main Livelihood'
+                },
+                {
+                    id: 'fishr_status',
+                    label: 'Status'
+                }
             ];
-            
+
             requiredFields.forEach(field => {
                 const input = document.getElementById(field.id);
                 if (input && (!input.value || input.value.trim() === '')) {
                     const feedback = input.parentNode.querySelector('.invalid-feedback');
                     if (feedback) feedback.remove();
-                    
+
                     input.classList.add('is-invalid');
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
@@ -3247,7 +3198,7 @@
                     isValid = false;
                 }
             });
-            
+
             // Validate other livelihood if selected
             const mainLivelihood = document.getElementById('fishr_main_livelihood').value;
             if (mainLivelihood === 'others') {
@@ -3255,7 +3206,7 @@
                 if (!otherLivelihood.value || otherLivelihood.value.trim() === '') {
                     const feedback = otherLivelihood.parentNode.querySelector('.invalid-feedback');
                     if (feedback) feedback.remove();
-                    
+
                     otherLivelihood.classList.add('is-invalid');
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
@@ -3264,19 +3215,19 @@
                     isValid = false;
                 }
             }
-            
+
             // Validate contact number
             const contactNumber = document.getElementById('fishr_contact_number').value.trim();
             if (!validateFishrContactNumber(contactNumber)) {
                 isValid = false;
             }
-            
+
             // Validate email if provided
             const email = document.getElementById('fishr_email').value.trim();
             if (email && !validateFishrEmail(email)) {
                 isValid = false;
             }
-            
+
             return isValid;
         }
 
@@ -3287,10 +3238,10 @@
                 showToast('error', 'Please fix all validation errors before submitting');
                 return;
             }
-            
+
             // Prepare form data
             const formData = new FormData();
-            
+
             formData.append('first_name', document.getElementById('fishr_first_name').value.trim());
             formData.append('middle_name', document.getElementById('fishr_middle_name').value.trim());
             formData.append('last_name', document.getElementById('fishr_last_name').value.trim());
@@ -3300,15 +3251,15 @@
             formData.append('email', document.getElementById('fishr_email').value.trim());
             formData.append('barangay', document.getElementById('fishr_barangay').value);
             formData.append('main_livelihood', document.getElementById('fishr_main_livelihood').value);
-            
+
             // Add other livelihood if 'others' is selected
             if (document.getElementById('fishr_main_livelihood').value === 'others') {
                 formData.append('other_livelihood', document.getElementById('fishr_other_livelihood').value.trim());
             }
-            
+
             formData.append('status', document.getElementById('fishr_status').value);
             formData.append('remarks', document.getElementById('fishr_remarks').value.trim());
-            
+
             const userId = document.getElementById('fishr_user_id').value.trim();
             if (userId) {
                 formData.append('user_id', userId);
@@ -3318,64 +3269,64 @@
             if (docInput.files && docInput.files[0]) {
                 formData.append('supporting_document', docInput.files[0]);
             }
-            
+
             // Find submit button
             const submitBtn = document.querySelector('#addFishrModal .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
             submitBtn.disabled = true;
-            
+
             // Submit to backend
             fetch('/admin/fishr-registrations/create', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addFishrModal'));
-                    modal.hide();
-                    
-                    // Show success message
-                    showToast('success', data.message || 'FishR registration created successfully');
-                    
-                    // Reload page after short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    // Show validation errors
-                    if (data.errors) {
-                        Object.keys(data.errors).forEach(field => {
-                            const input = document.getElementById('fishr_' + field);
-                            if (input) {
-                                const feedback = input.parentNode.querySelector('.invalid-feedback');
-                                if (feedback) feedback.remove();
-                                
-                                input.classList.add('is-invalid');
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'invalid-feedback d-block';
-                                errorDiv.textContent = data.errors[field][0];
-                                input.parentNode.appendChild(errorDiv);
-                            }
-                        });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addFishrModal'));
+                        modal.hide();
+
+                        // Show success message
+                        showToast('success', data.message || 'FishR registration created successfully');
+
+                        // Reload page after short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        // Show validation errors
+                        if (data.errors) {
+                            Object.keys(data.errors).forEach(field => {
+                                const input = document.getElementById('fishr_' + field);
+                                if (input) {
+                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                    if (feedback) feedback.remove();
+
+                                    input.classList.add('is-invalid');
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'invalid-feedback d-block';
+                                    errorDiv.textContent = data.errors[field][0];
+                                    input.parentNode.appendChild(errorDiv);
+                                }
+                            });
+                        }
+                        showToast('error', data.message || 'Failed to create FishR registration');
                     }
-                    showToast('error', data.message || 'Failed to create FishR registration');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'An error occurred while creating the registration');
-            })
-            .finally(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while creating the registration');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
         }
 
         console.log('FishR Add Registration functionality loaded successfully');

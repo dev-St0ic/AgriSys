@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Event listeners are auto-discovered by Laravel 11
+        // No need to manually register them here
     }
 }

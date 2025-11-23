@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SendsApplicationSms;
 
 class TrainingApplication extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, SendsApplicationSms;
 
     protected $fillable = [
         'user_id',
@@ -196,5 +197,29 @@ class TrainingApplication extends Model
             ->logOnly(['status', 'training_type', 'updated_by', 'remarks'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    /**
+     * Get applicant phone number for SMS notifications
+     */
+    protected function getApplicantPhone(): ?string
+    {
+        return $this->contact_number;
+    }
+
+    /**
+     * Get applicant name for SMS notifications
+     */
+    protected function getApplicantName(): ?string
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
+    }
+
+    /**
+     * Get application type name for SMS notifications
+     */
+    protected function getApplicationTypeName(): string
+    {
+        return 'Training Application';
     }
 }

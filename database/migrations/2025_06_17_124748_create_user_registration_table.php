@@ -17,7 +17,8 @@ return new class extends Migration
             // ===== BASIC SIGNUP INFO (REQUIRED FOR INITIAL REGISTRATION) =====
             $table->string('username', 50)->unique()->nullable();
             $table->timestamp('username_changed_at')->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('contact_number', 20)->unique(); // Primary contact - required for signup
+            $table->string('email')->unique()->nullable(); // Optional - can be added later
 
             // ===== FACEBOOK AUTHENTICATION FIELDS =====
             $table->string('facebook_id')->nullable();
@@ -34,7 +35,7 @@ return new class extends Migration
             $table->string('middle_name', 100)->nullable();
             $table->string('last_name', 100)->nullable();
             $table->string('name_extension', 20)->nullable();
-            $table->string('contact_number', 20)->nullable();
+            // contact_number is now defined above as required field
             $table->text('complete_address')->nullable();
             $table->string('barangay', 100)->nullable();
             $table->enum('user_type', ['farmer', 'fisherfolk', 'general'])->nullable();
@@ -76,8 +77,9 @@ return new class extends Migration
 
             // Login & Authentication (High Priority)
             $table->index(['username'], 'idx_username_login');
-            $table->index(['email'], 'idx_email_login');
-            $table->index(['email', 'status'], 'idx_email_status_auth');
+            $table->index(['contact_number'], 'idx_contact_login');
+            $table->index(['contact_number', 'status'], 'idx_contact_status_auth');
+            $table->index(['email'], 'idx_email_optional'); // Optional email index
 
             // Admin Dashboard Filtering (Critical for Performance)
             $table->index(['status'], 'idx_status_filter');

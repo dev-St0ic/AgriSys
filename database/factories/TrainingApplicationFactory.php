@@ -83,7 +83,7 @@ class TrainingApplicationFactory extends Factory
             'name_extension' => $nameExtension,
             'contact_number' => $this->faker->randomElement([
                 '09' . $this->faker->numerify('#########'),
-                '+639' . $this->faker->numerify('#########')
+                '09' . $this->faker->numerify('#########')
             ]),
             'email' => $this->faker->optional(0.9)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'barangay' => $this->faker->randomElement([
