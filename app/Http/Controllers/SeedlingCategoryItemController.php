@@ -137,7 +137,7 @@ class SeedlingCategoryItemController extends Controller
             'unit' => 'required|string|max:20',
             'min_quantity' => 'nullable|integer|min:1',
             'max_quantity' => 'nullable|integer|min:1',
-            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:10240',
             // Supply fields
             'current_supply' => 'nullable|integer|min:0',
             'minimum_supply' => 'nullable|integer|min:0',
@@ -193,7 +193,7 @@ class SeedlingCategoryItemController extends Controller
             'min_quantity' => 'nullable|integer|min:1',
             'max_quantity' => 'nullable|integer|min:1',
             'is_active' => 'boolean',
-            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:10240',
             // Supply fields (not directly updatable here - use supply management endpoints)
             'minimum_supply' => 'nullable|integer|min:0',
             'maximum_supply' => 'nullable|integer|min:0',

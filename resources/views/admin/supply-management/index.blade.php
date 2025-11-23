@@ -68,22 +68,27 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div class="category-tabs-nav d-flex flex-wrap gap-2 align-items-center">
+                    <div class="category-tabs-nav d-flex flex-wrap gap-2 align-items-center" id="categoryTabsNav">
                         <button class="category-tab-btn active" data-category="all" onclick="switchCategory('all', event)">
                             <i class="fas fa-th-large"></i> All Categories
                         </button>
                         @foreach ($categories as $cat)
-                            <button class="category-tab-btn" data-category="{{ $cat->id }}"
-                                onclick="switchCategory('{{ $cat->id }}', event)">
+                            <button class="category-tab-btn category-btn" data-category="{{ $cat->id }}"
+                                onclick="switchCategory('{{ $cat->id }}', event)"
+                                style="display: {{ $loop->index < 6 ? '' : 'none' }};">
                                 <i class="fas {{ $cat->icon ?? 'fa-leaf' }}"></i> {{ $cat->display_name }}
                             </button>
                         @endforeach
+                        @if ($categories->count() > 6)
+                            <button class="category-tab-btn" id="showMoreBtn" onclick="toggleShowMore()">
+                                <i class="fas fa-chevron-down"></i> Show More
+                            </button>
+                            <button class="category-tab-btn" id="showLessBtn" onclick="toggleShowLess()" style="display: none;">
+                                <i class="fas fa-chevron-up"></i> Show Less
+                            </button>
+                        @endif
                     </div>
-                    <div class="d-flex gap-2 align-items-center">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
-                            style="white-space: nowrap;">
-                            <i class="fas fa-plus me-2"></i>Add Category
-                        </button>
+                    <div class="d-flex gap-2 align-items-center flex-wrap"  style="margin-left: auto;">
                         <div class="search-box">
                             <div class="input-group">
                                 <span class="input-group-text bg-white">
@@ -93,10 +98,15 @@
                                     onkeyup="searchItems()">
                             </div>
                         </div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCategoryModal"
+                            style="white-space: nowrap;">
+                            <i class="fas fa-plus me-2"></i>Add Category
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <!-- All Categories View -->
         <div class="category-content active" id="category-all">
@@ -504,98 +514,54 @@
                 </div>
             </div>
         @endforeach
-
-        <!-- Error Modal -->
-        <div class="modal fade" id="errorModal" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title">
-                            <i class="fas fa-exclamation-circle me-2"></i>Error
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="errorMessage" class="mb-0"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Success Modal -->
-        <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title">
-                            <i class="fas fa-check-circle me-2"></i>Success
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="successMessage" class="mb-0"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                            onclick="location.reload()">OK</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+         <!-- Toast Container for Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
     </div>
 
     <!-- Create Category Modal -->
     <div class="modal fade" id="createCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header border-0 d-flex justify-content-center">
                     <h5 class="modal-title">Create New Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="createCategoryForm" novalidate>
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Name *</label>
+                            <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
                             <input type="text" name="name" class="form-control" required>
-                            <small class="text-muted">Internal name (lowercase, no spaces)</small>
+                            <input type="hidden" name="display_name" id="display_name_hidden">
                             <div class="invalid-feedback">Please provide a category name.</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Display Name *</label>
-                            <input type="text" name="display_name" class="form-control" required>
-                            <div class="invalid-feedback">Please provide a display name.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Icon *</label>
+                       <div class="mb-3">
+                            <label class="form-label">Icon <span style="color: #dc3545;">*</span></label>
                             <select name="icon" id="create_icon" class="form-select" required
                                 onchange="updateIconPreview('create')">
                                 <option value="">Select an icon...</option>
-                                <option value="fa-seedling">🌱 Seedling</option>
-                                <option value="fa-leaf">🍃 Leaf</option>
-                                <option value="fa-tree">🌲 Tree</option>
-                                <option value="fa-spa">🌿 Herbs/Spa</option>
-                                <option value="fa-cannabis">🌿 Cannabis/Plant</option>
-                                <option value="fa-pepper-hot">🌶️ Pepper</option>
-                                <option value="fa-carrot">🥕 Carrot/Vegetable</option>
-                                <option value="fa-apple-alt">🍎 Apple/Fruit</option>
-                                <option value="fa-lemon">🍋 Lemon/Citrus</option>
-                                <option value="fa-wheat-awn">🌾 Wheat/Grain/Corn</option>
-                                <option value="fa-flask">🧪 Flask/Chemical</option>
-                                <option value="fa-tint">💧 Tint/Water</option>
-                                <option value="fa-sun">☀️ Sun</option>
-                                <option value="fa-cloud-rain">🌧️ Rain</option>
-                                <option value="fa-hand-holding-heart">💚 Hand Holding Heart</option>
-                                <option value="fa-tractor">🚜 Tractor/Farm</option>
-                                <option value="fa-warehouse">🏭 Warehouse</option>
-                                <option value="fa-tools">🔧 Tools</option>
-                                <option value="fa-person-digging">🔨 Shovel</option>
-                                <option value="fa-recycle">♻️ Recycle</option>
-                                <option value="fa-boxes">📦 Boxes</option>
-                                <option value="fa-box-open">📤 Box Open</option>
+                                <option value="fa-seedling">Seedling</option>
+                                <option value="fa-leaf">Leaf</option>
+                                <option value="fa-tree">Tree</option>
+                                <option value="fa-spa">Herbs/Spa</option>
+                                <option value="fa-cannabis">Cannabis/Plant</option>
+                                <option value="fa-pepper-hot">Pepper</option>
+                                <option value="fa-carrot">Carrot/Vegetable</option>
+                                <option value="fa-apple-alt">Apple/Fruit</option>
+                                <option value="fa-lemon">Lemon/Citrus</option>
+                                <option value="fa-wheat-awn">Wheat/Grain/Corn</option>
+                                <option value="fa-flask">Flask/Chemical</option>
+                                <option value="fa-tint">Tint/Water</option>
+                                <option value="fa-sun">Sun</option>
+                                <option value="fa-cloud-rain">Rain</option>
+                                <option value="fa-hand-holding-heart">Hand Holding Heart</option>
+                                <option value="fa-tractor">Tractor/Farm</option>
+                                <option value="fa-warehouse">Warehouse</option>
+                                <option value="fa-tools">Tools</option>
+                                <option value="fa-person-digging">Shovel</option>
+                                <option value="fa-recycle">Recycle</option>
+                                <option value="fa-boxes">Boxes</option>
+                                <option value="fa-box-open">Box Open</option>
                             </select>
                             <div class="invalid-feedback">Please select an icon.</div>
                             <div class="mt-2">
@@ -604,8 +570,9 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="2"></textarea>
+                            <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                            <div class="invalid-feedback">Please provide a description.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -621,9 +588,9 @@
     <div class="modal fade" id="editCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header border-0 d-flex justify-content-center">
                     <h5 class="modal-title">Edit Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="editCategoryForm" novalidate>
                     @csrf
@@ -631,44 +598,37 @@
                     <input type="hidden" id="edit_category_id" name="category_id">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Name *</label>
+                            <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
                             <input type="text" id="edit_category_name" name="name" class="form-control" required>
-                            <small class="text-muted">Internal name (lowercase, no spaces)</small>
+                            <input type="hidden" id="edit_display_name_hidden" name="display_name">
                             <div class="invalid-feedback">Please provide a category name.</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Display Name *</label>
-                            <input type="text" id="edit_category_display_name" name="display_name"
-                                class="form-control" required>
-                            <div class="invalid-feedback">Please provide a display name.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Icon *</label>
-                            <select name="icon" id="edit_icon" class="form-select" required
-                                onchange="updateIconPreview('edit')">
+                            <label class="form-label">Icon <span style="color: #dc3545;">*</span></label>
+                            <select name="icon" id="edit_icon" class="form-select" required onchange="updateIconPreview('edit'); checkForCategoryChanges()">
                                 <option value="">Select an icon...</option>
-                                <option value="fa-seedling">🌱 Seedling</option>
-                                <option value="fa-leaf">🍃 Leaf</option>
-                                <option value="fa-tree">🌲 Tree</option>
-                                <option value="fa-spa">🌿 Herbs/Spa</option>
-                                <option value="fa-cannabis">🌿 Cannabis/Plant</option>
-                                <option value="fa-pepper-hot">🌶️ Pepper</option>
-                                <option value="fa-carrot">🥕 Carrot/Vegetable</option>
-                                <option value="fa-apple-alt">🍎 Apple/Fruit</option>
-                                <option value="fa-lemon">🍋 Lemon/Citrus</option>
-                                <option value="fa-wheat-awn">🌾 Wheat/Grain/Corn</option>
-                                <option value="fa-flask">🧪 Flask/Chemical</option>
-                                <option value="fa-tint">💧 Tint/Water</option>
-                                <option value="fa-sun">☀️ Sun</option>
-                                <option value="fa-cloud-rain">🌧️ Rain</option>
-                                <option value="fa-hand-holding-heart">💚 Hand Holding Heart</option>
-                                <option value="fa-tractor">🚜 Tractor/Farm</option>
-                                <option value="fa-warehouse">🏭 Warehouse</option>
-                                <option value="fa-tools">🔧 Tools</option>
-                                <option value="fa-person-digging">🔨 Shovel</option>
-                                <option value="fa-recycle">♻️ Recycle</option>
-                                <option value="fa-boxes">📦 Boxes</option>
-                                <option value="fa-box-open">📤 Box Open</option>
+                                <option value="fa-seedling">Seedling</option>
+                                <option value="fa-leaf">Leaf</option>
+                                <option value="fa-tree">Tree</option>
+                                <option value="fa-spa">Herbs/Spa</option>
+                                <option value="fa-cannabis">Cannabis/Plant</option>
+                                <option value="fa-pepper-hot">Pepper</option>
+                                <option value="fa-carrot">Carrot/Vegetable</option>
+                                <option value="fa-apple-alt">Apple/Fruit</option>
+                                <option value="fa-lemon">Lemon/Citrus</option>
+                                <option value="fa-wheat-awn">Wheat/Grain/Corn</option>
+                                <option value="fa-flask">Flask/Chemical</option>
+                                <option value="fa-tint">Tint/Water</option>
+                                <option value="fa-sun">Sun</option>
+                                <option value="fa-cloud-rain">Rain</option>
+                                <option value="fa-hand-holding-heart">Hand Holding Heart</option>
+                                <option value="fa-tractor">Tractor/Farm</option>
+                                <option value="fa-warehouse">Warehouse</option>
+                                <option value="fa-tools">Tools</option>
+                                <option value="fa-person-digging">Shovel</option>
+                                <option value="fa-recycle">Recycle</option>
+                                <option value="fa-boxes">Boxes</option>
+                                <option value="fa-box-open">Box Open</option>
                             </select>
                             <div class="invalid-feedback">Please select an icon.</div>
                             <div class="mt-2">
@@ -677,13 +637,14 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea id="edit_category_description" name="description" class="form-control" rows="2"></textarea>
+                            <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                            <textarea id="edit_category_description" name="description" class="form-control" rows="2" required></textarea>
+                            <div class="invalid-feedback">Please provide a description.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Category</button>
+                        <button type="submit" class="btn btn-primary" id="editCategorySubmitBtn">Update Category</button>
                     </div>
                 </form>
             </div>
@@ -694,9 +655,9 @@
     <div class="modal fade" id="createItemModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header border-0 d-flex justify-content-center">
                     <h5 class="modal-title">Add New Item</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="createItemForm" enctype="multipart/form-data" novalidate>
                     @csrf
@@ -704,12 +665,12 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Name *</label>
+                                <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
                                 <input type="text" name="name" class="form-control" required>
                                 <div class="invalid-feedback">Please provide an item name.</div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Unit *</label>
+                                <label class="form-label">Unit <span style="color: #dc3545;">*</span></label>
                                 <select name="unit" class="form-select" required>
                                     <option value="">Select unit...</option>
                                     <option value="pcs" selected>Pieces (pcs)</option>
@@ -722,8 +683,9 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="2"></textarea>
+                            <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                            <textarea name="description" class="form-control" rows="2" required></textarea>
+                            <div class="invalid-feedback">Please provide a description.</div>
                         </div>
 
                         <hr>
@@ -731,25 +693,29 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Initial Supply</label>
+                                <label class="form-label">Initial Supply <span style="color: #dc3545;">*</span></label>
                                 <input type="number" name="current_supply" class="form-control" value="0"
-                                    min="0">
+                                    min="0" required>
+                                <div class="invalid-feedback">Please provide initial supply.</div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Minimum Supply</label>
+                                <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
                                 <input type="number" name="minimum_supply" class="form-control" value="0"
-                                    min="0">
+                                    min="0" required>
+                                <div class="invalid-feedback">Please provide minimum supply.</div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Maximum Supply</label>
-                                <input type="number" name="maximum_supply" class="form-control" min="0">
+                                <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
+                                <input type="number" name="maximum_supply" class="form-control" min="0" required>
+                                <div class="invalid-feedback">Please provide maximum supply.</div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Reorder Point</label>
-                                <input type="number" name="reorder_point" class="form-control" min="0">
+                                <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
+                                <input type="number" name="reorder_point" class="form-control" min="0" required>
                                 <small class="text-muted">Alert when supply reaches this level</small>
+                                <div class="invalid-feedback">Please provide reorder point.</div>
                             </div>
                         </div>
 
@@ -757,9 +723,10 @@
                         <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
 
                         <div class="mb-3">
-                            <label class="form-label">Image</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Recommended: 300x300px, max 2MB</small>
+                            <label class="form-label">Image <span style="color: #dc3545;">*</span></label>
+                            <input type="file" name="image" class="form-control" accept="image/*" required>
+                            <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
+                            <div class="invalid-feedback">Please select an image file.</div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -772,84 +739,85 @@
     </div>
 
 
-    <!-- Edit Item Modal -->
-    <div class="modal fade" id="editItemModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Item</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <!-- Edit Item Modal -->
+        <div class="modal fade" id="editItemModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header border-0 d-flex justify-content-center">
+                        <h5 class="modal-title">Edit Item</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                    </div>
+                    <form id="editItemForm" enctype="multipart/form-data" novalidate>
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="edit_item_id" name="item_id">
+                        <input type="hidden" id="edit_item_category_id" name="category_id" required>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Name <span style="color: #dc3545;">*</span></label>
+                                    <input type="text" id="edit_item_name" name="name" class="form-control" required>
+                                    <div class="invalid-feedback">Please provide an item name.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Unit <span style="color: #dc3545;">*</span></label>
+                                    <select id="edit_item_unit" name="unit" class="form-select" required>
+                                        <option value="">Select unit...</option>
+                                        <option value="pcs">Pieces (pcs)</option>
+                                        <option value="kg">Kilogram (kg)</option>
+                                        <option value="L">Liter (L)</option>
+                                        <option value="pack">Pack</option>
+                                        <option value="bag">Bag</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a unit.</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description <span style="color: #dc3545;">*</span></label>
+                                <textarea id="edit_item_description" name="description" class="form-control" rows="2" required></textarea>
+                                <div class="invalid-feedback">Please provide a description.</div>
+                            </div>
+
+                            <hr>
+                            <h6 class="text-primary"><i class="fas fa-warehouse me-2"></i>Supply Settings</h6>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Minimum Supply <span style="color: #dc3545;">*</span></label>
+                                    <input type="number" id="edit_item_minimum_supply" name="minimum_supply" class="form-control" value="0" min="0" required>
+                                    <div class="invalid-feedback">Please provide minimum supply.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Maximum Supply <span style="color: #dc3545;">*</span></label>
+                                    <input type="number" id="edit_item_maximum_supply" name="maximum_supply" class="form-control" min="0" required>
+                                    <div class="invalid-feedback">Please provide maximum supply.</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Reorder Point <span style="color: #dc3545;">*</span></label>
+                                <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control" min="0" required>
+                                <small class="text-muted">Alert when supply reaches this level</small>
+                                <div class="invalid-feedback">Please provide reorder point.</div>
+                            </div>
+
+                            <hr>
+                            <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
+
+                            <div class="mb-3">
+                                <div id="current_image_preview" class="mb-2"></div>
+                                <label class="form-label">Change Image (Optional)</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
+                                <small class="text-muted">Recommended: 300x300px, max 10MB (JPG, JPEG, PNG)</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="editItemSubmitBtn">Update Item</button>
+                        </div>
+                    </form>
                 </div>
-                <form id="editItemForm" enctype="multipart/form-data" novalidate>
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" id="edit_item_id" name="item_id">
-                    <input type="hidden" id="edit_item_category_id" name="category_id" required>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Name *</label>
-                                <input type="text" id="edit_item_name" name="name" class="form-control" required>
-                                <div class="invalid-feedback">Please provide an item name.</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Unit *</label>
-                                <select id="edit_item_unit" name="unit" class="form-select" required>
-                                    <option value="">Select unit...</option>
-                                    <option value="pcs">Pieces (pcs)</option>
-                                    <option value="kg">Kilogram (kg)</option>
-                                    <option value="L">Liter (L)</option>
-                                    <option value="pack">Pack</option>
-                                    <option value="bag">Bag</option>
-                                </select>
-                                <div class="invalid-feedback">Please select a unit.</div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea id="edit_item_description" name="description" class="form-control" rows="2"></textarea>
-                        </div>
-
-                        <hr>
-                        <h6 class="text-primary"><i class="fas fa-warehouse me-2"></i>Supply Settings</h6>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Minimum Supply</label>
-                                <input type="number" id="edit_item_minimum_supply" name="minimum_supply"
-                                    class="form-control" value="0" min="0">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Maximum Supply</label>
-                                <input type="number" id="edit_item_maximum_supply" name="maximum_supply"
-                                    class="form-control" min="0">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Reorder Point</label>
-                            <input type="number" id="edit_item_reorder_point" name="reorder_point" class="form-control"
-                                min="0">
-                            <small class="text-muted">Alert when supply reaches this level</small>
-                        </div>
-
-                        <hr>
-                        <h6 class="text-primary"><i class="fas fa-image me-2"></i>Item Image</h6>
-
-                        <div class="mb-3">
-                            <div id="current_image_preview" class="mb-2"></div>
-                            <label class="form-label">Change Image</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                            <small class="text-muted">Recommended: 300x300px, max 2MB</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Item</button>
-                    </div>
-                </form>
             </div>
         </div>
-    </div>
 
     <!-- Supply Management Modal -->
     <div class="modal fade" id="supplyModal" tabindex="-1">
@@ -1005,6 +973,65 @@
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
+        // Auto-fill display_name when name changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const createCategoryForm = document.getElementById('createCategoryForm');
+            const nameInput = createCategoryForm.querySelector('input[name="name"]');
+            const displayNameHidden = document.getElementById('display_name_hidden');
+            
+            nameInput.addEventListener('change', function() {
+                displayNameHidden.value = this.value;
+            });
+            
+            // Set it on form submission as well
+            createCategoryForm.addEventListener('submit', function() {
+                const nameValue = nameInput.value;
+                displayNameHidden.value = nameValue;
+            });
+        });
+
+        // Auto-fill display_name when name changes in Edit Category Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editCategoryForm = document.getElementById('editCategoryForm');
+            if (editCategoryForm) {
+                const nameInput = editCategoryForm.querySelector('input[name="name"]');
+                const displayNameHidden = document.getElementById('edit_display_name_hidden');
+                
+                nameInput.addEventListener('change', function() {
+                    displayNameHidden.value = this.value;
+                });
+                
+                // Set it on form submission as well
+                editCategoryForm.addEventListener('submit', function() {
+                    const nameValue = nameInput.value;
+                    displayNameHidden.value = nameValue;
+                });
+            }
+        });
+
+         // Show More/Less functionality
+        function toggleShowMore() {
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            categoryBtns.forEach((btn, index) => {
+                if (index >= 6) {
+                    btn.style.display = '';
+                }
+            });
+            document.getElementById('showMoreBtn').style.display = 'none';
+            document.getElementById('showLessBtn').style.display = 'inline-block';
+        }
+
+        function toggleShowLess() {
+            const categoryBtns = document.querySelectorAll('.category-btn');
+            categoryBtns.forEach((btn, index) => {
+                if (index >= 6) {
+                    btn.style.display = 'none';
+                }
+            });
+            document.getElementById('showMoreBtn').style.display = 'inline-block';
+            document.getElementById('showLessBtn').style.display = 'none';
+        }
+
         // Category Tab Switching
         function switchCategory(categoryId, event) {
             // Update active tab button
@@ -1133,45 +1160,153 @@
         }
 
         // Show error modal (closes any open modal first)
-        function showError(message) {
-            // Close all open modals first
-            const openModals = document.querySelectorAll('.modal.show');
-            openModals.forEach(modal => {
-                const bsModal = bootstrap.Modal.getInstance(modal);
-                if (bsModal) bsModal.hide();
-            });
-
-            // Small delay to ensure previous modal is closed
-            setTimeout(() => {
-                document.getElementById('errorMessage').textContent = message;
-                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-                errorModal.show();
-            }, 300);
+       function showError(message) {
+            showToast('error', message);
         }
 
         // Show success modal (closes any open modal first)
         function showSuccess(message, shouldReload = true) {
-            // Close all open modals first
-            const openModals = document.querySelectorAll('.modal.show');
-            openModals.forEach(modal => {
-                const bsModal = bootstrap.Modal.getInstance(modal);
-                if (bsModal) bsModal.hide();
-            });
+            showToast('success', message);
+            
+            if (shouldReload) {
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        }
 
-            // Small delay to ensure previous modal is closed
+        // create toast container 
+        function createToastContainer() {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            return container;
+        }
+
+        // Toast notification function
+        function showToast(type, message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const iconMap = {
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
+            };
+
+            const config = iconMap[type] || iconMap['info'];
+
+            const toast = document.createElement('div');
+            toast.className = `toast-notification toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="${config.icon} me-2" style="color: var(--bs-${config.color});"></i>
+                    <span>${message}</span>
+                    <button type="button" class="btn-close btn-close-toast ms-auto" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 5 seconds
             setTimeout(() => {
-                document.getElementById('successMessage').textContent = message;
-                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                successModal.show();
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 5000);
+        }
 
-                if (shouldReload) {
-                    document.getElementById('successModal').addEventListener('hidden.bs.modal', function() {
-                        location.reload();
-                    }, {
-                        once: true
-                    });
+        // Confirmation toast function
+        function showConfirmationToast(title, message, onConfirm) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification confirmation-toast';
+
+            // Store the callback function on the toast element
+            toast.dataset.confirmCallback = Math.random().toString(36);
+            window[toast.dataset.confirmCallback] = onConfirm;
+
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <i class="fas fa-question-circle me-2 text-warning"></i>
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close btn-close-toast" onclick="removeToast(this.closest('.toast-notification'))"></button>
+                </div>
+                <div class="toast-body">
+                    <p class="mb-3" style="white-space: pre-wrap;">${message}</p>
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="removeToast(this.closest('.toast-notification'))">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="confirmToastAction(this)">
+                            <i class="fas fa-check me-1"></i>Confirm
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                if (document.contains(toast)) {
+                    removeToast(toast);
+                }
+            }, 10000);
+        }
+
+        // Execute confirmation action
+        function confirmToastAction(button) {
+            const toast = button.closest('.toast-notification');
+            const callbackId = toast.dataset.confirmCallback;
+            const callback = window[callbackId];
+
+            if (typeof callback === 'function') {
+                try {
+                    callback();
+                } catch (error) {
+                    console.error('Error executing confirmation callback:', error);
+                }
+            }
+
+            // Clean up the callback reference
+            delete window[callbackId];
+            removeToast(toast);
+        }
+
+        // Remove toast notification
+        function removeToast(toastElement) {
+            toastElement.classList.remove('show');
+            setTimeout(() => {
+                if (toastElement.parentElement) {
+                    toastElement.remove();
                 }
             }, 300);
+        }
+
+        // Get CSRF token utility function
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
         }
 
         // Icon preview
@@ -1210,61 +1345,78 @@
         }
 
         async function editCategory(categoryId) {
-            try {
-                const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                });
+        try {
+            const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            });
 
-                // Populate form fields
-                document.getElementById('edit_category_id').value = category.id;
-                document.getElementById('edit_category_name').value = category.name;
-                document.getElementById('edit_category_display_name').value = category.display_name;
-                document.getElementById('edit_icon').value = category.icon || 'fa-leaf';
-                document.getElementById('edit_category_description').value = category.description || '';
+            // Populate form fields
+            document.getElementById('edit_category_id').value = category.id;
+            document.getElementById('edit_category_name').value = category.name;
+            document.getElementById('edit_display_name_hidden').value = category.display_name;
+            document.getElementById('edit_icon').value = category.icon || 'fa-leaf';
+            document.getElementById('edit_category_description').value = category.description || '';
 
-                // Update icon preview
-                updateIconPreview('edit');
+            // Update icon preview
+            updateIconPreview('edit');
 
-                // Reset validation
-                document.getElementById('editCategoryForm').classList.remove('was-validated');
+            // Reset validation
+            document.getElementById('editCategoryForm').classList.remove('was-validated');
 
-                // Show modal
-                new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
-            } catch (error) {
-                showError('Error loading category: ' + error.message);
-            }
+            // Show modal
+            new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+        } catch (error) {
+            showError('Error loading category: ' + error.message);
         }
+    }
 
         document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        e.preventDefault();
 
-            if (!validateForm(this)) {
-                return;
-            }
+        if (!validateForm(this)) {
+            return;
+        }
 
-            const categoryId = document.getElementById('edit_category_id').value;
-            const formData = new FormData(this);
+        const categoryId = document.getElementById('edit_category_id').value;
+        const formData = new FormData(this);
+        const submitBtn = document.querySelector('#editCategoryModal .btn-primary');
+        const originalText = submitBtn.innerHTML;
 
-            try {
-                const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    }
-                });
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            }
-        });
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
+        submitBtn.disabled = true;
+
+        try {
+            const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                }
+            });
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editCategoryModal'));
+            modal.hide();
+            showSuccess(data.message);
+        } catch (error) {
+            showError(error.message);
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
 
         async function toggleCategory(categoryId) {
-            if (!confirm('Toggle category status?')) return;
+            showConfirmationToast(
+                'Toggle Category Status',
+                'Are you sure you want to toggle this category status?',
+                () => proceedToggleCategory(categoryId)
+            );
+        }
+
+        async function proceedToggleCategory(categoryId) {
             try {
                 const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}/toggle`, {
                     method: 'POST',
@@ -1280,7 +1432,14 @@
         }
 
         async function deleteCategory(categoryId) {
-            if (!confirm('Delete this category permanently?')) return;
+            showConfirmationToast(
+                'Delete Category',
+                'Are you sure you want to delete this category permanently?\n\nAll items in this category will also be deleted.',
+                () => proceedDeleteCategory(categoryId)
+            );
+        }
+
+        async function proceedDeleteCategory(categoryId) {
             try {
                 const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
                     method: 'DELETE',
@@ -1421,6 +1580,11 @@
             }
 
             const formData = new FormData(this);
+            const submitBtn = document.querySelector('#createCategoryModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Creating...';
+            submitBtn.disabled = true;
 
             try {
                 const data = await makeRequest('/admin/seedlings/supply-management', {
@@ -1431,9 +1595,14 @@
                         'Accept': 'application/json'
                     }
                 });
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('createCategoryModal'));
+                modal.hide();
                 showSuccess(data.message);
             } catch (error) {
                 showError(error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         });
 
@@ -1445,6 +1614,11 @@
             }
 
             const formData = new FormData(this);
+            const submitBtn = document.querySelector('#createItemModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Adding...';
+            submitBtn.disabled = true;
 
             try {
                 const data = await makeRequest('/admin/seedlings/items', {
@@ -1455,6 +1629,8 @@
                         'Accept': 'application/json'
                     }
                 });
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('createItemModal'));
+                modal.hide();
                 showSuccess(data.message);
             } catch (error) {
                 if (error.message.includes('name')) {
@@ -1464,6 +1640,9 @@
                 } else {
                     showError(error.message);
                 }
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         });
 
@@ -1489,17 +1668,8 @@
                     body: JSON.stringify(Object.fromEntries(formData))
                 });
 
-                // Show success message without closing modal
-                const toast = document.createElement('div');
-                toast.className =
-                    'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
-                toast.style.zIndex = '9999';
-                toast.innerHTML = `
-            ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
+                // Show success message using toast
+                showToast('success', data.message);
 
                 // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
@@ -1534,16 +1704,8 @@
                     body: JSON.stringify(Object.fromEntries(formData))
                 });
 
-                const toast = document.createElement('div');
-                toast.className =
-                    'alert alert-warning alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
-                toast.style.zIndex = '9999';
-                toast.innerHTML = `
-            ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
+                // Show success message using toast
+                showToast('success', data.message);
 
                 // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
@@ -1584,16 +1746,8 @@
                     })
                 });
 
-                const toast = document.createElement('div');
-                toast.className =
-                    'alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
-                toast.style.zIndex = '9999';
-                toast.innerHTML = `
-            ${data.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
+                // Show success message using toast
+                showToast('success', data.message);
 
                 // Update display without reopening modal
                 document.getElementById('supply_current').textContent = data.new_supply || data.current_supply;
@@ -1609,8 +1763,15 @@
             location.reload();
         });
 
-        async function toggleItem(itemId) {
-            if (!confirm('Toggle item status?')) return;
+     async function toggleItem(itemId) {
+            showConfirmationToast(
+                'Toggle Item Status',
+                'Are you sure you want to toggle this item status?',
+                () => proceedToggleItem(itemId)
+            );
+        }
+
+        async function proceedToggleItem(itemId) {
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}/toggle`, {
                     method: 'POST',
@@ -1626,7 +1787,14 @@
         }
 
         async function deleteItem(itemId) {
-            if (!confirm('Delete this item permanently?')) return;
+            showConfirmationToast(
+                'Delete Item',
+                'Are you sure you want to delete this item permanently?\n\nThis action cannot be undone.',
+                () => proceedDeleteItem(itemId)
+            );
+        }
+
+        async function proceedDeleteItem(itemId) {
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
                     method: 'DELETE',
@@ -1641,7 +1809,7 @@
             }
         }
 
-        async function editItem(itemId) {
+            async function editItem(itemId) {
             try {
                 const item = await makeRequest(`/admin/seedlings/items/${itemId}`, {
                     method: 'GET',
@@ -1650,30 +1818,63 @@
                     }
                 });
 
+                // Get form fields
+                const nameInput = document.getElementById('edit_item_name');
+                const unitSelect = document.getElementById('edit_item_unit');
+                const descriptionInput = document.getElementById('edit_item_description');
+                const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+                const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+                const reorderPointInput = document.getElementById('edit_item_reorder_point');
+                const submitBtn = document.getElementById('editItemSubmitBtn');
+
                 // Populate form fields
                 document.getElementById('edit_item_id').value = item.id;
                 document.getElementById('edit_item_category_id').value = item.category_id;
-                document.getElementById('edit_item_name').value = item.name;
-                document.getElementById('edit_item_unit').value = item.unit;
-                document.getElementById('edit_item_description').value = item.description || '';
-                document.getElementById('edit_item_minimum_supply').value = item.minimum_supply || 0;
-                document.getElementById('edit_item_maximum_supply').value = item.maximum_supply || '';
-                document.getElementById('edit_item_reorder_point').value = item.reorder_point || '';
+                nameInput.value = item.name;
+                unitSelect.value = item.unit;
+                descriptionInput.value = item.description || '';
+                minSupplyInput.value = item.minimum_supply || 0;
+                maxSupplyInput.value = item.maximum_supply || '';
+                reorderPointInput.value = item.reorder_point || '';
+
+                // Store original values in data attributes
+                nameInput.dataset.originalValue = item.name;
+                unitSelect.dataset.originalValue = item.unit;
+                descriptionInput.dataset.originalValue = item.description || '';
+                minSupplyInput.dataset.originalValue = item.minimum_supply || 0;
+                maxSupplyInput.dataset.originalValue = item.maximum_supply || '';
+                reorderPointInput.dataset.originalValue = item.reorder_point || '';
 
                 // Show current image if exists
                 const imagePreview = document.getElementById('current_image_preview');
                 if (item.image_path) {
                     imagePreview.innerHTML = `
-                <label class="form-label">Current Image:</label><br>
-                <img src="/storage/${item.image_path}" alt="${item.name}"
-                     class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
-            `;
+                        <label class="form-label">Current Image:</label><br>
+                        <img src="/storage/${item.image_path}" alt="${item.name}"
+                            class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                    `;
                 } else {
                     imagePreview.innerHTML = '';
                 }
 
                 // Reset validation
                 document.getElementById('editItemForm').classList.remove('was-validated');
+
+                // Clear any previous change styling
+                nameInput.classList.remove('form-changed');
+                unitSelect.classList.remove('form-changed');
+                descriptionInput.classList.remove('form-changed');
+                minSupplyInput.classList.remove('form-changed');
+                maxSupplyInput.classList.remove('form-changed');
+                reorderPointInput.classList.remove('form-changed');
+
+                // Reset submit button to initial state
+                submitBtn.classList.add('no-changes');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+
+                // Initialize change detection
+                checkForItemChanges();
 
                 // Show modal
                 new bootstrap.Modal(document.getElementById('editItemModal')).show();
@@ -1691,6 +1892,11 @@
 
             const itemId = document.getElementById('edit_item_id').value;
             const formData = new FormData(this);
+            const submitBtn = document.querySelector('#editItemModal .btn-primary');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
+            submitBtn.disabled = true;
 
             try {
                 const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
@@ -1701,9 +1907,14 @@
                         'Accept': 'application/json'
                     }
                 });
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editItemModal'));
+                modal.hide();
                 showSuccess(data.message);
             } catch (error) {
                 showError(error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
             }
         });
 
@@ -1725,9 +1936,350 @@
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
+
+        // File size validation for Add Item Modal
+        document.getElementById('createItemForm').addEventListener('change', function(e) {
+            if (e.target.name === 'image') {
+                const file = e.target.files[0];
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                
+                if (file && file.size > maxSize) {
+                    showError(`File size must not exceed 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+                    e.target.value = ''; // Clear the input
+                }
+            }
+        });
+
+        // File size validation for Edit Item Modal
+        document.getElementById('editItemForm').addEventListener('change', function(e) {
+            if (e.target.name === 'image') {
+                const file = e.target.files[0];
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                
+                if (file && file.size > maxSize) {
+                    showError(`File size must not exceed 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+                    e.target.value = ''; // Clear the input
+                }
+            }
+        });
+
+       // Check for changes in Edit Category Modal
+        function checkForCategoryChanges() {
+            const nameInput = document.getElementById('edit_category_name');
+            const iconSelect = document.getElementById('edit_icon');
+            const descriptionInput = document.getElementById('edit_category_description');
+            
+            const submitBtn = document.getElementById('editCategorySubmitBtn');
+            
+            // Get original values from data attributes
+            const originalName = nameInput.dataset.originalValue || '';
+            const originalIcon = iconSelect.dataset.originalValue || '';
+            const originalDescription = descriptionInput.dataset.originalValue || '';
+            
+            // Check for changes
+            const nameChanged = nameInput.value.trim() !== originalName;
+            const iconChanged = iconSelect.value !== originalIcon;
+            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+            
+            const anyChanges = nameChanged || iconChanged || descriptionChanged;
+            
+            // Update visual feedback for each field
+            nameInput.classList.toggle('form-changed', nameChanged);
+            iconSelect.classList.toggle('form-changed', iconChanged);
+            descriptionInput.classList.toggle('form-changed', descriptionChanged);
+            
+            // Update submit button state
+            if (anyChanges) {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Update Category';
+            } else {
+                submitBtn.classList.add('no-changes');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+            }
+        }
+
+        // Load category and initialize change detection
+        async function editCategory(categoryId) {
+            try {
+                const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+
+                // Get form fields
+                const nameInput = document.getElementById('edit_category_name');
+                const iconSelect = document.getElementById('edit_icon');
+                const descriptionInput = document.getElementById('edit_category_description');
+                const displayNameHidden = document.getElementById('edit_display_name_hidden');
+                
+                // Populate form fields
+                document.getElementById('edit_category_id').value = category.id;
+                nameInput.value = category.name;
+                iconSelect.value = category.icon || 'fa-leaf';
+                descriptionInput.value = category.description || '';
+                displayNameHidden.value = category.display_name;
+                
+                // Store original values in data attributes
+                nameInput.dataset.originalValue = category.name;
+                iconSelect.dataset.originalValue = category.icon || 'fa-leaf';
+                descriptionInput.dataset.originalValue = category.description || '';
+                
+                // Update icon preview
+                updateIconPreview('edit');
+                
+                // Reset validation
+                document.getElementById('editCategoryForm').classList.remove('was-validated');
+                
+                // Clear any previous change styling
+                nameInput.classList.remove('form-changed');
+                iconSelect.classList.remove('form-changed');
+                descriptionInput.classList.remove('form-changed');
+                
+                // Reset submit button to initial state
+                const submitBtn = document.getElementById('editCategorySubmitBtn');
+                submitBtn.classList.add('no-changes');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+                
+                // Initialize change detection
+                checkForCategoryChanges();
+                
+                // Show modal
+                new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+            } catch (error) {
+                showError('Error loading category: ' + error.message);
+            }
+        }
+
+        // Add event listeners for real-time change detection
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.getElementById('edit_category_name');
+            const iconSelect = document.getElementById('edit_icon');
+            const descriptionInput = document.getElementById('edit_category_description');
+            
+            if (nameInput) {
+                nameInput.addEventListener('input', function() {
+                    document.getElementById('edit_display_name_hidden').value = this.value;
+                    checkForCategoryChanges();
+                });
+            }
+            
+            if (iconSelect) {
+                iconSelect.addEventListener('change', checkForCategoryChanges);
+            }
+            
+            if (descriptionInput) {
+                descriptionInput.addEventListener('input', checkForCategoryChanges);
+            }
+        });
+
+       // Check for changes in Edit Item Modal
+        function checkForItemChanges() {
+            const nameInput = document.getElementById('edit_item_name');
+            const unitSelect = document.getElementById('edit_item_unit');
+            const descriptionInput = document.getElementById('edit_item_description');
+            const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+            const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+            const reorderPointInput = document.getElementById('edit_item_reorder_point');
+            const submitBtn = document.getElementById('editItemSubmitBtn');
+
+            // Get original values from data attributes
+            const originalName = nameInput.dataset.originalValue || '';
+            const originalUnit = unitSelect.dataset.originalValue || '';
+            const originalDescription = descriptionInput.dataset.originalValue || '';
+            const originalMinSupply = minSupplyInput.dataset.originalValue || '0';
+            const originalMaxSupply = maxSupplyInput.dataset.originalValue || '';
+            const originalReorderPoint = reorderPointInput.dataset.originalValue || '';
+
+            // Check for changes
+            const nameChanged = nameInput.value.trim() !== originalName;
+            const unitChanged = unitSelect.value !== originalUnit;
+            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+            const minSupplyChanged = minSupplyInput.value.trim() !== originalMinSupply.toString().trim();
+            const maxSupplyChanged = maxSupplyInput.value.trim() !== originalMaxSupply.toString().trim();
+            const reorderPointChanged = reorderPointInput.value.trim() !== originalReorderPoint.toString().trim();
+
+            const anyChanges = nameChanged || unitChanged || descriptionChanged || minSupplyChanged || maxSupplyChanged || reorderPointChanged;
+
+            // Update visual feedback for each field
+            nameInput.classList.toggle('form-changed', nameChanged);
+            unitSelect.classList.toggle('form-changed', unitChanged);
+            descriptionInput.classList.toggle('form-changed', descriptionChanged);
+            minSupplyInput.classList.toggle('form-changed', minSupplyChanged);
+            maxSupplyInput.classList.toggle('form-changed', maxSupplyChanged);
+            reorderPointInput.classList.toggle('form-changed', reorderPointChanged);
+
+            // Update submit button state
+            if (anyChanges) {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Update Item';
+            } else {
+                submitBtn.classList.add('no-changes');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
+            }
+        }
+
+        // Add event listeners for real-time change detection in Edit Item Modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editItemForm = document.getElementById('editItemForm');
+            
+            if (editItemForm) {
+                const inputs = editItemForm.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
+                
+                inputs.forEach(input => {
+                    input.addEventListener('input', checkForItemChanges);
+                    input.addEventListener('change', checkForItemChanges);
+                });
+            }
+        });
     </script>
 
     <style>
+
+        /* Toast Notification Container */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        /* Individual Toast Notification */
+        .toast-notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 380px;
+            max-width: 600px;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            pointer-events: auto;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Toast Content */
+        .toast-notification .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            font-size: 1.05rem;
+        }
+
+        .toast-notification .toast-content i {
+            font-size: 1.5rem;
+        }
+
+        .toast-notification .toast-content span {
+            flex: 1;
+            color: #333;
+        }
+
+        /* Type-specific styles */
+        .toast-notification.toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-notification.toast-success .toast-content i {
+            color: #28a745;
+        }
+
+        .toast-notification.toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast-notification.toast-error .toast-content i {
+            color: #dc3545;
+        }
+
+        .toast-notification.toast-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast-notification.toast-warning .toast-content i {
+            color: #ffc107;
+        }
+
+        .toast-notification.toast-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .toast-notification.toast-info .toast-content i {
+            color: #17a2b8;
+        }
+
+        /* Confirmation Toast */
+        .confirmation-toast {
+            min-width: 420px;
+            max-width: 650px;
+        }
+
+        .confirmation-toast .toast-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .confirmation-toast .toast-body {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .confirmation-toast .toast-body p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .btn-close-toast {
+            width: auto;
+            height: auto;
+            padding: 0;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-close-toast:hover {
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+
+            .toast-notification,
+            .confirmation-toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
         /* Metric card styles */
         .metric-card {
             border-radius: 12px;
@@ -1946,7 +2498,7 @@
             }
 
             .card-body>.d-flex {
-                justify-content: center !important;
+                justify-content: flex-end !important;
             }
         }
 
@@ -2061,6 +2613,76 @@
                 padding: 0.375rem 0.5rem;
                 font-size: 0.875rem;
             }
+        }
+
+        /* Change Detection Styles */
+        .form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd !important;
+            transition: all 0.3s ease;
+        }
+
+        .no-changes {
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        /* Change indicator */
+        .change-indicator {
+            position: relative;
+        }
+
+        .change-indicator::after {
+            content: "●";
+            color: #ffc107;
+            font-size: 12px;
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .change-indicator.changed::after {
+            opacity: 1;
+        }
+
+        #editCategorySubmitBtn {
+            transition: all 0.3s ease;
+        }
+
+        #editCategorySubmitBtn.no-changes:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+     /* Edit Item Modal - Change Detection Styles */
+        #editItemModal .form-control.form-changed,
+        #editItemModal .form-select.form-changed {
+            border-left: 3px solid #ffc107 !important;
+            background-color: #fff3cd !important;
+            transition: all 0.3s ease;
+        }
+
+        #editItemModal .form-control.form-changed:focus,
+        #editItemModal .form-select.form-changed:focus {
+            border-color: #ffc107 !important;
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important;
+        }
+
+        #editItemSubmitBtn {
+            transition: all 0.3s ease;
+        }
+
+        #editItemSubmitBtn.no-changes {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        #editItemSubmitBtn.no-changes:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
         }
     </style>
 @endsection
