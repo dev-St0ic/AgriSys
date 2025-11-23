@@ -20,7 +20,7 @@ class UserRegistrationSeeder extends Seeder
         $this->createApprovedUsers();
         $this->createRejectedUsers();
         $this->createTestUsers();
-        
+
         $this->command->info('User registrations seeded successfully!');
         $this->command->info('Total created: ' . UserRegistration::count() . ' registrations');
         $this->command->info('- Unverified: ' . UserRegistration::unverified()->count());
@@ -35,7 +35,7 @@ class UserRegistrationSeeder extends Seeder
     private function createUnverifiedUsers()
     {
         $this->command->info('Creating unverified users...');
-        
+
         UserRegistration::factory()
             ->count(20)
             ->unverified()
@@ -51,7 +51,7 @@ class UserRegistrationSeeder extends Seeder
     private function createPendingUsers()
     {
         $this->command->info('Creating pending users...');
-        
+
         UserRegistration::factory()
             ->count(6)
             ->farmer()
@@ -82,7 +82,7 @@ class UserRegistrationSeeder extends Seeder
     private function createApprovedUsers()
     {
         $this->command->info('Creating approved users...');
-        
+
         UserRegistration::factory()
             ->count(10)
             ->farmer()
@@ -116,7 +116,7 @@ class UserRegistrationSeeder extends Seeder
     private function createRejectedUsers()
     {
         $this->command->info('Creating rejected users...');
-        
+
         UserRegistration::factory()
             ->count(2)
             ->farmer()
@@ -147,7 +147,7 @@ class UserRegistrationSeeder extends Seeder
     private function createTestUsers()
     {
         $this->command->info('Creating test users...');
-        
+
         // Test User 1: Basic signup (unverified)
         UserRegistration::create([
             'username' => 'juan_test',
@@ -171,7 +171,7 @@ class UserRegistrationSeeder extends Seeder
             'first_name' => 'Maria',
             'last_name' => 'Santos',
             'middle_name' => 'Reyes',
-            'contact_number' => '+639123456789',
+            'contact_number' => '09123456789',
             'complete_address' => '123 Seaside Street, Barangay Baybayin',
             'barangay' => 'Barangay Baybayin',
             'user_type' => 'fisherfolk',
@@ -193,7 +193,7 @@ class UserRegistrationSeeder extends Seeder
             'privacy_accepted' => true,
             'first_name' => 'Carlos',
             'last_name' => 'Rodriguez',
-            'contact_number' => '+639555123456',
+            'contact_number' => '09555123456',
             'complete_address' => '456 Main Street, Barangay Centro',
             'barangay' => 'Barangay Centro',
             'user_type' => 'farmer',
@@ -216,7 +216,7 @@ class UserRegistrationSeeder extends Seeder
             'privacy_accepted' => true,
             'first_name' => 'Ana',
             'last_name' => 'Garcia',
-            'contact_number' => '+639777888999',
+            'contact_number' => '09777888999',
             'complete_address' => '789 Farm Road, Barangay Rural',
             'barangay' => 'Barangay Rural',
             'user_type' => 'farmer',
@@ -253,7 +253,7 @@ class UserRegistrationSeeder extends Seeder
             'privacy_accepted' => true,
             'first_name' => 'Pedro',
             'last_name' => 'Santos',
-            'contact_number' => '+639888777666',
+            'contact_number' => '09888777666',
             'complete_address' => '321 Farm Avenue, Barangay Agricola',
             'barangay' => 'Barangay Agricola',
             'user_type' => 'farmer',

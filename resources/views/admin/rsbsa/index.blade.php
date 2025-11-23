@@ -433,6 +433,7 @@
                                     <p class="mb-1"><strong>Application #:</strong> <span id="updateAppNumber"></span>
                                     </p>
                                     <p class="mb-1"><strong>Name:</strong> <span id="updateAppName"></span></p>
+                                    <p class="mb-1"><strong>Type:</strong> <span id="updateAppType"></span></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mb-1"><strong>Barangay:</strong> <span id="updateAppBarangay"></span></p>
@@ -1144,8 +1145,8 @@
 
         /* Application Details Modal - Simple Professional Look */
         /* ============================================
-                        VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
-                        ============================================ */
+                                        VIEW MODAL STYLING - CONSISTENT WITH OTHER SERVICES
+                                        ============================================ */
 
         /* Application Details Modal - Enhanced Styling */
         #applicationModal .modal-content {
@@ -1271,8 +1272,8 @@
         }
 
         /* #updateModal .modal-header {
-                        border-bottom: 1px solid #dee2e6;
-                    } */
+                                        border-bottom: 1px solid #dee2e6;
+                                    } */
 
         #updateModal .modal-header .modal-title {
             /* color: black; */
@@ -2540,69 +2541,56 @@
                 });
         }
 
-        // Update application status function with enhanced validation
+        // OPTIMIZED UPDATE STATUS FUNCTION
+        let isUpdating = false;
+
         function updateApplicationStatus() {
+            if (isUpdating) return;
+
             const id = document.getElementById('updateApplicationId').value;
             const newStatus = document.getElementById('newStatus').value;
             const remarks = document.getElementById('remarks').value;
 
-            // Validate inputs
-            if (!id) {
-                alert('Invalid application ID');
+            // Quick validation
+            if (!id || !newStatus) {
+                showToast('error', 'Missing required information');
                 return;
             }
 
-            if (!newStatus) {
-                alert('Please select a status');
-                return;
-            }
-
-            // Get the original values to compare changes
+            // Get original values
             const originalStatus = document.getElementById('newStatus').dataset.originalStatus || '';
             const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
 
-            // Check if nothing has changed
-            if (newStatus === originalStatus && remarks.trim() === originalRemarks.trim()) {
-                alert('No changes detected. Please modify the status or remarks before updating.');
+            // Check for changes
+            const statusChanged = (newStatus !== originalStatus);
+            const remarksChanged = (remarks.trim() !== originalRemarks.trim());
+
+            if (!statusChanged && !remarksChanged) {
+                showToast('info', 'No changes detected');
                 return;
             }
 
-            // Show confirmation dialog with changes summary
-            let changesSummary = [];
-            if (newStatus !== originalStatus) {
-                const originalStatusText = getStatusText(originalStatus);
-                const newStatusText = getStatusText(newStatus);
-                changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
-            }
-            if (remarks.trim() !== originalRemarks.trim()) {
-                if (originalRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Added new remarks');
-                } else if (remarks.trim() === '') {
-                    changesSummary.push('Remarks: Removed existing remarks');
-                } else {
-                    changesSummary.push('Remarks: Modified');
-                }
+            // Simple confirmation
+            let message = 'Update application';
+            if (statusChanged) {
+                message += `\nStatus: ${getStatusText(originalStatus)} → ${getStatusText(newStatus)}`;
             }
 
-            const confirmMessage =
-                `Are you sure you want to update this application with the following changes?\n\n${changesSummary.join('\n')}`;
+            if (!confirm(message + '?')) return;
 
-            if (!confirm(confirmMessage)) {
-                return;
-            }
-
-            // Show loading state
+            // Lock and show loading
+            isUpdating = true;
             const updateButton = document.querySelector('#updateModal .btn-primary');
             const originalText = updateButton.innerHTML;
-            updateButton.innerHTML =
-                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating...';
             updateButton.disabled = true;
 
+            // Optimized request
             fetch(`/admin/rsbsa-applications/${id}/status`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-CSRF-TOKEN': getCSRFToken(),
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
@@ -2610,32 +2598,22 @@
                         remarks: remarks
                     })
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    if (response.success) {
-                        // Show success message and reload page
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                        modal.hide();
-                        alert(response.message);
-                        window.location.reload();
+                .then(response => response.ok ? response.json() : response.json().then(e => Promise.reject(e)))
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+                        showToast('success', data.message || 'Status updated');
+                        setTimeout(() => location.reload(), 600);
                     } else {
-                        throw new Error(response.message || 'Error updating status');
+                        throw new Error(data.message || 'Update failed');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating application status: ' + error.message);
-                })
-                .finally(() => {
-                    // Reset button state
+                    showToast('error', error.message || 'Update failed');
                     updateButton.innerHTML = originalText;
                     updateButton.disabled = false;
-                });
+                })
+                .finally(() => isUpdating = false);
         }
 
 
@@ -2646,17 +2624,19 @@
                 return;
             }
 
-            // Show loading state
-            document.getElementById('applicationDetails').innerHTML = `
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>`;
-
-            // Show modal while loading
+            // Show modal first
             const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
             modal.show();
+
+            // Then show loading state after modal is shown
+            setTimeout(() => {
+                document.getElementById('applicationDetails').innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>`;
+            }, 100);
 
             // Fetch application details
             fetch(`/admin/rsbsa-applications/${id}`)

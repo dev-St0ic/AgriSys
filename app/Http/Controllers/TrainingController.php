@@ -6,9 +6,9 @@ use App\Models\TrainingApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log; 
-use Illuminate\Support\Facades\Mail; 
-use App\Mail\ApplicationApproved; 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ApplicationApproved;
 
 class TrainingController extends Controller
 {
@@ -74,10 +74,10 @@ class TrainingController extends Controller
                 'first_name' => 'required|string|max:100',
                 'middle_name' => 'nullable|string|max:100',
                 'last_name' => 'required|string|max:100',
-                'name_extension' => 'nullable|string|max:10', 
-                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'name_extension' => 'nullable|string|max:10',
+                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'email' => 'nullable|email|max:254',
-                'barangay' => 'required|string|max:255',  
+                'barangay' => 'required|string|max:255',
 
                 // Training info
                 'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
@@ -92,8 +92,8 @@ class TrainingController extends Controller
                 // Optional user link
                 'user_id' => 'nullable|exists:user_registration,id'
             ], [
-                'barangay.required' => 'Barangay is required', 
-                'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)',
+                'barangay.required' => 'Barangay is required',
+                'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX)',
                 'supporting_document.max' => 'Document must not exceed 10MB',
                 'supporting_document.mimes' => 'Only JPG, PNG, and PDF files are allowed'
             ]);
@@ -231,9 +231,11 @@ class TrainingController extends Controller
 
         $training = TrainingApplication::findOrFail($id);
 
+        // Update using trait method to trigger SMS notification
+        $training->updateStatusWithNotification($request->status, $request->remarks);
+
+        // Update additional fields manually
         $training->update([
-            'status' => $request->status,
-            'remarks' => $request->remarks,
             'status_updated_at' => now(),
             'updated_by' => Auth::id()
         ]);

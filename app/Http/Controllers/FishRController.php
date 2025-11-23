@@ -171,15 +171,27 @@ class FishRController extends Controller
 
             // Find the registration
             $registration = FishrApplication::findOrFail($id);
+            $previousStatus = $registration->status;
 
-            // Update the registration
+            // Update using trait method to trigger SMS notification
+            $registration->updateStatusWithNotification($validated['status'], $validated['remarks']);
+
+            // Update additional fields manually
             $registration->update([
-                'status' => $validated['status'],
-                'remarks' => $validated['remarks'],
                 'status_updated_at' => now(),
                 'reviewed_by' => auth()->id(),
                 'reviewed_at' => now()
             ]);
+
+            // Fire SMS notification event if status actually changed
+            if ($previousStatus !== $validated['status']) {
+                $registration->fireApplicationStatusChanged(
+                    $registration->getApplicationTypeName(),
+                    $previousStatus,
+                    $validated['status'],
+                    $validated['remarks']
+                );
+            }
 
             // Send email notification if approved and email is available
             if ($validated['status'] === 'approved' && $registration->email) {
@@ -230,7 +242,7 @@ class FishRController extends Controller
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|max:10',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
-                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:100',
 

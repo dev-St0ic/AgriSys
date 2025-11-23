@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SendsApplicationSms;
 
 class FishrApplication extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, SendsApplicationSms;
 
     protected $fillable = [
         'user_id', // Foreign key to user_registration table
@@ -200,5 +201,29 @@ class FishrApplication extends Model
             ->logOnly(['status', 'remarks', 'updated_by'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    /**
+     * Get applicant phone number for SMS notifications
+     */
+    protected function getApplicantPhone(): ?string
+    {
+        return $this->contact_number;
+    }
+
+    /**
+     * Get applicant name for SMS notifications
+     */
+    protected function getApplicantName(): ?string
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
+    }
+
+    /**
+     * Get application type name for SMS notifications
+     */
+    protected function getApplicationTypeName(): string
+    {
+        return 'FishR Registration';
     }
 }

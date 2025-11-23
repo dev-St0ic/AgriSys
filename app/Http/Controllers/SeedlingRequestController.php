@@ -384,7 +384,7 @@ class SeedlingRequestController extends Controller
         }
     }
 
-   
+
     /**
      * Remove a seedling request - ALLOWS ALL STATUSES WITH SUPPLY RETURN
      */
@@ -425,7 +425,7 @@ class SeedlingRequestController extends Controller
                 if ($approvedItems->count() > 0) {
                     $message .= " {$approvedItems->count()} approved item(s) supplies returned to inventory.";
                 }
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => $message
@@ -437,7 +437,7 @@ class SeedlingRequestController extends Controller
             if ($approvedItems->count() > 0) {
                 $message .= " {$approvedItems->count()} approved item(s) supplies have been returned to inventory.";
             }
-            
+
             return redirect()->route('admin.seedlings.requests')
                 ->with('success', $message);
 
@@ -492,11 +492,28 @@ class SeedlingRequestController extends Controller
             $rejectedCount = 0;
             $totalCount = count($itemStatuses);
 
+            // OPTIMIZATION: Load all items at once with relationships to avoid N+1 queries
+            $items = SeedlingRequestItem::with('categoryItem')
+                ->whereIn('id', array_keys($itemStatuses))
+                ->get()
+                ->keyBy('id');
+
             foreach ($itemStatuses as $itemId => $status) {
-                $item = SeedlingRequestItem::findOrFail($itemId);
+                $item = $items->get($itemId);
+
+                if (!$item) {
+                    throw new \Exception("Item not found: {$itemId}");
+                }
 
                 // Check if status is changing from approved to something else
                 $wasApproved = $item->status === 'approved';
+
+                // Skip if status hasn't changed
+                if ($item->status === $status) {
+                    if ($status === 'approved') $approvedCount++;
+                    elseif ($status === 'rejected') $rejectedCount++;
+                    continue;
+                }
 
                 if ($status === 'approved') {
                     // Check supply availability
@@ -507,11 +524,10 @@ class SeedlingRequestController extends Controller
                         }
                     }
 
-                    $item->update([
-                        'status' => 'approved',
-                        'approved_quantity' => $item->requested_quantity,
-                        'rejection_reason' => null
-                    ]);
+                    $item->status = 'approved';
+                    $item->approved_quantity = $item->requested_quantity;
+                    $item->rejection_reason = null;
+                    $item->save();
                     $approvedCount++;
 
                     // AUTOMATIC SUPPLY DEDUCTION when newly approved
@@ -530,11 +546,10 @@ class SeedlingRequestController extends Controller
                     }
 
                 } elseif ($status === 'rejected') {
-                    $item->update([
-                        'status' => 'rejected',
-                        'approved_quantity' => null,
-                        'rejection_reason' => $request->input("rejection_reasons.{$itemId}")
-                    ]);
+                    $item->status = 'rejected';
+                    $item->approved_quantity = null;
+                    $item->rejection_reason = $request->input("rejection_reasons.{$itemId}");
+                    $item->save();
                     $rejectedCount++;
 
                     // AUTOMATIC SUPPLY RETURN if was previously approved
@@ -549,11 +564,10 @@ class SeedlingRequestController extends Controller
                     }
 
                 } else {
-                    $item->update([
-                        'status' => 'pending',
-                        'approved_quantity' => null,
-                        'rejection_reason' => null
-                    ]);
+                    $item->status = 'pending';
+                    $item->approved_quantity = null;
+                    $item->rejection_reason = null;
+                    $item->save();
 
                     // AUTOMATIC SUPPLY RETURN if was previously approved
                     if ($wasApproved && $item->categoryItem) {
@@ -569,6 +583,7 @@ class SeedlingRequestController extends Controller
             }
 
             // Update overall request status
+            $previousStatus = $seedlingRequest->status;
             $overallStatus = 'under_review';
             if ($approvedCount === $totalCount) {
                 $overallStatus = 'approved';
@@ -588,6 +603,21 @@ class SeedlingRequestController extends Controller
             ]);
 
             \DB::commit();
+
+            // OPTIMIZATION: Send notifications AFTER commit to avoid blocking the transaction
+            // Fire SMS notification event if status actually changed
+            if ($previousStatus !== $overallStatus) {
+                try {
+                    $seedlingRequest->fireApplicationStatusChanged(
+                        $seedlingRequest->getApplicationTypeName(),
+                        $previousStatus,
+                        $overallStatus,
+                        $validated['remarks']
+                    );
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send SMS notification: ' . $e->getMessage());
+                }
+            }
 
             // Send email notification if fully approved and email is available
             if ($overallStatus === 'approved' && $seedlingRequest->email) {
@@ -674,7 +704,7 @@ class SeedlingRequestController extends Controller
 
             // Create CSV
             $fileName = 'seedling-requests-' . now()->format('Y-m-d-H-i-s') . '.csv';
-            
+
             $headers = [
                 'Content-Type' => 'text/csv; charset=utf-8',
                 'Content-Disposition' => "attachment; filename=\"$fileName\"",
@@ -685,10 +715,10 @@ class SeedlingRequestController extends Controller
 
             $callback = function() use ($requests) {
                 $file = fopen('php://output', 'w');
-                
+
                 // Set UTF-8 BOM for Excel
                 fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-                
+
                 // Write headers
                 $headers = [
                     'Request #',
@@ -743,7 +773,7 @@ class SeedlingRequestController extends Controller
                         $request->created_at->format('M d, Y g:i A'),
                         $request->updated_at->format('M d, Y g:i A')
                     ];
-                    
+
                     fputcsv($file, $row);
                 }
 
@@ -754,7 +784,7 @@ class SeedlingRequestController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Failed to export seedling requests: ' . $e->getMessage());
-            
+
             if (request()->expectsJson()) {
                 return response()->json([
                     'success' => false,

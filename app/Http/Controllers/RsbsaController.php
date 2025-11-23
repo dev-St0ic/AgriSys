@@ -172,21 +172,24 @@ class RsbsaController extends Controller
     }
 
     /**
-     * Update the status of the specified RSBSA application
+     * OPTIMIZED: Update the status of the specified RSBSA application
+     * Fast response with async notifications
      */
     public function updateStatus(Request $request, $id)
     {
         try {
-            // Validate the request
+            // Quick validation
             $validated = $request->validate([
                 'status' => 'required|in:pending,under_review,approved,rejected',
                 'remarks' => 'nullable|string|max:1000',
             ]);
 
-            // Find the application
-            $application = RsbsaApplication::findOrFail($id);
+            // Find and lock the application
+            $application = RsbsaApplication::lockForUpdate()->findOrFail($id);
+            $previousStatus = $application->status;
+            $statusChanged = ($previousStatus !== $validated['status']);
 
-            // Update the application
+            // Prepare update data
             $updateData = [
                 'status' => $validated['status'],
                 'remarks' => $validated['remarks'],
@@ -194,7 +197,7 @@ class RsbsaController extends Controller
                 'reviewed_by' => auth()->id()
             ];
 
-            // Set specific timestamp based on status
+            // Add status-specific timestamps
             if ($validated['status'] === 'approved') {
                 $updateData['approved_at'] = now();
                 $updateData['number_assigned_at'] = now();
@@ -203,40 +206,60 @@ class RsbsaController extends Controller
                 $updateData['rejected_at'] = now();
             }
 
+            // Single database update
             $application->update($updateData);
 
-            // Send email notification if approved and email is available
-            if ($validated['status'] === 'approved' && $application->email) {
-                try {
-                    Mail::to($application->email)->send(new ApplicationApproved($application, 'rsbsa'));
-                } catch (\Exception $e) {
-                    // Log the error but don't fail the status update
-                    Log::error('Failed to send approval email for RSBSA application ' . $application->id . ': ' . $e->getMessage());
-                }
+            // Dispatch notifications asynchronously (non-blocking)
+            if ($statusChanged) {
+                // Queue SMS notification for background processing
+                dispatch(function() use ($application, $previousStatus, $validated) {
+                    try {
+                        $application->fireApplicationStatusChanged(
+                            $application->getApplicationTypeName(),
+                            $previousStatus,
+                            $validated['status'],
+                            $validated['remarks']
+                        );
+                    } catch (\Exception $e) {
+                        Log::error('SMS notification failed', ['id' => $application->id, 'error' => $e->getMessage()]);
+                    }
+                })->afterResponse();
             }
 
-            // Return success response
+            // Queue email notification for background processing
+            if ($validated['status'] === 'approved' && $application->email) {
+                dispatch(function() use ($application) {
+                    try {
+                        Mail::to($application->email)->send(new ApplicationApproved($application, 'rsbsa'));
+                    } catch (\Exception $e) {
+                        Log::error('Email notification failed', ['id' => $application->id, 'error' => $e->getMessage()]);
+                    }
+                })->afterResponse();
+            }
+
+            // Quick response
             return response()->json([
                 'success' => true,
-                'message' => 'Application status updated successfully' .
-                           ($validated['status'] === 'approved' && $application->email ? '. Email notification sent to applicant.' : ''),
+                'message' => 'Status updated successfully' . ($statusChanged ? ' - notifications queued' : ''),
                 'data' => [
                     'status' => $application->status,
                     'formatted_status' => $application->formatted_status,
                     'status_color' => $application->status_color,
-                    'updated_at' => $application->updated_at->format('M d, Y h:i A')
+                    'updated_at' => $application->updated_at->format('M d, Y h:i A'),
+                    'sms_sent' => $statusChanged
                 ]
             ]);
 
-        } catch (\Exception $e) {
-            Log::error('Error updating RSBSA application status', [
-                'id' => $id,
-                'error' => $e->getMessage()
-            ]);
-
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating status: ' . $e->getMessage()
+                'message' => 'Invalid input: ' . implode(', ', $e->validator->errors()->all())
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Status update failed', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Update failed: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -257,7 +280,7 @@ class RsbsaController extends Controller
                 'last_name' => 'required|string|max:100',
                 'name_extension' => 'nullable|string|max:10',
                 'sex' => 'required|in:Male,Female,Preferred not to say',
-                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:100',
 

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Events\AccountVerificationStatusChanged;
 
 class UserRegistration extends Model
 {
@@ -18,18 +19,18 @@ class UserRegistration extends Model
     protected $fillable = [
         // Basic signup fields
         'username',
-        'email',
+        'contact_number', // Required for signup
+        'email', // Optional
         'password',
         'status',
         'terms_accepted',
         'privacy_accepted',
-        
+
         // Verification fields
         'first_name',
         'middle_name',
         'last_name',
         'name_extension',
-        'contact_number',
         'complete_address',
         'barangay',
         'user_type',
@@ -37,19 +38,19 @@ class UserRegistration extends Model
         'date_of_birth',
         'gender',
 
-        // Emergency contact fields 
+        // Emergency contact fields
         'emergency_contact_name',
         'emergency_contact_phone',
 
         // facebook oauth fields
         'facebook_id',
         'profile_image_url',
-        
+
         // Document paths
         'location_document_path',
         'id_front_path',
         'id_back_path',
-        
+
         // System fields
         'verification_token',
         'email_verified_at',
@@ -110,7 +111,7 @@ class UserRegistration extends Model
 
     public function getIsCompleteProfileAttribute()
     {
-        return !empty($this->first_name) 
+        return !empty($this->first_name)
             && !empty($this->last_name)
             && !empty($this->contact_number)
             && !empty($this->complete_address)
@@ -255,22 +256,36 @@ class UserRegistration extends Model
 
     public function approve($adminId = null)
     {
+        $previousStatus = $this->status;
+
         $this->update([
             'status' => self::STATUS_APPROVED,
             'approved_at' => now(),
             'approved_by' => $adminId,
             'rejection_reason' => null,
         ]);
+
+        // Fire event for SMS notification
+        if ($previousStatus !== self::STATUS_APPROVED) {
+            event(new AccountVerificationStatusChanged($this, $previousStatus, self::STATUS_APPROVED));
+        }
     }
 
     public function reject($reason = null, $adminId = null)
     {
+        $previousStatus = $this->status;
+
         $this->update([
             'status' => self::STATUS_REJECTED,
             'rejected_at' => now(),
             'approved_by' => $adminId,
             'rejection_reason' => $reason,
         ]);
+
+        // Fire event for SMS notification
+        if ($previousStatus !== self::STATUS_REJECTED) {
+            event(new AccountVerificationStatusChanged($this, $previousStatus, self::STATUS_REJECTED, $reason));
+        }
     }
 
     public function markEmailAsVerified()

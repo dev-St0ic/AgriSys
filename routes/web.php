@@ -151,26 +151,26 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     // BOATR REGISTRATIONS MANAGEMENT - COMPLETE AND FIXED
     // ==============================================
     Route::prefix('admin/boatr')->name('admin.boatr.')->group(function () {
-        
+
         // Main listing page
         Route::get('/requests', [BoatRController::class, 'index'])->name('requests');
-        
+
         // Individual application routes
         Route::get('/requests/{id}', [BoatRController::class, 'show'])->name('show');
-        
+
         // Add registration
         Route::post('/requests/create', [BoatRController::class, 'store'])->name('store');
 
         // UPDATE STATUS
         Route::patch('/requests/{id}/status', [BoatRController::class, 'updateStatus'])
             ->name('status.update');
-        
+
         Route::post('/requests/{id}/complete-inspection', [BoatRController::class, 'completeInspection'])
             ->name('complete-inspection');
-        
+
         Route::delete('/requests/{id}', [BoatRController::class, 'destroy'])->name('destroy');
 
-        
+
         // Document viewing routes
         Route::get('/requests/{id}/view-document', [BoatRController::class, 'viewDocument'])
             ->name('view-document');
@@ -178,7 +178,7 @@ Route::get('/api/validate-fishr/{number}', function($number) {
             ->name('document-preview');
         Route::get('/requests/{id}/download-document', [BoatRController::class, 'downloadDocument'])
             ->name('download-document');
-        
+
         // Annexes routes
         Route::get('/requests/{id}/annexes', [BoatRController::class, 'getAnnexes'])
             ->name('annexes.index');
@@ -190,11 +190,11 @@ Route::get('/api/validate-fishr/{number}', function($number) {
             ->name('annexes.download');
         Route::delete('/requests/{id}/annexes/{annexId}', [BoatRController::class, 'deleteAnnex'])
             ->name('annexes.delete');
-        
+
         // Export functionality
         Route::get('/export', [BoatRController::class, 'export'])->name('export');
-        
-        // FishR Validation 
+
+        // FishR Validation
         Route::get('/validate-fishr/{fishrNumber}', [BoatRController::class, 'validateFishrNumber'])
         ->name('validate-fishr')
         ->where('fishrNumber', '.*'); // Allow special characters like dashes
@@ -210,7 +210,7 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         Route::get('/requests/{id}', [TrainingController::class, 'show'])->name('requests.show');
         // add
         Route::post('/requests/create', [TrainingController::class, 'store'])->name('requests.store');
-         
+
         Route::patch('/requests/{id}/status', [TrainingController::class, 'updateStatus'])->name('requests.update-status');
         Route::delete('/requests/{id}', [TrainingController::class, 'destroy'])->name('requests.destroy');
 
@@ -268,7 +268,7 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::patch('/requests/{seedlingRequest}/items', [SeedlingRequestController::class, 'updateItems'])->name('update-items');
     Route::get('/requests/{seedlingRequest}/supply-status', [SeedlingRequestController::class, 'getSupplyStatus'])->name('supply-status');
     Route::get('/category-stats', [SeedlingRequestController::class, 'getCategoryStats'])->name('category-stats');
- 
+
     // Supply Management
     Route::get('/supply-management', [SeedlingCategoryItemController::class, 'indexCategories'])->name('supply-management.index');
     Route::get('/supply-management/{category}', [SeedlingCategoryItemController::class, 'showCategory'])->name('supply-management.show');
@@ -822,6 +822,17 @@ if (app()->environment('local', 'testing')) {
 // ==============================================
 // Get active slideshow images for landing page
 Route::get('/api/slideshow/active', [SlideshowController::class, 'getActiveSlides'])->name('api.slideshow.active');
+
+// ==============================================
+// SMS NOTIFICATION ROUTES
+// ==============================================
+Route::prefix('api/sms')->group(function () {
+    // Admin only routes
+    Route::middleware(['auth.session', 'check.admin'])->group(function () {
+        Route::post('/send-notification', [\App\Http\Controllers\SmsNotificationController::class, 'sendNotification'])->name('api.sms.send-notification');
+        Route::get('/service-status', [\App\Http\Controllers\SmsNotificationController::class, 'getServiceStatus'])->name('api.sms.service-status');
+    });
+});
 
 // ==============================================
 // FALLBACK ROUTE

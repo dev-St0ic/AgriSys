@@ -88,7 +88,7 @@ class FishrApplicationFactory extends Factory
             'barangay' => $this->faker->randomElement($barangays),
             'contact_number' => $this->faker->randomElement([
                 '09' . $this->faker->numerify('#########'),
-                '+639' . $this->faker->numerify('#########')
+                '09' . $this->faker->numerify('#########')
             ]),
             'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'), // Add email field
             'main_livelihood' => $mainLivelihood,

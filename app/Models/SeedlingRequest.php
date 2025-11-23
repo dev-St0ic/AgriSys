@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Traits\SendsApplicationSms;
 
 class SeedlingRequest extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, SendsApplicationSms;
 
     protected $fillable = [
         'user_id', // Foreign key to user_registration table
@@ -108,7 +109,7 @@ class SeedlingRequest extends Model
     public function updateOverallStatus(): void
     {
         $items = $this->items;
-        
+
         if ($items->isEmpty()) {
             $this->update(['status' => 'pending']);
             return;
@@ -155,7 +156,7 @@ class SeedlingRequest extends Model
         foreach ($this->items as $item) {
             if ($item->categoryItem) {
                 $check = $item->categoryItem->checkSupplyAvailability($item->requested_quantity);
-                
+
                 $itemData = [
                     'name' => $item->item_name,
                     'category' => $item->category->display_name,
@@ -300,5 +301,29 @@ class SeedlingRequest extends Model
             ->logOnly(['status', 'approved_quantity', 'reviewed_by', 'request_number'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    /**
+     * Get applicant phone number for SMS notifications
+     */
+    public function getApplicantPhone(): ?string
+    {
+        return $this->contact_number;
+    }
+
+    /**
+     * Get applicant name for SMS notifications
+     */
+    public function getApplicantName(): ?string
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
+    }
+
+    /**
+     * Get application type name for SMS notifications
+     */
+    public function getApplicationTypeName(): string
+    {
+        return 'Seedling Request';
     }
 }

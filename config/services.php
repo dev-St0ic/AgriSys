@@ -87,7 +87,7 @@ return [
         'api_version' => '2023-06-01'
     ],
 
-    
+
     /*
     |--------------------------------------------------------------------------
     | Facebook Authentication Configuration
@@ -101,6 +101,24 @@ return [
         'client_id' => env('FACEBOOK_CLIENT_ID'),
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
         'redirect' => env('FACEBOOK_REDIRECT_URI'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | PhilSMS Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for PhilSMS API integration for SMS notifications
+    | and OTP verification in AgriSys.
+    |
+    */
+
+    'philsms' => [
+        'api_key' => env('PHILSMS_API_KEY'),
+        'sender_id' => env('PHILSMS_SENDER_ID', 'AgriSys'),
+        'base_url' => env('PHILSMS_BASE_URL', 'https://www.philsms.com/api/v3'),
+        'timeout' => env('PHILSMS_TIMEOUT', 30),
+        'enabled' => env('PHILSMS_ENABLED', false),
     ],
 
     /*
