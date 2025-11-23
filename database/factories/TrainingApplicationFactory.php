@@ -8,23 +8,10 @@ use App\Models\UserRegistration;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\TrainingApplication>
- */
 class TrainingApplicationFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = TrainingApplication::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         // Filipino names for realistic data
@@ -56,10 +43,8 @@ class TrainingApplicationFactory extends Factory
         $trainingType = $this->faker->randomElement($trainingTypes);
         $status = $this->faker->randomElement(['under_review', 'approved', 'rejected']);
 
-        // Generate creation time
         $createdAt = $this->faker->dateTimeBetween('-1 year', 'now');
 
-        // Generate status update time (if status is not under_review)
         $statusUpdatedAt = null;
         $updatedBy = null;
         $remarks = null;
@@ -68,7 +53,6 @@ class TrainingApplicationFactory extends Factory
             $statusUpdatedAt = $this->faker->dateTimeBetween($createdAt, 'now');
             $updatedBy = User::inRandomOrder()->first()?->id ?? 1;
 
-            // Generate remarks for some entries
             if ($this->faker->boolean(60)) {
                 $remarks = $this->getRandomRemarks($status, $trainingType);
             }
@@ -79,7 +63,7 @@ class TrainingApplicationFactory extends Factory
         $middleName = $this->faker->optional(0.8)->randomElement($filipinoFirstNames);
         $nameExtension = $this->faker->optional(0.15)->randomElement($nameExtensions);
 
-        // FIXED: Single document path only (60% chance of having a document)
+        // CHANGED: Single document path only (60% chance of having a document)
         $singleDocument = $this->faker->optional(0.6)->randomElement([
             'training_documents/sample_id.pdf',
             'training_documents/barangay_cert.jpg',
@@ -111,7 +95,7 @@ class TrainingApplicationFactory extends Factory
                 'Pacita 1', 'Pacita 2', 'Rosario', 'San Lorenzo Ruiz'
             ]),
             'training_type' => $trainingType,
-            'document_paths' => $singleDocument ? [$singleDocument] : null, // FIXED: Wrap in array or null
+            'document_path' => $singleDocument, // CHANGED: Single path, not array
             'status' => $status,
             'remarks' => $remarks,
             'status_updated_at' => $statusUpdatedAt,
@@ -121,9 +105,6 @@ class TrainingApplicationFactory extends Factory
         ];
     }
 
-    /**
-     * Get random remarks based on status and training type
-     */
     private function getRandomRemarks($status, $trainingType): string
     {
         $trainingNames = [
@@ -172,9 +153,6 @@ class TrainingApplicationFactory extends Factory
         return $this->faker->randomElement($options);
     }
 
-    /**
-     * State for approved applications
-     */
     public function approved(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -185,9 +163,6 @@ class TrainingApplicationFactory extends Factory
         ]);
     }
 
-    /**
-     * State for rejected applications
-     */
     public function rejected(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -198,9 +173,6 @@ class TrainingApplicationFactory extends Factory
         ]);
     }
 
-    /**
-     * State for under review applications
-     */
     public function underReview(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -211,9 +183,6 @@ class TrainingApplicationFactory extends Factory
         ]);
     }
 
-    /**
-     * State for specific training types
-     */
     public function trainingType($type): static
     {
         return $this->state(fn (array $attributes) => [

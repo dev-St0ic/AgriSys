@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('name_extension')->nullable();
             $table->string('contact_number', 20)->nullable();
             $table->string('email')->nullable();
-            $table->string('barangay')->nullable(); // Barangay location
+            $table->string('barangay')->nullable();
             $table->enum('training_type', [
                 'tilapia_hito',
                 'hydroponics',
@@ -33,7 +33,8 @@ return new class extends Migration
                 'high_value_crops',
                 'sampaguita_propagation'
             ])->nullable();
-            $table->json('document_paths')->nullable(); // Store multiple document paths
+            // CHANGED: Single document path instead of JSON array
+            $table->string('document_path')->nullable();
             $table->enum('status', ['under_review', 'approved', 'rejected'])->default('under_review');
 
             // Admin management fields
@@ -50,16 +51,13 @@ return new class extends Migration
             $table->index('application_number');
             $table->index('contact_number');
             $table->index('email');
-            $table->index(['first_name', 'last_name']); // Added for name searches
+            $table->index(['first_name', 'last_name']);
 
             // Foreign key constraints
             $table->foreign('user_id')
                 ->references('id')
                 ->on('user_registration')
                 ->onDelete('cascade');
-
-            // Foreign key for admin who updated the status - will be added in separate migration
-            // $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
         });
     }
 
