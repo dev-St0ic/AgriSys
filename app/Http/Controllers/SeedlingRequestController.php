@@ -157,7 +157,7 @@ class SeedlingRequestController extends Controller
             'planting_location' => 'nullable|string|max:500',
             'purpose' => 'nullable|string|max:1000',
             'preferred_delivery_date' => 'nullable|date|after:today',
-            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
 
             // Items - Dynamic array structure
             'items' => 'required|array|min:1',
@@ -177,8 +177,8 @@ class SeedlingRequestController extends Controller
                 $documentPath = $request->file('document')->store('seedling-requests', 'public');
             }
 
-            // Get user ID from session
-            $userId = session('user.id');
+            // Get user ID from session or auth
+            $userId = auth()->id() ?? session('user.id');
 
             // Create the main request
             $seedlingRequest = SeedlingRequest::create([
@@ -220,19 +220,46 @@ class SeedlingRequestController extends Controller
 
             \DB::commit();
 
+            // ✅ CHECK IF AJAX REQUEST FIRST
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Seedling request created successfully!'
+                ], 201);
+            }
+
+            // Otherwise redirect
             return redirect()->route('admin.seedlings.requests')
                 ->with('success', 'Seedling request created successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
 
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error('Failed to create seedling request: ' . $e->getMessage());
+
+            // Check if it's an AJAX request (our modal will be)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create request: ' . $e->getMessage()
+                ], 400);
+            }
 
             return redirect()->back()
                 ->withErrors(['error' => 'Failed to create request: ' . $e->getMessage()])
                 ->withInput();
         }
     }
-
     /**
      * Show the form for editing a seedling request
      */
@@ -281,7 +308,7 @@ class SeedlingRequestController extends Controller
             'planting_location' => 'nullable|string|max:500',
             'purpose' => 'nullable|string|max:1000',
             'preferred_delivery_date' => 'nullable|date|after:today',
-            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
 
             // Items - Dynamic array structure
             'items' => 'required|array|min:1',
@@ -357,19 +384,14 @@ class SeedlingRequestController extends Controller
         }
     }
 
+   
     /**
-     * Remove a seedling request (soft delete)
+     * Remove a seedling request - ALLOWS ALL STATUSES WITH SUPPLY RETURN
      */
     public function destroy(SeedlingRequest $seedlingRequest)
     {
         try {
-            // Only allow deletion of pending, under_review, or rejected requests
-            if (!in_array($seedlingRequest->status, ['pending', 'under_review', 'rejected'])) {
-                return redirect()->back()
-                    ->with('error', 'Cannot delete approved requests. Please reject it first.');
-            }
-
-            // If there are approved items, return supplies
+            // If there are approved items, return supplies to inventory
             $approvedItems = $seedlingRequest->items()->where('status', 'approved')->get();
             if ($approvedItems->count() > 0) {
                 foreach ($approvedItems as $item) {
@@ -385,13 +407,55 @@ class SeedlingRequestController extends Controller
                 }
             }
 
+            // Delete the request
+            $requestNumber = $seedlingRequest->request_number;
             $seedlingRequest->delete();
 
+            // Log the deletion
+            \Log::info('Seedling request deleted', [
+                'request_id' => $seedlingRequest->id,
+                'request_number' => $requestNumber,
+                'deleted_by' => auth()->user()->name ?? 'System',
+                'supplies_returned' => $approvedItems->count() > 0 ? 'Yes' : 'No'
+            ]);
+
+            // For AJAX requests, return JSON
+            if (request()->expectsJson()) {
+                $message = "Request {$requestNumber} deleted successfully!";
+                if ($approvedItems->count() > 0) {
+                    $message .= " {$approvedItems->count()} approved item(s) supplies returned to inventory.";
+                }
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => $message
+                ]);
+            }
+
+            // For regular requests, redirect
+            $message = "Seedling request {$requestNumber} deleted successfully!";
+            if ($approvedItems->count() > 0) {
+                $message .= " {$approvedItems->count()} approved item(s) supplies have been returned to inventory.";
+            }
+            
             return redirect()->route('admin.seedlings.requests')
-                ->with('success', 'Seedling request deleted successfully!');
+                ->with('success', $message);
 
         } catch (\Exception $e) {
-            \Log::error('Failed to delete seedling request: ' . $e->getMessage());
+            \Log::error('Failed to delete seedling request', [
+                'request_id' => $seedlingRequest->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // For AJAX requests, return JSON error
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete request: ' . $e->getMessage()
+                ], 500);
+            }
+
             return redirect()->back()
                 ->with('error', 'Failed to delete request: ' . $e->getMessage());
         }
@@ -402,16 +466,28 @@ class SeedlingRequestController extends Controller
      */
     public function updateItems(Request $request, SeedlingRequest $seedlingRequest)
     {
-        $request->validate([
-            'item_statuses' => 'required|array',
-            'item_statuses.*' => 'required|in:pending,approved,rejected',
-            'remarks' => 'nullable|string|max:500',
-        ]);
+        try {
+            $validated = $request->validate([
+                'item_statuses' => 'required|array',
+                'item_statuses.*' => 'required|in:pending,approved,rejected',
+                'remarks' => 'nullable|string|max:500',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return JSON error response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        }
 
         try {
             \DB::beginTransaction();
 
-            $itemStatuses = $request->item_statuses;
+            $itemStatuses = $validated['item_statuses'];
             $approvedCount = 0;
             $rejectedCount = 0;
             $totalCount = count($itemStatuses);
@@ -504,7 +580,7 @@ class SeedlingRequestController extends Controller
 
             $seedlingRequest->update([
                 'status' => $overallStatus,
-                'remarks' => $request->remarks,
+                'remarks' => $validated['remarks'] ?? $seedlingRequest->remarks,
                 'reviewed_by' => auth()->id(),
                 'reviewed_at' => now(),
                 'approved_at' => ($overallStatus === 'approved' || $overallStatus === 'partially_approved') ? now() : null,
@@ -522,15 +598,172 @@ class SeedlingRequestController extends Controller
                 }
             }
 
+            // Return JSON response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Items updated successfully and supplies automatically adjusted.'
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Items updated successfully and supplies automatically adjusted.');
 
         } catch (\Exception $e) {
             \DB::rollback();
             \Log::error('Failed to update items: ' . $e->getMessage());
 
+            // Return JSON error response for AJAX requests
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 400);
+            }
+
             return redirect()->back()
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();
+        }
+    }
+
+        /**
+     * Export seedling requests to CSV
+     */
+    public function export(Request $request)
+    {
+        try {
+            $query = SeedlingRequest::with(['items.category', 'items.categoryItem'])
+                ->orderBy('created_at', 'desc');
+
+            // Apply same filters as index method
+            if ($request->has('search') && !empty($request->search)) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('request_number', 'like', "%{$search}%")
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%")
+                    ->orWhere('barangay', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->has('category') && !empty($request->category)) {
+                $categoryId = $request->category;
+                $query->whereHas('items', function($q) use ($categoryId) {
+                    $q->where('category_id', $categoryId);
+                });
+            }
+
+            if ($request->has('barangay') && !empty($request->barangay)) {
+                $query->where('barangay', $request->barangay);
+            }
+
+            if ($request->has('date_from') && !empty($request->date_from)) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+
+            if ($request->has('date_to') && !empty($request->date_to)) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+
+            if ($request->has('status') && !empty($request->status)) {
+                $query->where('status', $request->status);
+            }
+
+            $requests = $query->get();
+
+            // Create CSV
+            $fileName = 'seedling-requests-' . now()->format('Y-m-d-H-i-s') . '.csv';
+            
+            $headers = [
+                'Content-Type' => 'text/csv; charset=utf-8',
+                'Content-Disposition' => "attachment; filename=\"$fileName\"",
+                'Pragma' => 'no-cache',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+                'Expires' => '0',
+            ];
+
+            $callback = function() use ($requests) {
+                $file = fopen('php://output', 'w');
+                
+                // Set UTF-8 BOM for Excel
+                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+                
+                // Write headers
+                $headers = [
+                    'Request #',
+                    'Date Applied',
+                    'Full Name',
+                    'Contact Number',
+                    'Email',
+                    'Barangay',
+                    'Address',
+                    'Planting Location',
+                    'Purpose',
+                    'Preferred Delivery Date',
+                    'Total Quantity',
+                    'Items Requested',
+                    'Status',
+                    'Remarks',
+                    'Created At',
+                    'Updated At'
+                ];
+                fputcsv($file, $headers);
+
+                // Write data rows
+                foreach ($requests as $request) {
+                    // Format items
+                    $itemsFormatted = [];
+                    foreach ($request->items as $item) {
+                        $itemsFormatted[] = sprintf(
+                            '%s (%d %s) - %s',
+                            $item->item_name,
+                            $item->requested_quantity,
+                            $item->categoryItem->unit ?? 'pcs',
+                            ucfirst($item->status)
+                        );
+                    }
+                    $itemsText = implode('; ', $itemsFormatted);
+
+                    $row = [
+                        $request->request_number,
+                        $request->created_at->format('M d, Y g:i A'),
+                        $request->full_name,
+                        $request->contact_number,
+                        $request->email ?? 'N/A',
+                        $request->barangay,
+                        $request->address,
+                        $request->planting_location ?? 'N/A',
+                        $request->purpose ?? 'N/A',
+                        $request->preferred_delivery_date ?? 'N/A',
+                        $request->total_quantity,
+                        $itemsText,
+                        ucfirst(str_replace('_', ' ', $request->status)),
+                        $request->remarks ?? 'N/A',
+                        $request->created_at->format('M d, Y g:i A'),
+                        $request->updated_at->format('M d, Y g:i A')
+                    ];
+                    
+                    fputcsv($file, $row);
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to export seedling requests: ' . $e->getMessage());
+            
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to export data: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->with('error', 'Failed to export data: ' . $e->getMessage());
         }
     }
 }
