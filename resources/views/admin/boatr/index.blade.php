@@ -2496,7 +2496,7 @@
                 // Reset update button state
                 const updateButton = document.getElementById('updateStatusBtn');
                 updateButton.classList.remove('no-changes');
-                updateButton.innerHTML = '<i class="fas fa-edit me-1"></i>Update Status';
+                updateButton.innerHTML = 'Update Status';
 
                 // Remove old listeners to prevent duplicates
                 statusSelect.removeEventListener('change', checkUpdateModalChanges);
