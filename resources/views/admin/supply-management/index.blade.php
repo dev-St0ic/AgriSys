@@ -522,9 +522,9 @@
     <div class="modal fade" id="createCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header border-0 d-flex justify-content-center">
+                <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
                     <h5 class="modal-title">Create New Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="createCategoryForm" novalidate>
                     @csrf
@@ -588,9 +588,9 @@
     <div class="modal fade" id="editCategoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header border-0 d-flex justify-content-center">
+                <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
                     <h5 class="modal-title">Edit Category</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="editCategoryForm" novalidate>
                     @csrf
@@ -655,9 +655,9 @@
     <div class="modal fade" id="createItemModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header border-0 d-flex justify-content-center">
+                <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
                     <h5 class="modal-title">Add New Item</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                 </div>
                 <form id="createItemForm" enctype="multipart/form-data" novalidate>
                     @csrf
@@ -743,9 +743,9 @@
         <div class="modal fade" id="editItemModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <div class="modal-header border-0 d-flex justify-content-center">
+                    <div class="modal-header border-0 d-flex justify-content-center bg-primary text-white">
                         <h5 class="modal-title">Edit Item</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="position: absolute; right: 1rem;"></button>
                     </div>
                     <form id="editItemForm" enctype="multipart/form-data" novalidate>
                         @csrf
