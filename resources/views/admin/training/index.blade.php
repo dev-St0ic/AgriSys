@@ -196,28 +196,16 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="training-table-documents">
-                                        @if ($training->document_paths && count($training->document_paths) > 0)
-                                            <div class="training-document-previews">
-                                                @foreach (array_slice($training->document_paths, 0, 3) as $index => $path)
-                                                    <button type="button" class="training-mini-doc"
-                                                        onclick="viewDocument('{{ $path }}', 'Training Request - {{ $training->full_name }}')"
-                                                        title="Document {{ $index + 1 }}">
-                                                        <div class="training-mini-doc-icon">
-                                                            <i class="fas fa-file-image text-info"></i>
-                                                        </div>
-                                                    </button>
-                                                @endforeach
-                                            </div>
-                                            <button type="button" class="training-document-summary"
-                                                onclick="viewDocument('{{ $training->document_paths[0] }}', 'Training Request - {{ $training->full_name }}')"
-                                                style="background: none; border: none; padding: 0; cursor: pointer;">
-                                                <small class="text-muted">{{ count($training->document_paths) }}
-                                                    document{{ count($training->document_paths) > 1 ? 's' : '' }}</small>
+                                        @if ($training->document_path)
+                                            <button type="button" class="btn btn-sm btn-outline-info"
+                                                onclick="viewDocument('{{ $training->document_path }}', 'Training Request - {{ $training->full_name }}')"
+                                                title="View Document">
+                                                <i class="fas fa-file-alt"></i> View
                                             </button>
                                         @else
-                                            <div class="training-no-documents">
+                                            <div class="text-center">
                                                 <i class="fas fa-folder-open text-muted"></i>
-                                                <small class="text-muted">No documents</small>
+                                                <small class="text-muted d-block">No document</small>
                                             </div>
                                         @endif
                                     </div>
@@ -664,8 +652,8 @@
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
                                         <label for="training_supporting_documents" class="form-label">Upload Documents</label>
-                                        <input type="file" class="form-control" id="training_supporting_documents" accept="image/*,.pdf" multiple onchange="previewTrainingDocuments()">
-                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB each, up to 5 files)</div>
+                                        <input type="file" class="form-control" id="training_supporting_document" accept="image/*,.pdf" onchange="previewTrainingDocument()">
+                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
                                     </div>
                                     <div class="col-md-12">
                                         <div id="training_doc_preview" class="d-flex flex-wrap gap-2"></div>
@@ -1525,29 +1513,25 @@
 
                     //  supporting documents 
                     let documentHtml = '';
-                    if (data.document_paths && data.document_paths.length > 0) {
-                        // Show first document with badge
+                    // Document HTML for single file
+                    if (data.document_path) {
                         documentHtml = `
                             <div class="col-12">
                                 <div class="card border-secondary">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
+                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="text-center p-3 border border-secondary rounded bg-light">
-                                            <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
+                                            <i class="fas fa-file-alt fa-3x mb-2 text-info"></i>
                                             <h6>Supporting Document</h6>
-                                            <span class="badge bg-secondary mb-2">Uploaded</span>
+                                            <span class="badge bg-info mb-2">Uploaded</span>
                                             <br>
-                                            <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.document_paths[0]}', 'Training Request - ${data.full_name}')">
+                                            <button class="btn btn-sm btn-outline-info mt-2" 
+                                                onclick="viewDocument('${data.document_path}', 'Training Request - ${data.full_name}')">
                                                 <i class="fas fa-eye"></i> View Document
                                             </button>
                                         </div>
-                                        ${data.document_paths.length > 1 ? `
-                                            <div class="mt-3 pt-3 border-top">
-                                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i><strong>${data.document_paths.length}</strong> document(s) total</small>
-                                            </div>
-                                        ` : ''}
                                     </div>
                                 </div>
                             </div>`;
@@ -1556,11 +1540,11 @@
                             <div class="col-12">
                                 <div class="card border-secondary">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
+                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="text-center p-3 border border-secondary rounded">
-                                            <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
+                                            <i class="fas fa-file-slash fa-3x mb-2 text-muted"></i>
                                             <h6>No Document Uploaded</h6>
                                             <span class="badge bg-secondary mb-2">Not Uploaded</span>
                                         </div>
@@ -2270,93 +2254,56 @@
             capitalizeTrainingName(this);
         });
 
-        // Document preview for multiple files
-        function previewTrainingDocuments() {
-            const input = document.getElementById('training_supporting_documents');
-            const preview = document.getElementById('training_doc_preview');
-            
-            if (!input.files || input.files.length === 0) {
-                if (preview) {
-                    preview.innerHTML = '';
-                }
-                return;
-            }
-            
-            // Validate total number of files
-            if (input.files.length > 5) {
-                showToast('error', 'Maximum 5 files allowed');
-                input.value = '';
-                if (preview) {
-                    preview.innerHTML = '';
-                }
-                return;
-            }
-            
-            let previewHtml = '';
-            let totalSize = 0;
-            
-            for (let i = 0; i < input.files.length; i++) {
-                const file = input.files[i];
-                totalSize += file.size;
-                
-                // Validate individual file size (10MB max)
-                if (file.size > 10 * 1024 * 1024) {
-                    showToast('error', `File "${file.name}" exceeds 10MB limit`);
-                    input.value = '';
-                    if (preview) {
-                        preview.innerHTML = '';
-                    }
-                    return;
-                }
-                
-                const fileExtension = file.name.split('.').pop().toLowerCase();
-                const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
-                
-                if (isImage) {
-                    const reader = new FileReader();
-                    reader.onload = (function(index) {
-                        return function(e) {
-                            const imgDiv = document.createElement('div');
-                            imgDiv.className = 'document-preview-item';
-                            imgDiv.style.cssText = 'width: 120px; position: relative;';
-                            imgDiv.innerHTML = `
-                                <img src="${e.target.result}" alt="Preview ${index + 1}" 
-                                    style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                <p style="margin-top: 8px; font-size: 11px; color: #666; word-break: break-all;">
-                                    <i class="fas fa-file-image me-1"></i>${file.name.substring(0, 15)}...
-                                </p>
-                            `;
-                            preview.appendChild(imgDiv);
-                        };
-                    })(i);
-                    reader.readAsDataURL(file);
-                } else {
-                    const docDiv = document.createElement('div');
-                    docDiv.className = 'document-preview-item';
-                    docDiv.style.cssText = 'width: 120px;';
-                    docDiv.innerHTML = `
-                        <div class="text-center p-3 border rounded" style="height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
-                        </div>
-                        <p style="margin-top: 8px; font-size: 11px; color: #666; word-break: break-all;">
-                            ${file.name.substring(0, 15)}...
-                        </p>
-                    `;
-                    preview.appendChild(docDiv);
-                }
-            }
-            
-            // Show total file info
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'w-100 mt-2';
-            infoDiv.innerHTML = `
-                <small class="text-muted">
-                    <i class="fas fa-info-circle me-1"></i>
-                    ${input.files.length} file(s) selected (Total: ${formatFileSize(totalSize)})
-                </small>
-            `;
-            preview.appendChild(infoDiv);
+        // Document preview for file
+        function previewTrainingDocument() {
+        const input = document.getElementById('training_supporting_document');
+        const preview = document.getElementById('training_doc_preview');
+        
+        if (!input.files || input.files.length === 0) {
+            if (preview) preview.innerHTML = '';
+            return;
         }
+        
+        const file = input.files[0];
+        
+        // Validate file size (10MB max)
+        if (file.size > 10 * 1024 * 1024) {
+            showToast('error', 'File exceeds 10MB limit');
+            input.value = '';
+            if (preview) preview.innerHTML = '';
+            return;
+        }
+        
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+        
+        if (isImage) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <div style="width: 120px;">
+                        <img src="${e.target.result}" alt="Preview" 
+                            style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <p style="margin-top: 8px; font-size: 11px; color: #666; word-break: break-all;">
+                            <i class="fas fa-file-image me-1"></i>${file.name}
+                        </p>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.innerHTML = `
+                <div style="width: 120px;">
+                    <div class="text-center p-3 border rounded" style="height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                    </div>
+                    <p style="margin-top: 8px; font-size: 11px; color: #666; word-break: break-all;">
+                        ${file.name}
+                    </p>
+                </div>
+            `;
+        }
+    }
 
         // Validate training form
         function validateTrainingForm() {
@@ -2429,12 +2376,10 @@
                 formData.append('user_id', userId);
             }
             
-            // Add documents if uploaded
-            const docInput = document.getElementById('training_supporting_documents');
+            // Add document if uploaded
+            const docInput = document.getElementById('training_supporting_document');
             if (docInput.files && docInput.files.length > 0) {
-                for (let i = 0; i < docInput.files.length; i++) {
-                    formData.append('supporting_documents[]', docInput.files[i]);
-                }
+                formData.append('supporting_document', docInput.files[0]);
             }
             
             // Find submit button

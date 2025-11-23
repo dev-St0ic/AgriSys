@@ -47,14 +47,6 @@ class TrainingController extends Controller
         // Paginate results
         $trainings = $query->paginate(10)->withQueryString();
 
-        // Document path decoded
-        $trainings->getCollection()->transform(function ($training) {
-            if (is_string($training->document_paths)) {
-                $training->document_paths = json_decode($training->document_paths, true) ?: [];
-            }
-            return $training;
-        });
-
         // Statistics
         $totalApplications = TrainingApplication::count();
         $underReviewCount = TrainingApplication::where('status', 'under_review')->count();
@@ -77,36 +69,34 @@ class TrainingController extends Controller
     {
         try {
             // Validate the incoming data
-          $validated = $request->validate([
-            // Basic info
-            'first_name' => 'required|string|max:100',
-            'middle_name' => 'nullable|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'name_extension' => 'nullable|string|max:10', 
-            'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
-            'email' => 'nullable|email|max:254',
-            'barangay' => 'required|string|max:255',  
+            $validated = $request->validate([
+                // Basic info
+                'first_name' => 'required|string|max:100',
+                'middle_name' => 'nullable|string|max:100',
+                'last_name' => 'required|string|max:100',
+                'name_extension' => 'nullable|string|max:10', 
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'email' => 'nullable|email|max:254',
+                'barangay' => 'required|string|max:255',  
 
-            // Training info
-            'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
+                // Training info
+                'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
 
-            // Status
-            'status' => 'nullable|in:under_review,approved,rejected',
-            'remarks' => 'nullable|string|max:1000',
+                // Status
+                'status' => 'nullable|in:under_review,approved,rejected',
+                'remarks' => 'nullable|string|max:1000',
 
-            // Documents - allow multiple files
-            'supporting_documents' => 'nullable|array|max:5',
-            'supporting_documents.*' => 'file|mimes:jpg,jpeg,png,pdf|max:10240',  
+                // CHANGED: Single document instead of array
+                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
 
-            // Optional user link
-            'user_id' => 'nullable|exists:user_registration,id'
-        ], [
-            'barangay.required' => 'Barangay is required', 
-            'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)',
-            'supporting_documents.max' => 'You can upload a maximum of 5 documents',
-            'supporting_documents.*.max' => 'Each document must not exceed 10MB',
-            'supporting_documents.*.mimes' => 'Only JPG, PNG, and PDF files are allowed'
-        ]);
+                // Optional user link
+                'user_id' => 'nullable|exists:user_registration,id'
+            ], [
+                'barangay.required' => 'Barangay is required', 
+                'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)',
+                'supporting_document.max' => 'Document must not exceed 10MB',
+                'supporting_document.mimes' => 'Only JPG, PNG, and PDF files are allowed'
+            ]);
 
             // Set user_id to null if not provided
             if (!isset($validated['user_id'])) {
@@ -116,16 +106,14 @@ class TrainingController extends Controller
             // Generate unique application number
             $validated['application_number'] = $this->generateApplicationNumber();
 
-            // Handle multiple document uploads
-            $documentPaths = [];
-            if ($request->hasFile('supporting_documents')) {
-                foreach ($request->file('supporting_documents') as $file) {
-                    $filename = 'training_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                    $path = $file->storeAs('training_documents', $filename, 'public');
-                    $documentPaths[] = $path;
-                }
+            // CHANGED: Handle single document upload
+            $documentPath = null;
+            if ($request->hasFile('supporting_document')) {
+                $file = $request->file('supporting_document');
+                $filename = 'training_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $documentPath = $file->storeAs('training_documents', $filename, 'public');
             }
-            $validated['document_paths'] = !empty($documentPaths) ? json_encode($documentPaths) : null;
+            $validated['document_path'] = $documentPath;
 
             // Set default status if not provided
             $validated['status'] = $validated['status'] ?? 'under_review';
@@ -221,8 +209,8 @@ class TrainingController extends Controller
                 'formatted_status' => $training->formatted_status,
                 'status_color' => $training->status_color,
                 'remarks' => $training->remarks,
-                'document_paths' => $training->document_paths,
-                'document_urls' => $training->document_urls,
+                'document_path' => $training->document_path,
+                'document_url' => $training->document_url,
                 'created_at' => $training->created_at->format('M d, Y g:i A'),
                 'updated_at' => $training->updated_at->format('M d, Y g:i A'),
                 'status_updated_at' => $training->status_updated_at ? $training->status_updated_at->format('M d, Y g:i A') : null,
@@ -257,7 +245,7 @@ class TrainingController extends Controller
         ]);
     }
 
-  /**
+    /**
      * Delete a training application
      */
     public function destroy($id)
@@ -266,12 +254,10 @@ class TrainingController extends Controller
             $training = TrainingApplication::findOrFail($id);
             $applicationNumber = $training->application_number;
 
-            // Delete associated documents
-            if ($training->hasDocuments()) {
-                foreach ($training->document_paths as $path) {
-                    if (Storage::disk('public')->exists($path)) {
-                        Storage::disk('public')->delete($path);
-                    }
+            // CHANGED: Delete single document if exists
+            if ($training->hasDocument()) {
+                if (Storage::disk('public')->exists($training->document_path)) {
+                    Storage::disk('public')->delete($training->document_path);
                 }
             }
 
@@ -304,6 +290,7 @@ class TrainingController extends Controller
             ], 500);
         }
     }
+
     /**
      * Export training applications to CSV
      */
@@ -353,8 +340,7 @@ class TrainingController extends Controller
                     'Email',
                     'Training Type',
                     'Status',
-                    'Has Documents',
-                    'Documents Count',
+                    'Has Document',
                     'Date Applied',
                     'Date Updated',
                     'Updated By',
@@ -370,8 +356,7 @@ class TrainingController extends Controller
                         $application->email ?? 'N/A',
                         $application->training_type_display,
                         $application->formatted_status,
-                        $application->hasDocuments() ? 'Yes' : 'No',
-                        $application->hasDocuments() ? count($application->document_paths) : 0,
+                        $application->hasDocument() ? 'Yes' : 'No',
                         $application->created_at->format('M d, Y h:i A'),
                         $application->updated_at->format('M d, Y h:i A'),
                         $application->updatedBy?->name ?? 'N/A',

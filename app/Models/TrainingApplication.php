@@ -13,7 +13,7 @@ class TrainingApplication extends Model
     use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
-        'user_id', // Foreign key to user_registration table
+        'user_id',
         'application_number',
         'first_name',
         'middle_name',
@@ -23,7 +23,7 @@ class TrainingApplication extends Model
         'email',
         'barangay',
         'training_type',
-        'document_paths',
+        'document_path', // CHANGED: Single path instead of array
         'status',
         'remarks',
         'status_updated_at',
@@ -31,7 +31,6 @@ class TrainingApplication extends Model
     ];
 
     protected $casts = [
-        'document_paths' => 'array',
         'status_updated_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -146,51 +145,49 @@ class TrainingApplication extends Model
     }
 
     /**
-     * Check if the application has supporting documents
+     * CHANGED: Check if the application has a supporting document
      */
-    public function hasDocuments()
+    public function hasDocument()
     {
-        return !empty($this->document_paths) && is_array($this->document_paths);
+        return !empty($this->document_path);
     }
 
     /**
-     * Get document URLs if they exist
+     * CHANGED: Get document URL if it exists
      */
-    public function getDocumentUrlsAttribute()
+    public function getDocumentUrlAttribute()
     {
-        if ($this->hasDocuments()) {
-            return collect($this->document_paths)->map(function($path) {
-                return \Storage::disk('public')->exists($path) ? asset('storage/' . $path) : null;
-            })->filter()->values();
-        }
-        return collect();
-    }
-
-    /**
-     * Get the file extension of the first document
-     */
-    public function getFirstDocumentExtensionAttribute()
-    {
-        if ($this->hasDocuments() && isset($this->document_paths[0])) {
-            return strtolower(pathinfo($this->document_paths[0], PATHINFO_EXTENSION));
+        if ($this->hasDocument() && \Storage::disk('public')->exists($this->document_path)) {
+            return asset('storage/' . $this->document_path);
         }
         return null;
     }
 
     /**
-     * Check if first document is an image
+     * CHANGED: Get the file extension of the document
      */
-    public function isFirstDocumentImage()
+    public function getDocumentExtensionAttribute()
     {
-        return in_array($this->first_document_extension, ['jpg', 'jpeg', 'png', 'gif']);
+        if ($this->hasDocument()) {
+            return strtolower(pathinfo($this->document_path, PATHINFO_EXTENSION));
+        }
+        return null;
     }
 
     /**
-     * Check if first document is a PDF
+     * CHANGED: Check if document is an image
      */
-    public function isFirstDocumentPdf()
+    public function isDocumentImage()
     {
-        return $this->first_document_extension === 'pdf';
+        return in_array($this->document_extension, ['jpg', 'jpeg', 'png', 'gif']);
+    }
+
+    /**
+     * CHANGED: Check if document is a PDF
+     */
+    public function isDocumentPdf()
+    {
+        return $this->document_extension === 'pdf';
     }
 
     public function getActivitylogOptions(): LogOptions
