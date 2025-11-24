@@ -183,7 +183,7 @@
             @csrf
             <input type="hidden" id="selected_seedlings" name="selected_seedlings" value="">
 
-            <label for="seedlings-first_name">First Name *</label>
+            <label for="seedlings-first_name">First Name <span class="required-asterisk">*</span></label>
             <input type="text" id="seedlings-first_name" name="first_name" pattern="[a-zA-Z '\-]+"
                 title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
             <span class="validation-warning" id="seedlings-first_name-warning"
@@ -197,7 +197,7 @@
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
 
-            <label for="seedlings-last_name">Last Name *</label>
+            <label for="seedlings-last_name">Last Name <span class="required-asterisk">*</span></label>
             <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z '\-]+"
                 title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
             <span class="validation-warning" id="seedlings-last_name-warning"
@@ -212,14 +212,14 @@
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, periods,
                 and spaces are allowed</span>
 
-            <label for="seedlings-mobile">Mobile Number *</label>
+            <label for="seedlings-mobile">Contact Number <span class="required-asterisk">*</span></label>
             <input type="tel" id="seedlings-mobile" name="mobile" placeholder="+639XXXXXXXXX or 09XXXXXXXXX"
                 pattern="^(\+639|09)\d{9}$"
                 title="Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
                 required>
             <small>Format: +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)</small>
 
-            <label for="seedlings-email">Email Address *</label>
+            <label for="seedlings-email">Email Address <span class="required-asterisk">*</span></label>
             <input type="email" id="seedlings-email" name="email" required>
             <small>Please provide a valid email address for notifications.</small>
 
@@ -252,12 +252,12 @@
                 <option value="United Better Living">United Better Living</option>
             </select>
 
-            <label for="address">Complete Address *</label>
+            <label for="address">Complete Address <span class="required-asterisk">*</span></label>
             <input type="text" id="address" name="address" required>
             <small>Include house number, street, subdivision if applicable.</small>
 
             <div id="supporting-docs-field">
-                <label for="seedlings-docs">Supporting Documents *</label>
+                <label for="seedlings-docs">Supporting Documents <span class="required-asterisk">*</span></label>
                 <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png"
                     multiple>
                 <small>Upload supporting documents (proof of planting area).</small>

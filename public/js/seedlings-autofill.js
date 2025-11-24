@@ -1,6 +1,6 @@
 // ==============================================
-// SEEDLINGS AUTOFILL SYSTEM
-// Matches RSBSA, Training, FishR, and BoatR pattern with buttons
+// SEEDLINGS AUTOFILL SYSTEM - PROFESSIONAL VERSION
+// Updated: Enhanced UI, Better Validation, Complete Field Coverage
 // File: public/js/seedlings-autofill.js
 // ==============================================
 
@@ -33,10 +33,14 @@ function autoFillSeedlingsFromProfile() {
         if (field && value) {
             field.value = value;
 
-            // Trigger change event for selects
+            // Trigger change event for selects and validation
             if (field.tagName === 'SELECT') {
                 field.dispatchEvent(new Event('change', { bubbles: true }));
             }
+
+            // Trigger input event for validation
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+            field.dispatchEvent(new Event('blur', { bubbles: true }));
 
             // Add visual feedback
             field.style.backgroundColor = '#f0f8ff';
@@ -61,8 +65,18 @@ function autoFillSeedlingsFromProfile() {
     // Fill Last Name
     setFieldValue('last_name', userData.last_name);
 
-    // Fill Extension Name (note: seedlings uses 'extension_name' not 'name_extension')
+    // Fill Extension Name
     setFieldValue('extension_name', userData.extension_name || userData.name_extension);
+
+    // Fill Sex/Gender
+    setFieldValue('sex', userData.sex || userData.gender);
+
+    // Fill Age/Date of Birth
+    setFieldValue('age', userData.age);
+    setFieldValue('date_of_birth', userData.date_of_birth || userData.dob);
+
+    // Fill Civil Status
+    setFieldValue('civil_status', userData.civil_status);
 
     // Fill Mobile Number
     setFieldValue('mobile', userData.contact_number || userData.mobile_number || userData.phone || userData.mobile);
@@ -76,12 +90,16 @@ function autoFillSeedlingsFromProfile() {
     // Fill Complete Address
     setFieldValue('address', userData.complete_address || userData.address);
 
+    // Fill Additional fields if available
+    setFieldValue('occupation', userData.occupation);
+    setFieldValue('educational_attainment', userData.educational_attainment);
+
     // Show results
     if (filledCount > 0) {
-        showNotification('success', `✓ Auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''} from your profile!`);
-        console.log(`✅ Successfully auto-filled ${filledCount} Seedlings form fields`);
+        showNotification('success', `Successfully auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''} from your profile`);
+        console.log(`Auto-filled ${filledCount} Seedlings form fields`);
     } else {
-        console.warn('⚠️ No fields were auto-filled. userData:', userData);
+        console.warn('No fields were auto-filled. userData:', userData);
         showNotification('warning', 'Could not auto-fill form. Please complete your profile verification first.');
     }
 }
@@ -96,7 +114,7 @@ async function fetchAndAutoFillSeedlings() {
     const btn = document.getElementById('seedlings-autofill-btn');
     const originalText = btn ? btn.innerHTML : '';
     if (btn) {
-        btn.innerHTML = '⏳ Loading...';
+        btn.innerHTML = 'Loading...';
         btn.disabled = true;
     }
 
@@ -150,6 +168,13 @@ function clearSeedlingsAutoFill() {
         const form = document.getElementById('seedlings-request-form');
         if (form) {
             form.reset();
+            // Clear validation warnings
+            form.querySelectorAll('.validation-warning').forEach(warning => {
+                warning.style.display = 'none';
+            });
+            form.querySelectorAll('input, select, textarea').forEach(field => {
+                field.style.borderColor = '';
+            });
         }
         showNotification('info', 'Form cleared successfully');
     }
@@ -190,7 +215,7 @@ function addAutoFillButtonToSeedlings() {
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2e7d32;">💡 Quick Fill:</strong>
+            <strong style="color: #2e7d32;">Quick Fill:</strong>
             <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
         </div>
         <div class="autofill-actions">
@@ -210,7 +235,7 @@ function addAutoFillButtonToSeedlings() {
                     "
                     onmouseover="this.style.background='#388e3c'"
                     onmouseout="this.style.background='#4caf50'">
-                ✓ Use My Profile Data
+                Use My Profile Data
             </button>
             <button type="button" class="btn-clear"
                     onclick="clearSeedlingsAutoFill()"
@@ -236,7 +261,7 @@ function addAutoFillButtonToSeedlings() {
     const firstLabel = form.querySelector('label');
     if (firstLabel) {
         firstLabel.parentNode.insertBefore(buttonContainer, firstLabel);
-        console.log('✓ Auto-fill button added to Seedlings form');
+        console.log('Auto-fill button added to Seedlings form');
     } else {
         // Fallback: insert at beginning of form after hidden inputs
         const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
@@ -246,7 +271,7 @@ function addAutoFillButtonToSeedlings() {
         } else {
             form.insertBefore(buttonContainer, form.firstChild);
         }
-        console.log('✓ Auto-fill button added to Seedlings form (fallback position)');
+        console.log('Auto-fill button added to Seedlings form (fallback position)');
     }
 }
 
@@ -275,9 +300,9 @@ function initializeSeedlingsAutoFill() {
             attributes: true,
             attributeFilter: ['style']
         });
-        console.log('✓ MutationObserver attached to Seedlings form');
+        console.log('MutationObserver attached to Seedlings form');
     } else {
-        console.warn('⚠️ Seedlings section not found');
+        console.warn('Seedlings section not found');
     }
 
     // Also check immediately if form is already visible
@@ -286,10 +311,42 @@ function initializeSeedlingsAutoFill() {
     }
 }
 
+/**
+ * Validate required fields
+ */
+function validateSeedlingsForm() {
+    const form = document.getElementById('seedlings-request-form');
+    if (!form) return true;
+
+    const requiredFields = form.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        const value = field.value.trim();
+        const warning = document.getElementById(field.id + '-warning');
+
+        if (!value) {
+            field.style.borderColor = '#ff6b6b';
+            if (warning) warning.style.display = 'block';
+            isValid = false;
+        } else {
+            field.style.borderColor = '';
+            if (warning) warning.style.display = 'none';
+        }
+    });
+
+    if (!isValid) {
+        showNotification('error', 'Please fill in all required fields');
+    }
+
+    return isValid;
+}
+
 // Export functions for global access
 window.autoFillSeedlingsFromProfile = autoFillSeedlingsFromProfile;
 window.fetchAndAutoFillSeedlings = fetchAndAutoFillSeedlings;
 window.clearSeedlingsAutoFill = clearSeedlingsAutoFill;
+window.validateSeedlingsForm = validateSeedlingsForm;
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -302,4 +359,4 @@ window.addEventListener('load', function() {
     setTimeout(initializeSeedlingsAutoFill, 500);
 });
 
-console.log('✅ Seedlings Auto-fill module loaded');
+console.log('Seedlings Auto-fill module loaded');
