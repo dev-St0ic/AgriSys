@@ -1140,9 +1140,10 @@
         }
 
         #documentViewer {
-            min-height: 400px;
-            max-height: 80vh;
-            overflow: auto;
+            min-height: auto;
+            max-height: none;
+            overflow-y: auto;
+            overflow-x: hidden;
             padding: 1rem;
         }
 
@@ -1413,8 +1414,9 @@
 
         #applicationModal .modal-body {
             padding: 1.5rem;
-            max-height: 70vh;
+            max-height: none;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         /* Application Details Content */
@@ -1466,7 +1468,7 @@
             text-transform: uppercase;
         }
 
-        /* Scrollbar Styling for Modal Body */
+        /* Scrollbar Styling for Modal Body
         #applicationModal .modal-body::-webkit-scrollbar {
             width: 8px;
         }
@@ -1483,7 +1485,7 @@
 
         #applicationModal .modal-body::-webkit-scrollbar-thumb:hover {
             background: #555;
-        }
+        } */
 
         /* Update Modal - Enhanced Styling */
         #updateModal .modal-content {
@@ -1995,6 +1997,28 @@
             }
         }
     </style>
+
+    <!-- Document Viewer Modal -->
+    <div class="modal fade" id="documentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>Document Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="documentViewer">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-muted">Loading document...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
@@ -2848,7 +2872,8 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
     })
     .then(data => {
         if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+            const updateModalInstance = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+            if (updateModalInstance) updateModalInstance.hide();
             showToast('success', data.message || 'Status updated successfully');
             setTimeout(() => location.reload(), 1500);
         } else {
@@ -3232,23 +3257,10 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                                 <i class="fas fa-external-link-alt me-2"></i>Open Document
                             </a>
                             <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                    <div class="fishr-document-viewer">
-                        <div class="fishr-document-placeholder">
-                            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
-                            <h5>Unable to preview ${type}</h5>
-                            <p class="mb-3">The ${type} could not be loaded or displayed.</p>
-                        </div>
-                        <div class="fishr-document-actions">
-                            <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
-                                <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                            </button>
-                            <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
                                 <i class="fas fa-download me-2"></i>Download
-                            </button>
+                            </a>
                         </div>
-                        <div class="fishr-document-info">
-                            <p class="fishr-file-name">File: ${fileName}</p>
-                        </div>
+                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
                     </div>`;
                     } else {
                         // Handle unsupported file types
@@ -4055,7 +4067,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                     if (data.success) {
                         // Close modal
                         const modal = bootstrap.Modal.getInstance(document.getElementById('addRsbsaModal'));
-                        modal.hide();
+                        if (modal) modal.hide();
 
                         // Show success message
                         showToast('success', data.message || 'RSBSA application created successfully');
