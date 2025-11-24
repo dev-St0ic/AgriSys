@@ -1,5 +1,8 @@
-// Training Auto-Fill Enhancement - Matches RSBSA Pattern
-// Automatically populates form fields from authenticated user's profile data
+// ==============================================
+// TRAINING AUTO-FILL SYSTEM - PROFESSIONAL VERSION
+// Updated: Enhanced UI, Better Validation, Complete Field Coverage
+// File: public/js/training-autofill.js
+// ==============================================
 
 /**
  * Auto-fill Training form with user profile data
@@ -35,6 +38,10 @@ function autoFillTrainingFromProfile() {
                 field.dispatchEvent(new Event('change', { bubbles: true }));
             }
 
+            // Trigger input event for validation
+            field.dispatchEvent(new Event('input', { bubbles: true }));
+            field.dispatchEvent(new Event('blur', { bubbles: true }));
+
             // Add visual feedback
             field.style.backgroundColor = '#f0f8ff';
             setTimeout(() => {
@@ -42,10 +49,10 @@ function autoFillTrainingFromProfile() {
             }, 2000);
 
             filledCount++;
-            console.log(`✓ Filled ${fieldName} with: ${value}`);
+            console.log(`Filled ${fieldName} with: ${value}`);
             return true;
         }
-        console.log(`✗ Could not fill ${fieldName} - field:`, !!field, 'value:', value);
+        console.log(`Could not fill ${fieldName} - field:`, !!field, 'value:', value);
         return false;
     }
 
@@ -61,6 +68,18 @@ function autoFillTrainingFromProfile() {
     // Fill Name Extension
     setFieldValue('name_extension', userData.name_extension || userData.extension_name);
 
+    // Fill Sex/Gender
+    setFieldValue('sex', userData.sex || userData.gender);
+
+    // Fill Age
+    setFieldValue('age', userData.age);
+
+    // Fill Date of Birth
+    setFieldValue('date_of_birth', userData.date_of_birth || userData.dob);
+
+    // Fill Civil Status
+    setFieldValue('civil_status', userData.civil_status);
+
     // Fill Contact Number
     setFieldValue('contact_number', userData.contact_number || userData.mobile || userData.phone);
 
@@ -70,12 +89,18 @@ function autoFillTrainingFromProfile() {
     // Fill Barangay
     setFieldValue('barangay', userData.barangay);
 
+    // Fill Occupation
+    setFieldValue('occupation', userData.occupation);
+
+    // Fill Educational Attainment
+    setFieldValue('educational_attainment', userData.educational_attainment);
+
     // Show results
     if (filledCount > 0) {
-        showNotification('success', `✓ Auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''} from your profile!`);
-        console.log(`✅ Successfully auto-filled ${filledCount} Training form fields`);
+        showNotification('success', `Successfully auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''} from your profile`);
+        console.log(`Auto-filled ${filledCount} Training form fields`);
     } else {
-        console.warn('⚠️ No fields were auto-filled. userData:', userData);
+        console.warn('No fields were auto-filled. userData:', userData);
         showNotification('warning', 'Could not auto-fill form. Please complete your profile verification first.');
     }
 }
@@ -90,7 +115,7 @@ async function fetchAndAutoFillTraining() {
     const btn = document.getElementById('training-autofill-btn');
     const originalText = btn ? btn.innerHTML : '';
     if (btn) {
-        btn.innerHTML = '⏳ Loading...';
+        btn.innerHTML = 'Loading...';
         btn.disabled = true;
     }
 
@@ -141,24 +166,19 @@ async function fetchAndAutoFillTraining() {
  */
 function clearTrainingAutoFill() {
     if (confirm('This will clear all form fields. Continue?')) {
-        resetTrainingForm();
+        const form = document.getElementById('training-request-form');
+        if (form) {
+            form.reset();
+            // Clear validation warnings
+            form.querySelectorAll('.validation-warning').forEach(warning => {
+                warning.style.display = 'none';
+            });
+            form.querySelectorAll('input, select, textarea').forEach(field => {
+                field.style.borderColor = '';
+            });
+        }
         showNotification('info', 'Form cleared successfully');
     }
-}
-
-/**
- * Check if form is empty (no user-entered data)
- */
-function isTrainingFormEmpty(form) {
-    const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select');
-
-    for (let input of inputs) {
-        if (input.value && input.value.trim() !== '') {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 /**
@@ -196,7 +216,7 @@ function addAutoFillButtonToTraining() {
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2e7d32;">💡 Quick Fill:</strong>
+            <strong style="color: #2e7d32;">Quick Fill:</strong>
             <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
         </div>
         <div class="autofill-actions">
@@ -216,7 +236,7 @@ function addAutoFillButtonToTraining() {
                     "
                     onmouseover="this.style.background='#388e3c'"
                     onmouseout="this.style.background='#4caf50'">
-                ✓ Use My Profile Data
+                Use My Profile Data
             </button>
             <button type="button" class="btn-clear"
                     onclick="clearTrainingAutoFill()"
@@ -239,14 +259,14 @@ function addAutoFillButtonToTraining() {
     `;
 
     // Insert button at the top of the form
-    const formGroups = form.querySelectorAll('.training-form-group');
-    if (formGroups.length > 0) {
-        formGroups[0].parentNode.insertBefore(buttonContainer, formGroups[0]);
-        console.log('✓ Auto-fill button added to Training form');
+    const firstGroup = form.querySelector('.training-form-group');
+    if (firstGroup) {
+        firstGroup.parentNode.insertBefore(buttonContainer, firstGroup);
+        console.log('Auto-fill button added to Training form');
     } else {
         // Fallback: insert at beginning of form
         form.insertBefore(buttonContainer, form.firstChild);
-        console.log('✓ Auto-fill button added to Training form (fallback position)');
+        console.log('Auto-fill button added to Training form (fallback position)');
     }
 }
 
@@ -275,9 +295,9 @@ function initializeTrainingAutoFill() {
             attributes: true,
             attributeFilter: ['style']
         });
-        console.log('✓ MutationObserver attached to Training form');
+        console.log('MutationObserver attached to Training form');
     } else {
-        console.warn('⚠️ Training section not found');
+        console.warn('Training section not found');
     }
 
     // Also check immediately if form is already visible
@@ -286,10 +306,42 @@ function initializeTrainingAutoFill() {
     }
 }
 
+/**
+ * Validate required fields
+ */
+function validateTrainingForm() {
+    const form = document.getElementById('training-request-form');
+    if (!form) return true;
+
+    const requiredFields = form.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        const value = field.value.trim();
+        const warning = document.getElementById(field.id + '-warning');
+
+        if (!value) {
+            field.style.borderColor = '#ff6b6b';
+            if (warning) warning.style.display = 'block';
+            isValid = false;
+        } else {
+            field.style.borderColor = '';
+            if (warning) warning.style.display = 'none';
+        }
+    });
+
+    if (!isValid) {
+        showNotification('error', 'Please fill in all required fields');
+    }
+
+    return isValid;
+}
+
 // Export functions for global access
 window.autoFillTrainingFromProfile = autoFillTrainingFromProfile;
 window.fetchAndAutoFillTraining = fetchAndAutoFillTraining;
 window.clearTrainingAutoFill = clearTrainingAutoFill;
+window.validateTrainingForm = validateTrainingForm;
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -302,4 +354,4 @@ window.addEventListener('load', function() {
     setTimeout(initializeTrainingAutoFill, 500);
 });
 
-console.log('✅ Training Auto-fill module loaded');
+console.log('Training Auto-fill module loaded');
