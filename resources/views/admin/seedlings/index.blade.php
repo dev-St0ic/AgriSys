@@ -349,6 +349,12 @@
                                                     <i class="fas fa-eye"></i> View
                                                 </button>
 
+                                                <button type="button" class="btn btn-outline-warning"
+                                                    onclick="showEditSeedlingModal({{ $request->id }})"
+                                                    title="Edit Personal Information">
+                                                    <i class="fas fa-pencil-alt"></i> Edit
+                                                </button>
+
                                                 <button type="button" class="btn btn-outline-success"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#updateModal{{ $request->id }}">
@@ -376,12 +382,12 @@
                 <div class="modal fade" id="viewModal{{ $request->id }}" tabindex="-1">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
-                            <div class="modal-header bg-light border-bottom">
-                                <h5 class="modal-title fw-bold text-dark">
-                                    <i class="fas fa-eye text-primary me-2"></i>
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-eye me-2"></i>
                                     Request Details - {{ $request->request_number }}
                                 </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="row g-3">
@@ -527,16 +533,196 @@
                     </div>
                 </div>
 
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editSeedlingModal{{ $request->id }}" tabindex="-1">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-pencil-alt"></i>
+                                    Edit Request - {{ $request->request_number }}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('admin.seedlings.update', $request) }}" 
+                                    id="editForm{{ $request->id }}" class="needs-validation">
+                                    @csrf
+                                    @method('PUT')
+
+                                    <!-- Personal Information Card -->
+                                    <div class="card mb-3">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="edit_first_name_{{ $request->id }}" class="form-label">First Name <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="edit_first_name_{{ $request->id }}" 
+                                                        name="first_name" value="{{ $request->first_name }}" required maxlength="100">
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="edit_middle_name_{{ $request->id }}" class="form-label">Middle Name</label>
+                                                    <input type="text" class="form-control" id="edit_middle_name_{{ $request->id }}" 
+                                                        name="middle_name" value="{{ $request->middle_name }}" maxlength="100">
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="edit_last_name_{{ $request->id }}" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="edit_last_name_{{ $request->id }}" 
+                                                        name="last_name" value="{{ $request->last_name }}" required maxlength="100">
+                                                </div>
+                                                <div class="col-md-3 mb-3">
+                                                    <label for="edit_extension_{{ $request->id }}" class="form-label">Extension</label>
+                                                    <select class="form-select" id="edit_extension_{{ $request->id }}" name="extension_name">
+                                                        <option value="">None</option>
+                                                        <option value="Jr." {{ $request->extension_name === 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                                                        <option value="Sr." {{ $request->extension_name === 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                                                        <option value="II" {{ $request->extension_name === 'II' ? 'selected' : '' }}>II</option>
+                                                        <option value="III" {{ $request->extension_name === 'III' ? 'selected' : '' }}>III</option>
+                                                        <option value="IV" {{ $request->extension_name === 'IV' ? 'selected' : '' }}>IV</option>
+                                                        <option value="V" {{ $request->extension_name === 'V' ? 'selected' : '' }}>V</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="edit_contact_number_{{ $request->id }}" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                                    <input type="tel" class="form-control" id="edit_contact_number_{{ $request->id }}" 
+                                                        name="contact_number" value="{{ $request->contact_number }}" required 
+                                                        placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                                    <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label for="edit_email_{{ $request->id }}" class="form-label">Email</label>
+                                                    <input type="email" class="form-control" id="edit_email_{{ $request->id }}" 
+                                                        name="email" value="{{ $request->email }}" maxlength="254">
+                                                    <div class="form-text">For status notifications</div>
+                                                </div>
+                                                <div class="col-md-4 mb-3">
+                                                    <label class="form-label">Request Number</label>
+                                                    <input type="text" class="form-control" value="{{ $request->request_number }}" disabled>
+                                                    <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Location Information Card -->
+                                    <div class="card mb-3">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="edit_barangay_{{ $request->id }}" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                                    <select class="form-select" id="edit_barangay_{{ $request->id }}" name="barangay" required>
+                                                        <option value="">Select Barangay</option>
+                                                        @foreach ($barangays as $barangay)
+                                                            <option value="{{ $barangay }}" {{ $request->barangay === $barangay ? 'selected' : '' }}>
+                                                                {{ $barangay }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="edit_address_{{ $request->id }}" class="form-label">Address <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="edit_address_{{ $request->id }}" 
+                                                        name="address" value="{{ $request->address }}" required maxlength="500">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Additional Information Card -->
+                                    <div class="card mb-3">
+                                        <div class="card-header bg-light">
+                                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Information</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="edit_planting_location_{{ $request->id }}" class="form-label">Planting Location</label>
+                                                    <input type="text" class="form-control" id="edit_planting_location_{{ $request->id }}" 
+                                                        name="planting_location" value="{{ $request->planting_location }}" maxlength="500">
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="edit_preferred_delivery_date_{{ $request->id }}" class="form-label">Preferred Delivery Date</label>
+                                                    <input type="date" class="form-control" id="edit_preferred_delivery_date_{{ $request->id }}" 
+                                                        name="preferred_delivery_date" value="{{ $request->preferred_delivery_date?->format('Y-m-d') }}">
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="edit_purpose_{{ $request->id }}" class="form-label">Purpose</label>
+                                                <textarea class="form-control" id="edit_purpose_{{ $request->id }}" 
+                                                    name="purpose" rows="3" maxlength="1000">{{ $request->purpose }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status Information (Read-only) -->
+                                    <div class="card mb-3 bg-light">
+                                        <div class="card-header bg-light border-0">
+                                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Request Status (Read-only)</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4 mb-2">
+                                                    <small class="text-muted">Current Status:</small>
+                                                    <div>
+                                                        <span class="badge bg-{{ match($request->status) {
+                                                            'approved' => 'success',
+                                                            'partially_approved' => 'info',
+                                                            'rejected' => 'danger',
+                                                            'under_review', 'pending' => 'warning',
+                                                            default => 'secondary',
+                                                        } }}">
+                                                            {{ ucfirst(str_replace('_', ' ', $request->status)) }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 mb-2">
+                                                    <small class="text-muted">Date Applied:</small>
+                                                    <div>{{ $request->created_at->format('M d, Y g:i A') }}</div>
+                                                </div>
+                                                <div class="col-md-4 mb-2">
+                                                    <small class="text-muted">Last Updated:</small>
+                                                    <div>{{ $request->updated_at->format('M d, Y g:i A') }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Info Alert -->
+                                    <div class="alert alert-info mb-0">
+                                        <i class="fas fa-lightbulb me-2"></i>
+                                        <strong>Note:</strong> Changes to personal or location information will be saved. 
+                                        To update item statuses and approvals, use the "Update Items" button from the main table.
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" id="editSubmitBtn{{ $request->id }}"
+                                    onclick="handleEditSeedlingSubmit({{ $request->id }})">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Update Modal -->
                 <div class="modal fade" id="updateModal{{ $request->id }}" tabindex="-1">
                     <div class="modal-dialog modal-xl">
                         <div class="modal-content">
-                            <div class="modal-header bg-light border-bottom">
-                                <h5 class="modal-title fw-bold text-dark">
-                                    <i class="fas fa-edit text-success me-2"></i>
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-edit me-2"></i>
                                     Update Items - {{ $request->request_number }}
                                 </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
                                 <form method="POST" action="{{ route('admin.seedlings.update-items', $request) }}"
@@ -1187,7 +1373,7 @@
         }
 
         .btn-group>.btn {
-            margin-right: 0.25rem;
+            margin-right: 0;
         }
 
         .btn-group>.btn:last-child {
@@ -2926,5 +3112,315 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('seedling_email')?.addEventListener('input', function() {
             validateSeedlingEmail(this.value);
         });
+
+
+                
+        // Show edit modal
+        function showEditSeedlingModal(requestId) {
+            const modal = new bootstrap.Modal(document.getElementById('editSeedlingModal' + requestId));
+            
+            // Initialize the modal with existing values
+            initializeEditSeedlingModal(requestId);
+            
+            modal.show();
+        }
+
+        // Initialize edit modal with existing data
+      function initializeEditSeedlingModal(requestId) {
+        const form = document.getElementById('editForm' + requestId);
+        if (!form) return;
+        
+        // Store original values for change detection
+        const originalData = {};
+        
+        // Store personal info
+        originalData.first_name = document.getElementById('edit_first_name_' + requestId).value;
+        originalData.middle_name = document.getElementById('edit_middle_name_' + requestId).value;
+        originalData.last_name = document.getElementById('edit_last_name_' + requestId).value;
+        originalData.extension_name = document.getElementById('edit_extension_' + requestId).value;
+        originalData.contact_number = document.getElementById('edit_contact_number_' + requestId).value;
+        originalData.email = document.getElementById('edit_email_' + requestId).value;
+        originalData.barangay = document.getElementById('edit_barangay_' + requestId).value;
+        originalData.address = document.getElementById('edit_address_' + requestId).value;
+        originalData.planting_location = document.getElementById('edit_planting_location_' + requestId).value;
+        originalData.purpose = document.getElementById('edit_purpose_' + requestId).value;
+        originalData.preferred_delivery_date = document.getElementById('edit_preferred_delivery_date_' + requestId).value;
+        
+        // Store in form data attribute
+        form.dataset.originalData = JSON.stringify(originalData);
+        
+        // Clear validation states
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        
+        // Reset submit button - NO CHANGES STATE (similar to update modal)
+        const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+        if (submitBtn) {
+            submitBtn.innerHTML = 'Save Changes'; // No icon initially
+            submitBtn.disabled = false; // Keep enabled like update modal
+            submitBtn.dataset.hasChanges = 'false';
+        }
+    }
+
+
+
+// Check for changes in edit form
+function checkForEditChanges(requestId) {
+    const form = document.getElementById('editForm' + requestId);
+    const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+    
+    if (!form || !submitBtn) return;
+    
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    
+    let hasChanges = false;
+    
+    // Check all form fields
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'extension_name',
+        'contact_number', 'email', 'barangay', 'address',
+        'planting_location', 'purpose', 'preferred_delivery_date'
+    ];
+    
+    fields.forEach(field => {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (input && input.value !== originalData[field]) {
+            hasChanges = true;
+            input.classList.add('form-changed');
+        } else if (input) {
+            input.classList.remove('form-changed');
+        }
+    });
+    
+    // Update button state based on changes - ALWAYS KEEP ENABLED
+    if (hasChanges) {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
+    } else {
+        submitBtn.classList.add('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
+    }
+}
+
+    // Handle edit form submission
+   function handleEditSeedlingSubmit(requestId) {
+        const form = document.getElementById('editForm' + requestId);
+        const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+        
+        if (!form) {
+            showToast('error', 'Form not found');
+            return;
+        }
+        
+        // Check if there are no changes
+        if (submitBtn && submitBtn.dataset.hasChanges === 'false') {
+            showToast('warning', 'No changes detected. Please modify the fields before saving.');
+            return;
+        }
+        
+        // Validate form
+        if (!validateEditSeedlingForm(requestId)) {
+            showToast('error', 'Please fix all validation errors');
+            return;
+        }
+        
+        // Show confirmation
+        showConfirmationToast(
+            'Confirm Update',
+            'Are you sure you want to save the changes to this seedling request?',
+            () => proceedWithEditSeedling(form, requestId)
+        );
+    }
+
+
+
+        // Validate edit form
+        function validateEditSeedlingForm(requestId) {
+            const form = document.getElementById('editForm' + requestId);
+            let isValid = true;
+            
+            const requiredFields = [
+                { id: 'edit_first_name_' + requestId, label: 'First Name' },
+                { id: 'edit_last_name_' + requestId, label: 'Last Name' },
+                { id: 'edit_contact_number_' + requestId, label: 'Contact Number' },
+                { id: 'edit_barangay_' + requestId, label: 'Barangay' },
+                { id: 'edit_address_' + requestId, label: 'Address' }
+            ];
+            
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (input && (!input.value || input.value.trim() === '')) {
+                    input.classList.add('is-invalid');
+                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                    if (feedback) feedback.remove();
+                    
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = field.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            });
+            
+            // Validate contact number
+            const contactInput = document.getElementById('edit_contact_number_' + requestId);
+            if (contactInput) {
+                validateEditContactNumber(contactInput, requestId);
+            }
+            
+            // Validate email if provided
+            const emailInput = document.getElementById('edit_email_' + requestId);
+            if (emailInput && emailInput.value.trim()) {
+                if (!validateEditEmail(emailInput, requestId)) {
+                    isValid = false;
+                }
+            }
+            
+            return isValid;
+        }
+
+        // Validate edit contact number
+        function validateEditContactNumber(input, requestId) {
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+            
+            if (input.value.trim() && !phoneRegex.test(input.value.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            if (input.value.trim()) {
+                input.classList.add('is-valid');
+            }
+            return true;
+        }
+
+        // Validate edit email
+        function validateEditEmail(input, requestId) {
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if (!emailPattern.test(input.value.trim())) {
+                input.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Invalid email format';
+                input.parentNode.appendChild(errorDiv);
+                return false;
+            }
+            
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Proceed with edit submission
+        function proceedWithEditSeedling(form, requestId) {
+            const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+            
+            // Show loading state
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+            submitBtn.disabled = true;
+            
+            const formData = new FormData(form);
+            
+            fetch(form.getAttribute('action'), {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': getCSRFToken(),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    const modalId = 'editSeedlingModal' + requestId;
+                    const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                    if (modal) modal.hide();
+                    
+                    showToast('success', data.message || 'Seedling request updated successfully');
+                    
+                    // Reload page
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    throw new Error(data.message || 'Failed to update request');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error: ' + error.message);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+
+        // Auto-capitalize names in edit form
+        function capitalizeEditName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+        }
+
+   // Add event listeners for edit form
+function initializeEditFormListeners() {
+    const editForms = document.querySelectorAll('form[id^="editForm"]');
+    
+    editForms.forEach(form => {
+        const requestId = form.id.replace('editForm', '');
+        
+        // Add change listeners to all inputs
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('change', () => checkForEditChanges(requestId));
+            input.addEventListener('input', () => checkForEditChanges(requestId));
+        });
+        
+        // Name auto-capitalize
+        const firstName = form.querySelector(`#edit_first_name_${requestId}`);
+        if (firstName) {
+            firstName.addEventListener('blur', function() { capitalizeEditName(this); });
+        }
+        
+        const middleName = form.querySelector(`#edit_middle_name_${requestId}`);
+        if (middleName) {
+            middleName.addEventListener('blur', function() { capitalizeEditName(this); });
+        }
+        
+        const lastName = form.querySelector(`#edit_last_name_${requestId}`);
+        if (lastName) {
+            lastName.addEventListener('blur', function() { capitalizeEditName(this); });
+        }
+    });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEditFormListeners();
+});
     </script>
 @endsection
