@@ -288,23 +288,23 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <div class="fishr-table-documents">
+                                    <div class="rsbsa-table-documents">
                                         @if ($application->supporting_document_path)
-                                            <div class="fishr-document-previews">
-                                                <div class="fishr-mini-doc"
+                                            <div class="rsbsa-document-previews">
+                                                <div class="rsbsa-mini-doc"
                                                     onclick="viewDocument('{{ $application->supporting_document_path }}', 'Application #{{ $application->application_number }} - Supporting Document')"
                                                     title="Supporting Document">
-                                                    <div class="fishr-mini-doc-icon">
+                                                    <div class="rsbsa-mini-doc-icon">
                                                         <i class="fas fa-file-alt text-primary"></i>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="fishr-document-summary"
+                                            <div class="rsbsa-document-summary"
                                                 onclick="viewDocument('{{ $application->supporting_document_path }}', 'Application #{{ $application->application_number }} - Supporting Document')">
                                                 <small class="text-muted">1 document</small>
                                             </div>
                                         @else
-                                            <div class="fishr-no-documents">
+                                            <div class="rsbsa-no-documents">
                                                 <i class="fas fa-folder-open text-muted"></i>
                                                 <small class="text-muted">No documents</small>
                                             </div>
@@ -1506,8 +1506,8 @@
             }
         }
 
-        /* FISHR-Style Table Document Previews */
-        .fishr-table-documents {
+        /* RSBSA-Style Table Document Previews */
+        .rsbsa-table-documents {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1515,13 +1515,13 @@
             padding: 0.5rem 0;
         }
 
-        .fishr-document-previews {
+        .rsbsa-document-previews {
             display: flex;
             gap: 0.25rem;
             align-items: center;
         }
 
-        .fishr-mini-doc {
+        .rsbsa-mini-doc {
             width: 32px;
             height: 32px;
             border-radius: 6px;
@@ -1536,53 +1536,53 @@
             overflow: hidden;
         }
 
-        .fishr-mini-doc:hover {
+        .rsbsa-mini-doc:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             border-color: #007bff;
         }
 
-        .fishr-mini-doc-icon {
+        .rsbsa-mini-doc-icon {
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.875rem;
         }
 
-        .fishr-mini-doc-more {
+        .rsbsa-mini-doc-more {
             background: #f8f9fa;
             border-color: #dee2e6;
         }
 
-        .fishr-mini-doc-more:hover {
+        .rsbsa-mini-doc-more:hover {
             background: #e9ecef;
             border-color: #6c757d;
         }
 
-        .fishr-more-count {
+        .rsbsa-more-count {
             font-size: 0.75rem;
             font-weight: 600;
             color: #6c757d;
         }
 
-        .fishr-mini-doc-more:hover .fishr-more-count {
+        .rsbsa-mini-doc-more:hover .rsbsa-more-count {
             color: #495057;
         }
 
-        .fishr-document-summary {
+        .rsbsa-document-summary {
             cursor: pointer;
             transition: color 0.2s ease;
         }
 
-        .fishr-document-summary:hover {
+        .rsbsa-document-summary:hover {
             color: #007bff !important;
         }
 
-        .fishr-document-summary:hover small {
+        .rsbsa-document-summary:hover small {
             color: #007bff !important;
         }
 
-        .fishr-no-documents {
+        .rsbsa-no-documents {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1591,37 +1591,37 @@
             opacity: 0.7;
         }
 
-        .fishr-no-documents i {
+        .rsbsa-no-documents i {
             font-size: 1.25rem;
         }
 
         /* Document type specific colors for mini previews */
-        .fishr-mini-doc[title*="Supporting"] {
+        .rsbsa-mini-doc[title*="Supporting"] {
             border-color: #007bff;
         }
 
-        .fishr-mini-doc[title*="Supporting"]:hover {
+        .rsbsa-mini-doc[title*="Supporting"]:hover {
             background-color: rgba(0, 123, 255, 0.1);
         }
 
         /* Responsive adjustments for table documents */
         @media (max-width: 768px) {
-            .fishr-mini-doc {
+            .rsbsa-mini-doc {
                 width: 28px;
                 height: 28px;
             }
 
-            .fishr-mini-doc-icon {
+            .rsbsa-mini-doc-icon {
                 font-size: 0.75rem;
             }
 
-            .fishr-more-count {
+            .rsbsa-more-count {
                 font-size: 0.7rem;
             }
         }
 
-        /* FISHR-Style Document Viewer */
-        .fishr-document-viewer {
+        /* RSBSA-Style Document Viewer */
+        .rsbsa-document-viewer {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1631,7 +1631,7 @@
             min-height: 400px;
         }
 
-        .fishr-document-container {
+        .rsbsa-document-container {
             position: relative;
             background: white;
             border-radius: 8px;
@@ -1641,7 +1641,7 @@
             margin-bottom: 1rem;
         }
 
-        .fishr-document-image {
+        .rsbsa-document-image {
             max-width: 100%;
             max-height: 60vh;
             object-fit: contain;
@@ -1649,26 +1649,26 @@
             transition: transform 0.3s ease;
         }
 
-        .fishr-document-image:hover {
+        .rsbsa-document-image:hover {
             transform: scale(1.02);
         }
 
-        .fishr-document-image.zoomed {
+        .rsbsa-document-image.zoomed {
             transform: scale(1.5);
             cursor: zoom-out;
         }
 
-        .fishr-pdf-embed {
+        .rsbsa-pdf-embed {
             border-radius: 8px;
         }
 
-        .fishr-document-overlay {
+        .rsbsa-document-overlay {
             position: absolute;
             top: 10px;
             right: 10px;
         }
 
-        .fishr-document-size-badge {
+        .rsbsa-document-size-badge {
             background: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 4px 8px;
@@ -1677,7 +1677,7 @@
             font-weight: 500;
         }
 
-        .fishr-document-actions {
+        .rsbsa-document-actions {
             display: flex;
             gap: 0.75rem;
             margin-bottom: 1rem;
@@ -1685,7 +1685,7 @@
             justify-content: center;
         }
 
-        .fishr-btn {
+        .rsbsa-btn {
             padding: 0.5rem 1.25rem;
             border-radius: 6px;
             font-weight: 500;
@@ -1700,44 +1700,44 @@
             cursor: pointer;
         }
 
-        .fishr-btn-outline {
+        .rsbsa-btn-outline {
             background: white;
             color: #6c757d;
             border-color: #dee2e6;
         }
 
-        .fishr-btn-outline:hover {
+        .rsbsa-btn-outline:hover {
             background: #f8f9fa;
             color: #495057;
             border-color: #adb5bd;
             transform: translateY(-1px);
         }
 
-        .fishr-btn-primary {
+        .rsbsa-btn-primary {
             background: #007bff;
             color: white;
             border-color: #007bff;
         }
 
-        .fishr-btn-primary:hover {
+        .rsbsa-btn-primary:hover {
             background: #0056b3;
             border-color: #0056b3;
             color: white;
             transform: translateY(-1px);
         }
 
-        .fishr-document-info {
+        .rsbsa-document-info {
             text-align: center;
             color: #6c757d;
         }
 
-        .fishr-file-name {
+        .rsbsa-file-name {
             margin: 0;
             font-size: 0.9rem;
             word-break: break-word;
         }
 
-        .fishr-document-placeholder {
+        .rsbsa-document-placeholder {
             text-align: center;
             padding: 2rem;
             background: white;
@@ -1751,19 +1751,19 @@
             align-items: center;
         }
 
-        /* Responsive design for FISHR document viewer */
+        /* Responsive design for RSBSA document viewer */
         @media (max-width: 768px) {
-            .fishr-document-actions {
+            .rsbsa-document-actions {
                 flex-direction: column;
                 width: 100%;
             }
 
-            .fishr-btn {
+            .rsbsa-btn {
                 width: 100%;
                 min-width: auto;
             }
 
-            .fishr-document-image {
+            .rsbsa-document-image {
                 max-height: 40vh;
             }
         }
@@ -3826,7 +3826,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
         }
 
         console.log('RSBSA Add Registration functionality loaded successfully');
-        // Download file function for FISHR-style buttons
+        // Download file function for RSBSA-style buttons
         function downloadFile(url, filename) {
             const link = document.createElement('a');
             link.href = url;
