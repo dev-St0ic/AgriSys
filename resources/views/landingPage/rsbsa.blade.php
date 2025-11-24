@@ -17,7 +17,7 @@
             @csrf
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
-            <label>First Name *</label>
+            <label>First Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <input type="text" id="rsbsa-first_name" name="first_name" placeholder="Enter your first name"
                 pattern="[a-zA-Z\s\'-]+" title="First name can only contain letters, spaces, hyphens, and apostrophes"
                 required>
@@ -32,7 +32,7 @@
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
 
-            <label>Last Name *</label>
+            <label>Last Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <input type="text" id="rsbsa-last_name" name="last_name" placeholder="Enter your last name"
                 pattern="[a-zA-Z\s\'-]+" title="Last name can only contain letters, spaces, hyphens, and apostrophes"
                 required>
@@ -47,7 +47,7 @@
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, periods,
                 and spaces are allowed</span>
 
-            <label>Sex *</label>
+            <label>Sex <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <select name="sex" required>
                 <option value="" disabled selected>Select Sex</option>
                 <option value="Male">Male</option>
@@ -55,7 +55,7 @@
                 <option value="Preferred not to say">Preferred not to say</option>
             </select>
 
-            <label>Barangay *</label>
+            <label>Barangay <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <select name="barangay" required>
                 <option value="" disabled selected>Select Barangay</option>
                 <option value="Bagong Silang">Bagong Silang</option>
@@ -87,15 +87,15 @@
                 <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
             </select>
 
-            <label>Mobile Number *</label>
+            <label>Mobile Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <input type="tel" name="mobile" placeholder="+639XXXXXXXXX or 09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
                 title="Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
                 required>
 
-            <label>Email Address *</label>
+            <label>Email Address <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <input type="email" name="email" placeholder="Enter your email address" required>
 
-            <label>Main Livelihood *</label>
+            <label>Main Livelihood <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <select name="main_livelihood" required>
                 <option value="" disabled selected>Select Livelihood</option>
                 <option value="Farmer">Farmer</option>
