@@ -2695,7 +2695,7 @@
         }
     });
 
-  // Global variable to store current editing training ID
+// Global variable to store current editing training ID
 let currentEditingTrainingId = null;
 
 // Show edit training modal
@@ -2763,6 +2763,11 @@ function storeOriginalEditData() {
         training_type: document.getElementById('edit_training_type').value
     };
     form.dataset.originalData = JSON.stringify(originalData);
+    
+    // Initialize button state - should show "Save Changes" icon initially
+    const submitBtn = document.getElementById('editTrainingSubmitBtn');
+    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+    submitBtn.classList.remove('no-changes');
 }
 
 // Check for changes in edit form with visual feedback
@@ -2802,15 +2807,16 @@ function checkForEditTrainingChanges() {
         }
     }
     
-    // Update button state
+    // Update button state based on changes
+    // Button should only show "No Changes" state if actually no changes detected
     if (hasChanges) {
         submitBtn.disabled = false;
-        submitBtn.classList.remove('disabled', 'no-changes');
+        submitBtn.classList.remove('no-changes');
         submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
     } else {
         submitBtn.disabled = false;
         submitBtn.classList.add('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
     }
     
     return hasChanges;
