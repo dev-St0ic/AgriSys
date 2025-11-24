@@ -618,7 +618,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
 
     // Create new user account
     Route::post('/registrations/create', [UserRegistrationController::class, 'createUser'])->name('admin.registrations.create');
-
+    // edit user account
+    Route::put('/registrations/{id}', [UserRegistrationController::class, 'update'])->name('registrations.update');
     // Individual registration management
     Route::get('/registrations/{id}/details', [UserRegistrationController::class, 'getRegistration'])->name('registrations.details');
     Route::delete('/registrations/{id}', [UserRegistrationController::class, 'destroy'])->name('registrations.destroy');

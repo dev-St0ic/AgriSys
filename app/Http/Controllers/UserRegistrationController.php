@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule; 
 use App\Notifications\EmailVerificationNotification;
 use App\Notifications\RegistrationApprovedNotification;
 use App\Notifications\RegistrationRejectedNotification;
 use Laravel\Socialite\Facades\Socialite;
+
 
 class UserRegistrationController extends Controller
 {
@@ -954,6 +956,183 @@ class UserRegistrationController extends Controller
             ], 500);
         }
     }
+
+    /**
+ * Update user registration (Admin only)
+ * PUT /admin/registrations/{id}
+ */
+public function update(Request $request, $id)
+{
+    // Check admin authentication
+    if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Access denied. Admin privileges required.'
+        ], 403);
+    }
+
+    // Find registration
+    $registration = UserRegistration::find($id);
+
+    if (!$registration) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration not found'
+        ], 404);
+    }
+
+    // Validation rules - all fields are optional (admin can update any field)
+    $validator = Validator::make($request->all(), [
+        'first_name' => 'sometimes|required|string|max:100',
+        'middle_name' => 'nullable|string|max:100',
+        'last_name' => 'sometimes|required|string|max:100',
+        'name_extension' => 'nullable|string|max:20',
+        'contact_number' => [
+            'sometimes',
+            'required',
+            'string',
+            'max:11',
+            'regex:/^09\d{9}$/',
+            Rule::unique('user_registration', 'contact_number')->ignore($id)
+        ],
+        'email' => [
+            'sometimes',
+            'required',
+            'email',
+            'max:255',
+            Rule::unique('user_registration', 'email')->ignore($id)
+        ],
+        'barangay' => 'sometimes|required|string|max:100',
+        'complete_address' => 'sometimes|string|max:500',
+        'user_type' => 'sometimes|required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
+        'emergency_contact_name' => 'nullable|string|max:100',
+        'emergency_contact_phone' => [
+            'nullable',
+            'string',
+            'max:11',
+            'regex:/^09\d{9}$/'
+        ],
+    ], [
+        'first_name.required' => 'First name is required',
+        'last_name.required' => 'Last name is required',
+        'contact_number.unique' => 'This contact number is already registered',
+        'contact_number.regex' => 'Contact number must start with 09 followed by 9 digits',
+        'email.unique' => 'This email is already registered',
+        'email.email' => 'Invalid email format',
+        'emergency_contact_phone.regex' => 'Invalid emergency contact phone number',
+    ]);
+
+    if ($validator->fails()) {
+        \Log::warning('Admin edit validation failed for registration ' . $id, [
+            'errors' => $validator->errors()->toArray(),
+            'admin_user' => auth()->user()->email
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        // Prepare update data - only update fields that are present in request
+        $updateData = [];
+
+        // Personal information
+        if ($request->has('first_name')) {
+            $updateData['first_name'] = trim($request->first_name);
+        }
+        if ($request->has('middle_name')) {
+            $updateData['middle_name'] = trim($request->middle_name) ?: null;
+        }
+        if ($request->has('last_name')) {
+            $updateData['last_name'] = trim($request->last_name);
+        }
+        if ($request->has('name_extension')) {
+            $updateData['name_extension'] = $request->name_extension ?: null;
+        }
+
+        // Contact information
+        if ($request->has('contact_number')) {
+            $updateData['contact_number'] = trim($request->contact_number);
+        }
+        if ($request->has('email')) {
+            $updateData['email'] = strtolower(trim($request->email));
+        }
+
+        // Address information
+        if ($request->has('barangay')) {
+            $updateData['barangay'] = $request->barangay;
+        }
+        if ($request->has('complete_address')) {
+            $updateData['complete_address'] = trim($request->complete_address);
+        }
+
+        // User type
+        if ($request->has('user_type')) {
+            $updateData['user_type'] = $request->user_type;
+        }
+
+        // Emergency contact
+        if ($request->has('emergency_contact_name')) {
+            $updateData['emergency_contact_name'] = $request->emergency_contact_name ? 
+                trim($request->emergency_contact_name) : null;
+        }
+        if ($request->has('emergency_contact_phone')) {
+            $updateData['emergency_contact_phone'] = $request->emergency_contact_phone ? 
+                trim($request->emergency_contact_phone) : null;
+        }
+
+        // If no data to update, return warning
+        if (empty($updateData)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No changes provided. Please modify at least one field.'
+            ], 422);
+        }
+
+        // Update the registration
+        $registration->update($updateData);
+
+        \Log::info('Admin updated user registration', [
+            'registration_id' => $id,
+            'username' => $registration->username,
+            'updated_fields' => array_keys($updateData),
+            'admin_user' => auth()->user()->email
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration updated successfully',
+            'data' => [
+                'id' => $registration->id,
+                'username' => $registration->username,
+                'email' => $registration->email,
+                'first_name' => $registration->first_name,
+                'last_name' => $registration->last_name,
+                'contact_number' => $registration->contact_number,
+                'user_type' => $registration->user_type,
+                'barangay' => $registration->barangay,
+                'complete_address' => $registration->complete_address,
+                'status' => $registration->status
+            ]
+        ], 200);
+
+    } catch (\Exception $e) {
+        \Log::error('Admin edit registration failed: ' . $e->getMessage(), [
+            'registration_id' => $id,
+            'admin_user' => auth()->user()->email,
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to update registration. Please try again.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
     /**
      * Update registration status
