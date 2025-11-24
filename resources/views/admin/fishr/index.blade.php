@@ -3801,6 +3801,51 @@ function proceedWithEditFishr(form, registrationId) {
         submitBtn.disabled = false;
     });
 }
+
+
+// Auto-capitalize names in edit form
+function capitalizeEditFishrName(input) {
+    const value = input.value;
+    if (value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+}
+
+// Add event listeners for blur on name fields
+document.addEventListener('DOMContentLoaded', function() {
+    const editModal = document.getElementById('editFishrModal');
+    
+    if (editModal) {
+        editModal.addEventListener('shown.bs.modal', function() {
+            // Add blur listeners for auto-capitalization
+            const firstNameInput = document.getElementById('edit_first_name');
+            const middleNameInput = document.getElementById('edit_middle_name');
+            const lastNameInput = document.getElementById('edit_last_name');
+            
+            if (firstNameInput) {
+                firstNameInput.addEventListener('blur', function() {
+                    capitalizeEditFishrName(this);
+                });
+            }
+            
+            if (middleNameInput) {
+                middleNameInput.addEventListener('blur', function() {
+                    capitalizeEditFishrName(this);
+                });
+            }
+            
+            if (lastNameInput) {
+                lastNameInput.addEventListener('blur', function() {
+                    capitalizeEditFishrName(this);
+                });
+            }
+        });
+    }
+});
         console.log('FishR Add Registration functionality loaded successfully');
     </script>
 @endsection
