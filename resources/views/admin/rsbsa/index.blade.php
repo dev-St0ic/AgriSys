@@ -318,6 +318,11 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
+                                         <button class="btn btn-sm btn-outline-warning"
+                                            onclick="showEditRsbsaModal({{ $application->id }})" title="Edit Personal Information">
+                                            <i class="fas fa-pencil-alt"></i> Edit
+                                        </button>
+
                                         <button class="btn btn-sm btn-outline-success"
                                             onclick="showUpdateModal({{ $application->id }}, '{{ $application->status }}')"
                                             title="Update Status">
@@ -471,6 +476,200 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="updateApplicationStatus()">Update
                         Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editRsbsaModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-pencil-alt me-2"></i>
+                        Edit Application - <span id="editAppNumber"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editRsbsaForm" enctype="multipart/form-data">
+                        <!-- Personal Information Card -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_rsbsa_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_first_name" 
+                                            name="first_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_rsbsa_middle_name" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_middle_name" 
+                                            name="middle_name" maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_rsbsa_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_last_name" 
+                                            name="last_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_rsbsa_extension" class="form-label">Extension</label>
+                                        <select class="form-select" id="edit_rsbsa_extension" name="name_extension">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="edit_rsbsa_contact_number" 
+                                            name="contact_number" required placeholder="09XXXXXXXXX" 
+                                            pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="edit_rsbsa_email" 
+                                            name="email" maxlength="254">
+                                        <div class="form-text">For status notifications</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Application Number</label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_app_number" disabled>
+                                        <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information Card -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_rsbsa_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="edit_rsbsa_barangay" name="barangay" required>
+                                            <option value="">Select Barangay</option>
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_rsbsa_farm_location" class="form-label">Farm/Work Location</label>
+                                        <textarea class="form-control" id="edit_rsbsa_farm_location" 
+                                            name="farm_location" rows="3" maxlength="500"
+                                            placeholder="Specific location of farm or work area"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Livelihood Information Card - NOW EDITABLE -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-seedling me-2"></i>Livelihood Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_livelihood" class="form-label">Main Livelihood <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="edit_rsbsa_livelihood" name="main_livelihood" required>
+                                            <option value="">Select Livelihood</option>
+                                            <option value="Farmer">Farmer</option>
+                                            <option value="Farmworker/Laborer">Farmworker/Laborer</option>
+                                            <option value="Fisherfolk">Fisherfolk</option>
+                                            <option value="Agri-youth">Agri-youth</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_land_area" class="form-label">Land Area (hectares)</label>
+                                        <input type="number" class="form-control" id="edit_rsbsa_land_area" 
+                                            name="land_area" step="0.01" min="0" max="99999.99" placeholder="0.00">
+                                        <div class="form-text">Total area in hectares</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_commodity" class="form-label">Commodity/Product</label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_commodity" 
+                                            name="commodity" maxlength="1000" placeholder="e.g., Rice, Corn, Vegetables">
+                                        <div class="form-text">Main crops, livestock, or fish</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Application Status (Read-only) -->
+                        <div class="card mb-3 bg-light">
+                            <div class="card-header bg-light border-0">
+                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Status (Read-only)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <small class="text-muted">Current Status:</small>
+                                        <div>
+                                            <span id="edit_rsbsa_status_badge" class="badge bg-secondary"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <small class="text-muted">Date Applied:</small>
+                                        <div id="edit_rsbsa_created_at"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Alert -->
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Note:</strong> You can edit personal information, location, and livelihood details. 
+                            To change application status, use the "Update" button from the main table.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="editRsbsaSubmitBtn"
+                        onclick="handleEditRsbsaSubmit()">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
                 </div>
             </div>
         </div>
@@ -813,7 +1012,6 @@
         }
 
         .no-changes {
-            opacity: 0.7;
             transition: all 0.3s ease;
         }
 
@@ -3907,5 +4105,457 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
             link.click();
             document.body.removeChild(link);
         }
+
+                /**
+         * Show edit RSBSA modal and load application data
+         */
+        function showEditRsbsaModal(applicationId) {
+        if (!applicationId) {
+            showToast('error', 'Invalid application ID');
+            return;
+        }
+
+        // Fetch application data
+        fetch(`/admin/rsbsa-applications/${applicationId}`)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(response => {
+                if (!response.success) {
+                    throw new Error(response.message || 'Failed to load application');
+                }
+
+                const data = response.data;
+
+                // Populate editable fields
+                document.getElementById('edit_rsbsa_first_name').value = data.first_name || '';
+                document.getElementById('edit_rsbsa_middle_name').value = data.middle_name || '';
+                document.getElementById('edit_rsbsa_last_name').value = data.last_name || '';
+                document.getElementById('edit_rsbsa_extension').value = data.name_extension || '';
+                document.getElementById('edit_rsbsa_contact_number').value = data.contact_number || '';
+                document.getElementById('edit_rsbsa_email').value = data.email || '';
+                document.getElementById('edit_rsbsa_barangay').value = data.barangay || '';
+                document.getElementById('edit_rsbsa_farm_location').value = data.farm_location || '';
+                
+                // NOW EDITABLE: Livelihood fields
+                document.getElementById('edit_rsbsa_livelihood').value = data.main_livelihood || '';
+                document.getElementById('edit_rsbsa_land_area').value = data.land_area || '';
+                document.getElementById('edit_rsbsa_commodity').value = data.commodity || '';
+                
+                // Read-only fields
+                document.getElementById('edit_rsbsa_app_number').value = data.application_number || '';
+                document.getElementById('editAppNumber').textContent = data.application_number || '';
+
+                // Status badge
+                const statusBadge = document.getElementById('edit_rsbsa_status_badge');
+                statusBadge.className = `badge bg-${data.status_color}`;
+                statusBadge.textContent = data.formatted_status;
+
+                // Date applied
+                document.getElementById('edit_rsbsa_created_at').textContent = data.created_at || 'N/A';
+
+                // Initialize the form for change detection
+                initializeEditRsbsaForm(applicationId, data);
+
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('editRsbsaModal'));
+                modal.show();
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error loading application: ' + error.message);
+            });
+    }
+
+    /**
+     * Initialize edit form with original data for change detection
+     */
+    function initializeEditRsbsaForm(applicationId, data) {
+        const form = document.getElementById('editRsbsaForm');
+        const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+
+        // Store original data for comparison - INCLUDING LIVELIHOOD FIELDS
+        const originalData = {
+            first_name: data.first_name || '',
+            middle_name: data.middle_name || '',
+            last_name: data.last_name || '',
+            name_extension: data.name_extension || '',
+            contact_number: data.contact_number || '',
+            email: data.email || '',
+            barangay: data.barangay || '',
+            farm_location: data.farm_location || '',
+            main_livelihood: data.main_livelihood || '',
+            land_area: data.land_area || '',
+            commodity: data.commodity || ''
+        };
+
+        form.dataset.originalData = JSON.stringify(originalData);
+        form.dataset.applicationId = applicationId;
+
+        // Clear validation states
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
+
+        // FIXED: Reset button state - ENABLED by default, NO ICON, plain text
+        submitBtn.innerHTML = 'Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
+        submitBtn.classList.add('no-changes');
+
+        // Add change listeners
+        addRsbsaFormChangeListeners(applicationId);
+    }
+
+    /**
+     * Add event listeners to detect form changes - ENHANCED VERSION
+     */
+    function addRsbsaFormChangeListeners(applicationId) {
+        const form = document.getElementById('editRsbsaForm');
+        const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select');
+
+        inputs.forEach(input => {
+            // Remove any existing listeners first
+            input.removeEventListener('input', handleRsbsaFormChange);
+            input.removeEventListener('change', handleRsbsaFormChange);
+            
+            // Add new listeners
+            input.addEventListener('input', handleRsbsaFormChange);
+            input.addEventListener('change', handleRsbsaFormChange);
+        });
+    }
+
+    /**
+     * Handle form change event - OPTIMIZED
+     */
+    function handleRsbsaFormChange() {
+        const form = document.getElementById('editRsbsaForm');
+        const applicationId = form.dataset.applicationId;
+        checkRsbsaFormChanges(applicationId);
+    }
+
+        /**
+         * Check for changes in the form - ENHANCED WITH VISUAL FEEDBACK
+         */
+       function checkRsbsaFormChanges(applicationId) {
+        const form = document.getElementById('editRsbsaForm');
+        const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+
+        if (!form || !submitBtn) return;
+
+        const originalData = JSON.parse(form.dataset.originalData || '{}');
+        let hasChanges = false;
+
+        // Check all editable fields - INCLUDING LIVELIHOOD
+        const fields = [
+            'first_name', 'middle_name', 'last_name', 'name_extension',
+            'contact_number', 'email', 'barangay', 'farm_location',
+            'main_livelihood', 'land_area', 'commodity'
+        ];
+
+        fields.forEach(field => {
+            const input = form.querySelector(`[name="${field}"]`);
+            if (input) {
+                const currentValue = input.value || '';
+                const originalValue = originalData[field] || '';
+                
+                if (currentValue !== originalValue) {
+                    hasChanges = true;
+                    input.classList.add('form-changed');
+                } else {
+                    input.classList.remove('form-changed');
+                }
+            }
+        });
+
+        // Update button state - MATCHING UPDATE MODAL STYLE (no icon when no changes, icon only when changes)
+        if (hasChanges) {
+            submitBtn.classList.remove('no-changes');
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            submitBtn.disabled = false;
+            submitBtn.dataset.hasChanges = 'true';
+        } else {
+            submitBtn.classList.remove('no-changes');
+            submitBtn.innerHTML = 'Save Changes';
+            submitBtn.disabled = true;
+            submitBtn.dataset.hasChanges = 'false';
+        }
+    }
+    /**
+     * Validate edit RSBSA form - UPDATED WITH LIVELIHOOD VALIDATION
+     */
+    function validateEditRsbsaForm() {
+        const form = document.getElementById('editRsbsaForm');
+        let isValid = true;
+
+        const requiredFields = [
+            { id: 'edit_rsbsa_first_name', label: 'First Name' },
+            { id: 'edit_rsbsa_last_name', label: 'Last Name' },
+            { id: 'edit_rsbsa_contact_number', label: 'Contact Number' },
+            { id: 'edit_rsbsa_barangay', label: 'Barangay' },
+            { id: 'edit_rsbsa_livelihood', label: 'Main Livelihood' }
+        ];
+
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            if (input && (!input.value || input.value.trim() === '')) {
+                input.classList.add('is-invalid');
+                const feedback = input.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = field.label + ' is required';
+                input.parentNode.appendChild(errorDiv);
+                isValid = false;
+            } else if (input) {
+                input.classList.remove('is-invalid');
+                const feedback = input.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+            }
+        });
+
+        // Validate contact number
+        const contactInput = document.getElementById('edit_rsbsa_contact_number');
+        if (contactInput && !validateEditRsbsaContactNumber(contactInput)) {
+            isValid = false;
+        }
+
+        // Validate email if provided
+        const emailInput = document.getElementById('edit_rsbsa_email');
+        if (emailInput && emailInput.value.trim() && !validateEditRsbsaEmail(emailInput)) {
+            isValid = false;
+        }
+
+        // Validate land area if provided
+        const landAreaInput = document.getElementById('edit_rsbsa_land_area');
+        if (landAreaInput && landAreaInput.value) {
+            const landArea = parseFloat(landAreaInput.value);
+            if (isNaN(landArea) || landArea < 0 || landArea > 99999.99) {
+                landAreaInput.classList.add('is-invalid');
+                const feedback = landAreaInput.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Land area must be between 0 and 99999.99 hectares';
+                landAreaInput.parentNode.appendChild(errorDiv);
+                isValid = false;
+            } else {
+                landAreaInput.classList.remove('is-invalid');
+                const feedback = landAreaInput.parentNode.querySelector('.invalid-feedback');
+                if (feedback) feedback.remove();
+            }
+        }
+
+        return isValid;
+    }
+
+    /**
+     * Validate contact number in edit form
+     */
+    function validateEditRsbsaContactNumber(input) {
+        const feedback = input.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+        input.classList.remove('is-invalid', 'is-valid');
+
+        if (!input.value.trim()) return true;
+
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+
+        if (!phoneRegex.test(input.value.trim())) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            input.parentNode.appendChild(errorDiv);
+            return false;
+        }
+
+        input.classList.add('is-valid');
+        return true;
+    }
+
+    /**
+     * Validate email in edit form
+     */
+    function validateEditRsbsaEmail(input) {
+        const feedback = input.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+        input.classList.remove('is-invalid', 'is-valid');
+
+        if (!input.value.trim()) return true;
+
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (!emailPattern.test(input.value.trim())) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Invalid email format';
+            input.parentNode.appendChild(errorDiv);
+            return false;
+        }
+
+        input.classList.add('is-valid');
+        return true;
+    }
+
+    /**
+     * Handle edit form submission
+     */
+    function handleEditRsbsaSubmit() {
+        const form = document.getElementById('editRsbsaForm');
+        const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+        const applicationId = form.dataset.applicationId;
+
+        // Validate form
+        if (!validateEditRsbsaForm()) {
+            showToast('error', 'Please fix all validation errors before saving');
+            return;
+        }
+
+        // Check if there are changes
+        if (submitBtn.dataset.hasChanges === 'false') {
+            showToast('warning', 'No changes detected. Please modify the fields before saving.');
+            return;
+        }
+
+        // Build change summary
+        const originalData = JSON.parse(form.dataset.originalData || '{}');
+        const changedFields = [];
+        
+        const fieldLabels = {
+            'first_name': 'First Name',
+            'middle_name': 'Middle Name',
+            'last_name': 'Last Name',
+            'name_extension': 'Extension',
+            'contact_number': 'Contact Number',
+            'email': 'Email',
+            'barangay': 'Barangay',
+            'farm_location': 'Farm Location',
+            'main_livelihood': 'Main Livelihood',
+            'land_area': 'Land Area',
+            'commodity': 'Commodity'
+        };
+
+        Object.keys(originalData).forEach(field => {
+            const input = form.querySelector(`[name="${field}"]`);
+            if (input && input.value !== originalData[field]) {
+                changedFields.push(fieldLabels[field] || field);
+            }
+        });
+
+        // Show confirmation
+        showConfirmationToast(
+            'Confirm Update',
+            `Save the following changes to this RSBSA application?\n\n• ${changedFields.join('\n• ')}`,
+            () => proceedWithEditRsbsa(form, applicationId)
+        );
+    }
+
+    /**
+     * Proceed with edit submission after confirmation
+     */
+    function proceedWithEditRsbsa(form, applicationId) {
+        const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+        
+        // Show loading state
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+        submitBtn.disabled = true;
+
+        // Disable form inputs during submission
+        const formInputs = form.querySelectorAll('input, select, textarea');
+        formInputs.forEach(input => input.disabled = true);
+
+        // Prepare form data - INCLUDING LIVELIHOOD FIELDS
+        const formData = new FormData(form);
+        const jsonData = {
+            first_name: formData.get('first_name'),
+            middle_name: formData.get('middle_name'),
+            last_name: formData.get('last_name'),
+            name_extension: formData.get('name_extension'),
+            contact_number: formData.get('contact_number'),
+            email: formData.get('email'),
+            barangay: formData.get('barangay'),
+            farm_location: formData.get('farm_location'),
+            main_livelihood: formData.get('main_livelihood'),
+            land_area: formData.get('land_area'),
+            commodity: formData.get('commodity')
+        };
+
+        // Submit to backend
+        fetch(`/admin/rsbsa-applications/${applicationId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCSRFToken(),
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify(jsonData)
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
+                if (modal) modal.hide();
+
+                showToast('success', data.message || 'Application updated successfully');
+
+                // Reload page after short delay
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                throw new Error(data.message || 'Failed to update application');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Error: ' + error.message);
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+
+            // Re-enable form inputs
+            formInputs.forEach(input => input.disabled = false);
+        });
+    }
+
+    // Auto-capitalize names in edit form
+    function capitalizeRsbsaEditName(input) {
+        const value = input.value;
+        if (value.length > 0) {
+            input.value = value
+                .toLowerCase()
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            
+            // Trigger change detection after capitalization
+            const form = document.getElementById('editRsbsaForm');
+            if (form && form.dataset.applicationId) {
+                checkRsbsaFormChanges(form.dataset.applicationId);
+            }
+        }
+    }
+
+    // Initialize name field auto-capitalize when modal is shown
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up event delegation for dynamically added elements
+        document.addEventListener('focusout', function(e) {
+            if (e.target.id === 'edit_rsbsa_first_name' || 
+                e.target.id === 'edit_rsbsa_middle_name' || 
+                e.target.id === 'edit_rsbsa_last_name') {
+                capitalizeRsbsaEditName(e.target);
+            }
+        });
+    });
     </script>
 @endsection

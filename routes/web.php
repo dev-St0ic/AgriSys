@@ -107,6 +107,7 @@ Route::get('/api/validate-fishr/{number}', function($number) {
         Route::post('/create', [RsbsaController::class, 'store'])->name('store');
         Route::get('/{id}', [RsbsaController::class, 'show'])->name('show');
         Route::patch('/{id}/status', [RsbsaController::class, 'updateStatus'])->name('update-status');
+         Route::put('/{id}', [RsbsaController::class, 'update'])->name('update');
         Route::delete('/{id}', [RsbsaController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/download', [RsbsaController::class, 'downloadDocument'])->name('download-document');
         Route::get('/export', [RsbsaController::class, 'export'])->name('export');
