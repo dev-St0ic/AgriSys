@@ -305,6 +305,7 @@ public function update(Request $request, $id)
             'registration_id' => $id,
             'request_method' => $request->method(),
             'user_id' => auth()->id(),
+            'request_data' => $request->all()
         ]);
 
         // Find the registration
@@ -389,18 +390,16 @@ public function update(Request $request, $id)
             ]
         ], 200);
 
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::warning('Validation error updating BoatR application', [
-            'errors' => $e->errors()
-        ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Validation error updating BoatR application', [
+                'errors' => $e->errors()
+            ]);
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Validation failed',
-            'errors' => $e->errors()
-        ], 422);
-
-    } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . implode(', ', $e->errors()['contact_number'] ?? $e->errors()['name_extension'] ?? $e->errors()['email'] ?? array_values(array_values($e->errors())[0] ?? [])),
+                'errors' => $e->errors()
+            ], 422);    } catch (\Exception $e) {
         Log::error('Error updating BoatR application', [
             'registration_id' => $id,
             'error' => $e->getMessage(),

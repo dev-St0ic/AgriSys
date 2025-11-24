@@ -5354,6 +5354,21 @@ function showEditBoatrModal(registrationId) {
         document.getElementById('edit_boatr_engine_hp').value = data.engine_horsepower || '';
         document.getElementById('edit_boatr_gear').value = data.primary_fishing_gear || '';
         
+        console.log('Form populated with data:', {
+            first_name: data.first_name,
+            last_name: data.last_name,
+            contact_number: data.contact_number,
+            barangay: data.barangay,
+            vessel_name: data.vessel_name,
+            boat_type: data.boat_type,
+            boat_length: data.boat_length,
+            boat_width: data.boat_width,
+            boat_depth: data.boat_depth,
+            engine_type: data.engine_type,
+            engine_horsepower: data.engine_horsepower,
+            primary_fishing_gear: data.primary_fishing_gear
+        });
+        
         // Display read-only info
         document.getElementById('edit_boatr_app_number').textContent = data.application_number;
         document.getElementById('edit_boatr_status_display').innerHTML = 
@@ -5464,9 +5479,94 @@ function submitEditBoatr() {
     const form = document.getElementById('editBoatrForm');
     const registrationId = document.getElementById('edit_boatr_id').value;
     
-    if (!form.checkValidity()) {
-        showToast('error', 'Please fix all validation errors');
-        form.classList.add('was-validated');
+    // Validate required fields manually since form validation might have issues
+    const firstName = document.getElementById('edit_boatr_first_name').value.trim();
+    const lastName = document.getElementById('edit_boatr_last_name').value.trim();
+    const contact = document.getElementById('edit_boatr_contact').value.trim();
+    const barangay = document.getElementById('edit_boatr_barangay').value.trim();
+    const vessel = document.getElementById('edit_boatr_vessel').value.trim();
+    const boatType = document.getElementById('edit_boatr_boat_type').value.trim();
+    const boatLength = document.getElementById('edit_boatr_length').value.trim();
+    const boatWidth = document.getElementById('edit_boatr_width').value.trim();
+    const boatDepth = document.getElementById('edit_boatr_depth').value.trim();
+    const engineType = document.getElementById('edit_boatr_engine_type').value.trim();
+    const engineHp = document.getElementById('edit_boatr_engine_hp').value.trim();
+    const gear = document.getElementById('edit_boatr_gear').value.trim();
+    
+    // Clear previous errors
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    
+    let isValid = true;
+    const errors = [];
+    
+    // Check required fields
+    if (!firstName) {
+        document.getElementById('edit_boatr_first_name').classList.add('is-invalid');
+        errors.push('First name is required');
+        isValid = false;
+    }
+    if (!lastName) {
+        document.getElementById('edit_boatr_last_name').classList.add('is-invalid');
+        errors.push('Last name is required');
+        isValid = false;
+    }
+    if (!contact) {
+        document.getElementById('edit_boatr_contact').classList.add('is-invalid');
+        errors.push('Contact number is required');
+        isValid = false;
+    } else if (!/^09\d{9}$/.test(contact)) {
+        document.getElementById('edit_boatr_contact').classList.add('is-invalid');
+        errors.push('Contact number must start with 09 and have 11 digits');
+        isValid = false;
+    }
+    if (!barangay) {
+        document.getElementById('edit_boatr_barangay').classList.add('is-invalid');
+        errors.push('Barangay is required');
+        isValid = false;
+    }
+    if (!vessel) {
+        document.getElementById('edit_boatr_vessel').classList.add('is-invalid');
+        errors.push('Vessel name is required');
+        isValid = false;
+    }
+    if (!boatType) {
+        document.getElementById('edit_boatr_boat_type').classList.add('is-invalid');
+        errors.push('Boat type is required');
+        isValid = false;
+    }
+    if (!boatLength) {
+        document.getElementById('edit_boatr_length').classList.add('is-invalid');
+        errors.push('Boat length is required');
+        isValid = false;
+    }
+    if (!boatWidth) {
+        document.getElementById('edit_boatr_width').classList.add('is-invalid');
+        errors.push('Boat width is required');
+        isValid = false;
+    }
+    if (!boatDepth) {
+        document.getElementById('edit_boatr_depth').classList.add('is-invalid');
+        errors.push('Boat depth is required');
+        isValid = false;
+    }
+    if (!engineType) {
+        document.getElementById('edit_boatr_engine_type').classList.add('is-invalid');
+        errors.push('Engine type is required');
+        isValid = false;
+    }
+    if (!engineHp) {
+        document.getElementById('edit_boatr_engine_hp').classList.add('is-invalid');
+        errors.push('Engine horsepower is required');
+        isValid = false;
+    }
+    if (!gear) {
+        document.getElementById('edit_boatr_gear').classList.add('is-invalid');
+        errors.push('Primary fishing gear is required');
+        isValid = false;
+    }
+    
+    if (!isValid) {
+        showToast('error', errors[0] || 'Please fix all validation errors');
         return;
     }
     
@@ -5476,33 +5576,89 @@ function submitEditBoatr() {
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
     submitBtn.disabled = true;
     
+    // Log the values being sent for debugging
+    console.log('Submitting with values:', {
+        firstName,
+        lastName,
+        contact,
+        barangay,
+        vessel,
+        boatType,
+        boatLength,
+        boatWidth,
+        boatDepth,
+        engineType,
+        engineHp,
+        gear,
+        registrationId
+    });
+    
     const formData = new FormData();
-    formData.append('first_name', document.getElementById('edit_boatr_first_name').value.trim());
+    formData.append('first_name', firstName);
     formData.append('middle_name', document.getElementById('edit_boatr_middle_name').value.trim());
-    formData.append('last_name', document.getElementById('edit_boatr_last_name').value.trim());
-    formData.append('name_extension', document.getElementById('edit_boatr_extension').value);
-    formData.append('contact_number', document.getElementById('edit_boatr_contact').value.trim());
-    formData.append('email', document.getElementById('edit_boatr_email').value.trim());
-    formData.append('barangay', document.getElementById('edit_boatr_barangay').value);
-    formData.append('vessel_name', document.getElementById('edit_boatr_vessel').value.trim());
-    formData.append('boat_type', document.getElementById('edit_boatr_boat_type').value);
-    formData.append('boat_length', document.getElementById('edit_boatr_length').value);
-    formData.append('boat_width', document.getElementById('edit_boatr_width').value);
-    formData.append('boat_depth', document.getElementById('edit_boatr_depth').value);
-    formData.append('engine_type', document.getElementById('edit_boatr_engine_type').value.trim());
-    formData.append('engine_horsepower', document.getElementById('edit_boatr_engine_hp').value);
-    formData.append('primary_fishing_gear', document.getElementById('edit_boatr_gear').value);
+    formData.append('last_name', lastName);
+    formData.append('name_extension', document.getElementById('edit_boatr_extension').value || '');
+    formData.append('contact_number', contact);
+    formData.append('email', document.getElementById('edit_boatr_email').value.trim() || '');
+    formData.append('barangay', barangay);
+    formData.append('vessel_name', vessel);
+    formData.append('boat_type', boatType);
+    formData.append('boat_length', boatLength);
+    formData.append('boat_width', boatWidth);
+    formData.append('boat_depth', boatDepth);
+    formData.append('engine_type', engineType);
+    formData.append('engine_horsepower', engineHp);
+    formData.append('primary_fishing_gear', gear);
+    
+    // Log FormData contents
+    console.log('FormData entries:');
+    for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}: ${value}`);
+    }
+    
+    // Convert FormData to JSON object
+    const jsonData = {
+        first_name: firstName,
+        middle_name: document.getElementById('edit_boatr_middle_name').value.trim(),
+        last_name: lastName,
+        name_extension: document.getElementById('edit_boatr_extension').value || '',
+        contact_number: contact,
+        email: document.getElementById('edit_boatr_email').value.trim() || '',
+        barangay: barangay,
+        vessel_name: vessel,
+        boat_type: boatType,
+        boat_length: boatLength,
+        boat_width: boatWidth,
+        boat_depth: boatDepth,
+        engine_type: engineType,
+        engine_horsepower: engineHp,
+        primary_fishing_gear: gear
+    };
+    
+    console.log('Sending JSON:', jsonData);
     
     fetch(`/admin/boatr/requests/${registrationId}`, {
         method: 'PUT',
         headers: {
             'X-CSRF-TOKEN': getCSRFToken(),
+            'Content-Type': 'application/json',
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest'
         },
-        body: formData
+        body: JSON.stringify(jsonData)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw {
+                    status: response.status,
+                    message: data.message || 'Validation failed',
+                    errors: data.errors || {}
+                };
+            });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             const modal = bootstrap.Modal.getInstance(document.getElementById('editBoatrModal'));
@@ -5516,7 +5672,25 @@ function submitEditBoatr() {
     })
     .catch(error => {
         console.error('Error:', error);
-        showToast('error', 'Error: ' + error.message);
+        
+        let errorMsg = 'Error: ' + (error.message || 'Unknown error');
+        
+        // If validation error with field details
+        if (error.errors && typeof error.errors === 'object') {
+            const fieldErrors = [];
+            for (const [field, messages] of Object.entries(error.errors)) {
+                if (Array.isArray(messages)) {
+                    fieldErrors.push(messages[0]);
+                } else {
+                    fieldErrors.push(messages);
+                }
+            }
+            if (fieldErrors.length > 0) {
+                errorMsg = fieldErrors[0]; // Show first validation error
+            }
+        }
+        
+        showToast('error', errorMsg);
     })
     .finally(() => {
         submitBtn.innerHTML = originalText;
