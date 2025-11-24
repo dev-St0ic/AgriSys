@@ -255,7 +255,7 @@ class TrainingController extends Controller
     /**
      * Update training application (personal info only)
      */
-    public function update(Request $request, $id)
+   public function update(Request $request, $id)
     {
         try {
             $training = TrainingApplication::findOrFail($id);
@@ -269,8 +269,10 @@ class TrainingController extends Controller
                 'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
                 'email' => 'nullable|email|max:254',
                 'barangay' => 'required|string|max:255',
+                'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
             ], [
                 'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)',
+                'training_type.in' => 'Invalid training type selected',
             ]);
 
             // Update the training application
@@ -279,7 +281,8 @@ class TrainingController extends Controller
             Log::info('Training application updated', [
                 'application_id' => $id,
                 'application_number' => $training->application_number,
-                'updated_by' => auth()->user()->name ?? 'System'
+                'updated_by' => auth()->user()->name ?? 'System',
+                'fields_updated' => 'Personal info, location, and training type'
             ]);
 
             return response()->json([
@@ -306,7 +309,6 @@ class TrainingController extends Controller
             ], 500);
         }
     }
-
     /**
      * Update the status of a training application
      */

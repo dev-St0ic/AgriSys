@@ -703,141 +703,161 @@
         </div>
     </div>
 
-    <!-- Shared Edit Training Modal -->
+    <!-- Edit Training Modal -->
     <div class="modal fade" id="editTrainingModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">
-                        <i class="fas fa-pencil-alt me-2"></i>
-                        <span id="editModalTitle">Edit Application</span>
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" id="editTrainingForm" class="needs-validation">
-                        @csrf
-                        @method('PUT')
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-pencil-alt me-2"></i>
+                    <span id="editModalTitle">Edit Application</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="editTrainingForm" class="needs-validation">
+                    @csrf
+                    @method('PUT')
 
-                        <!-- Personal Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_training_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_training_first_name" 
-                                            name="first_name" required maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_training_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="edit_training_middle_name" 
-                                            name="middle_name" maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_training_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_training_last_name" 
-                                            name="last_name" required maxlength="100">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="edit_training_extension" class="form-label">Extension</label>
-                                        <select class="form-select" id="edit_training_extension" name="name_extension">
-                                            <option value="">None</option>
-                                            <option value="Jr.">Jr.</option>
-                                            <option value="Sr.">Sr.</option>
-                                            <option value="II">II</option>
-                                            <option value="III">III</option>
-                                            <option value="IV">IV</option>
-                                            <option value="V">V</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_training_contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="edit_training_contact" 
-                                            name="contact_number" required 
-                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_training_email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit_training_email" 
-                                            name="email" maxlength="254">
-                                        <div class="form-text">For status notifications</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Application Number</label>
-                                        <input type="text" class="form-control" id="edit_training_app_number" disabled>
-                                        <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
-                                    </div>
-                                </div>
-                            </div>
+                    <!-- Personal Information Card -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
                         </div>
-
-                        <!-- Location Information Card -->
-                        <div class="card mb-3">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_training_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_training_first_name" 
+                                        name="first_name" required maxlength="100">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_training_middle_name" class="form-label">Middle Name</label>
+                                    <input type="text" class="form-control" id="edit_training_middle_name" 
+                                        name="middle_name" maxlength="100">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_training_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_training_last_name" 
+                                        name="last_name" required maxlength="100">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_training_extension" class="form-label">Extension</label>
+                                    <select class="form-select" id="edit_training_extension" name="name_extension">
+                                        <option value="">None</option>
+                                        <option value="Jr.">Jr.</option>
+                                        <option value="Sr.">Sr.</option>
+                                        <option value="II">II</option>
+                                        <option value="III">III</option>
+                                        <option value="IV">IV</option>
+                                        <option value="V">V</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-12 mb-3">
-                                        <label for="edit_training_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="edit_training_barangay" name="barangay" required>
-                                            <option value="">Select Barangay</option>
-                                            @foreach ($barangays as $barangay)
-                                                <option value="{{ $barangay }}">{{ $barangay }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_training_contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="edit_training_contact" 
+                                        name="contact_number" required 
+                                        placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                    <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_training_email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="edit_training_email" 
+                                        name="email" maxlength="254">
+                                    <div class="form-text">For status notifications</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Application Number</label>
+                                    <input type="text" class="form-control" id="edit_training_app_number" disabled>
+                                    <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Training Information (Read-only) -->
-                        <div class="card mb-3 bg-light">
-                            <div class="card-header bg-light border-0">
-                                <h6 class="mb-0"><i class="fas fa-book me-2"></i>Training Information (Read-only)</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-4 mb-2">
-                                        <small class="text-muted">Training Type:</small>
-                                        <div id="edit_training_type_display"></div>
-                                    </div>
-                                    <div class="col-md-4 mb-2">
-                                        <small class="text-muted">Current Status:</small>
-                                        <div id="edit_training_status_display"></div>
-                                    </div>
-                                    <div class="col-md-4 mb-2">
-                                        <small class="text-muted">Date Applied:</small>
-                                        <div id="edit_training_date_display"></div>
-                                    </div>
+                    <!-- Location Information Card -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="edit_training_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="edit_training_barangay" name="barangay" required>
+                                        <option value="">Select Barangay</option>
+                                        @foreach ($barangays as $barangay)
+                                            <option value="{{ $barangay }}">{{ $barangay }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Info Alert -->
-                        <div class="alert alert-info mb-0">
-                            <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Note:</strong> Changes to personal information will be saved. 
-                            To update training type or status, use the "Update" button from the main table.
+                    <!-- Training Information Card (NOW EDITABLE) -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-book me-2"></i>Training Information</h6>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="editTrainingSubmitBtn"
-                        onclick="handleEditTrainingSubmit()">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
-                </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label for="edit_training_type" class="form-label">Training Type <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="edit_training_type" name="training_type" required>
+                                        <option value="">Select Training Type</option>
+                                        <option value="tilapia_hito">Tilapia and Hito</option>
+                                        <option value="hydroponics">Hydroponics</option>
+                                        <option value="aquaponics">Aquaponics</option>
+                                        <option value="mushrooms">Mushrooms Production</option>
+                                        <option value="livestock_poultry">Livestock and Poultry</option>
+                                        <option value="high_value_crops">High Value Crops</option>
+                                        <option value="sampaguita_propagation">Sampaguita Propagation</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Information (Read-only) -->
+                    <div class="card mb-3 bg-light">
+                        <div class="card-header bg-light border-0">
+                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status Information (Read-only)</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <small class="text-muted">Current Status:</small>
+                                    <div id="edit_training_status_display"></div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <small class="text-muted">Date Applied:</small>
+                                    <div id="edit_training_date_display"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> Changes to personal information, location, and training type will be saved. 
+                        To update application status, use the "Update" button from the main table.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="editTrainingSubmitBtn"
+                    onclick="handleEditTrainingSubmit()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
             </div>
         </div>
     </div>
+</div>
 
     <style>
         /* Modern Statistics Cards */
@@ -2674,303 +2694,314 @@
     });
 
         // Global variable to store current editing training ID
-        let currentEditingTrainingId = null;
+let currentEditingTrainingId = null;
 
-        // Show edit training modal
-        function showEditTrainingModal(trainingId) {
-            currentEditingTrainingId = trainingId;
+// Show edit training modal
+function showEditTrainingModal(trainingId) {
+    currentEditingTrainingId = trainingId;
 
-            // Show loading state
-            const modal = new bootstrap.Modal(document.getElementById('editTrainingModal'));
-            modal.show();
+    // Show loading state
+    const modal = new bootstrap.Modal(document.getElementById('editTrainingModal'));
+    modal.show();
 
-            // Fetch training data
-            fetch(`/admin/training/requests/${trainingId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const training = data.data;
-                        
-                        // Update modal title
-                        document.getElementById('editModalTitle').textContent = `Edit Application - ${training.application_number}`;
-                        
-                        // Populate form fields
-                        document.getElementById('edit_training_first_name').value = training.first_name || '';
-                        document.getElementById('edit_training_middle_name').value = training.middle_name || '';
-                        document.getElementById('edit_training_last_name').value = training.last_name || '';
-                        document.getElementById('edit_training_extension').value = training.name_extension || '';
-                        document.getElementById('edit_training_contact').value = training.contact_number || '';
-                        document.getElementById('edit_training_email').value = training.email || '';
-                        document.getElementById('edit_training_barangay').value = training.barangay || '';
-                        document.getElementById('edit_training_app_number').value = training.application_number || '';
-                        
-                        // Populate read-only fields
-                        document.getElementById('edit_training_type_display').textContent = training.training_type_display;
-                        document.getElementById('edit_training_status_display').innerHTML = 
-                            `<span class="badge bg-${training.status_color}">${training.formatted_status}</span>`;
-                        document.getElementById('edit_training_date_display').textContent = training.created_at;
-                        
-                        // Store original data for change detection
-                        storeOriginalEditData();
-                        
-                        // Clear validation errors
-                        document.querySelectorAll('#editTrainingForm .is-invalid').forEach(el => el.classList.remove('is-invalid'));
-                        document.querySelectorAll('#editTrainingForm .invalid-feedback').forEach(el => el.remove());
-                    } else {
-                        showToast('error', 'Failed to load training data');
-                        modal.hide();
-                    }
-                })
-                .catch(error => {
-                    showToast('error', 'Error loading training data: ' + error.message);
-                    modal.hide();
-                });
-        }
-
-        // Store original data for change detection
-        function storeOriginalEditData() {
-            const form = document.getElementById('editTrainingForm');
-            const originalData = {
-                first_name: document.getElementById('edit_training_first_name').value,
-                middle_name: document.getElementById('edit_training_middle_name').value,
-                last_name: document.getElementById('edit_training_last_name').value,
-                name_extension: document.getElementById('edit_training_extension').value,
-                contact_number: document.getElementById('edit_training_contact').value,
-                email: document.getElementById('edit_training_email').value,
-                barangay: document.getElementById('edit_training_barangay').value
-            };
-            form.dataset.originalData = JSON.stringify(originalData);
-        }
-
-        // Check for changes in edit form
-        function checkForEditTrainingChanges() {
-            const form = document.getElementById('editTrainingForm');
-            const submitBtn = document.getElementById('editTrainingSubmitBtn');
-            
-            if (!form || !submitBtn) return false;
-            
-            const originalData = JSON.parse(form.dataset.originalData || '{}');
-            
-            let hasChanges = false;
-            
-            const fields = ['first_name', 'middle_name', 'last_name', 'name_extension', 'contact_number', 'email', 'barangay'];
-            
-            for (let field of fields) {
-                const elementId = field === 'name_extension' ? 'edit_training_extension' : 
-                                 field === 'contact_number' ? 'edit_training_contact' :
-                                 field === 'email' ? 'edit_training_email' :
-                                 field === 'barangay' ? 'edit_training_barangay' : `edit_training_${field}`;
+    // Fetch training data
+    fetch(`/admin/training/requests/${trainingId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const training = data.data;
                 
-                const currentValue = document.getElementById(elementId).value;
-                if (currentValue !== originalData[field]) {
-                    hasChanges = true;
-                    break;
-                }
+                // Update modal title
+                document.getElementById('editModalTitle').textContent = `Edit Application - ${training.application_number}`;
+                
+                // Populate form fields
+                document.getElementById('edit_training_first_name').value = training.first_name || '';
+                document.getElementById('edit_training_middle_name').value = training.middle_name || '';
+                document.getElementById('edit_training_last_name').value = training.last_name || '';
+                document.getElementById('edit_training_extension').value = training.name_extension || '';
+                document.getElementById('edit_training_contact').value = training.contact_number || '';
+                document.getElementById('edit_training_email').value = training.email || '';
+                document.getElementById('edit_training_barangay').value = training.barangay || '';
+                document.getElementById('edit_training_type').value = training.training_type || '';
+                document.getElementById('edit_training_app_number').value = training.application_number || '';
+                
+                // Populate read-only fields
+                document.getElementById('edit_training_status_display').innerHTML = 
+                    `<span class="badge bg-${training.status_color}">${training.formatted_status}</span>`;
+                document.getElementById('edit_training_date_display').textContent = training.created_at;
+                
+                // Store original data for change detection
+                storeOriginalEditData();
+                
+                // Clear validation errors
+                document.querySelectorAll('#editTrainingForm .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                document.querySelectorAll('#editTrainingForm .invalid-feedback').forEach(el => el.remove());
+            } else {
+                showToast('error', 'Failed to load training data');
+                modal.hide();
             }
-            
-            submitBtn.disabled = !hasChanges;
-            submitBtn.classList.toggle('disabled', !hasChanges);
-            
-            return hasChanges;
-        }
-
-        // Handle edit form submission
-        function handleEditTrainingSubmit() {
-            if (!validateEditTrainingForm()) {
-                showToast('error', 'Please fix the validation errors');
-                return;
-            }
-            
-            if (!checkForEditTrainingChanges()) {
-                showToast('warning', 'No changes have been made');
-                return;
-            }
-            
-            showConfirmationToast(
-                'Confirm Changes',
-                'Are you sure you want to save these changes?',
-                proceedWithEditTraining
-            );
-        }
-
-        // Validate edit training form
-        function validateEditTrainingForm() {
-            let isValid = true;
-            
-            const requiredFields = [
-                { id: 'edit_training_first_name', label: 'First Name' },
-                { id: 'edit_training_last_name', label: 'Last Name' },
-                { id: 'edit_training_contact', label: 'Contact Number' },
-                { id: 'edit_training_barangay', label: 'Barangay' }
-            ];
-            
-            requiredFields.forEach(field => {
-                const input = document.getElementById(field.id);
-                if (!input.value.trim()) {
-                    input.classList.add('is-invalid');
-                    const feedback = document.createElement('div');
-                    feedback.className = 'invalid-feedback d-block';
-                    feedback.textContent = `${field.label} is required`;
-                    input.parentNode.appendChild(feedback);
-                    isValid = false;
-                }
-            });
-            
-            const contactNumber = document.getElementById('edit_training_contact').value.trim();
-            if (!validateEditTrainingContactNumber(document.getElementById('edit_training_contact'))) {
-                isValid = false;
-            }
-            
-            const email = document.getElementById('edit_training_email').value.trim();
-            if (email && !validateEditTrainingEmail(document.getElementById('edit_training_email'))) {
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-
-        // Validate edit training contact number
-        function validateEditTrainingContactNumber(input) {
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-            
-            const contactNumber = input.value.trim();
-            if (!contactNumber) {
-                return true;
-            }
-            
-            const phoneRegex = /^(\+639|09)\d{9}$/;
-            
-            if (!phoneRegex.test(contactNumber)) {
-                input.classList.add('is-invalid');
-                const newFeedback = document.createElement('div');
-                newFeedback.className = 'invalid-feedback d-block';
-                newFeedback.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-                input.parentNode.appendChild(newFeedback);
-                return false;
-            }
-            
-            input.classList.add('is-valid');
-            return true;
-        }
-
-        // Validate edit training email
-        function validateEditTrainingEmail(input) {
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-            
-            const email = input.value.trim();
-            if (!email) {
-                return true;
-            }
-            
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            
-            if (!emailPattern.test(email)) {
-                input.classList.add('is-invalid');
-                const newFeedback = document.createElement('div');
-                newFeedback.className = 'invalid-feedback d-block';
-                newFeedback.textContent = 'Please enter a valid email address';
-                input.parentNode.appendChild(newFeedback);
-                return false;
-            }
-            
-            input.classList.add('is-valid');
-            return true;
-        }
-
-        // Proceed with edit submission
-        function proceedWithEditTraining() {
-            const form = document.getElementById('editTrainingForm');
-            const submitBtn = document.getElementById('editTrainingSubmitBtn');
-            
-            if (!currentEditingTrainingId) {
-                showToast('error', 'Training ID not found');
-                return;
-            }
-            
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
-            submitBtn.disabled = true;
-            
-            const formData = new FormData();
-            formData.append('first_name', document.getElementById('edit_training_first_name').value.trim());
-            formData.append('middle_name', document.getElementById('edit_training_middle_name').value.trim());
-            formData.append('last_name', document.getElementById('edit_training_last_name').value.trim());
-            formData.append('name_extension', document.getElementById('edit_training_extension').value);
-            formData.append('contact_number', document.getElementById('edit_training_contact').value.trim());
-            formData.append('email', document.getElementById('edit_training_email').value.trim());
-            formData.append('barangay', document.getElementById('edit_training_barangay').value);
-            formData.append('_method', 'PUT');
-            
-            fetch(`/admin/training/requests/${currentEditingTrainingId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', 'Training application updated successfully');
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('editTrainingModal'));
-                    if (modal) modal.hide();
-                    
-                    // Reload the page or update the table
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
-                } else {
-                    showToast('error', data.message || 'Failed to update training');
-                }
-            })
-            .catch(error => {
-                showToast('error', 'Error: ' + error.message);
-            })
-            .finally(() => {
-                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-                submitBtn.disabled = false;
-            });
-        }
-
-        // Add event listeners for edit training form
-        function initializeEditTrainingFormListeners() {
-            const form = document.getElementById('editTrainingForm');
-            if (!form) return;
-            
-            ['edit_training_first_name', 'edit_training_middle_name', 'edit_training_last_name', 
-             'edit_training_extension', 'edit_training_contact', 'edit_training_email', 'edit_training_barangay']
-            .forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('blur', function() {
-                        if (id.includes('contact')) {
-                            validateEditTrainingContactNumber(this);
-                        } else if (id.includes('email')) {
-                            validateEditTrainingEmail(this);
-                        }
-                        checkForEditTrainingChanges();
-                    });
-                    
-                    element.addEventListener('change', checkForEditTrainingChanges);
-                    element.addEventListener('input', checkForEditTrainingChanges);
-                }
-            });
-        }
-
-        // Initialize on document ready
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeEditTrainingFormListeners();
+        })
+        .catch(error => {
+            showToast('error', 'Error loading training data: ' + error.message);
+            modal.hide();
         });
+}
 
-        // Helper function to get CSRF token
-        function getCSRFToken() {
-            const metaTag = document.querySelector('meta[name="csrf-token"]');
-            return metaTag ? metaTag.getAttribute('content') : '';
+// Store original data for change detection
+function storeOriginalEditData() {
+    const form = document.getElementById('editTrainingForm');
+    const originalData = {
+        first_name: document.getElementById('edit_training_first_name').value,
+        middle_name: document.getElementById('edit_training_middle_name').value,
+        last_name: document.getElementById('edit_training_last_name').value,
+        name_extension: document.getElementById('edit_training_extension').value,
+        contact_number: document.getElementById('edit_training_contact').value,
+        email: document.getElementById('edit_training_email').value,
+        barangay: document.getElementById('edit_training_barangay').value,
+        training_type: document.getElementById('edit_training_type').value
+    };
+    form.dataset.originalData = JSON.stringify(originalData);
+}
+
+// Check for changes in edit form
+function checkForEditTrainingChanges() {
+    const form = document.getElementById('editTrainingForm');
+    const submitBtn = document.getElementById('editTrainingSubmitBtn');
+    
+    if (!form || !submitBtn) return false;
+    
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    
+    let hasChanges = false;
+    
+    const fields = ['first_name', 'middle_name', 'last_name', 'name_extension', 'contact_number', 'email', 'barangay', 'training_type'];
+    
+    for (let field of fields) {
+        const elementId = field === 'name_extension' ? 'edit_training_extension' : 
+                         field === 'contact_number' ? 'edit_training_contact' :
+                         field === 'email' ? 'edit_training_email' :
+                         field === 'barangay' ? 'edit_training_barangay' :
+                         field === 'training_type' ? 'edit_training_type' : `edit_training_${field}`;
+        
+        const currentValue = document.getElementById(elementId).value;
+        if (currentValue !== originalData[field]) {
+            hasChanges = true;
+            break;
         }
+    }
+    
+    submitBtn.disabled = !hasChanges;
+    submitBtn.classList.toggle('disabled', !hasChanges);
+    
+    return hasChanges;
+}
+
+// Handle edit form submission
+function handleEditTrainingSubmit() {
+    if (!validateEditTrainingForm()) {
+        showToast('error', 'Please fix the validation errors');
+        return;
+    }
+    
+    if (!checkForEditTrainingChanges()) {
+        showToast('warning', 'No changes have been made');
+        return;
+    }
+    
+    showConfirmationToast(
+        'Confirm Changes',
+        'Are you sure you want to save these changes?',
+        proceedWithEditTraining
+    );
+}
+
+// Validate edit training form
+function validateEditTrainingForm() {
+    let isValid = true;
+    
+    const requiredFields = [
+        { id: 'edit_training_first_name', label: 'First Name' },
+        { id: 'edit_training_last_name', label: 'Last Name' },
+        { id: 'edit_training_contact', label: 'Contact Number' },
+        { id: 'edit_training_barangay', label: 'Barangay' },
+        { id: 'edit_training_type', label: 'Training Type' }
+    ];
+    
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input.value.trim()) {
+            input.classList.add('is-invalid');
+            const existing = input.parentNode.querySelector('.invalid-feedback');
+            if (existing) existing.remove();
+            const feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback d-block';
+            feedback.textContent = `${field.label} is required`;
+            input.parentNode.appendChild(feedback);
+            isValid = false;
+        } else {
+            input.classList.remove('is-invalid');
+            const existing = input.parentNode.querySelector('.invalid-feedback');
+            if (existing) existing.remove();
+        }
+    });
+    
+    const contactNumber = document.getElementById('edit_training_contact').value.trim();
+    if (contactNumber && !validateEditTrainingContactNumber(document.getElementById('edit_training_contact'))) {
+        isValid = false;
+    }
+    
+    const email = document.getElementById('edit_training_email').value.trim();
+    if (email && !validateEditTrainingEmail(document.getElementById('edit_training_email'))) {
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// Validate edit training contact number
+function validateEditTrainingContactNumber(input) {
+    const feedback = input.parentNode.querySelector('.invalid-feedback');
+    if (feedback) feedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+    
+    const contactNumber = input.value.trim();
+    if (!contactNumber) {
+        return true;
+    }
+    
+    const phoneRegex = /^(\+639|09)\d{9}$/;
+    
+    if (!phoneRegex.test(contactNumber)) {
+        input.classList.add('is-invalid');
+        const newFeedback = document.createElement('div');
+        newFeedback.className = 'invalid-feedback d-block';
+        newFeedback.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+        input.parentNode.appendChild(newFeedback);
+        return false;
+    }
+    
+    input.classList.add('is-valid');
+    return true;
+}
+
+// Validate edit training email
+function validateEditTrainingEmail(input) {
+    const feedback = input.parentNode.querySelector('.invalid-feedback');
+    if (feedback) feedback.remove();
+    input.classList.remove('is-invalid', 'is-valid');
+    
+    const email = input.value.trim();
+    if (!email) {
+        return true;
+    }
+    
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    if (!emailPattern.test(email)) {
+        input.classList.add('is-invalid');
+        const newFeedback = document.createElement('div');
+        newFeedback.className = 'invalid-feedback d-block';
+        newFeedback.textContent = 'Please enter a valid email address';
+        input.parentNode.appendChild(newFeedback);
+        return false;
+    }
+    
+    input.classList.add('is-valid');
+    return true;
+}
+
+// Proceed with edit submission
+function proceedWithEditTraining() {
+    const form = document.getElementById('editTrainingForm');
+    const submitBtn = document.getElementById('editTrainingSubmitBtn');
+    
+    if (!currentEditingTrainingId) {
+        showToast('error', 'Training ID not found');
+        return;
+    }
+    
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData();
+    formData.append('first_name', document.getElementById('edit_training_first_name').value.trim());
+    formData.append('middle_name', document.getElementById('edit_training_middle_name').value.trim());
+    formData.append('last_name', document.getElementById('edit_training_last_name').value.trim());
+    formData.append('name_extension', document.getElementById('edit_training_extension').value);
+    formData.append('contact_number', document.getElementById('edit_training_contact').value.trim());
+    formData.append('email', document.getElementById('edit_training_email').value.trim());
+    formData.append('barangay', document.getElementById('edit_training_barangay').value);
+    formData.append('training_type', document.getElementById('edit_training_type').value);
+    formData.append('_method', 'PUT');
+    
+    fetch(`/admin/training/requests/${currentEditingTrainingId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('success', 'Training application updated successfully');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editTrainingModal'));
+            if (modal) modal.hide();
+            
+            // Reload the page or update the table
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            showToast('error', data.message || 'Failed to update training');
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        showToast('error', 'Error: ' + error.message);
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+    });
+}
+
+// Add event listeners for edit training form
+function initializeEditTrainingFormListeners() {
+    const form = document.getElementById('editTrainingForm');
+    if (!form) return;
+    
+    ['edit_training_first_name', 'edit_training_middle_name', 'edit_training_last_name', 
+     'edit_training_extension', 'edit_training_contact', 'edit_training_email', 'edit_training_barangay',
+     'edit_training_type']
+    .forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('blur', function() {
+                if (id.includes('contact')) {
+                    validateEditTrainingContactNumber(this);
+                } else if (id.includes('email')) {
+                    validateEditTrainingEmail(this);
+                }
+                checkForEditTrainingChanges();
+            });
+            
+            element.addEventListener('change', checkForEditTrainingChanges);
+            element.addEventListener('input', checkForEditTrainingChanges);
+        }
+    });
+}
+
+// Initialize on document ready
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEditTrainingFormListeners();
+});
+
+// Helper function to get CSRF token
+function getCSRFToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    return metaTag ? metaTag.getAttribute('content') : '';
+}
         console.log('Training Add Application functionality loaded successfully');
     </script>
 @endsection
