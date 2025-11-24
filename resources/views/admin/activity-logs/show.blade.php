@@ -4,7 +4,7 @@
 
 @section('title', 'Activity Log Detail - AgriSys Admin')
 @section('page-title')
-    <div class="d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
         <div class="d-flex align-items-center">
             <i class="fas fa-history text-primary me-2"></i>
             <span class="text-primary fw-bold">Activity Log Detail #{{ $activity->id }}</span>
