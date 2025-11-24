@@ -426,14 +426,14 @@ function clearValidationMessage(input) {
 // ==============================================
 
 /**
- * Handles Boat Registration form submission - COMPLETE WORKING VERSION
+ * Handles Boat Registration form submission
+ * UPDATED: Checks FishR validation before submission
  */
 function submitBoatRForm(event) {
     event.preventDefault();
 
     console.log('=== BoatR Form Submission Started ===');
 
-    // Check authentication before submitting
     if (!isUserAuthenticatedAndVerified()) {
         showAuthRequired('BoatR Registration');
         return false;
@@ -446,7 +446,14 @@ function submitBoatRForm(event) {
         return false;
     }
 
-    // Get CSRF token
+    // CRITICAL CHECK: Validate FishR before anything else
+    const fishRInput = form.querySelector('#boatr_fishr_number');
+    if (!fishRInput || fishRInput.dataset.validated !== 'true') {
+        alert('Cannot submit: Your FishR registration number must be validated first. Please verify your FishR number and wait for validation to complete.');
+        if (fishRInput) fishRInput.focus();
+        return false;
+    }
+
     const csrfToken = getCSRFToken();
     if (!csrfToken) {
         alert('Security token is missing. Please refresh the page and try again.');
@@ -454,15 +461,11 @@ function submitBoatRForm(event) {
         return false;
     }
 
-    // Validate form before submission
     if (!validateBoatRForm(form)) {
         return false;
     }
 
-    // Create FormData object to handle file uploads
     const formData = new FormData(form);
-
-    // Ensure CSRF token is included
     formData.set('_token', csrfToken);
 
     const submitBtn = form.querySelector('button[type="submit"]');
@@ -482,7 +485,6 @@ function submitBoatRForm(event) {
     })
     .then(response => {
         console.log('Response status:', response.status);
-        console.log('Response headers:', [...response.headers.entries()]);
 
         if (!response.ok) {
             if (response.status === 419) {
@@ -512,7 +514,7 @@ function submitBoatRForm(event) {
             if (data.data?.has_document) {
                 message += ' Document uploaded successfully.';
             }
-            alert('✅ ' + message);
+            alert(message);
             resetBoatRForm();
             closeFormBoatR();
         } else {
@@ -523,9 +525,9 @@ function submitBoatRForm(event) {
                 Object.keys(data.errors).forEach(field => {
                     errorMessage += `• ${data.errors[field].join(', ')}\n`;
                 });
-                alert('❌ ' + errorMessage);
+                alert(errorMessage);
             } else {
-                alert('❌ ' + (data.message || 'Error submitting form. Please try again.'));
+                alert(data.message || 'Error submitting form. Please try again.');
             }
         }
     })
@@ -533,14 +535,14 @@ function submitBoatRForm(event) {
         console.error('Fetch error:', error);
 
         if (error.message.includes('419') || error.message.includes('CSRF')) {
-            alert('❌ Security token expired. The page will refresh automatically.');
+            alert('Security token expired. The page will refresh automatically.');
             setTimeout(() => location.reload(), 2000);
         } else if (error.message.includes('Failed to fetch')) {
-            alert('❌ Network connection error. Please check your internet connection and try again.');
+            alert('Network connection error. Please check your internet connection and try again.');
         } else if (error.message.includes('Validation Error')) {
-            alert('❌ ' + error.message);
+            alert(error.message);
         } else {
-            alert('❌ An error occurred while submitting your application. Please try again.');
+            alert('An error occurred while submitting your application. Please try again.');
         }
     })
     .finally(() => {
@@ -554,6 +556,7 @@ function submitBoatRForm(event) {
 
 /**
  * Validates Boat Registration form data
+ * UPDATED: Requires FishR validation, prevents submission without verified FishR
  */
 function validateBoatRForm(form) {
     const formData = new FormData(form);
@@ -585,7 +588,7 @@ function validateBoatRForm(form) {
         return false;
     }
 
-    // Validate FishR number format
+    // UPDATED: Validate FishR number format
     const fishRNumber = formData.get('fishr_number');
     if (!fishRNumber.match(/^FISHR-[A-Z0-9]{8}$/i)) {
         alert('Please enter a valid FishR registration number (format: FISHR-XXXXXXXX)');
@@ -594,11 +597,11 @@ function validateBoatRForm(form) {
         return false;
     }
 
-    // Check if FishR was validated (optional)
+    // CRITICAL: Check if FishR was validated - CANNOT SUBMIT WITHOUT VALIDATION
     const fishRInput = form.querySelector('#boatr_fishr_number');
-    if (fishRInput && fishRInput.dataset.validated === 'false') {
-        alert('The FishR registration number you entered is not valid or not approved. Please enter a valid approved FishR number.');
-        fishRInput.focus();
+    if (!fishRInput || fishRInput.dataset.validated !== 'true') {
+        alert('Your FishR registration number has not been validated or is invalid. Please ensure you have a valid approved FishR number. Click away from the field to trigger validation.');
+        if (fishRInput) fishRInput.focus();
         return false;
     }
 

@@ -1,4 +1,20 @@
 /* BoatR Application Section */
+
+.boatr-form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+}
+
+/* Red asterisk for required fields */
+.boatr-form-group label .required {
+    color: #dc3545;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
 .boatr-application-section {
     background: #ffffff;
     padding: 40px 30px;

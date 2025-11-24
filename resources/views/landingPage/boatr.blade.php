@@ -16,7 +16,7 @@
             @csrf
 
             <div class="boatr-form-group">
-                <label for="boatr_first_name">First Name *</label>
+                <label for="boatr_first_name">First Name <span class="required">*</span></label>
                 <input type="text" id="boatr_first_name" name="first_name" placeholder="Enter first name"
                     pattern="[a-zA-Z\s\'-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
@@ -36,7 +36,7 @@
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_last_name">Last Name *</label>
+                <label for="boatr_last_name">Last Name <span class="required">*</span></label>
                 <input type="text" id="boatr_last_name" name="last_name" placeholder="Enter last name"
                     pattern="[a-zA-Z\s\'-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
@@ -55,7 +55,7 @@
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_contact_number">Contact Number *</label>
+                <label for="boatr_contact_number">Contact Number <span class="required">*</span></label>
                 <input type="tel" id="boatr_contact_number" name="contact_number"
                     placeholder="+639XXXXXXXXX or 09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
                     title="Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
@@ -65,13 +65,13 @@
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_email">Email Address *</label>
+                <label for="boatr_email">Email Address <span class="required">*</span></label>
                 <input type="email" id="boatr_email" name="email" placeholder="Enter your email address" required>
                 <small class="boatr-form-help">Please provide a valid email address for notifications.</small>
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_barangay">Barangay *</label>
+                <label for="boatr_barangay">Barangay <span class="required">*</span></label>
                 <select id="boatr_barangay" name="barangay" required>
                     <option value="" disabled selected>Select Barangay</option>
                     <option value="Bagong Silang">Bagong Silang</option>
@@ -102,20 +102,20 @@
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_fishr_number">FishR Number *</label>
+                <label for="boatr_fishr_number">FishR Number <span class="required">*</span></label>
                 <input type="text" id="boatr_fishr_number" name="fishr_number"
                     placeholder="Enter FishR Number (e.g., FISHR-ABC12345)" required>
                 <small class="boatr-form-help">Enter your approved FishR registration number</small>
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_vessel_name">Vessel Name *</label>
+                <label for="boatr_vessel_name">Vessel Name <span class="required">*</span></label>
                 <input type="text" id="boatr_vessel_name" name="vessel_name" placeholder="Enter vessel name"
                     required>
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_boat_type">Boat Type *</label>
+                <label for="boatr_boat_type">Boat Type <span class="required">*</span></label>
                 <select id="boatr_boat_type" name="boat_type" required onchange="handleBoatTypeChange(this)">
                     <option value="" disabled selected>Select Boat Type</option>
                     <option value="Spoon">Spoon</option>
@@ -130,36 +130,36 @@
 
             <div class="boatr-form-row">
                 <div class="boatr-form-group">
-                    <label for="boatr_boat_length">Length (feet) *</label>
+                    <label for="boatr_boat_length">Length (feet) <span class="required">*</span></label>
                     <input type="number" id="boatr_boat_length" name="boat_length" step="0.01" min="1"
                         max="200" placeholder="Length" required>
                 </div>
                 <div class="boatr-form-group">
-                    <label for="boatr_boat_width">Width (feet) *</label>
+                    <label for="boatr_boat_width">Width (feet) <span class="required">*</span></label>
                     <input type="number" id="boatr_boat_width" name="boat_width" step="0.01" min="1"
                         max="50" placeholder="Width" required>
                 </div>
                 <div class="boatr-form-group">
-                    <label for="boatr_boat_depth">Depth (feet) *</label>
+                    <label for="boatr_boat_depth">Depth (feet) <span class="required">*</span></label>
                     <input type="number" id="boatr_boat_depth" name="boat_depth" step="0.01" min="1"
                         max="30" placeholder="Depth" required>
                 </div>
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_engine_type">Engine Type *</label>
+                <label for="boatr_engine_type">Engine Type <span class="required">*</span></label>
                 <input type="text" id="boatr_engine_type" name="engine_type"
                     placeholder="Enter engine type (e.g., Yamaha Outboard Motor)" required>
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_engine_horsepower">Engine Horsepower *</label>
+                <label for="boatr_engine_horsepower">Engine Horsepower <span class="required">*</span></label>
                 <input type="number" id="boatr_engine_horsepower" name="engine_horsepower" step="1"
                     min="1" max="500" placeholder="Enter engine horsepower" required>
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used *</label>
+                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used <span class="required">*</span></label>
                 <select id="boatr_primary_fishing_gear" name="primary_fishing_gear" required>
                     <option value="" disabled selected>Select Primary Gear</option>
                     <option value="Hook and Line">Hook and Line</option>
