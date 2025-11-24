@@ -582,6 +582,8 @@ function showFishRValidationErrors(errors) {
     }
 }
 
+
+
 /**
  * Validates the form before submission
  */
@@ -592,23 +594,91 @@ function validateFishRForm() {
     let isValid = true;
     const errors = [];
 
+    // Clear previous error states
+    clearFormErrors();
+
     // Required field validation
     const requiredFields = [
-        { name: 'first_name', label: 'First Name' },
-        { name: 'last_name', label: 'Last Name' },
-        { name: 'sex', label: 'Sex' },
-        { name: 'barangay', label: 'Barangay' },
-        { name: 'mobile_number', label: 'Mobile Number' },
-        { name: 'main_livelihood', label: 'Main Livelihood' }
+        { name: 'first_name', label: 'First Name', type: 'text' },
+        { name: 'last_name', label: 'Last Name', type: 'text' },
+        { name: 'sex', label: 'Sex', type: 'select' },
+        { name: 'barangay', label: 'Barangay', type: 'select' },
+        { name: 'contact_number', label: 'Contact Number', type: 'tel' },
+        { name: 'email', label: 'Email Address', type: 'email' },
+        { name: 'main_livelihood', label: 'Main Livelihood', type: 'select' }
     ];
 
+    // Validate each required field
     requiredFields.forEach(field => {
         const input = form.querySelector(`[name="${field.name}"]`);
-        if (!input || !input.value.trim()) {
+        if (!input) {
+            console.error(`Field not found: ${field.name}`);
+            return;
+        }
+
+        const value = input.value ? input.value.trim() : '';
+
+        if (!value) {
             errors.push(`${field.label} is required`);
+            markFieldError(input);
             isValid = false;
+        } else {
+            // Additional field-specific validation
+            if (field.type === 'email') {
+                if (!isValidEmail(value)) {
+                    errors.push(`${field.label} is invalid`);
+                    markFieldError(input);
+                    isValid = false;
+                }
+            } else if (field.type === 'tel') {
+                if (!isValidPhoneNumber(value)) {
+                    errors.push(`${field.label} must be in format: 09XXXXXXXXX or +639XXXXXXXXX`);
+                    markFieldError(input);
+                    isValid = false;
+                }
+            }
         }
     });
+
+    // Validate first name format
+    const firstNameInput = form.querySelector('[name="first_name"]');
+    if (firstNameInput && firstNameInput.value) {
+        if (!isValidNameFormat(firstNameInput.value)) {
+            errors.push('First Name can only contain letters, spaces, hyphens, and apostrophes');
+            markFieldError(firstNameInput);
+            isValid = false;
+        }
+    }
+
+    // Validate last name format
+    const lastNameInput = form.querySelector('[name="last_name"]');
+    if (lastNameInput && lastNameInput.value) {
+        if (!isValidNameFormat(lastNameInput.value)) {
+            errors.push('Last Name can only contain letters, spaces, hyphens, and apostrophes');
+            markFieldError(lastNameInput);
+            isValid = false;
+        }
+    }
+
+    // Validate middle name if provided
+    const middleNameInput = form.querySelector('[name="middle_name"]');
+    if (middleNameInput && middleNameInput.value) {
+        if (!isValidNameFormat(middleNameInput.value)) {
+            errors.push('Middle Name can only contain letters, spaces, hyphens, and apostrophes');
+            markFieldError(middleNameInput);
+            isValid = false;
+        }
+    }
+
+    // Validate name extension if provided
+    const nameExtInput = form.querySelector('[name="name_extension"]');
+    if (nameExtInput && nameExtInput.value) {
+        if (!/^[a-zA-Z.\s]*$/.test(nameExtInput.value)) {
+            errors.push('Name Extension can only contain letters, periods, and spaces');
+            markFieldError(nameExtInput);
+            isValid = false;
+        }
+    }
 
     // Conditional validation for "others" livelihood
     const livelihoodSelect = form.querySelector('[name="main_livelihood"]');
@@ -617,17 +687,7 @@ function validateFishRForm() {
     if (livelihoodSelect && livelihoodSelect.value === 'others') {
         if (!otherLivelihoodInput || !otherLivelihoodInput.value.trim()) {
             errors.push('Please specify your livelihood when selecting "Others"');
-            isValid = false;
-        }
-    }
-
-    // Mobile number format validation
-    const mobileInput = form.querySelector('[name="mobile_number"]');
-    if (mobileInput && mobileInput.value) {
-        const mobilePattern = /^(09|\+639)\d{9}$/;
-        const cleanMobile = mobileInput.value.replace(/\s+/g, '');
-        if (!mobilePattern.test(cleanMobile)) {
-            errors.push('Please enter a valid mobile number (e.g., 09123456789)');
+            if (otherLivelihoodInput) markFieldError(otherLivelihoodInput);
             isValid = false;
         }
     }
@@ -637,14 +697,22 @@ function validateFishRForm() {
     if (livelihoodSelect && livelihoodSelect.value && livelihoodSelect.value !== 'capture') {
         if (!docsInput || !docsInput.files || docsInput.files.length === 0) {
             errors.push('Supporting documents are required for this livelihood type');
+            if (docsInput) markFieldError(docsInput);
             isValid = false;
+        } else {
+            // Validate file size (max 10MB)
+            const maxSize = 10 * 1024 * 1024;
+            if (docsInput.files[0].size > maxSize) {
+                errors.push('Supporting document must not exceed 10MB');
+                markFieldError(docsInput);
+                isValid = false;
+            }
         }
     }
 
     // Show validation errors if any
     if (!isValid) {
-        const errorMessage = 'Please correct the following errors:\n• ' + errors.join('\n• ');
-        alert(errorMessage);
+        displayValidationErrors(errors);
     }
 
     return isValid;

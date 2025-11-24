@@ -1,17 +1,16 @@
 // ==============================================
-// BOATR AUTOFILL SYSTEM
-// Matches RSBSA, Training, and FishR pattern with buttons
+// UPDATED BOATR AUTOFILL SYSTEM - SPECIFIC CHANGES
 // File: public/js/boatr-autofill.js
 // ==============================================
 
 /**
  * Auto-fill BoatR form with user profile data
+ * UPDATED: Professional styling, handles sex/gender field, validates FishR
  */
 function autoFillBoatRFromProfile() {
     console.log('Auto-filling BoatR form from user profile...');
-    console.log('Available userData:', window.userData); // DEBUG
+    console.log('Available userData:', window.userData);
 
-    // Check if user is logged in and has profile data
     if (!window.userData) {
         console.log('No user data available for auto-fill');
         showNotification('info', 'Please log in to use auto-fill');
@@ -27,58 +26,47 @@ function autoFillBoatRFromProfile() {
     const userData = window.userData;
     let filledCount = 0;
 
-    // Helper function to safely set field value
     function setFieldValue(fieldName, value) {
         const field = form.querySelector(`[name="${fieldName}"]`);
         if (field && value) {
             field.value = value;
 
-            // Trigger change event for selects
             if (field.tagName === 'SELECT') {
                 field.dispatchEvent(new Event('change', { bubbles: true }));
             }
 
-            // Add visual feedback
             field.style.backgroundColor = '#f0f8ff';
             setTimeout(() => {
                 field.style.backgroundColor = '';
             }, 2000);
 
             filledCount++;
-            console.log(`✓ Filled ${fieldName} with: ${value}`);
+            console.log(`Filled ${fieldName} with: ${value}`);
             return true;
         }
-        console.log(`✗ Could not fill ${fieldName} - field:`, !!field, 'value:', value);
+        console.log(`Could not fill ${fieldName} - field:`, !!field, 'value:', value);
         return false;
     }
 
-    // Fill First Name
+    // UPDATED: Fill all profile fields including sex/gender
     setFieldValue('first_name', userData.first_name);
-
-    // Fill Middle Name
     setFieldValue('middle_name', userData.middle_name);
-
-    // Fill Last Name
     setFieldValue('last_name', userData.last_name);
-
-    // Fill Name Extension
     setFieldValue('name_extension', userData.name_extension || userData.extension_name);
-
-    // Fill Contact Number
     setFieldValue('contact_number', userData.contact_number || userData.mobile_number || userData.phone);
-
-    // Fill Email
     setFieldValue('email', userData.email);
-
-    // Fill Barangay
     setFieldValue('barangay', userData.barangay);
+    
+    // NEW: Fill sex/gender field (try multiple possible field names)
+    setFieldValue('sex', userData.sex);
+    setFieldValue('gender', userData.gender);
+    setFieldValue('sex_gender', userData.sex_gender);
 
-    // Show results
     if (filledCount > 0) {
-        showNotification('success', `✓ Auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''} from your profile!`);
-        console.log(`✅ Successfully auto-filled ${filledCount} BoatR form fields`);
+        showNotification('success', `Auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''} from your profile`);
+        console.log(`Successfully auto-filled ${filledCount} BoatR form fields`);
     } else {
-        console.warn('⚠️ No fields were auto-filled. userData:', userData);
+        console.warn('No fields were auto-filled. userData:', userData);
         showNotification('warning', 'Could not auto-fill form. Please complete your profile verification first.');
     }
 }
@@ -89,11 +77,10 @@ function autoFillBoatRFromProfile() {
 async function fetchAndAutoFillBoatR() {
     console.log('Fetching fresh user profile data...');
 
-    // Show loading state
     const btn = document.getElementById('boatr-autofill-btn');
     const originalText = btn ? btn.innerHTML : '';
     if (btn) {
-        btn.innerHTML = '⏳ Loading...';
+        btn.innerHTML = 'Loading...';
         btn.disabled = true;
     }
 
@@ -116,10 +103,7 @@ async function fetchAndAutoFillBoatR() {
         console.log('Fetched user profile:', data);
 
         if (data.success && data.user) {
-            // Update window.userData with fresh data
             window.userData = Object.assign({}, window.userData, data.user);
-
-            // Now auto-fill
             autoFillBoatRFromProfile();
         } else {
             showNotification('error', 'Could not load profile data');
@@ -127,11 +111,9 @@ async function fetchAndAutoFillBoatR() {
 
     } catch (error) {
         console.error('Error fetching profile:', error);
-        // Fall back to cached userData
         console.log('Falling back to cached userData');
         autoFillBoatRFromProfile();
     } finally {
-        // Restore button
         if (btn) {
             btn.innerHTML = originalText;
             btn.disabled = false;
@@ -151,15 +133,14 @@ function clearBoatRAutoFill() {
 
 /**
  * Add auto-fill button to BoatR form
+ * UPDATED: Professional styling without emojis
  */
 function addAutoFillButtonToBoatR() {
     const form = document.querySelector('#boatr-registration-form');
     if (!form) return;
 
-    // Check if button already exists
     if (document.getElementById('boatr-autofill-btn')) return;
 
-    // Only show button if user is logged in
     if (!window.userData) {
         console.log('No userData - skipping auto-fill button');
         return;
@@ -167,7 +148,6 @@ function addAutoFillButtonToBoatR() {
 
     console.log('Adding auto-fill button for user:', window.userData.username);
 
-    // Create auto-fill button container
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'boatr-autofill-container';
     buttonContainer.style.cssText = `
@@ -184,7 +164,7 @@ function addAutoFillButtonToBoatR() {
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2e7d32;">💡 Quick Fill:</strong>
+            <strong style="color: #2e7d32;">Quick Fill:</strong>
             <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
         </div>
         <div class="autofill-actions">
@@ -204,7 +184,7 @@ function addAutoFillButtonToBoatR() {
                     "
                     onmouseover="this.style.background='#388e3c'"
                     onmouseout="this.style.background='#4caf50'">
-                ✓ Use My Profile Data
+                Use My Profile Data
             </button>
             <button type="button" class="btn-clear"
                     onclick="clearBoatRAutoFill()"
@@ -226,15 +206,13 @@ function addAutoFillButtonToBoatR() {
         </div>
     `;
 
-    // Insert button at the top of the form
     const firstFormGroup = form.querySelector('.boatr-form-group');
     if (firstFormGroup) {
         firstFormGroup.parentNode.insertBefore(buttonContainer, firstFormGroup);
-        console.log('✓ Auto-fill button added to BoatR form');
+        console.log('Auto-fill button added to BoatR form');
     } else {
-        // Fallback: insert at beginning of form
         form.insertBefore(buttonContainer, form.firstChild);
-        console.log('✓ Auto-fill button added to BoatR form (fallback position)');
+        console.log('Auto-fill button added to BoatR form (fallback position)');
     }
 }
 
@@ -244,7 +222,6 @@ function addAutoFillButtonToBoatR() {
 function initializeBoatRAutoFill() {
     console.log('Initializing BoatR auto-fill functionality...');
 
-    // Add auto-fill button when form is displayed
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'attributes' &&
@@ -263,12 +240,11 @@ function initializeBoatRAutoFill() {
             attributes: true,
             attributeFilter: ['style']
         });
-        console.log('✓ MutationObserver attached to BoatR form');
+        console.log('MutationObserver attached to BoatR form');
     } else {
-        console.warn('⚠️ BoatR section not found');
+        console.warn('BoatR section not found');
     }
 
-    // Also check immediately if form is already visible
     if (boatrSection && boatrSection.style.display !== 'none') {
         setTimeout(addAutoFillButtonToBoatR, 100);
     }
@@ -279,15 +255,13 @@ window.autoFillBoatRFromProfile = autoFillBoatRFromProfile;
 window.fetchAndAutoFillBoatR = fetchAndAutoFillBoatR;
 window.clearBoatRAutoFill = clearBoatRAutoFill;
 
-// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM ready - initializing BoatR auto-fill...');
     initializeBoatRAutoFill();
 });
 
-// Also initialize on window load for additional safety
 window.addEventListener('load', function() {
     setTimeout(initializeBoatRAutoFill, 500);
 });
 
-console.log('✅ BoatR Auto-fill module loaded');
+console.log('BoatR Auto-fill module loaded');

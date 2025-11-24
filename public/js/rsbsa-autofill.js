@@ -1,14 +1,14 @@
-// RSBSA Auto-Fill Enhancement - FIXED VERSION
+// RSBSA AUTO-FILL ENHANCEMENT - UPDATED PROFESSIONAL VERSION
 // Automatically populates form fields from authenticated user's profile data
+// Fixed: Sex/Gender field mapping, proper event dispatching, professional UI
 
 /**
  * Auto-fill RSBSA form with user profile data
  */
 function autoFillRSBSAFromProfile() {
     console.log('Auto-filling RSBSA form from user profile...');
-    console.log('Available userData:', window.userData); // DEBUG
+    console.log('Available userData:', window.userData);
 
-    // Check if user is logged in and has profile data
     if (!window.userData) {
         console.log('No user data available for auto-fill');
         showNotification('info', 'Please log in to use auto-fill');
@@ -23,6 +23,7 @@ function autoFillRSBSAFromProfile() {
 
     const userData = window.userData;
     let filledCount = 0;
+    const errors = [];
 
     // Helper function to safely set field value
     function setFieldValue(fieldName, value) {
@@ -30,16 +31,28 @@ function autoFillRSBSAFromProfile() {
         if (field && value) {
             field.value = value;
 
-            // Trigger change event for selects
+            // Trigger change and input events for selects
             if (field.tagName === 'SELECT') {
                 field.dispatchEvent(new Event('change', { bubbles: true }));
+                field.dispatchEvent(new Event('input', { bubbles: true }));
             }
 
+            // Add visual feedback - subtle highlight
+            field.style.backgroundColor = '#fafafa';
+            setTimeout(() => {
+                field.style.backgroundColor = '';
+            }, 1500);
+
             filledCount++;
-            console.log(`✓ Filled ${fieldName} with: ${value}`);
+            console.log(`Filled ${fieldName} with: ${value}`);
             return true;
         }
-        console.log(`✗ Could not fill ${fieldName} - field:`, !!field, 'value:', value);
+        if (value === undefined || value === null || value === '') {
+            console.log(`- ${fieldName} is empty in user data`);
+        } else {
+            console.log(`Could not find field: ${fieldName}`);
+            errors.push(fieldName);
+        }
         return false;
     }
 
@@ -55,9 +68,10 @@ function autoFillRSBSAFromProfile() {
     // Fill Name Extension
     setFieldValue('name_extension', userData.name_extension || userData.extension_name);
 
-    // Fill Sex/Gender
+    // Fill Sex/Gender with proper mapping and capitalization
     if (userData.sex) {
-        setFieldValue('sex', userData.sex);
+        const sexValue = userData.sex.charAt(0).toUpperCase() + userData.sex.slice(1).toLowerCase();
+        setFieldValue('sex', sexValue);
     } else if (userData.gender) {
         const genderMap = {
             'male': 'Male',
@@ -65,17 +79,39 @@ function autoFillRSBSAFromProfile() {
             'other': 'Preferred not to say',
             'prefer_not_to_say': 'Preferred not to say'
         };
-        const mappedGender = genderMap[userData.gender.toLowerCase()];
-        if (mappedGender) {
-            setFieldValue('sex', mappedGender);
+        const mappedSex = genderMap[userData.gender.toLowerCase()];
+        if (mappedSex) {
+            setFieldValue('sex', mappedSex);
+        } else {
+            console.log('Gender mapping not found for:', userData.gender);
         }
     }
 
-    // Fill Barangay
-    setFieldValue('barangay', userData.barangay);
+    // Fill Barangay with case-insensitive matching
+    if (userData.barangay) {
+        const barangayField = form.querySelector('[name="barangay"]');
+        if (barangayField) {
+            const options = barangayField.querySelectorAll('option');
+            let found = false;
+            options.forEach(option => {
+                if (option.value.toLowerCase() === userData.barangay.toLowerCase()) {
+                    barangayField.value = option.value;
+                    found = true;
+                }
+            });
+            if (found) {
+                barangayField.dispatchEvent(new Event('change', { bubbles: true }));
+                filledCount++;
+                console.log(`Filled barangay with: ${userData.barangay}`);
+            } else {
+                console.log(`Barangay not found in options: ${userData.barangay}`);
+                errors.push('barangay');
+            }
+        }
+    }
 
-    // Fill Mobile Number (try different property names)
-    setFieldValue('mobile', userData.contact_number || userData.mobile || userData.phone);
+    // Fill Mobile Number
+    setFieldValue('mobile', userData.contact_number || userData.mobile_number || userData.mobile || userData.phone);
 
     // Fill Email
     setFieldValue('email', userData.email);
@@ -96,19 +132,21 @@ function autoFillRSBSAFromProfile() {
         const mappedLivelihood = livelihoodMap[userData.user_type.toLowerCase()];
         if (mappedLivelihood) {
             setFieldValue('main_livelihood', mappedLivelihood);
+        } else {
+            console.log('Livelihood mapping not found for:', userData.user_type);
         }
     }
 
-    // Fill Farm Location from complete address - ALWAYS overwrite
+    // Fill Farm Location from complete address
     setFieldValue('farm_location', userData.complete_address);
 
     // Show results
     if (filledCount > 0) {
-        showNotification('success', `✓ Auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''} from your profile!`);
-        console.log(`✅ Successfully auto-filled ${filledCount} RSBSA form fields`);
+        showNotification('success', `Successfully auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''}`);
+        console.log(`Successfully auto-filled ${filledCount} RSBSA form fields`);
     } else {
-        console.warn('⚠️ No fields were auto-filled. userData:', userData);
-        showNotification('warning', 'Could not auto-fill form. Please complete your profile verification first.');
+        console.warn('No fields were auto-filled. userData:', userData);
+        showNotification('warning', 'Could not auto-fill form. Please verify your profile is complete.');
     }
 }
 
@@ -118,11 +156,10 @@ function autoFillRSBSAFromProfile() {
 async function fetchAndAutoFillRSBSA() {
     console.log('Fetching fresh user profile data...');
 
-    // Show loading state
     const btn = document.getElementById('rsbsa-autofill-btn');
-    const originalText = btn ? btn.innerHTML : '';
+    const originalText = btn ? btn.textContent : '';
     if (btn) {
-        btn.innerHTML = '⏳ Loading...';
+        btn.textContent = 'Loading...';
         btn.disabled = true;
     }
 
@@ -145,10 +182,7 @@ async function fetchAndAutoFillRSBSA() {
         console.log('Fetched user profile:', data);
 
         if (data.success && data.user) {
-            // Update window.userData with fresh data
             window.userData = Object.assign({}, window.userData, data.user);
-
-            // Now auto-fill
             autoFillRSBSAFromProfile();
         } else {
             showNotification('error', 'Could not load profile data');
@@ -156,13 +190,11 @@ async function fetchAndAutoFillRSBSA() {
 
     } catch (error) {
         console.error('Error fetching profile:', error);
-        // Fall back to cached userData
         console.log('Falling back to cached userData');
         autoFillRSBSAFromProfile();
     } finally {
-        // Restore button
         if (btn) {
-            btn.innerHTML = originalText;
+            btn.textContent = originalText;
             btn.disabled = false;
         }
     }
@@ -179,31 +211,14 @@ function clearRSBSAAutoFill() {
 }
 
 /**
- * Check if form is empty (no user-entered data)
- */
-function isFormEmpty(form) {
-    const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select');
-
-    for (let input of inputs) {
-        if (input.value && input.value.trim() !== '') {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/**
  * Add auto-fill button to RSBSA form
  */
 function addAutoFillButtonToRSBSA() {
     const form = document.querySelector('#rsbsa-form');
     if (!form) return;
 
-    // Check if button already exists
     if (document.getElementById('rsbsa-autofill-btn')) return;
 
-    // Only show button if user is logged in
     if (!window.userData) {
         console.log('No userData - skipping auto-fill button');
         return;
@@ -211,72 +226,72 @@ function addAutoFillButtonToRSBSA() {
 
     console.log('Adding auto-fill button for user:', window.userData.username);
 
-    // Create auto-fill button container
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'rsbsa-autofill-container';
     buttonContainer.style.cssText = `
-        margin-bottom: 20px;
-        padding: 15px;
-        background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
-        border-left: 4px solid #4caf50;
-        border-radius: 8px;
+        margin-bottom: 25px;
+        padding: 16px 18px;
+        background: linear-gradient(135deg, #f0f9f7 0%, #f5fbfa 100%);
+        border-left: 4px solid #2d6a4f;
+        border-radius: 6px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     `;
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2e7d32;">💡 Quick Fill:</strong>
-            <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
+            <strong style="color: #2d6a4f; font-size: 14px; display: block; margin-bottom: 4px;">Quick Fill</strong>
+            <span style="color: #558b2f; font-size: 13px;">Use your verified profile data to auto-complete this form</span>
         </div>
-        <div class="autofill-actions">
+        <div class="autofill-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="button" id="rsbsa-autofill-btn" class="btn-autofill"
                     onclick="fetchAndAutoFillRSBSA()"
                     style="
-                        background: #4caf50;
+                        background: #2d6a4f;
                         color: white;
                         border: none;
-                        padding: 10px 20px;
+                        padding: 10px 18px;
                         border-radius: 4px;
                         cursor: pointer;
-                        font-size: 14px;
+                        font-size: 13px;
                         font-weight: 500;
-                        margin-right: 8px;
                         transition: all 0.3s ease;
+                        white-space: nowrap;
                     "
-                    onmouseover="this.style.background='#388e3c'"
-                    onmouseout="this.style.background='#4caf50'">
-                ✓ Use My Profile Data
+                    onmouseover="this.style.background='#1f4d38'"
+                    onmouseout="this.style.background='#2d6a4f'">
+                Use Profile Data
             </button>
             <button type="button" class="btn-clear"
                     onclick="clearRSBSAAutoFill()"
                     style="
-                        background: #757575;
+                        background: #6c757d;
                         color: white;
                         border: none;
-                        padding: 10px 20px;
+                        padding: 10px 18px;
                         border-radius: 4px;
                         cursor: pointer;
-                        font-size: 14px;
+                        font-size: 13px;
                         font-weight: 500;
                         transition: all 0.3s ease;
+                        white-space: nowrap;
                     "
-                    onmouseover="this.style.background='#616161'"
-                    onmouseout="this.style.background='#757575'">
+                    onmouseover="this.style.background='#5a6268'"
+                    onmouseout="this.style.background='#6c757d'">
                 Clear Form
             </button>
         </div>
     `;
 
-    // Insert button at the top of the form
     const firstLabel = form.querySelector('label');
     if (firstLabel) {
         firstLabel.parentNode.insertBefore(buttonContainer, firstLabel);
-        console.log('✓ Auto-fill button added to RSBSA form');
+        console.log('Auto-fill button added to RSBSA form');
     } else {
-        console.error('Could not find insertion point for auto-fill button');
+        form.insertBefore(buttonContainer, form.firstChild);
+        console.log('Auto-fill button added to RSBSA form (fallback position)');
     }
 }
 
@@ -286,11 +301,9 @@ function addAutoFillButtonToRSBSA() {
 function initializeRSBSAAutoFill() {
     console.log('Initializing RSBSA auto-fill functionality...');
 
-    // Add auto-fill button when form is displayed
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' &&
-                mutation.attributeName === 'style') {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 const rsbsaForm = document.getElementById('new-rsbsa');
                 if (rsbsaForm && rsbsaForm.style.display !== 'none') {
                     setTimeout(addAutoFillButtonToRSBSA, 100);
@@ -305,12 +318,11 @@ function initializeRSBSAAutoFill() {
             attributes: true,
             attributeFilter: ['style']
         });
-        console.log('✓ MutationObserver attached to RSBSA form');
+        console.log('MutationObserver attached to RSBSA form');
     } else {
-        console.warn('⚠️ RSBSA section not found');
+        console.warn('RSBSA section not found');
     }
 
-    // Also check immediately if form is already visible
     if (rsbsaSection && rsbsaSection.style.display !== 'none') {
         setTimeout(addAutoFillButtonToRSBSA, 100);
     }
@@ -332,4 +344,4 @@ window.addEventListener('load', function() {
     setTimeout(initializeRSBSAAutoFill, 500);
 });
 
-console.log('✅ RSBSA Auto-fill module loaded');
+console.log('RSBSA Auto-fill module loaded');

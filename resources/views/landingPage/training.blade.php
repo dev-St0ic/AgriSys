@@ -24,7 +24,7 @@
             @csrf
 
             <div class="training-form-group">
-                <label for="training_first_name">First Name *</label>
+                <label for="training_first_name">First Name <span class="required-asterisk">*</span></label>
                 <input type="text" id="training_first_name" name="first_name" placeholder="Enter your first name"
                     pattern="[a-zA-Z\s\'-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
@@ -44,7 +44,7 @@
             </div>
 
             <div class="training-form-group">
-                <label for="training_last_name">Last Name *</label>
+                <label for="training_last_name">Last Name <span class="required-asterisk">*</span></label>
                 <input type="text" id="training_last_name" name="last_name" placeholder="Enter your last name"
                     pattern="[a-zA-Z\s\'-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
@@ -64,7 +64,7 @@
             </div>
 
             <div class="training-form-group">
-                <label for="training_contact_number">Contact Number *</label>
+                <label for="training_contact_number">Contact Number <span class="required-asterisk">*</span></label>
                 <input type="tel" id="training_contact_number" name="contact_number"
                     placeholder="+639XXXXXXXXX or 09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
                     title="Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
@@ -72,13 +72,13 @@
             </div>
 
             <div class="training-form-group">
-                <label for="training_email">Email Address *</label>
+                <label for="training_email">Email Address <span class="required-asterisk">*</span></label>
                 <input type="email" id="training_email" name="email" placeholder="Enter your email address"
                     required>
             </div>
 
             <div class="training-form-group">
-                <label for="training_barangay">Barangay *</label>
+                <label for="training_barangay">Barangay <span class="required-asterisk">*</span></label>
                 <select id="training_barangay" name="barangay" required>
                     <option value="" disabled selected>Select Barangay</option>
                     <option value="Bagong Silang">Bagong Silang</option>
@@ -109,7 +109,7 @@
             </div>
 
             <div class="training-form-group">
-                <label for="training_type">Training Program *</label>
+                <label for="training_type">Training Program <span class="required-asterisk">*</span></label>
                 <select id="training_type" name="training_type" required>
                     <option value="" disabled selected>Select Training Program</option>
                     <option value="tilapia_hito">Tilapia and Hito Training</option>

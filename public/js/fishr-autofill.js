@@ -1,6 +1,6 @@
 // ==============================================
-// FISHR AUTOFILL SYSTEM
-// Matches RSBSA and Training pattern with buttons
+// FISHR AUTOFILL SYSTEM - UPDATED
+// Professional version with proper field mapping
 // File: public/js/fishr-autofill.js
 // ==============================================
 
@@ -9,9 +9,8 @@
  */
 function autoFillFishRFromProfile() {
     console.log('Auto-filling FishR form from user profile...');
-    console.log('Available userData:', window.userData); // DEBUG
+    console.log('Available userData:', window.userData);
 
-    // Check if user is logged in and has profile data
     if (!window.userData) {
         console.log('No user data available for auto-fill');
         showNotification('info', 'Please log in to use auto-fill');
@@ -26,6 +25,7 @@ function autoFillFishRFromProfile() {
 
     const userData = window.userData;
     let filledCount = 0;
+    const errors = [];
 
     // Helper function to safely set field value
     function setFieldValue(fieldName, value) {
@@ -36,19 +36,25 @@ function autoFillFishRFromProfile() {
             // Trigger change event for selects
             if (field.tagName === 'SELECT') {
                 field.dispatchEvent(new Event('change', { bubbles: true }));
+                field.dispatchEvent(new Event('input', { bubbles: true }));
             }
 
-            // Add visual feedback
-            field.style.backgroundColor = '#f0f8ff';
+            // Add visual feedback - subtle highlight
+            field.style.backgroundColor = '#fafafa';
             setTimeout(() => {
                 field.style.backgroundColor = '';
-            }, 2000);
+            }, 1500);
 
             filledCount++;
             console.log(`✓ Filled ${fieldName} with: ${value}`);
             return true;
         }
-        console.log(`✗ Could not fill ${fieldName} - field:`, !!field, 'value:', value);
+        if (value === undefined || value === null || value === '') {
+            console.log(`- ${fieldName} is empty in user data`);
+        } else {
+            console.log(`✗ Could not find field: ${fieldName}`);
+            errors.push(fieldName);
+        }
         return false;
     }
 
@@ -64,11 +70,11 @@ function autoFillFishRFromProfile() {
     // Fill Name Extension
     setFieldValue('name_extension', userData.name_extension || userData.extension_name);
 
-    // Fill Sex/Gender
+    // Fill Sex/Gender with proper mapping
     if (userData.sex) {
-        setFieldValue('sex', userData.sex);
+        const sexValue = userData.sex.charAt(0).toUpperCase() + userData.sex.slice(1).toLowerCase();
+        setFieldValue('sex', sexValue);
     } else if (userData.gender) {
-        // Map gender to sex format
         const genderMap = {
             'male': 'Male',
             'female': 'Female',
@@ -78,11 +84,33 @@ function autoFillFishRFromProfile() {
         const mappedSex = genderMap[userData.gender.toLowerCase()];
         if (mappedSex) {
             setFieldValue('sex', mappedSex);
+        } else {
+            console.log('Gender mapping not found for:', userData.gender);
         }
     }
 
     // Fill Barangay
-    setFieldValue('barangay', userData.barangay);
+    if (userData.barangay) {
+        const barangayField = form.querySelector('[name="barangay"]');
+        if (barangayField) {
+            const options = barangayField.querySelectorAll('option');
+            let found = false;
+            options.forEach(option => {
+                if (option.value.toLowerCase() === userData.barangay.toLowerCase()) {
+                    barangayField.value = option.value;
+                    found = true;
+                }
+            });
+            if (found) {
+                barangayField.dispatchEvent(new Event('change', { bubbles: true }));
+                filledCount++;
+                console.log(`Filled barangay with: ${userData.barangay}`);
+            } else {
+                console.log(`Barangay not found in options: ${userData.barangay}`);
+                errors.push('barangay');
+            }
+        }
+    }
 
     // Fill Contact Number
     setFieldValue('contact_number', userData.contact_number || userData.mobile_number || userData.phone);
@@ -92,11 +120,11 @@ function autoFillFishRFromProfile() {
 
     // Show results
     if (filledCount > 0) {
-        showNotification('success', `✓ Auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''} from your profile!`);
-        console.log(`✅ Successfully auto-filled ${filledCount} FishR form fields`);
+        showNotification('success', `Successfully auto-filled ${filledCount} field${filledCount > 1 ? 's' : ''}`);
+        console.log(`Successfully auto-filled ${filledCount} FishR form fields`);
     } else {
-        console.warn('⚠️ No fields were auto-filled. userData:', userData);
-        showNotification('warning', 'Could not auto-fill form. Please complete your profile verification first.');
+        console.warn('No fields were auto-filled. userData:', userData);
+        showNotification('warning', 'Could not auto-fill form. Please verify your profile is complete.');
     }
 }
 
@@ -106,11 +134,10 @@ function autoFillFishRFromProfile() {
 async function fetchAndAutoFillFishR() {
     console.log('Fetching fresh user profile data...');
 
-    // Show loading state
     const btn = document.getElementById('fishr-autofill-btn');
-    const originalText = btn ? btn.innerHTML : '';
+    const originalText = btn ? btn.textContent : '';
     if (btn) {
-        btn.innerHTML = '⏳ Loading...';
+        btn.textContent = 'Loading...';
         btn.disabled = true;
     }
 
@@ -133,10 +160,7 @@ async function fetchAndAutoFillFishR() {
         console.log('Fetched user profile:', data);
 
         if (data.success && data.user) {
-            // Update window.userData with fresh data
             window.userData = Object.assign({}, window.userData, data.user);
-
-            // Now auto-fill
             autoFillFishRFromProfile();
         } else {
             showNotification('error', 'Could not load profile data');
@@ -144,13 +168,11 @@ async function fetchAndAutoFillFishR() {
 
     } catch (error) {
         console.error('Error fetching profile:', error);
-        // Fall back to cached userData
         console.log('Falling back to cached userData');
         autoFillFishRFromProfile();
     } finally {
-        // Restore button
         if (btn) {
-            btn.innerHTML = originalText;
+            btn.textContent = originalText;
             btn.disabled = false;
         }
     }
@@ -173,10 +195,8 @@ function addAutoFillButtonToFishR() {
     const form = document.querySelector('#fishr-registration-form');
     if (!form) return;
 
-    // Check if button already exists
     if (document.getElementById('fishr-autofill-btn')) return;
 
-    // Only show button if user is logged in
     if (!window.userData) {
         console.log('No userData - skipping auto-fill button');
         return;
@@ -184,74 +204,72 @@ function addAutoFillButtonToFishR() {
 
     console.log('Adding auto-fill button for user:', window.userData.username);
 
-    // Create auto-fill button container
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'fishr-autofill-container';
     buttonContainer.style.cssText = `
-        margin-bottom: 20px;
-        padding: 15px;
-        background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
-        border-left: 4px solid #4caf50;
-        border-radius: 8px;
+        margin-bottom: 25px;
+        padding: 16px 18px;
+        background: linear-gradient(135deg, #f0f9f7 0%, #f5fbfa 100%);
+        border-left: 4px solid #2d6a4f;
+        border-radius: 6px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     `;
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2e7d32;">💡 Quick Fill:</strong>
-            <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
+            <strong style="color: #2d6a4f; font-size: 14px; display: block; margin-bottom: 4px;">Quick Fill</strong>
+            <span style="color: #558b2f; font-size: 13px;">Use your verified profile data to auto-complete this form</span>
         </div>
-        <div class="autofill-actions">
+        <div class="autofill-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="button" id="fishr-autofill-btn" class="btn-autofill"
                     onclick="fetchAndAutoFillFishR()"
                     style="
-                        background: #4caf50;
+                        background: #2d6a4f;
                         color: white;
                         border: none;
-                        padding: 10px 20px;
+                        padding: 10px 18px;
                         border-radius: 4px;
                         cursor: pointer;
-                        font-size: 14px;
+                        font-size: 13px;
                         font-weight: 500;
-                        margin-right: 8px;
                         transition: all 0.3s ease;
+                        white-space: nowrap;
                     "
-                    onmouseover="this.style.background='#388e3c'"
-                    onmouseout="this.style.background='#4caf50'">
-                ✓ Use My Profile Data
+                    onmouseover="this.style.background='#1f4d38'"
+                    onmouseout="this.style.background='#2d6a4f'">
+                Use Profile Data
             </button>
             <button type="button" class="btn-clear"
                     onclick="clearFishRAutoFill()"
                     style="
-                        background: #757575;
+                        background: #6c757d;
                         color: white;
                         border: none;
-                        padding: 10px 20px;
+                        padding: 10px 18px;
                         border-radius: 4px;
                         cursor: pointer;
-                        font-size: 14px;
+                        font-size: 13px;
                         font-weight: 500;
                         transition: all 0.3s ease;
+                        white-space: nowrap;
                     "
-                    onmouseover="this.style.background='#616161'"
-                    onmouseout="this.style.background='#757575'">
+                    onmouseover="this.style.background='#5a6268'"
+                    onmouseout="this.style.background='#6c757d'">
                 Clear Form
             </button>
         </div>
     `;
 
-    // Insert button at the top of the form
     const firstFormGroup = form.querySelector('.fishr-form-group');
     if (firstFormGroup) {
         firstFormGroup.parentNode.insertBefore(buttonContainer, firstFormGroup);
-        console.log('✓ Auto-fill button added to FishR form');
+        console.log('Auto-fill button added to FishR form');
     } else {
-        // Fallback: insert at beginning of form
         form.insertBefore(buttonContainer, form.firstChild);
-        console.log('✓ Auto-fill button added to FishR form (fallback position)');
+        console.log('Auto-fill button added to FishR form (fallback position)');
     }
 }
 
@@ -261,11 +279,9 @@ function addAutoFillButtonToFishR() {
 function initializeFishRAutoFill() {
     console.log('Initializing FishR auto-fill functionality...');
 
-    // Add auto-fill button when form is displayed
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' &&
-                mutation.attributeName === 'style') {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 const fishrForm = document.getElementById('fishr-form');
                 if (fishrForm && fishrForm.style.display !== 'none') {
                     setTimeout(addAutoFillButtonToFishR, 100);
@@ -280,12 +296,11 @@ function initializeFishRAutoFill() {
             attributes: true,
             attributeFilter: ['style']
         });
-        console.log('✓ MutationObserver attached to FishR form');
+        console.log('MutationObserver attached to FishR form');
     } else {
-        console.warn('⚠️ FishR section not found');
+        console.warn('FishR section not found');
     }
 
-    // Also check immediately if form is already visible
     if (fishrSection && fishrSection.style.display !== 'none') {
         setTimeout(addAutoFillButtonToFishR, 100);
     }
@@ -307,4 +322,4 @@ window.addEventListener('load', function() {
     setTimeout(initializeFishRAutoFill, 500);
 });
 
-console.log('✅ FishR Auto-fill module loaded');
+console.log('FishR Auto-fill module loaded');

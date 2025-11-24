@@ -13,6 +13,13 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* red required-asterisk */
+.required-asterisk {
+    color: #ff6b6b;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
 /* --- Header --- */
 .seedlings-form-header {
     text-align: center;
