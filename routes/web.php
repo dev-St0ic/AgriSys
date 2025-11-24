@@ -178,7 +178,8 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 
         // Add registration
         Route::post('/requests/create', [BoatRController::class, 'store'])->name('store');
-
+        // edit
+         Route::put('/requests/{id}', [BoatRController::class, 'update'])->name('update');
         // UPDATE STATUS
         Route::patch('/requests/{id}/status', [BoatRController::class, 'updateStatus'])
             ->name('status.update');
