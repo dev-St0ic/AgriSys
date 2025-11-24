@@ -1373,7 +1373,7 @@
         }
 
         .btn-group>.btn {
-            margin-right: 0.25rem;
+            margin-right: 0;
         }
 
         .btn-group>.btn:last-child {
