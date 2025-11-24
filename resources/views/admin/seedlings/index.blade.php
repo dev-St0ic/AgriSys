@@ -3126,7 +3126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Initialize edit modal with existing data
-        function initializeEditSeedlingModal(requestId) {
+      function initializeEditSeedlingModal(requestId) {
         const form = document.getElementById('editForm' + requestId);
         if (!form) return;
         
@@ -3153,60 +3153,61 @@ document.addEventListener('DOMContentLoaded', function() {
         form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
         form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
         
-        // Reset submit button
+        // Reset submit button - NO CHANGES STATE (similar to update modal)
         const submitBtn = document.getElementById('editSubmitBtn' + requestId);
         if (submitBtn) {
-            submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-            submitBtn.disabled = true;
-            submitBtn.classList.add('no-changes');
-            submitBtn.dataset.hasChanges = 'false'; // Add this flag
+            submitBtn.innerHTML = 'Save Changes'; // No icon initially
+            submitBtn.disabled = false; // Keep enabled like update modal
+            submitBtn.dataset.hasChanges = 'false';
         }
     }
 
-        // Check for changes in edit form
-        function checkForEditChanges(requestId) {
-        const form = document.getElementById('editForm' + requestId);
-        const submitBtn = document.getElementById('editSubmitBtn' + requestId);
-        
-        if (!form || !submitBtn) return;
-        
-        const originalData = JSON.parse(form.dataset.originalData || '{}');
-        
-        let hasChanges = false;
-        
-        // Check all form fields
-        const fields = [
-            'first_name', 'middle_name', 'last_name', 'extension_name',
-            'contact_number', 'email', 'barangay', 'address',
-            'planting_location', 'purpose', 'preferred_delivery_date'
-        ];
-        
-        fields.forEach(field => {
-            const input = form.querySelector(`[name="${field}"]`);
-            if (input && input.value !== originalData[field]) {
-                hasChanges = true;
-                input.classList.add('form-changed');
-            } else if (input) {
-                input.classList.remove('form-changed');
-            }
-        });
-        
-        // Update button state and store flag
-        if (hasChanges) {
-            submitBtn.classList.remove('no-changes');
-            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-            submitBtn.disabled = false;
-            submitBtn.dataset.hasChanges = 'true'; // Update flag
-        } else {
-            submitBtn.classList.add('no-changes');
-            submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-            submitBtn.disabled = true;
-            submitBtn.dataset.hasChanges = 'false'; // Update flag
-        }
-    }
 
-        // Handle edit form submission
-        function handleEditSeedlingSubmit(requestId) {
+
+// Check for changes in edit form
+function checkForEditChanges(requestId) {
+    const form = document.getElementById('editForm' + requestId);
+    const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+    
+    if (!form || !submitBtn) return;
+    
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    
+    let hasChanges = false;
+    
+    // Check all form fields
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'extension_name',
+        'contact_number', 'email', 'barangay', 'address',
+        'planting_location', 'purpose', 'preferred_delivery_date'
+    ];
+    
+    fields.forEach(field => {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (input && input.value !== originalData[field]) {
+            hasChanges = true;
+            input.classList.add('form-changed');
+        } else if (input) {
+            input.classList.remove('form-changed');
+        }
+    });
+    
+    // Update button state based on changes - ALWAYS KEEP ENABLED
+    if (hasChanges) {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
+    } else {
+        submitBtn.classList.add('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
+    }
+}
+
+    // Handle edit form submission
+   function handleEditSeedlingSubmit(requestId) {
         const form = document.getElementById('editForm' + requestId);
         const submitBtn = document.getElementById('editSubmitBtn' + requestId);
         
@@ -3234,6 +3235,7 @@ document.addEventListener('DOMContentLoaded', function() {
             () => proceedWithEditSeedling(form, requestId)
         );
     }
+
 
 
         // Validate edit form
@@ -3384,41 +3386,41 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Add event listeners for edit form (call this in DOMContentLoaded)
-        function initializeEditFormListeners() {
-        // Get all edit forms
-        const editForms = document.querySelectorAll('form[id^="editForm"]');
+   // Add event listeners for edit form
+function initializeEditFormListeners() {
+    const editForms = document.querySelectorAll('form[id^="editForm"]');
+    
+    editForms.forEach(form => {
+        const requestId = form.id.replace('editForm', '');
         
-        editForms.forEach(form => {
-            const requestId = form.id.replace('editForm', '');
-            
-            // Add change listeners to all inputs
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('change', () => checkForEditChanges(requestId));
-                input.addEventListener('input', () => checkForEditChanges(requestId));
-            });
-            
-            // Name auto-capitalize
-            const firstName = form.querySelector(`#edit_first_name_${requestId}`);
-            if (firstName) {
-                firstName.addEventListener('blur', function() { capitalizeEditName(this); });
-            }
-            
-            const middleName = form.querySelector(`#edit_middle_name_${requestId}`);
-            if (middleName) {
-                middleName.addEventListener('blur', function() { capitalizeEditName(this); });
-            }
-            
-            const lastName = form.querySelector(`#edit_last_name_${requestId}`);
-            if (lastName) {
-                lastName.addEventListener('blur', function() { capitalizeEditName(this); });
-            }
+        // Add change listeners to all inputs
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('change', () => checkForEditChanges(requestId));
+            input.addEventListener('input', () => checkForEditChanges(requestId));
         });
-    }
-      // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeEditFormListeners();
+        
+        // Name auto-capitalize
+        const firstName = form.querySelector(`#edit_first_name_${requestId}`);
+        if (firstName) {
+            firstName.addEventListener('blur', function() { capitalizeEditName(this); });
+        }
+        
+        const middleName = form.querySelector(`#edit_middle_name_${requestId}`);
+        if (middleName) {
+            middleName.addEventListener('blur', function() { capitalizeEditName(this); });
+        }
+        
+        const lastName = form.querySelector(`#edit_last_name_${requestId}`);
+        if (lastName) {
+            lastName.addEventListener('blur', function() { capitalizeEditName(this); });
+        }
     });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeEditFormListeners();
+});
     </script>
 @endsection
