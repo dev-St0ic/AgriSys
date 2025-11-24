@@ -480,39 +480,68 @@
     <div class="modal fade" id="applicationModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">
-                        <i class="fas fa-file-alt me-2"></i>Application Details
+                        <i class="fas fa-eye me-2"></i>
+                        Application Details - <span id="appNumberDisplay"></span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="applicationDetails">
-                    <!-- Content will be loaded here -->
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Personal Information Section -->
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2">Personal Information</h6>
+                            <p><strong>Application #:</strong> <span id="viewAppNumber"></span></p>
+                            <p><strong>Name:</strong> <span id="viewAppName"></span></p>
+                            <p><strong>Sex:</strong> <span id="viewAppSex"></span></p>
+                            <p><strong>Contact:</strong> <span id="viewAppContact"></span></p>
+                            <p><strong>Email:</strong> <span id="viewAppEmail"></span></p>
+                            <p><strong>Barangay:</strong> <span id="viewAppBarangay"></span></p>
+                        </div>
+
+                        <!-- Registration Information Section -->
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2">Registration Information</h6>
+                            <p><strong>Main Livelihood:</strong> <span id="viewAppLivelihood"></span></p>
+                            <p><strong>Land Area:</strong> <span id="viewAppLandArea"></span></p>
+                            <p><strong>Commodity:</strong> <span id="viewAppCommodity"></span></p>
+                            <p><strong>Current Status:</strong>
+                                <span id="viewAppStatus"></span>
+                            </p>
+                            <p><strong>Date Applied:</strong> <span id="viewAppCreatedAt"></span></p>
+                        </div>
+
+                        <!-- Farm/Work Location Section -->
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">Location Details</h6>
+                            <p><strong>Farm/Work Location:</strong> <span id="viewAppFarmLocation"></span></p>
+                        </div>
+
+                        <!-- Supporting Document Section -->
+                        <div class="col-12">
+                            <div id="documentSection"></div>
+                        </div>
+
+                        <!-- Application Timeline Section -->
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">Application Timeline</h6>
+                            <p><strong>Date Applied:</strong> <span id="viewAppTimelineCreated"></span></p>
+                            <p><strong>Last Updated:</strong> <span id="viewAppUpdatedAt"></span></p>
+                            <div id="additionalTimeline"></div>
+                        </div>
+
+                        <!-- Remarks Section (if exists) -->
+                        <div class="col-12" id="remarksSection" style="display: none;">
+                            <h6 class="border-bottom pb-2">Remarks</h6>
+                            <div class="alert alert-info">
+                                <p class="mb-0" id="remarksContent"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Enhanced Document Viewer Modal -->
-    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="documentModalLabel">
-                        <i class="fas fa-file-alt me-2"></i>Supporting Document
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-0" id="documentViewer">
-                    <!-- Document will be loaded here -->
-                </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Close
-                    </button>
                 </div>
             </div>
         </div>
@@ -2638,146 +2667,188 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
 }
 
 
-        // FIXED: Corrected document display section in viewApplication function
-        function viewApplication(id) {
-            if (!id) {
-                showToast('error', 'Invalid application ID');
-                return;
-            }
-
-            // Show modal first
-            const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
-            modal.show();
-
-            // Then show loading state after modal is shown
-            setTimeout(() => {
-                document.getElementById('applicationDetails').innerHTML = `
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>`;
-            }, 100);
-
-            // Fetch application details
-            fetch(`/admin/rsbsa-applications/${id}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    console.log('Response:', response);
-
-                    if (!response.success) {
-                        throw new Error(response.message || 'Failed to load application details');
-                    }
-
-                    const data = response.data;
-
-                    if (!data) {
-                        throw new Error('No application data received');
-                    }
-
-                    // Store current application ID for document viewing
-                    window.currentApplicationId = id;
-
-                    // Build remarks HTML if exists
-                    const remarksHtml = data.remarks ? `
-                        <div class="col-12 mt-3">
-                            <h6 class="border-bottom pb-2">Remarks</h6>
-                            <div class="alert alert-info">
-                                <p class="mb-1">${data.remarks}</p>
-                                <small class="text-muted">
-                                    ${data.reviewed_at ? `Updated on ${data.reviewed_at}` : ''}
-                                    ${data.reviewer_name ? ` by ${data.reviewer_name}` : ''}
-                                </small>
-                            </div>
-                        </div>` : '';
-
-                    // Build document section HTML - FIXED with neutral gray styling
-                    let documentHtml = '';
-                    if (data.supporting_document_path) {
-                        documentHtml = `
-                            <div class="col-12">
-                                <div class="card border-secondary">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="text-center p-3 border border-secondary rounded bg-light">
-                                            <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
-                                            <h6>Supporting Document</h6>
-                                            <span class="badge bg-secondary mb-2">Uploaded</span>
-                                            <br>
-                                            <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.supporting_document_path}', 'Application #${data.application_number} - Supporting Document')">
-                                                <i class="fas fa-eye"></i> View Document
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`;
-                    } else {
-                        documentHtml = `
-                            <div class="col-12">
-                                <div class="card border-secondary">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="text-center p-3 border border-secondary rounded">
-                                            <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
-                                            <h6>No Document Uploaded</h6>
-                                            <span class="badge bg-secondary mb-2">Not Uploaded</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`;
-                    }
-
-                    // Update modal content
-                    document.getElementById('applicationDetails').innerHTML = `
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <h6 class="border-bottom pb-2">Personal Information</h6>
-                                <p><strong>Application #:</strong> ${data.application_number || 'N/A'}</p>
-                                <p><strong>Name:</strong> ${data.full_name || 'N/A'}</p>
-                                <p><strong>Sex:</strong> ${data.sex || 'N/A'}</p>
-                                ${data.date_of_birth ? `<p><strong>Date of Birth:</strong> ${data.date_of_birth}</p>` : ''}
-                                <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
-                                <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="border-bottom pb-2">Registration Information</h6>
-                                <p><strong>Main Livelihood:</strong> ${data.main_livelihood || 'N/A'}</p>
-                                <p><strong>Land Area:</strong> ${data.land_area ? data.land_area + ' hectares' : 'N/A'}</p>
-                                <p><strong>Farm Location:</strong> ${data.farm_location || 'N/A'}</p>
-                                <p><strong>Commodity:</strong> ${data.commodity || 'N/A'}</p>
-                                <p><strong>Current Status:</strong>
-                                    <span class="badge bg-${data.status_color || 'secondary'}">${data.formatted_status || getStatusText(data.status)}</span>
-                                </p>
-                            </div>
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Application Timeline</h6>
-                                <p><strong>Date Applied:</strong> ${data.created_at || 'N/A'}</p>
-                                <p><strong>Last Updated:</strong> ${data.updated_at || 'N/A'}</p>
-                                ${data.reviewed_at ? `<p><strong>Reviewed At:</strong> ${data.reviewed_at}</p>` : ''}
-                                ${data.number_assigned_at ? `<p><strong>Number Assigned:</strong> ${data.number_assigned_at}</p>` : ''}
-                            </div>
-                            ${documentHtml}
-                            ${remarksHtml}
-                        </div>`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('applicationDetails').innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            ${error.message || 'Error loading application details. Please try again.'}
-                        </div>`;
-                });
+    // FIXED: Corrected document display section in viewApplication function
+    function viewApplication(id) {
+        if (!id) {
+            showToast('error', 'Invalid application ID');
+            return;
         }
+
+        // Show modal first
+        const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
+        modal.show();
+
+        // Then show loading state after modal is shown
+        setTimeout(() => {
+            document.getElementById('applicationDetails').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>`;
+        }, 100);
+
+        // Fetch application details
+        fetch(`/admin/rsbsa-applications/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(response => {
+                console.log('Response:', response);
+
+                if (!response.success) {
+                    throw new Error(response.message || 'Failed to load application details');
+                }
+
+                const data = response.data;
+
+                if (!data) {
+                    throw new Error('No application data received');
+                }
+
+                // Populate all fields with null safety
+                document.getElementById('appNumberDisplay').textContent = data.application_number || 'N/A';
+                document.getElementById('viewAppNumber').textContent = data.application_number || 'N/A';
+                document.getElementById('viewAppName').textContent = data.full_name || 'N/A';
+                document.getElementById('viewAppSex').textContent = data.sex || 'N/A';
+                document.getElementById('viewAppContact').textContent = data.contact_number || 'N/A';
+                document.getElementById('viewAppEmail').textContent = data.email || 'N/A';
+                document.getElementById('viewAppBarangay').textContent = data.barangay || 'N/A';
+                document.getElementById('viewAppLivelihood').textContent = data.main_livelihood || 'N/A';
+                document.getElementById('viewAppLandArea').textContent = data.land_area ? data.land_area + ' ha' : 'N/A';
+                document.getElementById('viewAppCommodity').textContent = data.commodity || 'N/A';
+                document.getElementById('viewAppFarmLocation').textContent = data.farm_location || 'N/A';
+
+                // Format and populate timestamps
+                const createdAt = new Date(data.created_at);
+                const updatedAt = new Date(data.updated_at);
+                
+                document.getElementById('viewAppCreatedAt').textContent = createdAt.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                document.getElementById('viewAppTimelineCreated').textContent = createdAt.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('viewAppUpdatedAt').textContent = updatedAt.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                // Status badge with color coding
+                const statusColor = data.status_color || 'secondary';
+                const formattedStatus = data.formatted_status || getStatusText(data.status);
+                document.getElementById('viewAppStatus').innerHTML = `
+                    <span class="badge bg-${statusColor}">${formattedStatus}</span>
+                `;
+
+                // Build document section
+                const documentSection = document.getElementById('documentSection');
+                if (data.supporting_document_path) {
+                    documentSection.innerHTML = `
+                        <div class="card border-primary">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0" style="color: #495057;">
+                                    <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center p-3 border border-primary rounded bg-light">
+                                    <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
+                                    <h6>Supporting Document</h6>
+                                    <span class="badge bg-primary mb-2">Uploaded</span>
+                                    <br>
+                                    <button class="btn btn-sm btn-outline-primary mt-2"
+                                        onclick="viewDocument('${data.supporting_document_path}', 'Application #${data.application_number} - Supporting Document')">
+                                        <i class="fas fa-eye"></i> View Document
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                } else {
+                    documentSection.innerHTML = `
+                        <div class="card border-secondary">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0" style="color: #495057;">
+                                    <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center p-3 border border-secondary rounded">
+                                    <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
+                                    <h6>No Document Uploaded</h6>
+                                    <span class="badge bg-secondary mb-2">Not Uploaded</span>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+
+                // Build additional timeline info if available
+                const timelineSection = document.getElementById('additionalTimeline');
+                let timelineHtml = '';
+                
+                if (data.reviewed_at) {
+                    const reviewedAt = new Date(data.reviewed_at);
+                    timelineHtml += `<p><strong>Reviewed At:</strong> ${reviewedAt.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })}</p>`;
+                }
+
+                if (data.number_assigned_at) {
+                    const assignedAt = new Date(data.number_assigned_at);
+                    timelineHtml += `<p><strong>Number Assigned:</strong> ${assignedAt.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })}</p>`;
+                }
+
+                if (timelineHtml) {
+                    timelineSection.innerHTML = timelineHtml;
+                }
+
+                // Handle remarks section
+                const remarksSection = document.getElementById('remarksSection');
+                if (data.remarks) {
+                    remarksSection.style.display = 'block';
+                    document.getElementById('remarksContent').textContent = data.remarks;
+                } else {
+                    remarksSection.style.display = 'none';
+                }
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const modal = document.getElementById('applicationModal');
+                const modalBody = modal.querySelector('.modal-body');
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        ${error.message || 'Error loading application details. Please try again.'}
+                    </div>`;
+            });
+    }
 
         // Helper function to toggle image zoom (reuse existing if available)
         function toggleImageZoom(img) {
