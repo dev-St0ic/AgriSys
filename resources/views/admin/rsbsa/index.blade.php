@@ -3624,11 +3624,11 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
             return container;
         }
 
-        // Get CSRF token utility function
-        function getCSRFToken() {
-            const metaTag = document.querySelector('meta[name="csrf-token"]');
-            return metaTag ? metaTag.getAttribute('content') : '';
-        }
+        // // Get CSRF token utility function
+        // function getCSRFToken() {
+        //     const metaTag = document.querySelector('meta[name="csrf-token"]');
+        //     return metaTag ? metaTag.getAttribute('content') : '';
+        // }
 
         // Helper function to get status display text with null safety
         function getStatusText(status) {
@@ -4172,187 +4172,223 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
     /**
      * Initialize edit form with original data for change detection
      */
-    function initializeEditRsbsaForm(applicationId, data) {
-        const form = document.getElementById('editRsbsaForm');
-        const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+ function initializeEditRsbsaForm(applicationId, data) {
+    const form = document.getElementById('editRsbsaForm');
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
 
-        // Store original data for comparison - INCLUDING LIVELIHOOD FIELDS
-        const originalData = {
-            first_name: data.first_name || '',
-            middle_name: data.middle_name || '',
-            last_name: data.last_name || '',
-            name_extension: data.name_extension || '',
-            contact_number: data.contact_number || '',
-            email: data.email || '',
-            barangay: data.barangay || '',
-            farm_location: data.farm_location || '',
-            main_livelihood: data.main_livelihood || '',
-            land_area: data.land_area || '',
-            commodity: data.commodity || ''
-        };
+    // Store original data for comparison - INCLUDING LIVELIHOOD FIELDS
+    const originalData = {
+        first_name: data.first_name || '',
+        middle_name: data.middle_name || '',
+        last_name: data.last_name || '',
+        name_extension: data.name_extension || '',
+        contact_number: data.contact_number || '',
+        email: data.email || '',
+        barangay: data.barangay || '',
+        farm_location: data.farm_location || '',
+        main_livelihood: data.main_livelihood || '',
+        land_area: data.land_area || '',
+        commodity: data.commodity || ''
+    };
 
-        form.dataset.originalData = JSON.stringify(originalData);
-        form.dataset.applicationId = applicationId;
+    form.dataset.originalData = JSON.stringify(originalData);
+    form.dataset.applicationId = applicationId;
 
-        // Clear validation states
-        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-        form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
+    // Clear validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
 
-        // FIXED: Reset button state - ENABLED by default, NO ICON, plain text
-        submitBtn.innerHTML = 'Save Changes';
+    // Reset button state - KEEP ENABLED like seedling module
+    submitBtn.innerHTML = 'Save Changes';
+    submitBtn.disabled = false;
+    submitBtn.dataset.hasChanges = 'false';
+
+    // Add change listeners
+    addRsbsaFormChangeListeners(applicationId);
+}
+
+  /**
+ * Add event listeners to detect form changes
+ */
+function addRsbsaFormChangeListeners(applicationId) {
+    const form = document.getElementById('editRsbsaForm');
+    const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select');
+
+    inputs.forEach(input => {
+        // Remove any existing listeners first
+        input.removeEventListener('input', handleRsbsaFormChange);
+        input.removeEventListener('change', handleRsbsaFormChange);
+        
+        // Add new listeners
+        input.addEventListener('input', handleRsbsaFormChange);
+        input.addEventListener('change', handleRsbsaFormChange);
+    });
+}
+
+
+ /**
+ * Handle form change event
+ */
+function handleRsbsaFormChange() {
+    const form = document.getElementById('editRsbsaForm');
+    const applicationId = form.dataset.applicationId;
+    checkRsbsaFormChanges(applicationId);
+}
+
+ /**
+ * Check for changes in the form and update button state
+ */
+function checkRsbsaFormChanges(applicationId) {
+    const form = document.getElementById('editRsbsaForm');
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+
+    if (!form || !submitBtn) return;
+
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let hasChanges = false;
+
+    // Check all editable fields by getting values directly from DOM elements
+    const fieldMap = {
+        'first_name': 'edit_rsbsa_first_name',
+        'middle_name': 'edit_rsbsa_middle_name',
+        'last_name': 'edit_rsbsa_last_name',
+        'name_extension': 'edit_rsbsa_extension',
+        'contact_number': 'edit_rsbsa_contact_number',
+        'email': 'edit_rsbsa_email',
+        'barangay': 'edit_rsbsa_barangay',
+        'farm_location': 'edit_rsbsa_farm_location',
+        'main_livelihood': 'edit_rsbsa_livelihood',
+        'land_area': 'edit_rsbsa_land_area',
+        'commodity': 'edit_rsbsa_commodity'
+    };
+
+    Object.keys(fieldMap).forEach(fieldName => {
+        const elementId = fieldMap[fieldName];
+        const input = document.getElementById(elementId);
+        
+        if (input) {
+            const currentValue = (input.value || '').trim();
+            const originalValue = (originalData[fieldName] || '').trim();
+            
+            if (currentValue !== originalValue) {
+                hasChanges = true;
+                input.classList.add('form-changed');
+            } else {
+                input.classList.remove('form-changed');
+            }
+        }
+    });
+
+    // Update button state based on changes - ALWAYS KEEP ENABLED
+    if (hasChanges) {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
+    } else {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
         submitBtn.disabled = false;
         submitBtn.dataset.hasChanges = 'false';
-        submitBtn.classList.add('no-changes');
-
-        // Add change listeners
-        addRsbsaFormChangeListeners(applicationId);
     }
+}
 
-    /**
-     * Add event listeners to detect form changes - ENHANCED VERSION
-     */
-    function addRsbsaFormChangeListeners(applicationId) {
-        const form = document.getElementById('editRsbsaForm');
-        const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select');
+ /**
+ * Validate edit RSBSA form - UPDATED WITH LIVELIHOOD VALIDATION
+ */
+function validateEditRsbsaForm() {
+    const form = document.getElementById('editRsbsaForm');
+    let isValid = true;
 
-        inputs.forEach(input => {
-            // Remove any existing listeners first
-            input.removeEventListener('input', handleRsbsaFormChange);
-            input.removeEventListener('change', handleRsbsaFormChange);
-            
-            // Add new listeners
-            input.addEventListener('input', handleRsbsaFormChange);
-            input.addEventListener('change', handleRsbsaFormChange);
-        });
-    }
+    // Clear all previous validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
 
-    /**
-     * Handle form change event - OPTIMIZED
-     */
-    function handleRsbsaFormChange() {
-        const form = document.getElementById('editRsbsaForm');
-        const applicationId = form.dataset.applicationId;
-        checkRsbsaFormChanges(applicationId);
-    }
+    const requiredFields = [
+        { elementId: 'edit_rsbsa_first_name', label: 'First Name' },
+        { elementId: 'edit_rsbsa_last_name', label: 'Last Name' },
+        { elementId: 'edit_rsbsa_contact_number', label: 'Contact Number' },
+        { elementId: 'edit_rsbsa_barangay', label: 'Barangay' },
+        { elementId: 'edit_rsbsa_livelihood', label: 'Main Livelihood' }
+    ];
 
-        /**
-         * Check for changes in the form - ENHANCED WITH VISUAL FEEDBACK
-         */
-       function checkRsbsaFormChanges(applicationId) {
-        const form = document.getElementById('editRsbsaForm');
-        const submitBtn = document.getElementById('editRsbsaSubmitBtn');
-
-        if (!form || !submitBtn) return;
-
-        const originalData = JSON.parse(form.dataset.originalData || '{}');
-        let hasChanges = false;
-
-        // Check all editable fields - INCLUDING LIVELIHOOD
-        const fields = [
-            'first_name', 'middle_name', 'last_name', 'name_extension',
-            'contact_number', 'email', 'barangay', 'farm_location',
-            'main_livelihood', 'land_area', 'commodity'
-        ];
-
-        fields.forEach(field => {
-            const input = form.querySelector(`[name="${field}"]`);
-            if (input) {
-                const currentValue = input.value || '';
-                const originalValue = originalData[field] || '';
-                
-                if (currentValue !== originalValue) {
-                    hasChanges = true;
-                    input.classList.add('form-changed');
-                } else {
-                    input.classList.remove('form-changed');
-                }
-            }
-        });
-
-        // Update button state - MATCHING UPDATE MODAL STYLE (no icon when no changes, icon only when changes)
-        if (hasChanges) {
-            submitBtn.classList.remove('no-changes');
-            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-            submitBtn.disabled = false;
-            submitBtn.dataset.hasChanges = 'true';
-        } else {
-            submitBtn.classList.remove('no-changes');
-            submitBtn.innerHTML = 'Save Changes';
-            submitBtn.disabled = true;
-            submitBtn.dataset.hasChanges = 'false';
-        }
-    }
-    /**
-     * Validate edit RSBSA form - UPDATED WITH LIVELIHOOD VALIDATION
-     */
-    function validateEditRsbsaForm() {
-        const form = document.getElementById('editRsbsaForm');
-        let isValid = true;
-
-        const requiredFields = [
-            { id: 'edit_rsbsa_first_name', label: 'First Name' },
-            { id: 'edit_rsbsa_last_name', label: 'Last Name' },
-            { id: 'edit_rsbsa_contact_number', label: 'Contact Number' },
-            { id: 'edit_rsbsa_barangay', label: 'Barangay' },
-            { id: 'edit_rsbsa_livelihood', label: 'Main Livelihood' }
-        ];
-
-        requiredFields.forEach(field => {
-            const input = document.getElementById(field.id);
-            if (input && (!input.value || input.value.trim() === '')) {
-                input.classList.add('is-invalid');
-                const feedback = input.parentNode.querySelector('.invalid-feedback');
-                if (feedback) feedback.remove();
-
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = field.label + ' is required';
-                input.parentNode.appendChild(errorDiv);
-                isValid = false;
-            } else if (input) {
-                input.classList.remove('is-invalid');
-                const feedback = input.parentNode.querySelector('.invalid-feedback');
-                if (feedback) feedback.remove();
-            }
-        });
-
-        // Validate contact number
-        const contactInput = document.getElementById('edit_rsbsa_contact_number');
-        if (contactInput && !validateEditRsbsaContactNumber(contactInput)) {
+    // Validate required fields
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.elementId);
+        if (input && (!input.value || input.value.trim() === '')) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            input.parentNode.appendChild(errorDiv);
             isValid = false;
         }
+    });
 
-        // Validate email if provided
-        const emailInput = document.getElementById('edit_rsbsa_email');
-        if (emailInput && emailInput.value.trim() && !validateEditRsbsaEmail(emailInput)) {
+    // Validate contact number format
+    const contactInput = document.getElementById('edit_rsbsa_contact_number');
+    if (contactInput && contactInput.value.trim()) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            contactInput.parentNode.appendChild(errorDiv);
             isValid = false;
         }
-
-        // Validate land area if provided
-        const landAreaInput = document.getElementById('edit_rsbsa_land_area');
-        if (landAreaInput && landAreaInput.value) {
-            const landArea = parseFloat(landAreaInput.value);
-            if (isNaN(landArea) || landArea < 0 || landArea > 99999.99) {
-                landAreaInput.classList.add('is-invalid');
-                const feedback = landAreaInput.parentNode.querySelector('.invalid-feedback');
-                if (feedback) feedback.remove();
-
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Land area must be between 0 and 99999.99 hectares';
-                landAreaInput.parentNode.appendChild(errorDiv);
-                isValid = false;
-            } else {
-                landAreaInput.classList.remove('is-invalid');
-                const feedback = landAreaInput.parentNode.querySelector('.invalid-feedback');
-                if (feedback) feedback.remove();
-            }
-        }
-
-        return isValid;
     }
 
+    // Validate email if provided
+    const emailInput = document.getElementById('edit_rsbsa_email');
+    if (emailInput && emailInput.value.trim()) {
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(emailInput.value.trim())) {
+            emailInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Invalid email format';
+            emailInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    // Validate land area if provided
+    const landAreaInput = document.getElementById('edit_rsbsa_land_area');
+    if (landAreaInput && landAreaInput.value) {
+        const landArea = parseFloat(landAreaInput.value);
+        if (isNaN(landArea) || landArea < 0) {
+            landAreaInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Land area must be a positive number';
+            landAreaInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+        if (landArea > 99999.99) {
+            landAreaInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Land area cannot exceed 99999.99 hectares';
+            landAreaInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+  /**
+ * Get CSRF token from meta tag
+ */
+function getCSRFToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (!metaTag) {
+        console.error('CSRF token meta tag not found!');
+        return '';
+    }
+    return metaTag.getAttribute('content');
+}
     /**
      * Validate contact number in edit form
      */
@@ -4403,130 +4439,260 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
         return true;
     }
 
-    /**
-     * Handle edit form submission
-     */
-    function handleEditRsbsaSubmit() {
-        const form = document.getElementById('editRsbsaForm');
-        const submitBtn = document.getElementById('editRsbsaSubmitBtn');
-        const applicationId = form.dataset.applicationId;
+ /**
+ * Handle edit form submission with confirmation
+ */
+function handleEditRsbsaSubmit() {
+    const form = document.getElementById('editRsbsaForm');
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+    const applicationId = form.dataset.applicationId;
 
-        // Validate form
-        if (!validateEditRsbsaForm()) {
-            showToast('error', 'Please fix all validation errors before saving');
-            return;
-        }
-
-        // Check if there are changes
-        if (submitBtn.dataset.hasChanges === 'false') {
-            showToast('warning', 'No changes detected. Please modify the fields before saving.');
-            return;
-        }
-
-        // Build change summary
-        const originalData = JSON.parse(form.dataset.originalData || '{}');
-        const changedFields = [];
-        
-        const fieldLabels = {
-            'first_name': 'First Name',
-            'middle_name': 'Middle Name',
-            'last_name': 'Last Name',
-            'name_extension': 'Extension',
-            'contact_number': 'Contact Number',
-            'email': 'Email',
-            'barangay': 'Barangay',
-            'farm_location': 'Farm Location',
-            'main_livelihood': 'Main Livelihood',
-            'land_area': 'Land Area',
-            'commodity': 'Commodity'
-        };
-
-        Object.keys(originalData).forEach(field => {
-            const input = form.querySelector(`[name="${field}"]`);
-            if (input && input.value !== originalData[field]) {
-                changedFields.push(fieldLabels[field] || field);
-            }
-        });
-
-        // Show confirmation
-        showConfirmationToast(
-            'Confirm Update',
-            `Save the following changes to this RSBSA application?\n\n• ${changedFields.join('\n• ')}`,
-            () => proceedWithEditRsbsa(form, applicationId)
-        );
+    // Validate form
+    if (!validateEditRsbsaForm()) {
+        showToast('error', 'Please fix all validation errors before saving');
+        return;
     }
 
-    /**
-     * Proceed with edit submission after confirmation
-     */
-    function proceedWithEditRsbsa(form, applicationId) {
-        const submitBtn = document.getElementById('editRsbsaSubmitBtn');
-        
-        // Show loading state
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
-        submitBtn.disabled = true;
-
-        // Disable form inputs during submission
-        const formInputs = form.querySelectorAll('input, select, textarea');
-        formInputs.forEach(input => input.disabled = true);
-
-        // Prepare form data - INCLUDING LIVELIHOOD FIELDS
-        const formData = new FormData(form);
-        const jsonData = {
-            first_name: formData.get('first_name'),
-            middle_name: formData.get('middle_name'),
-            last_name: formData.get('last_name'),
-            name_extension: formData.get('name_extension'),
-            contact_number: formData.get('contact_number'),
-            email: formData.get('email'),
-            barangay: formData.get('barangay'),
-            farm_location: formData.get('farm_location'),
-            main_livelihood: formData.get('main_livelihood'),
-            land_area: formData.get('land_area'),
-            commodity: formData.get('commodity')
-        };
-
-        // Submit to backend
-        fetch(`/admin/rsbsa-applications/${applicationId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCSRFToken(),
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify(jsonData)
-        })
-        .then(response => {
-            console.log('Response status:', response.status);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Close modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
-                if (modal) modal.hide();
-
-                showToast('success', data.message || 'Application updated successfully');
-
-                // Reload page after short delay
-                setTimeout(() => window.location.reload(), 1500);
-            } else {
-                throw new Error(data.message || 'Failed to update application');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('error', 'Error: ' + error.message);
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-
-            // Re-enable form inputs
-            formInputs.forEach(input => input.disabled = false);
-        });
+    // Check if there are changes
+    if (submitBtn.dataset.hasChanges === 'false') {
+        showToast('warning', 'No changes detected. Please modify the fields before saving.');
+        return;
     }
+
+    // Build changes summary
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    const changedFields = [];
+    
+    const fieldLabels = {
+        'first_name': 'First Name',
+        'middle_name': 'Middle Name',
+        'last_name': 'Last Name',
+        'name_extension': 'Extension',
+        'contact_number': 'Contact Number',
+        'email': 'Email',
+        'barangay': 'Barangay',
+        'farm_location': 'Farm Location',
+        'main_livelihood': 'Main Livelihood',
+        'land_area': 'Land Area',
+        'commodity': 'Commodity'
+    };
+
+    const fieldMap = {
+        'first_name': 'edit_rsbsa_first_name',
+        'middle_name': 'edit_rsbsa_middle_name',
+        'last_name': 'edit_rsbsa_last_name',
+        'name_extension': 'edit_rsbsa_extension',
+        'contact_number': 'edit_rsbsa_contact_number',
+        'email': 'edit_rsbsa_email',
+        'barangay': 'edit_rsbsa_barangay',
+        'farm_location': 'edit_rsbsa_farm_location',
+        'main_livelihood': 'edit_rsbsa_livelihood',
+        'land_area': 'edit_rsbsa_land_area',
+        'commodity': 'edit_rsbsa_commodity'
+    };
+
+    Object.keys(fieldMap).forEach(fieldName => {
+        const elementId = fieldMap[fieldName];
+        const input = document.getElementById(elementId);
+        const currentValue = (input?.value || '').trim();
+        const originalValue = (originalData[fieldName] || '').trim();
+        
+        if (currentValue !== originalValue) {
+            changedFields.push(fieldLabels[fieldName] || fieldName);
+        }
+    });
+
+    // Show confirmation toast
+    showConfirmationToast(
+        'Confirm Update',
+        `Save the following changes to this RSBSA application?\n\n• ${changedFields.join('\n• ')}`,
+        () => proceedWithEditRsbsa(form, applicationId)
+    );
+}
+
+ /**
+ * Proceed with edit submission after confirmation
+ */
+function proceedWithEditRsbsa(form, applicationId) {
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+    
+    // Show loading state
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+    submitBtn.disabled = true;
+
+    // Disable form inputs during submission
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => input.disabled = true);
+
+    // Get values directly from elements by ID (NOT using FormData)
+    const jsonData = {
+        first_name: (document.getElementById('edit_rsbsa_first_name')?.value || '').trim(),
+        middle_name: (document.getElementById('edit_rsbsa_middle_name')?.value || '').trim(),
+        last_name: (document.getElementById('edit_rsbsa_last_name')?.value || '').trim(),
+        name_extension: (document.getElementById('edit_rsbsa_extension')?.value || '') || null,
+        contact_number: (document.getElementById('edit_rsbsa_contact_number')?.value || '').trim(),
+        email: (document.getElementById('edit_rsbsa_email')?.value || '').trim(),
+        barangay: (document.getElementById('edit_rsbsa_barangay')?.value || '').trim(),
+        farm_location: (document.getElementById('edit_rsbsa_farm_location')?.value || '').trim(),
+        main_livelihood: (document.getElementById('edit_rsbsa_livelihood')?.value || '').trim(),
+        land_area: document.getElementById('edit_rsbsa_land_area')?.value ? parseFloat(document.getElementById('edit_rsbsa_land_area').value) : null,
+        commodity: (document.getElementById('edit_rsbsa_commodity')?.value || '').trim()
+    };
+
+    console.log('✅ Sending update data:', jsonData);
+
+    // Submit to backend
+    fetch(`/admin/rsbsa-applications/${applicationId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(jsonData)
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        
+        return response.json().then(data => {
+            console.log('Response data:', data);
+            
+            if (!response.ok) {
+                throw {
+                    status: response.status,
+                    message: data.message || 'Update failed',
+                    errors: data.errors || {}
+                };
+            }
+            return data;
+        });
+    })
+    .then(data => {
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
+            if (modal) modal.hide();
+
+            showToast('success', data.message || 'Application updated successfully');
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            throw {
+                status: 422,
+                message: data.message || 'Failed to update application',
+                errors: data.errors || {}
+            };
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error occurred:', error);
+        
+        // Handle validation errors from server
+        if (error.status === 422 && error.errors && typeof error.errors === 'object') {
+            console.error('Server validation errors:', error.errors);
+            
+            const fieldMap = {
+                'first_name': 'edit_rsbsa_first_name',
+                'last_name': 'edit_rsbsa_last_name',
+                'contact_number': 'edit_rsbsa_contact_number',
+                'barangay': 'edit_rsbsa_barangay',
+                'main_livelihood': 'edit_rsbsa_livelihood',
+                'email': 'edit_rsbsa_email',
+                'land_area': 'edit_rsbsa_land_area',
+                'farm_location': 'edit_rsbsa_farm_location',
+                'middle_name': 'edit_rsbsa_middle_name',
+                'name_extension': 'edit_rsbsa_extension',
+                'commodity': 'edit_rsbsa_commodity'
+            };
+            
+            Object.keys(error.errors).forEach(field => {
+                const elementId = fieldMap[field];
+                const input = document.getElementById(elementId);
+                if (input) {
+                    input.classList.add('is-invalid');
+                    const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+                    if (existingFeedback) existingFeedback.remove();
+                    
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    const errorMessage = Array.isArray(error.errors[field]) 
+                        ? error.errors[field][0] 
+                        : error.errors[field];
+                    errorDiv.textContent = errorMessage;
+                    input.parentNode.appendChild(errorDiv);
+                    
+                    console.error(`Field "${field}":`, errorMessage);
+                }
+            });
+            
+            showToast('error', error.message);
+        } else {
+            console.error('Unexpected error:', error.message || error);
+            showToast('error', error.message || 'Error updating application');
+        }
+        
+        // Restore button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        formInputs.forEach(input => input.disabled = false);
+    });
+}
+/**
+ * Validate JSON data locally BEFORE sending to server
+ */
+function validateJsonDataLocally(data) {
+    const errors = {};
+
+    // Check required fields
+    if (!data.first_name || data.first_name.trim() === '') {
+        errors.first_name = 'First Name is required';
+    }
+
+    if (!data.last_name || data.last_name.trim() === '') {
+        errors.last_name = 'Last Name is required';
+    }
+
+    if (!data.contact_number || data.contact_number.trim() === '') {
+        errors.contact_number = 'Contact Number is required';
+    }
+
+    if (!data.barangay || data.barangay.trim() === '') {
+        errors.barangay = 'Barangay is required';
+    }
+
+    if (!data.main_livelihood || data.main_livelihood.trim() === '') {
+        errors.main_livelihood = 'Main Livelihood is required';
+    }
+
+    // Validate contact number format
+    if (data.contact_number && data.contact_number.trim() !== '') {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(data.contact_number.trim())) {
+            errors.contact_number = 'Contact number must be in format: 09XXXXXXXXX or +639XXXXXXXXX (exactly 11 or 12 digits)';
+        }
+    }
+
+    // Validate email if provided
+    if (data.email && data.email.trim() !== '') {
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(data.email.trim())) {
+            errors.email = 'Invalid email format';
+        }
+    }
+
+    // Validate land area if provided
+    if (data.land_area !== null && data.land_area !== '') {
+        const landArea = parseFloat(data.land_area);
+        if (isNaN(landArea) || landArea < 0) {
+            errors.land_area = 'Land area must be a positive number';
+        }
+        if (landArea > 99999.99) {
+            errors.land_area = 'Land area cannot exceed 99999.99 hectares';
+        }
+    }
+
+    return errors;
+}
 
     // Auto-capitalize names in edit form
     function capitalizeRsbsaEditName(input) {
