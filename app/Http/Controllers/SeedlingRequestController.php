@@ -218,6 +218,13 @@ class SeedlingRequestController extends Controller
             // Update total quantity
             $seedlingRequest->update(['total_quantity' => $totalQuantity]);
 
+            $this->logActivity('created', 'SeedlingRequest', $seedlingRequest->id, [
+                'request_number' => $seedlingRequest->request_number,
+                'total_quantity' => $totalQuantity,
+                'items_count' => count($validated['items']),
+                'barangay' => $seedlingRequest->barangay
+            ]);
+
             \DB::commit();
 
             // ✅ CHECK IF AJAX REQUEST FIRST
@@ -444,6 +451,11 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
 
         // Log activity if there are changes
         if (!empty($changes)) {
+            $this->logActivity('updated', 'SeedlingRequest', $seedlingRequest->id, [
+                'changes' => $changes,
+                'request_number' => $seedlingRequest->request_number
+            ]);
+
             activity()
                 ->performedOn($seedlingRequest)
                 ->withProperties(['changes' => $changes])
@@ -520,6 +532,11 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             // Delete the request
             $requestNumber = $seedlingRequest->request_number;
             $seedlingRequest->delete();
+
+            $this->logActivity('deleted', 'SeedlingRequest', $seedlingRequest->id, [
+                'request_number' => $requestNumber,
+                'supplies_returned' => $approvedItems->count() > 0
+            ]);
 
             // Log the deletion
             \Log::info('Seedling request deleted', [
@@ -712,6 +729,14 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 'rejected_at' => $overallStatus === 'rejected' ? now() : null,
             ]);
 
+            $this->logActivity('updated_items', 'SeedlingRequest', $seedlingRequest->id, [
+                'request_number' => $seedlingRequest->request_number,
+                'approved_count' => $approvedCount,
+                'rejected_count' => $rejectedCount,
+                'new_status' => $overallStatus,
+                'old_status' => $previousStatus
+            ]);
+
             \DB::commit();
 
             // OPTIMIZATION: Send notifications AFTER commit to avoid blocking the transaction
@@ -811,6 +836,11 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             }
 
             $requests = $query->get();
+
+            $this->logActivity('exported', 'SeedlingRequest', null, [
+                'records_count' => $requests->count(),
+                'filters' => $request->all()
+            ]);
 
             // Create CSV
             $fileName = 'seedling-requests-' . now()->format('Y-m-d-H-i-s') . '.csv';

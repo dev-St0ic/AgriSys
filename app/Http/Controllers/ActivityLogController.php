@@ -48,16 +48,17 @@ class ActivityLogController extends Controller
 
             $activities = $query->paginate(50);
 
-            // Get unique subject types for filter
+            // Get unique subject types for filter with user-friendly names
             $subjectTypes = Activity::distinct()
                 ->pluck('subject_type')
                 ->filter()
                 ->map(function($type) {
                     return [
                         'value' => $type,
-                        'label' => class_basename($type)
+                        'label' => $this->getModelFriendlyName($type)
                     ];
-                });
+                })
+                ->values();
 
             return view('admin.activity-logs.index', compact('activities', 'subjectTypes'));
             
@@ -120,7 +121,6 @@ class ActivityLogController extends Controller
 
     /**
      * Archive old logs (ISO A.8.15: Retention schedule)
-     * Instead of permanently deleting, archive to secure storage
      */
     public function archiveOld(Request $request)
     {
@@ -135,13 +135,11 @@ class ActivityLogController extends Controller
             return redirect()->back()->with('info', 'No logs to archive.');
         }
 
-        // Archive to secure storage
         $filename = 'archived-logs-' . now()->format('Y-m-d-H-i-s') . '.json';
         $archivePath = "logs/archives/{$filename}";
         
         Storage::disk('local')->put($archivePath, $oldLogs->toJson(JSON_PRETTY_PRINT));
 
-        // Log this archival action
         activity()
             ->causedBy(Auth::user())
             ->withProperties([
@@ -153,7 +151,6 @@ class ActivityLogController extends Controller
             ->event('archive_logs')
             ->log('Archived ' . $oldLogs->count() . ' activity logs older than ' . $days . ' days');
 
-        // Delete original logs after archiving
         Activity::where('created_at', '<', now()->subDays($days))->delete();
 
         return redirect()->back()->with('success', "Archived and deleted {$oldLogs->count()} old activity logs");
@@ -161,7 +158,6 @@ class ActivityLogController extends Controller
 
     /**
      * Clear old logs with compliance (ISO A.8.15: Retention policy)
-     * Minimum 90 days retention as per ISO 27001 A.12.4.1
      */
     public function clearOld(Request $request)
     {
@@ -169,11 +165,10 @@ class ActivityLogController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $days = max($request->input('days', 90), 90); // Minimum 90 days
+        $days = max($request->input('days', 90), 90);
         
         $deleted = Activity::where('created_at', '<', now()->subDays($days))->delete();
 
-        // Log the deletion action
         activity()
             ->causedBy(Auth::user())
             ->withProperties([
@@ -188,7 +183,7 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Export logs to CSV with audit trail (ISO A.8.15: Protection of log information)
+     * Export logs to CSV with audit trail
      */
     public function export(Request $request)
     {
@@ -207,7 +202,6 @@ class ActivityLogController extends Controller
 
         $activities = $query->get();
 
-        // Log the export action (ISO A.8.15: Data export tracking)
         activity()
             ->causedBy(Auth::user())
             ->withProperties([
@@ -232,7 +226,6 @@ class ActivityLogController extends Controller
         $callback = function() use ($activities) {
             $file = fopen('php://output', 'w');
             
-            // Headers
             fputcsv($file, [
                 'ID', 
                 'Date/Time', 
@@ -250,8 +243,8 @@ class ActivityLogController extends Controller
                     $activity->created_at->format('Y-m-d H:i:s'),
                     $activity->causer ? $activity->causer->name : 'System',
                     $activity->description,
-                    class_basename($activity->subject_type),
-                    json_encode($activity->properties),
+                    $this->getModelFriendlyName($activity->subject_type),
+                    $this->getChangesForExport($activity),
                     $activity->properties['ip_address'] ?? 'N/A',
                     $activity->properties['user_agent'] ?? 'N/A'
                 ]);
@@ -264,7 +257,7 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Generate audit summary (ISO A.8.16: Review & monitoring dashboard)
+     * Generate audit summary
      */
     public function auditSummary(Request $request)
     {
@@ -301,7 +294,7 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Get failed login attempts for monitoring (ISO A.8.16: Suspicious activity)
+     * Get failed login attempts for monitoring
      */
     private function getFailedLoginAttempts($from, $to)
     {
@@ -318,7 +311,6 @@ class ActivityLogController extends Controller
      */
     private function logActivityView($activity, $userId)
     {
-        // Store view metadata in activity_log_views table
         \DB::table('activity_log_views')->insert([
             'activity_id' => $activity->id,
             'user_id' => $userId,
@@ -329,7 +321,7 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Generate compliance report (ISO A.8.15, A.8.16)
+     * Generate compliance report
      */
     public function complianceReport(Request $request)
     {
@@ -337,8 +329,6 @@ class ActivityLogController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $period = $request->input('period', 'monthly');
-        
         $report = [
             'generated_at' => now(),
             'generated_by' => Auth::user()->name,
@@ -353,5 +343,169 @@ class ActivityLogController extends Controller
         ];
 
         return view('admin.activity-logs.compliance-report', compact('report'));
+    }
+
+    /**
+     * Get user-friendly model name
+     * Converts model class to readable name
+     */
+    public function getModelFriendlyName($modelType): string
+    {
+        if (!$modelType) {
+            return 'System';
+        }
+
+        $modelName = class_basename($modelType);
+        
+        $mapping = [
+            'User' => 'User Account',
+            'UserRegistration' => 'User Registration',
+            'RsbsaApplication' => 'RSBSA Application',
+            'FishrApplication' => 'FishR Application',
+            'BoatrApplication' => 'BoatR Application',
+            'TrainingApplication' => 'Training Application',
+            'SeedlingRequest' => 'Seedling Request',
+            'SeedlingRequestItem' => 'Seedling Request Item',
+            'CategoryItem' => 'Supply Item',
+            'ItemSupplyLog' => 'Supply Log',
+            'RequestCategory' => 'Item Category',
+            'BoatrAnnex' => 'BoatR Document',
+            'FishrAnnex' => 'FishR Document',
+        ];
+
+        return $mapping[$modelName] ?? str_replace(
+            ['App\\Models\\', '_'],
+            ['', ' '],
+            ucwords(preg_replace('/([a-z])([A-Z])/', '$1 $2', $modelName))
+        );
+    }
+
+    /**
+     * Get user-friendly field names
+     */
+    public function getFieldFriendlyName($fieldName): string
+    {
+        $mapping = [
+            'first_name' => 'First Name',
+            'middle_name' => 'Middle Name',
+            'last_name' => 'Last Name',
+            'contact_number' => 'Contact Number',
+            'email' => 'Email Address',
+            'status' => 'Status',
+            'remarks' => 'Remarks',
+            'application_number' => 'Application Number',
+            'vessel_name' => 'Vessel Name',
+            'boat_type' => 'Boat Type',
+            'engine_horsepower' => 'Engine Horsepower',
+            'current_supply' => 'Current Supply',
+            'reorder_point' => 'Reorder Point',
+            'approved_quantity' => 'Approved Quantity',
+            'requested_quantity' => 'Requested Quantity',
+            'total_quantity' => 'Total Quantity',
+            'is_active' => 'Status',
+            'display_order' => 'Display Order',
+            'role' => 'Role',
+            'name' => 'Name',
+            'password' => 'Password',
+            'document_path' => 'Document',
+            'supporting_document_path' => 'Supporting Document',
+            'user_document_path' => 'User Document',
+            'inspection_documents' => 'Inspection Documents',
+            'inspection_completed' => 'Inspection Status',
+            'documents_verified' => 'Documents Verified',
+            'profile_photo' => 'Profile Photo',
+            'date_of_birth' => 'Date of Birth',
+            'barangay' => 'Barangay',
+            'main_livelihood' => 'Main Livelihood',
+            'land_area' => 'Land Area',
+            'commodity' => 'Commodity',
+            'training_type' => 'Training Type',
+            'registration_number' => 'Registration Number',
+            'request_number' => 'Request Number',
+        ];
+
+        return $mapping[$fieldName] ?? ucwords(str_replace('_', ' ', $fieldName));
+    }
+
+    /**
+     * Format field values for display
+     */
+    public function formatFieldValue($value): string
+    {
+        if (is_null($value)) {
+            return 'N/A';
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'Yes' : 'No';
+        }
+
+        if (is_array($value)) {
+            return json_encode($value);
+        }
+
+        return (string) $value;
+    }
+
+    /**
+     * Get formatted changes for display in views
+     */
+    public function getFormattedChanges($activity): array
+    {
+        if (!$activity->properties || !$activity->properties->has('attributes')) {
+            return [];
+        }
+
+        $changes = [];
+        $attributes = $activity->properties->get('attributes', []);
+        $old = $activity->properties->get('old', []);
+
+        foreach ($attributes as $key => $newValue) {
+            $oldValue = $old[$key] ?? null;
+            
+            $changes[] = [
+                'field' => $this->getFieldFriendlyName($key),
+                'old_value' => $this->formatFieldValue($oldValue),
+                'new_value' => $this->formatFieldValue($newValue),
+                'changed' => $oldValue !== $newValue
+            ];
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Get changes formatted for CSV export
+     */
+    private function getChangesForExport($activity): string
+    {
+        if (!$activity->properties || !$activity->properties->has('attributes')) {
+            return '-';
+        }
+
+        $changes = $this->getFormattedChanges($activity);
+        $formatted = [];
+
+        foreach ($changes as $change) {
+            $formatted[] = "{$change['field']}: {$change['old_value']} → {$change['new_value']}";
+        }
+
+        return implode('; ', $formatted);
+    }
+
+    /**
+     * Get activity description with user-friendly context
+     */
+    public function getActivityContextMessage($activity): string
+    {
+        $user = $activity->causer ? $activity->causer->name : 'System';
+        $model = $this->getModelFriendlyName($activity->subject_type);
+        $action = $activity->description ?? strtolower($activity->event ?? 'unknown action');
+
+        if ($activity->subject_id) {
+            return "{$user} {$action} on {$model} #" . $activity->subject_id;
+        }
+
+        return "{$user} {$action}";
     }
 }

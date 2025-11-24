@@ -804,6 +804,12 @@ class SupplyManagementAnalyticsController extends Controller
 
             $filename = 'supply-management-analytics-' . $startDate . '-to-' . $endDate . '.json';
 
+            // Log activity
+            $this->logActivity('exported', 'CategoryItem', null, [
+                'format' => 'JSON',
+                'date_range' => ['start' => $startDate, 'end' => $endDate]
+            ], 'Exported Supply Management analytics data from ' . $startDate . ' to ' . $endDate);
+
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'

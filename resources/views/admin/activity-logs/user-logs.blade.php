@@ -4,7 +4,7 @@
 
 @section('title', 'User Activity - AgriSys Admin')
 @section('page-title')
-    <div class="d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
         <div class="d-flex align-items-center">
             <i class="fas fa-user-circle text-primary me-2"></i>
             <span class="text-primary fw-bold">User Activity Log</span>

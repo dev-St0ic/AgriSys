@@ -982,6 +982,12 @@ class SeedlingAnalyticsController extends Controller
 
             $filename = 'seedling-analytics-' . $startDate . '-to-' . $endDate . '.json';
 
+            // Log activity
+            $this->logActivity('exported', 'SeedlingRequest', null, [
+                'format' => 'JSON',
+                'date_range' => ['start' => $startDate, 'end' => $endDate]
+            ], 'Exported Seedling analytics data from ' . $startDate . ' to ' . $endDate);
+
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'

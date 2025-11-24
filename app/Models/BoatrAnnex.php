@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class BoatrAnnex extends Model
 {
+    use HasFactory;
+
     protected $table = 'boatr_annexes';
 
     protected $fillable = [
@@ -95,5 +99,14 @@ class BoatrAnnex extends Model
 
         // Delete the database record
         return $this->delete();
+    }
+
+    // Log activity options
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

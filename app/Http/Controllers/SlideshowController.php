@@ -43,12 +43,19 @@ class SlideshowController extends Controller
             $order = $request->input('order', SlideshowImage::max('order') + 1);
 
             // Create the slideshow image record
-            SlideshowImage::create([
+            $slideshow = SlideshowImage::create([
                 'image_path' => $imagePath,
                 'title' => $request->input('title'),
                 'description' => $request->input('description'),
                 'order' => $order,
                 'is_active' => $request->has('is_active')
+            ]);
+
+            // Log activity
+            $this->logActivity('created', 'SlideshowImage', $slideshow->id, [
+                'title' => $slideshow->title,
+                'order' => $slideshow->order,
+                'is_active' => $slideshow->is_active
             ]);
 
             return redirect()->route('admin.slideshow.index')
@@ -99,6 +106,13 @@ class SlideshowController extends Controller
 
             $slideshow_image->update($updateData);
 
+            // Log activity
+            $this->logActivity('updated', 'SlideshowImage', $slideshow_image->id, [
+                'title' => $slideshow_image->title,
+                'order' => $slideshow_image->order,
+                'is_active' => $slideshow_image->is_active
+            ]);
+
             return redirect()->route('admin.slideshow.index')
                 ->with('success', 'Slideshow image updated successfully!');
         } catch (\Exception $e) {
@@ -116,6 +130,12 @@ class SlideshowController extends Controller
         $slideshow_image = SlideshowImage::findOrFail($id);
         try {
             $slideshow_image->delete(); // The model's boot method will handle file deletion
+            
+            // Log activity
+            $this->logActivity('deleted', 'SlideshowImage', $id, [
+                'title' => $slideshow_image->title
+            ]);
+            
             return redirect()->route('admin.slideshow.index')
                 ->with('success', 'Slideshow image deleted successfully!');
         } catch (\Exception $e) {

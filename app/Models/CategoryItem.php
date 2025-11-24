@@ -373,10 +373,11 @@ class CategoryItem extends Model
         return true;
     }
 
+    // Log activity options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'current_supply', 'is_active', 'reorder_point'])
+            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

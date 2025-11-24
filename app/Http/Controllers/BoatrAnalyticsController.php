@@ -676,6 +676,12 @@ class BoatrAnalyticsController extends Controller
             
             $filename = 'boatr-analytics-' . $startDate . '-to-' . $endDate . '.json';
             
+            // Log activity
+            $this->logActivity('exported', 'BoatrApplication', null, [
+                'format' => 'JSON',
+                'date_range' => ['start' => $startDate, 'end' => $endDate]
+            ], 'Exported BoatR analytics data from ' . $startDate . ' to ' . $endDate);
+            
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'

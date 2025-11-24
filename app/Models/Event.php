@@ -297,14 +297,12 @@ class Event extends Model
 
         return $array;
     }
-
-    /**
-     * Configure activity logging
-     */
+    
+    // Log activity options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['title', 'category', 'date', 'is_active', 'is_archived'])
+            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

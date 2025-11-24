@@ -208,6 +208,19 @@ class UserRegistrationController extends Controller
                 'contact_number' => $registration->contact_number,
             ]);
 
+            // Log activity - register as system action since not logged in yet
+            try {
+                $activity = \Spatie\Activitylog\Facades\Activity::withProperties([
+                    'username' => $registration->username,
+                    'contact_number' => $registration->contact_number,
+                    'status' => $registration->status,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])->log('registered - UserRegistration (ID: ' . $registration->id . ')');
+            } catch (\Exception $e) {
+                \Log::error('Activity logging failed: ' . $e->getMessage());
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Account created successfully! Your account has been added to our database.',
@@ -756,6 +769,12 @@ class UserRegistrationController extends Controller
         // Use the model's approve method to trigger SMS notification
         $registration->approve(null, auth()->id());
 
+        // Log activity
+        $this->logActivity('approved', 'UserRegistration', $registration->id, [
+            'username' => $registration->username,
+            'contact_number' => $registration->contact_number
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Registration approved successfully'
@@ -778,6 +797,12 @@ class UserRegistrationController extends Controller
 
         // Use the model's reject method to trigger SMS notification
         $registration->reject($request->reason ?? 'No reason provided', auth()->id());
+
+        // Log activity
+        $this->logActivity('rejected', 'UserRegistration', $registration->id, [
+            'username' => $registration->username,
+            'reason' => $request->reason ?? 'No reason provided'
+        ]);
 
         return response()->json([
             'success' => true,
@@ -1243,6 +1268,11 @@ public function update(Request $request, $id)
 
         $registration->delete();
 
+        // Log activity
+        $this->logActivity('deleted', 'UserRegistration', $id, [
+            'username' => $registration->username
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Registration deleted successfully'
@@ -1428,6 +1458,12 @@ public function update(Request $request, $id)
                     'rejected_at' => null
                 ]);
 
+            // Log activity
+            $this->logActivity('approved', 'UserRegistration', null, [
+                'count' => $count,
+                'ids' => $request->ids
+            ], "Bulk approved {$count} user registrations");
+
             return response()->json([
                 'success' => true,
                 'message' => "Successfully approved {$count} registrations"
@@ -1477,6 +1513,13 @@ public function update(Request $request, $id)
                     'rejection_reason' => $request->reason,
                     'approved_at' => null
                 ]);
+
+            // Log activity
+            $this->logActivity('rejected', 'UserRegistration', null, [
+                'count' => $count,
+                'ids' => $request->ids,
+                'reason' => $request->reason
+            ], "Bulk rejected {$count} user registrations");
 
             return response()->json([
                 'success' => true,

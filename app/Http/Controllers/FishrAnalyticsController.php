@@ -523,6 +523,12 @@ class FishrAnalyticsController extends Controller
             
             $filename = 'fishr-analytics-' . $startDate . '-to-' . $endDate . '.json';
             
+            // Log activity
+            $this->logActivity('exported', 'FishrApplication', null, [
+                'format' => 'JSON',
+                'date_range' => ['start' => $startDate, 'end' => $endDate]
+            ], 'Exported FishR analytics data from ' . $startDate . ' to ' . $endDate);
+            
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'

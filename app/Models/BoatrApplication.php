@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Traits\SendsApplicationSms;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class BoatrApplication extends Model
 {
-    use HasFactory, SoftDeletes, SendsApplicationSms;
+    use HasFactory, SoftDeletes, SendsApplicationSms, LogsActivity;
 
     protected $fillable = [
         'user_id', // Foreign key to user_registration table
@@ -572,5 +574,14 @@ class BoatrApplication extends Model
     protected function getApplicationTypeName(): string
     {
         return 'BoatR Registration';
+    }
+
+    // Log activity options
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

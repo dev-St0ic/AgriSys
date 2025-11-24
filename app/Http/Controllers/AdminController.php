@@ -64,6 +64,12 @@ class AdminController extends Controller
             'role' => $request->role,
         ]);
 
+        $this->logActivity('created', 'User', null, [
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role
+        ]);
+
         return redirect()->route('admin.admins.index')
                         ->with('success', 'Admin created successfully.');
     }
@@ -124,6 +130,12 @@ class AdminController extends Controller
             $admin->update(['password' => Hash::make($request->password)]);
         }
 
+        $this->logActivity('updated', 'User', $admin->id, [
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role
+        ]);
+
         return redirect()->route('admin.admins.index')
                         ->with('success', 'Admin updated successfully.');
     }
@@ -144,6 +156,11 @@ class AdminController extends Controller
             return redirect()->route('admin.admins.index')
                             ->with('error', 'You cannot delete yourself.');
         }
+
+        $this->logActivity('deleted', 'User', $admin->id, [
+            'name' => $admin->name,
+            'email' => $admin->email
+        ]);
 
         $admin->delete();
 

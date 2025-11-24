@@ -191,10 +191,11 @@ class TrainingApplication extends Model
         return $this->document_extension === 'pdf';
     }
 
+    // Log activity options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['status', 'training_type', 'updated_by', 'remarks'])
+            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

@@ -53,6 +53,12 @@ public function login(Request $request)
             // Regenerate session again to prevent session fixation attacks
             $request->session()->regenerate();
 
+            // Log successful login
+            $this->logActivity('login', 'User', $user->id, [
+                'role' => $user->role,
+                'success' => true
+            ]);
+
             return redirect()->intended('/admin/dashboard')
                 ->with('success', 'Welcome back, ' . $user->name . '!');
         } else {
@@ -61,11 +67,23 @@ public function login(Request $request)
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
+            // Log failed login attempt (no admin privileges)
+            $this->logActivity('login_failed', 'User', null, [
+                'email' => $credentials['email'],
+                'reason' => 'No admin privileges'
+            ]);
+
             return back()->withErrors([
                 'email' => 'You do not have admin privileges.',
             ])->onlyInput('email');
         }
     }
+
+    // Log failed login attempt (invalid credentials)
+    $this->logActivity('login_failed', 'User', null, [
+        'email' => $credentials['email'],
+        'reason' => 'Invalid credentials'
+    ]);
 
     return back()->withErrors([
         'email' => 'The provided credentials do not match our records.',
@@ -77,6 +95,15 @@ public function login(Request $request)
      */
     public function logout(Request $request)
     {
+        $user = Auth::user();
+        
+        // Log logout before actually logging out
+        if ($user) {
+            $this->logActivity('logout', 'User', $user->id, [
+                'role' => $user->role
+            ]);
+        }
+        
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
