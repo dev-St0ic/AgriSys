@@ -343,10 +343,11 @@ class UserRegistration extends Model
         return $this->hasOne(RsbsaApplication::class, 'user_id')->latestOfMany();
     }
 
+    // Log activity options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['status', 'email_verified_at', 'approved_at', 'approved_by', 'username', 'username_changed_at'])
+            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

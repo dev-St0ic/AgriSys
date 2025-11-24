@@ -95,10 +95,11 @@ class User extends Authenticatable
         return in_array($this->role, ['admin', 'superadmin']);
     }
 
+    // Log activity options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'email', 'role'])
+            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

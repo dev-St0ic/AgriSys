@@ -232,10 +232,11 @@ class RsbsaApplication extends Model
         return $this->document_extension === 'pdf';
     }
 
+    // Log activity options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['status', 'application_number', 'reviewed_by', 'remarks'])
+            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

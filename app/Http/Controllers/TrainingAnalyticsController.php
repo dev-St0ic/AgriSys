@@ -539,6 +539,12 @@ class TrainingAnalyticsController extends Controller
             
             $filename = 'training-analytics-' . $startDate . '-to-' . $endDate . '.json';
             
+            // Log activity
+            $this->logActivity('exported', 'TrainingApplication', null, [
+                'format' => 'JSON',
+                'date_range' => ['start' => $startDate, 'end' => $endDate]
+            ], 'Exported Training analytics data from ' . $startDate . ' to ' . $endDate);
+            
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'

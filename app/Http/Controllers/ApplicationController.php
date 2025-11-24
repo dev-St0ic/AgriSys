@@ -167,6 +167,19 @@ class ApplicationController extends Controller
                 'livelihood' => $livelihoodDescription
             ]);
 
+            // Log activity
+            try {
+                \Spatie\Activitylog\Facades\Activity::withProperties([
+                    'registration_number' => $fishRRegistration->registration_number,
+                    'full_name' => $fishRRegistration->full_name,
+                    'livelihood' => $livelihoodDescription,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])->log('submitted - FishrApplication (ID: ' . $fishRRegistration->id . ')');
+            } catch (\Exception $e) {
+                Log::error('Activity logging failed: ' . $e->getMessage());
+            }
+
             $successMessage = 'Your FishR registration has been submitted successfully! Registration Number: ' .
                             $fishRRegistration->registration_number .
                             '. You will receive an SMS notification once your registration is processed.';
@@ -497,6 +510,19 @@ public function submitSeedlings(Request $request)
             'total_quantity' => $seedlingRequest->total_quantity
         ]);
 
+        // Log activity
+        try {
+            \Spatie\Activitylog\Facades\Activity::withProperties([
+                'request_number' => $seedlingRequest->request_number,
+                'full_name' => $seedlingRequest->full_name,
+                'total_quantity' => $seedlingRequest->total_quantity,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])->log('submitted - SeedlingRequest (ID: ' . $seedlingRequest->id . ')');
+        } catch (\Exception $e) {
+            Log::error('Activity logging failed: ' . $e->getMessage());
+        }
+
         $successMessage = 'Your seedling request has been submitted successfully! Request Number: ' .
                         $seedlingRequest->request_number .
                         '. You will receive an SMS notification once your request is processed.';
@@ -660,6 +686,19 @@ public function submitRsbsa(Request $request)
             'id' => $rsbsaApplication->id,
             'application_number' => $rsbsaApplication->application_number,
         ]);
+
+        // Log activity
+        try {
+            \Spatie\Activitylog\Facades\Activity::withProperties([
+                'application_number' => $rsbsaApplication->application_number,
+                'full_name' => $rsbsaApplication->full_name,
+                'commodity' => $rsbsaApplication->commodity,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent()
+            ])->log('submitted - RsbsaApplication (ID: ' . $rsbsaApplication->id . ')');
+        } catch (\Exception $e) {
+            Log::error('Activity logging failed: ' . $e->getMessage());
+        }
 
         $successMessage = 'Your RSBSA application has been submitted successfully! Application Number: ' .
                         $rsbsaApplication->application_number;
@@ -857,6 +896,20 @@ public function submitRsbsa(Request $request)
 
             Log::info('BoatR registration created with ID: ' . $boatRRegistration->id);
 
+            // Log activity
+            try {
+                \Spatie\Activitylog\Facades\Activity::withProperties([
+                    'application_number' => $boatRRegistration->application_number,
+                    'full_name' => $boatRRegistration->full_name,
+                    'vessel_name' => $boatRRegistration->vessel_name,
+                    'boat_type' => $boatRRegistration->boat_type,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])->log('submitted - BoatrApplication (ID: ' . $boatRRegistration->id . ')');
+            } catch (\Exception $e) {
+                Log::error('Activity logging failed: ' . $e->getMessage());
+            }
+
             // Handle single file upload if provided
             $documentUploaded = false;
             if ($request->hasFile('supporting_documents')) {
@@ -1049,6 +1102,19 @@ public function submitRsbsa(Request $request)
                 'application_number' => $training->application_number,
                 'name' => $training->full_name
             ]);
+
+            // Log activity
+            try {
+                \Spatie\Activitylog\Facades\Activity::withProperties([
+                    'application_number' => $training->application_number,
+                    'full_name' => $training->full_name,
+                    'training_type' => $training->training_type,
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent()
+                ])->log('submitted - TrainingApplication (ID: ' . $training->id . ')');
+            } catch (\Exception $e) {
+                Log::error('Activity logging failed: ' . $e->getMessage());
+            }
 
             $successMessage = 'Your training application has been submitted successfully! ' .
                              'Application Number: ' . $training->application_number .

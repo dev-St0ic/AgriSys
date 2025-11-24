@@ -295,10 +295,11 @@ class SeedlingRequest extends Model
         });
     }
 
+    // Log activity options
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['status', 'approved_quantity', 'reviewed_by', 'request_number'])
+            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

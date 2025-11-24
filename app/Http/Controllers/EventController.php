@@ -252,6 +252,13 @@ class EventController extends Controller
                 'is_active' => $event->is_active
             ]);
 
+            // Log activity
+            $this->logActivity('created', 'Event', $event->id, [
+                'title' => $event->title,
+                'category' => $event->category,
+                'is_active' => $event->is_active
+            ]);
+
             // Build success message
             $message = 'Event "' . $event->title . '" created successfully';
             if ($request->category === 'announcement') {
@@ -447,6 +454,13 @@ class EventController extends Controller
 
             \Log::info(' [Events] Event updated', ['id' => $event->id, 'changes' => count($changes)]);
 
+            // Log activity
+            $this->logActivity('updated', 'Event', $event->id, [
+                'title' => $event->title,
+                'changes_count' => count($changes),
+                'changes' => $changes
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Event "' . $event->title . '" updated successfully',
@@ -495,6 +509,12 @@ class EventController extends Controller
 
             \Log::info(' [Events] Event archived', ['id' => $event->id, 'reason' => $reason]);
 
+            // Log activity
+            $this->logActivity('archived', 'Event', $event->id, [
+                'title' => $event->title,
+                'reason' => $reason
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Event "' . $event->title . '" has been archived'
@@ -538,6 +558,11 @@ class EventController extends Controller
             DB::commit();
 
             \Log::info(' [Events] Event restored', ['id' => $event->id]);
+
+            // Log activity
+            $this->logActivity('unarchived', 'Event', $event->id, [
+                'title' => $event->title
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -591,6 +616,11 @@ class EventController extends Controller
             DB::commit();
 
             \Log::info(' [Events] Event permanently deleted', ['id' => $eventId, 'title' => $eventTitle]);
+
+            // Log activity
+            $this->logActivity('deleted', 'Event', $eventId, [
+                'title' => $eventTitle
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -708,6 +738,12 @@ class EventController extends Controller
                 \Log::info(' [Events] Event status toggled', [
                     'id' => $event->id,
                     'category' => $event->category,
+                    'new_status' => $newStatus ? 'active' : 'inactive'
+                ]);
+
+                // Log activity
+                $this->logActivity('toggled_status', 'Event', $event->id, [
+                    'title' => $event->title,
                     'new_status' => $newStatus ? 'active' : 'inactive'
                 ]);
 

@@ -160,6 +160,12 @@ class TrainingController extends Controller
             // Create the application
             $training = TrainingApplication::create($validated);
 
+            $this->logActivity('created', 'TrainingApplication', $training->id, [
+                'application_number' => $training->application_number,
+                'training_type' => $training->training_type_display,
+                'barangay' => $training->barangay
+            ]);
+
             Log::info('Training registration created by admin', [
                 'application_id' => $training->id,
                 'application_number' => $training->application_number,
@@ -280,6 +286,11 @@ class TrainingController extends Controller
             // Update the training application
             $training->update($validated);
 
+            $this->logActivity('updated', 'TrainingApplication', $training->id, [
+                'fields_updated' => array_keys($validated),
+                'application_number' => $training->application_number
+            ]);
+
             Log::info('Training application updated', [
                 'application_id' => $id,
                 'application_number' => $training->application_number,
@@ -332,6 +343,12 @@ class TrainingController extends Controller
             'updated_by' => Auth::id()
         ]);
 
+        $this->logActivity('updated_status', 'TrainingApplication', $training->id, [
+            'new_status' => $request->status,
+            'remarks' => $request->remarks,
+            'application_number' => $training->application_number
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Training application status updated successfully',
@@ -357,6 +374,10 @@ class TrainingController extends Controller
 
             // Delete the training application
             $training->delete();
+
+            $this->logActivity('deleted', 'TrainingApplication', $id, [
+                'application_number' => $applicationNumber
+            ]);
 
             Log::info('Training application deleted', [
                 'application_id' => $id,
@@ -415,6 +436,11 @@ class TrainingController extends Controller
             }
 
             $applications = $query->orderBy('created_at', 'desc')->get();
+
+            $this->logActivity('exported', 'TrainingApplication', null, [
+                'records_count' => $applications->count(),
+                'filters' => $request->all()
+            ]);
 
             $filename = 'training_applications_' . now()->format('Y-m-d_H-i-s') . '.csv';
 

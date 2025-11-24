@@ -185,6 +185,11 @@ public function update(Request $request, $id)
         // Update the registration with only personal info
         $registration->update($validated);
 
+        $this->logActivity('updated', 'FishrApplication', $registration->id, [
+            'fields_updated' => array_keys($validated),
+            'registration_number' => $registration->registration_number
+        ]);
+
         Log::info('FishR registration updated by admin', [
             'registration_id' => $registration->id,
             'registration_number' => $registration->registration_number,
@@ -258,6 +263,12 @@ public function update(Request $request, $id)
                     $validated['remarks']
                 );
             }
+
+            $this->logActivity('updated_status', 'FishrApplication', $registration->id, [
+                'old_status' => $previousStatus,
+                'new_status' => $validated['status'],
+                'remarks' => $validated['remarks']
+            ]);
 
             // Send email notification if approved and email is available
             if ($validated['status'] === 'approved' && $registration->email) {
@@ -366,6 +377,12 @@ public function update(Request $request, $id)
             // Create the registration
             $registration = FishrApplication::create($validated);
 
+            $this->logActivity('created', 'FishrApplication', $registration->id, [
+                'registration_number' => $registration->registration_number,
+                'livelihood' => $registration->livelihood_description,
+                'barangay' => $registration->barangay
+            ]);
+
             Log::info('FishR registration created by admin', [
                 'registration_id' => $registration->id,
                 'registration_number' => $registration->registration_number,
@@ -453,6 +470,10 @@ public function update(Request $request, $id)
                 // Delete the registration
                 $registration->delete();
 
+                $this->logActivity('deleted', 'FishrApplication', $id, [
+                    'registration_number' => $registrationNumber
+                ]);
+
                 Log::info('FishR registration deleted', [
                     'registration_id' => $id,
                     'registration_number' => $registrationNumber,
@@ -529,6 +550,11 @@ public function update(Request $request, $id)
             }
 
             $registrations = $query->orderBy('created_at', 'desc')->get();
+
+            $this->logActivity('exported', 'FishrApplication', null, [
+                'records_count' => $registrations->count(),
+                'filters' => $request->all()
+            ]);
 
             $filename = 'fishr_registrations_' . now()->format('Y-m-d_H-i-s') . '.csv';
 

@@ -218,6 +218,11 @@ class RsbsaController extends Controller
             }
         }
 
+        $this->logActivity('updated', 'RsbsaApplication', $application->id, [
+            'changes' => $changes,
+            'application_number' => $application->application_number
+        ]);
+
         Log::info('RSBSA application updated by admin', [
             'application_id' => $id,
             'application_number' => $application->application_number,
@@ -305,6 +310,12 @@ public function updateStatus(Request $request, $id)
                 'rejected_at' => now(),
             ]);
         }
+
+        $this->logActivity('updated_status', 'RsbsaApplication', $application->id, [
+            'old_status' => $originalStatus,
+            'new_status' => $validated['status'],
+            'remarks' => $validated['remarks']
+        ]);
 
         Log::info('RSBSA application status updated', [
             'application_id' => $id,
@@ -448,6 +459,12 @@ public function updateStatus(Request $request, $id)
             // Create the application
             $application = RsbsaApplication::create($validated);
 
+            $this->logActivity('created', 'RsbsaApplication', $application->id, [
+                'application_number' => $application->application_number,
+                'main_livelihood' => $application->main_livelihood,
+                'barangay' => $application->barangay
+            ]);
+
             Log::info('RSBSA application created by admin', [
                 'application_id' => $application->id,
                 'application_number' => $application->application_number,
@@ -520,6 +537,10 @@ public function updateStatus(Request $request, $id)
 
             // Delete the application
             $application->delete();
+
+            $this->logActivity('deleted', 'RsbsaApplication', $id, [
+                'application_number' => $applicationNumber
+            ]);
 
             Log::info('RSBSA application deleted', [
                 'application_id' => $id,
@@ -605,6 +626,11 @@ public function updateStatus(Request $request, $id)
             }
 
             $applications = $query->orderBy('created_at', 'desc')->get();
+
+            $this->logActivity('exported', 'RsbsaApplication', null, [
+                'records_count' => $applications->count(),
+                'filters' => $request->all()
+            ]);
 
             $filename = 'rsbsa_applications_' . now()->format('Y-m-d_H-i-s') . '.csv';
 

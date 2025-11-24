@@ -156,10 +156,11 @@ class ItemSupplyLog extends Model
         return $query->where('performed_by', $userId);
     }
 
-    public function getActivitylogOptions(): LogOptions
+    // Log activity options
+   public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['transaction_type', 'quantity', 'old_supply', 'new_supply'])
+            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

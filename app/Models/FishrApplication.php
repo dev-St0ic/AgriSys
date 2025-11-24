@@ -195,10 +195,11 @@ class FishrApplication extends Model
         return $this->document_extension === 'pdf';
     }
 
-    public function getActivitylogOptions(): LogOptions
+    // Log activity options
+   public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['status', 'remarks', 'updated_by'])
+            ->logAll()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

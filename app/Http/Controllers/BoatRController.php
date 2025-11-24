@@ -234,6 +234,15 @@ class BoatRController extends Controller
                 'linked_to_fishr' => $validated['fishr_application_id'] ? 'Yes (ID: ' . $validated['fishr_application_id'] . ')' : 'No'
             ]);
 
+            // Log activity
+            $this->logActivity('created', 'BoatrApplication', $registration->id, [
+                'application_number' => $registration->application_number,
+                'vessel_name' => $registration->vessel_name,
+                'boat_type' => $registration->boat_type,
+                'linked_to_user' => $validated['user_id'] ? 'Yes' : 'No',
+                'linked_to_fishr' => $validated['fishr_application_id'] ? 'Yes' : 'No'
+            ]);
+
             // Send email notification if approved and email is provided
             if ($validated['status'] === 'approved' && !empty($validated['email'])) {
                 try {
@@ -478,6 +487,14 @@ private function getChangedFields($original, $updated)
                 'registration_id' => $registration->id,
                 'old_status' => $oldStatus,
                 'new_status' => $registration->status
+            ]);
+
+            // Log activity
+            $this->logActivity('updated', 'BoatrApplication', $registration->id, [
+                'application_number' => $registration->application_number,
+                'old_status' => $oldStatus,
+                'new_status' => $registration->status,
+                'remarks' => $validated['remarks'] ?? null
             ]);
 
             // Refresh from database to ensure we have fresh data
@@ -1130,6 +1147,11 @@ private function getChangedFields($original, $updated)
                 'deleted_by' => auth()->user()->name ?? 'System'
             ]);
 
+            // Log activity
+            $this->logActivity('deleted', 'BoatrApplication', $id, [
+                'application_number' => $applicationNumber
+            ]);
+
             $message = "Application {$applicationNumber} has been deleted successfully";
 
             if ($request->ajax()) {
@@ -1189,6 +1211,16 @@ private function getChangedFields($original, $updated)
             $registrations = $query->orderBy('created_at', 'desc')->get();
 
             $filename = 'boatr_registrations_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+            // Log activity
+            $this->logActivity('exported', 'BoatrApplication', null, [
+                'records_count' => count($registrations),
+                'filters_applied' => [
+                    'status' => $request->filled('status') ? $request->status : null,
+                    'boat_type' => $request->filled('boat_type') ? $request->boat_type : null,
+                    'barangay' => $request->filled('barangay') ? $request->barangay : null
+                ]
+            ], 'Exported ' . count($registrations) . ' BoatR registrations to CSV');
 
             $headers = [
                 'Content-Type' => 'text/csv',

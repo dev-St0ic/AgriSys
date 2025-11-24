@@ -727,6 +727,12 @@ class UserRegistrationAnalyticsController extends Controller
             
             $filename = 'user-registration-analytics-' . $startDate . '-to-' . $endDate . '.json';
             
+            // Log activity
+            $this->logActivity('exported', 'UserRegistration', null, [
+                'format' => 'JSON',
+                'date_range' => ['start' => $startDate, 'end' => $endDate]
+            ], 'Exported User Registration analytics data from ' . $startDate . ' to ' . $endDate);
+            
             return response()->json($data, 200, [
                 'Content-Type' => 'application/json',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"'

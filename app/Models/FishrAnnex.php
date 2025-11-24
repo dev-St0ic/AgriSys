@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class FishrAnnex extends Model
-{
+{ 
+    use LogsActivity;
     protected $table = 'fishr_annexes';
 
     protected $fillable = [
@@ -95,5 +98,14 @@ class FishrAnnex extends Model
 
         // Delete the database record
         return $this->delete();
+    }
+
+    // Log activity options
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }
