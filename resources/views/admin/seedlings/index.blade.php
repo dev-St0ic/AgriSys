@@ -537,12 +537,12 @@
                 <div class="modal fade" id="editSeedlingModal{{ $request->id }}" tabindex="-1">
                     <div class="modal-dialog modal-xl">
                         <div class="modal-content">
-                            <div class="modal-header bg-light border-bottom">
-                                <h5 class="modal-title fw-bold text-dark">
-                                    <i class="fas fa-pencil-alt text-warning me-2"></i>
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-pencil-alt"></i>
                                     Edit Request - {{ $request->request_number }}
                                 </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
                                 <form method="POST" action="{{ route('admin.seedlings.update', $request) }}" 
