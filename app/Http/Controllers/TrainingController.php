@@ -218,7 +218,7 @@ class TrainingController extends Controller
         return $number;
     }
 
-    /**
+   /**
      * Show the specified training application
      */
     public function show($id)
@@ -233,9 +233,11 @@ class TrainingController extends Controller
                 'first_name' => $training->first_name,
                 'middle_name' => $training->middle_name,
                 'last_name' => $training->last_name,
+                'name_extension' => $training->name_extension,
                 'full_name' => $training->full_name,
                 'contact_number' => $training->contact_number,
                 'email' => $training->email,
+                'barangay' => $training->barangay,
                 'training_type' => $training->training_type,
                 'training_type_display' => $training->training_type_display,
                 'status' => $training->status,

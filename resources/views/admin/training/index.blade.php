@@ -1641,114 +1641,116 @@
 
         // View application details
         function viewApplication(id) {
-            document.getElementById('applicationDetails').innerHTML = `
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+    document.getElementById('applicationDetails').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>`;
+
+    const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
+    modal.show();
+
+    fetch(`/admin/training/requests/${id}`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(response => {
+            if (!response.success) throw new Error('Failed to load application details');
+
+            const data = response.data;
+
+            // Build remarks HTML if exists
+            const remarksHtml = data.remarks ? `
+                <div class="col-12 mt-3">
+                    <h6 class="border-bottom pb-2">Remarks</h6>
+                    <div class="alert alert-info">
+                        <p class="mb-1">${data.remarks}</p>
+                        <small class="text-muted">
+                            ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
+                            ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
+                        </small>
                     </div>
+                </div>` : '';
+
+            // Supporting documents 
+            let documentHtml = '';
+            if (data.document_path) {
+                documentHtml = `
+                    <div class="col-12">
+                        <div class="card border-secondary">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center p-3 border border-secondary rounded bg-light">
+                                    <i class="fas fa-file-alt fa-3x mb-2 text-info"></i>
+                                    <h6>Supporting Document</h6>
+                                    <span class="badge bg-info mb-2">Uploaded</span>
+                                    <br>
+                                    <button class="btn btn-sm btn-outline-info mt-2" 
+                                        onclick="viewDocument('${data.document_path}', 'Training Request - ${data.full_name}')">
+                                        <i class="fas fa-eye"></i> View Document
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                documentHtml = `
+                    <div class="col-12">
+                        <div class="card border-secondary">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center p-3 border border-secondary rounded">
+                                    <i class="fas fa-file-slash fa-3x mb-2 text-muted"></i>
+                                    <h6>No Document Uploaded</h6>
+                                    <span class="badge bg-secondary mb-2">Not Uploaded</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            document.getElementById('applicationDetails').innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2">Personal Information</h6>
+                        <p><strong>Application #:</strong> ${data.application_number}</p>
+                        <p><strong>Full Name:</strong> ${data.full_name}</p>
+                        <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
+                        <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="border-bottom pb-2">Training Information</h6>
+                        <p><strong>Training Type:</strong> ${data.training_type_display}</p>
+                        <p><strong>Status:</strong>
+                            <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
+                        </p>
+                        <p><strong>Date Applied:</strong> ${data.created_at}</p>
+                        <p><strong>Last Updated:</strong> ${data.updated_at}</p>
+                    </div>
+                    <div class="col-md-6 mt-3">
+                        <h6 class="border-bottom pb-2">Location Information</h6>
+                        <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
+                    </div>
+                    ${documentHtml}
+                    ${remarksHtml}
                 </div>`;
-
-            const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
-            modal.show();
-
-            fetch(`/admin/training/requests/${id}`)
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(response => {
-                    if (!response.success) throw new Error('Failed to load application details');
-
-                    const data = response.data;
-
-                    // Build remarks HTML if exists
-                    const remarksHtml = data.remarks ? `
-                        <div class="col-12 mt-3">
-                            <h6 class="border-bottom pb-2">Remarks</h6>
-                            <div class="alert alert-info">
-                                <p class="mb-1">${data.remarks}</p>
-                                <small class="text-muted">
-                                    ${data.status_updated_at ? `Updated on ${data.status_updated_at}` : ''}
-                                    ${data.updated_by_name ? ` by ${data.updated_by_name}` : ''}
-                                </small>
-                            </div>
-                        </div>` : '';
-
-                    //  supporting documents 
-                    let documentHtml = '';
-                    // Document HTML for single file
-                    if (data.document_path) {
-                        documentHtml = `
-                            <div class="col-12">
-                                <div class="card border-secondary">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="text-center p-3 border border-secondary rounded bg-light">
-                                            <i class="fas fa-file-alt fa-3x mb-2 text-info"></i>
-                                            <h6>Supporting Document</h6>
-                                            <span class="badge bg-info mb-2">Uploaded</span>
-                                            <br>
-                                            <button class="btn btn-sm btn-outline-info mt-2" 
-                                                onclick="viewDocument('${data.document_path}', 'Training Request - ${data.full_name}')">
-                                                <i class="fas fa-eye"></i> View Document
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`;
-                    } else {
-                        documentHtml = `
-                            <div class="col-12">
-                                <div class="card border-secondary">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0"><i class="fas fa-folder-open me-2"></i>Supporting Document</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="text-center p-3 border border-secondary rounded">
-                                            <i class="fas fa-file-slash fa-3x mb-2 text-muted"></i>
-                                            <h6>No Document Uploaded</h6>
-                                            <span class="badge bg-secondary mb-2">Not Uploaded</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`;
-                    }
-
-                    document.getElementById('applicationDetails').innerHTML = `
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <h6 class="border-bottom pb-2">Application Information</h6>
-                                <p><strong>Application #:</strong> ${data.application_number}</p>
-                                <p><strong>Full Name:</strong> ${data.full_name}</p>
-                                <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
-                                <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="border-bottom pb-2">Training Information</h6>
-                                <p><strong>Training Type:</strong> ${data.training_type_display}</p>
-                                <p><strong>Status:</strong>
-                                    <span class="badge bg-${data.status_color}">${data.formatted_status}</span>
-                                </p>
-                                <p><strong>Date Applied:</strong> ${data.created_at}</p>
-                                <p><strong>Last Updated:</strong> ${data.updated_at}</p>
-                            </div>
-                            ${documentHtml}
-                            ${remarksHtml}
-                        </div>`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', error.message || 'Error loading application details. Please try again.');
-                    document.getElementById('applicationDetails').innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            ${error.message || 'Error loading application details. Please try again.'}
-                        </div>`;
-                });
-        }
-
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', error.message || 'Error loading application details. Please try again.');
+            document.getElementById('applicationDetails').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    ${error.message || 'Error loading application details. Please try again.'}
+                </div>`;
+        });
+}
         // UNIFIED document viewing function 
         function viewDocument(path, filename = null, applicationId = null) {
             // Input validation
@@ -2693,7 +2695,7 @@
         }
     });
 
-        // Global variable to store current editing training ID
+  // Global variable to store current editing training ID
 let currentEditingTrainingId = null;
 
 // Show edit training modal
@@ -2763,7 +2765,7 @@ function storeOriginalEditData() {
     form.dataset.originalData = JSON.stringify(originalData);
 }
 
-// Check for changes in edit form
+// Check for changes in edit form with visual feedback
 function checkForEditTrainingChanges() {
     const form = document.getElementById('editTrainingForm');
     const submitBtn = document.getElementById('editTrainingSubmitBtn');
@@ -2774,24 +2776,42 @@ function checkForEditTrainingChanges() {
     
     let hasChanges = false;
     
-    const fields = ['first_name', 'middle_name', 'last_name', 'name_extension', 'contact_number', 'email', 'barangay', 'training_type'];
+    const fieldMap = {
+        'first_name': 'edit_training_first_name',
+        'middle_name': 'edit_training_middle_name',
+        'last_name': 'edit_training_last_name',
+        'name_extension': 'edit_training_extension',
+        'contact_number': 'edit_training_contact',
+        'email': 'edit_training_email',
+        'barangay': 'edit_training_barangay',
+        'training_type': 'edit_training_type'
+    };
     
-    for (let field of fields) {
-        const elementId = field === 'name_extension' ? 'edit_training_extension' : 
-                         field === 'contact_number' ? 'edit_training_contact' :
-                         field === 'email' ? 'edit_training_email' :
-                         field === 'barangay' ? 'edit_training_barangay' :
-                         field === 'training_type' ? 'edit_training_type' : `edit_training_${field}`;
+    // Check each field for changes and add/remove highlighting
+    for (let fieldName in fieldMap) {
+        const elementId = fieldMap[fieldName];
+        const element = document.getElementById(elementId);
+        const currentValue = element.value;
+        const originalValue = originalData[fieldName];
         
-        const currentValue = document.getElementById(elementId).value;
-        if (currentValue !== originalData[field]) {
+        if (currentValue !== originalValue) {
             hasChanges = true;
-            break;
+            element.classList.add('form-changed');
+        } else {
+            element.classList.remove('form-changed');
         }
     }
     
-    submitBtn.disabled = !hasChanges;
-    submitBtn.classList.toggle('disabled', !hasChanges);
+    // Update button state
+    if (hasChanges) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('disabled', 'no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+    } else {
+        submitBtn.disabled = false;
+        submitBtn.classList.add('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+    }
     
     return hasChanges;
 }
@@ -2949,7 +2969,7 @@ function proceedWithEditTraining() {
             const modal = bootstrap.Modal.getInstance(document.getElementById('editTrainingModal'));
             if (modal) modal.hide();
             
-            // Reload the page or update the table
+            // Reload the page
             setTimeout(() => {
                 location.reload();
             }, 1000);
@@ -2971,10 +2991,11 @@ function initializeEditTrainingFormListeners() {
     const form = document.getElementById('editTrainingForm');
     if (!form) return;
     
-    ['edit_training_first_name', 'edit_training_middle_name', 'edit_training_last_name', 
-     'edit_training_extension', 'edit_training_contact', 'edit_training_email', 'edit_training_barangay',
-     'edit_training_type']
-    .forEach(id => {
+    const fields = ['edit_training_first_name', 'edit_training_middle_name', 'edit_training_last_name', 
+                    'edit_training_extension', 'edit_training_contact', 'edit_training_email', 
+                    'edit_training_barangay', 'edit_training_type'];
+    
+    fields.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
             element.addEventListener('blur', function() {
@@ -2986,8 +3007,13 @@ function initializeEditTrainingFormListeners() {
                 checkForEditTrainingChanges();
             });
             
-            element.addEventListener('change', checkForEditTrainingChanges);
-            element.addEventListener('input', checkForEditTrainingChanges);
+            element.addEventListener('change', function() {
+                checkForEditTrainingChanges();
+            });
+            
+            element.addEventListener('input', function() {
+                checkForEditTrainingChanges();
+            });
         }
     });
 }
