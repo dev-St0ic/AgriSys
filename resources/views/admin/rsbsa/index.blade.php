@@ -318,6 +318,11 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
+                                         <button class="btn btn-sm btn-outline-warning"
+                                            onclick="showEditRsbsaModal({{ $application->id }})" title="Edit Personal Information">
+                                            <i class="fas fa-pencil-alt"></i> Edit
+                                        </button>
+
                                         <button class="btn btn-sm btn-outline-success"
                                             onclick="showUpdateModal({{ $application->id }}, '{{ $application->status }}')"
                                             title="Update Status">
@@ -476,43 +481,266 @@
         </div>
     </div>
 
-    <!-- Application Details Modal -->
-    <div class="modal fade" id="applicationModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editRsbsaModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">
-                        <i class="fas fa-file-alt me-2"></i>Application Details
+                        <i class="fas fa-pencil-alt me-2"></i>
+                        Edit Application - <span id="editAppNumber"></span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="applicationDetails">
-                    <!-- Content will be loaded here -->
+                <div class="modal-body">
+                    <form id="editRsbsaForm" enctype="multipart/form-data">
+                        <!-- Personal Information Card -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_rsbsa_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_first_name" 
+                                            name="first_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_rsbsa_middle_name" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_middle_name" 
+                                            name="middle_name" maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_rsbsa_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_last_name" 
+                                            name="last_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_rsbsa_extension" class="form-label">Extension</label>
+                                        <select class="form-select" id="edit_rsbsa_extension" name="name_extension">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="edit_rsbsa_contact_number" 
+                                            name="contact_number" required placeholder="09XXXXXXXXX" 
+                                            pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="edit_rsbsa_email" 
+                                            name="email" maxlength="254">
+                                        <div class="form-text">For status notifications</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Application Number</label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_app_number" disabled>
+                                        <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information Card -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_rsbsa_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="edit_rsbsa_barangay" name="barangay" required>
+                                            <option value="">Select Barangay</option>
+                                            <option value="Bagong Silang">Bagong Silang</option>
+                                            <option value="Calendola">Calendola</option>
+                                            <option value="Chrysanthemum">Chrysanthemum</option>
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="edit_rsbsa_farm_location" class="form-label">Farm/Work Location</label>
+                                        <textarea class="form-control" id="edit_rsbsa_farm_location" 
+                                            name="farm_location" rows="3" maxlength="500"
+                                            placeholder="Specific location of farm or work area"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Livelihood Information Card - NOW EDITABLE -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-seedling me-2"></i>Livelihood Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_livelihood" class="form-label">Main Livelihood <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="edit_rsbsa_livelihood" name="main_livelihood" required>
+                                            <option value="">Select Livelihood</option>
+                                            <option value="Farmer">Farmer</option>
+                                            <option value="Farmworker/Laborer">Farmworker/Laborer</option>
+                                            <option value="Fisherfolk">Fisherfolk</option>
+                                            <option value="Agri-youth">Agri-youth</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_land_area" class="form-label">Land Area (hectares)</label>
+                                        <input type="number" class="form-control" id="edit_rsbsa_land_area" 
+                                            name="land_area" step="0.01" min="0" max="99999.99" placeholder="0.00">
+                                        <div class="form-text">Total area in hectares</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_rsbsa_commodity" class="form-label">Commodity/Product</label>
+                                        <input type="text" class="form-control" id="edit_rsbsa_commodity" 
+                                            name="commodity" maxlength="1000" placeholder="e.g., Rice, Corn, Vegetables">
+                                        <div class="form-text">Main crops, livestock, or fish</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Application Status (Read-only) -->
+                        <div class="card mb-3 bg-light">
+                            <div class="card-header bg-light border-0">
+                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Status (Read-only)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <small class="text-muted">Current Status:</small>
+                                        <div>
+                                            <span id="edit_rsbsa_status_badge" class="badge bg-secondary"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <small class="text-muted">Date Applied:</small>
+                                        <div id="edit_rsbsa_created_at"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Alert -->
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Note:</strong> You can edit personal information, location, and livelihood details. 
+                            To change application status, use the "Update" button from the main table.
+                        </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="editRsbsaSubmitBtn"
+                        onclick="handleEditRsbsaSubmit()">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Enhanced Document Viewer Modal -->
-    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
+    <!-- Application Details Modal -->
+    <div class="modal fade" id="applicationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <h5 class="modal-title" id="documentModalLabel">
-                        <i class="fas fa-file-alt me-2"></i>Supporting Document
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-eye me-2"></i>
+                        Application Details - <span id="appNumberDisplay"></span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-0" id="documentViewer">
-                    <!-- Document will be loaded here -->
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Personal Information Section -->
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2">Personal Information</h6>
+                            <p><strong>Application #:</strong> <span id="viewAppNumber"></span></p>
+                            <p><strong>Name:</strong> <span id="viewAppName"></span></p>
+                            <p><strong>Sex:</strong> <span id="viewAppSex"></span></p>
+                            <p><strong>Contact:</strong> <span id="viewAppContact"></span></p>
+                            <p><strong>Email:</strong> <span id="viewAppEmail"></span></p>
+                            <p><strong>Barangay:</strong> <span id="viewAppBarangay"></span></p>
+                        </div>
+
+                        <!-- Registration Information Section -->
+                        <div class="col-md-6">
+                            <h6 class="border-bottom pb-2">Registration Information</h6>
+                            <p><strong>Main Livelihood:</strong> <span id="viewAppLivelihood"></span></p>
+                            <p><strong>Land Area:</strong> <span id="viewAppLandArea"></span></p>
+                            <p><strong>Commodity:</strong> <span id="viewAppCommodity"></span></p>
+                            <p><strong>Current Status:</strong>
+                                <span id="viewAppStatus"></span>
+                            </p>
+                            <p><strong>Date Applied:</strong> <span id="viewAppCreatedAt"></span></p>
+                        </div>
+
+                        <!-- Farm/Work Location Section -->
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">Location Details</h6>
+                            <p><strong>Farm/Work Location:</strong> <span id="viewAppFarmLocation"></span></p>
+                        </div>
+
+                        <!-- Supporting Document Section -->
+                        <div class="col-12">
+                            <div id="documentSection"></div>
+                        </div>
+
+                        <!-- Application Timeline Section -->
+                        <div class="col-12">
+                            <h6 class="border-bottom pb-2">Application Timeline</h6>
+                            <p><strong>Date Applied:</strong> <span id="viewAppTimelineCreated"></span></p>
+                            <p><strong>Last Updated:</strong> <span id="viewAppUpdatedAt"></span></p>
+                            <div id="additionalTimeline"></div>
+                        </div>
+
+                        <!-- Remarks Section (if exists) -->
+                        <div class="col-12" id="remarksSection" style="display: none;">
+                            <h6 class="border-bottom pb-2">Remarks</h6>
+                            <div class="alert alert-info">
+                                <p class="mb-0" id="remarksContent"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Close
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -784,7 +1012,6 @@
         }
 
         .no-changes {
-            opacity: 0.7;
             transition: all 0.3s ease;
         }
 
@@ -913,9 +1140,10 @@
         }
 
         #documentViewer {
-            min-height: 400px;
-            max-height: 80vh;
-            overflow: auto;
+            min-height: auto;
+            max-height: none;
+            overflow-y: auto;
+            overflow-x: hidden;
             padding: 1rem;
         }
 
@@ -1186,8 +1414,9 @@
 
         #applicationModal .modal-body {
             padding: 1.5rem;
-            max-height: 70vh;
+            max-height: none;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         /* Application Details Content */
@@ -1239,7 +1468,7 @@
             text-transform: uppercase;
         }
 
-        /* Scrollbar Styling for Modal Body */
+        /* Scrollbar Styling for Modal Body
         #applicationModal .modal-body::-webkit-scrollbar {
             width: 8px;
         }
@@ -1256,7 +1485,7 @@
 
         #applicationModal .modal-body::-webkit-scrollbar-thumb:hover {
             background: #555;
-        }
+        } */
 
         /* Update Modal - Enhanced Styling */
         #updateModal .modal-content {
@@ -1768,6 +1997,28 @@
             }
         }
     </style>
+
+    <!-- Document Viewer Modal -->
+    <div class="modal fade" id="documentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>Document Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="documentViewer">
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="text-muted">Loading document...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
@@ -2621,7 +2872,8 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
     })
     .then(data => {
         if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+            const updateModalInstance = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+            if (updateModalInstance) updateModalInstance.hide();
             showToast('success', data.message || 'Status updated successfully');
             setTimeout(() => location.reload(), 1500);
         } else {
@@ -2638,146 +2890,188 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
 }
 
 
-        // FIXED: Corrected document display section in viewApplication function
-        function viewApplication(id) {
-            if (!id) {
-                showToast('error', 'Invalid application ID');
-                return;
-            }
-
-            // Show modal first
-            const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
-            modal.show();
-
-            // Then show loading state after modal is shown
-            setTimeout(() => {
-                document.getElementById('applicationDetails').innerHTML = `
-                    <div class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>`;
-            }, 100);
-
-            // Fetch application details
-            fetch(`/admin/rsbsa-applications/${id}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(response => {
-                    console.log('Response:', response);
-
-                    if (!response.success) {
-                        throw new Error(response.message || 'Failed to load application details');
-                    }
-
-                    const data = response.data;
-
-                    if (!data) {
-                        throw new Error('No application data received');
-                    }
-
-                    // Store current application ID for document viewing
-                    window.currentApplicationId = id;
-
-                    // Build remarks HTML if exists
-                    const remarksHtml = data.remarks ? `
-                        <div class="col-12 mt-3">
-                            <h6 class="border-bottom pb-2">Remarks</h6>
-                            <div class="alert alert-info">
-                                <p class="mb-1">${data.remarks}</p>
-                                <small class="text-muted">
-                                    ${data.reviewed_at ? `Updated on ${data.reviewed_at}` : ''}
-                                    ${data.reviewer_name ? ` by ${data.reviewer_name}` : ''}
-                                </small>
-                            </div>
-                        </div>` : '';
-
-                    // Build document section HTML - FIXED with neutral gray styling
-                    let documentHtml = '';
-                    if (data.supporting_document_path) {
-                        documentHtml = `
-                            <div class="col-12">
-                                <div class="card border-secondary">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="text-center p-3 border border-secondary rounded bg-light">
-                                            <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
-                                            <h6>Supporting Document</h6>
-                                            <span class="badge bg-secondary mb-2">Uploaded</span>
-                                            <br>
-                                            <button class="btn btn-sm btn-outline-info mt-2" onclick="viewDocument('${data.supporting_document_path}', 'Application #${data.application_number} - Supporting Document')">
-                                                <i class="fas fa-eye"></i> View Document
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`;
-                    } else {
-                        documentHtml = `
-                            <div class="col-12">
-                                <div class="card border-secondary">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0" style="color: #495057;"><i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="text-center p-3 border border-secondary rounded">
-                                            <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
-                                            <h6>No Document Uploaded</h6>
-                                            <span class="badge bg-secondary mb-2">Not Uploaded</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>`;
-                    }
-
-                    // Update modal content
-                    document.getElementById('applicationDetails').innerHTML = `
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <h6 class="border-bottom pb-2">Personal Information</h6>
-                                <p><strong>Application #:</strong> ${data.application_number || 'N/A'}</p>
-                                <p><strong>Name:</strong> ${data.full_name || 'N/A'}</p>
-                                <p><strong>Sex:</strong> ${data.sex || 'N/A'}</p>
-                                ${data.date_of_birth ? `<p><strong>Date of Birth:</strong> ${data.date_of_birth}</p>` : ''}
-                                <p><strong>Contact:</strong> ${data.contact_number || 'N/A'}</p>
-                                <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="border-bottom pb-2">Registration Information</h6>
-                                <p><strong>Main Livelihood:</strong> ${data.main_livelihood || 'N/A'}</p>
-                                <p><strong>Land Area:</strong> ${data.land_area ? data.land_area + ' hectares' : 'N/A'}</p>
-                                <p><strong>Farm Location:</strong> ${data.farm_location || 'N/A'}</p>
-                                <p><strong>Commodity:</strong> ${data.commodity || 'N/A'}</p>
-                                <p><strong>Current Status:</strong>
-                                    <span class="badge bg-${data.status_color || 'secondary'}">${data.formatted_status || getStatusText(data.status)}</span>
-                                </p>
-                            </div>
-                            <div class="col-12">
-                                <h6 class="border-bottom pb-2">Application Timeline</h6>
-                                <p><strong>Date Applied:</strong> ${data.created_at || 'N/A'}</p>
-                                <p><strong>Last Updated:</strong> ${data.updated_at || 'N/A'}</p>
-                                ${data.reviewed_at ? `<p><strong>Reviewed At:</strong> ${data.reviewed_at}</p>` : ''}
-                                ${data.number_assigned_at ? `<p><strong>Number Assigned:</strong> ${data.number_assigned_at}</p>` : ''}
-                            </div>
-                            ${documentHtml}
-                            ${remarksHtml}
-                        </div>`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('applicationDetails').innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            ${error.message || 'Error loading application details. Please try again.'}
-                        </div>`;
-                });
+    // FIXED: Corrected document display section in viewApplication function
+    function viewApplication(id) {
+        if (!id) {
+            showToast('error', 'Invalid application ID');
+            return;
         }
+
+        // Show modal first
+        const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
+        modal.show();
+
+        // Then show loading state after modal is shown
+        setTimeout(() => {
+            document.getElementById('applicationDetails').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>`;
+        }, 100);
+
+        // Fetch application details
+        fetch(`/admin/rsbsa-applications/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(response => {
+                console.log('Response:', response);
+
+                if (!response.success) {
+                    throw new Error(response.message || 'Failed to load application details');
+                }
+
+                const data = response.data;
+
+                if (!data) {
+                    throw new Error('No application data received');
+                }
+
+                // Populate all fields with null safety
+                document.getElementById('appNumberDisplay').textContent = data.application_number || 'N/A';
+                document.getElementById('viewAppNumber').textContent = data.application_number || 'N/A';
+                document.getElementById('viewAppName').textContent = data.full_name || 'N/A';
+                document.getElementById('viewAppSex').textContent = data.sex || 'N/A';
+                document.getElementById('viewAppContact').textContent = data.contact_number || 'N/A';
+                document.getElementById('viewAppEmail').textContent = data.email || 'N/A';
+                document.getElementById('viewAppBarangay').textContent = data.barangay || 'N/A';
+                document.getElementById('viewAppLivelihood').textContent = data.main_livelihood || 'N/A';
+                document.getElementById('viewAppLandArea').textContent = data.land_area ? data.land_area + ' ha' : 'N/A';
+                document.getElementById('viewAppCommodity').textContent = data.commodity || 'N/A';
+                document.getElementById('viewAppFarmLocation').textContent = data.farm_location || 'N/A';
+
+                // Format and populate timestamps
+                const createdAt = new Date(data.created_at);
+                const updatedAt = new Date(data.updated_at);
+                
+                document.getElementById('viewAppCreatedAt').textContent = createdAt.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                document.getElementById('viewAppTimelineCreated').textContent = createdAt.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('viewAppUpdatedAt').textContent = updatedAt.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                // Status badge with color coding
+                const statusColor = data.status_color || 'secondary';
+                const formattedStatus = data.formatted_status || getStatusText(data.status);
+                document.getElementById('viewAppStatus').innerHTML = `
+                    <span class="badge bg-${statusColor}">${formattedStatus}</span>
+                `;
+
+                // Build document section
+                const documentSection = document.getElementById('documentSection');
+                if (data.supporting_document_path) {
+                    documentSection.innerHTML = `
+                        <div class="card border-primary">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0" style="color: #495057;">
+                                    <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center p-3 border border-primary rounded bg-light">
+                                    <i class="fas fa-file-alt fa-3x mb-2" style="color: #6c757d;"></i>
+                                    <h6>Supporting Document</h6>
+                                    <span class="badge bg-primary mb-2">Uploaded</span>
+                                    <br>
+                                    <button class="btn btn-sm btn-outline-primary mt-2"
+                                        onclick="viewDocument('${data.supporting_document_path}', 'Application #${data.application_number} - Supporting Document')">
+                                        <i class="fas fa-eye"></i> View Document
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                } else {
+                    documentSection.innerHTML = `
+                        <div class="card border-secondary">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0" style="color: #495057;">
+                                    <i class="fas fa-folder-open me-2" style="color: #6c757d;"></i>Supporting Document
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center p-3 border border-secondary rounded">
+                                    <i class="fas fa-file-slash fa-3x mb-2" style="color: #6c757d;"></i>
+                                    <h6>No Document Uploaded</h6>
+                                    <span class="badge bg-secondary mb-2">Not Uploaded</span>
+                                </div>
+                            </div>
+                        </div>`;
+                }
+
+                // Build additional timeline info if available
+                const timelineSection = document.getElementById('additionalTimeline');
+                let timelineHtml = '';
+                
+                if (data.reviewed_at) {
+                    const reviewedAt = new Date(data.reviewed_at);
+                    timelineHtml += `<p><strong>Reviewed At:</strong> ${reviewedAt.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })}</p>`;
+                }
+
+                if (data.number_assigned_at) {
+                    const assignedAt = new Date(data.number_assigned_at);
+                    timelineHtml += `<p><strong>Number Assigned:</strong> ${assignedAt.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    })}</p>`;
+                }
+
+                if (timelineHtml) {
+                    timelineSection.innerHTML = timelineHtml;
+                }
+
+                // Handle remarks section
+                const remarksSection = document.getElementById('remarksSection');
+                if (data.remarks) {
+                    remarksSection.style.display = 'block';
+                    document.getElementById('remarksContent').textContent = data.remarks;
+                } else {
+                    remarksSection.style.display = 'none';
+                }
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const modal = document.getElementById('applicationModal');
+                const modalBody = modal.querySelector('.modal-body');
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        ${error.message || 'Error loading application details. Please try again.'}
+                    </div>`;
+            });
+    }
 
         // Helper function to toggle image zoom (reuse existing if available)
         function toggleImageZoom(img) {
@@ -2963,23 +3257,10 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                                 <i class="fas fa-external-link-alt me-2"></i>Open Document
                             </a>
                             <a href="${fileUrl}" download="${fileName}" class="btn btn-success">
-                    <div class="fishr-document-viewer">
-                        <div class="fishr-document-placeholder">
-                            <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
-                            <h5>Unable to preview ${type}</h5>
-                            <p class="mb-3">The ${type} could not be loaded or displayed.</p>
-                        </div>
-                        <div class="fishr-document-actions">
-                            <button class="btn fishr-btn fishr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
-                                <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                            </button>
-                            <button class="btn fishr-btn fishr-btn-primary" onclick="downloadFile('${fileUrl}', '${fileName}')">
                                 <i class="fas fa-download me-2"></i>Download
-                            </button>
+                            </a>
                         </div>
-                        <div class="fishr-document-info">
-                            <p class="fishr-file-name">File: ${fileName}</p>
-                        </div>
+                        <small class="text-muted d-block mt-2">File: ${fileName}</small>
                     </div>`;
                     } else {
                         // Handle unsupported file types
@@ -3355,11 +3636,11 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
             return container;
         }
 
-        // Get CSRF token utility function
-        function getCSRFToken() {
-            const metaTag = document.querySelector('meta[name="csrf-token"]');
-            return metaTag ? metaTag.getAttribute('content') : '';
-        }
+        // // Get CSRF token utility function
+        // function getCSRFToken() {
+        //     const metaTag = document.querySelector('meta[name="csrf-token"]');
+        //     return metaTag ? metaTag.getAttribute('content') : '';
+        // }
 
         // Helper function to get status display text with null safety
         function getStatusText(status) {
@@ -3786,7 +4067,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                     if (data.success) {
                         // Close modal
                         const modal = bootstrap.Modal.getInstance(document.getElementById('addRsbsaModal'));
-                        modal.hide();
+                        if (modal) modal.hide();
 
                         // Show success message
                         showToast('success', data.message || 'RSBSA application created successfully');
@@ -3836,5 +4117,623 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
             link.click();
             document.body.removeChild(link);
         }
+
+                /**
+         * Show edit RSBSA modal and load application data
+         */
+        function showEditRsbsaModal(applicationId) {
+        if (!applicationId) {
+            showToast('error', 'Invalid application ID');
+            return;
+        }
+
+        // Fetch application data
+        fetch(`/admin/rsbsa-applications/${applicationId}`)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return response.json();
+            })
+            .then(response => {
+                if (!response.success) {
+                    throw new Error(response.message || 'Failed to load application');
+                }
+
+                const data = response.data;
+
+                // Populate editable fields
+                document.getElementById('edit_rsbsa_first_name').value = data.first_name || '';
+                document.getElementById('edit_rsbsa_middle_name').value = data.middle_name || '';
+                document.getElementById('edit_rsbsa_last_name').value = data.last_name || '';
+                document.getElementById('edit_rsbsa_extension').value = data.name_extension || '';
+                document.getElementById('edit_rsbsa_contact_number').value = data.contact_number || '';
+                document.getElementById('edit_rsbsa_email').value = data.email || '';
+                document.getElementById('edit_rsbsa_barangay').value = data.barangay || '';
+                document.getElementById('edit_rsbsa_farm_location').value = data.farm_location || '';
+                
+                // NOW EDITABLE: Livelihood fields
+                document.getElementById('edit_rsbsa_livelihood').value = data.main_livelihood || '';
+                document.getElementById('edit_rsbsa_land_area').value = data.land_area || '';
+                document.getElementById('edit_rsbsa_commodity').value = data.commodity || '';
+                
+                // Read-only fields
+                document.getElementById('edit_rsbsa_app_number').value = data.application_number || '';
+                document.getElementById('editAppNumber').textContent = data.application_number || '';
+
+                // Status badge
+                const statusBadge = document.getElementById('edit_rsbsa_status_badge');
+                statusBadge.className = `badge bg-${data.status_color}`;
+                statusBadge.textContent = data.formatted_status;
+
+                // Date applied
+                document.getElementById('edit_rsbsa_created_at').textContent = data.created_at || 'N/A';
+
+                // Initialize the form for change detection
+                initializeEditRsbsaForm(applicationId, data);
+
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('editRsbsaModal'));
+                modal.show();
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', 'Error loading application: ' + error.message);
+            });
+    }
+
+    /**
+     * Initialize edit form with original data for change detection
+     */
+ function initializeEditRsbsaForm(applicationId, data) {
+    const form = document.getElementById('editRsbsaForm');
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+
+    // Store original data for comparison - INCLUDING LIVELIHOOD FIELDS
+    const originalData = {
+        first_name: data.first_name || '',
+        middle_name: data.middle_name || '',
+        last_name: data.last_name || '',
+        name_extension: data.name_extension || '',
+        contact_number: data.contact_number || '',
+        email: data.email || '',
+        barangay: data.barangay || '',
+        farm_location: data.farm_location || '',
+        main_livelihood: data.main_livelihood || '',
+        land_area: data.land_area || '',
+        commodity: data.commodity || ''
+    };
+
+    form.dataset.originalData = JSON.stringify(originalData);
+    form.dataset.applicationId = applicationId;
+
+    // Clear validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+    form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
+
+    // Reset button state - KEEP ENABLED like seedling module
+    submitBtn.innerHTML = 'Save Changes';
+    submitBtn.disabled = false;
+    submitBtn.dataset.hasChanges = 'false';
+
+    // Add change listeners
+    addRsbsaFormChangeListeners(applicationId);
+}
+
+  /**
+ * Add event listeners to detect form changes
+ */
+function addRsbsaFormChangeListeners(applicationId) {
+    const form = document.getElementById('editRsbsaForm');
+    const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="number"], textarea, select');
+
+    inputs.forEach(input => {
+        // Remove any existing listeners first
+        input.removeEventListener('input', handleRsbsaFormChange);
+        input.removeEventListener('change', handleRsbsaFormChange);
+        
+        // Add new listeners
+        input.addEventListener('input', handleRsbsaFormChange);
+        input.addEventListener('change', handleRsbsaFormChange);
+    });
+}
+
+
+ /**
+ * Handle form change event
+ */
+function handleRsbsaFormChange() {
+    const form = document.getElementById('editRsbsaForm');
+    const applicationId = form.dataset.applicationId;
+    checkRsbsaFormChanges(applicationId);
+}
+
+ /**
+ * Check for changes in the form and update button state
+ */
+function checkRsbsaFormChanges(applicationId) {
+    const form = document.getElementById('editRsbsaForm');
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+
+    if (!form || !submitBtn) return;
+
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    let hasChanges = false;
+
+    // Check all editable fields by getting values directly from DOM elements
+    const fieldMap = {
+        'first_name': 'edit_rsbsa_first_name',
+        'middle_name': 'edit_rsbsa_middle_name',
+        'last_name': 'edit_rsbsa_last_name',
+        'name_extension': 'edit_rsbsa_extension',
+        'contact_number': 'edit_rsbsa_contact_number',
+        'email': 'edit_rsbsa_email',
+        'barangay': 'edit_rsbsa_barangay',
+        'farm_location': 'edit_rsbsa_farm_location',
+        'main_livelihood': 'edit_rsbsa_livelihood',
+        'land_area': 'edit_rsbsa_land_area',
+        'commodity': 'edit_rsbsa_commodity'
+    };
+
+    Object.keys(fieldMap).forEach(fieldName => {
+        const elementId = fieldMap[fieldName];
+        const input = document.getElementById(elementId);
+        
+        if (input) {
+            const currentValue = (input.value || '').trim();
+            const originalValue = (originalData[fieldName] || '').trim();
+            
+            if (currentValue !== originalValue) {
+                hasChanges = true;
+                input.classList.add('form-changed');
+            } else {
+                input.classList.remove('form-changed');
+            }
+        }
+    });
+
+    // Update button state based on changes - ALWAYS KEEP ENABLED
+    if (hasChanges) {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
+    } else {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
+    }
+}
+
+ /**
+ * Validate edit RSBSA form - UPDATED WITH LIVELIHOOD VALIDATION
+ */
+function validateEditRsbsaForm() {
+    const form = document.getElementById('editRsbsaForm');
+    let isValid = true;
+
+    // Clear all previous validation states
+    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+    const requiredFields = [
+        { elementId: 'edit_rsbsa_first_name', label: 'First Name' },
+        { elementId: 'edit_rsbsa_last_name', label: 'Last Name' },
+        { elementId: 'edit_rsbsa_contact_number', label: 'Contact Number' },
+        { elementId: 'edit_rsbsa_barangay', label: 'Barangay' },
+        { elementId: 'edit_rsbsa_livelihood', label: 'Main Livelihood' }
+    ];
+
+    // Validate required fields
+    requiredFields.forEach(field => {
+        const input = document.getElementById(field.elementId);
+        if (input && (!input.value || input.value.trim() === '')) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            input.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    });
+
+    // Validate contact number format
+    const contactInput = document.getElementById('edit_rsbsa_contact_number');
+    if (contactInput && contactInput.value.trim()) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            contactInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    // Validate email if provided
+    const emailInput = document.getElementById('edit_rsbsa_email');
+    if (emailInput && emailInput.value.trim()) {
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(emailInput.value.trim())) {
+            emailInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Invalid email format';
+            emailInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    // Validate land area if provided
+    const landAreaInput = document.getElementById('edit_rsbsa_land_area');
+    if (landAreaInput && landAreaInput.value) {
+        const landArea = parseFloat(landAreaInput.value);
+        if (isNaN(landArea) || landArea < 0) {
+            landAreaInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Land area must be a positive number';
+            landAreaInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+        if (landArea > 99999.99) {
+            landAreaInput.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Land area cannot exceed 99999.99 hectares';
+            landAreaInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+  /**
+ * Get CSRF token from meta tag
+ */
+function getCSRFToken() {
+    const metaTag = document.querySelector('meta[name="csrf-token"]');
+    if (!metaTag) {
+        console.error('CSRF token meta tag not found!');
+        return '';
+    }
+    return metaTag.getAttribute('content');
+}
+    /**
+     * Validate contact number in edit form
+     */
+    function validateEditRsbsaContactNumber(input) {
+        const feedback = input.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+        input.classList.remove('is-invalid', 'is-valid');
+
+        if (!input.value.trim()) return true;
+
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+
+        if (!phoneRegex.test(input.value.trim())) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            input.parentNode.appendChild(errorDiv);
+            return false;
+        }
+
+        input.classList.add('is-valid');
+        return true;
+    }
+
+    /**
+     * Validate email in edit form
+     */
+    function validateEditRsbsaEmail(input) {
+        const feedback = input.parentNode.querySelector('.invalid-feedback');
+        if (feedback) feedback.remove();
+        input.classList.remove('is-invalid', 'is-valid');
+
+        if (!input.value.trim()) return true;
+
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (!emailPattern.test(input.value.trim())) {
+            input.classList.add('is-invalid');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Invalid email format';
+            input.parentNode.appendChild(errorDiv);
+            return false;
+        }
+
+        input.classList.add('is-valid');
+        return true;
+    }
+
+ /**
+ * Handle edit form submission with confirmation
+ */
+function handleEditRsbsaSubmit() {
+    const form = document.getElementById('editRsbsaForm');
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+    const applicationId = form.dataset.applicationId;
+
+    // Validate form
+    if (!validateEditRsbsaForm()) {
+        showToast('error', 'Please fix all validation errors before saving');
+        return;
+    }
+
+    // Check if there are changes
+    if (submitBtn.dataset.hasChanges === 'false') {
+        showToast('warning', 'No changes detected. Please modify the fields before saving.');
+        return;
+    }
+
+    // Build changes summary
+    const originalData = JSON.parse(form.dataset.originalData || '{}');
+    const changedFields = [];
+    
+    const fieldLabels = {
+        'first_name': 'First Name',
+        'middle_name': 'Middle Name',
+        'last_name': 'Last Name',
+        'name_extension': 'Extension',
+        'contact_number': 'Contact Number',
+        'email': 'Email',
+        'barangay': 'Barangay',
+        'farm_location': 'Farm Location',
+        'main_livelihood': 'Main Livelihood',
+        'land_area': 'Land Area',
+        'commodity': 'Commodity'
+    };
+
+    const fieldMap = {
+        'first_name': 'edit_rsbsa_first_name',
+        'middle_name': 'edit_rsbsa_middle_name',
+        'last_name': 'edit_rsbsa_last_name',
+        'name_extension': 'edit_rsbsa_extension',
+        'contact_number': 'edit_rsbsa_contact_number',
+        'email': 'edit_rsbsa_email',
+        'barangay': 'edit_rsbsa_barangay',
+        'farm_location': 'edit_rsbsa_farm_location',
+        'main_livelihood': 'edit_rsbsa_livelihood',
+        'land_area': 'edit_rsbsa_land_area',
+        'commodity': 'edit_rsbsa_commodity'
+    };
+
+    Object.keys(fieldMap).forEach(fieldName => {
+        const elementId = fieldMap[fieldName];
+        const input = document.getElementById(elementId);
+        const currentValue = (input?.value || '').trim();
+        const originalValue = (originalData[fieldName] || '').trim();
+        
+        if (currentValue !== originalValue) {
+            changedFields.push(fieldLabels[fieldName] || fieldName);
+        }
+    });
+
+    // Show confirmation toast
+    showConfirmationToast(
+        'Confirm Update',
+        `Save the following changes to this RSBSA application?\n\n• ${changedFields.join('\n• ')}`,
+        () => proceedWithEditRsbsa(form, applicationId)
+    );
+}
+
+ /**
+ * Proceed with edit submission after confirmation
+ */
+function proceedWithEditRsbsa(form, applicationId) {
+    const submitBtn = document.getElementById('editRsbsaSubmitBtn');
+    
+    // Show loading state
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+    submitBtn.disabled = true;
+
+    // Disable form inputs during submission
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => input.disabled = true);
+
+    // Get values directly from elements by ID (NOT using FormData)
+    const jsonData = {
+        first_name: (document.getElementById('edit_rsbsa_first_name')?.value || '').trim(),
+        middle_name: (document.getElementById('edit_rsbsa_middle_name')?.value || '').trim(),
+        last_name: (document.getElementById('edit_rsbsa_last_name')?.value || '').trim(),
+        name_extension: (document.getElementById('edit_rsbsa_extension')?.value || '') || null,
+        contact_number: (document.getElementById('edit_rsbsa_contact_number')?.value || '').trim(),
+        email: (document.getElementById('edit_rsbsa_email')?.value || '').trim(),
+        barangay: (document.getElementById('edit_rsbsa_barangay')?.value || '').trim(),
+        farm_location: (document.getElementById('edit_rsbsa_farm_location')?.value || '').trim(),
+        main_livelihood: (document.getElementById('edit_rsbsa_livelihood')?.value || '').trim(),
+        land_area: document.getElementById('edit_rsbsa_land_area')?.value ? parseFloat(document.getElementById('edit_rsbsa_land_area').value) : null,
+        commodity: (document.getElementById('edit_rsbsa_commodity')?.value || '').trim()
+    };
+
+    console.log('✅ Sending update data:', jsonData);
+
+    // Submit to backend
+    fetch(`/admin/rsbsa-applications/${applicationId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify(jsonData)
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        
+        return response.json().then(data => {
+            console.log('Response data:', data);
+            
+            if (!response.ok) {
+                throw {
+                    status: response.status,
+                    message: data.message || 'Update failed',
+                    errors: data.errors || {}
+                };
+            }
+            return data;
+        });
+    })
+    .then(data => {
+        if (data.success) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editRsbsaModal'));
+            if (modal) modal.hide();
+
+            showToast('success', data.message || 'Application updated successfully');
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            throw {
+                status: 422,
+                message: data.message || 'Failed to update application',
+                errors: data.errors || {}
+            };
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error occurred:', error);
+        
+        // Handle validation errors from server
+        if (error.status === 422 && error.errors && typeof error.errors === 'object') {
+            console.error('Server validation errors:', error.errors);
+            
+            const fieldMap = {
+                'first_name': 'edit_rsbsa_first_name',
+                'last_name': 'edit_rsbsa_last_name',
+                'contact_number': 'edit_rsbsa_contact_number',
+                'barangay': 'edit_rsbsa_barangay',
+                'main_livelihood': 'edit_rsbsa_livelihood',
+                'email': 'edit_rsbsa_email',
+                'land_area': 'edit_rsbsa_land_area',
+                'farm_location': 'edit_rsbsa_farm_location',
+                'middle_name': 'edit_rsbsa_middle_name',
+                'name_extension': 'edit_rsbsa_extension',
+                'commodity': 'edit_rsbsa_commodity'
+            };
+            
+            Object.keys(error.errors).forEach(field => {
+                const elementId = fieldMap[field];
+                const input = document.getElementById(elementId);
+                if (input) {
+                    input.classList.add('is-invalid');
+                    const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+                    if (existingFeedback) existingFeedback.remove();
+                    
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    const errorMessage = Array.isArray(error.errors[field]) 
+                        ? error.errors[field][0] 
+                        : error.errors[field];
+                    errorDiv.textContent = errorMessage;
+                    input.parentNode.appendChild(errorDiv);
+                    
+                    console.error(`Field "${field}":`, errorMessage);
+                }
+            });
+            
+            showToast('error', error.message);
+        } else {
+            console.error('Unexpected error:', error.message || error);
+            showToast('error', error.message || 'Error updating application');
+        }
+        
+        // Restore button state
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        formInputs.forEach(input => input.disabled = false);
+    });
+}
+/**
+ * Validate JSON data locally BEFORE sending to server
+ */
+function validateJsonDataLocally(data) {
+    const errors = {};
+
+    // Check required fields
+    if (!data.first_name || data.first_name.trim() === '') {
+        errors.first_name = 'First Name is required';
+    }
+
+    if (!data.last_name || data.last_name.trim() === '') {
+        errors.last_name = 'Last Name is required';
+    }
+
+    if (!data.contact_number || data.contact_number.trim() === '') {
+        errors.contact_number = 'Contact Number is required';
+    }
+
+    if (!data.barangay || data.barangay.trim() === '') {
+        errors.barangay = 'Barangay is required';
+    }
+
+    if (!data.main_livelihood || data.main_livelihood.trim() === '') {
+        errors.main_livelihood = 'Main Livelihood is required';
+    }
+
+    // Validate contact number format
+    if (data.contact_number && data.contact_number.trim() !== '') {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(data.contact_number.trim())) {
+            errors.contact_number = 'Contact number must be in format: 09XXXXXXXXX or +639XXXXXXXXX (exactly 11 or 12 digits)';
+        }
+    }
+
+    // Validate email if provided
+    if (data.email && data.email.trim() !== '') {
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(data.email.trim())) {
+            errors.email = 'Invalid email format';
+        }
+    }
+
+    // Validate land area if provided
+    if (data.land_area !== null && data.land_area !== '') {
+        const landArea = parseFloat(data.land_area);
+        if (isNaN(landArea) || landArea < 0) {
+            errors.land_area = 'Land area must be a positive number';
+        }
+        if (landArea > 99999.99) {
+            errors.land_area = 'Land area cannot exceed 99999.99 hectares';
+        }
+    }
+
+    return errors;
+}
+
+    // Auto-capitalize names in edit form
+    function capitalizeRsbsaEditName(input) {
+        const value = input.value;
+        if (value.length > 0) {
+            input.value = value
+                .toLowerCase()
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            
+            // Trigger change detection after capitalization
+            const form = document.getElementById('editRsbsaForm');
+            if (form && form.dataset.applicationId) {
+                checkRsbsaFormChanges(form.dataset.applicationId);
+            }
+        }
+    }
+
+    // Initialize name field auto-capitalize when modal is shown
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up event delegation for dynamically added elements
+        document.addEventListener('focusout', function(e) {
+            if (e.target.id === 'edit_rsbsa_first_name' || 
+                e.target.id === 'edit_rsbsa_middle_name' || 
+                e.target.id === 'edit_rsbsa_last_name') {
+                capitalizeRsbsaEditName(e.target);
+            }
+        });
+    });
     </script>
 @endsection

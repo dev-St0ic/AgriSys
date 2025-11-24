@@ -173,97 +173,207 @@ class RsbsaController extends Controller
 
     /**
      * OPTIMIZED: Update the status of the specified RSBSA application
-     * Fast response with async notifications
+     * Update personal information of an RSBSA application (for edit modal)
      */
-    public function updateStatus(Request $request, $id)
-    {
-        try {
-            // Quick validation
-            $validated = $request->validate([
-                'status' => 'required|in:pending,under_review,approved,rejected',
-                'remarks' => 'nullable|string|max:1000',
-            ]);
+   public function update(Request $request, $id)
+{
+    try {
+        // Validate incoming data - NOW INCLUDING LIVELIHOOD FIELDS
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'middle_name' => 'nullable|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'name_extension' => 'nullable|string|max:10',
+            'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+            'email' => 'nullable|email|max:254',
+            'barangay' => 'required|string|max:100',
+            'farm_location' => 'nullable|string|max:500',
+            // NOW EDITABLE: Livelihood information
+            'main_livelihood' => 'required|in:Farmer,Farmworker/Laborer,Fisherfolk,Agri-youth',
+            'land_area' => 'nullable|numeric|min:0|max:99999.99',
+            'commodity' => 'nullable|string|max:1000',
+        ]);
 
-            // Find and lock the application
-            $application = RsbsaApplication::lockForUpdate()->findOrFail($id);
-            $previousStatus = $application->status;
-            $statusChanged = ($previousStatus !== $validated['status']);
+        // Find the application
+        $application = RsbsaApplication::findOrFail($id);
 
-            // Prepare update data
-            $updateData = [
-                'status' => $validated['status'],
-                'remarks' => $validated['remarks'],
-                'reviewed_at' => now(),
-                'reviewed_by' => auth()->id()
-            ];
+        // Store original values for audit
+        $originalData = $application->only([
+            'first_name', 'middle_name', 'last_name', 'name_extension',
+            'contact_number', 'email', 'barangay', 'farm_location', 
+            'main_livelihood', 'land_area', 'commodity'
+        ]);
 
-            // Add status-specific timestamps
-            if ($validated['status'] === 'approved') {
-                $updateData['approved_at'] = now();
-                $updateData['number_assigned_at'] = now();
-                $updateData['assigned_by'] = auth()->id();
-            } elseif ($validated['status'] === 'rejected') {
-                $updateData['rejected_at'] = now();
+        // Update the application
+        $application->update($validated);
+
+        // Log the changes
+        $changes = [];
+        foreach ($validated as $key => $value) {
+            if (($originalData[$key] ?? null) !== $value) {
+                $changes[$key] = [
+                    'old' => $originalData[$key] ?? null,
+                    'new' => $value
+                ];
             }
+        }
 
-            // Single database update
-            $application->update($updateData);
+        Log::info('RSBSA application updated by admin', [
+            'application_id' => $id,
+            'application_number' => $application->application_number,
+            'updated_by' => auth()->user()->name,
+            'changes' => $changes
+        ]);
 
-            // Dispatch notifications asynchronously (non-blocking)
-            if ($statusChanged) {
-                // Queue SMS notification for background processing
-                dispatch(function() use ($application, $previousStatus, $validated) {
-                    try {
-                        $application->fireApplicationStatusChanged(
-                            $application->getApplicationTypeName(),
-                            $previousStatus,
-                            $validated['status'],
-                            $validated['remarks']
-                        );
-                    } catch (\Exception $e) {
-                        Log::error('SMS notification failed', ['id' => $application->id, 'error' => $e->getMessage()]);
-                    }
-                })->afterResponse();
-            }
-
-            // Queue email notification for background processing
-            if ($validated['status'] === 'approved' && $application->email) {
-                dispatch(function() use ($application) {
-                    try {
-                        Mail::to($application->email)->send(new ApplicationApproved($application, 'rsbsa'));
-                    } catch (\Exception $e) {
-                        Log::error('Email notification failed', ['id' => $application->id, 'error' => $e->getMessage()]);
-                    }
-                })->afterResponse();
-            }
-
-            // Quick response
+        if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Status updated successfully' . ($statusChanged ? ' - notifications queued' : ''),
+                'message' => 'Application updated successfully',
                 'data' => [
+                    'id' => $application->id,
+                    'full_name' => $application->full_name,
+                    'updated_at' => $application->updated_at->format('M d, Y g:i A')
+                ]
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Application updated successfully');
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        return redirect()->back()
+            ->withErrors($e->errors())
+            ->withInput();
+
+    } catch (\Exception $e) {
+        Log::error('Error updating RSBSA application', [
+            'application_id' => $id,
+            'error' => $e->getMessage(),
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating application: ' . $e->getMessage()
+            ], 500);
+        }
+
+        return redirect()->back()->with('error', 'Error updating application: ' . $e->getMessage());
+    }
+}
+
+    /**
+ * Update the status of an RSBSA application (separate from personal info edits)
+ */
+public function updateStatus(Request $request, $id)
+{
+    try {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,under_review,approved,rejected',
+            'remarks' => 'nullable|string|max:1000',
+        ]);
+
+        $application = RsbsaApplication::findOrFail($id);
+
+        // Store original status for comparison
+        $originalStatus = $application->status;
+
+        // Update status and remarks
+        $application->update([
+            'status' => $validated['status'],
+            'remarks' => $validated['remarks'] ?? $application->remarks,
+            'reviewed_at' => now(),
+            'reviewed_by' => auth()->id(),
+        ]);
+
+        // Set approval/rejection timestamps
+        if ($validated['status'] === 'approved') {
+            $application->update([
+                'approved_at' => now(),
+                'number_assigned_at' => now(),
+                'assigned_by' => auth()->id(),
+            ]);
+        } elseif ($validated['status'] === 'rejected') {
+            $application->update([
+                'rejected_at' => now(),
+            ]);
+        }
+
+        Log::info('RSBSA application status updated', [
+            'application_id' => $id,
+            'application_number' => $application->application_number,
+            'old_status' => $originalStatus,
+            'new_status' => $validated['status'],
+            'updated_by' => auth()->user()->name,
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Status updated successfully',
+                'data' => [
+                    'id' => $application->id,
                     'status' => $application->status,
                     'formatted_status' => $application->formatted_status,
                     'status_color' => $application->status_color,
-                    'updated_at' => $application->updated_at->format('M d, Y h:i A'),
-                    'sms_sent' => $statusChanged
+                    'updated_at' => $application->updated_at->format('M d, Y g:i A')
                 ]
             ]);
+        }
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        return redirect()->back()->with('success', 'Status updated successfully');
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid input: ' . implode(', ', $e->validator->errors()->all())
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
             ], 422);
-        } catch (\Exception $e) {
-            Log::error('Status update failed', ['id' => $id, 'error' => $e->getMessage()]);
+        }
+
+        return redirect()->back()->withErrors($e->errors())->withInput();
+
+    } catch (\Exception $e) {
+        Log::error('Error updating RSBSA application status', [
+            'application_id' => $id,
+            'error' => $e->getMessage(),
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Update failed: ' . $e->getMessage()
+                'message' => 'Error updating status: ' . $e->getMessage()
             ], 500);
         }
-    }
 
+        return redirect()->back()->with('error', 'Error updating status: ' . $e->getMessage());
+    }
+}
+
+// /**
+//  * Helper method to get changed fields for audit logging
+//  */
+// private function getChangedFields($original, $updated)
+// {
+//     $changes = [];
+//     foreach ($updated as $key => $value) {
+//         if (($original[$key] ?? null) !== $value) {
+//             $changes[$key] = [
+//                 'old' => $original[$key] ?? null,
+//                 'new' => $value
+//             ];
+//         }
+//     }
+//     return $changes;
+// }
 
 
     /**

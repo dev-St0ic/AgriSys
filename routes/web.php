@@ -102,14 +102,29 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     // RSBSA APPLICATIONS MANAGEMENT
     // ==============================================
     Route::prefix('admin/rsbsa-applications')->name('admin.rsbsa.')->group(function () {
-        Route::get('/', [RsbsaController::class, 'index'])->name('applications');
-        // add registration
-        Route::post('/create', [RsbsaController::class, 'store'])->name('store');
-        Route::get('/{id}', [RsbsaController::class, 'show'])->name('show');
-        Route::patch('/{id}/status', [RsbsaController::class, 'updateStatus'])->name('update-status');
-        Route::delete('/{id}', [RsbsaController::class, 'destroy'])->name('destroy');
-        Route::get('/{id}/download', [RsbsaController::class, 'downloadDocument'])->name('download-document');
-        Route::get('/export', [RsbsaController::class, 'export'])->name('export');
+        // List applications
+    Route::get('/', [RsbsaController::class, 'index'])->name('applications');
+    
+    // Export applications (must be before /{id} to avoid conflict)
+    Route::get('/export', [RsbsaController::class, 'export'])->name('export');
+    
+    // Create new registration
+    Route::post('/create', [RsbsaController::class, 'store'])->name('store');
+    
+    // View single application
+    Route::get('/{id}', [RsbsaController::class, 'show'])->name('show');
+    
+    // Update application (personal info) - PUT method
+    Route::put('/{id}', [RsbsaController::class, 'update'])->name('update');
+    
+    // Update status only - PATCH method (different from PUT)
+    Route::patch('/{id}/status', [RsbsaController::class, 'updateStatus'])->name('update-status');
+    
+    // Delete application
+    Route::delete('/{id}', [RsbsaController::class, 'destroy'])->name('destroy');
+    
+    // Download document
+    Route::get('/{id}/download', [RsbsaController::class, 'downloadDocument'])->name('download-document');
     });
 
     // ==============================================
