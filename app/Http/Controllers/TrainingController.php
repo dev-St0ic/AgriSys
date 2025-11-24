@@ -15,7 +15,7 @@ class TrainingController extends Controller
     /**
      * Display a listing of training applications
      */
-    public function index(Request $request)
+  public function index(Request $request)
     {
         $query = TrainingApplication::query()->with('updatedBy');
 
@@ -53,14 +53,47 @@ class TrainingController extends Controller
         $approvedCount = TrainingApplication::where('status', 'approved')->count();
         $rejectedCount = TrainingApplication::where('status', 'rejected')->count();
 
+      
+        $barangays = [
+            'Bagong Silang',
+            'Calendola',
+            'Chrysanthemum',
+            'Cuyab',
+            'Estrella',
+            'Fatima',
+            'G.S.I.S.',
+            'Landayan',
+            'Langgam',
+            'Laram',
+            'Magsaysay',
+            'Maharlika',
+            'Narra',
+            'Nueva',
+            'Pacita 1',
+            'Pacita 2',
+            'Poblacion',
+            'Riverside',
+            'Rosario',
+            'Sampaguita Village',
+            'San Antonio',
+            'San Lorenzo Ruiz',
+            'San Roque',
+            'San Vicente',
+            'Santo Niño',
+            'United Bayanihan',
+            'United Better Living'
+        ];
+
         return view('admin.training.index', compact(
             'trainings',
             'totalApplications',
             'underReviewCount',
             'approvedCount',
-            'rejectedCount'
+            'rejectedCount',
+            'barangays' 
         ));
     }
+
 
     /**
      * Store a newly created training application
@@ -185,7 +218,7 @@ class TrainingController extends Controller
         return $number;
     }
 
-    /**
+   /**
      * Show the specified training application
      */
     public function show($id)
@@ -200,9 +233,11 @@ class TrainingController extends Controller
                 'first_name' => $training->first_name,
                 'middle_name' => $training->middle_name,
                 'last_name' => $training->last_name,
+                'name_extension' => $training->name_extension,
                 'full_name' => $training->full_name,
                 'contact_number' => $training->contact_number,
                 'email' => $training->email,
+                'barangay' => $training->barangay,
                 'training_type' => $training->training_type,
                 'training_type_display' => $training->training_type_display,
                 'status' => $training->status,
@@ -219,6 +254,63 @@ class TrainingController extends Controller
         ]);
     }
 
+    /**
+     * Update training application (personal info only)
+     */
+   public function update(Request $request, $id)
+    {
+        try {
+            $training = TrainingApplication::findOrFail($id);
+
+            // Validate the incoming data
+            $validated = $request->validate([
+                'first_name' => 'required|string|max:100',
+                'middle_name' => 'nullable|string|max:100',
+                'last_name' => 'required|string|max:100',
+                'name_extension' => 'nullable|string|max:10',
+                'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+                'email' => 'nullable|email|max:254',
+                'barangay' => 'required|string|max:255',
+                'training_type' => 'required|in:tilapia_hito,hydroponics,aquaponics,mushrooms,livestock_poultry,high_value_crops,sampaguita_propagation',
+            ], [
+                'contact_number.regex' => 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)',
+                'training_type.in' => 'Invalid training type selected',
+            ]);
+
+            // Update the training application
+            $training->update($validated);
+
+            Log::info('Training application updated', [
+                'application_id' => $id,
+                'application_number' => $training->application_number,
+                'updated_by' => auth()->user()->name ?? 'System',
+                'fields_updated' => 'Personal info, location, and training type'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Training application updated successfully',
+                'data' => $training
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Error updating training application', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating the application: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Update the status of a training application
      */
