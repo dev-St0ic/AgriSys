@@ -306,6 +306,12 @@
                                             <i class="fas fa-eye"></i> View
                                         </button>
 
+                                        <button class="btn btn-sm btn-outline-warning"
+                                            onclick="showEditFishrModal({{ $registration->id }})"
+                                            title="Edit Personal Information">
+                                            <i class="fas fa-pencil-alt"></i> Edit
+                                        </button>
+
                                         <button class="btn btn-sm btn-outline-success"
                                             onclick="showUpdateModal({{ $registration->id }}, '{{ $registration->status }}')"
                                             title="Update Status">
@@ -612,6 +618,170 @@
             </div>
         </div>
     </div>
+
+ <!-- Edit FishR Registration Modal -->
+<div class="modal fade" id="editFishrModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-pencil-alt me-2"></i>Edit Registration
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="editFishrForm" class="needs-validation">
+                    @csrf
+                    @method('PUT')
+
+                    <!-- Personal Information Card -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_first_name" 
+                                        name="first_name" required maxlength="100">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_middle_name" class="form-label">Middle Name</label>
+                                    <input type="text" class="form-control" id="edit_middle_name" 
+                                        name="middle_name" maxlength="100">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="edit_last_name" 
+                                        name="last_name" required maxlength="100">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="edit_name_extension" class="form-label">Extension</label>
+                                    <select class="form-select" id="edit_name_extension" name="name_extension">
+                                        <option value="">None</option>
+                                        <option value="Jr.">Jr.</option>
+                                        <option value="Sr.">Sr.</option>
+                                        <option value="II">II</option>
+                                        <option value="III">III</option>
+                                        <option value="IV">IV</option>
+                                        <option value="V">V</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_sex" class="form-label">Sex <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="edit_sex" name="sex" required>
+                                        <option value="">Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Preferred not to say">Preferred not to say</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="edit_contact_number" 
+                                        name="contact_number" required placeholder="09XXXXXXXXX" 
+                                        pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                    <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="edit_email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="edit_email" 
+                                        name="email" maxlength="254">
+                                    <div class="form-text">For status notifications</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Information Card -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="edit_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                <select class="form-select" id="edit_barangay" name="barangay" required>
+                                    <option value="">Select Barangay</option>
+                                    <option value="Bagong Silang">Bagong Silang</option>
+                                    <option value="Calendola">Calendola</option>
+                                    <option value="Chrysanthemum">Chrysanthemum</option>
+                                    <option value="Cuyab">Cuyab</option>
+                                    <option value="Estrella">Estrella</option>
+                                    <option value="Fatima">Fatima</option>
+                                    <option value="G.S.I.S.">G.S.I.S.</option>
+                                    <option value="Landayan">Landayan</option>
+                                    <option value="Langgam">Langgam</option>
+                                    <option value="Laram">Laram</option>
+                                    <option value="Magsaysay">Magsaysay</option>
+                                    <option value="Maharlika">Maharlika</option>
+                                    <option value="Narra">Narra</option>
+                                    <option value="Nueva">Nueva</option>
+                                    <option value="Pacita 1">Pacita 1</option>
+                                    <option value="Pacita 2">Pacita 2</option>
+                                    <option value="Poblacion">Poblacion</option>
+                                    <option value="Riverside">Riverside</option>
+                                    <option value="Rosario">Rosario</option>
+                                    <option value="Sampaguita Village">Sampaguita Village</option>
+                                    <option value="San Antonio">San Antonio</option>
+                                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                    <option value="San Roque">San Roque</option>
+                                    <option value="San Vicente">San Vicente</option>
+                                    <option value="Santo Niño">Santo Niño</option>
+                                    <option value="United Bayanihan">United Bayanihan</option>
+                                    <option value="United Better Living">United Better Living</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Information (Read-only) -->
+                    <div class="card mb-3 bg-light">
+                        <div class="card-header bg-light border-0">
+                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Registration Status (Read-only)</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-2">
+                                    <small class="text-muted">Current Status:</small>
+                                    <div>
+                                        <span id="edit_status_display" class="badge bg-secondary"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <small class="text-muted">Date Applied:</small>
+                                    <div id="edit_date_applied"></div>
+                                </div>
+                                <div class="col-md-4 mb-2">
+                                    <small class="text-muted">Last Updated:</small>
+                                    <div id="edit_last_updated"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Alert -->
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        <strong>Note:</strong> You can only edit personal and location information here. 
+                        To update the registration status, use the "Update Status" button from the main table.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="editSubmitBtn"
+                    onclick="handleEditFishrSubmit()">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <!-- Document Preview Modal -->
     <div class="modal fade" id="documentPreviewModal" tabindex="-1">
@@ -3329,6 +3499,353 @@
                 });
         }
 
+  // Show edit modal
+function showEditFishrModal(id) {
+    const modal = new bootstrap.Modal(document.getElementById('editFishrModal'));
+    
+    // Initialize the modal with existing values
+    initializeEditFishrModal(id);
+    
+    modal.show();
+}
+
+// Initialize edit modal with existing data
+function initializeEditFishrModal(id) {
+    // Wait for modal to be fully loaded
+    setTimeout(() => {
+        // Fetch registration details
+        fetch(`/admin/fishr-registrations/${id}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(response => {
+            if (!response.success) throw new Error(response.message || 'Failed to load data');
+
+            const data = response.data;
+
+            // Populate form fields - CHECK IF ELEMENT EXISTS FIRST
+            const firstNameEl = document.getElementById('edit_first_name');
+            if (!firstNameEl) {
+                throw new Error('Form elements not found. Make sure the modal is properly rendered.');
+            }
+
+            firstNameEl.value = data.first_name || '';
+            
+            const middleNameEl = document.getElementById('edit_middle_name');
+            if (middleNameEl) middleNameEl.value = data.middle_name || '';
+            
+            const lastNameEl = document.getElementById('edit_last_name');
+            if (lastNameEl) lastNameEl.value = data.last_name || '';
+            
+            const extensionEl = document.getElementById('edit_name_extension');
+            if (extensionEl) extensionEl.value = data.name_extension || '';
+            
+            const sexEl = document.getElementById('edit_sex');
+            if (sexEl) sexEl.value = data.sex || '';
+            
+            const contactEl = document.getElementById('edit_contact_number');
+            if (contactEl) contactEl.value = data.contact_number || '';
+            
+            const emailEl = document.getElementById('edit_email');
+            if (emailEl) emailEl.value = data.email || '';
+            
+            const barangayEl = document.getElementById('edit_barangay');
+            if (barangayEl) barangayEl.value = data.barangay || '';
+
+            // Populate read-only fields
+            const statusEl = document.getElementById('edit_status_display');
+            if (statusEl) {
+                statusEl.innerHTML = `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+            }
+            
+            const dateEl = document.getElementById('edit_date_applied');
+            if (dateEl) dateEl.textContent = data.created_at || 'N/A';
+            
+            const updatedEl = document.getElementById('edit_last_updated');
+            if (updatedEl) updatedEl.textContent = data.updated_at || 'N/A';
+
+            // Store original data for change detection
+            const originalData = {
+                first_name: data.first_name || '',
+                middle_name: data.middle_name || '',
+                last_name: data.last_name || '',
+                name_extension: data.name_extension || '',
+                sex: data.sex || '',
+                contact_number: data.contact_number || '',
+                email: data.email || '',
+                barangay: data.barangay || ''
+            };
+
+            const form = document.getElementById('editFishrForm');
+            if (form) {
+                form.dataset.originalData = JSON.stringify(originalData);
+                form.dataset.registrationId = id;
+            }
+
+            // Clear validation states
+            document.querySelectorAll('#editFishrForm .is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('#editFishrForm .invalid-feedback').forEach(el => el.remove());
+
+            // Reset button state
+            const submitBtn = document.getElementById('editSubmitBtn');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                submitBtn.disabled = false;
+                submitBtn.dataset.hasChanges = 'false';
+            }
+
+            // Add change detection
+            addEditFishrChangeDetection();
+
+        })
+        .catch(error => {
+            console.error('Error loading registration:', error);
+            showToast('error', 'Failed to load registration: ' + error.message);
+        });
+    }, 300); // Wait for modal animation
+}
+
+// Add change detection to edit form
+function addEditFishrChangeDetection() {
+    const form = document.getElementById('editFishrForm');
+    const inputs = form.querySelectorAll('input, select, textarea');
+
+    inputs.forEach(input => {
+        input.addEventListener('change', () => checkForEditFishrChanges());
+        input.addEventListener('input', () => checkForEditFishrChanges());
+    });
+}
+
+// Check for changes in edit form
+function checkForEditFishrChanges() {
+    const form = document.getElementById('editFishrForm');
+    const submitBtn = document.getElementById('editSubmitBtn');
+
+    if (!form.dataset.originalData) return;
+
+    const originalData = JSON.parse(form.dataset.originalData);
+    let hasChanges = false;
+
+    const fields = [
+        'first_name', 'middle_name', 'last_name', 'name_extension',
+        'sex', 'contact_number', 'email', 'barangay'
+    ];
+
+    fields.forEach(field => {
+        const input = form.querySelector(`[name="${field}"]`);
+        if (input && input.value !== originalData[field]) {
+            hasChanges = true;
+            input.classList.add('form-changed');
+        } else if (input) {
+            input.classList.remove('form-changed');
+        }
+    });
+
+    // Update button state
+    if (hasChanges) {
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'true';
+    } else {
+        submitBtn.classList.add('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+        submitBtn.disabled = false;
+        submitBtn.dataset.hasChanges = 'false';
+    }
+}
+
+// Handle edit form submission
+function handleEditFishrSubmit() {
+    const form = document.getElementById('editFishrForm');
+    const submitBtn = document.getElementById('editSubmitBtn');
+    const registrationId = form.dataset.registrationId;
+
+    // Check if there are no changes
+    if (submitBtn.dataset.hasChanges === 'false') {
+        showToast('warning', 'No changes detected. Please modify the fields before saving.');
+        return;
+    }
+
+    // Validate form
+    if (!validateEditFishrForm()) {
+        showToast('error', 'Please fix all validation errors');
+        return;
+    }
+
+    // Show confirmation
+    showConfirmationToast(
+        'Confirm Update',
+        'Are you sure you want to save the changes to this registration?',
+        () => proceedWithEditFishr(form, registrationId)
+    );
+}
+
+// Validate edit form
+function validateEditFishrForm() {
+    const form = document.getElementById('editFishrForm');
+    let isValid = true;
+
+    const requiredFields = [
+        { name: 'first_name', label: 'First Name' },
+        { name: 'last_name', label: 'Last Name' },
+        { name: 'sex', label: 'Sex' },
+        { name: 'contact_number', label: 'Contact Number' },
+        { name: 'barangay', label: 'Barangay' }
+    ];
+
+    requiredFields.forEach(field => {
+        const input = form.querySelector(`[name="${field.name}"]`);
+        if (input && (!input.value || input.value.trim() === '')) {
+            input.classList.add('is-invalid');
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = field.label + ' is required';
+            input.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    });
+
+    // Validate contact number
+    const contactInput = form.querySelector('[name="contact_number"]');
+    if (contactInput && contactInput.value.trim()) {
+        const phoneRegex = /^(\+639|09)\d{9}$/;
+        if (!phoneRegex.test(contactInput.value.trim())) {
+            contactInput.classList.add('is-invalid');
+            const feedback = contactInput.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+            contactInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    // Validate email if provided
+    const emailInput = form.querySelector('[name="email"]');
+    if (emailInput && emailInput.value.trim()) {
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailPattern.test(emailInput.value.trim())) {
+            emailInput.classList.add('is-invalid');
+            const feedback = emailInput.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'invalid-feedback d-block';
+            errorDiv.textContent = 'Invalid email format';
+            emailInput.parentNode.appendChild(errorDiv);
+            isValid = false;
+        }
+    }
+
+    return isValid;
+}
+
+// Proceed with edit submission
+function proceedWithEditFishr(form, registrationId) {
+    const submitBtn = document.getElementById('editSubmitBtn');
+
+    // Show loading state
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+    submitBtn.disabled = true;
+
+    const formData = new FormData(form);
+
+    fetch(`/admin/fishr-registrations/${registrationId}`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Close modal
+            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('editFishrModal'));
+            if (modalInstance) modalInstance.hide();
+
+            showToast('success', data.message || 'Registration updated successfully');
+
+            // Reload page
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            throw new Error(data.message || 'Failed to update registration');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'Error: ' + error.message);
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+
+// Auto-capitalize names in edit form
+function capitalizeEditFishrName(input) {
+    const value = input.value;
+    if (value.length > 0) {
+        input.value = value
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+}
+
+// Add event listeners for blur on name fields
+document.addEventListener('DOMContentLoaded', function() {
+    const editModal = document.getElementById('editFishrModal');
+    
+    if (editModal) {
+        editModal.addEventListener('shown.bs.modal', function() {
+            // Add blur listeners for auto-capitalization
+            const firstNameInput = document.getElementById('edit_first_name');
+            const middleNameInput = document.getElementById('edit_middle_name');
+            const lastNameInput = document.getElementById('edit_last_name');
+            
+            if (firstNameInput) {
+                firstNameInput.addEventListener('blur', function() {
+                    capitalizeEditFishrName(this);
+                });
+            }
+            
+            if (middleNameInput) {
+                middleNameInput.addEventListener('blur', function() {
+                    capitalizeEditFishrName(this);
+                });
+            }
+            
+            if (lastNameInput) {
+                lastNameInput.addEventListener('blur', function() {
+                    capitalizeEditFishrName(this);
+                });
+            }
+        });
+    }
+});
         console.log('FishR Add Registration functionality loaded successfully');
     </script>
 @endsection

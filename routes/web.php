@@ -139,6 +139,9 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 
         // DELETE route BEFORE GET/{id}
         Route::delete('/{id}', [FishRController::class, 'destroy'])->name('destroy');
+        
+        // edit 
+        Route::put('/{id}', [FishRController::class, 'update'])->name('update');    
 
         // Index route
         Route::get('/', [FishRController::class, 'index'])->name('requests');

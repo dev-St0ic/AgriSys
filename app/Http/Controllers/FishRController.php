@@ -125,10 +125,14 @@ class FishRController extends Controller
                     'id' => $registration->id,
                     'registration_number' => $registration->registration_number,
                     'full_name' => $registration->full_name,
+                    'first_name' => $registration->first_name,
+                    'middle_name' => $registration->middle_name,
+                    'last_name' => $registration->last_name,
+                    'name_extension' => $registration->name_extension,
                     'sex' => $registration->sex,
                     'barangay' => $registration->barangay,
                     'contact_number' => $registration->contact_number,
-                    'email' => $registration->email, // Added missing email field
+                    'email' => $registration->email,
                     'main_livelihood' => $registration->main_livelihood,
                     'livelihood_description' => $registration->livelihood_description,
                     'other_livelihood' => $registration->other_livelihood,
@@ -156,6 +160,68 @@ class FishRController extends Controller
             ], 500);
         }
     }
+
+   /**
+ * Update the specified FishR registration (Personal info editing)
+ */
+public function update(Request $request, $id)
+{
+    try {
+        // Validate the incoming data
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'middle_name' => 'nullable|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'name_extension' => 'nullable|string|max:10',
+            'sex' => 'required|in:Male,Female,Preferred not to say',
+            'contact_number' => ['required', 'string', 'regex:/^(\+639|09)\d{9}$/'],
+            'email' => 'nullable|email|max:254',
+            'barangay' => 'required|string|max:100',
+        ]);
+
+        // Find the registration
+        $registration = FishrApplication::findOrFail($id);
+
+        // Update the registration with only personal info
+        $registration->update($validated);
+
+        Log::info('FishR registration updated by admin', [
+            'registration_id' => $registration->id,
+            'registration_number' => $registration->registration_number,
+            'updated_by' => auth()->user()->name,
+            'fields_updated' => array_keys($validated)
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration information updated successfully',
+            'data' => [
+                'id' => $registration->id,
+                'full_name' => $registration->full_name,
+                'updated_at' => $registration->updated_at->format('M d, Y h:i A')
+            ]
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+
+    } catch (\Exception $e) {
+        Log::error('Error updating FishR registration', [
+            'id' => $id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error updating registration: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
     /**
      * Update the status of the specified FishR registration
