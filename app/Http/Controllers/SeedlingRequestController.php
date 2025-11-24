@@ -284,105 +284,215 @@ class SeedlingRequestController extends Controller
         return view('admin.seedlings.edit', compact('seedlingRequest', 'categories', 'barangays'));
     }
 
+    // /**
+    //  * Update a seedling request
+    //  */
+    // public function update(Request $request, SeedlingRequest $seedlingRequest)
+    // {
+    //     // Only allow editing pending or under_review requests
+    //     if (!in_array($seedlingRequest->status, ['pending', 'under_review'])) {
+    //         return redirect()->route('admin.seedlings.requests')
+    //             ->with('error', 'Cannot edit approved, rejected, or cancelled requests.');
+    //     }
+
+    //     $validated = $request->validate([
+    //         // Personal Information
+    //         'first_name' => 'required|string|max:255',
+    //         'middle_name' => 'nullable|string|max:255',
+    //         'last_name' => 'required|string|max:255',
+    //         'extension_name' => 'nullable|string|max:10',
+    //         'contact_number' => 'required|string|max:20',
+    //         'email' => 'nullable|email|max:255',
+    //         'address' => 'required|string|max:500',
+    //         'barangay' => 'required|string|max:255',
+    //         'planting_location' => 'nullable|string|max:500',
+    //         'purpose' => 'nullable|string|max:1000',
+    //         'preferred_delivery_date' => 'nullable|date|after:today',
+    //         'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+
+    //         // Items - Dynamic array structure
+    //         'items' => 'required|array|min:1',
+    //         'items.*.category_item_id' => 'required|exists:category_items,id',
+    //         'items.*.quantity' => 'required|integer|min:1',
+    //     ], [
+    //         'items.required' => 'Please add at least one item to the request.',
+    //         'items.min' => 'Please add at least one item to the request.',
+    //     ]);
+
+    //     try {
+    //         \DB::beginTransaction();
+
+    //         // Handle document upload/replacement
+    //         if ($request->hasFile('document')) {
+    //             // Delete old document if exists
+    //             if ($seedlingRequest->document_path) {
+    //                 \Storage::disk('public')->delete($seedlingRequest->document_path);
+    //             }
+    //             $seedlingRequest->document_path = $request->file('document')->store('seedling-requests', 'public');
+    //         }
+
+    //         // Update main request information
+    //         $seedlingRequest->update([
+    //             'first_name' => $validated['first_name'],
+    //             'middle_name' => $validated['middle_name'],
+    //             'last_name' => $validated['last_name'],
+    //             'extension_name' => $validated['extension_name'],
+    //             'contact_number' => $validated['contact_number'],
+    //             'email' => $validated['email'],
+    //             'address' => $validated['address'],
+    //             'barangay' => $validated['barangay'],
+    //             'planting_location' => $validated['planting_location'],
+    //             'purpose' => $validated['purpose'],
+    //             'preferred_delivery_date' => $validated['preferred_delivery_date'],
+    //         ]);
+
+    //         // Delete all existing items
+    //         $seedlingRequest->items()->delete();
+
+    //         // Re-create items from the updated dynamic selections
+    //         $totalQuantity = 0;
+    //         foreach ($validated['items'] as $itemData) {
+    //             $categoryItem = CategoryItem::with('category')->findOrFail($itemData['category_item_id']);
+
+    //             SeedlingRequestItem::create([
+    //                 'seedling_request_id' => $seedlingRequest->id,
+    //                 'category_id' => $categoryItem->category_id,
+    //                 'category_item_id' => $categoryItem->id,
+    //                 'item_name' => $categoryItem->name,
+    //                 'requested_quantity' => $itemData['quantity'],
+    //                 'status' => 'pending',
+    //             ]);
+
+    //             $totalQuantity += $itemData['quantity'];
+    //         }
+
+    //         // Update total quantity
+    //         $seedlingRequest->update(['total_quantity' => $totalQuantity]);
+
+    //         \DB::commit();
+
+    //         return redirect()->route('admin.seedlings.requests')
+    //             ->with('success', 'Seedling request updated successfully!');
+
+    //     } catch (\Exception $e) {
+    //         \DB::rollback();
+    //         \Log::error('Failed to update seedling request: ' . $e->getMessage());
+
+    //         return redirect()->back()
+    //             ->withErrors(['error' => 'Failed to update request: ' . $e->getMessage()])
+    //             ->withInput();
+    //     }
+    // }
+
     /**
-     * Update a seedling request
-     */
-    public function update(Request $request, SeedlingRequest $seedlingRequest)
-    {
-        // Only allow editing pending or under_review requests
-        if (!in_array($seedlingRequest->status, ['pending', 'under_review'])) {
-            return redirect()->route('admin.seedlings.requests')
-                ->with('error', 'Cannot edit approved, rejected, or cancelled requests.');
+ * Update a seedling request - Personal information only
+ * For edit modal functionality
+ */
+public function update(Request $request, SeedlingRequest $seedlingRequest)
+{
+    // Allow editing all statuses for personal info, but not items if already processed
+    $validated = $request->validate([
+        // Personal Information
+        'first_name' => 'required|string|max:255',
+        'middle_name' => 'nullable|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'extension_name' => 'nullable|string|max:10',
+        'contact_number' => 'required|string|max:20',
+        'email' => 'nullable|email|max:255',
+        'address' => 'required|string|max:500',
+        'barangay' => 'required|string|max:255',
+        'planting_location' => 'nullable|string|max:500',
+        'purpose' => 'nullable|string|max:1000',
+        'preferred_delivery_date' => 'nullable|date|after_or_equal:today',
+    ], [
+        'contact_number.required' => 'Contact number is required.',
+        'contact_number.regex' => 'Please enter a valid Philippine mobile number.',
+        'first_name.required' => 'First name is required.',
+        'last_name.required' => 'Last name is required.',
+        'address.required' => 'Address is required.',
+        'barangay.required' => 'Barangay is required.',
+    ]);
+
+    try {
+        \DB::beginTransaction();
+
+        // Validate contact number format
+        $phoneRegex = '/^(\+639|09)\d{9}$/';
+        if (!preg_match($phoneRegex, $validated['contact_number'])) {
+            throw new \Exception('Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)');
         }
 
-        $validated = $request->validate([
-            // Personal Information
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'extension_name' => 'nullable|string|max:10',
-            'contact_number' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'address' => 'required|string|max:500',
-            'barangay' => 'required|string|max:255',
-            'planting_location' => 'nullable|string|max:500',
-            'purpose' => 'nullable|string|max:1000',
-            'preferred_delivery_date' => 'nullable|date|after:today',
-            'document' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        // Log the changes for audit trail
+        $changes = [];
+        $changedFields = [
+            'first_name', 'middle_name', 'last_name', 'extension_name',
+            'contact_number', 'email', 'address', 'barangay',
+            'planting_location', 'purpose', 'preferred_delivery_date'
+        ];
 
-            // Items - Dynamic array structure
-            'items' => 'required|array|min:1',
-            'items.*.category_item_id' => 'required|exists:category_items,id',
-            'items.*.quantity' => 'required|integer|min:1',
-        ], [
-            'items.required' => 'Please add at least one item to the request.',
-            'items.min' => 'Please add at least one item to the request.',
+        foreach ($changedFields as $field) {
+            if ($seedlingRequest->$field != $validated[$field]) {
+                $changes[$field] = [
+                    'old' => $seedlingRequest->$field,
+                    'new' => $validated[$field]
+                ];
+            }
+        }
+
+        // Update the request
+        $seedlingRequest->update($validated);
+
+        // Log activity if there are changes
+        if (!empty($changes)) {
+            activity()
+                ->performedOn($seedlingRequest)
+                ->withProperties(['changes' => $changes])
+                ->log('Updated seedling request personal information');
+        }
+
+        \DB::commit();
+
+        // Return JSON response for AJAX requests
+        if ($request->expectsJson()) {
+            $changeCount = count($changes);
+            $message = $changeCount > 0 
+                ? "Seedling request updated successfully! ({$changeCount} field" . ($changeCount !== 1 ? 's' : '') . " changed)"
+                : "Seedling request updated successfully!";
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'changes_count' => $changeCount
+            ]);
+        }
+
+        $message = count($changes) > 0 
+            ? 'Seedling request updated successfully!'
+            : 'No changes were made.';
+
+        return redirect()->route('admin.seedlings.requests')
+            ->with('success', $message);
+
+    } catch (\Exception $e) {
+        \DB::rollback();
+        \Log::error('Failed to update seedling request: ' . $e->getMessage(), [
+            'request_id' => $seedlingRequest->id,
+            'error_trace' => $e->getTraceAsString()
         ]);
 
-        try {
-            \DB::beginTransaction();
-
-            // Handle document upload/replacement
-            if ($request->hasFile('document')) {
-                // Delete old document if exists
-                if ($seedlingRequest->document_path) {
-                    \Storage::disk('public')->delete($seedlingRequest->document_path);
-                }
-                $seedlingRequest->document_path = $request->file('document')->store('seedling-requests', 'public');
-            }
-
-            // Update main request information
-            $seedlingRequest->update([
-                'first_name' => $validated['first_name'],
-                'middle_name' => $validated['middle_name'],
-                'last_name' => $validated['last_name'],
-                'extension_name' => $validated['extension_name'],
-                'contact_number' => $validated['contact_number'],
-                'email' => $validated['email'],
-                'address' => $validated['address'],
-                'barangay' => $validated['barangay'],
-                'planting_location' => $validated['planting_location'],
-                'purpose' => $validated['purpose'],
-                'preferred_delivery_date' => $validated['preferred_delivery_date'],
-            ]);
-
-            // Delete all existing items
-            $seedlingRequest->items()->delete();
-
-            // Re-create items from the updated dynamic selections
-            $totalQuantity = 0;
-            foreach ($validated['items'] as $itemData) {
-                $categoryItem = CategoryItem::with('category')->findOrFail($itemData['category_item_id']);
-
-                SeedlingRequestItem::create([
-                    'seedling_request_id' => $seedlingRequest->id,
-                    'category_id' => $categoryItem->category_id,
-                    'category_item_id' => $categoryItem->id,
-                    'item_name' => $categoryItem->name,
-                    'requested_quantity' => $itemData['quantity'],
-                    'status' => 'pending',
-                ]);
-
-                $totalQuantity += $itemData['quantity'];
-            }
-
-            // Update total quantity
-            $seedlingRequest->update(['total_quantity' => $totalQuantity]);
-
-            \DB::commit();
-
-            return redirect()->route('admin.seedlings.requests')
-                ->with('success', 'Seedling request updated successfully!');
-
-        } catch (\Exception $e) {
-            \DB::rollback();
-            \Log::error('Failed to update seedling request: ' . $e->getMessage());
-
-            return redirect()->back()
-                ->withErrors(['error' => 'Failed to update request: ' . $e->getMessage()])
-                ->withInput();
+        // Return JSON error response for AJAX requests
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
         }
+
+        return redirect()->back()
+            ->withErrors(['error' => $e->getMessage()])
+            ->withInput();
     }
+}
 
 
     /**
@@ -796,4 +906,5 @@ class SeedlingRequestController extends Controller
                 ->with('error', 'Failed to export data: ' . $e->getMessage());
         }
     }
+    
 }
