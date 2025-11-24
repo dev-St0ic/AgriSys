@@ -2100,41 +2100,38 @@
                 });
         }
 
-        // Initialize the update modal with original values
-        function initializeSeedlingUpdateModal(requestId) {
-            const form = document.getElementById('updateForm' + requestId);
-            const remarksTextarea = document.getElementById('remarks' + requestId);
-            const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-            const submitButton = document.getElementById('submitBtn' + requestId);
+  // Initialize the update modal with original values
+function initializeSeedlingUpdateModal(requestId) {
+    const form = document.getElementById('updateForm' + requestId);
+    const remarksTextarea = document.getElementById('remarks' + requestId);
+    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+    const submitButton = document.getElementById('submitBtn' + requestId);
 
-            // Store original remarks value
-            if (remarksTextarea) {
-                remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
-            }
+    // Store original remarks value
+    if (remarksTextarea) {
+        remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
+    }
 
-            // DON'T overwrite originalStatus - it's already set in Blade template
-            // Just ensure item cards keep their data-original-status from the server
+    // Clear any previous change indicators
+    if (remarksTextarea) {
+        remarksTextarea.classList.remove('form-changed');
+    }
 
-            // Clear any previous change indicators
-            if (remarksTextarea) {
-                remarksTextarea.classList.remove('form-changed');
-            }
-
-            statusSelects.forEach(select => {
-                select.classList.remove('form-changed');
-                const itemCard = select.closest('.item-card');
-                if (itemCard) {
-                    itemCard.classList.remove('form-changed');
-                }
-            });
-
-            // Reset button state to "No Changes"
-            if (submitButton) {
-                submitButton.classList.add('no-changes');
-                submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-                submitButton.disabled = true;
-            }
+    statusSelects.forEach(select => {
+        select.classList.remove('form-changed');
+        const itemCard = select.closest('.item-card');
+        if (itemCard) {
+            itemCard.classList.remove('form-changed');
         }
+    });
+
+    // Reset button state - KEEP IT ENABLED
+    if (submitButton) {
+        submitButton.classList.remove('no-changes');
+        submitButton.innerHTML = 'Update Items';
+        submitButton.disabled = false; // Keep enabled
+    }
+}
 
         // Open update modal and initialize
         function openUpdateModal(requestId) {
@@ -2142,329 +2139,338 @@
             modal.show();
         }
 
-        // Check for changes and update button/visual states
-        function checkForSeedlingChanges(requestId) {
-            const form = document.getElementById('updateForm' + requestId);
-            if (!form) return;
+    // Check for changes and update button/visual states
+    function checkForSeedlingChanges(requestId) {
+    const form = document.getElementById('updateForm' + requestId);
+    if (!form) return;
 
-            const remarksTextarea = document.getElementById('remarks' + requestId);
-            const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-            const submitButton = document.getElementById('submitBtn' + requestId);
+    const remarksTextarea = document.getElementById('remarks' + requestId);
+    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+    const submitButton = document.getElementById('submitBtn' + requestId);
 
-            let hasChanges = false;
-            const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+    let hasChanges = false;
+    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
 
-            // Check remarks for changes
-            if (remarksTextarea) {
-                const remarksChanged = remarksTextarea.value.trim() !== originalRemarks.trim();
+    // Check remarks for changes
+    if (remarksTextarea) {
+        const remarksChanged = remarksTextarea.value.trim() !== originalRemarks.trim();
 
-                if (remarksChanged) {
-                    hasChanges = true;
-                    remarksTextarea.classList.add('form-changed');
-                } else {
-                    remarksTextarea.classList.remove('form-changed');
-                }
+        if (remarksChanged) {
+            hasChanges = true;
+            remarksTextarea.classList.add('form-changed');
+        } else {
+            remarksTextarea.classList.remove('form-changed');
+        }
+    }
+
+    // Check item statuses for changes - USE ITEM CARD DATA ATTRIBUTE
+    statusSelects.forEach(select => {
+        const itemCard = select.closest('.item-card');
+        const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
+
+        if (select.value !== originalStatus) {
+            hasChanges = true;
+            if (itemCard) {
+                itemCard.classList.add('form-changed');
             }
-
-            // Check item statuses for changes - USE ITEM CARD DATA ATTRIBUTE
-            statusSelects.forEach(select => {
-                const itemCard = select.closest('.item-card');
-                const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
-
-                if (select.value !== originalStatus) {
-                    hasChanges = true;
-                    if (itemCard) {
-                        itemCard.classList.add('form-changed');
-                    }
-                } else {
-                    if (itemCard) {
-                        itemCard.classList.remove('form-changed');
-                    }
-                }
-            });
-
-            // Update button state based on changes
-            if (submitButton) {
-                if (hasChanges) {
-                    submitButton.classList.remove('no-changes');
-                    submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
-                    submitButton.disabled = false;
-                } else {
-                    submitButton.classList.add('no-changes');
-                    submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-                    submitButton.disabled = true;
-                }
+        } else {
+            if (itemCard) {
+                itemCard.classList.remove('form-changed');
             }
         }
+    });
 
-        // Handle update form submission with confirmation
-        function handleSeedlingUpdateSubmit(requestId) {
-            const form = document.getElementById('updateForm' + requestId);
+    // Update button state based on changes - ALWAYS KEEP ENABLED
+    if (submitButton) {
+        if (hasChanges) {
+            submitButton.classList.remove('no-changes');
+            submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
+            // Store flag for use in submission
+            submitButton.dataset.hasChanges = 'true';
+        } else {
+            submitButton.classList.add('no-changes');
+            submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+            // Store flag for use in submission
+            submitButton.dataset.hasChanges = 'false';
+        }
+        // IMPORTANT: Button remains enabled
+        submitButton.disabled = false;
+    }
+}
 
-            if (!form) {
-                console.error('Form not found:', 'updateForm' + requestId);
-                showToast('error', 'Form not found. Please try again.');
-                return;
+
+// Handle update form submission with confirmation
+function handleSeedlingUpdateSubmit(requestId) {
+    const form = document.getElementById('updateForm' + requestId);
+
+    if (!form) {
+        console.error('Form not found:', 'updateForm' + requestId);
+        showToast('error', 'Form not found. Please try again.');
+        return;
+    }
+
+    const submitButton = document.getElementById('submitBtn' + requestId);
+    const hasChanges = submitButton?.dataset.hasChanges === 'true';
+
+    // If no changes, show warning and return
+    if (!hasChanges) {
+        showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
+        return;
+    }
+
+    console.log('=== DEBUG: Form Submission Started ===');
+    console.log('Request ID:', requestId);
+    console.log('Form found:', !!form);
+    console.log('Form action:', form.getAttribute('action'));
+    console.log('Form method:', form.getAttribute('method'));
+
+    const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
+    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+
+    console.log('Remarks textarea found:', !!remarksTextarea);
+    console.log('Status selects found:', statusSelects.length);
+
+    let changesSummary = [];
+
+    // Check for changes in item statuses
+    statusSelects.forEach((select, index) => {
+        const itemCard = select.closest('.item-card');
+        const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
+        const currentStatus = select.value;
+
+        console.log(`Item ${index + 1}:`, {
+            original: originalStatus,
+            current: currentStatus,
+            different: currentStatus !== originalStatus
+        });
+
+        if (currentStatus !== originalStatus) {
+            const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
+            const oldStatusText = getStatusText(originalStatus);
+            const newStatusText = getStatusText(currentStatus);
+            changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
+        }
+    });
+
+    // Check for changes in remarks
+    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+    const currentRemarks = remarksTextarea?.value || '';
+
+    console.log('Remarks:', {
+        original: originalRemarks,
+        current: currentRemarks,
+        hasChanged: currentRemarks.trim() !== originalRemarks.trim()
+    });
+
+    if (remarksTextarea && currentRemarks.trim() !== originalRemarks.trim()) {
+        if (originalRemarks.trim() === '') {
+            changesSummary.push('Remarks: Added new remarks');
+        } else if (currentRemarks.trim() === '') {
+            changesSummary.push('Remarks: Removed remarks');
+        } else {
+            changesSummary.push('Remarks: Modified');
+        }
+    }
+
+    console.log('Changes summary:', changesSummary);
+
+    // Show confirmation toast with changes
+    showConfirmationToast(
+        'Confirm Update',
+        `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
+        () => proceedWithSeedlingUpdate(form, requestId)
+    );
+}
+
+// Helper function to get status text
+function getStatusText(status) {
+    switch (status) {
+        case 'pending':
+            return 'Pending';
+        case 'approved':
+            return 'Approved';
+        case 'rejected':
+            return 'Rejected';
+        case 'under_review':
+            return 'Under Review';
+        default:
+            return status;
+    }
+}
+
+
+// Proceed with seedling update after confirmation
+function proceedWithSeedlingUpdate(form, requestId) {
+    // Create a new FormData object to ensure all fields are properly included
+    const formData = new FormData(form);
+
+    // Ensure _method field is included for PATCH request
+    if (!formData.has('_method')) {
+        formData.append('_method', 'PATCH');
+    }
+
+    // Ensure CSRF token is in FormData
+    const csrfToken = getCSRFToken();
+    if (!formData.has('_token')) {
+        formData.append('_token', csrfToken);
+    }
+
+    // Debug: Log what's being sent
+    console.log('=== FormData Contents ===');
+    for (let [key, value] of formData.entries()) {
+        console.log(key, ':', value);
+    }
+
+    // Verify that item_statuses exists in the form data
+    let hasItemStatuses = false;
+    for (let [key] of formData.entries()) {
+        if (key.startsWith('item_statuses')) {
+            hasItemStatuses = true;
+            break;
+        }
+    }
+
+    if (!hasItemStatuses) {
+        console.error('ERROR: item_statuses not found in form data!');
+        showToast('error', 'Form validation error: Item statuses missing');
+        return;
+    }
+
+    const submitButton = document.getElementById('submitBtn' + requestId);
+
+    // Show loading state
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
+    submitButton.disabled = true;
+
+    // OPTIMIZATION: Disable all form inputs to prevent changes during submission
+    const formInputs = form.querySelectorAll('select, textarea, input');
+    formInputs.forEach(input => input.disabled = true);
+
+    // Get the form action URL
+    const formAction = form.getAttribute('action');
+    console.log('Form action:', formAction);
+    console.log('CSRF Token:', csrfToken);
+
+    fetch(formAction, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
 
-            console.log('=== DEBUG: Form Submission Started ===');
-            console.log('Request ID:', requestId);
-            console.log('Form found:', !!form);
-            console.log('Form action:', form.getAttribute('action'));
-            console.log('Form method:', form.getAttribute('method'));
+            // Clone the response so we can read it multiple times
+            const responseClone = response.clone();
 
-            const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
-            const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-
-            console.log('Remarks textarea found:', !!remarksTextarea);
-            console.log('Status selects found:', statusSelects.length);
-
-            let hasChanges = false;
-            let changesSummary = [];
-
-            // Check for changes in item statuses
-            statusSelects.forEach((select, index) => {
-                const itemCard = select.closest('.item-card');
-                const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
-                const currentStatus = select.value;
-
-                console.log(`Item ${index + 1}:`, {
-                    original: originalStatus,
-                    current: currentStatus,
-                    different: currentStatus !== originalStatus
+            if (response.status === 422) {
+                // Handle validation errors
+                return response.json().then(data => {
+                    console.error('Validation errors:', data);
+                    throw new Error('Validation failed: ' + JSON.stringify(data.errors || data.message));
                 });
-
-                if (currentStatus !== originalStatus) {
-                    hasChanges = true;
-                    const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
-                    const oldStatusText = getStatusText(originalStatus);
-                    const newStatusText = getStatusText(currentStatus);
-                    changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
-                }
-            });
-
-            // Check for changes in remarks
-            const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
-            const currentRemarks = remarksTextarea?.value || '';
-
-            console.log('Remarks:', {
-                original: originalRemarks,
-                current: currentRemarks,
-                hasChanged: currentRemarks.trim() !== originalRemarks.trim()
-            });
-
-            if (remarksTextarea && currentRemarks.trim() !== originalRemarks.trim()) {
-                hasChanges = true;
-                if (originalRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Added new remarks');
-                } else if (currentRemarks.trim() === '') {
-                    changesSummary.push('Remarks: Removed remarks');
-                } else {
-                    changesSummary.push('Remarks: Modified');
-                }
             }
 
-            console.log('Has changes:', hasChanges);
-            console.log('Changes summary:', changesSummary);
-
-            // If no changes, show warning toast
-            if (!hasChanges) {
-                showToast('warning', 'No changes detected. Please modify items or remarks before updating.');
-                return;
+            if (!response.ok) {
+                // Try to get error message from response
+                return responseClone.text().then(text => {
+                    console.error('Error response body:', text);
+                    let errorMessage = `HTTP error! status: ${response.status}`;
+                    try {
+                        const data = JSON.parse(text);
+                        if (data.message) {
+                            errorMessage = data.message;
+                        } else if (data.error) {
+                            errorMessage = data.error;
+                        }
+                    } catch (e) {
+                        // If not JSON, use the text directly (truncated)
+                        if (text.length > 0) {
+                            errorMessage += ` - ${text.substring(0, 200)}`;
+                        }
+                    }
+                    throw new Error(errorMessage);
+                });
             }
 
-            // Show confirmation toast with changes
-            showConfirmationToast(
-                'Confirm Update',
-                `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
-                () => proceedWithSeedlingUpdate(form, requestId) // Pass form reference here
-            );
-        }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success response:', data);
 
-        // Helper function to get status text
-        function getStatusText(status) {
-            switch (status) {
-                case 'pending':
-                    return 'Pending';
-                case 'approved':
-                    return 'Approved';
-                case 'rejected':
-                    return 'Rejected';
-                case 'under_review':
-                    return 'Under Review';
-                default:
-                    return status;
+            if (data.success) {
+                // Close modal immediately
+                const modalId = 'updateModal' + requestId;
+                const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                if (modal) modal.hide();
+
+                // Show success toast
+                showToast('success', data.message || 'Items updated successfully');
+
+                // OPTIMIZATION: Reload page immediately without delay
+                window.location.reload();
+            } else {
+                showToast('error', data.message || 'Failed to update items');
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
             }
-        }
+        })
+        .catch(error => {
+            console.error('Error during update:', error);
+            showToast('error', 'Error: ' + error.message);
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
 
-        // Proceed with seedling update after confirmation
-        function proceedWithSeedlingUpdate(form, requestId) {
-            // Create a new FormData object to ensure all fields are properly included
-            const formData = new FormData(form);
-
-            // Ensure _method field is included for PATCH request
-            if (!formData.has('_method')) {
-                formData.append('_method', 'PATCH');
-            }
-
-            // Ensure CSRF token is in FormData
-            const csrfToken = getCSRFToken();
-            if (!formData.has('_token')) {
-                formData.append('_token', csrfToken);
-            }
-
-            // Debug: Log what's being sent
-            console.log('=== FormData Contents ===');
-            for (let [key, value] of formData.entries()) {
-                console.log(key, ':', value);
-            }
-
-            // Verify that item_statuses exists in the form data
-            let hasItemStatuses = false;
-            for (let [key] of formData.entries()) {
-                if (key.startsWith('item_statuses')) {
-                    hasItemStatuses = true;
-                    break;
-                }
-            }
-
-            if (!hasItemStatuses) {
-                console.error('ERROR: item_statuses not found in form data!');
-                showToast('error', 'Form validation error: Item statuses missing');
-                return;
-            }
-
-            const submitButton = document.getElementById('submitBtn' + requestId);
-
-            // Show loading state
-            const originalText = submitButton.innerHTML;
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
-            submitButton.disabled = true;
-
-            // OPTIMIZATION: Disable all form inputs to prevent changes during submission
+            // Re-enable form inputs
             const formInputs = form.querySelectorAll('select, textarea, input');
-            formInputs.forEach(input => input.disabled = true);
-
-            // Get the form action URL
-            const formAction = form.getAttribute('action');
-            console.log('Form action:', formAction);
-            console.log('CSRF Token:', csrfToken);
-
-            fetch(formAction, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response headers:', response.headers);
-
-                    // Clone the response so we can read it multiple times
-                    const responseClone = response.clone();
-
-                    if (response.status === 422) {
-                        // Handle validation errors
-                        return response.json().then(data => {
-                            console.error('Validation errors:', data);
-                            throw new Error('Validation failed: ' + JSON.stringify(data.errors || data
-                            .message));
-                        });
-                    }
-
-                    if (!response.ok) {
-                        // Try to get error message from response
-                        return responseClone.text().then(text => {
-                            console.error('Error response body:', text);
-                            let errorMessage = `HTTP error! status: ${response.status}`;
-                            try {
-                                const data = JSON.parse(text);
-                                if (data.message) {
-                                    errorMessage = data.message;
-                                } else if (data.error) {
-                                    errorMessage = data.error;
-                                }
-                            } catch (e) {
-                                // If not JSON, use the text directly (truncated)
-                                if (text.length > 0) {
-                                    errorMessage += ` - ${text.substring(0, 200)}`;
-                                }
-                            }
-                            throw new Error(errorMessage);
-                        });
-                    }
-
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Success response:', data);
-
-                    if (data.success) {
-                        // Close modal immediately
-                        const modalId = 'updateModal' + requestId;
-                        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-                        if (modal) modal.hide();
-
-                        // Show success toast
-                        showToast('success', data.message || 'Items updated successfully');
-
-                        // OPTIMIZATION: Reload page immediately without delay
-                        window.location.reload();
-                    } else {
-                        showToast('error', data.message || 'Failed to update items');
-                        submitButton.innerHTML = originalText;
-                        submitButton.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error during update:', error);
-                    showToast('error', 'Error: ' + error.message);
-                    submitButton.innerHTML = originalText;
-                    submitButton.disabled = false;
-                });
-        }
+            formInputs.forEach(input => input.disabled = false);
+        });
+}
 
         // Get CSRF token utility function
         function getCSRFToken() {
             const metaTag = document.querySelector('meta[name="csrf-token"]');
             return metaTag ? metaTag.getAttribute('content') : '';
         }
-        // Initialize modal when opened
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get all update modals for seedlings
-            const updateModals = document.querySelectorAll('[id^="updateModal"]');
 
-            updateModals.forEach(modalElement => {
-                const requestId = modalElement.id.replace('updateModal', '');
+// Initialize modal when opened
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all update modals for seedlings
+    const updateModals = document.querySelectorAll('[id^="updateModal"]');
 
-                modalElement.addEventListener('show.bs.modal', function() {
-                    initializeSeedlingUpdateModal(requestId);
-                });
-            });
+    updateModals.forEach(modalElement => {
+        const requestId = modalElement.id.replace('updateModal', '');
 
-            // Add event listeners for real-time change detection only
-            const updateForms = document.querySelectorAll('form[id^="updateForm"]');
-
-            updateForms.forEach(form => {
-                const requestId = form.id.replace('updateForm', '');
-
-                // Add event listeners for real-time change detection
-                const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-                const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
-
-                statusSelects.forEach(select => {
-                    select.addEventListener('change', () => checkForSeedlingChanges(requestId));
-                });
-
-                if (remarksTextarea) {
-                    remarksTextarea.addEventListener('input', () => checkForSeedlingChanges(requestId));
-                    remarksTextarea.addEventListener('change', () => checkForSeedlingChanges(requestId));
-                }
-            });
+        modalElement.addEventListener('show.bs.modal', function() {
+            initializeSeedlingUpdateModal(requestId);
         });
+    });
+
+    // Add event listeners for real-time change detection only
+    const updateForms = document.querySelectorAll('form[id^="updateForm"]');
+
+    updateForms.forEach(form => {
+        const requestId = form.id.replace('updateForm', '');
+
+        // Add event listeners for real-time change detection
+        const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+        const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
+
+        statusSelects.forEach(select => {
+            select.addEventListener('change', () => checkForSeedlingChanges(requestId));
+        });
+
+        if (remarksTextarea) {
+            remarksTextarea.addEventListener('input', () => checkForSeedlingChanges(requestId));
+            remarksTextarea.addEventListener('change', () => checkForSeedlingChanges(requestId));
+        }
+    });
+});
 
         // Initialize seedling item counter
         let seedlingItemCounter = 0;

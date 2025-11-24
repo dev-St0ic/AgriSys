@@ -992,22 +992,25 @@
 
         // Auto-fill display_name when name changes in Edit Category Modal
         document.addEventListener('DOMContentLoaded', function() {
-            const editCategoryForm = document.getElementById('editCategoryForm');
-            if (editCategoryForm) {
-                const nameInput = editCategoryForm.querySelector('input[name="name"]');
-                const displayNameHidden = document.getElementById('edit_display_name_hidden');
-                
-                nameInput.addEventListener('change', function() {
-                    displayNameHidden.value = this.value;
-                });
-                
-                // Set it on form submission as well
-                editCategoryForm.addEventListener('submit', function() {
-                    const nameValue = nameInput.value;
-                    displayNameHidden.value = nameValue;
-                });
-            }
-        });
+        const nameInput = document.getElementById('edit_category_name');
+        const iconSelect = document.getElementById('edit_icon');
+        const descriptionInput = document.getElementById('edit_category_description');
+        
+        if (nameInput) {
+            nameInput.addEventListener('input', function() {
+                document.getElementById('edit_display_name_hidden').value = this.value;
+                checkForCategoryChanges();
+            });
+        }
+        
+        if (iconSelect) {
+            iconSelect.addEventListener('change', checkForCategoryChanges);
+        }
+        
+        if (descriptionInput) {
+            descriptionInput.addEventListener('input', checkForCategoryChanges);
+        }
+    });
 
          // Show More/Less functionality
         function toggleShowMore() {
@@ -1344,69 +1347,123 @@
             document.getElementById('item_category_id').value = categoryId;
         }
 
-        async function editCategory(categoryId) {
-        try {
-            const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                }
-            });
+    // Load category and initialize change detection
+ async function editCategory(categoryId) {
+    try {
+        const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            }
+        });
 
-            // Populate form fields
-            document.getElementById('edit_category_id').value = category.id;
-            document.getElementById('edit_category_name').value = category.name;
-            document.getElementById('edit_display_name_hidden').value = category.display_name;
-            document.getElementById('edit_icon').value = category.icon || 'fa-leaf';
-            document.getElementById('edit_category_description').value = category.description || '';
+        // Get form fields
+        const nameInput = document.getElementById('edit_category_name');
+        const iconSelect = document.getElementById('edit_icon');
+        const descriptionInput = document.getElementById('edit_category_description');
+        const submitBtn = document.getElementById('editCategorySubmitBtn');
 
-            // Update icon preview
-            updateIconPreview('edit');
+        // Populate form fields
+        document.getElementById('edit_category_id').value = category.id;
+        nameInput.value = category.name;
+        iconSelect.value = category.icon || 'fa-leaf';
+        descriptionInput.value = category.description || '';
+        document.getElementById('edit_display_name_hidden').value = category.display_name;
 
-            // Reset validation
-            document.getElementById('editCategoryForm').classList.remove('was-validated');
+        // Store original values in data attributes
+        nameInput.dataset.originalValue = category.name;
+        iconSelect.dataset.originalValue = category.icon || 'fa-leaf';
+        descriptionInput.dataset.originalValue = category.description || '';
 
-            // Show modal
-            new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
-        } catch (error) {
-            showError('Error loading category: ' + error.message);
-        }
+        // Update icon preview
+        updateIconPreview('edit');
+
+        // Reset validation
+        document.getElementById('editCategoryForm').classList.remove('was-validated');
+
+        // Clear any previous change styling
+        nameInput.classList.remove('form-changed');
+        iconSelect.classList.remove('form-changed');
+        descriptionInput.classList.remove('form-changed');
+
+        // FIXED: Set submit button with FULL TEXT initially
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Category';
+        submitBtn.classList.remove('no-changes');
+        submitBtn.title = 'Update category';
+
+        // Initialize change detection
+        checkForCategoryChanges();
+
+        // Show modal
+        new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+    } catch (error) {
+        showError('Error loading category: ' + error.message);
+    }
+}
+
+// CHANGE: Updated form submission with confirmation toast
+document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const nameInput = document.getElementById('edit_category_name');
+    const iconSelect = document.getElementById('edit_icon');
+    const descriptionInput = document.getElementById('edit_category_description');
+
+    const originalName = nameInput.dataset.originalValue || '';
+    const originalIcon = iconSelect.dataset.originalValue || '';
+    const originalDescription = descriptionInput.dataset.originalValue || '';
+
+    const nameChanged = nameInput.value.trim() !== originalName;
+    const iconChanged = iconSelect.value !== originalIcon;
+    const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+
+    // If no changes, show warning and return
+    if (!nameChanged && !iconChanged && !descriptionChanged) {
+        showToast('warning', 'No changes detected. Please modify the category before updating.');
+        return;
     }
 
-        document.getElementById('editCategoryForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    if (!validateForm(this)) {
+        return;
+    }
 
-        if (!validateForm(this)) {
-            return;
-        }
+    // Show confirmation toast instead of direct submission
+    showConfirmationToast(
+        'Update Category',
+        `Confirm updating category changes?\n\n${nameChanged ? '• Category name updated\n' : ''}${iconChanged ? '• Icon updated\n' : ''}${descriptionChanged ? '• Description updated' : ''}`,
+        () => proceedUpdateCategory()
+    );
+});
+// handle category update after confirmation
+async function proceedUpdateCategory() {
+    const categoryId = document.getElementById('edit_category_id').value;
+    const formData = new FormData(document.getElementById('editCategoryForm'));
+    const submitBtn = document.querySelector('#editCategoryModal .btn-primary');
+    const originalHTML = submitBtn.innerHTML;
 
-        const categoryId = document.getElementById('edit_category_id').value;
-        const formData = new FormData(this);
-        const submitBtn = document.querySelector('#editCategoryModal .btn-primary');
-        const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    submitBtn.disabled = true;
 
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
-        submitBtn.disabled = true;
+    try {
+        const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        });
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editCategoryModal'));
+        modal.hide();
+        showSuccess(data.message);
+    } catch (error) {
+        showError(error.message);
+        submitBtn.innerHTML = originalHTML;
+        submitBtn.disabled = false;
+    }
+}
 
-        try {
-            const data = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                }
-            });
-            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editCategoryModal'));
-            modal.hide();
-            showSuccess(data.message);
-        } catch (error) {
-            showError(error.message);
-        } finally {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
-    });
 
         async function toggleCategory(categoryId) {
             showConfirmationToast(
@@ -1808,115 +1865,165 @@
                 showError(error.message);
             }
         }
-
-            async function editItem(itemId) {
-            try {
-                const item = await makeRequest(`/admin/seedlings/items/${itemId}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                });
-
-                // Get form fields
-                const nameInput = document.getElementById('edit_item_name');
-                const unitSelect = document.getElementById('edit_item_unit');
-                const descriptionInput = document.getElementById('edit_item_description');
-                const minSupplyInput = document.getElementById('edit_item_minimum_supply');
-                const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
-                const reorderPointInput = document.getElementById('edit_item_reorder_point');
-                const submitBtn = document.getElementById('editItemSubmitBtn');
-
-                // Populate form fields
-                document.getElementById('edit_item_id').value = item.id;
-                document.getElementById('edit_item_category_id').value = item.category_id;
-                nameInput.value = item.name;
-                unitSelect.value = item.unit;
-                descriptionInput.value = item.description || '';
-                minSupplyInput.value = item.minimum_supply || 0;
-                maxSupplyInput.value = item.maximum_supply || '';
-                reorderPointInput.value = item.reorder_point || '';
-
-                // Store original values in data attributes
-                nameInput.dataset.originalValue = item.name;
-                unitSelect.dataset.originalValue = item.unit;
-                descriptionInput.dataset.originalValue = item.description || '';
-                minSupplyInput.dataset.originalValue = item.minimum_supply || 0;
-                maxSupplyInput.dataset.originalValue = item.maximum_supply || '';
-                reorderPointInput.dataset.originalValue = item.reorder_point || '';
-
-                // Show current image if exists
-                const imagePreview = document.getElementById('current_image_preview');
-                if (item.image_path) {
-                    imagePreview.innerHTML = `
-                        <label class="form-label">Current Image:</label><br>
-                        <img src="/storage/${item.image_path}" alt="${item.name}"
-                            class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
-                    `;
-                } else {
-                    imagePreview.innerHTML = '';
-                }
-
-                // Reset validation
-                document.getElementById('editItemForm').classList.remove('was-validated');
-
-                // Clear any previous change styling
-                nameInput.classList.remove('form-changed');
-                unitSelect.classList.remove('form-changed');
-                descriptionInput.classList.remove('form-changed');
-                minSupplyInput.classList.remove('form-changed');
-                maxSupplyInput.classList.remove('form-changed');
-                reorderPointInput.classList.remove('form-changed');
-
-                // Reset submit button to initial state
-                submitBtn.classList.add('no-changes');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
-
-                // Initialize change detection
-                checkForItemChanges();
-
-                // Show modal
-                new bootstrap.Modal(document.getElementById('editItemModal')).show();
-            } catch (error) {
-                showError('Error loading item: ' + error.message);
-            }
-        }
-
-        document.getElementById('editItemForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            if (!validateForm(this)) {
-                return;
-            }
-
-            const itemId = document.getElementById('edit_item_id').value;
-            const formData = new FormData(this);
-            const submitBtn = document.querySelector('#editItemModal .btn-primary');
-            const originalText = submitBtn.innerHTML;
-
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
-            submitBtn.disabled = true;
-
-            try {
-                const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    }
-                });
-                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editItemModal'));
-                modal.hide();
-                showSuccess(data.message);
-            } catch (error) {
-                showError(error.message);
-            } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+// Load item and initialize change detection
+async function editItem(itemId) {
+    try {
+        const item = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
             }
         });
+
+        // Get form fields
+        const nameInput = document.getElementById('edit_item_name');
+        const unitSelect = document.getElementById('edit_item_unit');
+        const descriptionInput = document.getElementById('edit_item_description');
+        const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+        const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+        const reorderPointInput = document.getElementById('edit_item_reorder_point');
+        const submitBtn = document.getElementById('editItemSubmitBtn');
+
+        // Populate form fields
+        document.getElementById('edit_item_id').value = item.id;
+        document.getElementById('edit_item_category_id').value = item.category_id;
+        nameInput.value = item.name;
+        unitSelect.value = item.unit;
+        descriptionInput.value = item.description || '';
+        minSupplyInput.value = item.minimum_supply || 0;
+        maxSupplyInput.value = item.maximum_supply || '';
+        reorderPointInput.value = item.reorder_point || '';
+
+        // Store original values in data attributes
+        nameInput.dataset.originalValue = item.name;
+        unitSelect.dataset.originalValue = item.unit;
+        descriptionInput.dataset.originalValue = item.description || '';
+        minSupplyInput.dataset.originalValue = item.minimum_supply || 0;
+        maxSupplyInput.dataset.originalValue = item.maximum_supply || '';
+        reorderPointInput.dataset.originalValue = item.reorder_point || '';
+
+        // Show current image if exists
+        const imagePreview = document.getElementById('current_image_preview');
+        if (item.image_path) {
+            imagePreview.innerHTML = `
+                <label class="form-label">Current Image:</label><br>
+                <img src="/storage/${item.image_path}" alt="${item.name}"
+                    class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+            `;
+        } else {
+            imagePreview.innerHTML = '';
+        }
+
+        // Reset validation
+        document.getElementById('editItemForm').classList.remove('was-validated');
+
+        // Clear any previous change styling
+        nameInput.classList.remove('form-changed');
+        unitSelect.classList.remove('form-changed');
+        descriptionInput.classList.remove('form-changed');
+        minSupplyInput.classList.remove('form-changed');
+        maxSupplyInput.classList.remove('form-changed');
+        reorderPointInput.classList.remove('form-changed');
+
+        // FIXED: Set submit button with FULL TEXT initially
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Item';
+        submitBtn.classList.remove('no-changes');
+        submitBtn.title = 'Update item';
+
+        // Initialize change detection
+        checkForItemChanges();
+
+        // Show modal
+        new bootstrap.Modal(document.getElementById('editItemModal')).show();
+    } catch (error) {
+        showError('Error loading item: ' + error.message);
+    }
+}
+
+// CHANGE: Updated form submission with confirmation toast
+document.getElementById('editItemForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const nameInput = document.getElementById('edit_item_name');
+    const unitSelect = document.getElementById('edit_item_unit');
+    const descriptionInput = document.getElementById('edit_item_description');
+    const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+    const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+    const reorderPointInput = document.getElementById('edit_item_reorder_point');
+    const imageInput = document.querySelector('#editItemForm input[name="image"]');
+
+    const originalName = nameInput.dataset.originalValue || '';
+    const originalUnit = unitSelect.dataset.originalValue || '';
+    const originalDescription = descriptionInput.dataset.originalValue || '';
+    const originalMinSupply = minSupplyInput.dataset.originalValue || '0';
+    const originalMaxSupply = maxSupplyInput.dataset.originalValue || '';
+    const originalReorderPoint = reorderPointInput.dataset.originalValue || '';
+
+    const nameChanged = nameInput.value.trim() !== originalName;
+    const unitChanged = unitSelect.value !== originalUnit;
+    const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+    const minSupplyChanged = minSupplyInput.value.trim() !== originalMinSupply.toString().trim();
+    const maxSupplyChanged = maxSupplyInput.value.trim() !== originalMaxSupply.toString().trim();
+    const reorderPointChanged = reorderPointInput.value.trim() !== originalReorderPoint.toString().trim();
+    const imageChanged = imageInput.files && imageInput.files.length > 0;
+
+    // If no changes, show warning and return
+    if (!nameChanged && !unitChanged && !descriptionChanged && !minSupplyChanged && !maxSupplyChanged && !reorderPointChanged && !imageChanged) {
+        showToast('warning', 'No changes detected. Please modify the item before updating.');
+        return;
+    }
+
+    if (!validateForm(this)) {
+        return;
+    }
+
+    // Show confirmation toast with list of changes
+    const changesList = [];
+    if (nameChanged) changesList.push('• Item name updated');
+    if (unitChanged) changesList.push('• Unit updated');
+    if (descriptionChanged) changesList.push('• Description updated');
+    if (minSupplyChanged) changesList.push('• Minimum supply updated');
+    if (maxSupplyChanged) changesList.push('• Maximum supply updated');
+    if (reorderPointChanged) changesList.push('• Reorder point updated');
+    if (imageChanged) changesList.push('• Item image updated');
+
+    showConfirmationToast(
+        'Update Item',
+        `Confirm updating item changes?\n\n${changesList.join('\n')}`,
+        () => proceedUpdateItem()
+    );
+});
+
+// Handle item update after confirmation
+async function proceedUpdateItem() {
+    const itemId = document.getElementById('edit_item_id').value;
+    const formData = new FormData(document.getElementById('editItemForm'));
+    const submitBtn = document.querySelector('#editItemModal .btn-primary');
+    const originalHTML = submitBtn.innerHTML;
+
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    submitBtn.disabled = true;
+
+    try {
+        const data = await makeRequest(`/admin/seedlings/items/${itemId}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            }
+        });
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editItemModal'));
+        modal.hide();
+        showSuccess(data.message);
+    } catch (error) {
+        showError(error.message);
+        submitBtn.innerHTML = originalHTML;
+        submitBtn.disabled = false;
+    }
+}
+
 
         // Reset form validation on modal close
         document.querySelectorAll('.modal').forEach(modal => {
@@ -1963,181 +2070,163 @@
             }
         });
 
-       // Check for changes in Edit Category Modal
-        function checkForCategoryChanges() {
-            const nameInput = document.getElementById('edit_category_name');
-            const iconSelect = document.getElementById('edit_icon');
-            const descriptionInput = document.getElementById('edit_category_description');
-            
-            const submitBtn = document.getElementById('editCategorySubmitBtn');
-            
-            // Get original values from data attributes
-            const originalName = nameInput.dataset.originalValue || '';
-            const originalIcon = iconSelect.dataset.originalValue || '';
-            const originalDescription = descriptionInput.dataset.originalValue || '';
-            
-            // Check for changes
-            const nameChanged = nameInput.value.trim() !== originalName;
-            const iconChanged = iconSelect.value !== originalIcon;
-            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
-            
-            const anyChanges = nameChanged || iconChanged || descriptionChanged;
-            
-            // Update visual feedback for each field
-            nameInput.classList.toggle('form-changed', nameChanged);
-            iconSelect.classList.toggle('form-changed', iconChanged);
-            descriptionInput.classList.toggle('form-changed', descriptionChanged);
-            
-            // Update submit button state
-            if (anyChanges) {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Update Category';
-            } else {
-                submitBtn.classList.add('no-changes');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
-            }
-        }
+// Check for changes in Edit Category Modal
+function checkForCategoryChanges() {
+    const nameInput = document.getElementById('edit_category_name');
+    const iconSelect = document.getElementById('edit_icon');
+    const descriptionInput = document.getElementById('edit_category_description');
+    const submitBtn = document.getElementById('editCategorySubmitBtn');
+    
+    const originalName = nameInput.dataset.originalValue || '';
+    const originalIcon = iconSelect.dataset.originalValue || '';
+    const originalDescription = descriptionInput.dataset.originalValue || '';
+    
+    const nameChanged = nameInput.value.trim() !== originalName;
+    const iconChanged = iconSelect.value !== originalIcon;
+    const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+    
+    // Update visual feedback for each field
+    nameInput.classList.toggle('form-changed', nameChanged);
+    iconSelect.classList.toggle('form-changed', iconChanged);
+    descriptionInput.classList.toggle('form-changed', descriptionChanged);
 
-        // Load category and initialize change detection
-        async function editCategory(categoryId) {
-            try {
-                const category = await makeRequest(`/admin/seedlings/supply-management/${categoryId}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                });
+    // TRAINING PATTERN: Icon appears beside text when changes exist
+    if (nameChanged || iconChanged || descriptionChanged) {
+        // Changes detected - show icon beside text
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Category';
+        submitBtn.title = 'Changes detected - Click to update';
+    } else {
+        // No changes - plain text only
+        submitBtn.classList.add('no-changes');
+        submitBtn.innerHTML = 'Update Category';
+        submitBtn.title = 'No changes yet';
+    }
+}
 
-                // Get form fields
-                const nameInput = document.getElementById('edit_category_name');
-                const iconSelect = document.getElementById('edit_icon');
-                const descriptionInput = document.getElementById('edit_category_description');
-                const displayNameHidden = document.getElementById('edit_display_name_hidden');
-                
-                // Populate form fields
-                document.getElementById('edit_category_id').value = category.id;
-                nameInput.value = category.name;
-                iconSelect.value = category.icon || 'fa-leaf';
-                descriptionInput.value = category.description || '';
-                displayNameHidden.value = category.display_name;
-                
-                // Store original values in data attributes
-                nameInput.dataset.originalValue = category.name;
-                iconSelect.dataset.originalValue = category.icon || 'fa-leaf';
-                descriptionInput.dataset.originalValue = category.description || '';
-                
-                // Update icon preview
-                updateIconPreview('edit');
-                
-                // Reset validation
-                document.getElementById('editCategoryForm').classList.remove('was-validated');
-                
-                // Clear any previous change styling
-                nameInput.classList.remove('form-changed');
-                iconSelect.classList.remove('form-changed');
-                descriptionInput.classList.remove('form-changed');
-                
-                // Reset submit button to initial state
-                const submitBtn = document.getElementById('editCategorySubmitBtn');
-                submitBtn.classList.add('no-changes');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
-                
-                // Initialize change detection
-                checkForCategoryChanges();
-                
-                // Show modal
-                new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
-            } catch (error) {
-                showError('Error loading category: ' + error.message);
-            }
-        }
 
-        // Add event listeners for real-time change detection
-        document.addEventListener('DOMContentLoaded', function() {
-            const nameInput = document.getElementById('edit_category_name');
-            const iconSelect = document.getElementById('edit_icon');
-            const descriptionInput = document.getElementById('edit_category_description');
-            
-            if (nameInput) {
-                nameInput.addEventListener('input', function() {
-                    document.getElementById('edit_display_name_hidden').value = this.value;
-                    checkForCategoryChanges();
-                });
-            }
-            
-            if (iconSelect) {
-                iconSelect.addEventListener('change', checkForCategoryChanges);
-            }
-            
-            if (descriptionInput) {
-                descriptionInput.addEventListener('input', checkForCategoryChanges);
-            }
+
+// Add event listeners for real-time change detection
+document.addEventListener('DOMContentLoaded', function() {
+    const nameInput = document.getElementById('edit_category_name');
+    const iconSelect = document.getElementById('edit_icon');
+    const descriptionInput = document.getElementById('edit_category_description');
+    
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            document.getElementById('edit_display_name_hidden').value = this.value;
+            checkForCategoryChanges();
         });
+    }
+    
+    if (iconSelect) {
+        iconSelect.addEventListener('change', checkForCategoryChanges);
+    }
+    
+    if (descriptionInput) {
+        descriptionInput.addEventListener('input', checkForCategoryChanges);
+    }
+});
 
-       // Check for changes in Edit Item Modal
-        function checkForItemChanges() {
-            const nameInput = document.getElementById('edit_item_name');
-            const unitSelect = document.getElementById('edit_item_unit');
-            const descriptionInput = document.getElementById('edit_item_description');
-            const minSupplyInput = document.getElementById('edit_item_minimum_supply');
-            const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
-            const reorderPointInput = document.getElementById('edit_item_reorder_point');
-            const submitBtn = document.getElementById('editItemSubmitBtn');
+// CHANGE: Updated function to show/hide button changes
+function checkForItemChanges() {
+    const nameInput = document.getElementById('edit_item_name');
+    const unitSelect = document.getElementById('edit_item_unit');
+    const descriptionInput = document.getElementById('edit_item_description');
+    const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+    const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+    const reorderPointInput = document.getElementById('edit_item_reorder_point');
+    const imageInput = document.querySelector('#editItemForm input[name="image"]');
+    const submitBtn = document.getElementById('editItemSubmitBtn');
 
-            // Get original values from data attributes
-            const originalName = nameInput.dataset.originalValue || '';
-            const originalUnit = unitSelect.dataset.originalValue || '';
-            const originalDescription = descriptionInput.dataset.originalValue || '';
-            const originalMinSupply = minSupplyInput.dataset.originalValue || '0';
-            const originalMaxSupply = maxSupplyInput.dataset.originalValue || '';
-            const originalReorderPoint = reorderPointInput.dataset.originalValue || '';
+    const originalName = nameInput.dataset.originalValue || '';
+    const originalUnit = unitSelect.dataset.originalValue || '';
+    const originalDescription = descriptionInput.dataset.originalValue || '';
+    const originalMinSupply = minSupplyInput.dataset.originalValue || '0';
+    const originalMaxSupply = maxSupplyInput.dataset.originalValue || '';
+    const originalReorderPoint = reorderPointInput.dataset.originalValue || '';
 
-            // Check for changes
-            const nameChanged = nameInput.value.trim() !== originalName;
-            const unitChanged = unitSelect.value !== originalUnit;
-            const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
-            const minSupplyChanged = minSupplyInput.value.trim() !== originalMinSupply.toString().trim();
-            const maxSupplyChanged = maxSupplyInput.value.trim() !== originalMaxSupply.toString().trim();
-            const reorderPointChanged = reorderPointInput.value.trim() !== originalReorderPoint.toString().trim();
+    const nameChanged = nameInput.value.trim() !== originalName;
+    const unitChanged = unitSelect.value !== originalUnit;
+    const descriptionChanged = descriptionInput.value.trim() !== originalDescription;
+    const minSupplyChanged = minSupplyInput.value.trim() !== originalMinSupply.toString().trim();
+    const maxSupplyChanged = maxSupplyInput.value.trim() !== originalMaxSupply.toString().trim();
+    const reorderPointChanged = reorderPointInput.value.trim() !== originalReorderPoint.toString().trim();
+    const imageChanged = imageInput.files && imageInput.files.length > 0;
 
-            const anyChanges = nameChanged || unitChanged || descriptionChanged || minSupplyChanged || maxSupplyChanged || reorderPointChanged;
+    // Update visual feedback for each field
+    nameInput.classList.toggle('form-changed', nameChanged);
+    unitSelect.classList.toggle('form-changed', unitChanged);
+    descriptionInput.classList.toggle('form-changed', descriptionChanged);
+    minSupplyInput.classList.toggle('form-changed', minSupplyChanged);
+    maxSupplyInput.classList.toggle('form-changed', maxSupplyChanged);
+    reorderPointInput.classList.toggle('form-changed', reorderPointChanged);
+    imageInput.classList.toggle('form-changed', imageChanged);
 
-            // Update visual feedback for each field
-            nameInput.classList.toggle('form-changed', nameChanged);
-            unitSelect.classList.toggle('form-changed', unitChanged);
-            descriptionInput.classList.toggle('form-changed', descriptionChanged);
-            minSupplyInput.classList.toggle('form-changed', minSupplyChanged);
-            maxSupplyInput.classList.toggle('form-changed', maxSupplyChanged);
-            reorderPointInput.classList.toggle('form-changed', reorderPointChanged);
+    // TRAINING PATTERN: Icon appears beside text when changes exist
+    if (nameChanged || unitChanged || descriptionChanged || minSupplyChanged || 
+        maxSupplyChanged || reorderPointChanged || imageChanged) {
+        // Changes detected - show icon beside text
+        submitBtn.classList.remove('no-changes');
+        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Update Item';
+        submitBtn.title = 'Changes detected - Click to update';
+    } else {
+        // No changes - plain text only
+        submitBtn.classList.add('no-changes');
+        submitBtn.innerHTML = 'Update Item';
+        submitBtn.title = 'No changes yet';
+    }
+}
 
-            // Update submit button state
-            if (anyChanges) {
-                submitBtn.classList.remove('no-changes');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i>Update Item';
-            } else {
-                submitBtn.classList.add('no-changes');
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-check me-1"></i>No Changes';
-            }
+    // Add event listeners for real-time change detection in Edit Item Modal
+document.addEventListener('DOMContentLoaded', function() {
+    const editItemForm = document.getElementById('editItemForm');
+    
+    if (editItemForm) {
+        // Get all input fields
+        const nameInput = document.getElementById('edit_item_name');
+        const unitSelect = document.getElementById('edit_item_unit');
+        const descriptionInput = document.getElementById('edit_item_description');
+        const minSupplyInput = document.getElementById('edit_item_minimum_supply');
+        const maxSupplyInput = document.getElementById('edit_item_maximum_supply');
+        const reorderPointInput = document.getElementById('edit_item_reorder_point');
+        const imageInput = editItemForm.querySelector('input[name="image"]');
+
+        // Add listeners to all fields
+        if (nameInput) {
+            nameInput.addEventListener('input', checkForItemChanges);
+            nameInput.addEventListener('change', checkForItemChanges);
         }
-
-        // Add event listeners for real-time change detection in Edit Item Modal
-        document.addEventListener('DOMContentLoaded', function() {
-            const editItemForm = document.getElementById('editItemForm');
-            
-            if (editItemForm) {
-                const inputs = editItemForm.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
-                
-                inputs.forEach(input => {
-                    input.addEventListener('input', checkForItemChanges);
-                    input.addEventListener('change', checkForItemChanges);
-                });
-            }
-        });
+        
+        if (unitSelect) {
+            unitSelect.addEventListener('change', checkForItemChanges);
+        }
+        
+        if (descriptionInput) {
+            descriptionInput.addEventListener('input', checkForItemChanges);
+            descriptionInput.addEventListener('change', checkForItemChanges);
+        }
+        
+        if (minSupplyInput) {
+            minSupplyInput.addEventListener('input', checkForItemChanges);
+            minSupplyInput.addEventListener('change', checkForItemChanges);
+        }
+        
+        if (maxSupplyInput) {
+            maxSupplyInput.addEventListener('input', checkForItemChanges);
+            maxSupplyInput.addEventListener('change', checkForItemChanges);
+        }
+        
+        if (reorderPointInput) {
+            reorderPointInput.addEventListener('input', checkForItemChanges);
+            reorderPointInput.addEventListener('change', checkForItemChanges);
+        }
+        
+        if (imageInput) {
+            imageInput.addEventListener('change', checkForItemChanges);
+        }
+    }
+});
     </script>
 
     <style>
