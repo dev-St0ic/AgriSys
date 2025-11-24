@@ -5458,11 +5458,20 @@ function checkEditBoatrChanges() {
     
     for (const [inputId, dataKey] of Object.entries(fieldMap)) {
         const input = document.getElementById(inputId);
-        if (input && input.value !== (originalData[dataKey] || '')) {
-            hasChanges = true;
-            input.classList.add('form-changed');
-        } else if (input) {
-            input.classList.remove('form-changed');
+        if (input) {
+            let inputValue = input.value;
+            let originalValue = originalData[dataKey] || '';
+            
+            // Convert both to strings for comparison to handle numeric type mismatches
+            inputValue = String(inputValue).trim();
+            originalValue = String(originalValue).trim();
+            
+            if (inputValue !== originalValue) {
+                hasChanges = true;
+                input.classList.add('form-changed');
+            } else {
+                input.classList.remove('form-changed');
+            }
         }
     }
     
