@@ -25,7 +25,7 @@
             @csrf
 
             <div class="fishr-form-group">
-                <label for="fishr-first_name">First Name *</label>
+                <label for="fishr-first_name">First Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="fishr-first_name" name="first_name" placeholder="Enter your first name"
                     pattern="[a-zA-Z\s\'-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes"
@@ -53,7 +53,7 @@
             </div>
 
             <div class="fishr-form-group">
-                <label for="fishr-last_name">Last Name *</label>
+                <label for="fishr-last_name">Last Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="fishr-last_name" name="last_name" placeholder="Enter your last name"
                     pattern="[a-zA-Z\s\'-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes"
@@ -81,7 +81,7 @@
 
 
             <div class="fishr-form-group">
-                <label for="fishr-sex">Sex *</label>
+                <label for="fishr-sex">Sex <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <select id="fishr-sex" name="sex" required>
                     <option value="" disabled selected>Select Sex</option>
                     <option value="Male" {{ old('sex') == 'Male' ? 'selected' : '' }}>Male</option>
@@ -95,7 +95,7 @@
             </div>
 
             <div class="fishr-form-group">
-                <label for="fishr-barangay">Barangay *</label>
+                <label for="fishr-barangay">Barangay <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <select id="fishr-barangay" name="barangay" required>
                     <option value="" disabled selected>Select Barangay</option>
                     <option value="Bagong Silang">Bagong Silang</option>
@@ -133,7 +133,7 @@
 
 
             <div class="fishr-form-group">
-                <label for="fishr-contact_number">Contact Number *</label>
+                <label for="fishr-contact_number">Contact Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="tel" id="fishr-contact_number" name="contact_number"
                     placeholder="+639XXXXXXXXX or 09XXXXXXXXX" value="{{ old('contact_number') }}"
                     pattern="^(\+639|09)\d{9}$"
@@ -145,7 +145,7 @@
             </div>
 
             <div class="fishr-form-group">
-                <label for="fishr-email">Email Address *</label>
+                <label for="fishr-email">Email Address <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="email" id="fishr-email" name="email" placeholder="Enter your email address"
                     value="{{ old('email') }}" required>
                 @error('email')
@@ -155,7 +155,7 @@
 
 
             <div class="fishr-form-group">
-                <label for="fishr-main_livelihood">Main Livelihood *</label>
+                <label for="fishr-main_livelihood">Main Livelihood <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <select id="fishr-main_livelihood" name="main_livelihood" required
                     onchange="toggleOtherLivelihood(this)">
                     <option value="" disabled selected>Select Livelihood</option>
