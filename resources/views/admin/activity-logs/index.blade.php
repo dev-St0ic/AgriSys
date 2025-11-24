@@ -1,5 +1,9 @@
 {{-- resources/views/admin/activity-logs/index.blade.php --}}
 
+@php
+    use App\Traits\ActivityLogFormatter;
+@endphp
+
 @extends('layouts.app')
 
 @section('title', 'Activity Logs - AgriSys Admin')
@@ -121,7 +125,7 @@
                                 <i class="fas fa-tag"></i> Action
                             </th>
                             <th style="width: 15%;">
-                                <i class="fas fa-cube"></i> Model
+                                <i class="fas fa-cube"></i> Record Type
                             </th>
                             <th style="width: 20%;">
                                 <i class="fas fa-edit"></i> Changes
@@ -159,32 +163,28 @@
                             
                             <td>
                                 @php
-                                    $eventColor = match($activity->event ?? 'default') {
-                                        'created' => 'success',
-                                        'updated' => 'info',
-                                        'deleted' => 'danger',
-                                        'restored' => 'warning',
-                                        'login' => 'primary',
-                                        'failed_login' => 'danger',
-                                        'export' => 'secondary',
-                                        default => 'secondary'
-                                    };
+                                    $eventColor = ActivityLogFormatter::getEventColor($activity->event);
+                                    $eventIcon = ActivityLogFormatter::getEventIcon($activity->event);
                                 @endphp
                                 <span class="badge bg-{{ $eventColor }}">
+                                    <i class="fas {{ $eventIcon }} me-1"></i>
                                     {{ $activity->description ?? 'N/A' }}
                                 </span>
                                 @if($activity->event)
                                     <br>
-                                    <small class="text-muted">Event: {{ $activity->event }}</small>
+                                    <small class="text-muted">{{ ucfirst($activity->event) }}</small>
                                 @endif
                             </td>
                             
                             <td>
                                 @if($activity->subject_type)
-                                    <strong>{{ class_basename($activity->subject_type) }}</strong>
+                                    <div class="badge bg-light text-dark">
+                                        <i class="fas fa-cube me-1"></i>
+                                        {{ ActivityLogFormatter::getModelLabel($activity->subject_type) }}
+                                    </div>
                                     @if($activity->subject_id)
                                         <br>
-                                        <code class="small">#{{ $activity->subject_id }}</code>
+                                        <small class="text-muted">#{{ $activity->subject_id }}</small>
                                     @endif
                                 @else
                                     <em class="text-muted">-</em>
@@ -192,25 +192,27 @@
                             </td>
                             
                             <td>
-                                @if($activity->properties)
-                                    @if($activity->properties->has('attributes'))
-                                        <span class="badge bg-light text-dark">
-                                            {{ count($activity->properties->get('attributes')) }} field(s) changed
-                                        </span>
-                                        <br>
-                                        <small class="text-muted mt-2 d-block">
-                                            @foreach(array_keys($activity->properties->get('attributes', [])) as $field)
-                                                <i class="fas fa-arrow-right"></i> {{ $field }}<br>
-                                            @endforeach
-                                        </small>
-                                    @elseif($activity->properties->has('ip_address'))
-                                        <code class="small">
-                                            <i class="fas fa-globe"></i> 
-                                            {{ $activity->properties['ip_address'] }}
-                                        </code>
-                                    @else
-                                        <small class="text-muted">-</small>
-                                    @endif
+                                @if($activity->properties && $activity->properties->has('attributes'))
+                                    <span class="badge bg-info text-white">
+                                        {{ count($activity->properties->get('attributes')) }} field(s) changed
+                                    </span>
+                                    <br>
+                                    <small class="text-muted d-block mt-1">
+                                        @php
+                                            $changes = ActivityLogFormatter::formatChanges($activity->properties);
+                                        @endphp
+                                        @foreach(array_slice($changes, 0, 2) as $change)
+                                            <i class="fas fa-arrow-right"></i> {{ $change['field'] }}<br>
+                                        @endforeach
+                                        @if(count($changes) > 2)
+                                            <small class="text-muted">+{{ count($changes) - 2 }} more field(s)</small>
+                                        @endif
+                                    </small>
+                                @elseif($activity->properties && $activity->properties->has('ip_address'))
+                                    <code class="small">
+                                        <i class="fas fa-globe"></i> 
+                                        {{ $activity->properties['ip_address'] }}
+                                    </code>
                                 @else
                                     <small class="text-muted">-</small>
                                 @endif
@@ -258,67 +260,6 @@
                 </div>
             </nav>
             @endif
-        </div>
-    </div>
-
-    <!-- Management Actions Card -->
-    <div class="card mt-4">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">
-                <i class="fas fa-tools"></i> Log Management
-            </h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <h6>Archive Old Logs</h6>
-                    <p class="text-muted small">Archive logs older than specified days for long-term storage (ISO A.8.15)</p>
-                    <form method="POST" action="{{ route('admin.activity-logs.archive') }}" class="d-flex gap-2">
-                        @csrf
-                        <input type="number" name="days" value="180" min="90" class="form-control" 
-                            style="width: 100px;" placeholder="Days">
-                        <button type="submit" class="btn btn-warning" onclick="return confirm('Archive logs older than this many days?')">
-                            <i class="fas fa-archive"></i> Archive
-                        </button>
-                    </form>
-                </div>
-
-                <div class="col-md-6 mb-3">
-                    <h6>Delete Archived Logs</h6>
-                    <p class="text-muted small">Permanently delete logs exceeding retention period (minimum 90 days)</p>
-                    <form method="POST" action="{{ route('admin.activity-logs.clear') }}" class="d-flex gap-2">
-                        @csrf
-                        @method('DELETE')
-                        <input type="number" name="days" value="365" min="90" class="form-control" 
-                            style="width: 100px;" placeholder="Days">
-                        <button type="submit" class="btn btn-danger" 
-                            onclick="return confirm('Permanently delete logs older than this many days? This cannot be undone!')">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <hr class="my-3">
-
-            <div class="row">
-                <div class="col-md-12">
-                    <h6>Quick Reports</h6>
-                    <p class="text-muted small mb-3">Generate compliance and audit reports</p>
-                    <a href="{{ route('admin.activity-logs.audit-summary', ['from' => now()->subDays(30)->format('Y-m-d'), 'to' => now()->format('Y-m-d')]) }}" 
-                        class="btn btn-info me-2">
-                        <i class="fas fa-chart-line"></i> Last 30 Days Summary
-                    </a>
-                    <a href="{{ route('admin.activity-logs.audit-summary', ['from' => now()->subDays(7)->format('Y-m-d'), 'to' => now()->format('Y-m-d')]) }}" 
-                        class="btn btn-info me-2">
-                        <i class="fas fa-calendar-week"></i> Last 7 Days Summary
-                    </a>
-                    <a href="{{ route('admin.activity-logs.compliance-report') }}" 
-                        class="btn btn-warning">
-                        <i class="fas fa-file-certificate"></i> Full Compliance Report
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 
