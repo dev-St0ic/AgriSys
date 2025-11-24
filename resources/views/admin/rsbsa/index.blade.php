@@ -2541,80 +2541,101 @@
                 });
         }
 
-        // OPTIMIZED UPDATE STATUS FUNCTION
-        let isUpdating = false;
+       // OPTIMIZED UPDATE STATUS FUNCTION WITH CONFIRMATION TOAST
+let isUpdating = false;
 
-        function updateApplicationStatus() {
-            if (isUpdating) return;
+function updateApplicationStatus() {
+    if (isUpdating) return;
 
-            const id = document.getElementById('updateApplicationId').value;
-            const newStatus = document.getElementById('newStatus').value;
-            const remarks = document.getElementById('remarks').value;
+    const id = document.getElementById('updateApplicationId').value;
+    const newStatus = document.getElementById('newStatus').value;
+    const remarks = document.getElementById('remarks').value;
 
-            // Quick validation
-            if (!id || !newStatus) {
-                showToast('error', 'Missing required information');
-                return;
-            }
+    // Quick validation
+    if (!id || !newStatus) {
+        showToast('error', 'Missing required information');
+        return;
+    }
 
-            // Get original values
-            const originalStatus = document.getElementById('newStatus').dataset.originalStatus || '';
-            const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
+    // Get original values
+    const originalStatus = document.getElementById('newStatus').dataset.originalStatus || '';
+    const originalRemarks = document.getElementById('remarks').dataset.originalRemarks || '';
 
-            // Check for changes
-            const statusChanged = (newStatus !== originalStatus);
-            const remarksChanged = (remarks.trim() !== originalRemarks.trim());
+    // Check for changes
+    const statusChanged = (newStatus !== originalStatus);
+    const remarksChanged = (remarks.trim() !== originalRemarks.trim());
 
-            if (!statusChanged && !remarksChanged) {
-                showToast('info', 'No changes detected');
-                return;
-            }
+    if (!statusChanged && !remarksChanged) {
+        showToast('info', 'No changes detected');
+        return;
+    }
 
-            // Simple confirmation
-            let message = 'Update application';
-            if (statusChanged) {
-                message += `\nStatus: ${getStatusText(originalStatus)} → ${getStatusText(newStatus)}`;
-            }
-
-            if (!confirm(message + '?')) return;
-
-            // Lock and show loading
-            isUpdating = true;
-            const updateButton = document.querySelector('#updateModal .btn-primary');
-            const originalText = updateButton.innerHTML;
-            updateButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating...';
-            updateButton.disabled = true;
-
-            // Optimized request
-            fetch(`/admin/rsbsa-applications/${id}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCSRFToken(),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: newStatus,
-                        remarks: remarks
-                    })
-                })
-                .then(response => response.ok ? response.json() : response.json().then(e => Promise.reject(e)))
-                .then(data => {
-                    if (data.success) {
-                        bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
-                        showToast('success', data.message || 'Status updated');
-                        setTimeout(() => location.reload(), 600);
-                    } else {
-                        throw new Error(data.message || 'Update failed');
-                    }
-                })
-                .catch(error => {
-                    showToast('error', error.message || 'Update failed');
-                    updateButton.innerHTML = originalText;
-                    updateButton.disabled = false;
-                })
-                .finally(() => isUpdating = false);
+    // Build changes summary
+    let changesSummary = [];
+    if (statusChanged) {
+        const originalStatusText = getStatusText(originalStatus);
+        const newStatusText = getStatusText(newStatus);
+        changesSummary.push(`Status: ${originalStatusText} → ${newStatusText}`);
+    }
+    if (remarksChanged) {
+        if (originalRemarks.trim() === '') {
+            changesSummary.push('Remarks: Added new remarks');
+        } else if (remarks.trim() === '') {
+            changesSummary.push('Remarks: Removed existing remarks');
+        } else {
+            changesSummary.push('Remarks: Modified');
         }
+    }
+
+    // Show confirmation toast instead of browser confirm
+    showConfirmationToast(
+        'Confirm Update',
+        `Update this RSBSA application with the following changes?\n\n${changesSummary.join('\n')}`,
+        () => proceedWithStatusUpdate(id, newStatus, remarks)
+    );
+}
+
+function proceedWithStatusUpdate(id, newStatus, remarks) {
+    isUpdating = true;
+    
+    const updateButton = document.querySelector('#updateModal .btn-primary');
+    const originalText = updateButton.innerHTML;
+    updateButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Updating...';
+    updateButton.disabled = true;
+
+    fetch(`/admin/rsbsa-applications/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': getCSRFToken(),
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            status: newStatus,
+            remarks: remarks
+        })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+            showToast('success', data.message || 'Status updated successfully');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            throw new Error(data.message || 'Update failed');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', error.message || 'Update failed');
+        updateButton.innerHTML = originalText;
+        updateButton.disabled = false;
+    })
+    .finally(() => isUpdating = false);
+}
 
 
         // FIXED: Corrected document display section in viewApplication function
