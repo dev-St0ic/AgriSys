@@ -2452,6 +2452,84 @@
             return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
         }
 
+        document.addEventListener('DOMContentLoaded', function() {
+        // Get all modals on the page
+        const modals = document.querySelectorAll('.modal');
+        
+        modals.forEach(modal => {
+            // Handle modal hidden event
+            modal.addEventListener('hidden.bs.modal', function() {
+                // Remove any remaining backdrops
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+                
+                // Remove modal-open class from body if no modals are open
+                const openModals = document.querySelectorAll('.modal.show');
+                if (openModals.length === 0) {
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }
+                
+                // Remove any greyscale filters
+                document.body.style.filter = '';
+                document.body.style.opacity = '';
+                
+                // Re-enable scrolling
+                document.documentElement.style.overflow = '';
+            });
+            
+            // Handle modal shown event
+            modal.addEventListener('show.bs.modal', function() {
+                // Ensure greyscale is removed when opening
+                document.body.style.filter = '';
+                document.body.style.opacity = '';
+            });
+            
+            // Clean up on close button click
+            const closeButtons = modal.querySelectorAll('[data-bs-dismiss="modal"]');
+            closeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Force cleanup after a short delay
+                    setTimeout(() => {
+                        const backdrops = document.querySelectorAll('.modal-backdrop');
+                        backdrops.forEach(backdrop => backdrop.remove());
+                        
+                        document.body.style.filter = '';
+                        document.body.style.opacity = '';
+                    }, 100);
+                });
+            });
+        });
+    });
+
+    // Additional cleanup function to call if needed
+    function cleanupModals() {
+        // Remove all modal backdrops
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        
+        // Reset body styles
+        document.body.classList.remove('modal-open');
+        document.body.style.filter = '';
+        document.body.style.opacity = '';
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        // Reset html styles
+        document.documentElement.style.overflow = '';
+    }
+
+    // Call cleanup when page becomes visible (in case of browser tab switching)
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            // Check if any modals are actually open
+            const openModals = document.querySelectorAll('.modal.show');
+            if (openModals.length === 0) {
+                cleanupModals();
+            }
+        }
+    });
+
         console.log('Training Add Application functionality loaded successfully');
     </script>
 @endsection
