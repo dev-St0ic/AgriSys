@@ -244,47 +244,50 @@ public function update(Request $request, $id)
             $registration = FishrApplication::findOrFail($id);
             $previousStatus = $registration->status;
 
-            // Update using trait method to trigger SMS notification
-            $registration->updateStatusWithNotification($validated['status'], $validated['remarks']);
-
-            // Update additional fields manually
+            // Update status and all related fields in one go
             $registration->update([
+                'status' => $validated['status'],
+                'remarks' => $validated['remarks'],
                 'status_updated_at' => now(),
-                'reviewed_by' => auth()->id(),
-                'reviewed_at' => now()
+                'updated_by' => auth()->id()
             ]);
 
-            // Fire SMS notification event if status actually changed
+            // Fire event for SMS notification (queued listener will handle it asynchronously)
             if ($previousStatus !== $validated['status']) {
-                $registration->fireApplicationStatusChanged(
+                event(new \App\Events\ApplicationStatusChanged(
+                    $registration,
                     $registration->getApplicationTypeName(),
                     $previousStatus,
                     $validated['status'],
-                    $validated['remarks']
-                );
+                    $validated['remarks'],
+                    $registration->getApplicantPhone(),
+                    $registration->getApplicantName()
+                ));
             }
 
-            $this->logActivity('updated_status', 'FishrApplication', $registration->id, [
-                'old_status' => $previousStatus,
-                'new_status' => $validated['status'],
-                'remarks' => $validated['remarks']
-            ]);
+            // Queue activity logging (non-blocking)
+            dispatch(function() use ($registration, $previousStatus, $validated) {
+                activity()
+                    ->performedOn($registration)
+                    ->causedBy(auth()->user())
+                    ->withProperties([
+                        'old_status' => $previousStatus,
+                        'new_status' => $validated['status'],
+                        'remarks' => $validated['remarks']
+                    ])
+                    ->log('updated_status');
+            })->afterResponse();
 
-            // Send email notification if approved and email is available
+            // Queue email notification (non-blocking)
             if ($validated['status'] === 'approved' && $registration->email) {
-                try {
-                    Mail::to($registration->email)->send(new ApplicationApproved($registration, 'fishr'));
-                } catch (\Exception $e) {
-                    // Log the error but don't fail the status update
-                    Log::error('Failed to send approval email for FishR registration ' . $registration->id . ': ' . $e->getMessage());
-                }
+                \Illuminate\Support\Facades\Mail::to($registration->email)
+                    ->queue(new \App\Mail\ApplicationApproved($registration, 'fishr'));
             }
 
-            // Return success response
+            // Return success response immediately
             return response()->json([
                 'success' => true,
-                'message' => 'Registration status updated successfully' .
-                           ($validated['status'] === 'approved' && $registration->email ? '. Email notification sent to applicant.' : ''),
+                'message' => 'Registration status updated successfully',
                 'data' => [
                     'status' => $registration->status,
                     'formatted_status' => $registration->formatted_status,

@@ -343,16 +343,11 @@
                                         </td>
                                         <td class="px-3 py-3 text-center">
                                             <div class="btn-group btn-group-sm" role="group">
+                                                <!-- Primary Actions -->
                                                 <button type="button" class="btn btn-outline-primary"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#viewModal{{ $request->id }}">
                                                     <i class="fas fa-eye"></i> View
-                                                </button>
-
-                                                <button type="button" class="btn btn-outline-warning"
-                                                    onclick="showEditSeedlingModal({{ $request->id }})"
-                                                    title="Edit Personal Information">
-                                                    <i class="fas fa-pencil-alt"></i> Edit
                                                 </button>
 
                                                 <button type="button" class="btn btn-outline-success"
@@ -361,11 +356,33 @@
                                                     <i class="fas fa-edit"></i> Update
                                                 </button>
 
-                                                <button type="button" class="btn btn-outline-danger"
-                                                    onclick="deleteSeedlingRequest({{ $request->id }}, '{{ $request->request_number }}')"
-                                                    title="Delete Request">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
+                                                <!-- Dropdown for More Actions -->
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <button type="button"
+                                                        class="btn btn-outline-secondary dropdown-toggle"
+                                                        data-bs-toggle="dropdown" aria-expanded="false"
+                                                        title="More Actions">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <a class="dropdown-item" href="javascript:void(0)"
+                                                                onclick="showEditSeedlingModal({{ $request->id }})">
+                                                                <i class="fas fa-pencil-alt text-warning me-2"></i>Edit
+                                                                Information
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <hr class="dropdown-divider">
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" href="javascript:void(0)"
+                                                                onclick="deleteSeedlingRequest({{ $request->id }}, '{{ $request->request_number }}')">
+                                                                <i class="fas fa-trash me-2"></i>Delete Request
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -387,7 +404,8 @@
                                     <i class="fas fa-eye me-2"></i>
                                     Request Details - {{ $request->request_number }}
                                 </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="row g-3">
@@ -542,10 +560,11 @@
                                     <i class="fas fa-pencil-alt"></i>
                                     Edit Request - {{ $request->request_number }}
                                 </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <form method="POST" action="{{ route('admin.seedlings.update', $request) }}" 
+                                <form method="POST" action="{{ route('admin.seedlings.update', $request) }}"
                                     id="editForm{{ $request->id }}" class="needs-validation">
                                     @csrf
                                     @method('PUT')
@@ -558,51 +577,81 @@
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-md-3 mb-3">
-                                                    <label for="edit_first_name_{{ $request->id }}" class="form-label">First Name <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="edit_first_name_{{ $request->id }}" 
-                                                        name="first_name" value="{{ $request->first_name }}" required maxlength="100">
+                                                    <label for="edit_first_name_{{ $request->id }}"
+                                                        class="form-label">First Name <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_first_name_{{ $request->id }}" name="first_name"
+                                                        value="{{ $request->first_name }}" required maxlength="100">
                                                 </div>
                                                 <div class="col-md-3 mb-3">
-                                                    <label for="edit_middle_name_{{ $request->id }}" class="form-label">Middle Name</label>
-                                                    <input type="text" class="form-control" id="edit_middle_name_{{ $request->id }}" 
-                                                        name="middle_name" value="{{ $request->middle_name }}" maxlength="100">
+                                                    <label for="edit_middle_name_{{ $request->id }}"
+                                                        class="form-label">Middle Name</label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_middle_name_{{ $request->id }}" name="middle_name"
+                                                        value="{{ $request->middle_name }}" maxlength="100">
                                                 </div>
                                                 <div class="col-md-3 mb-3">
-                                                    <label for="edit_last_name_{{ $request->id }}" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="edit_last_name_{{ $request->id }}" 
-                                                        name="last_name" value="{{ $request->last_name }}" required maxlength="100">
+                                                    <label for="edit_last_name_{{ $request->id }}"
+                                                        class="form-label">Last Name <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_last_name_{{ $request->id }}" name="last_name"
+                                                        value="{{ $request->last_name }}" required maxlength="100">
                                                 </div>
                                                 <div class="col-md-3 mb-3">
-                                                    <label for="edit_extension_{{ $request->id }}" class="form-label">Extension</label>
-                                                    <select class="form-select" id="edit_extension_{{ $request->id }}" name="extension_name">
+                                                    <label for="edit_extension_{{ $request->id }}"
+                                                        class="form-label">Extension</label>
+                                                    <select class="form-select" id="edit_extension_{{ $request->id }}"
+                                                        name="extension_name">
                                                         <option value="">None</option>
-                                                        <option value="Jr." {{ $request->extension_name === 'Jr.' ? 'selected' : '' }}>Jr.</option>
-                                                        <option value="Sr." {{ $request->extension_name === 'Sr.' ? 'selected' : '' }}>Sr.</option>
-                                                        <option value="II" {{ $request->extension_name === 'II' ? 'selected' : '' }}>II</option>
-                                                        <option value="III" {{ $request->extension_name === 'III' ? 'selected' : '' }}>III</option>
-                                                        <option value="IV" {{ $request->extension_name === 'IV' ? 'selected' : '' }}>IV</option>
-                                                        <option value="V" {{ $request->extension_name === 'V' ? 'selected' : '' }}>V</option>
+                                                        <option value="Jr."
+                                                            {{ $request->extension_name === 'Jr.' ? 'selected' : '' }}>Jr.
+                                                        </option>
+                                                        <option value="Sr."
+                                                            {{ $request->extension_name === 'Sr.' ? 'selected' : '' }}>Sr.
+                                                        </option>
+                                                        <option value="II"
+                                                            {{ $request->extension_name === 'II' ? 'selected' : '' }}>II
+                                                        </option>
+                                                        <option value="III"
+                                                            {{ $request->extension_name === 'III' ? 'selected' : '' }}>III
+                                                        </option>
+                                                        <option value="IV"
+                                                            {{ $request->extension_name === 'IV' ? 'selected' : '' }}>IV
+                                                        </option>
+                                                        <option value="V"
+                                                            {{ $request->extension_name === 'V' ? 'selected' : '' }}>V
+                                                        </option>
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4 mb-3">
-                                                    <label for="edit_contact_number_{{ $request->id }}" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                                    <input type="tel" class="form-control" id="edit_contact_number_{{ $request->id }}" 
-                                                        name="contact_number" value="{{ $request->contact_number }}" required 
-                                                        placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                                    <label for="edit_contact_number_{{ $request->id }}"
+                                                        class="form-label">Contact Number <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="tel" class="form-control"
+                                                        id="edit_contact_number_{{ $request->id }}"
+                                                        name="contact_number" value="{{ $request->contact_number }}"
+                                                        required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
+                                                        maxlength="20">
                                                     <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
-                                                    <label for="edit_email_{{ $request->id }}" class="form-label">Email</label>
-                                                    <input type="email" class="form-control" id="edit_email_{{ $request->id }}" 
-                                                        name="email" value="{{ $request->email }}" maxlength="254">
+                                                    <label for="edit_email_{{ $request->id }}"
+                                                        class="form-label">Email</label>
+                                                    <input type="email" class="form-control"
+                                                        id="edit_email_{{ $request->id }}" name="email"
+                                                        value="{{ $request->email }}" maxlength="254">
                                                     <div class="form-text">For status notifications</div>
                                                 </div>
                                                 <div class="col-md-4 mb-3">
                                                     <label class="form-label">Request Number</label>
-                                                    <input type="text" class="form-control" value="{{ $request->request_number }}" disabled>
-                                                    <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
+                                                    <input type="text" class="form-control"
+                                                        value="{{ $request->request_number }}" disabled>
+                                                    <small class="form-text text-muted">Auto-generated (cannot be
+                                                        changed)</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -611,25 +660,33 @@
                                     <!-- Location Information Card -->
                                     <div class="card mb-3">
                                         <div class="card-header bg-light">
-                                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location
+                                                Information</h6>
                                         </div>
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
-                                                    <label for="edit_barangay_{{ $request->id }}" class="form-label">Barangay <span class="text-danger">*</span></label>
-                                                    <select class="form-select" id="edit_barangay_{{ $request->id }}" name="barangay" required>
+                                                    <label for="edit_barangay_{{ $request->id }}"
+                                                        class="form-label">Barangay <span
+                                                            class="text-danger">*</span></label>
+                                                    <select class="form-select" id="edit_barangay_{{ $request->id }}"
+                                                        name="barangay" required>
                                                         <option value="">Select Barangay</option>
                                                         @foreach ($barangays as $barangay)
-                                                            <option value="{{ $barangay }}" {{ $request->barangay === $barangay ? 'selected' : '' }}>
+                                                            <option value="{{ $barangay }}"
+                                                                {{ $request->barangay === $barangay ? 'selected' : '' }}>
                                                                 {{ $barangay }}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                                 <div class="col-md-6 mb-3">
-                                                    <label for="edit_address_{{ $request->id }}" class="form-label">Address <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="edit_address_{{ $request->id }}" 
-                                                        name="address" value="{{ $request->address }}" required maxlength="500">
+                                                    <label for="edit_address_{{ $request->id }}"
+                                                        class="form-label">Address <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_address_{{ $request->id }}" name="address"
+                                                        value="{{ $request->address }}" required maxlength="500">
                                                 </div>
                                             </div>
                                         </div>
@@ -638,25 +695,33 @@
                                     <!-- Additional Information Card -->
                                     <div class="card mb-3">
                                         <div class="card-header bg-light">
-                                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Information</h6>
+                                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional
+                                                Information</h6>
                                         </div>
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
-                                                    <label for="edit_planting_location_{{ $request->id }}" class="form-label">Planting Location</label>
-                                                    <input type="text" class="form-control" id="edit_planting_location_{{ $request->id }}" 
-                                                        name="planting_location" value="{{ $request->planting_location }}" maxlength="500">
+                                                    <label for="edit_planting_location_{{ $request->id }}"
+                                                        class="form-label">Planting Location</label>
+                                                    <input type="text" class="form-control"
+                                                        id="edit_planting_location_{{ $request->id }}"
+                                                        name="planting_location"
+                                                        value="{{ $request->planting_location }}" maxlength="500">
                                                 </div>
                                                 <div class="col-md-6 mb-3">
-                                                    <label for="edit_preferred_delivery_date_{{ $request->id }}" class="form-label">Preferred Delivery Date</label>
-                                                    <input type="date" class="form-control" id="edit_preferred_delivery_date_{{ $request->id }}" 
-                                                        name="preferred_delivery_date" value="{{ $request->preferred_delivery_date?->format('Y-m-d') }}">
+                                                    <label for="edit_preferred_delivery_date_{{ $request->id }}"
+                                                        class="form-label">Preferred Delivery Date</label>
+                                                    <input type="date" class="form-control"
+                                                        id="edit_preferred_delivery_date_{{ $request->id }}"
+                                                        name="preferred_delivery_date"
+                                                        value="{{ $request->preferred_delivery_date?->format('Y-m-d') }}">
                                                 </div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="edit_purpose_{{ $request->id }}" class="form-label">Purpose</label>
-                                                <textarea class="form-control" id="edit_purpose_{{ $request->id }}" 
-                                                    name="purpose" rows="3" maxlength="1000">{{ $request->purpose }}</textarea>
+                                                <label for="edit_purpose_{{ $request->id }}"
+                                                    class="form-label">Purpose</label>
+                                                <textarea class="form-control" id="edit_purpose_{{ $request->id }}" name="purpose" rows="3"
+                                                    maxlength="1000">{{ $request->purpose }}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -664,20 +729,22 @@
                                     <!-- Status Information (Read-only) -->
                                     <div class="card mb-3 bg-light">
                                         <div class="card-header bg-light border-0">
-                                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Request Status (Read-only)</h6>
+                                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Request Status
+                                                (Read-only)</h6>
                                         </div>
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-md-4 mb-2">
                                                     <small class="text-muted">Current Status:</small>
                                                     <div>
-                                                        <span class="badge bg-{{ match($request->status) {
-                                                            'approved' => 'success',
-                                                            'partially_approved' => 'info',
-                                                            'rejected' => 'danger',
-                                                            'under_review', 'pending' => 'warning',
-                                                            default => 'secondary',
-                                                        } }}">
+                                                        <span
+                                                            class="badge bg-{{ match ($request->status) {
+                                                                'approved' => 'success',
+                                                                'partially_approved' => 'info',
+                                                                'rejected' => 'danger',
+                                                                'under_review', 'pending' => 'warning',
+                                                                default => 'secondary',
+                                                            } }}">
                                                             {{ ucfirst(str_replace('_', ' ', $request->status)) }}
                                                         </span>
                                                     </div>
@@ -697,8 +764,9 @@
                                     <!-- Info Alert -->
                                     <div class="alert alert-info mb-0">
                                         <i class="fas fa-lightbulb me-2"></i>
-                                        <strong>Note:</strong> Changes to personal or location information will be saved. 
-                                        To update item statuses and approvals, use the "Update Items" button from the main table.
+                                        <strong>Note:</strong> Changes to personal or location information will be saved.
+                                        To update item statuses and approvals, use the "Update Items" button from the main
+                                        table.
                                     </div>
                                 </form>
                             </div>
@@ -722,7 +790,8 @@
                                     <i class="fas fa-edit me-2"></i>
                                     Update Items - {{ $request->request_number }}
                                 </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                <button type="button" class="btn-close btn-close-white"
+                                    data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
                                 <form method="POST" action="{{ route('admin.seedlings.update-items', $request) }}"
@@ -2286,38 +2355,38 @@
                 });
         }
 
-  // Initialize the update modal with original values
-function initializeSeedlingUpdateModal(requestId) {
-    const form = document.getElementById('updateForm' + requestId);
-    const remarksTextarea = document.getElementById('remarks' + requestId);
-    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-    const submitButton = document.getElementById('submitBtn' + requestId);
+        // Initialize the update modal with original values
+        function initializeSeedlingUpdateModal(requestId) {
+            const form = document.getElementById('updateForm' + requestId);
+            const remarksTextarea = document.getElementById('remarks' + requestId);
+            const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+            const submitButton = document.getElementById('submitBtn' + requestId);
 
-    // Store original remarks value
-    if (remarksTextarea) {
-        remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
-    }
+            // Store original remarks value
+            if (remarksTextarea) {
+                remarksTextarea.dataset.originalRemarks = remarksTextarea.value;
+            }
 
-    // Clear any previous change indicators
-    if (remarksTextarea) {
-        remarksTextarea.classList.remove('form-changed');
-    }
+            // Clear any previous change indicators
+            if (remarksTextarea) {
+                remarksTextarea.classList.remove('form-changed');
+            }
 
-    statusSelects.forEach(select => {
-        select.classList.remove('form-changed');
-        const itemCard = select.closest('.item-card');
-        if (itemCard) {
-            itemCard.classList.remove('form-changed');
+            statusSelects.forEach(select => {
+                select.classList.remove('form-changed');
+                const itemCard = select.closest('.item-card');
+                if (itemCard) {
+                    itemCard.classList.remove('form-changed');
+                }
+            });
+
+            // Reset button state - KEEP IT ENABLED
+            if (submitButton) {
+                submitButton.classList.remove('no-changes');
+                submitButton.innerHTML = 'Update Items';
+                submitButton.disabled = false; // Keep enabled
+            }
         }
-    });
-
-    // Reset button state - KEEP IT ENABLED
-    if (submitButton) {
-        submitButton.classList.remove('no-changes');
-        submitButton.innerHTML = 'Update Items';
-        submitButton.disabled = false; // Keep enabled
-    }
-}
 
         // Open update modal and initialize
         function openUpdateModal(requestId) {
@@ -2325,298 +2394,299 @@ function initializeSeedlingUpdateModal(requestId) {
             modal.show();
         }
 
-    // Check for changes and update button/visual states
-    function checkForSeedlingChanges(requestId) {
-    const form = document.getElementById('updateForm' + requestId);
-    if (!form) return;
+        // Check for changes and update button/visual states
+        function checkForSeedlingChanges(requestId) {
+            const form = document.getElementById('updateForm' + requestId);
+            if (!form) return;
 
-    const remarksTextarea = document.getElementById('remarks' + requestId);
-    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-    const submitButton = document.getElementById('submitBtn' + requestId);
+            const remarksTextarea = document.getElementById('remarks' + requestId);
+            const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+            const submitButton = document.getElementById('submitBtn' + requestId);
 
-    let hasChanges = false;
-    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+            let hasChanges = false;
+            const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
 
-    // Check remarks for changes
-    if (remarksTextarea) {
-        const remarksChanged = remarksTextarea.value.trim() !== originalRemarks.trim();
+            // Check remarks for changes
+            if (remarksTextarea) {
+                const remarksChanged = remarksTextarea.value.trim() !== originalRemarks.trim();
 
-        if (remarksChanged) {
-            hasChanges = true;
-            remarksTextarea.classList.add('form-changed');
-        } else {
-            remarksTextarea.classList.remove('form-changed');
-        }
-    }
-
-    // Check item statuses for changes - USE ITEM CARD DATA ATTRIBUTE
-    statusSelects.forEach(select => {
-        const itemCard = select.closest('.item-card');
-        const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
-
-        if (select.value !== originalStatus) {
-            hasChanges = true;
-            if (itemCard) {
-                itemCard.classList.add('form-changed');
-            }
-        } else {
-            if (itemCard) {
-                itemCard.classList.remove('form-changed');
-            }
-        }
-    });
-
-    // Update button state based on changes - ALWAYS KEEP ENABLED
-    if (submitButton) {
-        if (hasChanges) {
-            submitButton.classList.remove('no-changes');
-            submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
-            // Store flag for use in submission
-            submitButton.dataset.hasChanges = 'true';
-        } else {
-            submitButton.classList.add('no-changes');
-            submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-            // Store flag for use in submission
-            submitButton.dataset.hasChanges = 'false';
-        }
-        // IMPORTANT: Button remains enabled
-        submitButton.disabled = false;
-    }
-}
-
-
-// Handle update form submission with confirmation
-function handleSeedlingUpdateSubmit(requestId) {
-    const form = document.getElementById('updateForm' + requestId);
-
-    if (!form) {
-        console.error('Form not found:', 'updateForm' + requestId);
-        showToast('error', 'Form not found. Please try again.');
-        return;
-    }
-
-    const submitButton = document.getElementById('submitBtn' + requestId);
-    const hasChanges = submitButton?.dataset.hasChanges === 'true';
-
-    // If no changes, show warning and return
-    if (!hasChanges) {
-        showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
-        return;
-    }
-
-    console.log('=== DEBUG: Form Submission Started ===');
-    console.log('Request ID:', requestId);
-    console.log('Form found:', !!form);
-    console.log('Form action:', form.getAttribute('action'));
-    console.log('Form method:', form.getAttribute('method'));
-
-    const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
-    const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-
-    console.log('Remarks textarea found:', !!remarksTextarea);
-    console.log('Status selects found:', statusSelects.length);
-
-    let changesSummary = [];
-
-    // Check for changes in item statuses
-    statusSelects.forEach((select, index) => {
-        const itemCard = select.closest('.item-card');
-        const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
-        const currentStatus = select.value;
-
-        console.log(`Item ${index + 1}:`, {
-            original: originalStatus,
-            current: currentStatus,
-            different: currentStatus !== originalStatus
-        });
-
-        if (currentStatus !== originalStatus) {
-            const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
-            const oldStatusText = getStatusText(originalStatus);
-            const newStatusText = getStatusText(currentStatus);
-            changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
-        }
-    });
-
-    // Check for changes in remarks
-    const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
-    const currentRemarks = remarksTextarea?.value || '';
-
-    console.log('Remarks:', {
-        original: originalRemarks,
-        current: currentRemarks,
-        hasChanged: currentRemarks.trim() !== originalRemarks.trim()
-    });
-
-    if (remarksTextarea && currentRemarks.trim() !== originalRemarks.trim()) {
-        if (originalRemarks.trim() === '') {
-            changesSummary.push('Remarks: Added new remarks');
-        } else if (currentRemarks.trim() === '') {
-            changesSummary.push('Remarks: Removed remarks');
-        } else {
-            changesSummary.push('Remarks: Modified');
-        }
-    }
-
-    console.log('Changes summary:', changesSummary);
-
-    // Show confirmation toast with changes
-    showConfirmationToast(
-        'Confirm Update',
-        `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
-        () => proceedWithSeedlingUpdate(form, requestId)
-    );
-}
-
-// Helper function to get status text
-function getStatusText(status) {
-    switch (status) {
-        case 'pending':
-            return 'Pending';
-        case 'approved':
-            return 'Approved';
-        case 'rejected':
-            return 'Rejected';
-        case 'under_review':
-            return 'Under Review';
-        default:
-            return status;
-    }
-}
-
-
-// Proceed with seedling update after confirmation
-function proceedWithSeedlingUpdate(form, requestId) {
-    // Create a new FormData object to ensure all fields are properly included
-    const formData = new FormData(form);
-
-    // Ensure _method field is included for PATCH request
-    if (!formData.has('_method')) {
-        formData.append('_method', 'PATCH');
-    }
-
-    // Ensure CSRF token is in FormData
-    const csrfToken = getCSRFToken();
-    if (!formData.has('_token')) {
-        formData.append('_token', csrfToken);
-    }
-
-    // Debug: Log what's being sent
-    console.log('=== FormData Contents ===');
-    for (let [key, value] of formData.entries()) {
-        console.log(key, ':', value);
-    }
-
-    // Verify that item_statuses exists in the form data
-    let hasItemStatuses = false;
-    for (let [key] of formData.entries()) {
-        if (key.startsWith('item_statuses')) {
-            hasItemStatuses = true;
-            break;
-        }
-    }
-
-    if (!hasItemStatuses) {
-        console.error('ERROR: item_statuses not found in form data!');
-        showToast('error', 'Form validation error: Item statuses missing');
-        return;
-    }
-
-    const submitButton = document.getElementById('submitBtn' + requestId);
-
-    // Show loading state
-    const originalText = submitButton.innerHTML;
-    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
-    submitButton.disabled = true;
-
-    // OPTIMIZATION: Disable all form inputs to prevent changes during submission
-    const formInputs = form.querySelectorAll('select, textarea, input');
-    formInputs.forEach(input => input.disabled = true);
-
-    // Get the form action URL
-    const formAction = form.getAttribute('action');
-    console.log('Form action:', formAction);
-    console.log('CSRF Token:', csrfToken);
-
-    fetch(formAction, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => {
-            console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
-
-            // Clone the response so we can read it multiple times
-            const responseClone = response.clone();
-
-            if (response.status === 422) {
-                // Handle validation errors
-                return response.json().then(data => {
-                    console.error('Validation errors:', data);
-                    throw new Error('Validation failed: ' + JSON.stringify(data.errors || data.message));
-                });
+                if (remarksChanged) {
+                    hasChanges = true;
+                    remarksTextarea.classList.add('form-changed');
+                } else {
+                    remarksTextarea.classList.remove('form-changed');
+                }
             }
 
-            if (!response.ok) {
-                // Try to get error message from response
-                return responseClone.text().then(text => {
-                    console.error('Error response body:', text);
-                    let errorMessage = `HTTP error! status: ${response.status}`;
-                    try {
-                        const data = JSON.parse(text);
-                        if (data.message) {
-                            errorMessage = data.message;
-                        } else if (data.error) {
-                            errorMessage = data.error;
-                        }
-                    } catch (e) {
-                        // If not JSON, use the text directly (truncated)
-                        if (text.length > 0) {
-                            errorMessage += ` - ${text.substring(0, 200)}`;
-                        }
+            // Check item statuses for changes - USE ITEM CARD DATA ATTRIBUTE
+            statusSelects.forEach(select => {
+                const itemCard = select.closest('.item-card');
+                const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
+
+                if (select.value !== originalStatus) {
+                    hasChanges = true;
+                    if (itemCard) {
+                        itemCard.classList.add('form-changed');
                     }
-                    throw new Error(errorMessage);
-                });
-            }
+                } else {
+                    if (itemCard) {
+                        itemCard.classList.remove('form-changed');
+                    }
+                }
+            });
 
-            return response.json();
-        })
-        .then(data => {
-            console.log('Success response:', data);
-
-            if (data.success) {
-                // Close modal immediately
-                const modalId = 'updateModal' + requestId;
-                const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-                if (modal) modal.hide();
-
-                // Show success toast
-                showToast('success', data.message || 'Items updated successfully');
-
-                // OPTIMIZATION: Reload page immediately without delay
-                window.location.reload();
-            } else {
-                showToast('error', data.message || 'Failed to update items');
-                submitButton.innerHTML = originalText;
+            // Update button state based on changes - ALWAYS KEEP ENABLED
+            if (submitButton) {
+                if (hasChanges) {
+                    submitButton.classList.remove('no-changes');
+                    submitButton.innerHTML = '<i class="fas fa-save me-2"></i>Update Items';
+                    // Store flag for use in submission
+                    submitButton.dataset.hasChanges = 'true';
+                } else {
+                    submitButton.classList.add('no-changes');
+                    submitButton.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+                    // Store flag for use in submission
+                    submitButton.dataset.hasChanges = 'false';
+                }
+                // IMPORTANT: Button remains enabled
                 submitButton.disabled = false;
             }
-        })
-        .catch(error => {
-            console.error('Error during update:', error);
-            showToast('error', 'Error: ' + error.message);
-            submitButton.innerHTML = originalText;
-            submitButton.disabled = false;
+        }
 
-            // Re-enable form inputs
+
+        // Handle update form submission with confirmation
+        function handleSeedlingUpdateSubmit(requestId) {
+            const form = document.getElementById('updateForm' + requestId);
+
+            if (!form) {
+                console.error('Form not found:', 'updateForm' + requestId);
+                showToast('error', 'Form not found. Please try again.');
+                return;
+            }
+
+            const submitButton = document.getElementById('submitBtn' + requestId);
+            const hasChanges = submitButton?.dataset.hasChanges === 'true';
+
+            // If no changes, show warning and return
+            if (!hasChanges) {
+                showToast('warning', 'No changes detected. Please modify the status or remarks before updating.');
+                return;
+            }
+
+            console.log('=== DEBUG: Form Submission Started ===');
+            console.log('Request ID:', requestId);
+            console.log('Form found:', !!form);
+            console.log('Form action:', form.getAttribute('action'));
+            console.log('Form method:', form.getAttribute('method'));
+
+            const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
+            const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+
+            console.log('Remarks textarea found:', !!remarksTextarea);
+            console.log('Status selects found:', statusSelects.length);
+
+            let changesSummary = [];
+
+            // Check for changes in item statuses
+            statusSelects.forEach((select, index) => {
+                const itemCard = select.closest('.item-card');
+                const originalStatus = itemCard ? itemCard.dataset.originalStatus : null;
+                const currentStatus = select.value;
+
+                console.log(`Item ${index + 1}:`, {
+                    original: originalStatus,
+                    current: currentStatus,
+                    different: currentStatus !== originalStatus
+                });
+
+                if (currentStatus !== originalStatus) {
+                    const itemName = itemCard?.querySelector('.fw-medium')?.textContent || 'Item';
+                    const oldStatusText = getStatusText(originalStatus);
+                    const newStatusText = getStatusText(currentStatus);
+                    changesSummary.push(`${itemName.trim()}: ${oldStatusText} → ${newStatusText}`);
+                }
+            });
+
+            // Check for changes in remarks
+            const originalRemarks = remarksTextarea?.dataset.originalRemarks || '';
+            const currentRemarks = remarksTextarea?.value || '';
+
+            console.log('Remarks:', {
+                original: originalRemarks,
+                current: currentRemarks,
+                hasChanged: currentRemarks.trim() !== originalRemarks.trim()
+            });
+
+            if (remarksTextarea && currentRemarks.trim() !== originalRemarks.trim()) {
+                if (originalRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Added new remarks');
+                } else if (currentRemarks.trim() === '') {
+                    changesSummary.push('Remarks: Removed remarks');
+                } else {
+                    changesSummary.push('Remarks: Modified');
+                }
+            }
+
+            console.log('Changes summary:', changesSummary);
+
+            // Show confirmation toast with changes
+            showConfirmationToast(
+                'Confirm Update',
+                `Update this request with the following changes?\n\n${changesSummary.join('\n')}`,
+                () => proceedWithSeedlingUpdate(form, requestId)
+            );
+        }
+
+        // Helper function to get status text
+        function getStatusText(status) {
+            switch (status) {
+                case 'pending':
+                    return 'Pending';
+                case 'approved':
+                    return 'Approved';
+                case 'rejected':
+                    return 'Rejected';
+                case 'under_review':
+                    return 'Under Review';
+                default:
+                    return status;
+            }
+        }
+
+
+        // Proceed with seedling update after confirmation
+        function proceedWithSeedlingUpdate(form, requestId) {
+            // Create a new FormData object to ensure all fields are properly included
+            const formData = new FormData(form);
+
+            // Ensure _method field is included for PATCH request
+            if (!formData.has('_method')) {
+                formData.append('_method', 'PATCH');
+            }
+
+            // Ensure CSRF token is in FormData
+            const csrfToken = getCSRFToken();
+            if (!formData.has('_token')) {
+                formData.append('_token', csrfToken);
+            }
+
+            // Debug: Log what's being sent
+            console.log('=== FormData Contents ===');
+            for (let [key, value] of formData.entries()) {
+                console.log(key, ':', value);
+            }
+
+            // Verify that item_statuses exists in the form data
+            let hasItemStatuses = false;
+            for (let [key] of formData.entries()) {
+                if (key.startsWith('item_statuses')) {
+                    hasItemStatuses = true;
+                    break;
+                }
+            }
+
+            if (!hasItemStatuses) {
+                console.error('ERROR: item_statuses not found in form data!');
+                showToast('error', 'Form validation error: Item statuses missing');
+                return;
+            }
+
+            const submitButton = document.getElementById('submitBtn' + requestId);
+
+            // Show loading state
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Updating...';
+            submitButton.disabled = true;
+
+            // OPTIMIZATION: Disable all form inputs to prevent changes during submission
             const formInputs = form.querySelectorAll('select, textarea, input');
-            formInputs.forEach(input => input.disabled = false);
-        });
-}
+            formInputs.forEach(input => input.disabled = true);
+
+            // Get the form action URL
+            const formAction = form.getAttribute('action');
+            console.log('Form action:', formAction);
+            console.log('CSRF Token:', csrfToken);
+
+            fetch(formAction, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+
+                    // Clone the response so we can read it multiple times
+                    const responseClone = response.clone();
+
+                    if (response.status === 422) {
+                        // Handle validation errors
+                        return response.json().then(data => {
+                            console.error('Validation errors:', data);
+                            throw new Error('Validation failed: ' + JSON.stringify(data.errors || data
+                            .message));
+                        });
+                    }
+
+                    if (!response.ok) {
+                        // Try to get error message from response
+                        return responseClone.text().then(text => {
+                            console.error('Error response body:', text);
+                            let errorMessage = `HTTP error! status: ${response.status}`;
+                            try {
+                                const data = JSON.parse(text);
+                                if (data.message) {
+                                    errorMessage = data.message;
+                                } else if (data.error) {
+                                    errorMessage = data.error;
+                                }
+                            } catch (e) {
+                                // If not JSON, use the text directly (truncated)
+                                if (text.length > 0) {
+                                    errorMessage += ` - ${text.substring(0, 200)}`;
+                                }
+                            }
+                            throw new Error(errorMessage);
+                        });
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Success response:', data);
+
+                    if (data.success) {
+                        // Close modal immediately
+                        const modalId = 'updateModal' + requestId;
+                        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                        if (modal) modal.hide();
+
+                        // Show success toast
+                        showToast('success', data.message || 'Items updated successfully');
+
+                        // OPTIMIZATION: Reload page immediately without delay
+                        window.location.reload();
+                    } else {
+                        showToast('error', data.message || 'Failed to update items');
+                        submitButton.innerHTML = originalText;
+                        submitButton.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during update:', error);
+                    showToast('error', 'Error: ' + error.message);
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+
+                    // Re-enable form inputs
+                    const formInputs = form.querySelectorAll('select, textarea, input');
+                    formInputs.forEach(input => input.disabled = false);
+                });
+        }
 
         // Get CSRF token utility function
         function getCSRFToken() {
@@ -2624,39 +2694,39 @@ function proceedWithSeedlingUpdate(form, requestId) {
             return metaTag ? metaTag.getAttribute('content') : '';
         }
 
-// Initialize modal when opened
-document.addEventListener('DOMContentLoaded', function() {
-    // Get all update modals for seedlings
-    const updateModals = document.querySelectorAll('[id^="updateModal"]');
+        // Initialize modal when opened
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all update modals for seedlings
+            const updateModals = document.querySelectorAll('[id^="updateModal"]');
 
-    updateModals.forEach(modalElement => {
-        const requestId = modalElement.id.replace('updateModal', '');
+            updateModals.forEach(modalElement => {
+                const requestId = modalElement.id.replace('updateModal', '');
 
-        modalElement.addEventListener('show.bs.modal', function() {
-            initializeSeedlingUpdateModal(requestId);
+                modalElement.addEventListener('show.bs.modal', function() {
+                    initializeSeedlingUpdateModal(requestId);
+                });
+            });
+
+            // Add event listeners for real-time change detection only
+            const updateForms = document.querySelectorAll('form[id^="updateForm"]');
+
+            updateForms.forEach(form => {
+                const requestId = form.id.replace('updateForm', '');
+
+                // Add event listeners for real-time change detection
+                const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
+                const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
+
+                statusSelects.forEach(select => {
+                    select.addEventListener('change', () => checkForSeedlingChanges(requestId));
+                });
+
+                if (remarksTextarea) {
+                    remarksTextarea.addEventListener('input', () => checkForSeedlingChanges(requestId));
+                    remarksTextarea.addEventListener('change', () => checkForSeedlingChanges(requestId));
+                }
+            });
         });
-    });
-
-    // Add event listeners for real-time change detection only
-    const updateForms = document.querySelectorAll('form[id^="updateForm"]');
-
-    updateForms.forEach(form => {
-        const requestId = form.id.replace('updateForm', '');
-
-        // Add event listeners for real-time change detection
-        const statusSelects = form.querySelectorAll('select[name^="item_statuses"]');
-        const remarksTextarea = form.querySelector('textarea[id="remarks' + requestId + '"]');
-
-        statusSelects.forEach(select => {
-            select.addEventListener('change', () => checkForSeedlingChanges(requestId));
-        });
-
-        if (remarksTextarea) {
-            remarksTextarea.addEventListener('input', () => checkForSeedlingChanges(requestId));
-            remarksTextarea.addEventListener('change', () => checkForSeedlingChanges(requestId));
-        }
-    });
-});
 
         // Initialize seedling item counter
         let seedlingItemCounter = 0;
@@ -3114,127 +3184,128 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
 
-                
+
         // Show edit modal
         function showEditSeedlingModal(requestId) {
             const modal = new bootstrap.Modal(document.getElementById('editSeedlingModal' + requestId));
-            
+
             // Initialize the modal with existing values
             initializeEditSeedlingModal(requestId);
-            
+
             modal.show();
         }
 
         // Initialize edit modal with existing data
-      function initializeEditSeedlingModal(requestId) {
-        const form = document.getElementById('editForm' + requestId);
-        if (!form) return;
-        
-        // Store original values for change detection
-        const originalData = {};
-        
-        // Store personal info
-        originalData.first_name = document.getElementById('edit_first_name_' + requestId).value;
-        originalData.middle_name = document.getElementById('edit_middle_name_' + requestId).value;
-        originalData.last_name = document.getElementById('edit_last_name_' + requestId).value;
-        originalData.extension_name = document.getElementById('edit_extension_' + requestId).value;
-        originalData.contact_number = document.getElementById('edit_contact_number_' + requestId).value;
-        originalData.email = document.getElementById('edit_email_' + requestId).value;
-        originalData.barangay = document.getElementById('edit_barangay_' + requestId).value;
-        originalData.address = document.getElementById('edit_address_' + requestId).value;
-        originalData.planting_location = document.getElementById('edit_planting_location_' + requestId).value;
-        originalData.purpose = document.getElementById('edit_purpose_' + requestId).value;
-        originalData.preferred_delivery_date = document.getElementById('edit_preferred_delivery_date_' + requestId).value;
-        
-        // Store in form data attribute
-        form.dataset.originalData = JSON.stringify(originalData);
-        
-        // Clear validation states
-        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-        
-        // Reset submit button - NO CHANGES STATE (similar to update modal)
-        const submitBtn = document.getElementById('editSubmitBtn' + requestId);
-        if (submitBtn) {
-            submitBtn.innerHTML = 'Save Changes'; // No icon initially
-            submitBtn.disabled = false; // Keep enabled like update modal
-            submitBtn.dataset.hasChanges = 'false';
+        function initializeEditSeedlingModal(requestId) {
+            const form = document.getElementById('editForm' + requestId);
+            if (!form) return;
+
+            // Store original values for change detection
+            const originalData = {};
+
+            // Store personal info
+            originalData.first_name = document.getElementById('edit_first_name_' + requestId).value;
+            originalData.middle_name = document.getElementById('edit_middle_name_' + requestId).value;
+            originalData.last_name = document.getElementById('edit_last_name_' + requestId).value;
+            originalData.extension_name = document.getElementById('edit_extension_' + requestId).value;
+            originalData.contact_number = document.getElementById('edit_contact_number_' + requestId).value;
+            originalData.email = document.getElementById('edit_email_' + requestId).value;
+            originalData.barangay = document.getElementById('edit_barangay_' + requestId).value;
+            originalData.address = document.getElementById('edit_address_' + requestId).value;
+            originalData.planting_location = document.getElementById('edit_planting_location_' + requestId).value;
+            originalData.purpose = document.getElementById('edit_purpose_' + requestId).value;
+            originalData.preferred_delivery_date = document.getElementById('edit_preferred_delivery_date_' + requestId)
+                .value;
+
+            // Store in form data attribute
+            form.dataset.originalData = JSON.stringify(originalData);
+
+            // Clear validation states
+            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+            // Reset submit button - NO CHANGES STATE (similar to update modal)
+            const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+            if (submitBtn) {
+                submitBtn.innerHTML = 'Save Changes'; // No icon initially
+                submitBtn.disabled = false; // Keep enabled like update modal
+                submitBtn.dataset.hasChanges = 'false';
+            }
         }
-    }
 
 
 
-// Check for changes in edit form
-function checkForEditChanges(requestId) {
-    const form = document.getElementById('editForm' + requestId);
-    const submitBtn = document.getElementById('editSubmitBtn' + requestId);
-    
-    if (!form || !submitBtn) return;
-    
-    const originalData = JSON.parse(form.dataset.originalData || '{}');
-    
-    let hasChanges = false;
-    
-    // Check all form fields
-    const fields = [
-        'first_name', 'middle_name', 'last_name', 'extension_name',
-        'contact_number', 'email', 'barangay', 'address',
-        'planting_location', 'purpose', 'preferred_delivery_date'
-    ];
-    
-    fields.forEach(field => {
-        const input = form.querySelector(`[name="${field}"]`);
-        if (input && input.value !== originalData[field]) {
-            hasChanges = true;
-            input.classList.add('form-changed');
-        } else if (input) {
-            input.classList.remove('form-changed');
-        }
-    });
-    
-    // Update button state based on changes - ALWAYS KEEP ENABLED
-    if (hasChanges) {
-        submitBtn.classList.remove('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        submitBtn.disabled = false;
-        submitBtn.dataset.hasChanges = 'true';
-    } else {
-        submitBtn.classList.add('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        submitBtn.disabled = false;
-        submitBtn.dataset.hasChanges = 'false';
-    }
-}
+        // Check for changes in edit form
+        function checkForEditChanges(requestId) {
+            const form = document.getElementById('editForm' + requestId);
+            const submitBtn = document.getElementById('editSubmitBtn' + requestId);
 
-    // Handle edit form submission
-   function handleEditSeedlingSubmit(requestId) {
-        const form = document.getElementById('editForm' + requestId);
-        const submitBtn = document.getElementById('editSubmitBtn' + requestId);
-        
-        if (!form) {
-            showToast('error', 'Form not found');
-            return;
+            if (!form || !submitBtn) return;
+
+            const originalData = JSON.parse(form.dataset.originalData || '{}');
+
+            let hasChanges = false;
+
+            // Check all form fields
+            const fields = [
+                'first_name', 'middle_name', 'last_name', 'extension_name',
+                'contact_number', 'email', 'barangay', 'address',
+                'planting_location', 'purpose', 'preferred_delivery_date'
+            ];
+
+            fields.forEach(field => {
+                const input = form.querySelector(`[name="${field}"]`);
+                if (input && input.value !== originalData[field]) {
+                    hasChanges = true;
+                    input.classList.add('form-changed');
+                } else if (input) {
+                    input.classList.remove('form-changed');
+                }
+            });
+
+            // Update button state based on changes - ALWAYS KEEP ENABLED
+            if (hasChanges) {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                submitBtn.disabled = false;
+                submitBtn.dataset.hasChanges = 'true';
+            } else {
+                submitBtn.classList.add('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                submitBtn.disabled = false;
+                submitBtn.dataset.hasChanges = 'false';
+            }
         }
-        
-        // Check if there are no changes
-        if (submitBtn && submitBtn.dataset.hasChanges === 'false') {
-            showToast('warning', 'No changes detected. Please modify the fields before saving.');
-            return;
+
+        // Handle edit form submission
+        function handleEditSeedlingSubmit(requestId) {
+            const form = document.getElementById('editForm' + requestId);
+            const submitBtn = document.getElementById('editSubmitBtn' + requestId);
+
+            if (!form) {
+                showToast('error', 'Form not found');
+                return;
+            }
+
+            // Check if there are no changes
+            if (submitBtn && submitBtn.dataset.hasChanges === 'false') {
+                showToast('warning', 'No changes detected. Please modify the fields before saving.');
+                return;
+            }
+
+            // Validate form
+            if (!validateEditSeedlingForm(requestId)) {
+                showToast('error', 'Please fix all validation errors');
+                return;
+            }
+
+            // Show confirmation
+            showConfirmationToast(
+                'Confirm Update',
+                'Are you sure you want to save the changes to this seedling request?',
+                () => proceedWithEditSeedling(form, requestId)
+            );
         }
-        
-        // Validate form
-        if (!validateEditSeedlingForm(requestId)) {
-            showToast('error', 'Please fix all validation errors');
-            return;
-        }
-        
-        // Show confirmation
-        showConfirmationToast(
-            'Confirm Update',
-            'Are you sure you want to save the changes to this seedling request?',
-            () => proceedWithEditSeedling(form, requestId)
-        );
-    }
 
 
 
@@ -3242,22 +3313,36 @@ function checkForEditChanges(requestId) {
         function validateEditSeedlingForm(requestId) {
             const form = document.getElementById('editForm' + requestId);
             let isValid = true;
-            
-            const requiredFields = [
-                { id: 'edit_first_name_' + requestId, label: 'First Name' },
-                { id: 'edit_last_name_' + requestId, label: 'Last Name' },
-                { id: 'edit_contact_number_' + requestId, label: 'Contact Number' },
-                { id: 'edit_barangay_' + requestId, label: 'Barangay' },
-                { id: 'edit_address_' + requestId, label: 'Address' }
+
+            const requiredFields = [{
+                    id: 'edit_first_name_' + requestId,
+                    label: 'First Name'
+                },
+                {
+                    id: 'edit_last_name_' + requestId,
+                    label: 'Last Name'
+                },
+                {
+                    id: 'edit_contact_number_' + requestId,
+                    label: 'Contact Number'
+                },
+                {
+                    id: 'edit_barangay_' + requestId,
+                    label: 'Barangay'
+                },
+                {
+                    id: 'edit_address_' + requestId,
+                    label: 'Address'
+                }
             ];
-            
+
             requiredFields.forEach(field => {
                 const input = document.getElementById(field.id);
                 if (input && (!input.value || input.value.trim() === '')) {
                     input.classList.add('is-invalid');
                     const feedback = input.parentNode.querySelector('.invalid-feedback');
                     if (feedback) feedback.remove();
-                    
+
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
                     errorDiv.textContent = field.label + ' is required';
@@ -3265,13 +3350,13 @@ function checkForEditChanges(requestId) {
                     isValid = false;
                 }
             });
-            
+
             // Validate contact number
             const contactInput = document.getElementById('edit_contact_number_' + requestId);
             if (contactInput) {
                 validateEditContactNumber(contactInput, requestId);
             }
-            
+
             // Validate email if provided
             const emailInput = document.getElementById('edit_email_' + requestId);
             if (emailInput && emailInput.value.trim()) {
@@ -3279,7 +3364,7 @@ function checkForEditChanges(requestId) {
                     isValid = false;
                 }
             }
-            
+
             return isValid;
         }
 
@@ -3288,9 +3373,9 @@ function checkForEditChanges(requestId) {
             const feedback = input.parentNode.querySelector('.invalid-feedback');
             if (feedback) feedback.remove();
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             const phoneRegex = /^(\+639|09)\d{9}$/;
-            
+
             if (input.value.trim() && !phoneRegex.test(input.value.trim())) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
@@ -3299,7 +3384,7 @@ function checkForEditChanges(requestId) {
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
-            
+
             if (input.value.trim()) {
                 input.classList.add('is-valid');
             }
@@ -3311,9 +3396,9 @@ function checkForEditChanges(requestId) {
             const feedback = input.parentNode.querySelector('.invalid-feedback');
             if (feedback) feedback.remove();
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            
+
             if (!emailPattern.test(input.value.trim())) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
@@ -3322,7 +3407,7 @@ function checkForEditChanges(requestId) {
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -3330,48 +3415,48 @@ function checkForEditChanges(requestId) {
         // Proceed with edit submission
         function proceedWithEditSeedling(form, requestId) {
             const submitBtn = document.getElementById('editSubmitBtn' + requestId);
-            
+
             // Show loading state
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
             submitBtn.disabled = true;
-            
+
             const formData = new FormData(form);
-            
+
             fetch(form.getAttribute('action'), {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Close modal
-                    const modalId = 'editSeedlingModal' + requestId;
-                    const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
-                    if (modal) modal.hide();
-                    
-                    showToast('success', data.message || 'Seedling request updated successfully');
-                    
-                    // Reload page
-                    setTimeout(() => window.location.reload(), 1500);
-                } else {
-                    throw new Error(data.message || 'Failed to update request');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'Error: ' + error.message);
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        const modalId = 'editSeedlingModal' + requestId;
+                        const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                        if (modal) modal.hide();
+
+                        showToast('success', data.message || 'Seedling request updated successfully');
+
+                        // Reload page
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        throw new Error(data.message || 'Failed to update request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error: ' + error.message);
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
         }
 
         // Auto-capitalize names in edit form
@@ -3386,41 +3471,47 @@ function checkForEditChanges(requestId) {
             }
         }
 
-   // Add event listeners for edit form
-function initializeEditFormListeners() {
-    const editForms = document.querySelectorAll('form[id^="editForm"]');
-    
-    editForms.forEach(form => {
-        const requestId = form.id.replace('editForm', '');
-        
-        // Add change listeners to all inputs
-        const inputs = form.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
-            input.addEventListener('change', () => checkForEditChanges(requestId));
-            input.addEventListener('input', () => checkForEditChanges(requestId));
-        });
-        
-        // Name auto-capitalize
-        const firstName = form.querySelector(`#edit_first_name_${requestId}`);
-        if (firstName) {
-            firstName.addEventListener('blur', function() { capitalizeEditName(this); });
-        }
-        
-        const middleName = form.querySelector(`#edit_middle_name_${requestId}`);
-        if (middleName) {
-            middleName.addEventListener('blur', function() { capitalizeEditName(this); });
-        }
-        
-        const lastName = form.querySelector(`#edit_last_name_${requestId}`);
-        if (lastName) {
-            lastName.addEventListener('blur', function() { capitalizeEditName(this); });
-        }
-    });
-}
+        // Add event listeners for edit form
+        function initializeEditFormListeners() {
+            const editForms = document.querySelectorAll('form[id^="editForm"]');
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    initializeEditFormListeners();
-});
+            editForms.forEach(form => {
+                const requestId = form.id.replace('editForm', '');
+
+                // Add change listeners to all inputs
+                const inputs = form.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('change', () => checkForEditChanges(requestId));
+                    input.addEventListener('input', () => checkForEditChanges(requestId));
+                });
+
+                // Name auto-capitalize
+                const firstName = form.querySelector(`#edit_first_name_${requestId}`);
+                if (firstName) {
+                    firstName.addEventListener('blur', function() {
+                        capitalizeEditName(this);
+                    });
+                }
+
+                const middleName = form.querySelector(`#edit_middle_name_${requestId}`);
+                if (middleName) {
+                    middleName.addEventListener('blur', function() {
+                        capitalizeEditName(this);
+                    });
+                }
+
+                const lastName = form.querySelector(`#edit_last_name_${requestId}`);
+                if (lastName) {
+                    lastName.addEventListener('blur', function() {
+                        capitalizeEditName(this);
+                    });
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEditFormListeners();
+        });
     </script>
 @endsection

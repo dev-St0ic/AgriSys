@@ -468,53 +468,63 @@ private function getChangedFields($original, $updated)
             $registration = BoatrApplication::findOrFail($id);
             $oldStatus = $registration->status;
 
-            Log::info('Registration found', [
-                'registration_id' => $registration->id,
-                'current_status' => $oldStatus,
-                'new_status' => $validated['status']
-            ]);
-
-            // Update using trait method to trigger SMS notification
-            $registration->updateStatusWithNotification($validated['status'], $validated['remarks']);
-
-            // Update additional fields manually
+            // Update status and related fields in one operation
             $registration->update([
+                'status' => $validated['status'],
+                'remarks' => $validated['remarks'],
                 'reviewed_at' => now(),
                 'reviewed_by' => auth()->id()
             ]);
 
-            Log::info('Status updated successfully', [
-                'registration_id' => $registration->id,
-                'old_status' => $oldStatus,
-                'new_status' => $registration->status
-            ]);
-
-            // Log activity
-            $this->logActivity('updated', 'BoatrApplication', $registration->id, [
-                'application_number' => $registration->application_number,
-                'old_status' => $oldStatus,
-                'new_status' => $registration->status,
-                'remarks' => $validated['remarks'] ?? null
-            ]);
-
-            // Refresh from database to ensure we have fresh data
-            $registration->refresh();
-
-            // Send approval email if approved
-            if ($validated['status'] === 'approved' && $registration->email) {
+            // Fire event for SMS notification
+            if ($oldStatus !== $validated['status']) {
                 try {
-                    Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
-                    Log::info('Approval email sent', ['email' => $registration->email]);
-                } catch (\Exception $mailError) {
-                    Log::error('Failed to send approval email', [
-                        'email' => $registration->email,
-                        'error' => $mailError->getMessage()
+                    event(new \App\Events\ApplicationStatusChanged(
+                        $registration,
+                        $registration->getApplicationTypeName(),
+                        $oldStatus,
+                        $validated['status'],
+                        $validated['remarks'] ?? null,
+                        $registration->getApplicantPhone(),
+                        $registration->getApplicantName()
+                    ));
+                } catch (\Exception $smsException) {
+                    Log::warning('SMS notification failed but status update succeeded', [
+                        'registration_id' => $id,
+                        'error' => $smsException->getMessage()
                     ]);
-                    // Don't fail the request if email fails
                 }
             }
 
-            // Build response with fresh data from database
+            // Queue activity logging (non-blocking)
+            try {
+                dispatch(function() use ($registration, $oldStatus, $validated) {
+                    activity()
+                        ->performedOn($registration)
+                        ->causedBy(auth()->user())
+                        ->withProperties([
+                            'application_number' => $registration->application_number,
+                            'old_status' => $oldStatus,
+                            'new_status' => $registration->status,
+                            'remarks' => $validated['remarks'] ?? null
+                        ])
+                        ->log('updated');
+                })->afterResponse();
+            } catch (\Exception $logException) {
+                Log::warning('Activity logging failed', ['error' => $logException->getMessage()]);
+            }
+
+            // Queue email notification (non-blocking)
+            try {
+                if ($validated['status'] === 'approved' && $registration->email) {
+                    \Illuminate\Support\Facades\Mail::to($registration->email)
+                        ->queue(new \App\Mail\ApplicationApproved($registration, 'boatr'));
+                }
+            } catch (\Exception $mailException) {
+                Log::warning('Email notification failed', ['error' => $mailException->getMessage()]);
+            }
+
+            // Build and return response immediately
             $response = [
                 'success' => true,
                 'message' => "Application {$registration->application_number} status updated to " . $this->formatStatus($registration->status),
@@ -526,8 +536,6 @@ private function getChangedFields($original, $updated)
                     'inspection_completed' => (bool) $registration->inspection_completed,
                 ]
             ];
-
-            Log::info('Returning success response', ['response_data' => $response]);
 
             return response()->json($response, 200);
 

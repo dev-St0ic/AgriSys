@@ -467,7 +467,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         // Return JSON response for AJAX requests
         if ($request->expectsJson()) {
             $changeCount = count($changes);
-            $message = $changeCount > 0 
+            $message = $changeCount > 0
                 ? "Seedling request updated successfully! ({$changeCount} field" . ($changeCount !== 1 ? 's' : '') . " changed)"
                 : "Seedling request updated successfully!";
 
@@ -478,7 +478,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
             ]);
         }
 
-        $message = count($changes) > 0 
+        $message = count($changes) > 0
             ? 'Seedling request updated successfully!'
             : 'No changes were made.';
 
@@ -739,28 +739,24 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
 
             \DB::commit();
 
-            // OPTIMIZATION: Send notifications AFTER commit to avoid blocking the transaction
+            // OPTIMIZATION: Queue notifications to run after response (non-blocking)
             // Fire SMS notification event if status actually changed
             if ($previousStatus !== $overallStatus) {
-                try {
-                    $seedlingRequest->fireApplicationStatusChanged(
-                        $seedlingRequest->getApplicationTypeName(),
-                        $previousStatus,
-                        $overallStatus,
-                        $validated['remarks']
-                    );
-                } catch (\Exception $e) {
-                    \Log::error('Failed to send SMS notification: ' . $e->getMessage());
-                }
+                event(new \App\Events\ApplicationStatusChanged(
+                    $seedlingRequest,
+                    $seedlingRequest->getApplicationTypeName(),
+                    $previousStatus,
+                    $overallStatus,
+                    $validated['remarks'],
+                    $seedlingRequest->getApplicantPhone(),
+                    $seedlingRequest->getApplicantName()
+                ));
             }
 
-            // Send email notification if fully approved and email is available
+            // Queue email notification if fully approved (non-blocking)
             if ($overallStatus === 'approved' && $seedlingRequest->email) {
-                try {
-                    Mail::to($seedlingRequest->email)->send(new ApplicationApproved($seedlingRequest, 'seedling'));
-                } catch (\Exception $e) {
-                    \Log::error('Failed to send approval email: ' . $e->getMessage());
-                }
+                \Illuminate\Support\Facades\Mail::to($seedlingRequest->email)
+                    ->queue(new \App\Mail\ApplicationApproved($seedlingRequest, 'seedling'));
             }
 
             // Return JSON response for AJAX requests
@@ -936,5 +932,5 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 ->with('error', 'Failed to export data: ' . $e->getMessage());
         }
     }
-    
+
 }

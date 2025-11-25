@@ -285,15 +285,10 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
+                                        <!-- Primary Actions -->
                                         <button class="btn btn-sm btn-outline-primary"
                                             onclick="viewRegistration({{ $registration->id }})" title="View Details">
                                             <i class="fas fa-eye"></i> View
-                                        </button>
-
-                                        <button class="btn btn-sm btn-outline-warning"
-                                            onclick="showEditBoatrModal({{ $registration->id }})" 
-                                            title="Edit Personal Information">
-                                            <i class="fas fa-pencil-alt"></i> Edit
                                         </button>
 
                                         <button class="btn btn-sm btn-outline-success"
@@ -315,11 +310,31 @@
                                             </button>
                                         @endif
 
-                                        <button class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->application_number }}')" 
-                                            title="Delete Application">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
+                                        <!-- Dropdown for More Actions -->
+                                        <div class="btn-group" role="group">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="javascript:void(0)"
+                                                        onclick="showEditBoatrModal({{ $registration->id }})">
+                                                        <i class="fas fa-pencil-alt text-warning me-2"></i>Edit Information
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0)"
+                                                        onclick="deleteRegistration({{ $registration->id }}, '{{ $registration->application_number }}')">
+                                                        <i class="fas fa-trash me-2"></i>Delete Application
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -420,17 +435,22 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="boatr_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_first_name" required maxlength="100">
+                                        <label for="boatr_first_name" class="form-label">First Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_first_name" required
+                                            maxlength="100">
                                         <div class="invalid-feedback"></div>
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="boatr_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="boatr_middle_name" maxlength="100">
+                                        <input type="text" class="form-control" id="boatr_middle_name"
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="boatr_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_last_name" required maxlength="100">
+                                        <label for="boatr_last_name" class="form-label">Last Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_last_name" required
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="boatr_name_extension" class="form-label">Extension</label>
@@ -447,8 +467,10 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="boatr_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <label for="boatr_contact_number" class="form-label">Contact Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="boatr_contact_number" required
+                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
                                         <div class="invalid-feedback"></div>
                                     </div>
@@ -459,7 +481,8 @@
                                         <div class="invalid-feedback"></div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <label for="boatr_barangay" class="form-label">Barangay <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="boatr_barangay" required>
                                             <option value="">Select Barangay</option>
                                             @foreach ($barangays as $barangay)
@@ -480,25 +503,31 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_fishr_number" class="form-label">FishR Number <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_fishr_number" required maxlength="50">
+                                        <label for="boatr_fishr_number" class="form-label">FishR Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_fishr_number" required
+                                            maxlength="50">
                                         <div class="form-text">FishR registration number (e.g., FISHR-XXXXXXXX)</div>
                                         <div class="invalid-feedback"></div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_vessel_name" class="form-label">Vessel Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_vessel_name" required maxlength="100">
+                                        <label for="boatr_vessel_name" class="form-label">Vessel Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_vessel_name" required
+                                            maxlength="100">
                                         <div class="invalid-feedback"></div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_boat_type" class="form-label">Boat Type <span class="text-danger">*</span></label>
+                                        <label for="boatr_boat_type" class="form-label">Boat Type <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="boatr_boat_type" required>
                                             <option value="">Select Boat Type</option>
                                             <option value="Spoon">Spoon</option>
                                             <option value="Plumb">Plumb</option>
                                             <option value="Banca">Banca</option>
                                             <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
-                                            <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom/Spoon/Plumb Stern</option>
+                                            <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem -
+                                                Transom/Spoon/Plumb Stern</option>
                                             <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
                                         </select>
                                         <div class="invalid-feedback"></div>
@@ -515,18 +544,24 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_boat_length" class="form-label">Length <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="boatr_boat_length" step="0.01" min="0.1" max="999.99" required placeholder="0.00">
+                                        <label for="boatr_boat_length" class="form-label">Length <span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="boatr_boat_length" step="0.01"
+                                            min="0.1" max="999.99" required placeholder="0.00">
                                         <div class="invalid-feedback"></div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_boat_width" class="form-label">Width <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="boatr_boat_width" step="0.01" min="0.1" max="999.99" required placeholder="0.00">
+                                        <label for="boatr_boat_width" class="form-label">Width <span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="boatr_boat_width" step="0.01"
+                                            min="0.1" max="999.99" required placeholder="0.00">
                                         <div class="invalid-feedback"></div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="boatr_boat_depth" class="form-label">Depth <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="boatr_boat_depth" step="0.01" min="0.1" max="999.99" required placeholder="0.00">
+                                        <label for="boatr_boat_depth" class="form-label">Depth <span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="boatr_boat_depth" step="0.01"
+                                            min="0.1" max="999.99" required placeholder="0.00">
                                         <div class="invalid-feedback"></div>
                                     </div>
                                 </div>
@@ -541,13 +576,17 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="boatr_engine_type" class="form-label">Engine Type <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="boatr_engine_type" required maxlength="100" placeholder="e.g., Diesel, Gasoline, Outboard">
+                                        <label for="boatr_engine_type" class="form-label">Engine Type <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="boatr_engine_type" required
+                                            maxlength="100" placeholder="e.g., Diesel, Gasoline, Outboard">
                                         <div class="invalid-feedback"></div>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="boatr_engine_horsepower" class="form-label">Engine Horsepower <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="boatr_engine_horsepower" min="1" max="9999" required placeholder="0" value="0">
+                                        <label for="boatr_engine_horsepower" class="form-label">Engine Horsepower <span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="boatr_engine_horsepower"
+                                            min="1" max="9999" required placeholder="0" value="0">
                                         <div class="form-text">HP</div>
                                         <div class="invalid-feedback"></div>
                                     </div>
@@ -563,7 +602,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="boatr_primary_fishing_gear" class="form-label">Primary Fishing Gear <span class="text-danger">*</span></label>
+                                        <label for="boatr_primary_fishing_gear" class="form-label">Primary Fishing Gear
+                                            <span class="text-danger">*</span></label>
                                         <select class="form-select" id="boatr_primary_fishing_gear" required>
                                             <option value="">Select Primary Fishing Gear</option>
                                             <option value="Hook and Line">Hook and Line</option>
@@ -580,13 +620,16 @@
                         <!-- Supporting Document -->
                         <div class="card mb-3">
                             <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)</h6>
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Document (Optional)
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="boatr_user_document" class="form-label">Upload Document</label>
-                                        <input type="file" class="form-control" id="boatr_user_document" accept="image/*,.pdf" onchange="previewBoatrDocument('boatr_user_document', 'boatr_doc_preview')">
+                                        <input type="file" class="form-control" id="boatr_user_document"
+                                            accept="image/*,.pdf"
+                                            onchange="previewBoatrDocument('boatr_user_document', 'boatr_doc_preview')">
                                         <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
                                         <div class="invalid-feedback"></div>
                                     </div>
@@ -605,7 +648,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="boatr_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
+                                        <label for="boatr_status" class="form-label">Initial Status <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="boatr_status" required>
                                             <option value="pending" selected>Pending</option>
                                             <option value="under_review">Under Review</option>
@@ -616,7 +660,8 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="boatr_remarks" class="form-label">Remarks (Optional)</label>
-                                        <textarea class="form-control" id="boatr_remarks" rows="3" maxlength="2000" placeholder="Any notes or comments..."></textarea>
+                                        <textarea class="form-control" id="boatr_remarks" rows="3" maxlength="2000"
+                                            placeholder="Any notes or comments..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -631,12 +676,15 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="boatr_user_id" class="form-label">Link to User Account</label>
-                                        <input type="number" class="form-control" id="boatr_user_id" placeholder="Enter User ID if exists">
+                                        <input type="number" class="form-control" id="boatr_user_id"
+                                            placeholder="Enter User ID if exists">
                                         <div class="form-text">Leave blank if not associated with any user account</div>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="boatr_fishr_app_id" class="form-label">Link to FishR Application</label>
-                                        <input type="number" class="form-control" id="boatr_fishr_app_id" placeholder="Enter FishR Application ID if exists">
+                                        <label for="boatr_fishr_app_id" class="form-label">Link to FishR
+                                            Application</label>
+                                        <input type="number" class="form-control" id="boatr_fishr_app_id"
+                                            placeholder="Enter FishR Application ID if exists">
                                         <div class="form-text">Leave blank if not linked to a FishR application</div>
                                     </div>
                                 </div>
@@ -754,7 +802,8 @@
                     <form id="inspectionForm" enctype="multipart/form-data">
                         <input type="hidden" id="inspectionRegistrationId">
                         <div class="mb-3">
-                            <label for="supporting_document" class="form-label">Supporting Document <span class="text-danger">*</span></label>
+                            <label for="supporting_document" class="form-label">Supporting Document <span
+                                    class="text-danger">*</span></label>
                             <input type="file" class="form-control" id="supporting_document"
                                 accept=".pdf,.jpg,.jpeg,.png" required>
                             <div class="form-text">Upload inspection report, boat photos, or other supporting documents.
@@ -918,7 +967,8 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexFile" class="form-label">Select File <span class="text-danger">*</span></label>
+                                                <label for="annexFile" class="form-label">Select File <span
+                                                        class="text-danger">*</span></label>
                                                 <input type="file" class="form-control" id="annexFile"
                                                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif" required>
                                                 <div class="invalid-feedback" id="annexFileError"></div>
@@ -928,7 +978,8 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="mb-3">
-                                                <label for="annexTitle" class="form-label">Document Title <span class="text-danger">*</span></label>
+                                                <label for="annexTitle" class="form-label">Document Title <span
+                                                        class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" id="annexTitle"
                                                     placeholder="e.g., Additional Certificate, Supporting Document"
                                                     required>
@@ -1074,217 +1125,233 @@
     </div>
 
     <!-- Edit BoatR Modal -->
-<div class="modal fade" id="editBoatrModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-pencil-alt me-2"></i>Edit BoatR Application
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Loading State -->
-                <div id="editBoatrLoading" class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Loading application details...</p>
+    <div class="modal fade" id="editBoatrModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-pencil-alt me-2"></i>Edit BoatR Application
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-
-                <!-- Form Content -->
-                <form id="editBoatrForm" style="display: none;">
-                    <input type="hidden" id="edit_boatr_id">
-                    
-                    <!-- Personal Information -->
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                <div class="modal-body">
+                    <!-- Loading State -->
+                    <div id="editBoatrLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label">First Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="edit_boatr_first_name" required maxlength="100">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label">Middle Name</label>
-                                    <input type="text" class="form-control" id="edit_boatr_middle_name" maxlength="100">
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="edit_boatr_last_name" required maxlength="100">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label class="form-label">Extension</label>
-                                    <select class="form-select" id="edit_boatr_extension">
-                                        <option value="">None</option>
-                                        <option value="Jr.">Jr.</option>
-                                        <option value="Sr.">Sr.</option>
-                                        <option value="II">II</option>
-                                        <option value="III">III</option>
-                                        <option value="IV">IV</option>
-                                        <option value="V">V</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                    <input type="tel" class="form-control" id="edit_boatr_contact" required 
-                                        placeholder="09XXXXXXXXX" pattern="^09\d{9}$" maxlength="20">
-                                    <div class="form-text">09XXXXXXXXX</div>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="edit_boatr_email" maxlength="254">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Barangay <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="edit_boatr_barangay" required>
-                                        <option value="">Select Barangay</option>
-                                        @foreach ($barangays as $barangay)
-                                            <option value="{{ $barangay }}">{{ $barangay }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                            </div>
-                        </div>
+                        <p class="mt-2">Loading application details...</p>
                     </div>
 
-                    <!-- Vessel Information -->
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Vessel Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="edit_boatr_vessel" required maxlength="100">
-                                    <div class="invalid-feedback"></div>
+                    <!-- Form Content -->
+                    <form id="editBoatrForm" style="display: none;">
+                        <input type="hidden" id="edit_boatr_id">
+
+                        <!-- Personal Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_boatr_first_name" required
+                                            maxlength="100">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="edit_boatr_middle_name"
+                                            maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_boatr_last_name" required
+                                            maxlength="100">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Extension</label>
+                                        <select class="form-select" id="edit_boatr_extension">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Boat Type <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="edit_boatr_boat_type" required>
-                                        <option value="">Select Boat Type</option>
-                                        <option value="Spoon">Spoon</option>
-                                        <option value="Plumb">Plumb</option>
-                                        <option value="Banca">Banca</option>
-                                        <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
-                                        <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom</option>
-                                        <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
-                                    </select>
-                                    <div class="invalid-feedback"></div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Contact Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="edit_boatr_contact" required
+                                            placeholder="09XXXXXXXXX" pattern="^09\d{9}$" maxlength="20">
+                                        <div class="form-text">09XXXXXXXXX</div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="edit_boatr_email"
+                                            maxlength="254">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="edit_boatr_barangay" required>
+                                            <option value="">Select Barangay</option>
+                                            @foreach ($barangays as $barangay)
+                                                <option value="{{ $barangay }}">{{ $barangay }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Boat Dimensions -->
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-ruler me-2"></i>Boat Dimensions (feet)</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Length <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="edit_boatr_length" step="0.01" min="0.1" required placeholder="0.00">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Width <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="edit_boatr_width" step="0.01" min="0.1" required placeholder="0.00">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Depth <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="edit_boatr_depth" step="0.01" min="0.1" required placeholder="0.00">
-                                    <div class="invalid-feedback"></div>
+                        <!-- Vessel Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-ship me-2"></i>Vessel Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Vessel Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_boatr_vessel" required
+                                            maxlength="100">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Boat Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="edit_boatr_boat_type" required>
+                                            <option value="">Select Boat Type</option>
+                                            <option value="Spoon">Spoon</option>
+                                            <option value="Plumb">Plumb</option>
+                                            <option value="Banca">Banca</option>
+                                            <option value="Rake Stem - Rake Stern">Rake Stem - Rake Stern</option>
+                                            <option value="Rake Stem - Transom/Spoon/Plumb Stern">Rake Stem - Transom
+                                            </option>
+                                            <option value="Skiff (Typical Design)">Skiff (Typical Design)</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Engine Information -->
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Engine Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Engine Type <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="edit_boatr_engine_type" required maxlength="100" placeholder="e.g., Diesel, Gasoline">
-                                    <div class="invalid-feedback"></div>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Engine Horsepower <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="edit_boatr_engine_hp" min="1" required placeholder="0">
-                                    <div class="form-text">HP</div>
-                                    <div class="invalid-feedback"></div>
+                        <!-- Boat Dimensions -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-ruler me-2"></i>Boat Dimensions (feet)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Length <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="edit_boatr_length"
+                                            step="0.01" min="0.1" required placeholder="0.00">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Width <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="edit_boatr_width"
+                                            step="0.01" min="0.1" required placeholder="0.00">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Depth <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="edit_boatr_depth"
+                                            step="0.01" min="0.1" required placeholder="0.00">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Fishing Information -->
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Fishing Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <label class="form-label">Primary Fishing Gear <span class="text-danger">*</span></label>
-                            <select class="form-select" id="edit_boatr_gear" required>
-                                <option value="">Select Primary Fishing Gear</option>
-                                <option value="Hook and Line">Hook and Line</option>
-                                <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
-                                <option value="Fish Trap">Fish Trap</option>
-                                <option value="Fish Coral">Fish Coral</option>
-                            </select>
-                            <div class="invalid-feedback"></div>
-                        </div>
-                    </div>
-
-                    <!-- Read-only Info -->
-                    <div class="card bg-light">
-                        <div class="card-header">
-                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Info (Read-only)</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <small class="text-muted">Application #:</small>
-                                    <div class="fw-bold" id="edit_boatr_app_number"></div>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted">Status:</small>
-                                    <div id="edit_boatr_status_display"></div>
-                                </div>
-                                <div class="col-md-4">
-                                    <small class="text-muted">Date Applied:</small>
-                                    <div class="small" id="edit_boatr_date_applied"></div>
+                        <!-- Engine Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Engine Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Engine Type <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_boatr_engine_type"
+                                            required maxlength="100" placeholder="e.g., Diesel, Gasoline">
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Engine Horsepower <span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="edit_boatr_engine_hp"
+                                            min="1" required placeholder="0">
+                                        <div class="form-text">HP</div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="editBoatrSubmitBtn" onclick="submitEditBoatr()" style="display: none;">
-                    <i class="fas fa-save me-2"></i>Save Changes
-                </button>
+
+                        <!-- Fishing Information -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-fish me-2"></i>Fishing Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <label class="form-label">Primary Fishing Gear <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" id="edit_boatr_gear" required>
+                                    <option value="">Select Primary Fishing Gear</option>
+                                    <option value="Hook and Line">Hook and Line</option>
+                                    <option value="Bottom Set Gill Net">Bottom Set Gill Net</option>
+                                    <option value="Fish Trap">Fish Trap</option>
+                                    <option value="Fish Coral">Fish Coral</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <!-- Read-only Info -->
+                        <div class="card bg-light">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Application Info (Read-only)
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Application #:</small>
+                                        <div class="fw-bold" id="edit_boatr_app_number"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Status:</small>
+                                        <div id="edit_boatr_status_display"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Date Applied:</small>
+                                        <div class="small" id="edit_boatr_date_applied"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="editBoatrSubmitBtn"
+                        onclick="submitEditBoatr()" style="display: none;">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <style>
         /* Document count badge on mini docs */
@@ -1305,6 +1372,7 @@
             border: 2px solid white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+
         /* Toast Notification Container */
         .toast-container {
             position: fixed;
@@ -1448,7 +1516,7 @@
             }
         }
 
-        
+
         /* Delete button styling */
         .btn-outline-danger:hover {
             background-color: #dc3545;
@@ -1469,6 +1537,7 @@
             background-color: #f8d7da;
             transition: all 0.3s ease;
         }
+
         /* Modern Statistics Cards */
         .stat-card {
             background: #ffffff;
@@ -1821,7 +1890,7 @@
         }
 
         /* Prevent multiple backdrops from stacking and turning grey */
-        .modal-backdrop + .modal-backdrop {
+        .modal-backdrop+.modal-backdrop {
             display: none !important;
         }
 
@@ -1907,6 +1976,7 @@
                 opacity: 1;
             }
         }
+
         /* change detection*/
 
         /* Enhanced visual feedback for changed fields */
@@ -1968,9 +2038,11 @@
             0% {
                 box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
             }
+
             70% {
                 box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
             }
+
             100% {
                 box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
             }
@@ -2097,7 +2169,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid  #1cc88a;
+            border: 2px solid #1cc88a;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2165,7 +2237,8 @@
         .boatr-no-documents i {
             font-size: 1.25rem;
         }
-       /* Fix nested modal backdrop greying */
+
+        /* Fix nested modal backdrop greying */
         .modal {
             background-color: rgba(0, 0, 0, 0) !important;
         }
@@ -2179,7 +2252,7 @@
         }
 
         /* Prevent multiple backdrops from stacking and turning grey */
-        .modal-backdrop + .modal-backdrop {
+        .modal-backdrop+.modal-backdrop {
             display: none !important;
         }
 
@@ -2188,7 +2261,7 @@
             z-index: 1050;
         }
 
-        .modal:nth-of-type(1) ~ .modal-backdrop {
+        .modal:nth-of-type(1)~.modal-backdrop {
             z-index: 1049;
         }
 
@@ -2196,20 +2269,20 @@
             z-index: 1060;
         }
 
-        .modal:nth-of-type(2) ~ .modal-backdrop {
+        .modal:nth-of-type(2)~.modal-backdrop {
             z-index: 1059;
         }
 
         /* Specific nested modal handling */
-        .modal.show ~ .modal {
+        .modal.show~.modal {
             z-index: 1060 !important;
         }
 
-        .modal.show ~ .modal ~ .modal-backdrop {
+        .modal.show~.modal~.modal-backdrop {
             z-index: 1059 !important;
         }
 
-         /* close modal */
+        /* close modal */
         .modal-header .btn-close {
             background-color: rgba(255, 255, 255, 0.7);
             opacity: 1;
@@ -2243,7 +2316,7 @@
         }
 
         /* Clear backdrop stacking */
-        .modal + .modal-backdrop + .modal-backdrop {
+        .modal+.modal-backdrop+.modal-backdrop {
             display: none !important;
         }
 
@@ -2517,7 +2590,7 @@
                 });
             }
         });
-        
+
         // ========== TOAST SYSTEM ==========
         function createToastContainer() {
             let container = document.getElementById('toastContainer');
@@ -2534,10 +2607,22 @@
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
             const iconMap = {
-                'success': { icon: 'fas fa-check-circle', color: 'success' },
-                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
-                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
-                'info': { icon: 'fas fa-info-circle', color: 'info' }
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
             };
 
             const config = iconMap[type] || iconMap['info'];
@@ -2622,7 +2707,7 @@
 
         function removeToast(toastElement) {
             if (!toastElement || !toastElement.parentElement) return;
-            
+
             toastElement.classList.remove('show');
             setTimeout(() => {
                 if (toastElement.parentElement) {
@@ -2656,80 +2741,80 @@
             document.getElementById('updateStatusBtn').style.display = 'none';
 
             fetch(`/admin/boatr/requests/${id}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to load application details');
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load application details');
 
-                currentData[id] = data;
+                    currentData[id] = data;
 
-                document.getElementById('updateModalLoading').style.display = 'none';
-                document.getElementById('updateModalContent').style.display = 'block';
-                document.getElementById('updateForm').style.display = 'block';
-                document.getElementById('updateStatusBtn').style.display = 'inline-block';
+                    document.getElementById('updateModalLoading').style.display = 'none';
+                    document.getElementById('updateModalContent').style.display = 'block';
+                    document.getElementById('updateForm').style.display = 'block';
+                    document.getElementById('updateStatusBtn').style.display = 'inline-block';
 
-                document.getElementById('updateRegistrationId').value = id;
-                document.getElementById('updateRegId').textContent = data.id;
-                document.getElementById('updateRegNumber').textContent = data.application_number;
-                document.getElementById('updateRegName').textContent = data.full_name;
-                document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
-                document.getElementById('updateRegVessel').textContent = data.vessel_name;
-                document.getElementById('updateRegFishR').textContent = data.fishr_number;
-                document.getElementById('updateRegBoatType').textContent = data.boat_type;
+                    document.getElementById('updateRegistrationId').value = id;
+                    document.getElementById('updateRegId').textContent = data.id;
+                    document.getElementById('updateRegNumber').textContent = data.application_number;
+                    document.getElementById('updateRegName').textContent = data.full_name;
+                    document.getElementById('updateRegBarangay').textContent = data.barangay || 'N/A';
+                    document.getElementById('updateRegVessel').textContent = data.vessel_name;
+                    document.getElementById('updateRegFishR').textContent = data.fishr_number;
+                    document.getElementById('updateRegBoatType').textContent = data.boat_type;
 
-                document.getElementById('updateRegCurrentStatus').innerHTML =
-                    `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                    document.getElementById('updateRegCurrentStatus').innerHTML =
+                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
-                    '<span class="badge bg-success">Completed</span>' :
-                    '<span class="badge bg-warning">Pending</span>';
+                    document.getElementById('updateRegInspection').innerHTML = data.inspection_completed ?
+                        '<span class="badge bg-success">Completed</span>' :
+                        '<span class="badge bg-warning">Pending</span>';
 
-                // Set form values and store original values for comparison
-                const statusSelect = document.getElementById('newStatus');
-                const remarksTextarea = document.getElementById('remarks');
+                    // Set form values and store original values for comparison
+                    const statusSelect = document.getElementById('newStatus');
+                    const remarksTextarea = document.getElementById('remarks');
 
-                statusSelect.value = currentStatus;
-                statusSelect.dataset.originalStatus = currentStatus;
-                statusSelect.dataset.originalValue = currentStatus;
+                    statusSelect.value = currentStatus;
+                    statusSelect.dataset.originalStatus = currentStatus;
+                    statusSelect.dataset.originalValue = currentStatus;
 
-                remarksTextarea.value = data.remarks || '';
-                remarksTextarea.dataset.originalRemarks = data.remarks || '';
+                    remarksTextarea.value = data.remarks || '';
+                    remarksTextarea.dataset.originalRemarks = data.remarks || '';
 
-                // Add change indicator classes
-                statusSelect.parentElement.classList.add('change-indicator');
-                remarksTextarea.parentElement.classList.add('change-indicator');
+                    // Add change indicator classes
+                    statusSelect.parentElement.classList.add('change-indicator');
+                    remarksTextarea.parentElement.classList.add('change-indicator');
 
-                // Remove any previous highlighting
-                statusSelect.classList.remove('form-changed');
-                remarksTextarea.classList.remove('form-changed');
-                statusSelect.parentElement.classList.remove('changed');
-                remarksTextarea.parentElement.classList.remove('changed');
+                    // Remove any previous highlighting
+                    statusSelect.classList.remove('form-changed');
+                    remarksTextarea.classList.remove('form-changed');
+                    statusSelect.parentElement.classList.remove('changed');
+                    remarksTextarea.parentElement.classList.remove('changed');
 
-                // Reset update button state
-                const updateButton = document.getElementById('updateStatusBtn');
-                updateButton.classList.remove('no-changes');
-                updateButton.innerHTML = 'Update Status';
+                    // Reset update button state
+                    const updateButton = document.getElementById('updateStatusBtn');
+                    updateButton.classList.remove('no-changes');
+                    updateButton.innerHTML = 'Update Status';
 
-                // Remove old listeners to prevent duplicates
-                statusSelect.removeEventListener('change', checkUpdateModalChanges);
-                remarksTextarea.removeEventListener('input', checkUpdateModalChanges);
+                    // Remove old listeners to prevent duplicates
+                    statusSelect.removeEventListener('change', checkUpdateModalChanges);
+                    remarksTextarea.removeEventListener('input', checkUpdateModalChanges);
 
-                // Add change detection event listeners
-                statusSelect.addEventListener('change', checkUpdateModalChanges);
-                remarksTextarea.addEventListener('input', checkUpdateModalChanges);
-            })
-            .catch(error => {
-                console.error('Error loading application details:', error);
-                showToast('error', 'Failed to load application details: ' + error.message);
-                modal.hide();
-            });
+                    // Add change detection event listeners
+                    statusSelect.addEventListener('change', checkUpdateModalChanges);
+                    remarksTextarea.addEventListener('input', checkUpdateModalChanges);
+                })
+                .catch(error => {
+                    console.error('Error loading application details:', error);
+                    showToast('error', 'Failed to load application details: ' + error.message);
+                    modal.hide();
+                });
         }
 
         // Check for changes in Update Status Modal
@@ -2775,7 +2860,7 @@
             return statusMap[status] || status;
         }
 
-        
+
         // Function to check for changes and provide visual feedback
         function checkBoatrForChanges() {
             const statusSelect = document.getElementById('newStatus');
@@ -2864,7 +2949,19 @@
         }
 
         // Updated proceedWithStatusUpdate function
-       function proceedWithStatusUpdate(id, newStatus, remarks) {
+        function proceedWithStatusUpdate(id, newStatus, remarks) {
+            // Validate parameters
+            if (!id || id === '' || id === 'undefined') {
+                showToast('error', 'Invalid application ID');
+                console.error('Invalid ID provided:', id);
+                return;
+            }
+
+            if (!newStatus) {
+                showToast('error', 'Status is required');
+                return;
+            }
+
             const updateBtn = document.getElementById('updateStatusBtn');
             if (!updateBtn) {
                 showToast('error', 'UI error: Button not found');
@@ -2875,46 +2972,91 @@
             updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
             updateBtn.disabled = true;
 
-            fetch(`/admin/boatr/requests/${id}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    status: newStatus,
-                    remarks: remarks
-                })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Update failed');
-
-                showToast('success', data.message || 'Status updated successfully');
-                
-                if (data.registration) {
-                    updateTableRow(id, data.registration);
-                }
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                if (modal) modal.hide();
-
-                setTimeout(() => window.location.reload(), 1500);
-            })
-            .catch(error => {
-                console.error('Error updating status:', error);
-                showToast('error', 'Update failed: ' + error.message);
-            })
-            .finally(() => {
-                updateBtn.innerHTML = originalContent;
-                updateBtn.disabled = false;
+            const url = `/admin/boatr/requests/${id}/status`;
+            console.log('Sending status update to:', url);
+            console.log('Payload:', {
+                status: newStatus,
+                remarks: remarks
             });
+
+            fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        remarks: remarks
+                    })
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+
+                    // Handle different HTTP status codes
+                    if (response.status === 500) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Server error occurred');
+                        }).catch(() => {
+                            throw new Error('Internal server error. Please check logs.');
+                        });
+                    }
+
+                    if (response.status === 422) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Validation failed');
+                        });
+                    }
+
+                    if (response.status === 404) {
+                        throw new Error('Application not found');
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Update failed');
+                    }
+
+                    showToast('success', data.message || 'Status updated successfully');
+
+                    if (data.registration) {
+                        updateTableRow(id, data.registration);
+                    }
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                    if (modal) modal.hide();
+
+                    setTimeout(() => window.location.reload(), 1500);
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+
+                    let errorMessage = 'Update failed: ';
+
+                    if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+                        errorMessage +=
+                            'Cannot connect to server. Please check your internet connection or contact administrator.';
+                    } else {
+                        errorMessage += error.message;
+                    }
+
+                    showToast('error', errorMessage);
+                })
+                .finally(() => {
+                    updateBtn.innerHTML = originalContent;
+                    updateBtn.disabled = false;
+                });
         }
-        
+
 
         // ========== INSPECTION MODAL ==========
         function showInspectionModal(id) {
@@ -3055,42 +3197,42 @@
             formData.append('approve_application', autoApprove ? '1' : '0');
 
             fetch(`/admin/boatr/requests/${id}/complete-inspection`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Inspection failed');
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Inspection failed');
 
-                showToast('success', data.message || 'Inspection completed successfully');
-                
-                if (data.registration) {
-                    updateTableRow(id, data.registration);
-                }
+                    showToast('success', data.message || 'Inspection completed successfully');
 
-                const modal = bootstrap.Modal.getInstance(document.getElementById('inspectionModal'));
-                if (modal) modal.hide();
+                    if (data.registration) {
+                        updateTableRow(id, data.registration);
+                    }
 
-                setTimeout(() => window.location.reload(), 1500);
-            })
-            .catch(error => {
-                console.error('Error completing inspection:', error);
-                showToast('error', 'Inspection failed: ' + error.message);
-            })
-            .finally(() => {
-                completeBtn.innerHTML = originalContent;
-                completeBtn.disabled = false;
-            });
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('inspectionModal'));
+                    if (modal) modal.hide();
+
+                    setTimeout(() => window.location.reload(), 1500);
+                })
+                .catch(error => {
+                    console.error('Error completing inspection:', error);
+                    showToast('error', 'Inspection failed: ' + error.message);
+                })
+                .finally(() => {
+                    completeBtn.innerHTML = originalContent;
+                    completeBtn.disabled = false;
+                });
         }
 
-       // Delete registration with confirmation toast
+        // Delete registration with confirmation toast
         function deleteRegistration(id, applicationNumber) {
             showConfirmationToast(
                 'Delete Application',
@@ -3105,62 +3247,62 @@
             const deleteUrl = `/admin/boatr/requests/${id}`;
             console.log('Delete URL:', deleteUrl);
             console.log('Method: DELETE');
-            
+
             fetch(deleteUrl, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'  // Add this header
-                }
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-                
-                if (!response.ok) {
-                    // Get the response text for debugging
-                    return response.text().then(text => {
-                        console.error('Error response:', text);
-                        throw new Error(`HTTP ${response.status}: ${text}`);
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Delete response:', data);
-                
-                if (data.success) {
-                    showToast('success', data.message || 'Application deleted successfully');
-                    
-                    // Remove row from table with animation
-                    const row = document.getElementById(`registration-${id}`);
-                    if (row) {
-                        row.style.transition = 'opacity 0.3s ease';
-                        row.style.opacity = '0';
-                        setTimeout(() => {
-                            row.remove();
-                            
-                            // Check if table is empty
-                            const tbody = document.querySelector('#registrationsTable tbody');
-                            if (tbody.children.length === 0) {
-                                // Reload page to show empty state
-                                setTimeout(() => window.location.reload(), 1500);
-                            }
-                        }, 300);
-                    } else {
-                        // Fallback: reload page
-                        setTimeout(() => window.location.reload(), 1500);
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest' // Add this header
                     }
-                } else {
-                    throw new Error(data.message || 'Failed to delete application');
-                }
-            })
-            .catch(error => {
-                console.error('Delete error:', error);
-                showToast('error', 'Failed to delete application: ' + error.message);
-            });
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+
+                    if (!response.ok) {
+                        // Get the response text for debugging
+                        return response.text().then(text => {
+                            console.error('Error response:', text);
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Delete response:', data);
+
+                    if (data.success) {
+                        showToast('success', data.message || 'Application deleted successfully');
+
+                        // Remove row from table with animation
+                        const row = document.getElementById(`registration-${id}`);
+                        if (row) {
+                            row.style.transition = 'opacity 0.3s ease';
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+
+                                // Check if table is empty
+                                const tbody = document.querySelector('#registrationsTable tbody');
+                                if (tbody.children.length === 0) {
+                                    // Reload page to show empty state
+                                    setTimeout(() => window.location.reload(), 1500);
+                                }
+                            }, 300);
+                        } else {
+                            // Fallback: reload page
+                            setTimeout(() => window.location.reload(), 1500);
+                        }
+                    } else {
+                        throw new Error(data.message || 'Failed to delete application');
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    showToast('error', 'Failed to delete application: ' + error.message);
+                });
         }
 
         // View registration details - UPDATED WITH DOCUMENTS SECTION
@@ -3172,25 +3314,25 @@
             document.getElementById('registrationDetails').style.display = 'none';
 
             fetch(`/admin/boatr/requests/${id}`, {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to load application details');
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load application details');
 
-                document.getElementById('registrationDetailsLoading').style.display = 'none';
-                document.getElementById('registrationDetails').style.display = 'block';
+                    document.getElementById('registrationDetailsLoading').style.display = 'none';
+                    document.getElementById('registrationDetails').style.display = 'block';
 
-                // Build remarks section
-                let remarksHtml = '';
-                if (data.remarks) {
-                    remarksHtml = `
+                    // Build remarks section
+                    let remarksHtml = '';
+                    if (data.remarks) {
+                        remarksHtml = `
                         <div class="col-12 mt-4">
                             <div class="card">
                                 <div class="card-header">
@@ -3205,17 +3347,17 @@
                             </div>
                         </div>
                     `;
-                }
+                    }
 
-                // Build documents section - SIMILAR TO FISHR
-                let documentsHtml = '';
-                const userDocsCount = data.user_documents ? data.user_documents.length : 0;
-                const inspectionDocsCount = data.inspection_documents ? data.inspection_documents.length : 0;
-                const annexesCount = data.annexes ? data.annexes.length : 0;
-                const totalDocs = userDocsCount + inspectionDocsCount + annexesCount;
+                    // Build documents section - SIMILAR TO FISHR
+                    let documentsHtml = '';
+                    const userDocsCount = data.user_documents ? data.user_documents.length : 0;
+                    const inspectionDocsCount = data.inspection_documents ? data.inspection_documents.length : 0;
+                    const annexesCount = data.annexes ? data.annexes.length : 0;
+                    const totalDocs = userDocsCount + inspectionDocsCount + annexesCount;
 
-                if (totalDocs > 0) {
-                    documentsHtml = `
+                    if (totalDocs > 0) {
+                        documentsHtml = `
                         <div class="col-12 mt-4">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -3235,42 +3377,42 @@
                                             <p><strong>Total Documents:</strong> <span class="badge bg-primary">${totalDocs}</span></p>
                                         </div>
                                     </div>
-                                    
+
                                    <!-- Document preview thumbnails section -->
                                     <div class="mt-4">
                                         <h6 class="border-bottom pb-2">Document Preview</h6>
                                         <div class="boatr-table-documents mt-3">
                                             <div class="boatr-document-previews">
                                                 ${userDocsCount > 0 ? `
-                                                    <div class="boatr-mini-doc"
-                                                        onclick="viewDocumentsByType(${id}, 'user')"
-                                                        title="User Documents (${userDocsCount})">
-                                                        <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-file-image text-info"></i>
-                                                        </div>
-                                                        ${userDocsCount > 1 ? `<span class="boatr-doc-count">${userDocsCount}</span>` : ''}
-                                                    </div>
-                                                ` : ''}
+                                                            <div class="boatr-mini-doc"
+                                                                onclick="viewDocumentsByType(${id}, 'user')"
+                                                                title="User Documents (${userDocsCount})">
+                                                                <div class="boatr-mini-doc-icon">
+                                                                    <i class="fas fa-file-image text-info"></i>
+                                                                </div>
+                                                                ${userDocsCount > 1 ? `<span class="boatr-doc-count">${userDocsCount}</span>` : ''}
+                                                            </div>
+                                                        ` : ''}
                                                 ${inspectionDocsCount > 0 ? `
-                                                    <div class="boatr-mini-doc"
-                                                        onclick="viewDocumentsByType(${id}, 'inspection')"
-                                                        title="Inspection Documents (${inspectionDocsCount})">
-                                                        <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-clipboard-check text-success"></i>
-                                                        </div>
-                                                        ${inspectionDocsCount > 1 ? `<span class="boatr-doc-count">${inspectionDocsCount}</span>` : ''}
-                                                    </div>
-                                                ` : ''}
+                                                            <div class="boatr-mini-doc"
+                                                                onclick="viewDocumentsByType(${id}, 'inspection')"
+                                                                title="Inspection Documents (${inspectionDocsCount})">
+                                                                <div class="boatr-mini-doc-icon">
+                                                                    <i class="fas fa-clipboard-check text-success"></i>
+                                                                </div>
+                                                                ${inspectionDocsCount > 1 ? `<span class="boatr-doc-count">${inspectionDocsCount}</span>` : ''}
+                                                            </div>
+                                                        ` : ''}
                                                 ${annexesCount > 0 ? `
-                                                    <div class="boatr-mini-doc"
-                                                        onclick="viewDocumentsByType(${id}, 'annexes')"
-                                                        title="Annexes (${annexesCount})">
-                                                        <div class="boatr-mini-doc-icon">
-                                                            <i class="fas fa-folder text-warning"></i>
-                                                        </div>
-                                                        ${annexesCount > 1 ? `<span class="boatr-doc-count">${annexesCount}</span>` : ''}
-                                                    </div>
-                                                ` : ''}
+                                                            <div class="boatr-mini-doc"
+                                                                onclick="viewDocumentsByType(${id}, 'annexes')"
+                                                                title="Annexes (${annexesCount})">
+                                                                <div class="boatr-mini-doc-icon">
+                                                                    <i class="fas fa-folder text-warning"></i>
+                                                                </div>
+                                                                ${annexesCount > 1 ? `<span class="boatr-doc-count">${annexesCount}</span>` : ''}
+                                                            </div>
+                                                        ` : ''}
                                             </div>
                                             <div class="boatr-document-summary mt-2"
                                                 onclick="viewDocuments(${id})">
@@ -3284,8 +3426,8 @@
                             </div>
                         </div>
                     `;
-                } else {
-                    documentsHtml = `
+                    } else {
+                        documentsHtml = `
                         <div class="col-12 mt-4">
                             <div class="card">
                                 <div class="card-header">
@@ -3300,10 +3442,10 @@
                             </div>
                         </div>
                     `;
-                }
+                    }
 
-                // Build the complete details HTML
-                document.getElementById('registrationDetails').innerHTML = `
+                    // Build the complete details HTML
+                    document.getElementById('registrationDetails').innerHTML = `
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="card h-100">
@@ -3365,22 +3507,22 @@
                         ${remarksHtml}
                     </div>
                 `;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('registrationDetailsLoading').style.display = 'none';
-                document.getElementById('registrationDetails').innerHTML = `
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('registrationDetailsLoading').style.display = 'none';
+                    document.getElementById('registrationDetails').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Error loading application details: ${error.message}
                     </div>
                 `;
-                document.getElementById('registrationDetails').style.display = 'block';
-            });
+                    document.getElementById('registrationDetails').style.display = 'block';
+                });
         }
-        
+
         // view documents
-       function viewDocuments(id) {
+        function viewDocuments(id) {
             const modal = new bootstrap.Modal(document.getElementById('documentModal'));
             modal.show();
 
@@ -3388,34 +3530,34 @@
             document.getElementById('documentViewer').style.display = 'none';
 
             fetch(`/admin/boatr/requests/${id}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCSRFToken()
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to load documents');
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': getCSRFToken()
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load documents');
 
-                document.getElementById('documentViewerLoading').style.display = 'none';
-                document.getElementById('documentViewer').style.display = 'block';
+                    document.getElementById('documentViewerLoading').style.display = 'none';
+                    document.getElementById('documentViewer').style.display = 'block';
 
-                let documentsHtml = '';
+                    let documentsHtml = '';
 
-                // User Documents Section
-                if (data.user_documents && data.user_documents.length > 0) {
-                    documentsHtml += `
+                    // User Documents Section
+                    if (data.user_documents && data.user_documents.length > 0) {
+                        documentsHtml += `
                         <div class="document-section mb-4">
                             <h5 class="border-bottom pb-2 mb-3">
                                 <i class="fas fa-file-image text-info me-2"></i>User Documents
                             </h5>
                     `;
-                    data.user_documents.forEach((doc, index) => {
-                        documentsHtml += `
+                        data.user_documents.forEach((doc, index) => {
+                            documentsHtml += `
                             <div class="document-item mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
@@ -3430,20 +3572,20 @@
                                 </div>
                             </div>
                         `;
-                    });
-                    documentsHtml += `</div>`;
-                }
+                        });
+                        documentsHtml += `</div>`;
+                    }
 
-                // Inspection Documents Section
-                if (data.inspection_documents && data.inspection_documents.length > 0) {
-                    documentsHtml += `
+                    // Inspection Documents Section
+                    if (data.inspection_documents && data.inspection_documents.length > 0) {
+                        documentsHtml += `
                         <div class="document-section mb-4">
                             <h5 class="border-bottom pb-2 mb-3">
                                 <i class="fas fa-clipboard-check text-success me-2"></i>Inspection Documents
                             </h5>
                     `;
-                    data.inspection_documents.forEach((doc, index) => {
-                        documentsHtml += `
+                        data.inspection_documents.forEach((doc, index) => {
+                            documentsHtml += `
                             <div class="document-item mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
@@ -3458,20 +3600,20 @@
                                 </div>
                             </div>
                         `;
-                    });
-                    documentsHtml += `</div>`;
-                }
+                        });
+                        documentsHtml += `</div>`;
+                    }
 
-                // Annexes Section
-                if (data.annexes && data.annexes.length > 0) {
-                    documentsHtml += `
+                    // Annexes Section
+                    if (data.annexes && data.annexes.length > 0) {
+                        documentsHtml += `
                         <div class="document-section mb-4">
                             <h5 class="border-bottom pb-2 mb-3">
                                 <i class="fas fa-folder text-warning me-2"></i>Annexes
                             </h5>
                     `;
-                    data.annexes.forEach((annex) => {
-                        documentsHtml += `
+                        data.annexes.forEach((annex) => {
+                            documentsHtml += `
                             <div class="document-item mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
@@ -3489,36 +3631,36 @@
                                 </div>
                             </div>
                         `;
-                    });
-                    documentsHtml += `</div>`;
-                }
+                        });
+                        documentsHtml += `</div>`;
+                    }
 
-                // No documents message
-                if (!documentsHtml) {
-                    documentsHtml = `
+                    // No documents message
+                    if (!documentsHtml) {
+                        documentsHtml = `
                         <div class="text-center py-5">
                             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
                             <p class="text-muted">No documents available</p>
                         </div>
                     `;
-                }
+                    }
 
-                document.getElementById('documentViewer').innerHTML = documentsHtml;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('documentViewerLoading').style.display = 'none';
-                document.getElementById('documentViewer').innerHTML = `
+                    document.getElementById('documentViewer').innerHTML = documentsHtml;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('documentViewerLoading').style.display = 'none';
+                    document.getElementById('documentViewer').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Failed to load documents: ${error.message}
                     </div>
                 `;
-                document.getElementById('documentViewer').style.display = 'block';
-            });
+                    document.getElementById('documentViewer').style.display = 'block';
+                });
         }
 
-        // FIXED: previewDocument function 
+        // FIXED: previewDocument function
         function previewDocument(id, type, index) {
             const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
             modal.show();
@@ -3535,45 +3677,45 @@
             document.getElementById('documentPreviewTitle').innerHTML = '<i class="fas fa-eye me-2"></i>Document Preview';
 
             fetch(`/admin/boatr/requests/${id}/document-preview`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    type: type,
-                    index: index
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: type,
+                        index: index
+                    })
                 })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to load document preview');
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load document preview');
 
-                document.getElementById('documentPreviewTitle').innerHTML =
-                    `<i class="fas fa-eye me-2"></i>${data.document_name}`;
+                    document.getElementById('documentPreviewTitle').innerHTML =
+                        `<i class="fas fa-eye me-2"></i>${data.document_name}`;
 
-                // FIXED: Extract file extension from filename, NOT from mime type
-                let fileExtension = '';
-                if (data.document_name) {
-                    fileExtension = data.document_name.split('.').pop().toLowerCase();
-                } else {
-                    fileExtension = data.document_type?.toLowerCase() || 'unknown';
-                }
-                
-                const fileName = data.document_name;
-                const fileUrl = data.document_url;
+                    // FIXED: Extract file extension from filename, NOT from mime type
+                    let fileExtension = '';
+                    if (data.document_name) {
+                        fileExtension = data.document_name.split('.').pop().toLowerCase();
+                    } else {
+                        fileExtension = data.document_type?.toLowerCase() || 'unknown';
+                    }
 
-                const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-                const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
-                const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
-                const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+                    const fileName = data.document_name;
+                    const fileUrl = data.document_url;
 
-                const addActionButtons = () => {
-                    return `
+                    const imageTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+                    const documentTypes = ['pdf', 'doc', 'docx', 'txt', 'rtf'];
+                    const videoTypes = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'];
+                    const audioTypes = ['mp3', 'wav', 'ogg', 'aac', 'm4a'];
+
+                    const addActionButtons = () => {
+                        return `
                         <div class="boatr-document-actions">
                             <button class="btn boatr-btn boatr-btn-outline" onclick="window.open('${fileUrl}', '_blank')">
                                 <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
@@ -3586,12 +3728,12 @@
                             <p class="boatr-file-name">File: ${fileName} (${fileExtension.toUpperCase()})</p>
                         </div>
                     `;
-                };
+                    };
 
-                if (imageTypes.includes(fileExtension)) {
-                    const img = new Image();
-                    img.onload = function() {
-                        document.getElementById('documentPreview').innerHTML = `
+                    if (imageTypes.includes(fileExtension)) {
+                        const img = new Image();
+                        img.onload = function() {
+                            document.getElementById('documentPreview').innerHTML = `
                             <div class="boatr-document-viewer">
                                 <div class="boatr-document-container">
                                     <img src="${fileUrl}"
@@ -3608,9 +3750,9 @@
                                 ${addActionButtons()}
                             </div>
                         `;
-                    };
-                    img.onerror = function() {
-                        document.getElementById('documentPreview').innerHTML = `
+                        };
+                        img.onerror = function() {
+                            document.getElementById('documentPreview').innerHTML = `
                             <div class="boatr-document-viewer">
                                 <div class="boatr-document-placeholder">
                                     <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
@@ -3620,11 +3762,11 @@
                                 ${addActionButtons()}
                             </div>
                         `;
-                    };
-                    img.src = fileUrl;
+                        };
+                        img.src = fileUrl;
 
-                } else if (fileExtension === 'pdf') {
-                    document.getElementById('documentPreview').innerHTML = `
+                    } else if (fileExtension === 'pdf') {
+                        document.getElementById('documentPreview').innerHTML = `
                         <div class="boatr-document-viewer">
                             <div class="boatr-document-container">
                                 <embed src="${fileUrl}"
@@ -3637,10 +3779,10 @@
                         </div>
                     `;
 
-                    setTimeout(() => {
-                        const embed = document.querySelector('#documentPreview embed');
-                        if (!embed || embed.offsetHeight === 0) {
-                            document.getElementById('documentPreview').innerHTML = `
+                        setTimeout(() => {
+                            const embed = document.querySelector('#documentPreview embed');
+                            if (!embed || embed.offsetHeight === 0) {
+                                document.getElementById('documentPreview').innerHTML = `
                                 <div class="boatr-document-viewer">
                                     <div class="boatr-document-placeholder">
                                         <i class="fas fa-file-pdf fa-4x text-danger mb-3"></i>
@@ -3660,11 +3802,11 @@
                                     </div>
                                 </div>
                             `;
-                        }
-                    }, 2000);
+                            }
+                        }, 2000);
 
-                } else if (videoTypes.includes(fileExtension)) {
-                    document.getElementById('documentPreview').innerHTML = `
+                    } else if (videoTypes.includes(fileExtension)) {
+                        document.getElementById('documentPreview').innerHTML = `
                         <div class="text-center">
                             <video controls class="w-100 rounded shadow" style="max-height: 70vh;" preload="metadata">
                                 <source src="${fileUrl}" type="video/${fileExtension}">
@@ -3674,8 +3816,8 @@
                         </div>
                     `;
 
-                } else if (audioTypes.includes(fileExtension)) {
-                    document.getElementById('documentPreview').innerHTML = `
+                    } else if (audioTypes.includes(fileExtension)) {
+                        document.getElementById('documentPreview').innerHTML = `
                         <div class="text-center py-5">
                             <i class="fas fa-music fa-4x text-info mb-3"></i>
                             <h5>${fileName}</h5>
@@ -3687,9 +3829,9 @@
                         </div>
                     `;
 
-                } else if (documentTypes.includes(fileExtension)) {
-                    const docIcon = ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
-                    document.getElementById('documentPreview').innerHTML = `
+                    } else if (documentTypes.includes(fileExtension)) {
+                        const docIcon = ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+                        document.getElementById('documentPreview').innerHTML = `
                         <div class="alert alert-info text-center">
                             <i class="fas fa-${docIcon} fa-4x text-primary mb-3"></i>
                             <h5>${fileExtension.toUpperCase()} Document</h5>
@@ -3705,8 +3847,8 @@
                             <small class="text-muted d-block mt-2">File: ${fileName}</small>
                         </div>
                     `;
-                } else {
-                    document.getElementById('documentPreview').innerHTML = `
+                    } else {
+                        document.getElementById('documentPreview').innerHTML = `
                         <div class="alert alert-warning text-center">
                             <i class="fas fa-file fa-4x text-warning mb-3"></i>
                             <h5>Unsupported File Type</h5>
@@ -3722,11 +3864,11 @@
                             <small class="text-muted d-block mt-2">File: ${fileName}</small>
                         </div>
                     `;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('documentPreview').innerHTML = `
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('documentPreview').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <h5>Error loading document preview</h5>
@@ -3734,7 +3876,7 @@
                         <small class="text-muted">Please try downloading the document instead.</small>
                     </div>
                 `;
-            });
+                });
         }
 
         function toggleImageZoomBoatr(img) {
@@ -3786,70 +3928,70 @@
         // Load annexes data
         function loadAnnexesData(id) {
             fetch(`/admin/boatr/requests/${id}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to load data');
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load data');
 
-                document.getElementById('annexesLoading').style.display = 'none';
-                document.getElementById('annexesContent').style.display = 'block';
+                    document.getElementById('annexesLoading').style.display = 'none';
+                    document.getElementById('annexesContent').style.display = 'block';
 
-                document.getElementById('annexRegistrationId').value = id;
-                document.getElementById('annexAppNumber').textContent = data.application_number;
-                document.getElementById('annexApplicantName').textContent = data.full_name;
-                document.getElementById('annexVesselName').textContent = data.vessel_name || 'N/A';
-                document.getElementById('annexStatus').innerHTML =
-                    `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                    document.getElementById('annexRegistrationId').value = id;
+                    document.getElementById('annexAppNumber').textContent = data.application_number;
+                    document.getElementById('annexApplicantName').textContent = data.full_name;
+                    document.getElementById('annexVesselName').textContent = data.vessel_name || 'N/A';
+                    document.getElementById('annexStatus').innerHTML =
+                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
 
-                loadExistingAnnexes(id);
-                resetAnnexForm();
-            })
-            .catch(error => {
-                console.error('Error loading annexes data:', error);
-                showToast('error', 'Failed to load data: ' + error.message);
+                    loadExistingAnnexes(id);
+                    resetAnnexForm();
+                })
+                .catch(error => {
+                    console.error('Error loading annexes data:', error);
+                    showToast('error', 'Failed to load data: ' + error.message);
 
-                document.getElementById('annexesLoading').style.display = 'none';
-                document.getElementById('annexesContent').innerHTML = `
+                    document.getElementById('annexesLoading').style.display = 'none';
+                    document.getElementById('annexesContent').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Error loading data: ${error.message}
                     </div>
                 `;
-                document.getElementById('annexesContent').style.display = 'block';
-            });
+                    document.getElementById('annexesContent').style.display = 'block';
+                });
         }
 
-       // Load existing annexes
+        // Load existing annexes
         function loadExistingAnnexes(id) {
             fetch(`/admin/boatr/requests/${id}/annexes`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const annexesList = document.getElementById('annexesList');
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const annexesList = document.getElementById('annexesList');
 
-                if (data.success && data.annexes && data.annexes.length > 0) {
-                    let annexesHtml = '';
-                    data.annexes.forEach((annex) => {
-                        const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        });
+                    if (data.success && data.annexes && data.annexes.length > 0) {
+                        let annexesHtml = '';
+                        data.annexes.forEach((annex) => {
+                            const uploadDate = new Date(annex.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            });
 
-                        annexesHtml += `
+                            annexesHtml += `
                             <div class="document-item border rounded p-3 mb-3" id="annex-${annex.id}">
                                 <div class="row align-items-center">
                                     <div class="col-md-8">
@@ -3880,26 +4022,26 @@
                                 </div>
                             </div>
                         `;
-                    });
-                    annexesList.innerHTML = annexesHtml;
-                } else {
-                    annexesList.innerHTML = `
+                        });
+                        annexesList.innerHTML = annexesHtml;
+                    } else {
+                        annexesList.innerHTML = `
                         <div class="text-center py-4">
                             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
                             <p class="text-muted">No annexes uploaded yet</p>
                         </div>
                     `;
-                }
-            })
-            .catch(error => {
-                console.error('Error loading annexes:', error);
-                document.getElementById('annexesList').innerHTML = `
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading annexes:', error);
+                    document.getElementById('annexesList').innerHTML = `
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Error loading annexes: ${error.message}
                     </div>
                 `;
-            });
+                });
         }
 
         // Check for changes in Annexes Upload Form
@@ -3966,7 +4108,7 @@
             );
         }
 
-       // Proceed with annex upload
+        // Proceed with annex upload
         function proceedWithAnnexUpload(id, fileInput, title, description) {
             const uploadBtn = document.querySelector('[onclick="uploadAnnex()"]');
             const originalContent = uploadBtn.innerHTML;
@@ -3979,34 +4121,34 @@
             formData.append('description', description);
 
             fetch(`/admin/boatr/requests/${id}/annexes`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to upload annex');
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to upload annex');
 
-                showToast('success', 'Annex uploaded successfully');
-                resetAnnexForm();
-                loadExistingAnnexes(id);
-                
-                setTimeout(() => window.location.reload(), 1500);
-            })
-            .catch(error => {
-                console.error('Error uploading annex:', error);
-                showToast('error', 'Upload failed: ' + error.message);
-            })
-            .finally(() => {
-                uploadBtn.innerHTML = originalContent;
-                uploadBtn.disabled = false;
-            });
+                    showToast('success', 'Annex uploaded successfully');
+                    resetAnnexForm();
+                    loadExistingAnnexes(id);
+
+                    setTimeout(() => window.location.reload(), 1500);
+                })
+                .catch(error => {
+                    console.error('Error uploading annex:', error);
+                    showToast('error', 'Upload failed: ' + error.message);
+                })
+                .finally(() => {
+                    uploadBtn.innerHTML = originalContent;
+                    uploadBtn.disabled = false;
+                });
         }
 
         // Preview annex
@@ -4027,7 +4169,9 @@
                 if (annexesBackdrop) {
                     annexesBackdrop.style.zIndex = '';
                 }
-            }, { once: true });
+            }, {
+                once: true
+            });
 
             modal.show();
 
@@ -4041,27 +4185,27 @@
             `;
 
             fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}/preview`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to load preview');
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load preview');
 
-                document.getElementById('documentPreviewTitle').innerHTML =
-                    `<i class="fas fa-folder me-2"></i>${data.title}`;
+                    document.getElementById('documentPreviewTitle').innerHTML =
+                        `<i class="fas fa-folder me-2"></i>${data.title}`;
 
-                const fileExtension = data.file_extension?.toLowerCase();
-                const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
-                const isPdf = fileExtension === 'pdf';
+                    const fileExtension = data.file_extension?.toLowerCase();
+                    const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+                    const isPdf = fileExtension === 'pdf';
 
-                if (isPdf) {
-                    document.getElementById('documentPreview').innerHTML = `
+                    if (isPdf) {
+                        document.getElementById('documentPreview').innerHTML = `
                         <div class="text-center">
                             <embed src="${data.file_url}" type="application/pdf" width="100%" height="600px"
                                 style="border: none; border-radius: 8px;" />
@@ -4072,15 +4216,15 @@
                             </div>
                         </div>
                     `;
-                } else if (isImage) {
-                    document.getElementById('documentPreview').innerHTML = `
+                    } else if (isImage) {
+                        document.getElementById('documentPreview').innerHTML = `
                         <div class="text-center">
                             <img src="${data.file_url}" class="img-fluid" alt="Annex preview"
                                 style="max-height: 600px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
                         </div>
                     `;
-                } else {
-                    document.getElementById('documentPreview').innerHTML = `
+                    } else {
+                        document.getElementById('documentPreview').innerHTML = `
                         <div class="alert alert-info text-center">
                             <i class="fas fa-info-circle me-2"></i>
                             <h5>Preview not available for this file type</h5>
@@ -4090,18 +4234,18 @@
                             </a>
                         </div>
                     `;
-                }
-            })
-            .catch(error => {
-                console.error('Error loading annex preview:', error);
-                document.getElementById('documentPreview').innerHTML = `
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading annex preview:', error);
+                    document.getElementById('documentPreview').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <h5>Error loading annex preview</h5>
                         <p>${error.message}</p>
                     </div>
                 `;
-            });
+                });
         }
 
         function downloadAnnex(registrationId, annexId) {
@@ -4120,37 +4264,37 @@
         // Proceed with annex deletion
         function proceedWithAnnexDelete(registrationId, annexId) {
             fetch(`/admin/boatr/requests/${registrationId}/annexes/${annexId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to delete annex');
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to delete annex');
 
-                showToast('success', 'Annex deleted successfully');
-                
-                const annexElement = document.getElementById(`annex-${annexId}`);
-                if (annexElement) {
-                    annexElement.remove();
-                }
+                    showToast('success', 'Annex deleted successfully');
 
-                const annexesList = document.getElementById('annexesList');
-                if (annexesList && !annexesList.querySelector('.document-item')) {
-                    loadExistingAnnexes(registrationId);
-                }
+                    const annexElement = document.getElementById(`annex-${annexId}`);
+                    if (annexElement) {
+                        annexElement.remove();
+                    }
 
-                setTimeout(() => window.location.reload(), 1500);
-            })
-            .catch(error => {
-                console.error('Error deleting annex:', error);
-                showToast('error', 'Delete failed: ' + error.message);
-            });
+                    const annexesList = document.getElementById('annexesList');
+                    if (annexesList && !annexesList.querySelector('.document-item')) {
+                        loadExistingAnnexes(registrationId);
+                    }
+
+                    setTimeout(() => window.location.reload(), 1500);
+                })
+                .catch(error => {
+                    console.error('Error deleting annex:', error);
+                    showToast('error', 'Delete failed: ' + error.message);
+                });
         }
 
         // Reset annex form
@@ -4419,7 +4563,7 @@
             completeInspection
         };
 
-      
+
         // Real-time validation for contact number
         document.getElementById('boatr_contact_number')?.addEventListener('input', function() {
             validateBoatrContactNumber(this.value);
@@ -4428,16 +4572,16 @@
         function validateBoatrContactNumber(contactNumber) {
             const input = document.getElementById('boatr_contact_number');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
-            
+
             if (feedback) feedback.textContent = '';
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             if (!contactNumber || contactNumber.trim() === '') {
                 return;
             }
-            
+
             const phoneRegex = /^(\+639|09)\d{9}$/;
-            
+
             if (!phoneRegex.test(contactNumber.trim())) {
                 input.classList.add('is-invalid');
                 if (feedback) {
@@ -4445,7 +4589,7 @@
                 }
                 return false;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -4458,16 +4602,16 @@
         function validateBoatrEmail(email) {
             const input = document.getElementById('boatr_email');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
-            
+
             if (feedback) feedback.textContent = '';
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             if (!email || email.trim() === '') {
                 return true; // Email is optional
             }
-            
+
             const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            
+
             if (!emailPattern.test(email.trim())) {
                 input.classList.add('is-invalid');
                 if (feedback) {
@@ -4475,7 +4619,7 @@
                 }
                 return false;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -4508,7 +4652,7 @@
         function previewBoatrDocument(inputId, previewId) {
             const input = document.getElementById(inputId);
             const preview = document.getElementById(previewId);
-            
+
             if (!input.files || !input.files[0]) {
                 if (preview) {
                     preview.innerHTML = '';
@@ -4516,9 +4660,9 @@
                 }
                 return;
             }
-            
+
             const file = input.files[0];
-            
+
             // Validate file size (10MB max)
             if (file.size > 10 * 1024 * 1024) {
                 showToast('error', 'File size must not exceed 10MB');
@@ -4529,9 +4673,9 @@
                 }
                 return;
             }
-            
+
             const reader = new FileReader();
-            
+
             reader.onload = function(e) {
                 if (preview) {
                     if (file.type.startsWith('image/')) {
@@ -4556,7 +4700,7 @@
                     preview.style.display = 'block';
                 }
             };
-            
+
             reader.readAsDataURL(file);
         }
 
@@ -4565,17 +4709,17 @@
             // Remove any old validation errors first
             document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
             document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => el.textContent = '');
-            
+
             // Validate form
             const isValid = await validateBoatrForm();
             if (!isValid) {
                 showToast('error', 'Please fix all validation errors before submitting');
                 return;
             }
-            
+
             // Prepare form data
             const formData = new FormData();
-            
+
             formData.append('first_name', document.getElementById('boatr_first_name').value.trim());
             formData.append('middle_name', document.getElementById('boatr_middle_name').value.trim());
             formData.append('last_name', document.getElementById('boatr_last_name').value.trim());
@@ -4594,93 +4738,94 @@
             formData.append('primary_fishing_gear', document.getElementById('boatr_primary_fishing_gear').value);
             formData.append('status', document.getElementById('boatr_status').value);
             formData.append('remarks', document.getElementById('boatr_remarks').value.trim());
-            
+
             const userId = document.getElementById('boatr_user_id').value.trim();
             if (userId) {
                 formData.append('user_id', userId);
             }
-            
+
             const fishrAppId = document.getElementById('boatr_fishr_app_id').value.trim();
             if (fishrAppId) {
                 formData.append('fishr_application_id', fishrAppId);
             }
-            
+
             // Add document if uploaded
             const docInput = document.getElementById('boatr_user_document');
             if (docInput.files && docInput.files[0]) {
                 formData.append('user_document', docInput.files[0]);
             }
-            
+
             // Find submit button
             const submitBtn = document.querySelector('#addBoatrModal .modal-footer .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
             submitBtn.disabled = true;
-            
+
             // Submit to backend
             fetch('/admin/boatr/requests/create', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addBoatrModal'));
-                    modal.hide();
-                    
-                    // Show success message
-                    showToast('success', data.message || 'BoatR application created successfully');
-                    
-                    // Reload page after short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    // Show validation errors
-                    if (data.errors) {
-                        Object.keys(data.errors).forEach(field => {
-                            const input = document.getElementById('boatr_' + field);
-                            if (input) {
-                                const feedback = input.parentNode.querySelector('.invalid-feedback');
-                                if (feedback) feedback.textContent = '';
-                                
-                                input.classList.add('is-invalid');
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'invalid-feedback d-block';
-                                errorDiv.textContent = data.errors[field][0];
-                                input.parentNode.appendChild(errorDiv);
-                            }
-                        });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addBoatrModal'));
+                        modal.hide();
+
+                        // Show success message
+                        showToast('success', data.message || 'BoatR application created successfully');
+
+                        // Reload page after short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        // Show validation errors
+                        if (data.errors) {
+                            Object.keys(data.errors).forEach(field => {
+                                const input = document.getElementById('boatr_' + field);
+                                if (input) {
+                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                    if (feedback) feedback.textContent = '';
+
+                                    input.classList.add('is-invalid');
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'invalid-feedback d-block';
+                                    errorDiv.textContent = data.errors[field][0];
+                                    input.parentNode.appendChild(errorDiv);
+                                }
+                            });
+                        }
+                        showToast('error', data.message || 'Failed to create BoatR application');
                     }
-                    showToast('error', data.message || 'Failed to create BoatR application');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'An error occurred while creating the application');
-            })
-            .finally(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while creating the application');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
         }
         // ========== MODAL BACKDROP CLEANUP ==========
         document.addEventListener('DOMContentLoaded', function() {
             const allModals = document.querySelectorAll('.modal');
-            
+
             allModals.forEach(modal => {
                 modal.addEventListener('hidden.bs.modal', function() {
                     // Remove all modal backdrops
-                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
-                    
+                    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop
+                        .remove());
+
                     // Check if any modals are still open
                     const openModals = document.querySelectorAll('.modal.show');
-                    
+
                     if (openModals.length === 0) {
                         // No modals open, clean up body
                         document.body.classList.remove('modal-open');
@@ -4700,34 +4845,34 @@
             document.getElementById('documentViewer').style.display = 'none';
 
             fetch(`/admin/boatr/requests/${id}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCSRFToken()
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                return response.json();
-            })
-            .then(data => {
-                if (!data.success) throw new Error(data.message || 'Failed to load documents');
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': getCSRFToken()
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error(data.message || 'Failed to load documents');
 
-                document.getElementById('documentViewerLoading').style.display = 'none';
-                document.getElementById('documentViewer').style.display = 'block';
+                    document.getElementById('documentViewerLoading').style.display = 'none';
+                    document.getElementById('documentViewer').style.display = 'block';
 
-                let documentsHtml = '';
+                    let documentsHtml = '';
 
-                // Show only the requested type
-                if (type === 'user' && data.user_documents && data.user_documents.length > 0) {
-                    documentsHtml += `
+                    // Show only the requested type
+                    if (type === 'user' && data.user_documents && data.user_documents.length > 0) {
+                        documentsHtml += `
                         <div class="document-section mb-4">
                             <h5 class="border-bottom pb-2 mb-3">
                                 <i class="fas fa-file-image text-info me-2"></i>User Documents
                             </h5>
                     `;
-                    data.user_documents.forEach((doc, index) => {
-                        documentsHtml += `
+                        data.user_documents.forEach((doc, index) => {
+                            documentsHtml += `
                             <div class="document-item mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
@@ -4742,19 +4887,19 @@
                                 </div>
                             </div>
                         `;
-                    });
-                    documentsHtml += `</div>`;
-                }
+                        });
+                        documentsHtml += `</div>`;
+                    }
 
-                if (type === 'inspection' && data.inspection_documents && data.inspection_documents.length > 0) {
-                    documentsHtml += `
+                    if (type === 'inspection' && data.inspection_documents && data.inspection_documents.length > 0) {
+                        documentsHtml += `
                         <div class="document-section mb-4">
                             <h5 class="border-bottom pb-2 mb-3">
                                 <i class="fas fa-clipboard-check text-success me-2"></i>Inspection Documents
                             </h5>
                     `;
-                    data.inspection_documents.forEach((doc, index) => {
-                        documentsHtml += `
+                        data.inspection_documents.forEach((doc, index) => {
+                            documentsHtml += `
                             <div class="document-item mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
@@ -4769,19 +4914,19 @@
                                 </div>
                             </div>
                         `;
-                    });
-                    documentsHtml += `</div>`;
-                }
+                        });
+                        documentsHtml += `</div>`;
+                    }
 
-                if (type === 'annexes' && data.annexes && data.annexes.length > 0) {
-                    documentsHtml += `
+                    if (type === 'annexes' && data.annexes && data.annexes.length > 0) {
+                        documentsHtml += `
                         <div class="document-section mb-4">
                             <h5 class="border-bottom pb-2 mb-3">
                                 <i class="fas fa-folder text-warning me-2"></i>Annexes
                             </h5>
                     `;
-                    data.annexes.forEach((annex) => {
-                        documentsHtml += `
+                        data.annexes.forEach((annex) => {
+                            documentsHtml += `
                             <div class="document-item mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
@@ -4799,51 +4944,51 @@
                                 </div>
                             </div>
                         `;
-                    });
-                    documentsHtml += `</div>`;
-                }
+                        });
+                        documentsHtml += `</div>`;
+                    }
 
-                if (!documentsHtml) {
-                    documentsHtml = `
+                    if (!documentsHtml) {
+                        documentsHtml = `
                         <div class="text-center py-5">
                             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
                             <p class="text-muted">No documents available in this category</p>
                         </div>
                     `;
-                }
+                    }
 
-                document.getElementById('documentViewer').innerHTML = documentsHtml;
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('documentViewerLoading').style.display = 'none';
-                document.getElementById('documentViewer').innerHTML = `
+                    document.getElementById('documentViewer').innerHTML = documentsHtml;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('documentViewerLoading').style.display = 'none';
+                    document.getElementById('documentViewer').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Failed to load documents: ${error.message}
                     </div>
                 `;
-                document.getElementById('documentViewer').style.display = 'block';
-            });
+                    document.getElementById('documentViewer').style.display = 'block';
+                });
         }
 
         // Validate FishR number exists and auto-fill data
         async function validateFishrNumber(fishrNumber) {
             const input = document.getElementById('boatr_fishr_number');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
-            
+
             if (feedback) feedback.textContent = '';
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             if (!fishrNumber || fishrNumber.trim() === '') {
                 return false;
             }
-            
+
             try {
                 // Use the correct endpoint: /admin/boatr/validate-fishr
                 const endpoint = `/admin/boatr/validate-fishr/${encodeURIComponent(fishrNumber.trim())}`;
                 console.log('Validating FishR at endpoint:', endpoint);
-                
+
                 const response = await fetch(endpoint, {
                     headers: {
                         'X-CSRF-TOKEN': getCSRFToken(),
@@ -4851,16 +4996,16 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
-                
+
                 console.log('Response status:', response.status);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
                 console.log('FishR validation response:', data);
-                
+
                 if (data.exists) {
                     input.classList.add('is-valid');
                     if (feedback) {
@@ -4869,24 +5014,27 @@
                         feedback.textContent = `✓ Valid FishR: ${data.fisher_name}`;
                         feedback.style.color = '#28a745';
                     }
-                    
+
                     // Auto-fill fisher information
                     if (data.first_name) document.getElementById('boatr_first_name').value = data.first_name;
                     if (data.middle_name) document.getElementById('boatr_middle_name').value = data.middle_name;
                     if (data.last_name) document.getElementById('boatr_last_name').value = data.last_name;
-                    if (data.name_extension) document.getElementById('boatr_name_extension').value = data.name_extension;
-                    if (data.contact_number) document.getElementById('boatr_contact_number').value = data.contact_number;
+                    if (data.name_extension) document.getElementById('boatr_name_extension').value = data
+                        .name_extension;
+                    if (data.contact_number) document.getElementById('boatr_contact_number').value = data
+                        .contact_number;
                     if (data.email) document.getElementById('boatr_email').value = data.email;
                     if (data.barangay) document.getElementById('boatr_barangay').value = data.barangay;
                     if (data.user_id) document.getElementById('boatr_user_id').value = data.user_id;
                     if (data.fishr_app_id) document.getElementById('boatr_fishr_app_id').value = data.fishr_app_id;
-                    
+
                     showToast('success', `✓ Fisher information auto-filled for: ${data.fisher_name}`);
                     return true;
                 } else {
                     input.classList.add('is-invalid');
                     if (feedback) {
-                        feedback.textContent = data.message || 'FishR number not found in the system. Please verify the FishR number.';
+                        feedback.textContent = data.message ||
+                            'FishR number not found in the system. Please verify the FishR number.';
                     }
                     clearFisherFields();
                     return false;
@@ -4921,14 +5069,14 @@
          */
         document.addEventListener('DOMContentLoaded', function() {
             const addBoatrModal = document.getElementById('addBoatrModal');
-            
+
             if (addBoatrModal) {
                 // Show event - initializes when modal opens
                 addBoatrModal.addEventListener('shown.bs.modal', function() {
                     console.log('BoatR modal shown - initializing FishR validation');
                     initializeAdminFishRValidation();
                 });
-                
+
                 // Hide event - cleans up when modal closes
                 addBoatrModal.addEventListener('hidden.bs.modal', function() {
                     console.log('BoatR modal hidden - cleaning up');
@@ -4942,19 +5090,19 @@
          */
         function initializeAdminFishRValidation() {
             const fishrInput = document.getElementById('boatr_fishr_number');
-            
+
             if (!fishrInput) {
                 console.error('FishR input not found');
                 return;
             }
-            
+
             console.log('Setting up FishR event listeners');
-            
+
             // Remove old listeners to prevent duplicates
             fishrInput.removeEventListener('blur', handleAdminFishRBlur);
             fishrInput.removeEventListener('input', handleAdminFishRInput);
             fishrInput.removeEventListener('focus', handleAdminFishRFocus);
-            
+
             // Add new listeners
             fishrInput.addEventListener('input', handleAdminFishRInput);
             fishrInput.addEventListener('blur', handleAdminFishRBlur);
@@ -4970,7 +5118,7 @@
                 fishrInput.removeEventListener('blur', handleAdminFishRBlur);
                 fishrInput.removeEventListener('input', handleAdminFishRInput);
                 fishrInput.removeEventListener('focus', handleAdminFishRFocus);
-                
+
                 if (fishrInput.validationTimeout) {
                     clearTimeout(fishrInput.validationTimeout);
                 }
@@ -4983,36 +5131,36 @@
         function handleAdminFishRInput(event) {
             const input = event.target;
             let value = input.value.trim().toUpperCase();
-            
+
             // Auto-format: add FISHR- prefix if not present
             if (value && !value.startsWith('FISHR-')) {
                 value = 'FISHR-' + value;
             }
-            
+
             input.value = value;
             clearAdminValidationMessage(input);
 
             console.log('FishR input updated:', value);
         }
 
-       /**
+        /**
          * Handle FishR blur - trigger validation
          */
         function handleAdminFishRBlur(event) {
             const input = event.target;
             const value = input.value.trim();
-            
+
             console.log('FishR blur event, value:', value);
-            
+
             if (!value) {
                 clearAdminValidationMessage(input);
                 input.classList.remove('is-invalid', 'is-valid');
                 return;
             }
-            
+
             // Validate format: FISHR-XXXXXXXX (8 alphanumeric characters)
             const formatValid = /^FISHR-[A-Z0-9]{8}$/i.test(value);
-            
+
             if (!formatValid) {
                 input.classList.add('is-invalid');
                 input.classList.remove('is-valid');
@@ -5020,13 +5168,13 @@
                 console.log('Invalid format');
                 return;
             }
-            
+
             console.log('Format valid, checking if exists in database...');
-            
+
             // Format is valid, check if exists in database
             input.classList.remove('is-invalid', 'is-valid');
             showAdminValidationMessage(input, '🔄 Checking FishR registration...', 'warning');
-            
+
             // Validate asynchronously - pass the full value with FISHR- prefix
             validateAdminFishRNumber(input, value);
         }
@@ -5040,65 +5188,65 @@
             }
         }
 
-         /**
+        /**
          * Validate FishR number with database (async)
          */
-       async function validateAdminFishRNumber(input, fishrNumber) {
-        try {
-            // URL encode the full registration number (with FISHR- prefix)
-            const encodedFishrNumber = encodeURIComponent(fishrNumber);
-            const endpoint = `/admin/boatr/validate-fishr/${encodedFishrNumber}`;
-            console.log('Fetching from:', endpoint);
-            
-            const response = await fetch(endpoint, {
-                method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': getCSRFToken(),
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Content-Type': 'application/json'
+        async function validateAdminFishRNumber(input, fishrNumber) {
+            try {
+                // URL encode the full registration number (with FISHR- prefix)
+                const encodedFishrNumber = encodeURIComponent(fishrNumber);
+                const endpoint = `/admin/boatr/validate-fishr/${encodedFishrNumber}`;
+                console.log('Fetching from:', endpoint);
+
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    console.error('Server error:', response.status);
+                    throw new Error(`Server error ${response.status}`);
                 }
-            });
 
-            console.log('Response status:', response.status);
-            
-            if (!response.ok) {
-                console.error('Server error:', response.status);
-                throw new Error(`Server error ${response.status}`);
-            }
+                const data = await response.json();
+                console.log('FishR validation result:', data);
 
-            const data = await response.json();
-            console.log('FishR validation result:', data);
+                if (data.exists) {
+                    // ✅ Valid FishR found
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                    showAdminValidationMessage(input, `✓ Valid: ${data.fisher_name}`, 'success');
 
-            if (data.exists) {
-                // ✅ Valid FishR found
-                input.classList.remove('is-invalid');
-                input.classList.add('is-valid');
-                showAdminValidationMessage(input, `✓ Valid: ${data.fisher_name}`, 'success');
-                
-                // Auto-fill the form
-                autoFillAdminFisherInfo(data);
-                
-                showToast('success', `✓ Auto-filled: ${data.fisher_name}`);
-            } else {
-                // ❌ FishR not found
+                    // Auto-fill the form
+                    autoFillAdminFisherInfo(data);
+
+                    showToast('success', `✓ Auto-filled: ${data.fisher_name}`);
+                } else {
+                    // ❌ FishR not found
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                    showAdminValidationMessage(input, '❌ ' + (data.message || 'FishR not found in system'), 'error');
+
+                    clearAdminFisherFields();
+                    showToast('warning', data.message || 'Registration number not found');
+                }
+            } catch (error) {
+                console.error('Validation error:', error);
+
                 input.classList.remove('is-valid');
                 input.classList.add('is-invalid');
-                showAdminValidationMessage(input, '❌ ' + (data.message || 'FishR not found in system'), 'error');
-                
-                clearAdminFisherFields();
-                showToast('warning', data.message || 'Registration number not found');
+                showAdminValidationMessage(input, '⚠️ Connection error. Check your internet.', 'error');
+
+                showToast('error', 'Connection error: ' + error.message);
             }
-        } catch (error) {
-            console.error('Validation error:', error);
-
-            input.classList.remove('is-valid');
-            input.classList.add('is-invalid');
-            showAdminValidationMessage(input, '⚠️ Connection error. Check your internet.', 'error');
-
-            showToast('error', 'Connection error: ' + error.message);
         }
-    }
 
         /**
          * Auto-fill admin form with Fisher info
@@ -5116,11 +5264,11 @@
                     'boatr_user_id': 'user_id',
                     'boatr_fishr_app_id': 'fishr_app_id'
                 };
-                
+
                 Object.keys(fieldMap).forEach(fieldId => {
                     const dataKey = fieldMap[fieldId];
                     const element = document.getElementById(fieldId);
-                    
+
                     if (element && data[dataKey]) {
                         element.value = data[dataKey];
                         console.log(`Filled ${fieldId} with ${data[dataKey]}`);
@@ -5136,7 +5284,7 @@
          */
         function showAdminValidationMessage(input, message, type) {
             clearAdminValidationMessage(input);
-            
+
             const messageDiv = document.createElement('div');
             messageDiv.className = `admin-validation-message admin-validation-${type}`;
             messageDiv.style.cssText = `
@@ -5147,23 +5295,39 @@
                 font-size: 13px;
                 border-left: 3px solid;
             `;
-            
+
             // Set colors
             const colors = {
-                success: { bg: '#d4edda', border: '#28a745', text: '#155724' },
-                error: { bg: '#f8d7da', border: '#dc3545', text: '#721c24' },
-                warning: { bg: '#fff3cd', border: '#ffc107', text: '#856404' },
-                info: { bg: '#d1ecf1', border: '#17a2b8', text: '#0c5460' }
+                success: {
+                    bg: '#d4edda',
+                    border: '#28a745',
+                    text: '#155724'
+                },
+                error: {
+                    bg: '#f8d7da',
+                    border: '#dc3545',
+                    text: '#721c24'
+                },
+                warning: {
+                    bg: '#fff3cd',
+                    border: '#ffc107',
+                    text: '#856404'
+                },
+                info: {
+                    bg: '#d1ecf1',
+                    border: '#17a2b8',
+                    text: '#0c5460'
+                }
             };
-            
+
             const color = colors[type] || colors.info;
             messageDiv.style.backgroundColor = color.bg;
             messageDiv.style.borderColor = color.border;
             messageDiv.style.color = color.text;
             messageDiv.innerHTML = `<small>${message}</small>`;
-            
+
             input.parentNode.insertBefore(messageDiv, input.nextSibling);
-            
+
             // Auto-remove success/info after 4 seconds
             if (type === 'success' || type === 'info') {
                 setTimeout(() => {
@@ -5198,7 +5362,7 @@
                 'boatr_user_id',
                 'boatr_fishr_app_id'
             ];
-            
+
             fields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
                 if (field) field.value = '';
@@ -5210,33 +5374,33 @@
          */
         function showAddBoatrModal() {
             const modal = new bootstrap.Modal(document.getElementById('addBoatrModal'));
-            
+
             // Reset form
             document.getElementById('addBoatrForm').reset();
-            
+
             // Remove validation errors
             document.querySelectorAll('#addBoatrModal .is-invalid').forEach(el => {
                 el.classList.remove('is-invalid');
             });
-            
+
             document.querySelectorAll('#addBoatrModal .invalid-feedback').forEach(el => {
                 el.textContent = '';
             });
-            
+
             // Remove validation messages
             document.querySelectorAll('#addBoatrModal .admin-validation-message').forEach(el => {
                 el.remove();
             });
-            
+
             // Clear document preview
             const preview = document.getElementById('boatr_doc_preview');
             if (preview) {
                 preview.innerHTML = '';
                 preview.style.display = 'none';
             }
-            
+
             modal.show();
-            
+
             // Init FishR after modal opens
             setTimeout(() => {
                 initializeAdminFishRValidation();
@@ -5248,24 +5412,65 @@
          */
         async function validateBoatrForm() {
             let isValid = true;
-            
-            const requiredFields = [
-                { id: 'boatr_first_name', label: 'First Name' },
-                { id: 'boatr_last_name', label: 'Last Name' },
-                { id: 'boatr_contact_number', label: 'Contact Number' },
-                { id: 'boatr_barangay', label: 'Barangay' },
-                { id: 'boatr_fishr_number', label: 'FishR Number' },
-                { id: 'boatr_vessel_name', label: 'Vessel Name' },
-                { id: 'boatr_boat_type', label: 'Boat Type' },
-                { id: 'boatr_boat_length', label: 'Boat Length' },
-                { id: 'boatr_boat_width', label: 'Boat Width' },
-                { id: 'boatr_boat_depth', label: 'Boat Depth' },
-                { id: 'boatr_engine_type', label: 'Engine Type' },
-                { id: 'boatr_engine_horsepower', label: 'Engine Horsepower' },
-                { id: 'boatr_primary_fishing_gear', label: 'Primary Fishing Gear' },
-                { id: 'boatr_status', label: 'Status' }
+
+            const requiredFields = [{
+                    id: 'boatr_first_name',
+                    label: 'First Name'
+                },
+                {
+                    id: 'boatr_last_name',
+                    label: 'Last Name'
+                },
+                {
+                    id: 'boatr_contact_number',
+                    label: 'Contact Number'
+                },
+                {
+                    id: 'boatr_barangay',
+                    label: 'Barangay'
+                },
+                {
+                    id: 'boatr_fishr_number',
+                    label: 'FishR Number'
+                },
+                {
+                    id: 'boatr_vessel_name',
+                    label: 'Vessel Name'
+                },
+                {
+                    id: 'boatr_boat_type',
+                    label: 'Boat Type'
+                },
+                {
+                    id: 'boatr_boat_length',
+                    label: 'Boat Length'
+                },
+                {
+                    id: 'boatr_boat_width',
+                    label: 'Boat Width'
+                },
+                {
+                    id: 'boatr_boat_depth',
+                    label: 'Boat Depth'
+                },
+                {
+                    id: 'boatr_engine_type',
+                    label: 'Engine Type'
+                },
+                {
+                    id: 'boatr_engine_horsepower',
+                    label: 'Engine Horsepower'
+                },
+                {
+                    id: 'boatr_primary_fishing_gear',
+                    label: 'Primary Fishing Gear'
+                },
+                {
+                    id: 'boatr_status',
+                    label: 'Status'
+                }
             ];
-            
+
             requiredFields.forEach(field => {
                 const input = document.getElementById(field.id);
                 if (input && (!input.value || input.value.trim() === '')) {
@@ -5273,7 +5478,7 @@
                     isValid = false;
                 }
             });
-            
+
             // Validate contact number format
             const contactNumber = document.getElementById('boatr_contact_number').value.trim();
             if (contactNumber) {
@@ -5283,7 +5488,7 @@
                     isValid = false;
                 }
             }
-            
+
             // Validate email format if provided
             const email = document.getElementById('boatr_email').value.trim();
             if (email) {
@@ -5293,7 +5498,7 @@
                     isValid = false;
                 }
             }
-            
+
             // Check if FishR was validated
             const fishrInput = document.getElementById('boatr_fishr_number');
             if (!fishrInput.classList.contains('is-valid')) {
@@ -5301,617 +5506,620 @@
                 showToast('warning', 'Please validate FishR number first by clicking away from the field');
                 isValid = false;
             }
-            
+
             return isValid;
         }
 
-// Show edit modal - Load data dynamically
-function showEditBoatrModal(registrationId) {
-    console.log('Opening edit modal for registration:', registrationId);
-    
-    const modal = new bootstrap.Modal(document.getElementById('editBoatrModal'));
-    modal.show();
-    
-    // Show loading
-    document.getElementById('editBoatrLoading').style.display = 'block';
-    document.getElementById('editBoatrForm').style.display = 'none';
-    document.getElementById('editBoatrSubmitBtn').style.display = 'none';
-    
-    // Load registration data
-    fetch(`/admin/boatr/requests/${registrationId}`, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
-    })
-    .then(data => {
-        if (!data.success) throw new Error('Failed to load data');
-        
-        // Hide loading, show form
-        document.getElementById('editBoatrLoading').style.display = 'none';
-        document.getElementById('editBoatrForm').style.display = 'block';
-        document.getElementById('editBoatrSubmitBtn').style.display = 'inline-block';
-        
-        // Populate form
-        document.getElementById('edit_boatr_id').value = registrationId;
-        document.getElementById('edit_boatr_first_name').value = data.first_name || '';
-        document.getElementById('edit_boatr_middle_name').value = data.middle_name || '';
-        document.getElementById('edit_boatr_last_name').value = data.last_name || '';
-        document.getElementById('edit_boatr_extension').value = data.name_extension || '';
-        document.getElementById('edit_boatr_contact').value = data.contact_number || '';
-        document.getElementById('edit_boatr_email').value = data.email || '';
-        document.getElementById('edit_boatr_barangay').value = data.barangay || '';
-        document.getElementById('edit_boatr_vessel').value = data.vessel_name || '';
-        document.getElementById('edit_boatr_boat_type').value = data.boat_type || '';
-        document.getElementById('edit_boatr_length').value = data.boat_length || '';
-        document.getElementById('edit_boatr_width').value = data.boat_width || '';
-        document.getElementById('edit_boatr_depth').value = data.boat_depth || '';
-        document.getElementById('edit_boatr_engine_type').value = data.engine_type || '';
-        document.getElementById('edit_boatr_engine_hp').value = data.engine_horsepower || '';
-        document.getElementById('edit_boatr_gear').value = data.primary_fishing_gear || '';
-        
-        console.log('Form populated with data:', {
-            first_name: data.first_name,
-            last_name: data.last_name,
-            contact_number: data.contact_number,
-            barangay: data.barangay,
-            vessel_name: data.vessel_name,
-            boat_type: data.boat_type,
-            boat_length: data.boat_length,
-            boat_width: data.boat_width,
-            boat_depth: data.boat_depth,
-            engine_type: data.engine_type,
-            engine_horsepower: data.engine_horsepower,
-            primary_fishing_gear: data.primary_fishing_gear
-        });
-        
-        // Display read-only info
-        document.getElementById('edit_boatr_app_number').textContent = data.application_number;
-        document.getElementById('edit_boatr_status_display').innerHTML = 
-            `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
-        document.getElementById('edit_boatr_date_applied').textContent = data.created_at;
-        
-        // Store original data for change detection
-        storeOriginalEditBoatrData(data);
-        
-        // Clear validation
-        document.querySelectorAll('#editBoatrForm .is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        document.querySelectorAll('#editBoatrForm .form-changed').forEach(el => el.classList.remove('form-changed'));
-        
-        // Add change listeners
-        addEditBoatrChangeListeners();
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        document.getElementById('editBoatrLoading').innerHTML = `
+        // Show edit modal - Load data dynamically
+        function showEditBoatrModal(registrationId) {
+            console.log('Opening edit modal for registration:', registrationId);
+
+            const modal = new bootstrap.Modal(document.getElementById('editBoatrModal'));
+            modal.show();
+
+            // Show loading
+            document.getElementById('editBoatrLoading').style.display = 'block';
+            document.getElementById('editBoatrForm').style.display = 'none';
+            document.getElementById('editBoatrSubmitBtn').style.display = 'none';
+
+            // Load registration data
+            fetch(`/admin/boatr/requests/${registrationId}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error('Failed to load data');
+
+                    // Hide loading, show form
+                    document.getElementById('editBoatrLoading').style.display = 'none';
+                    document.getElementById('editBoatrForm').style.display = 'block';
+                    document.getElementById('editBoatrSubmitBtn').style.display = 'inline-block';
+
+                    // Populate form
+                    document.getElementById('edit_boatr_id').value = registrationId;
+                    document.getElementById('edit_boatr_first_name').value = data.first_name || '';
+                    document.getElementById('edit_boatr_middle_name').value = data.middle_name || '';
+                    document.getElementById('edit_boatr_last_name').value = data.last_name || '';
+                    document.getElementById('edit_boatr_extension').value = data.name_extension || '';
+                    document.getElementById('edit_boatr_contact').value = data.contact_number || '';
+                    document.getElementById('edit_boatr_email').value = data.email || '';
+                    document.getElementById('edit_boatr_barangay').value = data.barangay || '';
+                    document.getElementById('edit_boatr_vessel').value = data.vessel_name || '';
+                    document.getElementById('edit_boatr_boat_type').value = data.boat_type || '';
+                    document.getElementById('edit_boatr_length').value = data.boat_length || '';
+                    document.getElementById('edit_boatr_width').value = data.boat_width || '';
+                    document.getElementById('edit_boatr_depth').value = data.boat_depth || '';
+                    document.getElementById('edit_boatr_engine_type').value = data.engine_type || '';
+                    document.getElementById('edit_boatr_engine_hp').value = data.engine_horsepower || '';
+                    document.getElementById('edit_boatr_gear').value = data.primary_fishing_gear || '';
+
+                    console.log('Form populated with data:', {
+                        first_name: data.first_name,
+                        last_name: data.last_name,
+                        contact_number: data.contact_number,
+                        barangay: data.barangay,
+                        vessel_name: data.vessel_name,
+                        boat_type: data.boat_type,
+                        boat_length: data.boat_length,
+                        boat_width: data.boat_width,
+                        boat_depth: data.boat_depth,
+                        engine_type: data.engine_type,
+                        engine_horsepower: data.engine_horsepower,
+                        primary_fishing_gear: data.primary_fishing_gear
+                    });
+
+                    // Display read-only info
+                    document.getElementById('edit_boatr_app_number').textContent = data.application_number;
+                    document.getElementById('edit_boatr_status_display').innerHTML =
+                        `<span class="badge bg-${data.status_color}">${data.formatted_status}</span>`;
+                    document.getElementById('edit_boatr_date_applied').textContent = data.created_at;
+
+                    // Store original data for change detection
+                    storeOriginalEditBoatrData(data);
+
+                    // Clear validation
+                    document.querySelectorAll('#editBoatrForm .is-invalid').forEach(el => el.classList.remove(
+                        'is-invalid'));
+                    document.querySelectorAll('#editBoatrForm .form-changed').forEach(el => el.classList.remove(
+                        'form-changed'));
+
+                    // Add change listeners
+                    addEditBoatrChangeListeners();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('editBoatrLoading').innerHTML = `
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 Failed to load application data: ${error.message}
             </div>
         `;
-        showToast('error', 'Failed to load application data');
-    });
-}
-
-// Store original data for change detection
-function storeOriginalEditBoatrData(data) {
-    const form = document.getElementById('editBoatrForm');
-    form.dataset.originalData = JSON.stringify({
-        first_name: data.first_name || '',
-        middle_name: data.middle_name || '',
-        last_name: data.last_name || '',
-        name_extension: data.name_extension || '',
-        contact_number: data.contact_number || '',
-        email: data.email || '',
-        barangay: data.barangay || '',
-        vessel_name: data.vessel_name || '',
-        boat_type: data.boat_type || '',
-        boat_length: data.boat_length || '',
-        boat_width: data.boat_width || '',
-        boat_depth: data.boat_depth || '',
-        engine_type: data.engine_type || '',
-        engine_horsepower: data.engine_horsepower || '',
-        primary_fishing_gear: data.primary_fishing_gear || ''
-    });
-}
-
-// Add change detection listeners
-function addEditBoatrChangeListeners() {
-    const inputs = document.querySelectorAll('#editBoatrForm input, #editBoatrForm select');
-    inputs.forEach(input => {
-        input.removeEventListener('change', checkEditBoatrChanges);
-        input.removeEventListener('input', checkEditBoatrChanges);
-        input.addEventListener('change', checkEditBoatrChanges);
-        input.addEventListener('input', checkEditBoatrChanges);
-    });
-}
-
-// Check for changes
-function checkEditBoatrChanges() {
-    const form = document.getElementById('editBoatrForm');
-    const originalData = JSON.parse(form.dataset.originalData || '{}');
-    const submitBtn = document.getElementById('editBoatrSubmitBtn');
-    
-    let hasChanges = false;
-    
-    const fieldMap = {
-        'edit_boatr_first_name': 'first_name',
-        'edit_boatr_middle_name': 'middle_name',
-        'edit_boatr_last_name': 'last_name',
-        'edit_boatr_extension': 'name_extension',
-        'edit_boatr_contact': 'contact_number',
-        'edit_boatr_email': 'email',
-        'edit_boatr_barangay': 'barangay',
-        'edit_boatr_vessel': 'vessel_name',
-        'edit_boatr_boat_type': 'boat_type',
-        'edit_boatr_length': 'boat_length',
-        'edit_boatr_width': 'boat_width',
-        'edit_boatr_depth': 'boat_depth',
-        'edit_boatr_engine_type': 'engine_type',
-        'edit_boatr_engine_hp': 'engine_horsepower',
-        'edit_boatr_gear': 'primary_fishing_gear'
-    };
-    
-    for (const [inputId, dataKey] of Object.entries(fieldMap)) {
-        const input = document.getElementById(inputId);
-        if (input) {
-            let inputValue = input.value;
-            let originalValue = originalData[dataKey] || '';
-            
-            // Convert both to strings for comparison to handle numeric type mismatches
-            inputValue = String(inputValue).trim();
-            originalValue = String(originalValue).trim();
-            
-            if (inputValue !== originalValue) {
-                hasChanges = true;
-                input.classList.add('form-changed');
-            } else {
-                input.classList.remove('form-changed');
-            }
+                    showToast('error', 'Failed to load application data');
+                });
         }
-    }
-    
-    submitBtn.classList.toggle('no-changes', !hasChanges);
-    if (!hasChanges) {
-        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
-    } else {
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-    }
-}
 
-// Submit edit form
-function submitEditBoatr() {
-    const form = document.getElementById('editBoatrForm');
-    const registrationId = document.getElementById('edit_boatr_id').value;
-    
-    // Validate required fields manually since form validation might have issues
-    const firstName = document.getElementById('edit_boatr_first_name').value.trim();
-    const lastName = document.getElementById('edit_boatr_last_name').value.trim();
-    const contact = document.getElementById('edit_boatr_contact').value.trim();
-    const barangay = document.getElementById('edit_boatr_barangay').value.trim();
-    const vessel = document.getElementById('edit_boatr_vessel').value.trim();
-    const boatType = document.getElementById('edit_boatr_boat_type').value.trim();
-    const boatLength = document.getElementById('edit_boatr_length').value.trim();
-    const boatWidth = document.getElementById('edit_boatr_width').value.trim();
-    const boatDepth = document.getElementById('edit_boatr_depth').value.trim();
-    const engineType = document.getElementById('edit_boatr_engine_type').value.trim();
-    const engineHp = document.getElementById('edit_boatr_engine_hp').value.trim();
-    const gear = document.getElementById('edit_boatr_gear').value.trim();
-    
-    // Clear previous errors
-    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    
-    let isValid = true;
-    const errors = [];
-    
-    // Check required fields
-    if (!firstName) {
-        document.getElementById('edit_boatr_first_name').classList.add('is-invalid');
-        errors.push('First name is required');
-        isValid = false;
-    }
-    if (!lastName) {
-        document.getElementById('edit_boatr_last_name').classList.add('is-invalid');
-        errors.push('Last name is required');
-        isValid = false;
-    }
-    if (!contact) {
-        document.getElementById('edit_boatr_contact').classList.add('is-invalid');
-        errors.push('Contact number is required');
-        isValid = false;
-    } else if (!/^09\d{9}$/.test(contact)) {
-        document.getElementById('edit_boatr_contact').classList.add('is-invalid');
-        errors.push('Contact number must start with 09 and have 11 digits');
-        isValid = false;
-    }
-    if (!barangay) {
-        document.getElementById('edit_boatr_barangay').classList.add('is-invalid');
-        errors.push('Barangay is required');
-        isValid = false;
-    }
-    if (!vessel) {
-        document.getElementById('edit_boatr_vessel').classList.add('is-invalid');
-        errors.push('Vessel name is required');
-        isValid = false;
-    }
-    if (!boatType) {
-        document.getElementById('edit_boatr_boat_type').classList.add('is-invalid');
-        errors.push('Boat type is required');
-        isValid = false;
-    }
-    if (!boatLength) {
-        document.getElementById('edit_boatr_length').classList.add('is-invalid');
-        errors.push('Boat length is required');
-        isValid = false;
-    }
-    if (!boatWidth) {
-        document.getElementById('edit_boatr_width').classList.add('is-invalid');
-        errors.push('Boat width is required');
-        isValid = false;
-    }
-    if (!boatDepth) {
-        document.getElementById('edit_boatr_depth').classList.add('is-invalid');
-        errors.push('Boat depth is required');
-        isValid = false;
-    }
-    if (!engineType) {
-        document.getElementById('edit_boatr_engine_type').classList.add('is-invalid');
-        errors.push('Engine type is required');
-        isValid = false;
-    }
-    if (!engineHp) {
-        document.getElementById('edit_boatr_engine_hp').classList.add('is-invalid');
-        errors.push('Engine horsepower is required');
-        isValid = false;
-    }
-    if (!gear) {
-        document.getElementById('edit_boatr_gear').classList.add('is-invalid');
-        errors.push('Primary fishing gear is required');
-        isValid = false;
-    }
-    
-    if (!isValid) {
-        showToast('error', errors[0] || 'Please fix all validation errors');
-        return;
-    }
-    
-    const submitBtn = document.getElementById('editBoatrSubmitBtn');
-    const originalText = submitBtn.innerHTML;
-    
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
-    submitBtn.disabled = true;
-    
-    // Log the values being sent for debugging
-    console.log('Submitting with values:', {
-        firstName,
-        lastName,
-        contact,
-        barangay,
-        vessel,
-        boatType,
-        boatLength,
-        boatWidth,
-        boatDepth,
-        engineType,
-        engineHp,
-        gear,
-        registrationId
-    });
-    
-    const formData = new FormData();
-    formData.append('first_name', firstName);
-    formData.append('middle_name', document.getElementById('edit_boatr_middle_name').value.trim());
-    formData.append('last_name', lastName);
-    formData.append('name_extension', document.getElementById('edit_boatr_extension').value || '');
-    formData.append('contact_number', contact);
-    formData.append('email', document.getElementById('edit_boatr_email').value.trim() || '');
-    formData.append('barangay', barangay);
-    formData.append('vessel_name', vessel);
-    formData.append('boat_type', boatType);
-    formData.append('boat_length', boatLength);
-    formData.append('boat_width', boatWidth);
-    formData.append('boat_depth', boatDepth);
-    formData.append('engine_type', engineType);
-    formData.append('engine_horsepower', engineHp);
-    formData.append('primary_fishing_gear', gear);
-    
-    // Log FormData contents
-    console.log('FormData entries:');
-    for (let [key, value] of formData.entries()) {
-        console.log(`  ${key}: ${value}`);
-    }
-    
-    // Convert FormData to JSON object
-    const jsonData = {
-        first_name: firstName,
-        middle_name: document.getElementById('edit_boatr_middle_name').value.trim(),
-        last_name: lastName,
-        name_extension: document.getElementById('edit_boatr_extension').value || '',
-        contact_number: contact,
-        email: document.getElementById('edit_boatr_email').value.trim() || '',
-        barangay: barangay,
-        vessel_name: vessel,
-        boat_type: boatType,
-        boat_length: boatLength,
-        boat_width: boatWidth,
-        boat_depth: boatDepth,
-        engine_type: engineType,
-        engine_horsepower: engineHp,
-        primary_fishing_gear: gear
-    };
-    
-    console.log('Sending JSON:', jsonData);
-    
-    fetch(`/admin/boatr/requests/${registrationId}`, {
-        method: 'PUT',
-        headers: {
-            'X-CSRF-TOKEN': getCSRFToken(),
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify(jsonData)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw {
-                    status: response.status,
-                    message: data.message || 'Validation failed',
-                    errors: data.errors || {}
-                };
+        // Store original data for change detection
+        function storeOriginalEditBoatrData(data) {
+            const form = document.getElementById('editBoatrForm');
+            form.dataset.originalData = JSON.stringify({
+                first_name: data.first_name || '',
+                middle_name: data.middle_name || '',
+                last_name: data.last_name || '',
+                name_extension: data.name_extension || '',
+                contact_number: data.contact_number || '',
+                email: data.email || '',
+                barangay: data.barangay || '',
+                vessel_name: data.vessel_name || '',
+                boat_type: data.boat_type || '',
+                boat_length: data.boat_length || '',
+                boat_width: data.boat_width || '',
+                boat_depth: data.boat_depth || '',
+                engine_type: data.engine_type || '',
+                engine_horsepower: data.engine_horsepower || '',
+                primary_fishing_gear: data.primary_fishing_gear || ''
             });
         }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editBoatrModal'));
-            if (modal) modal.hide();
-            
-            showToast('success', data.message || 'BoatR application updated successfully');
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            throw new Error(data.message || 'Failed to update');
+
+        // Add change detection listeners
+        function addEditBoatrChangeListeners() {
+            const inputs = document.querySelectorAll('#editBoatrForm input, #editBoatrForm select');
+            inputs.forEach(input => {
+                input.removeEventListener('change', checkEditBoatrChanges);
+                input.removeEventListener('input', checkEditBoatrChanges);
+                input.addEventListener('change', checkEditBoatrChanges);
+                input.addEventListener('input', checkEditBoatrChanges);
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        
-        let errorMsg = 'Error: ' + (error.message || 'Unknown error');
-        
-        // If validation error with field details
-        if (error.errors && typeof error.errors === 'object') {
-            const fieldErrors = [];
-            for (const [field, messages] of Object.entries(error.errors)) {
-                if (Array.isArray(messages)) {
-                    fieldErrors.push(messages[0]);
-                } else {
-                    fieldErrors.push(messages);
+
+        // Check for changes
+        function checkEditBoatrChanges() {
+            const form = document.getElementById('editBoatrForm');
+            const originalData = JSON.parse(form.dataset.originalData || '{}');
+            const submitBtn = document.getElementById('editBoatrSubmitBtn');
+
+            let hasChanges = false;
+
+            const fieldMap = {
+                'edit_boatr_first_name': 'first_name',
+                'edit_boatr_middle_name': 'middle_name',
+                'edit_boatr_last_name': 'last_name',
+                'edit_boatr_extension': 'name_extension',
+                'edit_boatr_contact': 'contact_number',
+                'edit_boatr_email': 'email',
+                'edit_boatr_barangay': 'barangay',
+                'edit_boatr_vessel': 'vessel_name',
+                'edit_boatr_boat_type': 'boat_type',
+                'edit_boatr_length': 'boat_length',
+                'edit_boatr_width': 'boat_width',
+                'edit_boatr_depth': 'boat_depth',
+                'edit_boatr_engine_type': 'engine_type',
+                'edit_boatr_engine_hp': 'engine_horsepower',
+                'edit_boatr_gear': 'primary_fishing_gear'
+            };
+
+            for (const [inputId, dataKey] of Object.entries(fieldMap)) {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    let inputValue = input.value;
+                    let originalValue = originalData[dataKey] || '';
+
+                    // Convert both to strings for comparison to handle numeric type mismatches
+                    inputValue = String(inputValue).trim();
+                    originalValue = String(originalValue).trim();
+
+                    if (inputValue !== originalValue) {
+                        hasChanges = true;
+                        input.classList.add('form-changed');
+                    } else {
+                        input.classList.remove('form-changed');
+                    }
                 }
             }
-            if (fieldErrors.length > 0) {
-                errorMsg = fieldErrors[0]; // Show first validation error
+
+            submitBtn.classList.toggle('no-changes', !hasChanges);
+            if (!hasChanges) {
+                submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>No Changes';
+            } else {
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
             }
         }
-        
-        showToast('error', errorMsg);
-    })
-    .finally(() => {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    });
-}
 
-// Initialize edit modal with existing data
-function initializeEditBoatrModal(registrationId) {
-    const form = document.getElementById('editBoatrForm_' + registrationId);
-    if (!form) {
-        console.error('Form not found:', 'editBoatrForm_' + registrationId);
-        return;
-    }
-    
-    console.log('Initializing modal for registration:', registrationId);
-    
-    fetch(`/admin/boatr/requests/${registrationId}`, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
+        // Submit edit form
+        function submitEditBoatr() {
+            const form = document.getElementById('editBoatrForm');
+            const registrationId = document.getElementById('edit_boatr_id').value;
+
+            // Validate required fields manually since form validation might have issues
+            const firstName = document.getElementById('edit_boatr_first_name').value.trim();
+            const lastName = document.getElementById('edit_boatr_last_name').value.trim();
+            const contact = document.getElementById('edit_boatr_contact').value.trim();
+            const barangay = document.getElementById('edit_boatr_barangay').value.trim();
+            const vessel = document.getElementById('edit_boatr_vessel').value.trim();
+            const boatType = document.getElementById('edit_boatr_boat_type').value.trim();
+            const boatLength = document.getElementById('edit_boatr_length').value.trim();
+            const boatWidth = document.getElementById('edit_boatr_width').value.trim();
+            const boatDepth = document.getElementById('edit_boatr_depth').value.trim();
+            const engineType = document.getElementById('edit_boatr_engine_type').value.trim();
+            const engineHp = document.getElementById('edit_boatr_engine_hp').value.trim();
+            const gear = document.getElementById('edit_boatr_gear').value.trim();
+
+            // Clear previous errors
+            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+            let isValid = true;
+            const errors = [];
+
+            // Check required fields
+            if (!firstName) {
+                document.getElementById('edit_boatr_first_name').classList.add('is-invalid');
+                errors.push('First name is required');
+                isValid = false;
+            }
+            if (!lastName) {
+                document.getElementById('edit_boatr_last_name').classList.add('is-invalid');
+                errors.push('Last name is required');
+                isValid = false;
+            }
+            if (!contact) {
+                document.getElementById('edit_boatr_contact').classList.add('is-invalid');
+                errors.push('Contact number is required');
+                isValid = false;
+            } else if (!/^09\d{9}$/.test(contact)) {
+                document.getElementById('edit_boatr_contact').classList.add('is-invalid');
+                errors.push('Contact number must start with 09 and have 11 digits');
+                isValid = false;
+            }
+            if (!barangay) {
+                document.getElementById('edit_boatr_barangay').classList.add('is-invalid');
+                errors.push('Barangay is required');
+                isValid = false;
+            }
+            if (!vessel) {
+                document.getElementById('edit_boatr_vessel').classList.add('is-invalid');
+                errors.push('Vessel name is required');
+                isValid = false;
+            }
+            if (!boatType) {
+                document.getElementById('edit_boatr_boat_type').classList.add('is-invalid');
+                errors.push('Boat type is required');
+                isValid = false;
+            }
+            if (!boatLength) {
+                document.getElementById('edit_boatr_length').classList.add('is-invalid');
+                errors.push('Boat length is required');
+                isValid = false;
+            }
+            if (!boatWidth) {
+                document.getElementById('edit_boatr_width').classList.add('is-invalid');
+                errors.push('Boat width is required');
+                isValid = false;
+            }
+            if (!boatDepth) {
+                document.getElementById('edit_boatr_depth').classList.add('is-invalid');
+                errors.push('Boat depth is required');
+                isValid = false;
+            }
+            if (!engineType) {
+                document.getElementById('edit_boatr_engine_type').classList.add('is-invalid');
+                errors.push('Engine type is required');
+                isValid = false;
+            }
+            if (!engineHp) {
+                document.getElementById('edit_boatr_engine_hp').classList.add('is-invalid');
+                errors.push('Engine horsepower is required');
+                isValid = false;
+            }
+            if (!gear) {
+                document.getElementById('edit_boatr_gear').classList.add('is-invalid');
+                errors.push('Primary fishing gear is required');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                showToast('error', errors[0] || 'Please fix all validation errors');
+                return;
+            }
+
+            const submitBtn = document.getElementById('editBoatrSubmitBtn');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+            submitBtn.disabled = true;
+
+            // Log the values being sent for debugging
+            console.log('Submitting with values:', {
+                firstName,
+                lastName,
+                contact,
+                barangay,
+                vessel,
+                boatType,
+                boatLength,
+                boatWidth,
+                boatDepth,
+                engineType,
+                engineHp,
+                gear,
+                registrationId
+            });
+
+            const formData = new FormData();
+            formData.append('first_name', firstName);
+            formData.append('middle_name', document.getElementById('edit_boatr_middle_name').value.trim());
+            formData.append('last_name', lastName);
+            formData.append('name_extension', document.getElementById('edit_boatr_extension').value || '');
+            formData.append('contact_number', contact);
+            formData.append('email', document.getElementById('edit_boatr_email').value.trim() || '');
+            formData.append('barangay', barangay);
+            formData.append('vessel_name', vessel);
+            formData.append('boat_type', boatType);
+            formData.append('boat_length', boatLength);
+            formData.append('boat_width', boatWidth);
+            formData.append('boat_depth', boatDepth);
+            formData.append('engine_type', engineType);
+            formData.append('engine_horsepower', engineHp);
+            formData.append('primary_fishing_gear', gear);
+
+            // Log FormData contents
+            console.log('FormData entries:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`  ${key}: ${value}`);
+            }
+
+            // Convert FormData to JSON object
+            const jsonData = {
+                first_name: firstName,
+                middle_name: document.getElementById('edit_boatr_middle_name').value.trim(),
+                last_name: lastName,
+                name_extension: document.getElementById('edit_boatr_extension').value || '',
+                contact_number: contact,
+                email: document.getElementById('edit_boatr_email').value.trim() || '',
+                barangay: barangay,
+                vessel_name: vessel,
+                boat_type: boatType,
+                boat_length: boatLength,
+                boat_width: boatWidth,
+                boat_depth: boatDepth,
+                engine_type: engineType,
+                engine_horsepower: engineHp,
+                primary_fishing_gear: gear
+            };
+
+            console.log('Sending JSON:', jsonData);
+
+            fetch(`/admin/boatr/requests/${registrationId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(jsonData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw {
+                                status: response.status,
+                                message: data.message || 'Validation failed',
+                                errors: data.errors || {}
+                            };
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editBoatrModal'));
+                        if (modal) modal.hide();
+
+                        showToast('success', data.message || 'BoatR application updated successfully');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        throw new Error(data.message || 'Failed to update');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+
+                    let errorMsg = 'Error: ' + (error.message || 'Unknown error');
+
+                    // If validation error with field details
+                    if (error.errors && typeof error.errors === 'object') {
+                        const fieldErrors = [];
+                        for (const [field, messages] of Object.entries(error.errors)) {
+                            if (Array.isArray(messages)) {
+                                fieldErrors.push(messages[0]);
+                            } else {
+                                fieldErrors.push(messages);
+                            }
+                        }
+                        if (fieldErrors.length > 0) {
+                            errorMsg = fieldErrors[0]; // Show first validation error
+                        }
+                    }
+
+                    showToast('error', errorMsg);
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
         }
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
-    })
-    .then(data => {
-        if (!data.success) throw new Error('Failed to load data');
-        
-        // Populate form fields
-        form.querySelector('.edit_boatr_first_name').value = data.first_name || '';
-        form.querySelector('.edit_boatr_middle_name').value = data.middle_name || '';
-        form.querySelector('.edit_boatr_last_name').value = data.last_name || '';
-        form.querySelector('.edit_boatr_extension').value = data.name_extension || '';
-        form.querySelector('.edit_boatr_contact').value = data.contact_number || '';
-        form.querySelector('.edit_boatr_email').value = data.email || '';
-        form.querySelector('.edit_boatr_barangay').value = data.barangay || '';
-        form.querySelector('.edit_boatr_vessel').value = data.vessel_name || '';
-        form.querySelector('.edit_boatr_boat_type').value = data.boat_type || '';
-        form.querySelector('.edit_boatr_length').value = data.boat_length || '';
-        form.querySelector('.edit_boatr_width').value = data.boat_width || '';
-        form.querySelector('.edit_boatr_depth').value = data.boat_depth || '';
-        form.querySelector('.edit_boatr_engine_type').value = data.engine_type || '';
-        form.querySelector('.edit_boatr_engine_hp').value = data.engine_horsepower || '';
-        form.querySelector('.edit_boatr_gear').value = data.primary_fishing_gear || '';
-        
-        storeOriginalBoatrValues(form, registrationId);
-        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        addBoatrEditListeners(form, registrationId);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('error', 'Failed to load application data: ' + error.message);
-    });
-}
 
-// Store original values
-function storeOriginalBoatrValues(form, registrationId) {
-    const originalData = {
-        first_name: form.querySelector('.edit_boatr_first_name').value,
-        middle_name: form.querySelector('.edit_boatr_middle_name').value,
-        last_name: form.querySelector('.edit_boatr_last_name').value,
-        name_extension: form.querySelector('.edit_boatr_extension').value,
-        contact_number: form.querySelector('.edit_boatr_contact').value,
-        email: form.querySelector('.edit_boatr_email').value,
-        barangay: form.querySelector('.edit_boatr_barangay').value,
-        vessel_name: form.querySelector('.edit_boatr_vessel').value,
-        boat_type: form.querySelector('.edit_boatr_boat_type').value,
-        boat_length: form.querySelector('.edit_boatr_length').value,
-        boat_width: form.querySelector('.edit_boatr_width').value,
-        boat_depth: form.querySelector('.edit_boatr_depth').value,
-        engine_type: form.querySelector('.edit_boatr_engine_type').value,
-        engine_horsepower: form.querySelector('.edit_boatr_engine_hp').value,
-        primary_fishing_gear: form.querySelector('.edit_boatr_gear').value,
-    };
-    form.dataset.originalData = JSON.stringify(originalData);
-}
+        // Initialize edit modal with existing data
+        function initializeEditBoatrModal(registrationId) {
+            const form = document.getElementById('editBoatrForm_' + registrationId);
+            if (!form) {
+                console.error('Form not found:', 'editBoatrForm_' + registrationId);
+                return;
+            }
 
-// Add event listeners
-function addBoatrEditListeners(form, registrationId) {
-    const inputs = form.querySelectorAll('input, select');
-    const submitBtn = document.querySelector('.edit_boatr_submit_btn_' + registrationId);
-    
-    inputs.forEach(input => {
-        input.addEventListener('change', () => checkForBoatrEditChanges(form, submitBtn, registrationId));
-        input.addEventListener('input', () => checkForBoatrEditChanges(form, submitBtn, registrationId));
-    });
-}
+            console.log('Initializing modal for registration:', registrationId);
 
-// Check for changes
-function checkForBoatrEditChanges(form, submitBtn, registrationId) {
-    const originalData = JSON.parse(form.dataset.originalData || '{}');
-    let hasChanges = false;
-    
-    const fieldMap = {
-        'edit_boatr_first_name': 'first_name',
-        'edit_boatr_middle_name': 'middle_name',
-        'edit_boatr_last_name': 'last_name',
-        'edit_boatr_extension': 'name_extension',
-        'edit_boatr_contact': 'contact_number',
-        'edit_boatr_email': 'email',
-        'edit_boatr_barangay': 'barangay',
-        'edit_boatr_vessel': 'vessel_name',
-        'edit_boatr_boat_type': 'boat_type',
-        'edit_boatr_length': 'boat_length',
-        'edit_boatr_width': 'boat_width',
-        'edit_boatr_depth': 'boat_depth',
-        'edit_boatr_engine_type': 'engine_type',
-        'edit_boatr_engine_hp': 'engine_horsepower',
-        'edit_boatr_gear': 'primary_fishing_gear'
-    };
-    
-    for (const [selector, key] of Object.entries(fieldMap)) {
-        const input = form.querySelector('.' + selector);
-        if (input && input.value !== originalData[key]) {
-            hasChanges = true;
-            input.classList.add('form-changed');
-        } else if (input) {
-            input.classList.remove('form-changed');
+            fetch(`/admin/boatr/requests/${registrationId}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) throw new Error('Failed to load data');
+
+                    // Populate form fields
+                    form.querySelector('.edit_boatr_first_name').value = data.first_name || '';
+                    form.querySelector('.edit_boatr_middle_name').value = data.middle_name || '';
+                    form.querySelector('.edit_boatr_last_name').value = data.last_name || '';
+                    form.querySelector('.edit_boatr_extension').value = data.name_extension || '';
+                    form.querySelector('.edit_boatr_contact').value = data.contact_number || '';
+                    form.querySelector('.edit_boatr_email').value = data.email || '';
+                    form.querySelector('.edit_boatr_barangay').value = data.barangay || '';
+                    form.querySelector('.edit_boatr_vessel').value = data.vessel_name || '';
+                    form.querySelector('.edit_boatr_boat_type').value = data.boat_type || '';
+                    form.querySelector('.edit_boatr_length').value = data.boat_length || '';
+                    form.querySelector('.edit_boatr_width').value = data.boat_width || '';
+                    form.querySelector('.edit_boatr_depth').value = data.boat_depth || '';
+                    form.querySelector('.edit_boatr_engine_type').value = data.engine_type || '';
+                    form.querySelector('.edit_boatr_engine_hp').value = data.engine_horsepower || '';
+                    form.querySelector('.edit_boatr_gear').value = data.primary_fishing_gear || '';
+
+                    storeOriginalBoatrValues(form, registrationId);
+                    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                    addBoatrEditListeners(form, registrationId);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Failed to load application data: ' + error.message);
+                });
         }
-    }
-    
-    if (submitBtn) {
-        submitBtn.disabled = false;
-    }
-}
 
-// Handle submit
-function handleEditBoatrSubmit(registrationId) {
-    const form = document.getElementById('editBoatrForm_' + registrationId);
-    
-    if (!form) {
-        showToast('error', 'Form not found');
-        return;
-    }
-    
-    if (!form.checkValidity()) {
-        showToast('error', 'Please fix all validation errors');
-        form.classList.add('was-validated');
-        return;
-    }
-    
-    showConfirmationToast(
-        'Confirm Update',
-        'Are you sure you want to save the changes to this BoatR application?',
-        () => proceedWithEditBoatr(form, registrationId)
-    );
-}
+        // Store original values
+        function storeOriginalBoatrValues(form, registrationId) {
+            const originalData = {
+                first_name: form.querySelector('.edit_boatr_first_name').value,
+                middle_name: form.querySelector('.edit_boatr_middle_name').value,
+                last_name: form.querySelector('.edit_boatr_last_name').value,
+                name_extension: form.querySelector('.edit_boatr_extension').value,
+                contact_number: form.querySelector('.edit_boatr_contact').value,
+                email: form.querySelector('.edit_boatr_email').value,
+                barangay: form.querySelector('.edit_boatr_barangay').value,
+                vessel_name: form.querySelector('.edit_boatr_vessel').value,
+                boat_type: form.querySelector('.edit_boatr_boat_type').value,
+                boat_length: form.querySelector('.edit_boatr_length').value,
+                boat_width: form.querySelector('.edit_boatr_width').value,
+                boat_depth: form.querySelector('.edit_boatr_depth').value,
+                engine_type: form.querySelector('.edit_boatr_engine_type').value,
+                engine_horsepower: form.querySelector('.edit_boatr_engine_hp').value,
+                primary_fishing_gear: form.querySelector('.edit_boatr_gear').value,
+            };
+            form.dataset.originalData = JSON.stringify(originalData);
+        }
 
-// Proceed with update
-function proceedWithEditBoatr(form, registrationId) {
-    const submitBtn = document.querySelector('.edit_boatr_submit_btn_' + registrationId);
-    const originalText = submitBtn.innerHTML;
-    
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
-    submitBtn.disabled = true;
-    
-    const formData = new FormData();
-    const fieldMap = {
-        'edit_boatr_first_name': 'first_name',
-        'edit_boatr_middle_name': 'middle_name',
-        'edit_boatr_last_name': 'last_name',
-        'edit_boatr_extension': 'name_extension',
-        'edit_boatr_contact': 'contact_number',
-        'edit_boatr_email': 'email',
-        'edit_boatr_barangay': 'barangay',
-        'edit_boatr_vessel': 'vessel_name',
-        'edit_boatr_boat_type': 'boat_type',
-        'edit_boatr_length': 'boat_length',
-        'edit_boatr_width': 'boat_width',
-        'edit_boatr_depth': 'boat_depth',
-        'edit_boatr_engine_type': 'engine_type',
-        'edit_boatr_engine_hp': 'engine_horsepower',
-        'edit_boatr_gear': 'primary_fishing_gear'
-    };
-    
-    for (const [selector, key] of Object.entries(fieldMap)) {
-        const input = form.querySelector('.' + selector);
-        if (input) {
-            formData.append(key, input.value);
+        // Add event listeners
+        function addBoatrEditListeners(form, registrationId) {
+            const inputs = form.querySelectorAll('input, select');
+            const submitBtn = document.querySelector('.edit_boatr_submit_btn_' + registrationId);
+
+            inputs.forEach(input => {
+                input.addEventListener('change', () => checkForBoatrEditChanges(form, submitBtn, registrationId));
+                input.addEventListener('input', () => checkForBoatrEditChanges(form, submitBtn, registrationId));
+            });
         }
-    }
-    
-    fetch(`/admin/boatr/requests/${registrationId}`, {
-        method: 'PUT',
-        headers: {
-            'X-CSRF-TOKEN': getCSRFToken(),
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editBoatrModal_' + registrationId));
-            if (modal) modal.hide();
-            
-            showToast('success', data.message || 'BoatR application updated successfully');
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            throw new Error(data.message || 'Failed to update');
+
+        // Check for changes
+        function checkForBoatrEditChanges(form, submitBtn, registrationId) {
+            const originalData = JSON.parse(form.dataset.originalData || '{}');
+            let hasChanges = false;
+
+            const fieldMap = {
+                'edit_boatr_first_name': 'first_name',
+                'edit_boatr_middle_name': 'middle_name',
+                'edit_boatr_last_name': 'last_name',
+                'edit_boatr_extension': 'name_extension',
+                'edit_boatr_contact': 'contact_number',
+                'edit_boatr_email': 'email',
+                'edit_boatr_barangay': 'barangay',
+                'edit_boatr_vessel': 'vessel_name',
+                'edit_boatr_boat_type': 'boat_type',
+                'edit_boatr_length': 'boat_length',
+                'edit_boatr_width': 'boat_width',
+                'edit_boatr_depth': 'boat_depth',
+                'edit_boatr_engine_type': 'engine_type',
+                'edit_boatr_engine_hp': 'engine_horsepower',
+                'edit_boatr_gear': 'primary_fishing_gear'
+            };
+
+            for (const [selector, key] of Object.entries(fieldMap)) {
+                const input = form.querySelector('.' + selector);
+                if (input && input.value !== originalData[key]) {
+                    hasChanges = true;
+                    input.classList.add('form-changed');
+                } else if (input) {
+                    input.classList.remove('form-changed');
+                }
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = false;
+            }
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('error', 'Error: ' + error.message);
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    });
-}
+
+        // Handle submit
+        function handleEditBoatrSubmit(registrationId) {
+            const form = document.getElementById('editBoatrForm_' + registrationId);
+
+            if (!form) {
+                showToast('error', 'Form not found');
+                return;
+            }
+
+            if (!form.checkValidity()) {
+                showToast('error', 'Please fix all validation errors');
+                form.classList.add('was-validated');
+                return;
+            }
+
+            showConfirmationToast(
+                'Confirm Update',
+                'Are you sure you want to save the changes to this BoatR application?',
+                () => proceedWithEditBoatr(form, registrationId)
+            );
+        }
+
+        // Proceed with update
+        function proceedWithEditBoatr(form, registrationId) {
+            const submitBtn = document.querySelector('.edit_boatr_submit_btn_' + registrationId);
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            const fieldMap = {
+                'edit_boatr_first_name': 'first_name',
+                'edit_boatr_middle_name': 'middle_name',
+                'edit_boatr_last_name': 'last_name',
+                'edit_boatr_extension': 'name_extension',
+                'edit_boatr_contact': 'contact_number',
+                'edit_boatr_email': 'email',
+                'edit_boatr_barangay': 'barangay',
+                'edit_boatr_vessel': 'vessel_name',
+                'edit_boatr_boat_type': 'boat_type',
+                'edit_boatr_length': 'boat_length',
+                'edit_boatr_width': 'boat_width',
+                'edit_boatr_depth': 'boat_depth',
+                'edit_boatr_engine_type': 'engine_type',
+                'edit_boatr_engine_hp': 'engine_horsepower',
+                'edit_boatr_gear': 'primary_fishing_gear'
+            };
+
+            for (const [selector, key] of Object.entries(fieldMap)) {
+                const input = form.querySelector('.' + selector);
+                if (input) {
+                    formData.append(key, input.value);
+                }
+            }
+
+            fetch(`/admin/boatr/requests/${registrationId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editBoatrModal_' +
+                            registrationId));
+                        if (modal) modal.hide();
+
+                        showToast('success', data.message || 'BoatR application updated successfully');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        throw new Error(data.message || 'Failed to update');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error: ' + error.message);
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+        }
 
         console.log('✅ Admin FishR validation initialized');
     </script>
