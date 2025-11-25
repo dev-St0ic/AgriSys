@@ -28,15 +28,17 @@
 
 .seedlings-form-header h2 {
     color: #2d6a4f;
-    font-size: 2.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .seedlings-form-header p {
     color: #555;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     margin-bottom: 0;
+    text-align: center;
 }
 
 /* --- Category Tabs --- */
@@ -1024,4 +1026,81 @@ section.application-section small {
 
 .seedlings-category-tabs::-webkit-scrollbar-thumb:hover {
     background: #2d6a4f;
+}
+
+/* ============================================
+   SEEDLINGS ALERT & NOTIFICATION STYLES (UNIFIED)
+   ============================================ */
+
+.seedlings-alert {
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    font-weight: 500;
+    border-left: 4px solid;
+}
+
+.seedlings-alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left-color: #bee5eb;
+}
+
+.seedlings-alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left-color: #c3e6cb;
+}
+
+.seedlings-alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left-color: #f5c6cb;
+}
+
+.seedlings-alert i {
+    margin-right: 8px;
+}
+
+.seedlings-alert ul {
+    margin: 10px 0 5px 20px;
+    padding: 0;
+}
+
+.seedlings-alert li {
+    margin: 4px 0;
+}
+
+/* Fixed Position Alerts */
+.seedlings-alert.seedlings-fixed-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.seedlings-alert-success.seedlings-fixed-alert::before {
+    content: "✅ ";
+}
+
+.seedlings-alert-danger.seedlings-fixed-alert::before {
+    content: "❌ ";
+}
+
+.seedlings-error-text {
+    color: #721c24;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+}
+
+.seedlings-btn-text,
+.seedlings-btn-loading {
+    transition: opacity 0.2s ease;
+}
+
+.seedlings-btn-loading {
+    display: none;
 }

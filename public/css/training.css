@@ -15,12 +15,14 @@
     color: #2d6a4f;
     margin-bottom: 8px;
     font-size: 28px;
+    text-align: center;
 }
 
 .training-form-header p {
     margin-bottom: 25px;
     color: #444;
     font-size: 15px;
+    text-align: center;
 }
 
 .training-form-tabs {
