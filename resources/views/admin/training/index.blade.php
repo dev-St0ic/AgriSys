@@ -180,7 +180,7 @@
                     </thead>
                     <tbody>
                         @forelse($trainings as $training)
-                             <tr data-application-id="{{ $training->id }}">
+                            <tr data-application-id="{{ $training->id }}">
                                 <td class="text-start">{{ $training->created_at->format('M d, Y g:i A') }}</td>
                                 <td class="text-start">
                                     <strong class="text-primary">{{ $training->application_number }}</strong>
@@ -212,17 +212,11 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group" role="group">
+                                        <!-- Primary Actions -->
                                         <button class="btn btn-sm btn-outline-primary"
                                             onclick="viewApplication({{ $training->id }})" title="View Details">
                                             <i class="fas fa-eye"></i> View
                                         </button>
-
-                                         <button class="btn btn-sm btn-outline-warning"
-                                            onclick="showEditTrainingModal({{ $training->id }})"
-                                            title="Edit Personal Information">
-                                            <i class="fas fa-pencil-alt"></i> Edit
-                                        </button>
-
 
                                         <button class="btn btn-sm btn-outline-success"
                                             onclick="showUpdateModal({{ $training->id }}, '{{ $training->status }}')"
@@ -230,11 +224,31 @@
                                             <i class="fas fa-edit"></i> Update
                                         </button>
 
-                                         <button class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteApplication({{ $training->id }}, '{{ $training->application_number }}')" 
-                                            title="Delete Application">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
+                                        <!-- Dropdown for More Actions -->
+                                        <div class="btn-group" role="group">
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="javascript:void(0)"
+                                                        onclick="showEditTrainingModal({{ $training->id }})">
+                                                        <i class="fas fa-pencil-alt text-warning me-2"></i>Edit Information
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="javascript:void(0)"
+                                                        onclick="deleteApplication({{ $training->id }}, '{{ $training->application_number }}')">
+                                                        <i class="fas fa-trash me-2"></i>Delete Application
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -418,7 +432,7 @@
             </div>
         </div>
     </div>
-        <!-- Date Filter Modal -->
+    <!-- Date Filter Modal -->
     <div class="modal fade" id="dateFilterModal" tabindex="-1" aria-labelledby="dateFilterModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -517,8 +531,8 @@
             </div>
         </div>
     </div>
-    
-   <!-- Add training Modal  -->
+
+    <!-- Add training Modal  -->
     <div class="modal fade" id="addTrainingModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -538,16 +552,21 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="training_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="training_first_name" required maxlength="100">
+                                        <label for="training_first_name" class="form-label">First Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="training_first_name" required
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="training_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="training_middle_name" maxlength="100">
+                                        <input type="text" class="form-control" id="training_middle_name"
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="training_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="training_last_name" required maxlength="100">
+                                        <label for="training_last_name" class="form-label">Last Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="training_last_name" required
+                                            maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="training_name_extension" class="form-label">Extension</label>
@@ -564,8 +583,10 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="training_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="training_contact_number" required placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <label for="training_contact_number" class="form-label">Contact Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="training_contact_number" required
+                                            placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
                                     </div>
                                     <div class="col-md-4 mb-3">
@@ -574,8 +595,10 @@
                                         <div class="form-text">For status notifications</div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="training_user_id" class="form-label">Link to User Account (Optional)</label>
-                                        <input type="number" class="form-control" id="training_user_id" placeholder="Enter User ID if exists">
+                                        <label for="training_user_id" class="form-label">Link to User Account
+                                            (Optional)</label>
+                                        <input type="number" class="form-control" id="training_user_id"
+                                            placeholder="Enter User ID if exists">
                                         <div class="form-text">Leave blank if not associated with any user account</div>
                                     </div>
                                 </div>
@@ -590,7 +613,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="training_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <label for="training_barangay" class="form-label">Barangay <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="training_barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -634,7 +658,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="training_type" class="form-label">Training Type <span class="text-danger">*</span></label>
+                                        <label for="training_type" class="form-label">Training Type <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="training_type" required>
                                             <option value="">Select Training Type</option>
                                             <option value="tilapia_hito">Tilapia and Hito</option>
@@ -653,13 +678,16 @@
                         <!-- Supporting Documents -->
                         <div class="card mb-3">
                             <div class="card-header bg-light">
-                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Documents (Optional)</h6>
+                                <h6 class="mb-0"><i class="fas fa-file-upload me-2"></i>Supporting Documents (Optional)
+                                </h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="training_supporting_documents" class="form-label">Upload Documents</label>
-                                        <input type="file" class="form-control" id="training_supporting_document" accept="image/*,.pdf" onchange="previewTrainingDocument()">
+                                        <label for="training_supporting_documents" class="form-label">Upload
+                                            Documents</label>
+                                        <input type="file" class="form-control" id="training_supporting_document"
+                                            accept="image/*,.pdf" onchange="previewTrainingDocument()">
                                         <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
                                     </div>
                                     <div class="col-md-12">
@@ -677,7 +705,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="training_status" class="form-label">Initial Status <span class="text-danger">*</span></label>
+                                        <label for="training_status" class="form-label">Initial Status <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="training_status" required>
                                             <option value="under_review" selected>Under Review</option>
                                             <option value="approved">Approved</option>
@@ -686,7 +715,8 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="training_remarks" class="form-label">Remarks (Optional)</label>
-                                        <textarea class="form-control" id="training_remarks" rows="3" maxlength="1000" placeholder="Any notes or comments..."></textarea>
+                                        <textarea class="form-control" id="training_remarks" rows="3" maxlength="1000"
+                                            placeholder="Any notes or comments..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -705,159 +735,168 @@
 
     <!-- Edit Training Modal -->
     <div class="modal fade" id="editTrainingModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-pencil-alt me-2"></i>
-                    <span id="editModalTitle">Edit Application</span>
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" id="editTrainingForm" class="needs-validation">
-                    @csrf
-                    @method('PUT')
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-pencil-alt me-2"></i>
+                        <span id="editModalTitle">Edit Application</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" id="editTrainingForm" class="needs-validation">
+                        @csrf
+                        @method('PUT')
 
-                    <!-- Personal Information Card -->
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3 mb-3">
-                                    <label for="edit_training_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="edit_training_first_name" 
-                                        name="first_name" required maxlength="100">
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label for="edit_training_middle_name" class="form-label">Middle Name</label>
-                                    <input type="text" class="form-control" id="edit_training_middle_name" 
-                                        name="middle_name" maxlength="100">
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label for="edit_training_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="edit_training_last_name" 
-                                        name="last_name" required maxlength="100">
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <label for="edit_training_extension" class="form-label">Extension</label>
-                                    <select class="form-select" id="edit_training_extension" name="name_extension">
-                                        <option value="">None</option>
-                                        <option value="Jr.">Jr.</option>
-                                        <option value="Sr.">Sr.</option>
-                                        <option value="II">II</option>
-                                        <option value="III">III</option>
-                                        <option value="IV">IV</option>
-                                        <option value="V">V</option>
-                                    </select>
-                                </div>
+                        <!-- Personal Information Card -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h6>
                             </div>
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label for="edit_training_contact" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                    <input type="tel" class="form-control" id="edit_training_contact" 
-                                        name="contact_number" required 
-                                        placeholder="09XXXXXXXXX" pattern="^(\+639|09)\d{9}$" maxlength="20">
-                                    <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_training_first_name" class="form-label">First Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_training_first_name"
+                                            name="first_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_training_middle_name" class="form-label">Middle Name</label>
+                                        <input type="text" class="form-control" id="edit_training_middle_name"
+                                            name="middle_name" maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_training_last_name" class="form-label">Last Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_training_last_name"
+                                            name="last_name" required maxlength="100">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_training_extension" class="form-label">Extension</label>
+                                        <select class="form-select" id="edit_training_extension" name="name_extension">
+                                            <option value="">None</option>
+                                            <option value="Jr.">Jr.</option>
+                                            <option value="Sr.">Sr.</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="V">V</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="edit_training_email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="edit_training_email" 
-                                        name="email" maxlength="254">
-                                    <div class="form-text">For status notifications</div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Application Number</label>
-                                    <input type="text" class="form-control" id="edit_training_app_number" disabled>
-                                    <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Location Information Card -->
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label for="edit_training_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="edit_training_barangay" name="barangay" required>
-                                        <option value="">Select Barangay</option>
-                                        @foreach ($barangays as $barangay)
-                                            <option value="{{ $barangay }}">{{ $barangay }}</option>
-                                        @endforeach
-                                    </select>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_training_contact" class="form-label">Contact Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="edit_training_contact"
+                                            name="contact_number" required placeholder="09XXXXXXXXX"
+                                            pattern="^(\+639|09)\d{9}$" maxlength="20">
+                                        <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="edit_training_email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="edit_training_email"
+                                            name="email" maxlength="254">
+                                        <div class="form-text">For status notifications</div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Application Number</label>
+                                        <input type="text" class="form-control" id="edit_training_app_number"
+                                            disabled>
+                                        <small class="form-text text-muted">Auto-generated (cannot be changed)</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Training Information Card (NOW EDITABLE) -->
-                    <div class="card mb-3">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fas fa-book me-2"></i>Training Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label for="edit_training_type" class="form-label">Training Type <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="edit_training_type" name="training_type" required>
-                                        <option value="">Select Training Type</option>
-                                        <option value="tilapia_hito">Tilapia and Hito</option>
-                                        <option value="hydroponics">Hydroponics</option>
-                                        <option value="aquaponics">Aquaponics</option>
-                                        <option value="mushrooms">Mushrooms Production</option>
-                                        <option value="livestock_poultry">Livestock and Poultry</option>
-                                        <option value="high_value_crops">High Value Crops</option>
-                                        <option value="sampaguita_propagation">Sampaguita Propagation</option>
-                                    </select>
+                        <!-- Location Information Card -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="edit_training_barangay" class="form-label">Barangay <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-select" id="edit_training_barangay" name="barangay" required>
+                                            <option value="">Select Barangay</option>
+                                            @foreach ($barangays as $barangay)
+                                                <option value="{{ $barangay }}">{{ $barangay }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Status Information (Read-only) -->
-                    <div class="card mb-3 bg-light">
-                        <div class="card-header bg-light border-0">
-                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status Information (Read-only)</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-2">
-                                    <small class="text-muted">Current Status:</small>
-                                    <div id="edit_training_status_display"></div>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <small class="text-muted">Date Applied:</small>
-                                    <div id="edit_training_date_display"></div>
+                        <!-- Training Information Card (NOW EDITABLE) -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-book me-2"></i>Training Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="edit_training_type" class="form-label">Training Type <span
+                                                class="text-danger">*</span></label>
+                                        <select class="form-select" id="edit_training_type" name="training_type"
+                                            required>
+                                            <option value="">Select Training Type</option>
+                                            <option value="tilapia_hito">Tilapia and Hito</option>
+                                            <option value="hydroponics">Hydroponics</option>
+                                            <option value="aquaponics">Aquaponics</option>
+                                            <option value="mushrooms">Mushrooms Production</option>
+                                            <option value="livestock_poultry">Livestock and Poultry</option>
+                                            <option value="high_value_crops">High Value Crops</option>
+                                            <option value="sampaguita_propagation">Sampaguita Propagation</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Info Alert -->
-                    <div class="alert alert-info mb-0">
-                        <i class="fas fa-lightbulb me-2"></i>
-                        <strong>Note:</strong> Changes to personal information, location, and training type will be saved. 
-                        To update application status, use the "Update" button from the main table.
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="editTrainingSubmitBtn"
-                    onclick="handleEditTrainingSubmit()">
-                    <i class="fas fa-save me-2"></i>Save Changes
-                </button>
+                        <!-- Status Information (Read-only) -->
+                        <div class="card mb-3 bg-light">
+                            <div class="card-header bg-light border-0">
+                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status Information (Read-only)
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <small class="text-muted">Current Status:</small>
+                                        <div id="edit_training_status_display"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <small class="text-muted">Date Applied:</small>
+                                        <div id="edit_training_date_display"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Alert -->
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Note:</strong> Changes to personal information, location, and training type will be
+                            saved.
+                            To update application status, use the "Update" button from the main table.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="editTrainingSubmitBtn"
+                        onclick="handleEditTrainingSubmit()">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <style>
         /* Modern Statistics Cards */
@@ -1188,7 +1227,7 @@
             height: 32px;
             border-radius: 6px;
             background: white;
-            border: 2px solid  #17a2b8;
+            border: 2px solid #17a2b8;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1314,6 +1353,7 @@
                 font-size: 0.65rem;
             }
         }
+
         /* Toast Notification Container */
         .toast-container {
             position: fixed;
@@ -1600,69 +1640,70 @@
         function proceedWithStatusUpdate(id, newStatus, remarks) {
             const updateButton = document.querySelector('#updateModal .btn-primary');
             const originalText = updateButton.innerHTML;
-            updateButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
+            updateButton.innerHTML =
+                `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...`;
             updateButton.disabled = true;
 
             fetch(`/admin/training/requests/${id}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    status: newStatus,
-                    remarks: remarks
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus,
+                        remarks: remarks
+                    })
                 })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(response => {
-                if (response.success) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
-                    modal.hide();
-                    showToast('success', response.message);
-                    setTimeout(() => window.location.reload(), 1500);
-                } else {
-                    throw new Error(response.message || 'Error updating status');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'Error updating application status: ' + error.message);
-            })
-            .finally(() => {
-                updateButton.innerHTML = originalText;
-                updateButton.disabled = false;
-            });
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(response => {
+                    if (response.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
+                        modal.hide();
+                        showToast('success', response.message);
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        throw new Error(response.message || 'Error updating status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error updating application status: ' + error.message);
+                })
+                .finally(() => {
+                    updateButton.innerHTML = originalText;
+                    updateButton.disabled = false;
+                });
         }
 
         // View application details
         function viewApplication(id) {
-    document.getElementById('applicationDetails').innerHTML = `
+            document.getElementById('applicationDetails').innerHTML = `
         <div class="text-center">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
         </div>`;
 
-    const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
-    modal.show();
+            const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
+            modal.show();
 
-    fetch(`/admin/training/requests/${id}`)
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return response.json();
-        })
-        .then(response => {
-            if (!response.success) throw new Error('Failed to load application details');
+            fetch(`/admin/training/requests/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(response => {
+                    if (!response.success) throw new Error('Failed to load application details');
 
-            const data = response.data;
+                    const data = response.data;
 
-            // Build remarks HTML if exists
-            const remarksHtml = data.remarks ? `
+                    // Build remarks HTML if exists
+                    const remarksHtml = data.remarks ? `
                 <div class="col-12 mt-3">
                     <h6 class="border-bottom pb-2">Remarks</h6>
                     <div class="alert alert-info">
@@ -1674,10 +1715,10 @@
                     </div>
                 </div>` : '';
 
-            // Supporting documents 
-            let documentHtml = '';
-            if (data.document_path) {
-                documentHtml = `
+                    // Supporting documents
+                    let documentHtml = '';
+                    if (data.document_path) {
+                        documentHtml = `
                     <div class="col-12">
                         <div class="card border-secondary">
                             <div class="card-header bg-light">
@@ -1689,7 +1730,7 @@
                                     <h6>Supporting Document</h6>
                                     <span class="badge bg-info mb-2">Uploaded</span>
                                     <br>
-                                    <button class="btn btn-sm btn-outline-info mt-2" 
+                                    <button class="btn btn-sm btn-outline-info mt-2"
                                         onclick="viewDocument('${data.document_path}', 'Training Request - ${data.full_name}')">
                                         <i class="fas fa-eye"></i> View Document
                                     </button>
@@ -1697,8 +1738,8 @@
                             </div>
                         </div>
                     </div>`;
-            } else {
-                documentHtml = `
+                    } else {
+                        documentHtml = `
                     <div class="col-12">
                         <div class="card border-secondary">
                             <div class="card-header bg-light">
@@ -1713,9 +1754,9 @@
                             </div>
                         </div>
                     </div>`;
-            }
+                    }
 
-            document.getElementById('applicationDetails').innerHTML = `
+                    document.getElementById('applicationDetails').innerHTML = `
                 <div class="row g-3">
                     <div class="col-md-6">
                         <h6 class="border-bottom pb-2">Personal Information</h6>
@@ -1740,18 +1781,18 @@
                     ${documentHtml}
                     ${remarksHtml}
                 </div>`;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('error', error.message || 'Error loading application details. Please try again.');
-            document.getElementById('applicationDetails').innerHTML = `
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', error.message || 'Error loading application details. Please try again.');
+                    document.getElementById('applicationDetails').innerHTML = `
                 <div class="alert alert-danger">
                     <i class="fas fa-exclamation-circle me-2"></i>
                     ${error.message || 'Error loading application details. Please try again.'}
                 </div>`;
-        });
-}
-        // UNIFIED document viewing function 
+                });
+        }
+        // UNIFIED document viewing function
         function viewDocument(path, filename = null, applicationId = null) {
             // Input validation
             if (!path || path.trim() === '') {
@@ -1910,8 +1951,8 @@
 
                     } else if (documentTypes.includes(fileExtension)) {
                         // Handle other document types
-                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : 
-                                    ['doc', 'docx'].includes(fileExtension) ? 'file-word' : 'file-alt';
+                        const docIcon = fileExtension === 'pdf' ? 'file-pdf' : ['doc', 'docx'].includes(
+                            fileExtension) ? 'file-word' : 'file-alt';
 
                         documentViewer.innerHTML = `
                             <div class="alert alert-info text-center">
@@ -2141,7 +2182,7 @@
                 statusElement.innerHTML = statusText;
             }
         }
-        // Create toast container 
+        // Create toast container
         function createToastContainer() {
             let container = document.getElementById('toastContainer');
             if (!container) {
@@ -2158,10 +2199,22 @@
             const toastContainer = document.getElementById('toastContainer') || createToastContainer();
 
             const iconMap = {
-                'success': { icon: 'fas fa-check-circle', color: 'success' },
-                'error': { icon: 'fas fa-exclamation-circle', color: 'danger' },
-                'warning': { icon: 'fas fa-exclamation-triangle', color: 'warning' },
-                'info': { icon: 'fas fa-info-circle', color: 'info' }
+                'success': {
+                    icon: 'fas fa-check-circle',
+                    color: 'success'
+                },
+                'error': {
+                    icon: 'fas fa-exclamation-circle',
+                    color: 'danger'
+                },
+                'warning': {
+                    icon: 'fas fa-exclamation-triangle',
+                    color: 'warning'
+                },
+                'info': {
+                    icon: 'fas fa-info-circle',
+                    color: 'info'
+                }
             };
 
             const config = iconMap[type] || iconMap['info'];
@@ -2277,7 +2330,7 @@
                 .then(data => {
                     if (data.success) {
                         showToast('success', data.message || 'Application deleted successfully');
-                        
+
                         // Remove row from table with animation
                         const row = document.querySelector(`tr[data-application-id="${id}"]`);
                         if (row) {
@@ -2285,7 +2338,7 @@
                             row.style.opacity = '0';
                             setTimeout(() => {
                                 row.remove();
-                                
+
                                 // Check if table is empty
                                 const tbody = document.querySelector('#applicationsTable tbody');
                                 if (tbody.children.length === 0) {
@@ -2316,20 +2369,20 @@
         // Show add training modal
         function showAddTrainingModal() {
             const modal = new bootstrap.Modal(document.getElementById('addTrainingModal'));
-            
+
             // Reset form
             document.getElementById('addTrainingForm').reset();
-            
+
             // Remove any validation errors
             document.querySelectorAll('#addTrainingModal .is-invalid').forEach(el => el.classList.remove('is-invalid'));
             document.querySelectorAll('#addTrainingModal .invalid-feedback').forEach(el => el.remove());
-            
+
             // Clear document preview
             const preview = document.getElementById('training_doc_preview');
             if (preview) {
                 preview.innerHTML = '';
             }
-            
+
             modal.show();
         }
 
@@ -2341,16 +2394,16 @@
         function validateTrainingContactNumber(contactNumber) {
             const input = document.getElementById('training_contact_number');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
-            
+
             if (feedback) feedback.remove();
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             if (!contactNumber || contactNumber.trim() === '') {
                 return;
             }
-            
+
             const phoneRegex = /^(\+639|09)\d{9}$/;
-            
+
             if (!phoneRegex.test(contactNumber.trim())) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
@@ -2359,7 +2412,7 @@
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -2372,16 +2425,16 @@
         function validateTrainingEmail(email) {
             const input = document.getElementById('training_email');
             const feedback = input.parentNode.querySelector('.invalid-feedback');
-            
+
             if (feedback) feedback.remove();
             input.classList.remove('is-invalid', 'is-valid');
-            
+
             if (!email || email.trim() === '') {
                 return true; // Email is optional
             }
-            
+
             const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            
+
             if (!emailPattern.test(email.trim())) {
                 input.classList.add('is-invalid');
                 const errorDiv = document.createElement('div');
@@ -2390,7 +2443,7 @@
                 input.parentNode.appendChild(errorDiv);
                 return false;
             }
-            
+
             input.classList.add('is-valid');
             return true;
         }
@@ -2421,43 +2474,43 @@
 
         // Document preview for file
         function previewTrainingDocument() {
-        const input = document.getElementById('training_supporting_document');
-        const preview = document.getElementById('training_doc_preview');
-        
-        if (!input.files || input.files.length === 0) {
-            if (preview) preview.innerHTML = '';
-            return;
-        }
-        
-        const file = input.files[0];
-        
-        // Validate file size (10MB max)
-        if (file.size > 10 * 1024 * 1024) {
-            showToast('error', 'File exceeds 10MB limit');
-            input.value = '';
-            if (preview) preview.innerHTML = '';
-            return;
-        }
-        
-        const fileExtension = file.name.split('.').pop().toLowerCase();
-        const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
-        
-        if (isImage) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.innerHTML = `
+            const input = document.getElementById('training_supporting_document');
+            const preview = document.getElementById('training_doc_preview');
+
+            if (!input.files || input.files.length === 0) {
+                if (preview) preview.innerHTML = '';
+                return;
+            }
+
+            const file = input.files[0];
+
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('error', 'File exceeds 10MB limit');
+                input.value = '';
+                if (preview) preview.innerHTML = '';
+                return;
+            }
+
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+
+            if (isImage) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
                     <div style="width: 120px;">
-                        <img src="${e.target.result}" alt="Preview" 
+                        <img src="${e.target.result}" alt="Preview"
                             style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <p style="margin-top: 8px; font-size: 11px; color: #666; word-break: break-all;">
                             <i class="fas fa-file-image me-1"></i>${file.name}
                         </p>
                     </div>
                 `;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            preview.innerHTML = `
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = `
                 <div style="width: 120px;">
                     <div class="text-center p-3 border rounded" style="height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
                         <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
@@ -2467,29 +2520,46 @@
                     </p>
                 </div>
             `;
+            }
         }
-    }
 
         // Validate training form
         function validateTrainingForm() {
             let isValid = true;
-            
+
             // Required fields
-            const requiredFields = [
-                { id: 'training_first_name', label: 'First Name' },
-                { id: 'training_last_name', label: 'Last Name' },
-                { id: 'training_barangay', label: 'Barangay' },  
-                { id: 'training_contact_number', label: 'Contact Number' },
-                { id: 'training_type', label: 'Training Type' },
-                { id: 'training_status', label: 'Status' }
+            const requiredFields = [{
+                    id: 'training_first_name',
+                    label: 'First Name'
+                },
+                {
+                    id: 'training_last_name',
+                    label: 'Last Name'
+                },
+                {
+                    id: 'training_barangay',
+                    label: 'Barangay'
+                },
+                {
+                    id: 'training_contact_number',
+                    label: 'Contact Number'
+                },
+                {
+                    id: 'training_type',
+                    label: 'Training Type'
+                },
+                {
+                    id: 'training_status',
+                    label: 'Status'
+                }
             ];
-            
+
             requiredFields.forEach(field => {
                 const input = document.getElementById(field.id);
                 if (input && (!input.value || input.value.trim() === '')) {
                     const feedback = input.parentNode.querySelector('.invalid-feedback');
                     if (feedback) feedback.remove();
-                    
+
                     input.classList.add('is-invalid');
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'invalid-feedback d-block';
@@ -2498,19 +2568,19 @@
                     isValid = false;
                 }
             });
-            
+
             // Validate contact number
             const contactNumber = document.getElementById('training_contact_number').value.trim();
             if (!validateTrainingContactNumber(contactNumber)) {
                 isValid = false;
             }
-            
+
             // Validate email if provided
             const email = document.getElementById('training_email').value.trim();
             if (email && !validateTrainingEmail(email)) {
                 isValid = false;
             }
-            
+
             return isValid;
         }
 
@@ -2521,519 +2591,538 @@
                 showToast('error', 'Please fix all validation errors before submitting');
                 return;
             }
-            
+
             // Prepare form data
             const formData = new FormData();
-            
+
             formData.append('first_name', document.getElementById('training_first_name').value.trim());
             formData.append('middle_name', document.getElementById('training_middle_name').value.trim());
             formData.append('last_name', document.getElementById('training_last_name').value.trim());
-            formData.append('name_extension', document.getElementById('training_name_extension').value);  
-            formData.append('barangay', document.getElementById('training_barangay').value.trim()); 
+            formData.append('name_extension', document.getElementById('training_name_extension').value);
+            formData.append('barangay', document.getElementById('training_barangay').value.trim());
             formData.append('contact_number', document.getElementById('training_contact_number').value.trim());
             formData.append('email', document.getElementById('training_email').value.trim());
             formData.append('training_type', document.getElementById('training_type').value);
             formData.append('status', document.getElementById('training_status').value);
             formData.append('remarks', document.getElementById('training_remarks').value.trim());
-            
+
             const userId = document.getElementById('training_user_id').value.trim();
             if (userId) {
                 formData.append('user_id', userId);
             }
-            
+
             // Add document if uploaded
             const docInput = document.getElementById('training_supporting_document');
             if (docInput.files && docInput.files.length > 0) {
                 formData.append('supporting_document', docInput.files[0]);
             }
-            
+
             // Find submit button
             const submitBtn = document.querySelector('#addTrainingModal .btn-primary');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Creating...';
             submitBtn.disabled = true;
-            
+
             // Submit to backend
             fetch('/admin/training/requests/create', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json'
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addTrainingModal'));
-                    modal.hide();
-                    
-                    // Show success message
-                    showToast('success', data.message || 'Training registration created successfully');
-                    
-                    // Reload page after short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
-                } else {
-                    // Show validation errors
-                    if (data.errors) {
-                        Object.keys(data.errors).forEach(field => {
-                            const input = document.getElementById('training_' + field);
-                            if (input) {
-                                const feedback = input.parentNode.querySelector('.invalid-feedback');
-                                if (feedback) feedback.remove();
-                                
-                                input.classList.add('is-invalid');
-                                const errorDiv = document.createElement('div');
-                                errorDiv.className = 'invalid-feedback d-block';
-                                errorDiv.textContent = data.errors[field][0];
-                                input.parentNode.appendChild(errorDiv);
-                            }
-                        });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addTrainingModal'));
+                        modal.hide();
+
+                        // Show success message
+                        showToast('success', data.message || 'Training registration created successfully');
+
+                        // Reload page after short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        // Show validation errors
+                        if (data.errors) {
+                            Object.keys(data.errors).forEach(field => {
+                                const input = document.getElementById('training_' + field);
+                                if (input) {
+                                    const feedback = input.parentNode.querySelector('.invalid-feedback');
+                                    if (feedback) feedback.remove();
+
+                                    input.classList.add('is-invalid');
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'invalid-feedback d-block';
+                                    errorDiv.textContent = data.errors[field][0];
+                                    input.parentNode.appendChild(errorDiv);
+                                }
+                            });
+                        }
+                        showToast('error', data.message || 'Failed to create training application');
                     }
-                    showToast('error', data.message || 'Failed to create training application');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'An error occurred while creating the application');
-            })
-            .finally(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'An error occurred while creating the application');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
         }
 
         // Helper function to format file sizes
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
-            
+
             const k = 1024;
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
-            
+
             return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-        // Get all modals on the page
-        const modals = document.querySelectorAll('.modal');
-        
-        modals.forEach(modal => {
-            // Handle modal hidden event
-            modal.addEventListener('hidden.bs.modal', function() {
-                // Remove any remaining backdrops
-                const backdrops = document.querySelectorAll('.modal-backdrop');
-                backdrops.forEach(backdrop => backdrop.remove());
-                
-                // Remove modal-open class from body if no modals are open
-                const openModals = document.querySelectorAll('.modal.show');
-                if (openModals.length === 0) {
-                    document.body.classList.remove('modal-open');
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-                }
-                
-                // Remove any greyscale filters
-                document.body.style.filter = '';
-                document.body.style.opacity = '';
-                
-                // Re-enable scrolling
-                document.documentElement.style.overflow = '';
-            });
-            
-            // Handle modal shown event
-            modal.addEventListener('show.bs.modal', function() {
-                // Ensure greyscale is removed when opening
-                document.body.style.filter = '';
-                document.body.style.opacity = '';
-            });
-            
-            // Clean up on close button click
-            const closeButtons = modal.querySelectorAll('[data-bs-dismiss="modal"]');
-            closeButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // Force cleanup after a short delay
-                    setTimeout(() => {
-                        const backdrops = document.querySelectorAll('.modal-backdrop');
-                        backdrops.forEach(backdrop => backdrop.remove());
-                        
-                        document.body.style.filter = '';
-                        document.body.style.opacity = '';
-                    }, 100);
+            // Get all modals on the page
+            const modals = document.querySelectorAll('.modal');
+
+            modals.forEach(modal => {
+                // Handle modal hidden event
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Remove any remaining backdrops
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => backdrop.remove());
+
+                    // Remove modal-open class from body if no modals are open
+                    const openModals = document.querySelectorAll('.modal.show');
+                    if (openModals.length === 0) {
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+                    }
+
+                    // Remove any greyscale filters
+                    document.body.style.filter = '';
+                    document.body.style.opacity = '';
+
+                    // Re-enable scrolling
+                    document.documentElement.style.overflow = '';
+                });
+
+                // Handle modal shown event
+                modal.addEventListener('show.bs.modal', function() {
+                    // Ensure greyscale is removed when opening
+                    document.body.style.filter = '';
+                    document.body.style.opacity = '';
+                });
+
+                // Clean up on close button click
+                const closeButtons = modal.querySelectorAll('[data-bs-dismiss="modal"]');
+                closeButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        // Force cleanup after a short delay
+                        setTimeout(() => {
+                            const backdrops = document.querySelectorAll(
+                                '.modal-backdrop');
+                            backdrops.forEach(backdrop => backdrop.remove());
+
+                            document.body.style.filter = '';
+                            document.body.style.opacity = '';
+                        }, 100);
+                    });
                 });
             });
         });
-    });
 
-    // Additional cleanup function to call if needed
-    function cleanupModals() {
-        // Remove all modal backdrops
-        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-        
-        // Reset body styles
-        document.body.classList.remove('modal-open');
-        document.body.style.filter = '';
-        document.body.style.opacity = '';
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        
-        // Reset html styles
-        document.documentElement.style.overflow = '';
-    }
+        // Additional cleanup function to call if needed
+        function cleanupModals() {
+            // Remove all modal backdrops
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 
-    // Call cleanup when page becomes visible (in case of browser tab switching)
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible') {
-            // Check if any modals are actually open
-            const openModals = document.querySelectorAll('.modal.show');
-            if (openModals.length === 0) {
-                cleanupModals();
-            }
+            // Reset body styles
+            document.body.classList.remove('modal-open');
+            document.body.style.filter = '';
+            document.body.style.opacity = '';
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+
+            // Reset html styles
+            document.documentElement.style.overflow = '';
         }
-    });
 
-// Global variable to store current editing training ID
-let currentEditingTrainingId = null;
-
-// Show edit training modal
-function showEditTrainingModal(trainingId) {
-    currentEditingTrainingId = trainingId;
-
-    // Show loading state
-    const modal = new bootstrap.Modal(document.getElementById('editTrainingModal'));
-    modal.show();
-
-    // Fetch training data
-    fetch(`/admin/training/requests/${trainingId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const training = data.data;
-                
-                // Update modal title
-                document.getElementById('editModalTitle').textContent = `Edit Application - ${training.application_number}`;
-                
-                // Populate form fields
-                document.getElementById('edit_training_first_name').value = training.first_name || '';
-                document.getElementById('edit_training_middle_name').value = training.middle_name || '';
-                document.getElementById('edit_training_last_name').value = training.last_name || '';
-                document.getElementById('edit_training_extension').value = training.name_extension || '';
-                document.getElementById('edit_training_contact').value = training.contact_number || '';
-                document.getElementById('edit_training_email').value = training.email || '';
-                document.getElementById('edit_training_barangay').value = training.barangay || '';
-                document.getElementById('edit_training_type').value = training.training_type || '';
-                document.getElementById('edit_training_app_number').value = training.application_number || '';
-                
-                // Populate read-only fields
-                document.getElementById('edit_training_status_display').innerHTML = 
-                    `<span class="badge bg-${training.status_color}">${training.formatted_status}</span>`;
-                document.getElementById('edit_training_date_display').textContent = training.created_at;
-                
-                // Store original data for change detection
-                storeOriginalEditData();
-                
-                // Clear validation errors
-                document.querySelectorAll('#editTrainingForm .is-invalid').forEach(el => el.classList.remove('is-invalid'));
-                document.querySelectorAll('#editTrainingForm .invalid-feedback').forEach(el => el.remove());
-            } else {
-                showToast('error', 'Failed to load training data');
-                modal.hide();
-            }
-        })
-        .catch(error => {
-            showToast('error', 'Error loading training data: ' + error.message);
-            modal.hide();
-        });
-}
-
-// Store original data for change detection
-function storeOriginalEditData() {
-    const form = document.getElementById('editTrainingForm');
-    const originalData = {
-        first_name: document.getElementById('edit_training_first_name').value,
-        middle_name: document.getElementById('edit_training_middle_name').value,
-        last_name: document.getElementById('edit_training_last_name').value,
-        name_extension: document.getElementById('edit_training_extension').value,
-        contact_number: document.getElementById('edit_training_contact').value,
-        email: document.getElementById('edit_training_email').value,
-        barangay: document.getElementById('edit_training_barangay').value,
-        training_type: document.getElementById('edit_training_type').value
-    };
-    form.dataset.originalData = JSON.stringify(originalData);
-    
-    // Initialize button state - should show "Save Changes" icon initially
-    const submitBtn = document.getElementById('editTrainingSubmitBtn');
-    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-    submitBtn.classList.remove('no-changes');
-}
-
-// Check for changes in edit form with visual feedback
-function checkForEditTrainingChanges() {
-    const form = document.getElementById('editTrainingForm');
-    const submitBtn = document.getElementById('editTrainingSubmitBtn');
-    
-    if (!form || !submitBtn) return false;
-    
-    const originalData = JSON.parse(form.dataset.originalData || '{}');
-    
-    let hasChanges = false;
-    
-    const fieldMap = {
-        'first_name': 'edit_training_first_name',
-        'middle_name': 'edit_training_middle_name',
-        'last_name': 'edit_training_last_name',
-        'name_extension': 'edit_training_extension',
-        'contact_number': 'edit_training_contact',
-        'email': 'edit_training_email',
-        'barangay': 'edit_training_barangay',
-        'training_type': 'edit_training_type'
-    };
-    
-    // Check each field for changes and add/remove highlighting
-    for (let fieldName in fieldMap) {
-        const elementId = fieldMap[fieldName];
-        const element = document.getElementById(elementId);
-        const currentValue = element.value;
-        const originalValue = originalData[fieldName];
-        
-        if (currentValue !== originalValue) {
-            hasChanges = true;
-            element.classList.add('form-changed');
-        } else {
-            element.classList.remove('form-changed');
-        }
-    }
-    
-    // Update button state based on changes
-    // Button should only show "No Changes" state if actually no changes detected
-    if (hasChanges) {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-    } else {
-        submitBtn.disabled = false;
-        submitBtn.classList.add('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-    }
-    
-    return hasChanges;
-}
-
-// Handle edit form submission
-function handleEditTrainingSubmit() {
-    if (!validateEditTrainingForm()) {
-        showToast('error', 'Please fix the validation errors');
-        return;
-    }
-    
-    if (!checkForEditTrainingChanges()) {
-        showToast('warning', 'No changes have been made');
-        return;
-    }
-    
-    showConfirmationToast(
-        'Confirm Changes',
-        'Are you sure you want to save these changes?',
-        proceedWithEditTraining
-    );
-}
-
-// Validate edit training form
-function validateEditTrainingForm() {
-    let isValid = true;
-    
-    const requiredFields = [
-        { id: 'edit_training_first_name', label: 'First Name' },
-        { id: 'edit_training_last_name', label: 'Last Name' },
-        { id: 'edit_training_contact', label: 'Contact Number' },
-        { id: 'edit_training_barangay', label: 'Barangay' },
-        { id: 'edit_training_type', label: 'Training Type' }
-    ];
-    
-    requiredFields.forEach(field => {
-        const input = document.getElementById(field.id);
-        if (!input.value.trim()) {
-            input.classList.add('is-invalid');
-            const existing = input.parentNode.querySelector('.invalid-feedback');
-            if (existing) existing.remove();
-            const feedback = document.createElement('div');
-            feedback.className = 'invalid-feedback d-block';
-            feedback.textContent = `${field.label} is required`;
-            input.parentNode.appendChild(feedback);
-            isValid = false;
-        } else {
-            input.classList.remove('is-invalid');
-            const existing = input.parentNode.querySelector('.invalid-feedback');
-            if (existing) existing.remove();
-        }
-    });
-    
-    const contactNumber = document.getElementById('edit_training_contact').value.trim();
-    if (contactNumber && !validateEditTrainingContactNumber(document.getElementById('edit_training_contact'))) {
-        isValid = false;
-    }
-    
-    const email = document.getElementById('edit_training_email').value.trim();
-    if (email && !validateEditTrainingEmail(document.getElementById('edit_training_email'))) {
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-// Validate edit training contact number
-function validateEditTrainingContactNumber(input) {
-    const feedback = input.parentNode.querySelector('.invalid-feedback');
-    if (feedback) feedback.remove();
-    input.classList.remove('is-invalid', 'is-valid');
-    
-    const contactNumber = input.value.trim();
-    if (!contactNumber) {
-        return true;
-    }
-    
-    const phoneRegex = /^(\+639|09)\d{9}$/;
-    
-    if (!phoneRegex.test(contactNumber)) {
-        input.classList.add('is-invalid');
-        const newFeedback = document.createElement('div');
-        newFeedback.className = 'invalid-feedback d-block';
-        newFeedback.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-        input.parentNode.appendChild(newFeedback);
-        return false;
-    }
-    
-    input.classList.add('is-valid');
-    return true;
-}
-
-// Validate edit training email
-function validateEditTrainingEmail(input) {
-    const feedback = input.parentNode.querySelector('.invalid-feedback');
-    if (feedback) feedback.remove();
-    input.classList.remove('is-invalid', 'is-valid');
-    
-    const email = input.value.trim();
-    if (!email) {
-        return true;
-    }
-    
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    
-    if (!emailPattern.test(email)) {
-        input.classList.add('is-invalid');
-        const newFeedback = document.createElement('div');
-        newFeedback.className = 'invalid-feedback d-block';
-        newFeedback.textContent = 'Please enter a valid email address';
-        input.parentNode.appendChild(newFeedback);
-        return false;
-    }
-    
-    input.classList.add('is-valid');
-    return true;
-}
-
-// Proceed with edit submission
-function proceedWithEditTraining() {
-    const form = document.getElementById('editTrainingForm');
-    const submitBtn = document.getElementById('editTrainingSubmitBtn');
-    
-    if (!currentEditingTrainingId) {
-        showToast('error', 'Training ID not found');
-        return;
-    }
-    
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
-    submitBtn.disabled = true;
-    
-    const formData = new FormData();
-    formData.append('first_name', document.getElementById('edit_training_first_name').value.trim());
-    formData.append('middle_name', document.getElementById('edit_training_middle_name').value.trim());
-    formData.append('last_name', document.getElementById('edit_training_last_name').value.trim());
-    formData.append('name_extension', document.getElementById('edit_training_extension').value);
-    formData.append('contact_number', document.getElementById('edit_training_contact').value.trim());
-    formData.append('email', document.getElementById('edit_training_email').value.trim());
-    formData.append('barangay', document.getElementById('edit_training_barangay').value);
-    formData.append('training_type', document.getElementById('edit_training_type').value);
-    formData.append('_method', 'PUT');
-    
-    fetch(`/admin/training/requests/${currentEditingTrainingId}`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': getCSRFToken(),
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast('success', 'Training application updated successfully');
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editTrainingModal'));
-            if (modal) modal.hide();
-            
-            // Reload the page
-            setTimeout(() => {
-                location.reload();
-            }, 1000);
-        } else {
-            showToast('error', data.message || 'Failed to update training');
-            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-            submitBtn.disabled = false;
-        }
-    })
-    .catch(error => {
-        showToast('error', 'Error: ' + error.message);
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        submitBtn.disabled = false;
-    });
-}
-
-// Add event listeners for edit training form
-function initializeEditTrainingFormListeners() {
-    const form = document.getElementById('editTrainingForm');
-    if (!form) return;
-    
-    const fields = ['edit_training_first_name', 'edit_training_middle_name', 'edit_training_last_name', 
-                    'edit_training_extension', 'edit_training_contact', 'edit_training_email', 
-                    'edit_training_barangay', 'edit_training_type'];
-    
-    fields.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.addEventListener('blur', function() {
-                if (id.includes('contact')) {
-                    validateEditTrainingContactNumber(this);
-                } else if (id.includes('email')) {
-                    validateEditTrainingEmail(this);
+        // Call cleanup when page becomes visible (in case of browser tab switching)
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') {
+                // Check if any modals are actually open
+                const openModals = document.querySelectorAll('.modal.show');
+                if (openModals.length === 0) {
+                    cleanupModals();
                 }
-                checkForEditTrainingChanges();
+            }
+        });
+
+        // Global variable to store current editing training ID
+        let currentEditingTrainingId = null;
+
+        // Show edit training modal
+        function showEditTrainingModal(trainingId) {
+            currentEditingTrainingId = trainingId;
+
+            // Show loading state
+            const modal = new bootstrap.Modal(document.getElementById('editTrainingModal'));
+            modal.show();
+
+            // Fetch training data
+            fetch(`/admin/training/requests/${trainingId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const training = data.data;
+
+                        // Update modal title
+                        document.getElementById('editModalTitle').textContent =
+                            `Edit Application - ${training.application_number}`;
+
+                        // Populate form fields
+                        document.getElementById('edit_training_first_name').value = training.first_name || '';
+                        document.getElementById('edit_training_middle_name').value = training.middle_name || '';
+                        document.getElementById('edit_training_last_name').value = training.last_name || '';
+                        document.getElementById('edit_training_extension').value = training.name_extension || '';
+                        document.getElementById('edit_training_contact').value = training.contact_number || '';
+                        document.getElementById('edit_training_email').value = training.email || '';
+                        document.getElementById('edit_training_barangay').value = training.barangay || '';
+                        document.getElementById('edit_training_type').value = training.training_type || '';
+                        document.getElementById('edit_training_app_number').value = training.application_number || '';
+
+                        // Populate read-only fields
+                        document.getElementById('edit_training_status_display').innerHTML =
+                            `<span class="badge bg-${training.status_color}">${training.formatted_status}</span>`;
+                        document.getElementById('edit_training_date_display').textContent = training.created_at;
+
+                        // Store original data for change detection
+                        storeOriginalEditData();
+
+                        // Clear validation errors
+                        document.querySelectorAll('#editTrainingForm .is-invalid').forEach(el => el.classList.remove(
+                            'is-invalid'));
+                        document.querySelectorAll('#editTrainingForm .invalid-feedback').forEach(el => el.remove());
+                    } else {
+                        showToast('error', 'Failed to load training data');
+                        modal.hide();
+                    }
+                })
+                .catch(error => {
+                    showToast('error', 'Error loading training data: ' + error.message);
+                    modal.hide();
+                });
+        }
+
+        // Store original data for change detection
+        function storeOriginalEditData() {
+            const form = document.getElementById('editTrainingForm');
+            const originalData = {
+                first_name: document.getElementById('edit_training_first_name').value,
+                middle_name: document.getElementById('edit_training_middle_name').value,
+                last_name: document.getElementById('edit_training_last_name').value,
+                name_extension: document.getElementById('edit_training_extension').value,
+                contact_number: document.getElementById('edit_training_contact').value,
+                email: document.getElementById('edit_training_email').value,
+                barangay: document.getElementById('edit_training_barangay').value,
+                training_type: document.getElementById('edit_training_type').value
+            };
+            form.dataset.originalData = JSON.stringify(originalData);
+
+            // Initialize button state - should show "Save Changes" icon initially
+            const submitBtn = document.getElementById('editTrainingSubmitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            submitBtn.classList.remove('no-changes');
+        }
+
+        // Check for changes in edit form with visual feedback
+        function checkForEditTrainingChanges() {
+            const form = document.getElementById('editTrainingForm');
+            const submitBtn = document.getElementById('editTrainingSubmitBtn');
+
+            if (!form || !submitBtn) return false;
+
+            const originalData = JSON.parse(form.dataset.originalData || '{}');
+
+            let hasChanges = false;
+
+            const fieldMap = {
+                'first_name': 'edit_training_first_name',
+                'middle_name': 'edit_training_middle_name',
+                'last_name': 'edit_training_last_name',
+                'name_extension': 'edit_training_extension',
+                'contact_number': 'edit_training_contact',
+                'email': 'edit_training_email',
+                'barangay': 'edit_training_barangay',
+                'training_type': 'edit_training_type'
+            };
+
+            // Check each field for changes and add/remove highlighting
+            for (let fieldName in fieldMap) {
+                const elementId = fieldMap[fieldName];
+                const element = document.getElementById(elementId);
+                const currentValue = element.value;
+                const originalValue = originalData[fieldName];
+
+                if (currentValue !== originalValue) {
+                    hasChanges = true;
+                    element.classList.add('form-changed');
+                } else {
+                    element.classList.remove('form-changed');
+                }
+            }
+
+            // Update button state based on changes
+            // Button should only show "No Changes" state if actually no changes detected
+            if (hasChanges) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.classList.add('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            }
+
+            return hasChanges;
+        }
+
+        // Handle edit form submission
+        function handleEditTrainingSubmit() {
+            if (!validateEditTrainingForm()) {
+                showToast('error', 'Please fix the validation errors');
+                return;
+            }
+
+            if (!checkForEditTrainingChanges()) {
+                showToast('warning', 'No changes have been made');
+                return;
+            }
+
+            showConfirmationToast(
+                'Confirm Changes',
+                'Are you sure you want to save these changes?',
+                proceedWithEditTraining
+            );
+        }
+
+        // Validate edit training form
+        function validateEditTrainingForm() {
+            let isValid = true;
+
+            const requiredFields = [{
+                    id: 'edit_training_first_name',
+                    label: 'First Name'
+                },
+                {
+                    id: 'edit_training_last_name',
+                    label: 'Last Name'
+                },
+                {
+                    id: 'edit_training_contact',
+                    label: 'Contact Number'
+                },
+                {
+                    id: 'edit_training_barangay',
+                    label: 'Barangay'
+                },
+                {
+                    id: 'edit_training_type',
+                    label: 'Training Type'
+                }
+            ];
+
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (!input.value.trim()) {
+                    input.classList.add('is-invalid');
+                    const existing = input.parentNode.querySelector('.invalid-feedback');
+                    if (existing) existing.remove();
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback d-block';
+                    feedback.textContent = `${field.label} is required`;
+                    input.parentNode.appendChild(feedback);
+                    isValid = false;
+                } else {
+                    input.classList.remove('is-invalid');
+                    const existing = input.parentNode.querySelector('.invalid-feedback');
+                    if (existing) existing.remove();
+                }
             });
-            
-            element.addEventListener('change', function() {
-                checkForEditTrainingChanges();
-            });
-            
-            element.addEventListener('input', function() {
-                checkForEditTrainingChanges();
+
+            const contactNumber = document.getElementById('edit_training_contact').value.trim();
+            if (contactNumber && !validateEditTrainingContactNumber(document.getElementById('edit_training_contact'))) {
+                isValid = false;
+            }
+
+            const email = document.getElementById('edit_training_email').value.trim();
+            if (email && !validateEditTrainingEmail(document.getElementById('edit_training_email'))) {
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Validate edit training contact number
+        function validateEditTrainingContactNumber(input) {
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            const contactNumber = input.value.trim();
+            if (!contactNumber) {
+                return true;
+            }
+
+            const phoneRegex = /^(\+639|09)\d{9}$/;
+
+            if (!phoneRegex.test(contactNumber)) {
+                input.classList.add('is-invalid');
+                const newFeedback = document.createElement('div');
+                newFeedback.className = 'invalid-feedback d-block';
+                newFeedback.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                input.parentNode.appendChild(newFeedback);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Validate edit training email
+        function validateEditTrainingEmail(input) {
+            const feedback = input.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+            input.classList.remove('is-invalid', 'is-valid');
+
+            const email = input.value.trim();
+            if (!email) {
+                return true;
+            }
+
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (!emailPattern.test(email)) {
+                input.classList.add('is-invalid');
+                const newFeedback = document.createElement('div');
+                newFeedback.className = 'invalid-feedback d-block';
+                newFeedback.textContent = 'Please enter a valid email address';
+                input.parentNode.appendChild(newFeedback);
+                return false;
+            }
+
+            input.classList.add('is-valid');
+            return true;
+        }
+
+        // Proceed with edit submission
+        function proceedWithEditTraining() {
+            const form = document.getElementById('editTrainingForm');
+            const submitBtn = document.getElementById('editTrainingSubmitBtn');
+
+            if (!currentEditingTrainingId) {
+                showToast('error', 'Training ID not found');
+                return;
+            }
+
+            submitBtn.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('first_name', document.getElementById('edit_training_first_name').value.trim());
+            formData.append('middle_name', document.getElementById('edit_training_middle_name').value.trim());
+            formData.append('last_name', document.getElementById('edit_training_last_name').value.trim());
+            formData.append('name_extension', document.getElementById('edit_training_extension').value);
+            formData.append('contact_number', document.getElementById('edit_training_contact').value.trim());
+            formData.append('email', document.getElementById('edit_training_email').value.trim());
+            formData.append('barangay', document.getElementById('edit_training_barangay').value);
+            formData.append('training_type', document.getElementById('edit_training_type').value);
+            formData.append('_method', 'PUT');
+
+            fetch(`/admin/training/requests/${currentEditingTrainingId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Training application updated successfully');
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editTrainingModal'));
+                        if (modal) modal.hide();
+
+                        // Reload the page
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        showToast('error', data.message || 'Failed to update training');
+                        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    showToast('error', 'Error: ' + error.message);
+                    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                    submitBtn.disabled = false;
+                });
+        }
+
+        // Add event listeners for edit training form
+        function initializeEditTrainingFormListeners() {
+            const form = document.getElementById('editTrainingForm');
+            if (!form) return;
+
+            const fields = ['edit_training_first_name', 'edit_training_middle_name', 'edit_training_last_name',
+                'edit_training_extension', 'edit_training_contact', 'edit_training_email',
+                'edit_training_barangay', 'edit_training_type'
+            ];
+
+            fields.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('blur', function() {
+                        if (id.includes('contact')) {
+                            validateEditTrainingContactNumber(this);
+                        } else if (id.includes('email')) {
+                            validateEditTrainingEmail(this);
+                        }
+                        checkForEditTrainingChanges();
+                    });
+
+                    element.addEventListener('change', function() {
+                        checkForEditTrainingChanges();
+                    });
+
+                    element.addEventListener('input', function() {
+                        checkForEditTrainingChanges();
+                    });
+                }
             });
         }
-    });
-}
 
-// Initialize on document ready
-document.addEventListener('DOMContentLoaded', function() {
-    initializeEditTrainingFormListeners();
-});
+        // Initialize on document ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEditTrainingFormListeners();
+        });
 
-// Helper function to get CSRF token
-function getCSRFToken() {
-    const metaTag = document.querySelector('meta[name="csrf-token"]');
-    return metaTag ? metaTag.getAttribute('content') : '';
-}
+        // Helper function to get CSRF token
+        function getCSRFToken() {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
         console.log('Training Add Application functionality loaded successfully');
     </script>
 @endsection

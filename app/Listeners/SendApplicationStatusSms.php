@@ -4,22 +4,14 @@ namespace App\Listeners;
 
 use App\Events\ApplicationStatusChanged;
 use App\Services\SmsService;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class SendApplicationStatusSms implements ShouldQueue
+class SendApplicationStatusSms
 {
-    use InteractsWithQueue;
-
     protected SmsService $smsService;
 
     // Track processed events to prevent duplicates
     private static $processedEvents = [];
-
-    // Set queue connection and queue name
-    public $connection = 'sync'; // Use 'sync' for immediate processing without actual queue
-    public $queue = 'notifications';
 
     /**
      * Create the event listener.

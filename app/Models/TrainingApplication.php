@@ -203,7 +203,7 @@ class TrainingApplication extends Model
     /**
      * Get applicant phone number for SMS notifications
      */
-    protected function getApplicantPhone(): ?string
+    public function getApplicantPhone(): ?string
     {
         return $this->contact_number;
     }
@@ -211,7 +211,7 @@ class TrainingApplication extends Model
     /**
      * Get applicant name for SMS notifications
      */
-    protected function getApplicantName(): ?string
+    public function getApplicantName(): ?string
     {
         return trim($this->first_name . ' ' . $this->last_name);
     }
@@ -219,7 +219,7 @@ class TrainingApplication extends Model
     /**
      * Get application type name for SMS notifications
      */
-    protected function getApplicationTypeName(): string
+    public function getApplicationTypeName(): string
     {
         return 'Training Application';
     }
