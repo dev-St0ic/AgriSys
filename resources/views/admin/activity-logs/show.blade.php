@@ -1,4 +1,4 @@
-{{-- resources/views/admin/activity-logs/show.blade.php - User Friendly Version --}}
+{{-- resources/views/admin/activity-logs/show.blade.php - Fixed Version --}}
 
 @extends('layouts.app')
 
@@ -169,6 +169,15 @@
                                     @php
                                         $oldValue = $activity->properties->get('old.' . $key, 'N/A');
                                         $fieldName = ucfirst(str_replace('_', ' ', $key));
+                                        
+                                        // Format values properly - handle arrays and objects
+                                        $formattedOldValue = is_array($oldValue) || is_object($oldValue) 
+                                            ? json_encode($oldValue) 
+                                            : $oldValue;
+                                        
+                                        $formattedNewValue = is_array($newValue) || is_object($newValue) 
+                                            ? json_encode($newValue) 
+                                            : $newValue;
                                     @endphp
                                     <tr>
                                         <td>
@@ -176,13 +185,21 @@
                                         </td>
                                         <td>
                                             @if($oldValue !== 'N/A')
-                                                <span class="badge bg-light text-dark">{{ $oldValue }}</span>
+                                                @if(is_array($oldValue) || is_object($oldValue))
+                                                    <code class="small">{{ $formattedOldValue }}</code>
+                                                @else
+                                                    <span class="badge bg-light text-dark">{{ $formattedOldValue }}</span>
+                                                @endif
                                             @else
                                                 <em class="text-muted">New Field</em>
                                             @endif
                                         </td>
                                         <td>
-                                            <span class="badge bg-success text-white">{{ $newValue }}</span>
+                                            @if(is_array($newValue) || is_object($newValue))
+                                                <code class="small">{{ $formattedNewValue }}</code>
+                                            @else
+                                                <span class="badge bg-success text-white">{{ $formattedNewValue }}</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
@@ -303,6 +320,7 @@
 <style>
     code {
         font-family: 'Courier New', monospace;
+        word-break: break-all;
     }
     
     pre code {
