@@ -156,6 +156,7 @@ class UserRegistrationSeeder extends Seeder
             'status' => UserRegistration::STATUS_UNVERIFIED,
             'terms_accepted' => true,
             'privacy_accepted' => true,
+            'contact_number' => '09123456780',
             'username_changed_at' => null,
             'created_at' => now()->subHours(2),
         ]);
@@ -239,6 +240,7 @@ class UserRegistrationSeeder extends Seeder
             'verification_token' => 'test-verification-token-12345',
             'terms_accepted' => true,
             'privacy_accepted' => true,
+            'contact_number' => '09666555444',
             'username_changed_at' => null,
             'created_at' => now()->subMinutes(30),
         ]);

@@ -33,7 +33,6 @@ class Event extends Model
         'published_at'
     ];
 
-    // Append custom attributes to JSON responses
     protected $appends = [
         'image_url',
         'formatted_date',
@@ -69,11 +68,6 @@ class Event extends Model
     public function archivist()
     {
         return $this->belongsTo(User::class, 'archived_by');
-    }
-
-    public function logs()
-    {
-        return $this->hasMany(EventLog::class)->orderBy('created_at', 'desc');
     }
 
     // ========================================
@@ -123,10 +117,6 @@ class Event extends Model
     // ACCESSORS (Custom Attributes)
     // ========================================
 
-    /**
-     * Get the full image URL for the event
-     * Handles both local storage and external URLs
-     */
     public function getImageUrlAttribute()
     {
         if (!$this->image_path) {
@@ -140,17 +130,11 @@ class Event extends Model
         return asset('storage/' . $this->image_path);
     }
 
-    /**
-     * Get the formatted date attribute
-     */
     public function getFormattedDateAttribute()
     {
         return $this->date ?? 'Date TBA';
     }
 
-    /**
-     * Get status badge for event (active, archived, inactive)
-     */
     public function getStatusBadgeAttribute()
     {
         if ($this->is_archived) {
@@ -162,21 +146,69 @@ class Event extends Model
         return 'inactive';
     }
 
+    /**
+     * Get the color for an action (for UI display)
+     */
+    public function getActionColorAttribute($action = null)
+    {
+        $action = $action ?? $this->action ?? 'updated';
+        return match($action) {
+            'created' => 'success',
+            'updated' => 'info',
+            'deleted' => 'danger',
+            'published' => 'success',
+            'unpublished' => 'warning',
+            'archived' => 'secondary',
+            'restored' => 'info',
+            default => 'secondary'
+        };
+    }
+
+    /**
+     * Get the icon for an action (for UI display)
+     */
+    public function getActionIconAttribute($action = null)
+    {
+        $action = $action ?? $this->action ?? 'updated';
+        return match($action) {
+            'created' => '➕',
+            'updated' => '✏️',
+            'deleted' => '🗑️',
+            'published' => '✅',
+            'unpublished' => '⏸️',
+            'archived' => '📦',
+            'restored' => '↩️',
+            default => '📝'
+        };
+    }
+
+    /**
+     * Get readable action label
+     */
+    public function getReadableActionAttribute($action = null)
+    {
+        $action = $action ?? $this->action ?? 'updated';
+        return match($action) {
+            'created' => 'Created',
+            'updated' => 'Updated',
+            'deleted' => 'Deleted',
+            'published' => 'Published',
+            'unpublished' => 'Unpublished',
+            'archived' => 'Archived',
+            'restored' => 'Restored',
+            default => ucfirst($action)
+        };
+    }
+
     // ========================================
     // HELPER METHODS
     // ========================================
 
-    /**
-     * Get a specific detail by key
-     */
     public function getDetail($key, $default = null)
     {
         return $this->details[$key] ?? $default;
     }
 
-    /**
-     * Set a specific detail by key
-     */
     public function setDetail($key, $value)
     {
         $details = $this->details ?? [];
@@ -184,9 +216,6 @@ class Event extends Model
         $this->details = $details;
     }
 
-    /**
-     * Archive this event
-     */
     public function archive($userId, $reason = null)
     {
         $this->update([
@@ -194,18 +223,10 @@ class Event extends Model
             'archived_at' => now(),
             'archived_by' => $userId,
             'archive_reason' => $reason,
-            'is_active' => false // Automatically deactivate when archived
+            'is_active' => false
         ]);
-
-        $this->logAction('archived', $userId, [
-            'is_archived' => ['old' => false, 'new' => true],
-            'is_active' => ['old' => true, 'new' => false]
-        ], 'Event archived: ' . ($reason ?? 'No reason provided'));
     }
 
-    /**
-     * Restore/unarchive this event
-     */
     public function unarchive($userId)
     {
         $this->update([
@@ -213,40 +234,15 @@ class Event extends Model
             'archived_at' => null,
             'archived_by' => null,
             'archive_reason' => null,
-            'is_active' => true // Automatically activate when restored
-        ]);
-
-        $this->logAction('restored', $userId, [
-            'is_archived' => ['old' => true, 'new' => false],
-            'is_active' => ['old' => false, 'new' => true]
-        ], 'Event restored from archive');
-    }
-
-    /**
-     * Log an action for this event
-     */
-    public function logAction($action, $performedBy, $changes = null, $notes = null)
-    {
-        return EventLog::create([
-            'event_id' => $this->id,
-            'action' => $action,
-            'performed_by' => $performedBy,
-            'changes' => $changes,
-            'notes' => $notes
+            'is_active' => true
         ]);
     }
 
-    /**
-     * Check if event should be displayed on landing page
-     */
     public function isDisplayable()
     {
         return $this->is_active && !$this->is_archived && !$this->trashed();
     }
 
-    /**
-     * Get all public (active and non-archived) events
-     */
     public static function getPublicEvents($category = null)
     {
         $query = self::public();
@@ -258,9 +254,6 @@ class Event extends Model
         return $query->get();
     }
 
-    /**
-     * Get featured events for landing page
-     */
     public static function getFeaturedEvents($limit = 3)
     {
         return self::featured()
@@ -268,9 +261,6 @@ class Event extends Model
             ->get();
     }
 
-    /**
-     * Get all archived events (for archive management)
-     */
     public static function getArchivedEvents()
     {
         return self::archived()
@@ -282,23 +272,17 @@ class Event extends Model
     // JSON SERIALIZATION OVERRIDE
     // ========================================
 
-    /**
-     * Override toArray to ensure custom attributes are included
-     * This is useful for API responses
-     */
     public function toArray()
     {
         $array = parent::toArray();
 
-        // Explicitly include accessors
         $array['image_url'] = $this->image_url;
         $array['formatted_date'] = $this->formatted_date;
         $array['status_badge'] = $this->status_badge;
 
         return $array;
     }
-    
-    // Log activity options
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
