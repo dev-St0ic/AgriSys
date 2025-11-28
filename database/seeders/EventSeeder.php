@@ -6,6 +6,8 @@ use App\Models\Event;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class EventSeeder extends Seeder
 {
@@ -17,9 +19,8 @@ class EventSeeder extends Seeder
      * 
      * Total: 12 events
      * 
-     * Active Events:
-     * - 1 Announcement (Event #8 - Urban Farming Training)
-     * - 3 Grid Cards: Ongoing, Past, Upcoming
+     * Images are copied from: public/images/events/
+     * To: storage/app/public/events/
      */
     public function run(): void
     {
@@ -33,6 +34,11 @@ class EventSeeder extends Seeder
         }
 
         $this->command->info('📝 Starting event seeding...');
+        
+        // Copy event images first
+        $this->command->info('🎨 Copying event images...');
+        $this->copyEventImages();
+        $this->command->info('✅ Images copied successfully!');
 
         $events = [
             // ===== EVENT 1: ACTIVE (Grid Card 1 - Ongoing) =====
@@ -176,5 +182,47 @@ class EventSeeder extends Seeder
             ->create();
 
         $this->command->info('✅ EVENT SEEDING COMPLETED!');
+    }
+
+    /**
+     * Copy event images from public/images/events/ to storage/app/public/events/
+     * Similar to SlideshowImagesSeeder pattern
+     */
+    private function copyEventImages(): void
+    {
+        $sourceDir = public_path('images/events');
+        $destinationDir = 'events';
+
+        // Check if source directory exists
+        if (!File::isDirectory($sourceDir)) {
+            $this->command->warn("Source directory not found: {$sourceDir}");
+            $this->command->line("Please create the folder: public/images/events/");
+            $this->command->line("And add your images: placeholder-1.jpg through placeholder-8.jpg");
+            return;
+        }
+
+        // Get all image files
+        $files = File::files($sourceDir);
+
+        if (empty($files)) {
+            $this->command->warn("No images found in: {$sourceDir}");
+            return;
+        }
+
+        foreach ($files as $file) {
+            try {
+                $filename = $file->getFilename();
+                $sourcePath = $file->getRealPath();
+                $destinationPath = "{$destinationDir}/{$filename}";
+
+                // Copy file to storage
+                Storage::disk('public')->put($destinationPath, File::get($sourcePath));
+
+                $this->command->line("✅ Copied: {$filename}");
+
+            } catch (\Exception $e) {
+                $this->command->error("Failed to copy {$filename}: " . $e->getMessage());
+            }
+        }
     }
 }
