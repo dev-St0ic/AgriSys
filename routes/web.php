@@ -324,15 +324,38 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
  // ==============================================
     // NOTIFICATION ROUTES
     // ==============================================
-// Notification Routes (Admin only)
 Route::prefix('admin/notifications')->name('admin.notifications.')->middleware(['auth'])->group(function () {
-    Route::get('/unread-count', [App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('unread-count');
-    Route::get('/unread', [App\Http\Controllers\NotificationController::class, 'unread'])->name('unread');
-    Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('index');
-    Route::post('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
-    Route::post('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-    Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
-    Route::delete('/clear-read', [App\Http\Controllers\NotificationController::class, 'clearRead'])->name('clear-read');
+    // Get unread count for badge
+    Route::get('/unread-count', [App\Http\Controllers\NotificationController::class, 'getUnreadCount'])
+        ->name('unread-count');
+    
+    // Get unread notifications for dropdown (max 10)
+    Route::get('/unread', [App\Http\Controllers\NotificationController::class, 'unread'])
+        ->name('unread');
+    
+    // Get ALL notifications with pagination and filtering (for dedicated page)
+    Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])
+        ->name('index');
+    
+    // Mark single notification as read (doesn't delete)
+    Route::post('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])
+        ->name('mark-read');
+    
+    // Mark all notifications as read (doesn't delete)
+    Route::post('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])
+        ->name('mark-all-read');
+    
+    // Delete single notification
+    Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy'])
+        ->name('destroy');
+    
+    // Clear/delete all read notifications
+    Route::delete('/clear-read', [App\Http\Controllers\NotificationController::class, 'clearRead'])
+        ->name('clear-read');
+    
+    // Delete all notifications
+    Route::delete('/clear-all', [App\Http\Controllers\NotificationController::class, 'clearAll'])
+        ->name('clear-all');
 });
 
     // ==============================================

@@ -1548,11 +1548,49 @@
             });
         }
 
-        // View all notifications page (optional - implement if needed)
+        // View all notifications page updated
         function viewAllNotifications(event) {
-            event.preventDefault();
-            showToast('info', 'All notifications view coming soon');
+    event.preventDefault();
+    
+    // Close the current dropdown
+    const dropdown = bootstrap.Dropdown.getInstance(document.getElementById('notificationDropdown'));
+    if (dropdown) {
+        dropdown.hide();
+    }
+    
+    // Navigate to all notifications page
+    window.location.href = '/admin/notifications';
+}
+
+// UPDATED handleNotificationClick to NOT mark read when viewing dropdown
+function handleNotificationClick(notificationId, actionUrl) {
+    // Mark as read
+    fetch(`/admin/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update badge count and reload notifications list
+            checkNewNotifications();
+            loadNotifications();
+            
+            // Navigate to action URL if provided
+            if (actionUrl && actionUrl !== '#') {
+                // Small delay to let user see the notification marked as read
+                setTimeout(() => {
+                    window.location.href = actionUrl;
+                }, 300);
+            }
+        }
+    })
+    .catch(error => console.error('Error marking notification as read:', error));
+}
 
         // Start polling when page loads
         document.addEventListener('DOMContentLoaded', function() {
