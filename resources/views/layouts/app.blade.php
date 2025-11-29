@@ -1017,15 +1017,52 @@
                                 <h1 class="h2 text-primary">@yield('page-title', '')</h1>
                                 <div class="btn-toolbar mb-2 mb-md-0">
                                     <div class="d-flex align-items-center profile-section">
-                                        <!-- Notification Bell -->
-                                        <button class="btn btn-link text-dark position-relative p-0" type="button">
-                                            <i class="fas fa-bell fs-5"></i>
-                                            <span
-                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                                style="font-size: 0.6rem;">
-                                                3
-                                            </span>
-                                        </button>
+                                        <!-- Notification Bell with Live Updates -->
+                                        <div class="dropdown position-relative">
+                                            <button class="btn btn-link text-dark position-relative p-0" type="button" id="notificationDropdown" 
+                                                    data-bs-toggle="dropdown" aria-expanded="false" onclick="loadNotifications()">
+                                                <i class="fas fa-bell fs-5"></i>
+                                                <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                                    style="font-size: 0.6rem; display: none;">
+                                                    0
+                                                </span>
+                                            </button>
+                                            
+                                            <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown" 
+                                                style="width: 380px; max-height: 500px; overflow-y: auto;">
+                                                <!-- Notification Header -->
+                                                <div class="dropdown-header d-flex justify-content-between align-items-center border-bottom pb-2">
+                                                    <h6 class="mb-0 fw-bold">Notifications</h6>
+                                                    <div class="d-flex gap-2">
+                                                        <button type="button" class="btn btn-sm btn-link text-primary p-0" 
+                                                                onclick="markAllAsRead()" title="Mark all as read">
+                                                            <i class="fas fa-check-double"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-link text-secondary p-0" 
+                                                                onclick="clearReadNotifications()" title="Clear read">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Notifications List -->
+                                                <div id="notificationsList" class="notification-list" style="min-height: 100px;">
+                                                    <div class="text-center py-4">
+                                                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                            <span class="visually-hidden">Loading...</span>
+                                                        </div>
+                                                        <p class="text-muted small mt-2">Loading notifications...</p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- View All Footer -->
+                                                <div class="dropdown-footer border-top pt-2">
+                                                    <a href="#" class="dropdown-item text-center text-primary fw-medium" onclick="viewAllNotifications(event)">
+                                                        <i class="fas fa-list me-1"></i>View All Notifications
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <!-- Profile Dropdown -->
                                         <div class="dropdown d-flex align-items-center" style="gap: 0.75rem;">
@@ -1325,12 +1362,398 @@
             isAdmin: @json(auth()->check() && auth()->user()->isAdmin()),
             user: @json(auth()->user() ? ['id' => auth()->user()->id, 'name' => auth()->user()->name] : null)
         };
+
+        // notification with live updates
+        let notificationCheckInterval;
+        let lastNotificationCount = 0;
+
+        // Auto-check for new notifications every 30 seconds
+        function startNotificationPolling() {
+            checkNewNotifications();
+            notificationCheckInterval = setInterval(checkNewNotifications, 30000);
+        }
+
+        // Check for new notifications
+        function checkNewNotifications() {
+            fetch('/admin/notifications/unread-count', {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                updateNotificationBadge(data.count);
+            })
+            .catch(error => console.error('Error checking notifications:', error));
+        }
+
+        // Update notification badge
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notificationBadge');
+            
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'block';
+                
+                // Add pulse animation for new notifications
+                if (count > lastNotificationCount) {
+                    badge.classList.add('new');
+                    setTimeout(() => badge.classList.remove('new'), 3000);
+                }
+            } else {
+                badge.style.display = 'none';
+            }
+            
+            lastNotificationCount = count;
+        }
+
+        // Load notifications when dropdown opens
+        function loadNotifications() {
+            const list = document.getElementById('notificationsList');
+            
+            list.innerHTML = `
+                <div class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                    <p class="text-muted small mt-2">Loading...</p>
+                </div>
+            `;
+
+            fetch('/admin/notifications/unread', {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayNotifications(data.notifications);
+            })
+            .catch(error => {
+                console.error('Error loading notifications:', error);
+                list.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-exclamation-circle text-danger fa-2x mb-2"></i>
+                        <p class="text-muted small">Failed to load notifications</p>
+                    </div>
+                `;
+            });
+        }
+
+        // Display notifications in dropdown
+        function displayNotifications(notifications) {
+            const list = document.getElementById('notificationsList');
+            
+            if (!notifications || notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-notifications">
+                        <i class="fas fa-bell-slash"></i>
+                        <p class="text-muted mb-0">No new notifications</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${notif.is_read ? '' : 'unread'}" 
+                    onclick="handleNotificationClick(${notif.id}, '${notif.action_url || '#'}')">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="notification-icon bg-${notif.color} bg-opacity-10">
+                            <i class="fas ${notif.icon} text-${notif.color}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notif.title}</div>
+                            <div class="notification-message">${notif.message}</div>
+                            <div class="notification-time">
+                                <i class="far fa-clock me-1"></i>${notif.time_ago}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Handle notification click
+        function handleNotificationClick(notificationId, actionUrl) {
+            // Mark as read
+            fetch(`/admin/notifications/${notificationId}/read`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update badge count
+                    checkNewNotifications();
+                    
+                    // Navigate to action URL
+                    if (actionUrl && actionUrl !== '#') {
+                        window.location.href = actionUrl;
+                    }
+                }
+            })
+            .catch(error => console.error('Error marking notification as read:', error));
+        }
+
+        // Mark all notifications as read
+        function markAllAsRead() {
+            fetch('/admin/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', data.message);
+                    loadNotifications();
+                    checkNewNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Error marking all as read:', error);
+                showToast('error', 'Failed to mark notifications as read');
+            });
+        }
+
+        // Clear read notifications
+        function clearReadNotifications() {
+            if (!confirm('Clear all read notifications?')) return;
+            
+            fetch('/admin/notifications/clear-read', {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('success', data.message);
+                    loadNotifications();
+                }
+            })
+            .catch(error => {
+                console.error('Error clearing notifications:', error);
+                showToast('error', 'Failed to clear notifications');
+            });
+        }
+
+        // View all notifications page (optional - implement if needed)
+        function viewAllNotifications(event) {
+            event.preventDefault();
+            showToast('info', 'All notifications view coming soon');
+        }
+
+        // Start polling when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.auth && window.auth.isAdmin) {
+                startNotificationPolling();
+            }
+        });
+
+        // Stop polling when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (notificationCheckInterval) {
+                clearInterval(notificationCheckInterval);
+            }
+        });
+
+        // Toast Notification System
+function createToastContainer() {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 12px;';
+        document.body.appendChild(container);
+    }
+    return container;
+}
+
+function showToast(type, message) {
+    const toastContainer = createToastContainer();
+
+    const iconMap = {
+        'success': { icon: 'fas fa-check-circle', color: '#28a745' },
+        'error': { icon: 'fas fa-exclamation-circle', color: '#dc3545' },
+        'warning': { icon: 'fas fa-exclamation-triangle', color: '#ffc107' },
+        'info': { icon: 'fas fa-info-circle', color: '#17a2b8' }
+    };
+
+    const config = iconMap[type] || iconMap['info'];
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.cssText = `
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 300px;
+        max-width: 500px;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateX(400px);
+        transition: all 0.3s ease;
+        border-left: 4px solid ${config.color};
+    `;
+    
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; padding: 16px;">
+            <i class="${config.icon}" style="font-size: 1.5rem; color: ${config.color}; margin-right: 12px;"></i>
+            <span style="flex: 1; color: #333; font-size: 0.95rem;">${message}</span>
+            <button type="button" onclick="this.closest('.toast-notification').remove()" 
+                    style="background: none; border: none; font-size: 1.2rem; color: #999; cursor: pointer; padding: 0; margin-left: 8px;">
+                ×
+            </button>
+        </div>
+    `;
+
+    toastContainer.appendChild(toast);
+    
+    // Trigger animation
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+    }, 10);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(400px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
     </script>
 
     <!-- Demo content to test horizontal scrolling -->
     <style>
         .demo-wide-table {
             min-width: 1200px;
+        }
+
+        /* Notification Dropdown Styles */
+        .notification-dropdown {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: none;
+            border-radius: 8px;
+        }
+
+        .notification-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background-color: #e3f2fd;
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #2196F3;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .notification-message {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .notification-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notification-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .empty-notifications {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .empty-notifications i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 16px;
+        }
+
+        /* Badge pulse animation */
+        @keyframes pulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+
+        #notificationBadge.new {
+            animation: pulse 1.5s ease-in-out infinite;
         }
     </style>
 </body>

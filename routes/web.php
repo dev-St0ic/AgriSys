@@ -321,6 +321,19 @@ Route::prefix('admin/seedlings')->name('admin.seedlings.')->middleware(['auth'])
     Route::get('/items/{item}/supply/logs', [SeedlingCategoryItemController::class, 'getSupplyLogs'])->name('items.supply.logs');
     Route::get('/supply/stats', [SeedlingCategoryItemController::class, 'getSupplyStats'])->name('supply.stats');
 });
+ // ==============================================
+    // NOTIFICATION ROUTES
+    // ==============================================
+// Notification Routes (Admin only)
+Route::prefix('admin/notifications')->name('admin.notifications.')->middleware(['auth'])->group(function () {
+    Route::get('/unread-count', [App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('unread-count');
+    Route::get('/unread', [App\Http\Controllers\NotificationController::class, 'unread'])->name('unread');
+    Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+    Route::post('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-read');
+    Route::post('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
+    Route::delete('/clear-read', [App\Http\Controllers\NotificationController::class, 'clearRead'])->name('clear-read');
+});
 
     // ==============================================
     // ACTIVITY LOGS
