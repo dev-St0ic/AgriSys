@@ -1408,146 +1408,183 @@
             lastNotificationCount = count;
         }
 
-        // Load notifications when dropdown opens
-        function loadNotifications() {
-            const list = document.getElementById('notificationsList');
-            
-            list.innerHTML = `
-                <div class="text-center py-4">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                    <p class="text-muted small mt-2">Loading...</p>
-                </div>
-            `;
+ // Load notifications when dropdown opens
+function loadNotifications() {
+    const list = document.getElementById('notificationsList');
+    
+    list.innerHTML = `
+        <div class="text-center py-4">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <p class="text-muted small mt-2">Loading...</p>
+        </div>
+    `;
 
-            fetch('/admin/notifications/unread', {
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                displayNotifications(data.notifications);
-            })
-            .catch(error => {
-                console.error('Error loading notifications:', error);
-                list.innerHTML = `
-                    <div class="text-center py-4">
-                        <i class="fas fa-exclamation-circle text-danger fa-2x mb-2"></i>
-                        <p class="text-muted small">Failed to load notifications</p>
-                    </div>
-                `;
-            });
+    // CHANGED: Fetch ALL notifications (not just unread)
+    fetch('/admin/notifications?per_page=10', {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+            'Accept': 'application/json'
         }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Handle both array and paginated response formats
+        const notifications = data.data || data.notifications || [];
+        displayNotifications(notifications);
+    })
+    .catch(error => {
+        console.error('Error loading notifications:', error);
+        list.innerHTML = `
+            <div class="text-center py-4">
+                <i class="fas fa-exclamation-circle text-danger fa-2x mb-2"></i>
+                <p class="text-muted small">Failed to load notifications</p>
+            </div>
+        `;
+    });
+}
 
-        // Display notifications in dropdown
-        function displayNotifications(notifications) {
-            const list = document.getElementById('notificationsList');
-            
-            if (!notifications || notifications.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-notifications">
-                        <i class="fas fa-bell-slash"></i>
-                        <p class="text-muted mb-0">No new notifications</p>
+// Display notifications in dropdown
+function displayNotifications(notifications) {
+    const list = document.getElementById('notificationsList');
+    
+    if (!notifications || notifications.length === 0) {
+        list.innerHTML = `
+            <div class="empty-notifications">
+                <i class="fas fa-bell-slash"></i>
+                <p class="text-muted mb-0">No notifications</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Add count at top
+    const countText = notifications.length === 1 ? 'notification' : 'notifications';
+    const countHTML = `
+        <div style="padding: 8px 16px; background: #f8f9fa; border-bottom: 1px solid #e9ecef; font-size: 0.85rem; color: #666;">
+            Showing ${notifications.length} ${countText}
+        </div>
+    `;
+
+    list.innerHTML = countHTML + notifications.map(notif => `
+        <div class="notification-item ${notif.is_read ? 'read' : 'unread'}" 
+            onclick="handleNotificationClick(${notif.id}, '${notif.action_url || '#'}', this)">
+            <div class="d-flex align-items-start gap-3">
+                <div class="notification-icon bg-${notif.color} bg-opacity-10">
+                    <i class="fas ${notif.icon} text-${notif.color}"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-title">${notif.title}</div>
+                    <div class="notification-message">${notif.message}</div>
+                    <div class="notification-time">
+                        <i class="far fa-clock me-1"></i>${notif.time_ago}
                     </div>
-                `;
-                return;
+                </div>
+                ${!notif.is_read ? '<span class="notification-unread-indicator"></span>' : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Handle notification click - Mark as read and show visual feedback
+function handleNotificationClick(notificationId, actionUrl, element) {
+    // Prevent default click behavior
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Add visual feedback immediately (grayed out)
+    if (element) {
+        element.classList.add('read');
+        element.classList.remove('unread');
+        element.style.opacity = '0.6';
+    }
+
+    // Remove the unread indicator dot if it exists (immediately visible change)
+    const indicator = element?.querySelector('.notification-unread-indicator');
+    if (indicator) {
+        indicator.style.display = 'none';
+    }
+
+    // Mark as read on server (non-blocking)
+    fetch(`/admin/notifications/${notificationId}/read`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update badge count
+            checkNewNotifications();
+            
+            // Wait a moment so user can see the gray-out, then navigate
+            if (actionUrl && actionUrl !== '#') {
+                setTimeout(() => {
+                    window.location.href = actionUrl;
+                }, 1000); // Give user 1 second to see the effect
             }
-
-            list.innerHTML = notifications.map(notif => `
-                <div class="notification-item ${notif.is_read ? '' : 'unread'}" 
-                    onclick="handleNotificationClick(${notif.id}, '${notif.action_url || '#'}')">
-                    <div class="d-flex align-items-start gap-3">
-                        <div class="notification-icon bg-${notif.color} bg-opacity-10">
-                            <i class="fas ${notif.icon} text-${notif.color}"></i>
-                        </div>
-                        <div class="notification-content">
-                            <div class="notification-title">${notif.title}</div>
-                            <div class="notification-message">${notif.message}</div>
-                            <div class="notification-time">
-                                <i class="far fa-clock me-1"></i>${notif.time_ago}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
         }
-
-        // Handle notification click
-        function handleNotificationClick(notificationId, actionUrl) {
-            // Mark as read
-            fetch(`/admin/notifications/${notificationId}/read`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update badge count
-                    checkNewNotifications();
-                    
-                    // Navigate to action URL
-                    if (actionUrl && actionUrl !== '#') {
-                        window.location.href = actionUrl;
-                    }
-                }
-            })
-            .catch(error => console.error('Error marking notification as read:', error));
+    })
+    .catch(error => {
+        console.error('Error marking notification as read:', error);
+        // Still navigate even if marking as read fails
+        if (actionUrl && actionUrl !== '#') {
+            setTimeout(() => {
+                window.location.href = actionUrl;
+            }, 800);
         }
-
-        // Mark all notifications as read
-        function markAllAsRead() {
-            fetch('/admin/notifications/mark-all-read', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', data.message);
-                    loadNotifications();
-                    checkNewNotifications();
-                }
-            })
-            .catch(error => {
-                console.error('Error marking all as read:', error);
-                showToast('error', 'Failed to mark notifications as read');
-            });
+    });
+}
+// Mark all notifications as read
+function markAllAsRead() {
+    fetch('/admin/notifications/mark-all-read', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
         }
-
-        // Clear read notifications
-        function clearReadNotifications() {
-            if (!confirm('Clear all read notifications?')) return;
-            
-            fetch('/admin/notifications/clear-read', {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', data.message);
-                    loadNotifications();
-                }
-            })
-            .catch(error => {
-                console.error('Error clearing notifications:', error);
-                showToast('error', 'Failed to clear notifications');
-            });
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('success', data.message);
+            loadNotifications();
+            checkNewNotifications();
         }
+    })
+    .catch(error => {
+        console.error('Error marking all as read:', error);
+        showToast('error', 'Failed to mark notifications as read');
+    });
+}
 
+// Clear read notifications
+function clearReadNotifications() {
+    if (!confirm('Clear all read notifications?')) return;
+    
+    fetch('/admin/notifications/clear-read', {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('success', data.message);
+            loadNotifications();
+        }
+    })
+    .catch(error => {
+        console.error('Error clearing notifications:', error);
+        showToast('error', 'Failed to clear notifications');
+    });
+}
         // View all notifications page updated
         function viewAllNotifications(event) {
     event.preventDefault();
@@ -1562,35 +1599,35 @@
     window.location.href = '/admin/notifications';
 }
 
-// UPDATED handleNotificationClick to NOT mark read when viewing dropdown
-function handleNotificationClick(notificationId, actionUrl) {
-    // Mark as read
-    fetch(`/admin/notifications/${notificationId}/read`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update badge count and reload notifications list
-            checkNewNotifications();
-            loadNotifications();
+// // UPDATED handleNotificationClick to NOT mark read when viewing dropdown
+// function handleNotificationClick(notificationId, actionUrl) {
+//     // Mark as read
+//     fetch(`/admin/notifications/${notificationId}/read`, {
+//         method: 'POST',
+//         headers: {
+//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+//             'Accept': 'application/json',
+//             'Content-Type': 'application/json'
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             // Update badge count and reload notifications list
+//             checkNewNotifications();
+//             loadNotifications();
             
-            // Navigate to action URL if provided
-            if (actionUrl && actionUrl !== '#') {
-                // Small delay to let user see the notification marked as read
-                setTimeout(() => {
-                    window.location.href = actionUrl;
-                }, 300);
-            }
-        }
-    })
-    .catch(error => console.error('Error marking notification as read:', error));
-}
+//             // Navigate to action URL if provided
+//             if (actionUrl && actionUrl !== '#') {
+//                 // Small delay to let user see the notification marked as read
+//                 setTimeout(() => {
+//                     window.location.href = actionUrl;
+//                 }, 300);
+//             }
+//         }
+//     })
+//     .catch(error => console.error('Error marking notification as read:', error));
+// }
 
         // Start polling when page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -1793,6 +1830,37 @@ function showToast(type, message) {
         #notificationBadge.new {
             animation: pulse 1.5s ease-in-out infinite;
         }
+
+/* Read notification styles */
+.notification-item.read {
+    opacity: 0.5;
+    background-color: #f5f5f5 !important;
+}
+
+.notification-item.read:hover {
+    background-color: #efefef !important;
+}
+
+.notification-item.read::before {
+    display: none !important; /* Hide the blue left border for read items */
+}
+
+.notification-item.read .notification-title {
+    color: #999 !important;
+    font-weight: 400;
+}
+
+.notification-item.read .notification-message {
+    color: #aaa !important;
+}
+
+.notification-item.read .notification-time {
+    color: #bbb !important;
+}
+
+.notification-item.read .notification-icon {
+    opacity: 0.6;
+}
     </style>
 </body>
 

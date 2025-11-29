@@ -1,3 +1,5 @@
+{{-- resources/views/admin/notifications/index.blade.php --}}
+
 @extends('layouts.app')
 
 @section('page-title', 'All Notifications')
