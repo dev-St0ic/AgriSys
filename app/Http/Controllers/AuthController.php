@@ -96,14 +96,14 @@ public function login(Request $request)
     public function logout(Request $request)
     {
         $user = Auth::user();
-        
+
         // Log logout before actually logging out
         if ($user) {
             $this->logActivity('logout', 'User', $user->id, [
                 'role' => $user->role
             ]);
         }
-        
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -127,13 +127,17 @@ public function login(Request $request)
         // Analytics for supply management
         $supplyData = $this->getSupplyData();
 
+        // Monthly registration data (last 6 months)
+        $monthlyRegistrations = $this->getMonthlyRegistrations();
+
         return view('admin.dashboard', compact(
             'user',
             'totalAdmins',
             'totalSuperAdmins',
             'totalUsers',
             'analyticsData',
-            'supplyData'
+            'supplyData',
+            'monthlyRegistrations'
         ));
     }
 
@@ -326,6 +330,31 @@ public function login(Request $request)
             'out_of_supply_items' => $outOfSupplyItems,
             'total_supply' => $totalSupply,
         ];
+    }
+
+    /**
+     * Get monthly user registration data for the last 6 months
+     */
+    private function getMonthlyRegistrations()
+    {
+        $monthlyData = [];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $monthStart = $month->copy()->startOfMonth();
+            $monthEnd = $month->copy()->endOfMonth();
+
+            $count = User::where('role', 'user')
+                ->whereBetween('created_at', [$monthStart, $monthEnd])
+                ->count();
+
+            $monthlyData[] = [
+                'month' => $month->format('M Y'),
+                'count' => $count
+            ];
+        }
+
+        return $monthlyData;
     }
 
 }

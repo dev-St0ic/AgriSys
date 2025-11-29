@@ -224,6 +224,27 @@
         </div>
     </div>
 
+    <!-- Monthly User Registration Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-success text-white py-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 font-weight-bold text-white">
+                            <i class="fas fa-chart-line me-3"></i>Monthly User Registrations
+                        </h5>
+                        <span class="badge bg-white text-success">Last 6 Months</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div style="position: relative; height: 350px;">
+                        <canvas id="monthlyRegistrationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Application Statistics by Service -->
     <div class="row mb-4">
         <div class="col-12">
@@ -362,16 +383,16 @@
         }
 
         /* .welcome-banner::before {
-                                            content: '';
-                                            position: absolute;
-                                            top: 0;
-                                            right: 0;
-                                            width: 100px;
-                                            height: 100px;
-                                            background: rgba(255, 255, 255, 0.1);
-                                            border-radius: 50%;
-                                            transform: translate(20px, -20px);
-                                        } */
+                                                content: '';
+                                                position: absolute;
+                                                top: 0;
+                                                right: 0;
+                                                width: 100px;
+                                                height: 100px;
+                                                background: rgba(255, 255, 255, 0.1);
+                                                border-radius: 50%;
+                                                transform: translate(20px, -20px);
+                                            } */
 
         /* Metric Cards */
         .metric-card {
@@ -775,6 +796,9 @@
         }
     </style>
 
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
     <!-- Enhanced JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -836,7 +860,139 @@
                 });
             });
 
-
+            // Initialize Monthly Registration Chart
+            initMonthlyRegistrationChart();
         });
+
+        // Monthly Registration Line Chart
+        function initMonthlyRegistrationChart() {
+            const ctx = document.getElementById('monthlyRegistrationChart');
+
+            if (!ctx) return;
+
+            // Data from Laravel
+            const monthlyData = @json($monthlyRegistrations);
+            const labels = monthlyData.map(item => item.month);
+            const data = monthlyData.map(item => item.count);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'User Registrations',
+                        data: data,
+                        borderColor: 'rgb(40, 167, 69)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: 'rgb(40, 167, 69)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverBackgroundColor: 'rgb(40, 167, 69)',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 13,
+                                    weight: '600'
+                                },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y + ' user' + (context.parsed.y !== 1 ? 's' : '');
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                font: {
+                                    size: 12
+                                },
+                                callback: function(value) {
+                                    if (Number.isInteger(value)) {
+                                        return value;
+                                    }
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Number of Registrations',
+                                font: {
+                                    size: 13,
+                                    weight: '600'
+                                },
+                                padding: 10
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Month',
+                                font: {
+                                    size: 13,
+                                    weight: '600'
+                                },
+                                padding: 10
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
     </script>
 @endsection

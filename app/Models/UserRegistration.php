@@ -267,7 +267,19 @@ class UserRegistration extends Model
 
         // Fire event for SMS notification
         if ($previousStatus !== self::STATUS_APPROVED) {
+            \Log::info('Account verification status changed - firing SMS notification event', [
+                'user_id' => $this->id,
+                'email' => $this->email,
+                'previous_status' => $previousStatus,
+                'new_status' => self::STATUS_APPROVED
+            ]);
             event(new AccountVerificationStatusChanged($this, $previousStatus, self::STATUS_APPROVED));
+        } else {
+            \Log::info('Account verification status unchanged - skipping SMS notification', [
+                'user_id' => $this->id,
+                'email' => $this->email,
+                'status' => self::STATUS_APPROVED
+            ]);
         }
     }
 

@@ -54,7 +54,7 @@
     padding: 12px 24px;
     background: #ffffff;
     border: 2px solid #e0e0e0;
-    border-radius: 50px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
     font-size: 0.95rem;
@@ -132,7 +132,7 @@
     width: 100%;
     padding: 12px 15px 12px 45px;
     border: 2px solid #e0e0e0;
-    border-radius: 50px;
+    border-radius: 8px;
     font-size: 1rem;
     transition: all 0.3s ease;
     background: #ffffff;
@@ -155,7 +155,7 @@
 .seedlings-filter-select {
     padding: 12px 20px;
     border: 2px solid #e0e0e0;
-    border-radius: 50px;
+    border-radius: 8px;
     font-size: 0.95rem;
     font-weight: 600;
     color: #555;
@@ -184,8 +184,8 @@
     align-items: center;
     padding: 15px 25px;
     background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
-    border-radius: 50px;
-    margin: 0 20px 30px 20px;
+    border-radius: 8px;
+    margin: 0 0 30px 0;
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(64, 145, 108, 0.3);
 }
@@ -206,7 +206,7 @@
     padding: 8px 20px;
     background: rgba(255, 255, 255, 0.2);
     border: 2px solid #ffffff;
-    border-radius: 50px;
+    border-radius: 6px;
     color: #ffffff;
     font-weight: 600;
     cursor: pointer;
@@ -446,7 +446,7 @@
     border: 2px solid #40916c;
     background: #ffffff;
     color: #40916c;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -465,7 +465,7 @@
     padding: 8px;
     text-align: center;
     border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 700;
     font-size: 1rem;
     color: #2d6a4f;
@@ -504,7 +504,7 @@
     background: linear-gradient(135deg, #40916c 0%, #52b788 100%);
     color: #ffffff;
     border: none;
-    border-radius: 50px;
+    border-radius: 8px;
     font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
