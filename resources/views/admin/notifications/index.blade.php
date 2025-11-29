@@ -14,7 +14,7 @@
         </div>
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="markAllAsRead()">
-                <i class="fas fa-check-double me-2"></i>Mark All as Read
+                <i class="fas fa-check me-2"></i>Mark All as Read
             </button>
             <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearAllNotifications()">
                 <i class="fas fa-trash me-2"></i>Clear All
@@ -78,24 +78,55 @@
     overflow-y: auto;
 }
 
+/* UNREAD notifications - bright and highlighted */
+.notification-item-full.unread {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196F3;
+    opacity: 1;
+}
+
+.notification-item-full.unread:hover {
+    background-color: #bbdefb;
+}
+
+.notification-item-full.unread .notification-title-full {
+    color: #1565c0 !important;
+    font-weight: 700;
+}
+
+.notification-item-full.unread .notification-message-full {
+    color: #333 !important;
+}
+
+.notification-item-full.unread .notification-icon-full {
+    opacity: 1;
+}
+
+/* READ notifications - readable but visually distinct */
 .notification-item-full {
     padding: 16px;
     border-bottom: 1px solid #f0f0f0;
     transition: all 0.2s ease;
     cursor: pointer;
+    opacity: 1;
+    background-color: #ffffff;
 }
 
 .notification-item-full:hover {
-    background-color: #f8f9fa;
+    background-color: #f9f9f9;
 }
 
-.notification-item-full.unread {
-    background-color: #e3f2fd;
-    border-left: 4px solid #2196F3;
+.notification-item-full .notification-title-full {
+    color: #333 !important;
+    font-weight: 500;
 }
 
-.notification-item-full.unread:hover {
-    background-color: #cfe9fc;
+.notification-item-full .notification-message-full {
+    color: #666 !important;
+}
+
+.notification-item-full .notification-icon-full {
+    opacity: 0.9;
 }
 
 .notification-icon-full {
@@ -116,12 +147,10 @@
     font-size: 0.95rem;
     font-weight: 600;
     margin-bottom: 4px;
-    color: #333;
 }
 
 .notification-message-full {
     font-size: 0.9rem;
-    color: #666;
     margin-bottom: 8px;
     line-height: 1.4;
 }
@@ -168,6 +197,7 @@ let currentPage = 1;
 // Load notifications on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadAllNotifications();
+    updateCounts();
 });
 
 // Load all notifications
@@ -183,7 +213,6 @@ function loadAllNotifications() {
     .then(response => response.json())
     .then(data => {
         displayAllNotifications(data);
-        updateCounts();
     })
     .catch(error => {
         console.error('Error loading notifications:', error);
@@ -223,12 +252,12 @@ function displayAllNotifications(data) {
                 ${notif.action_url ? `
                     <button type="button" class="btn btn-sm btn-info" 
                             onclick="navigateTo('${notif.action_url}')" title="View details">
-                        <i class="fas fa-arrow-right"></i>
+                        <i class="fas fa-eye me-1"></i>View
                     </button>
                 ` : ''}
                 <button type="button" class="btn btn-sm btn-danger" 
                         onclick="deleteNotification(${notif.id})" title="Delete">
-                    <i class="fas fa-trash"></i>
+                    <i class="fas fa-trash me-1"></i>Delete
                 </button>
             </div>
         </div>
@@ -272,6 +301,7 @@ function markAsRead(notificationId) {
         if (data.success) {
             showToast('success', 'Notification marked as read');
             loadAllNotifications();
+            updateCounts();
         }
     })
     .catch(error => console.error('Error:', error));
@@ -294,6 +324,7 @@ function markAllAsRead() {
         if (data.success) {
             showToast('success', data.message);
             loadAllNotifications();
+            updateCounts();
         }
     })
     .catch(error => console.error('Error:', error));
@@ -316,6 +347,7 @@ function deleteNotification(notificationId) {
         if (data.success) {
             showToast('success', 'Notification deleted');
             loadAllNotifications();
+            updateCounts();
         }
     })
     .catch(error => console.error('Error:', error));
@@ -338,6 +370,7 @@ function clearAllNotifications() {
         if (data.success) {
             showToast('success', data.message);
             loadAllNotifications();
+            updateCounts();
         }
     })
     .catch(error => console.error('Error:', error));
@@ -348,18 +381,34 @@ function navigateTo(url) {
     window.location.href = url;
 }
 
-// Update counts
+// Updated updateCounts function - fetches all three filters
 function updateCounts() {
-    fetch('/admin/notifications?filter=all', {
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-            'Accept': 'application/json'
-        }
+    Promise.all([
+        fetch('/admin/notifications?filter=all&per_page=1', {
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                'Accept': 'application/json'
+            }
+        }).then(r => r.json()),
+        fetch('/admin/notifications?filter=unread&per_page=1', {
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                'Accept': 'application/json'
+            }
+        }).then(r => r.json()),
+        fetch('/admin/notifications?filter=read&per_page=1', {
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                'Accept': 'application/json'
+            }
+        }).then(r => r.json())
+    ])
+    .then(([allData, unreadData, readData]) => {
+        document.getElementById('countAll').textContent = allData.total || 0;
+        document.getElementById('countUnread').textContent = unreadData.total || 0;
+        document.getElementById('countRead').textContent = readData.total || 0;
     })
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById('countAll').textContent = data.total || 0;
-    });
+    .catch(error => console.error('Error updating counts:', error));
 }
 
 // Render pagination
@@ -408,6 +457,44 @@ function goToPage(page) {
     currentPage = page;
     loadAllNotifications();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Toast function (if not already defined)
+function showToast(type, message) {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const iconMap = {
+        'success': { icon: 'fas fa-check-circle', color: '#28a745' },
+        'error': { icon: 'fas fa-exclamation-circle', color: '#dc3545' }
+    };
+
+    const config = iconMap[type] || iconMap['success'];
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        padding: 16px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-left: 4px solid ${config.color};
+    `;
+    toast.innerHTML = `<i class="${config.icon}" style="color: ${config.color}; font-size: 1.5rem;"></i><span>${message}</span>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function createToastContainer() {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+        document.body.appendChild(container);
+    }
+    return container;
 }
 </script>
 @endsection

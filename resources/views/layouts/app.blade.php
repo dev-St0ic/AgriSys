@@ -1036,7 +1036,7 @@
                                                     <div class="d-flex gap-2">
                                                         <button type="button" class="btn btn-sm btn-link text-primary p-0" 
                                                                 onclick="markAllAsRead()" title="Mark all as read">
-                                                            <i class="fas fa-check-double"></i>
+                                                            <i class="fas fa-check"></i>
                                                         </button>
                                                         <button type="button" class="btn btn-sm btn-link text-secondary p-0" 
                                                                 onclick="clearReadNotifications()" title="Clear read">
