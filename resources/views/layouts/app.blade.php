@@ -1833,12 +1833,12 @@ function showToast(type, message) {
 
 /* Read notification styles */
 .notification-item.read {
-    opacity: 0.5;
-    background-color: #f5f5f5 !important;
+    opacity: 0.85;
+    background-color: #fafafa !important;
 }
 
 .notification-item.read:hover {
-    background-color: #efefef !important;
+    background-color: #f5f5f5 !important;
 }
 
 .notification-item.read::before {
@@ -1846,20 +1846,43 @@ function showToast(type, message) {
 }
 
 .notification-item.read .notification-title {
-    color: #999 !important;
-    font-weight: 400;
+    color: #555 !important;
+    font-weight: 500;
 }
 
 .notification-item.read .notification-message {
-    color: #aaa !important;
+    color: #777 !important;
 }
 
 .notification-item.read .notification-time {
-    color: #bbb !important;
+    color: #999 !important;
 }
 
 .notification-item.read .notification-icon {
-    opacity: 0.6;
+    opacity: 0.8;
+}
+
+/* Unread stays bright and highlighted */
+.notification-item.unread {
+    background-color: #e3f2fd;
+    opacity: 1;
+}
+
+.notification-item.unread:hover {
+    background-color: #bbdefb;
+}
+
+.notification-item.unread .notification-title {
+    color: #333 !important;
+    font-weight: 600;
+}
+
+.notification-item.unread .notification-message {
+    color: #555 !important;
+}
+
+.notification-item.unread .notification-time {
+    color: #777 !important;
 }
     </style>
 </body>
