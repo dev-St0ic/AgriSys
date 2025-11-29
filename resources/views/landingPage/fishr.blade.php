@@ -25,7 +25,8 @@
             @csrf
 
             <div class="fishr-form-group">
-                <label for="fishr-first_name">First Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
+                <label for="fishr-first_name">First Name <span
+                        style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="fishr-first_name" name="first_name" placeholder="Enter your first name"
                     pattern="[a-zA-Z\s\'-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes"
@@ -68,12 +69,15 @@
 
             <div class="fishr-form-group">
                 <label for="fishr-name_extension">Name Extension (Optional)</label>
-                <input type="text" id="fishr-name_extension" name="name_extension" placeholder="Jr., Sr., III, etc."
-                    pattern="[a-zA-Z.\s]+" title="Name extension can only contain letters, periods, and spaces"
-                    value="{{ old('name_extension') }}">
-                <span class="validation-warning" id="fishr-name_extension-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
-                    periods, and spaces are allowed</span>
+                <select id="fishr-name_extension" name="name_extension">
+                    <option value="" selected>Select Extension</option>
+                    <option value="Jr." {{ old('name_extension') == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                    <option value="Sr." {{ old('name_extension') == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                    <option value="II" {{ old('name_extension') == 'II' ? 'selected' : '' }}>II</option>
+                    <option value="III" {{ old('name_extension') == 'III' ? 'selected' : '' }}>III</option>
+                    <option value="IV" {{ old('name_extension') == 'IV' ? 'selected' : '' }}>IV</option>
+                    <option value="V" {{ old('name_extension') == 'V' ? 'selected' : '' }}>V</option>
+                </select>
                 @error('name_extension')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
@@ -133,29 +137,20 @@
 
 
             <div class="fishr-form-group">
-                <label for="fishr-contact_number">Contact Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="tel" id="fishr-contact_number" name="contact_number"
-                    placeholder="+639XXXXXXXXX or 09XXXXXXXXX" value="{{ old('contact_number') }}"
-                    pattern="^(\+639|09)\d{9}$"
-                    title="Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
-                    required>
+                <label for="fishr-contact_number">Contact Number <span
+                        style="color: #dc3545; font-weight: bold;">*</span></label>
+                <input type="tel" id="fishr-contact_number" name="contact_number" placeholder="09XXXXXXXXX"
+                    value="{{ old('contact_number') }}" pattern="^09\d{9}$"
+                    title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)" required>
                 @error('contact_number')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror
             </div>
 
-            <div class="fishr-form-group">
-                <label for="fishr-email">Email Address <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="email" id="fishr-email" name="email" placeholder="Enter your email address"
-                    value="{{ old('email') }}" required>
-                @error('email')
-                    <span class="fishr-error-text">{{ $message }}</span>
-                @enderror
-            </div>
-
 
             <div class="fishr-form-group">
-                <label for="fishr-main_livelihood">Main Livelihood <span style="color: #dc3545; font-weight: bold;">*</span></label>
+                <label for="fishr-main_livelihood">Main Livelihood <span
+                        style="color: #dc3545; font-weight: bold;">*</span></label>
                 <select id="fishr-main_livelihood" name="main_livelihood" required
                     onchange="toggleOtherLivelihood(this)">
                     <option value="" disabled selected>Select Livelihood</option>

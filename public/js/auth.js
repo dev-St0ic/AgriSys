@@ -1263,7 +1263,6 @@ async function loadCurrentProfileData() {
 function populateEditForm(user) {
     // Set readonly fields with current user data
     const usernameInput = document.getElementById('edit-username');
-    const emailInput = document.getElementById('edit-email');
     const profileAvatarLetter = document.getElementById('profile-avatar-letter');
     const usernameEditIndicator = document.getElementById('username-edit-indicator');
 
@@ -1309,11 +1308,6 @@ function populateEditForm(user) {
                 }
             });
         }
-    }
-
-    // Populate email (readonly)
-    if (emailInput) {
-        emailInput.value = user.email || '';
     }
 
     // Update profile avatar with first letter of current username

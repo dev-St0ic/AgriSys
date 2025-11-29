@@ -200,7 +200,7 @@ class RsbsaController extends Controller
         // Store original values for audit
         $originalData = $application->only([
             'first_name', 'middle_name', 'last_name', 'name_extension',
-            'contact_number', 'email', 'barangay', 'farm_location', 
+            'contact_number', 'email', 'barangay', 'farm_location',
             'main_livelihood', 'land_area', 'commodity'
         ]);
 
@@ -309,6 +309,23 @@ public function updateStatus(Request $request, $id)
             $application->update([
                 'rejected_at' => now(),
             ]);
+        }
+
+        // Fire SMS notification event if status changed to approved or rejected
+        $statusChanged = ($originalStatus !== $validated['status']);
+        if ($statusChanged && in_array($validated['status'], ['approved', 'rejected'])) {
+            \Log::info('RSBSA Status changed - firing SMS notification', [
+                'application_id' => $application->id,
+                'previous_status' => $originalStatus,
+                'new_status' => $validated['status']
+            ]);
+
+            $application->fireApplicationStatusChanged(
+                $application->getApplicationTypeName(),
+                $originalStatus,
+                $validated['status'],
+                $validated['remarks'] ?? null
+            );
         }
 
         $this->logActivity('updated_status', 'RsbsaApplication', $application->id, [

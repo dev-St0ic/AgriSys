@@ -164,7 +164,6 @@
                                     </div>
                                     <div class="dropdown-details">
                                         <div class="dropdown-name">{{ $user['name'] ?? $user['username'] }}</div>
-                                        <div class="dropdown-email">{{ $user['email'] }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -473,7 +472,6 @@
                             </div>
                             <div class="profile-header-info">
                                 <h4>{{ $user['name'] ?? $user['username'] }}</h4>
-                                <p class="profile-email">{{ $user['email'] }}</p>
                                 <div class="profile-status-badge status-{{ $status }}">
                                     {{ ucfirst($user['status'] ?? 'Active') }}
                                 </div>
@@ -488,10 +486,7 @@
                                     <span class="info-label">Username:</span>
                                     <span class="info-value">{{ $user['username'] }}</span>
                                 </div>
-                                <div class="info-row">
-                                    <span class="info-label">Email:</span>
-                                    <span class="info-value">{{ $user['email'] }}</span>
-                                </div>
+
                                 <div class="info-row">
                                     <span class="info-label">Account Status:</span>
                                     <span
@@ -945,9 +940,9 @@
                         <h2 class="step-header">Welcome Back!</h2>
                         <p class="step-description">Sign in to access your agricultural services</p>
                         <div class="form-group">
-                            <label for="username">Username or Email</label>
+                            <label for="username">Username</label>
                             <input type="text" id="username" name="username" required
-                                placeholder="Enter your username or email">
+                                placeholder="Enter your username">
                         </div>
 
                         <div class="form-group">
@@ -1141,12 +1136,7 @@
                             </div>
                         </div>
 
-                        <!-- Email Address Field - Readonly -->
-                        <div class="form-group">
-                            <label for="edit-email">Email Address</label>
-                            <input type="email" id="edit-email" name="email" readonly disabled>
-                            <small>Email address cannot be changed. Contact support if needed.</small>
-                        </div>
+
                     </div>
 
                     <!-- Contact Information Section -->
@@ -1265,9 +1255,8 @@
                         <div class="form-group">
                             <label for="new-password">New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="new-password" name="new_password" required
-                                    minlength="8" autocomplete="new-password"
-                                    placeholder="Enter your new password"
+                                <input type="password" id="new-password" name="new_password" required minlength="8"
+                                    autocomplete="new-password" placeholder="Enter your new password"
                                     oninput="checkNewPasswordStrength(this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('new-password')">

@@ -41,11 +41,15 @@
                 hyphens, and apostrophes are allowed</span>
 
             <label>Name Extension (Optional)</label>
-            <input type="text" id="rsbsa-name_extension" name="name_extension" placeholder="Jr., Sr., III, etc."
-                pattern="[a-zA-Z.\s]+" title="Name extension can only contain letters, periods, and spaces">
-            <span class="validation-warning" id="rsbsa-name_extension-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, periods,
-                and spaces are allowed</span>
+            <select id="rsbsa-name_extension" name="name_extension">
+                <option value="" selected>Select Extension</option>
+                <option value="Jr.">Jr.</option>
+                <option value="Sr.">Sr.</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+                <option value="V">V</option>
+            </select>
 
             <label>Sex <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <select name="sex" required>
@@ -88,12 +92,8 @@
             </select>
 
             <label>Mobile Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
-            <input type="tel" name="mobile" placeholder="+639XXXXXXXXX or 09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
-                title="Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
-                required>
-
-            <label>Email Address <span style="color: #dc3545; font-weight: bold;">*</span></label>
-            <input type="email" name="email" placeholder="Enter your email address" required>
+            <input type="tel" name="mobile" placeholder="09XXXXXXXXX" pattern="^09\d{9}$"
+                title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)" required>
 
             <label>Main Livelihood <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <select name="main_livelihood" required>

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule; 
+use Illuminate\Validation\Rule;
 use App\Notifications\EmailVerificationNotification;
 use App\Notifications\RegistrationApprovedNotification;
 use App\Notifications\RegistrationRejectedNotification;
@@ -227,7 +227,6 @@ class UserRegistrationController extends Controller
                 'data' => [
                     'user_id' => $registration->id,
                     'username' => $registration->username,
-                    'email' => $registration->email,
                     'status' => $registration->status
                 ]
             ], 201);
@@ -250,14 +249,14 @@ class UserRegistrationController extends Controller
             'username' => 'required|string',
             'password' => 'required|string',
         ], [
-            'username.required' => 'Username or email is required',
+            'username.required' => 'Username is required',
             'password.required' => 'Password is required'
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please provide both username/email and password.',
+                'message' => 'Please provide both username and password.',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -266,8 +265,7 @@ class UserRegistrationController extends Controller
             $loginField = $request->username;
             $password = $request->password;
 
-            $userRegistration = UserRegistration::where('email', $loginField)
-                ->orWhere('username', $loginField)
+            $userRegistration = UserRegistration::where('username', $loginField)
                 ->first();
 
             if ($userRegistration && Hash::check($password, $userRegistration->password)) {
@@ -275,14 +273,12 @@ class UserRegistrationController extends Controller
                 $request->session()->put('user', [
                     'id' => $userRegistration->id,
                     'username' => $userRegistration->username,
-                    'email' => $userRegistration->email,
                     'name' => $userRegistration->full_name ?? $userRegistration->username,
                     'user_type' => $userRegistration->user_type,
                     'status' => $userRegistration->status
                 ]);
 
                 $request->session()->put('user_id', $userRegistration->id);
-                $request->session()->put('user_email', $userRegistration->email);
                 $request->session()->put('user_username', $userRegistration->username);
                 $request->session()->put('user_status', $userRegistration->status);
 
@@ -311,15 +307,14 @@ class UserRegistrationController extends Controller
                         'id' => $userRegistration->id,
                         'username' => $userRegistration->username,
                         'name' => $userRegistration->full_name ?? $userRegistration->username,
-                        'email' => $userRegistration->email,
                         'status' => $userRegistration->status,
                         'user_type' => $userRegistration->user_type,
                     ]
                 ]);
             }
 
-            // Check admin users
-            $user = User::where('email', $loginField)->first();
+            // Check admin users (admins still use email in User table)
+            // This is separate from user_registration table
 
             if ($user && Hash::check($password, $user->password)) {
                 Auth::login($user);
@@ -766,8 +761,15 @@ class UserRegistrationController extends Controller
             ], 404);
         }
 
+        \Log::info('Account verification approval initiated', [
+            'user_id' => $registration->id,
+            'email' => $registration->email,
+            'current_status' => $registration->status,
+            'admin_id' => auth()->id()
+        ]);
+
         // Use the model's approve method to trigger SMS notification
-        $registration->approve(null, auth()->id());
+        $registration->approve(auth()->id());
 
         // Log activity
         $this->logActivity('approved', 'UserRegistration', $registration->id, [
@@ -1101,11 +1103,11 @@ public function update(Request $request, $id)
 
         // Emergency contact
         if ($request->has('emergency_contact_name')) {
-            $updateData['emergency_contact_name'] = $request->emergency_contact_name ? 
+            $updateData['emergency_contact_name'] = $request->emergency_contact_name ?
                 trim($request->emergency_contact_name) : null;
         }
         if ($request->has('emergency_contact_phone')) {
-            $updateData['emergency_contact_phone'] = $request->emergency_contact_phone ? 
+            $updateData['emergency_contact_phone'] = $request->emergency_contact_phone ?
                 trim($request->emergency_contact_phone) : null;
         }
 
@@ -1935,7 +1937,6 @@ public function update(Request $request, $id)
             $request->session()->put('user', [
                 'id' => $userRegistration->id,
                 'username' => $userRegistration->username,
-                'email' => $userRegistration->email,
                 'name' => $userRegistration->full_name ?? $userRegistration->username,
                 'user_type' => $userRegistration->user_type,
                 'status' => $userRegistration->status,
@@ -1948,7 +1949,6 @@ public function update(Request $request, $id)
         $request->session()->put('user', [
             'id' => $userRegistration->id,
             'username' => $userRegistration->username,
-            'email' => $userRegistration->email,
             'name' => $userRegistration->full_name ?? $userRegistration->username,
             'user_type' => $userRegistration->user_type,
             'status' => $userRegistration->status,
@@ -1956,7 +1956,6 @@ public function update(Request $request, $id)
         ]);
 
             $request->session()->put('user_id', $userRegistration->id);
-            $request->session()->put('user_email', $userRegistration->email);
             $request->session()->put('user_username', $userRegistration->username);
 
             $firstName = explode(' ', $userRegistration->first_name ?? $userRegistration->username)[0];

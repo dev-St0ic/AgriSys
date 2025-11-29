@@ -1306,7 +1306,7 @@
         /* Modern Statistics Cards */
         .stat-card {
             border: none;
-            border-radius: 15px;
+            border-radius: 0px;
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             transition: all 0.3s ease;
             overflow: hidden;

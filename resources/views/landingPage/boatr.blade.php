@@ -47,27 +47,23 @@
 
             <div class="boatr-form-group">
                 <label for="boatr_name_extension">Name Extension (Optional)</label>
-                <input type="text" id="boatr_name_extension" name="name_extension" placeholder="Jr., Sr., III, etc."
-                    pattern="[a-zA-Z.\s]+" title="Name extension can only contain letters, periods, and spaces">
-                <span class="validation-warning" id="boatr_name_extension-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
-                    periods, and spaces are allowed</span>
+                <select id="boatr_name_extension" name="name_extension">
+                    <option value="" selected>Select Extension</option>
+                    <option value="Jr.">Jr.</option>
+                    <option value="Sr.">Sr.</option>
+                    <option value="II">II</option>
+                    <option value="III">III</option>
+                    <option value="IV">IV</option>
+                    <option value="V">V</option>
+                </select>
             </div>
 
             <div class="boatr-form-group">
                 <label for="boatr_contact_number">Contact Number <span class="required">*</span></label>
-                <input type="tel" id="boatr_contact_number" name="contact_number"
-                    placeholder="+639XXXXXXXXX or 09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
-                    title="Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
+                <input type="tel" id="boatr_contact_number" name="contact_number" placeholder="09XXXXXXXXX"
+                    pattern="^09\d{9}$" title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     required>
-                <small class="boatr-form-help">Format: +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or
-                    09123456789)</small>
-            </div>
-
-            <div class="boatr-form-group">
-                <label for="boatr_email">Email Address <span class="required">*</span></label>
-                <input type="email" id="boatr_email" name="email" placeholder="Enter your email address" required>
-                <small class="boatr-form-help">Please provide a valid email address for notifications.</small>
+                <small class="boatr-form-help">Format: 09XXXXXXXXX (e.g., 09123456789)</small>
             </div>
 
             <div class="boatr-form-group">
@@ -159,7 +155,8 @@
             </div>
 
             <div class="boatr-form-group">
-                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used <span class="required">*</span></label>
+                <label for="boatr_primary_fishing_gear">Primary Fishing Gear Used <span
+                        class="required">*</span></label>
                 <select id="boatr_primary_fishing_gear" name="primary_fishing_gear" required>
                     <option value="" disabled selected>Select Primary Gear</option>
                     <option value="Hook and Line">Hook and Line</option>

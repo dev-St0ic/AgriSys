@@ -52,14 +52,16 @@
     </div>
 
     <!-- Selected Items Counter -->
-    <div class="seedlings-selection-summary" id="selection-summary" style="display: none;">
-        <div class="selection-count">
-            <i class="fas fa-shopping-cart"></i>
-            <span id="selected-count">0</span> items selected
+    <div style="padding: 0 20px;">
+        <div class="seedlings-selection-summary" id="selection-summary" style="display: none;">
+            <div class="selection-count">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="selected-count">0</span> items selected
+            </div>
+            <button type="button" class="seedlings-clear-btn" onclick="clearAllSelections()">
+                <i class="fas fa-times"></i> Clear All
+            </button>
         </div>
-        <button type="button" class="seedlings-clear-btn" onclick="clearAllSelections()">
-            <i class="fas fa-times"></i> Clear All
-        </button>
     </div>
 
     <form id="seedlings-choice-form">
@@ -205,23 +207,21 @@
                 hyphens, and apostrophes are allowed</span>
 
             <label for="seedlings-extension_name">Name Extension (Optional)</label>
-            <input type="text" id="seedlings-extension_name" name="extension_name"
-                placeholder="Jr., Sr., III, etc." pattern="[a-zA-Z.\s]+"
-                title="Name extension can only contain letters, periods, and spaces">
-            <span class="validation-warning" id="seedlings-extension_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, periods,
-                and spaces are allowed</span>
+            <select id="seedlings-extension_name" name="extension_name">
+                <option value="" selected>Select Extension</option>
+                <option value="Jr.">Jr.</option>
+                <option value="Sr.">Sr.</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+                <option value="V">V</option>
+            </select>
 
             <label for="seedlings-mobile">Contact Number <span class="required-asterisk">*</span></label>
-            <input type="tel" id="seedlings-mobile" name="mobile" placeholder="+639XXXXXXXXX or 09XXXXXXXXX"
-                pattern="^(\+639|09)\d{9}$"
-                title="Mobile number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
+            <input type="tel" id="seedlings-mobile" name="mobile" placeholder="09XXXXXXXXX"
+                pattern="^09\d{9}$" title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                 required>
-            <small>Format: +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)</small>
-
-            <label for="seedlings-email">Email Address <span class="required-asterisk">*</span></label>
-            <input type="email" id="seedlings-email" name="email" required>
-            <small>Please provide a valid email address for notifications.</small>
+            <small>Format: 09XXXXXXXXX (e.g., 09123456789)</small>
 
             <label for="seedlings-barangay">Barangay *</label>
             <select id="seedlings-barangay" name="barangay" required>

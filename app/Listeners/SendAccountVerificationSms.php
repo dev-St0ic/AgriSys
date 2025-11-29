@@ -31,8 +31,17 @@ class SendAccountVerificationSms // Removed ShouldQueue for immediate processing
         $newStatus = $event->newStatus;
         $reason = $event->reason;
 
+        Log::info('SendAccountVerificationSms listener triggered', [
+            'user_id' => $userRegistration->id,
+            'email' => $userRegistration->email,
+            'new_status' => $newStatus,
+            'phone' => $userRegistration->contact_number,
+            'timestamp' => now()->toDateTimeString()
+        ]);
+
         // Only send SMS for approved or rejected status
         if (!in_array($newStatus, ['approved', 'rejected'])) {
+            Log::info('SMS not sent - status not approved/rejected', ['status' => $newStatus]);
             return;
         }
 

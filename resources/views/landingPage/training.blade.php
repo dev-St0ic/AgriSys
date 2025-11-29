@@ -55,25 +55,21 @@
 
             <div class="training-form-group">
                 <label for="training_name_extension">Name Extension (Optional)</label>
-                <input type="text" id="training_name_extension" name="name_extension"
-                    placeholder="Jr., Sr., III, etc." pattern="[a-zA-Z.\s]+"
-                    title="Name extension can only contain letters, periods, and spaces">
-                <span class="validation-warning" id="training_name_extension-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
-                    periods, and spaces are allowed</span>
+                <select id="training_name_extension" name="name_extension">
+                    <option value="" selected>Select Extension</option>
+                    <option value="Jr.">Jr.</option>
+                    <option value="Sr.">Sr.</option>
+                    <option value="II">II</option>
+                    <option value="III">III</option>
+                    <option value="IV">IV</option>
+                    <option value="V">V</option>
+                </select>
             </div>
 
             <div class="training-form-group">
                 <label for="training_contact_number">Contact Number <span class="required-asterisk">*</span></label>
-                <input type="tel" id="training_contact_number" name="contact_number"
-                    placeholder="+639XXXXXXXXX or 09XXXXXXXXX" pattern="^(\+639|09)\d{9}$"
-                    title="Contact number must be in the format +639XXXXXXXXX or 09XXXXXXXXX (e.g., +639123456789 or 09123456789)"
-                    required>
-            </div>
-
-            <div class="training-form-group">
-                <label for="training_email">Email Address <span class="required-asterisk">*</span></label>
-                <input type="email" id="training_email" name="email" placeholder="Enter your email address"
+                <input type="tel" id="training_contact_number" name="contact_number" placeholder="09XXXXXXXXX"
+                    pattern="^09\d{9}$" title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     required>
             </div>
 
