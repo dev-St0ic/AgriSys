@@ -58,7 +58,7 @@ class UserRegistrationFactory extends Factory
             'last_name' => $lastName,
             'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
             'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
-            'contact_number' => $this->faker->optional(0.8)->numerify('09#########'),
+            'contact_number' => $this->faker->numerify('09#########'), // FIXED: Always generate
             'complete_address' => $this->faker->optional(0.7)->address(),
             'barangay' => $this->faker->optional(0.7)->randomElement($allBarangays),
             'user_type' => $this->faker->optional(0.8)->randomElement(['farmer', 'fisherfolk']),
@@ -82,7 +82,7 @@ class UserRegistrationFactory extends Factory
             'first_name' => null,
             'last_name' => null,
             'middle_name' => null,
-            'contact_number' => null,
+            // FIXED: Don't override contact_number - let base definition handle it
             'complete_address' => null,
             'barangay' => null,
             'user_type' => null,
@@ -303,6 +303,7 @@ class UserRegistrationFactory extends Factory
 
     /**
      * Create a registration with incomplete profile (basic signup only).
+     * FIXED: Don't set contact_number to null - let base definition handle it
      */
     public function incompleteProfile(): static
     {
@@ -310,7 +311,7 @@ class UserRegistrationFactory extends Factory
             'first_name' => null,
             'last_name' => null,
             'middle_name' => null,
-            'contact_number' => null,
+            // FIXED: Don't override contact_number - let base definition handle it
             'complete_address' => null,
             'barangay' => null,
             'user_type' => null,

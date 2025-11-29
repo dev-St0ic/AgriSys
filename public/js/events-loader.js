@@ -220,7 +220,7 @@ function createEventCard(event, index = 0) {
         : description;
     
     return `
-        <div class="event-card" onclick="handleEventClick(${event.id}, ${event.is_fallback || false})">
+        <div class="event-card" onclick="handleEventCardClick(${event.id}, ${event.is_fallback || false})">
             <img src="${imageUrl}" 
                  alt="${title}" 
                  class="event-card-image" 
@@ -229,7 +229,7 @@ function createEventCard(event, index = 0) {
                 <span class="event-card-category">${category}</span>
                 <h3 class="event-card-title">${title}</h3>
                 <p class="event-card-description">${truncated}</p>
-                <button class="event-card-btn">Learn More</button>
+                <button class="event-card-btn" onclick="handleLearnMoreClick(event, ${event.id}, ${event.is_fallback || false})">Learn More</button>
             </div>
         </div>
     `;
@@ -286,7 +286,7 @@ function createFeaturedEvent(event) {
                         </div>
                     </div>
                     
-                    <button class="featured-cta" onclick="handleEventClick(${event.id}, ${isFallback})">
+                    <button class="featured-cta" onclick="handleLearnMoreClick(event, ${event.id}, ${isFallback})">
                         ${isFallback ? 'Contact Us' : 'View Full Details'}
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -299,13 +299,12 @@ function createFeaturedEvent(event) {
 }
 
 /**
- * Handle event click
+ * Handle event card click (for card itself, not button)
  */
-function handleEventClick(eventId, isFallback = false) {
-    console.log('📋 [Events] Event clicked:', eventId, 'Is fallback:', isFallback);
+function handleEventCardClick(eventId, isFallback = false) {
+    console.log('📋 [Events] Event card clicked:', eventId, 'Is fallback:', isFallback);
     
     if (isFallback) {
-        // Redirect to contact page or show info
         alert('For more information about our agricultural programs, please contact the City Agriculture Office.');
         return;
     }
@@ -314,8 +313,414 @@ function handleEventClick(eventId, isFallback = false) {
     
     if (event) {
         console.log('Event Details:', event);
-        // TODO: Implement modal or detail page
     }
+}
+
+/**
+ * Handle "Learn More" / "View Full Details" button click
+ * Opens event details in a new tab
+ */
+function handleLearnMoreClick(clickEvent, eventId, isFallback = false) {
+    clickEvent.stopPropagation(); // Prevent triggering parent card click
+    
+    console.log('📖 [Events] Learn More clicked for event:', eventId, 'Is fallback:', isFallback);
+    
+    if (isFallback) {
+        // For fallback events, show contact info or redirect to contact page
+        console.log('ℹ️ [Events] Fallback event - showing contact info');
+        alert('For more information about our agricultural programs, please contact the City Agriculture Office.\n\nPhone: (049) 123-4567\nEmail: agriculture@sanpedro.gov.ph');
+        return;
+    }
+    
+    // Get the full event data
+    const event = allEvents.find(e => e.id === eventId);
+    
+    if (!event) {
+        console.error('❌ [Events] Event not found:', eventId);
+        alert('Event details could not be found.');
+        return;
+    }
+    
+    // Open event details in a new tab
+    openEventDetailsInNewTab(event);
+}
+
+/**
+ * Open event details in a new tab with full information
+ */
+function openEventDetailsInNewTab(event) {
+    console.log('🔗 [Events] Opening event details in new tab:', event.id);
+    
+    // Create a data URL or redirect to a details page
+    // Option 1: If you have a dedicated event details page
+    // window.open(`/events/${event.id}`, '_blank');
+    
+    // Option 2: Create an HTML page dynamically in a new tab
+    const detailsHTML = generateEventDetailsHTML(event);
+    
+    // Open in new tab using blob URL (doesn't require a server route)
+    const blob = new Blob([detailsHTML], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    
+    // Clean up the blob URL after a short delay
+    setTimeout(() => window.URL.revokeObjectURL(url), 100);
+}
+
+/**
+ * Generate comprehensive HTML for event details page
+ */
+function generateEventDetailsHTML(event) {
+    const title = event.title || 'Event Details';
+    const description = event.description || 'No description available';
+    const date = event.date || 'Date TBA';
+    const location = event.location || 'Location TBA';
+    const category = event.category_label || 'Event';
+    const imageUrl = (event.image && event.image.trim()) ? event.image : createPlaceholder(800, 400, event.title);
+    
+    // Format details if they exist
+    let detailsHTML = '';
+    if (event.details && Object.keys(event.details).length > 0) {
+        detailsHTML = '<div class="details-section"><h3>Additional Details</h3><ul>';
+        for (const [key, value] of Object.entries(event.details)) {
+            const displayKey = key.replace(/_/g, ' ').charAt(0).toUpperCase() + key.replace(/_/g, ' ').slice(1);
+            detailsHTML += `<li><strong>${displayKey}:</strong> ${value}</li>`;
+        }
+        detailsHTML += '</ul></div>';
+    }
+    
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${title} - AgriSys Events</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+            
+            .event-details-container {
+                max-width: 900px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+                overflow: hidden;
+            }
+            
+            .event-header {
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .event-image {
+                width: 100%;
+                height: 400px;
+                object-fit: cover;
+                display: block;
+            }
+            
+            .event-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 100%);
+                display: flex;
+                align-items: flex-end;
+                padding: 40px 30px;
+                color: white;
+            }
+            
+            .event-overlay h1 {
+                font-size: 2.5em;
+                margin-bottom: 10px;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+            
+            .event-category-badge {
+                display: inline-block;
+                background: #0A6953;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.9em;
+                font-weight: 600;
+                margin-bottom: 10px;
+            }
+            
+            .event-content {
+                padding: 40px;
+            }
+            
+            .event-meta {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+                padding-bottom: 30px;
+                border-bottom: 2px solid #f0f0f0;
+            }
+            
+            .meta-item {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .meta-icon {
+                width: 50px;
+                height: 50px;
+                background: #f0f0f0;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5em;
+                color: #0A6953;
+            }
+            
+            .meta-text h4 {
+                color: #666;
+                font-size: 0.85em;
+                margin-bottom: 4px;
+            }
+            
+            .meta-text p {
+                color: #333;
+                font-weight: 600;
+                font-size: 1.1em;
+            }
+            
+            .description-section {
+                margin-bottom: 30px;
+            }
+            
+            .description-section h3 {
+                color: #0A6953;
+                margin-bottom: 15px;
+                font-size: 1.5em;
+            }
+            
+            .description-section p {
+                color: #555;
+                line-height: 1.8;
+                font-size: 1.05em;
+            }
+            
+            .details-section {
+                background: #f9f9f9;
+                padding: 25px;
+                border-radius: 8px;
+                margin-bottom: 30px;
+            }
+            
+            .details-section h3 {
+                color: #0A6953;
+                margin-bottom: 15px;
+            }
+            
+            .details-section ul {
+                list-style: none;
+            }
+            
+            .details-section li {
+                padding: 10px 0;
+                border-bottom: 1px solid #e0e0e0;
+                color: #555;
+            }
+            
+            .details-section li:last-child {
+                border-bottom: none;
+            }
+            
+            .details-section strong {
+                color: #0A6953;
+            }
+            
+            .action-buttons {
+                display: flex;
+                gap: 15px;
+                margin-top: 30px;
+                padding-top: 30px;
+                border-top: 2px solid #f0f0f0;
+            }
+            
+            .btn {
+                padding: 12px 30px;
+                border: none;
+                border-radius: 6px;
+                font-size: 1em;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .btn-primary {
+                background: #0A6953;
+                color: white;
+            }
+            
+            .btn-primary:hover {
+                background: #084a3d;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(10, 105, 83, 0.3);
+            }
+            
+            .btn-secondary {
+                background: #f0f0f0;
+                color: #333;
+            }
+            
+            .btn-secondary:hover {
+                background: #e0e0e0;
+            }
+            
+            .footer-section {
+                background: #f9f9f9;
+                padding: 20px 40px;
+                border-top: 1px solid #e0e0e0;
+                text-align: center;
+                color: #666;
+                font-size: 0.9em;
+            }
+            
+            .contact-info {
+                background: #0A6953;
+                color: white;
+                padding: 30px 40px;
+                margin-top: 30px;
+                border-radius: 8px;
+            }
+            
+            .contact-info h3 {
+                margin-bottom: 15px;
+            }
+            
+            .contact-info p {
+                margin: 8px 0;
+            }
+            
+            @media (max-width: 768px) {
+                .event-overlay h1 {
+                    font-size: 1.8em;
+                }
+                
+                .event-content {
+                    padding: 25px;
+                }
+                
+                .event-meta {
+                    grid-template-columns: 1fr;
+                }
+                
+                .action-buttons {
+                    flex-direction: column;
+                }
+                
+                .btn {
+                    justify-content: center;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="event-details-container">
+            <!-- Event Header with Image -->
+            <div class="event-header">
+                <img src="${imageUrl}" alt="${title}" class="event-image">
+                <div class="event-overlay">
+                    <div>
+                        <span class="event-category-badge">${category}</span>
+                        <h1>${title}</h1>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Event Content -->
+            <div class="event-content">
+                <!-- Event Metadata -->
+                <div class="event-meta">
+                    <div class="meta-item">
+                        <div class="meta-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="meta-text">
+                            <h4>Date & Time</h4>
+                            <p>${date}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="meta-item">
+                        <div class="meta-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="meta-text">
+                            <h4>Location</h4>
+                            <p>${location}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div class="description-section">
+                    <h3>About This Event</h3>
+                    <p>${description}</p>
+                </div>
+                
+                <!-- Additional Details -->
+                ${detailsHTML}
+                
+                <!-- Contact Information -->
+                <div class="contact-info">
+                    <h3><i class="fas fa-phone-alt me-2"></i>Need More Information?</h3>
+                    <p><strong>City Agriculture Office</strong></p>
+                    <p>Phone: (049) 123-4567</p>
+                    <p>Email: <a href="mailto:agriculture@sanpedro.gov.ph" style="color: white;">agriculture@sanpedro.gov.ph</a></p>
+                    <p>Office Hours: Monday - Friday, 8:00 AM - 5:00 PM</p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="window.close();">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </button>
+                </div>
+                
+                <script>
+                    window.addEventListener('beforeunload', function() {
+                        if (window.opener) {
+                            window.opener.focus();
+                        }
+                    });
+                </script>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer-section">
+                <p>&copy; 2025 City Agriculture Office of San Pedro. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
 }
 
 /**
@@ -335,6 +740,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Make functions globally accessible
 window.loadEvents = loadEvents;
-window.handleEventClick = handleEventClick;
+window.handleEventCardClick = handleEventCardClick;
+window.handleLearnMoreClick = handleLearnMoreClick;
 
-console.log('✅ [Events] Enhanced loader script with announcements featured');
+console.log('✅ [Events] Enhanced loader script with new tab details view');

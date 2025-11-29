@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Event;
-use App\Models\EventLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +31,6 @@ class EventController extends Controller
             });
         }
 
-        // Date filtering with proper handling
         if ($request->has('date_from') && !empty($request->date_from)) {
             $dateFrom = $request->date_from;
             $query->where('created_at', '>=', $dateFrom);
@@ -43,8 +41,6 @@ class EventController extends Controller
             $query->where('created_at', '<=', $dateTo);
         }
 
-        // $events = $query->paginate(15)->withQueryString();
-        // SORT BY NEWEST FIRST (newest created_at at top)
         $events = $query->orderBy('created_at', 'DESC')
                     ->paginate(10);
 
@@ -132,12 +128,12 @@ class EventController extends Controller
     }
 
     /**
- * Store a new event
- * LOGIC:
- * - Max 3 ACTIVE events per category
- * - Announcements must always be ACTIVE
- * - Auto-deactivates oldest event if limit reached
- */
+     * Store a new event
+     * LOGIC:
+     * - Max 3 ACTIVE events per category
+     * - Announcements must always be ACTIVE
+     * - Auto-deactivates oldest event if limit reached
+     */
     public function store(Request $request)
     {
         \Log::info('📥 [Events] Store request received', [
@@ -169,7 +165,6 @@ class EventController extends Controller
 
             // ANNOUNCEMENTS MUST ALWAYS BE ACTIVE
             $isActiveRequest = $request->category === 'announcement' ? true : $request->boolean('is_active', true);
-            $wasForced = false;
             $wasDeactivated = false;
             $deactivatedCount = 0;
 
@@ -241,19 +236,10 @@ class EventController extends Controller
                 'updated_by' => auth()->id()
             ]);
 
-            $event->logAction('created', auth()->id(), null, 'Event created successfully');
-
             DB::commit();
 
             \Log::info(' [Events] Event created successfully', [
                 'id' => $event->id,
-                'title' => $event->title,
-                'category' => $event->category,
-                'is_active' => $event->is_active
-            ]);
-
-            // Log activity
-            $this->logActivity('created', 'Event', $event->id, [
                 'title' => $event->title,
                 'category' => $event->category,
                 'is_active' => $event->is_active
@@ -294,14 +280,13 @@ class EventController extends Controller
         }
     }
 
-
     /**
      * Get a single event with full details
      */
     public function show(Event $event)
     {
         try {
-            $event->load(['creator', 'updater', 'archivist', 'logs.performer']);
+            $event->load(['creator', 'updater', 'archivist']);
 
             return response()->json([
                 'success' => true,
@@ -335,16 +320,6 @@ class EventController extends Controller
                         'id' => $event->archivist->id,
                         'name' => $event->archivist->name,
                     ] : null,
-                    'logs' => $event->logs->map(function($log) {
-                        return [
-                            'id' => $log->id,
-                            'action' => $log->action,
-                            'performer' => $log->performer_name,
-                            'changes' => $log->formatted_changes,
-                            'notes' => $log->notes,
-                            'created_at' => $log->created_at->toIso8601String(),
-                        ];
-                    })
                 ]
             ]);
 
@@ -400,9 +375,6 @@ class EventController extends Controller
                 ], 422);
             }
 
-            $changes = [];
-            $oldData = $event->only(['title', 'description', 'category', 'date', 'location', 'is_active']);
-
             $newImagePath = $event->image_path;
             if ($request->hasFile('image')) {
                 if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
@@ -412,8 +384,6 @@ class EventController extends Controller
                 $file = $request->file('image');
                 $filename = time() . '_' . \Str::slug($request->title) . '.' . $file->getClientOriginalExtension();
                 $newImagePath = $file->storeAs('events', $filename, 'public');
-
-                $changes['image'] = ['old' => $event->image_path, 'new' => $newImagePath];
             }
 
             $details = [];
@@ -439,33 +409,14 @@ class EventController extends Controller
                 'updated_by' => auth()->id()
             ]);
 
-            $newData = $event->only(['title', 'description', 'category', 'date', 'location', 'is_active']);
-            foreach ($newData as $key => $value) {
-                if ($oldData[$key] !== $value) {
-                    $changes[$key] = ['old' => $oldData[$key], 'new' => $value];
-                }
-            }
-
-            if (!empty($changes)) {
-                $event->logAction('updated', auth()->id(), $changes, 'Event updated');
-            }
-
             DB::commit();
 
-            \Log::info(' [Events] Event updated', ['id' => $event->id, 'changes' => count($changes)]);
-
-            // Log activity
-            $this->logActivity('updated', 'Event', $event->id, [
-                'title' => $event->title,
-                'changes_count' => count($changes),
-                'changes' => $changes
-            ]);
+            \Log::info(' [Events] Event updated', ['id' => $event->id]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Event "' . $event->title . '" updated successfully',
-                'event' => $event->fresh()->load('creator', 'updater'),
-                'changes_count' => count($changes)
+                'event' => $event->fresh()->load('creator', 'updater')
             ]);
 
         } catch (\Exception $e) {
@@ -509,12 +460,6 @@ class EventController extends Controller
 
             \Log::info(' [Events] Event archived', ['id' => $event->id, 'reason' => $reason]);
 
-            // Log activity
-            $this->logActivity('archived', 'Event', $event->id, [
-                'title' => $event->title,
-                'reason' => $reason
-            ]);
-
             return response()->json([
                 'success' => true,
                 'message' => 'Event "' . $event->title . '" has been archived'
@@ -537,32 +482,17 @@ class EventController extends Controller
 
     /**
      * Restore/unarchive an event
-     * NOTE: Restored events remain in their original state (inactive)
-     * Only archive fields are cleared, is_active status is NOT changed
      */
     public function unarchive(Event $event)
     {
         try {
             DB::beginTransaction();
 
-            $event->update([
-                'is_archived' => false,
-                'archived_at' => null,
-                'archive_reason' => null,
-                'archived_by' => null,
-                'updated_by' => auth()->id()
-            ]);
-
-            $event->logAction('restored', auth()->id(), null, 'Event restored from archive');
+            $event->unarchive(auth()->id());
 
             DB::commit();
 
             \Log::info(' [Events] Event restored', ['id' => $event->id]);
-
-            // Log activity
-            $this->logActivity('unarchived', 'Event', $event->id, [
-                'title' => $event->title
-            ]);
 
             return response()->json([
                 'success' => true,
@@ -605,8 +535,6 @@ class EventController extends Controller
             $eventTitle = $event->title;
             $eventId = $event->id;
 
-            $event->logAction('deleted', auth()->id(), null, 'Event permanently deleted by ' . auth()->user()->name);
-
             if ($event->image_path && Storage::disk('public')->exists($event->image_path)) {
                 Storage::disk('public')->delete($event->image_path);
             }
@@ -616,11 +544,6 @@ class EventController extends Controller
             DB::commit();
 
             \Log::info(' [Events] Event permanently deleted', ['id' => $eventId, 'title' => $eventTitle]);
-
-            // Log activity
-            $this->logActivity('deleted', 'Event', $eventId, [
-                'title' => $eventTitle
-            ]);
 
             return response()->json([
                 'success' => true,
@@ -641,133 +564,123 @@ class EventController extends Controller
             ], 500);
         }
     }
-        /**
-         * Toggle event active status
-         * SAFETY RULES:
-         * - Announcements can NEVER be deactivated
-         * - Cannot deactivate if it's the only active event overall
-         * - Cannot deactivate if it's the only active event in its category
-         * - Cannot activate if category already has 3 active events (deactivate oldest first)
-         */
-        public function toggleStatus(Event $event)
-        {
-            try {
-                $newStatus = !$event->is_active;
 
-                // RULE 1: Announcements must always be active - CANNOT toggle
-                if ($event->category === 'announcement') {
-                    return response()->json([
-                        'success' => false,
-                        'message' => ' Announcements must always be active and cannot be deactivated. This is required to maintain landing page content.',
-                        'warning_type' => 'announcement_always_active'
-                    ], 422);
-                }
+    /**
+     * Toggle event active status
+     * SAFETY RULES:
+     * - Announcements can NEVER be deactivated
+     * - Cannot deactivate if it's the only active event overall
+     * - Cannot deactivate if it's the only active event in its category
+     * - Cannot activate if category already has 3 active events
+     */
+    public function toggleStatus(Event $event)
+    {
+        try {
+            $newStatus = !$event->is_active;
 
-                // RULE 2: If trying to DEACTIVATE, check if it's the only active announcement
-                if ($event->is_active && !$newStatus && $event->category === 'announcement') {
-                    $activeAnnouncementCount = Event::where('category', 'announcement')
-                        ->active()
-                        ->notArchived()
-                        ->count();
-
-                    if ($activeAnnouncementCount <= 1) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => ' Cannot deactivate the only active announcement. The landing page requires at least one active announcement.',
-                            'warning_type' => 'last_active_event'
-                        ], 422);
-                    }
-                }
-
-                // RULE 2B: If trying to DEACTIVATE, check if it's the only active event overall
-                if ($event->is_active && !$newStatus) {
-                    $activeCount = Event::active()->count();
-
-                    if ($activeCount <= 1) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => ' Cannot deactivate the last active event. The landing page requires at least one active event to display.',
-                            'warning_type' => 'last_active_event'
-                        ], 422);
-                    }
-                }
-
-                // RULE 3: If trying to DEACTIVATE, check if it's the only active event in category
-                if ($event->is_active && !$newStatus) {
-                    $activeCountInCategory = Event::where('category', $event->category)
-                        ->active()
-                        ->notArchived()
-                        ->count();
-
-                    if ($activeCountInCategory <= 1) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => ' This is the only active event in the ' . ucfirst($event->category) . ' category. Please activate another event first, or create a new one.',
-                            'warning_type' => 'last_active_in_category'
-                        ], 422);
-                    }
-                }
-
-                // RULE 4: If trying to ACTIVATE, check if category already has 3 active
-                if (!$event->is_active && $newStatus) {
-                    $activeCountInCategory = Event::where('category', $event->category)
-                        ->active()
-                        ->notArchived()
-                        ->count();
-
-                    if ($activeCountInCategory >= 3) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => ' The ' . ucfirst($event->category) . ' category already has 3 active events (maximum limit). Please deactivate one first.',
-                            'warning_type' => 'category_limit_reached'
-                        ], 422);
-                    }
-                }
-
-                // All checks passed - update status
-                $event->update([
-                    'is_active' => $newStatus,
-                    'updated_by' => auth()->id()
-                ]);
-
-                $action = $newStatus ? 'published' : 'unpublished';
-                $event->logAction($action, auth()->id(), [
-                    'is_active' => ['old' => !$newStatus, 'new' => $newStatus]
-                ], 'Event status changed');
-
-                \Log::info(' [Events] Event status toggled', [
-                    'id' => $event->id,
-                    'category' => $event->category,
-                    'new_status' => $newStatus ? 'active' : 'inactive'
-                ]);
-
-                // Log activity
-                $this->logActivity('toggled_status', 'Event', $event->id, [
-                    'title' => $event->title,
-                    'new_status' => $newStatus ? 'active' : 'inactive'
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => $newStatus
-                        ? ' Event "' . $event->title . '" is now active'
-                        : ' Event "' . $event->title . '" is now inactive',
-                    'is_active' => $newStatus,
-                    'category' => $event->category
-                ]);
-
-            } catch (\Exception $e) {
-                \Log::error(' [Events] Failed to toggle event status', [
-                    'id' => $event->id,
-                    'message' => $e->getMessage()
-                ]);
-
+            // RULE 1: Announcements must always be active - CANNOT toggle
+            if ($event->category === 'announcement') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to update status'
-                ], 500);
+                    'message' => ' Announcements must always be active and cannot be deactivated. This is required to maintain landing page content.',
+                    'warning_type' => 'announcement_always_active'
+                ], 422);
             }
+
+            // RULE 2: If trying to DEACTIVATE, check if it's the only active announcement
+            if ($event->is_active && !$newStatus && $event->category === 'announcement') {
+                $activeAnnouncementCount = Event::where('category', 'announcement')
+                    ->active()
+                    ->notArchived()
+                    ->count();
+
+                if ($activeAnnouncementCount <= 1) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => ' Cannot deactivate the only active announcement. The landing page requires at least one active announcement.',
+                        'warning_type' => 'last_active_event'
+                    ], 422);
+                }
+            }
+
+            // RULE 2B: If trying to DEACTIVATE, check if it's the only active event overall
+            if ($event->is_active && !$newStatus) {
+                $activeCount = Event::active()->count();
+
+                if ($activeCount <= 1) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => ' Cannot deactivate the last active event. The landing page requires at least one active event to display.',
+                        'warning_type' => 'last_active_event'
+                    ], 422);
+                }
+            }
+
+            // RULE 3: If trying to DEACTIVATE, check if it's the only active event in category
+            if ($event->is_active && !$newStatus) {
+                $activeCountInCategory = Event::where('category', $event->category)
+                    ->active()
+                    ->notArchived()
+                    ->count();
+
+                if ($activeCountInCategory <= 1) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => ' This is the only active event in the ' . ucfirst($event->category) . ' category. Please activate another event first, or create a new one.',
+                        'warning_type' => 'last_active_in_category'
+                    ], 422);
+                }
+            }
+
+            // RULE 4: If trying to ACTIVATE, check if category already has 3 active
+            if (!$event->is_active && $newStatus) {
+                $activeCountInCategory = Event::where('category', $event->category)
+                    ->active()
+                    ->notArchived()
+                    ->count();
+
+                if ($activeCountInCategory >= 3) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => ' The ' . ucfirst($event->category) . ' category already has 3 active events (maximum limit). Please deactivate one first.',
+                        'warning_type' => 'category_limit_reached'
+                    ], 422);
+                }
+            }
+
+            // All checks passed - update status
+            $event->update([
+                'is_active' => $newStatus,
+                'updated_by' => auth()->id()
+            ]);
+
+            \Log::info(' [Events] Event status toggled', [
+                'id' => $event->id,
+                'category' => $event->category,
+                'new_status' => $newStatus ? 'active' : 'inactive'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $newStatus
+                    ? ' Event "' . $event->title . '" is now active'
+                    : ' Event "' . $event->title . '" is now inactive',
+                'is_active' => $newStatus,
+                'category' => $event->category
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error(' [Events] Failed to toggle event status', [
+                'id' => $event->id,
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update status'
+            ], 500);
         }
+    }
 
     /**
      * Get archived events for archive management view
