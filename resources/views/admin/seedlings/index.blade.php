@@ -730,7 +730,8 @@
                                     <div class="card mb-3 bg-light">
                                         <div class="card-header bg-light border-0">
                                             <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Request Status
-                                                (Read-only)</h6>
+                                                (Read-only)
+                                            </h6>
                                         </div>
                                         <div class="card-body">
                                             <div class="row">
@@ -2628,7 +2629,7 @@
                         return response.json().then(data => {
                             console.error('Validation errors:', data);
                             throw new Error('Validation failed: ' + JSON.stringify(data.errors || data
-                            .message));
+                                .message));
                         });
                     }
 
