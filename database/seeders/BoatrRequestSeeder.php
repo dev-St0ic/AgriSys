@@ -160,21 +160,19 @@ class BoatrRequestSeeder extends Seeder
     {
         try {
             $adminUser = User::where('role', 'admin')
-                            ->orWhere('email', 'like', '%admin%')
                             ->first();
 
             if (!$adminUser) {
                 $adminUser = User::create([
                     'name' => 'System Admin',
-                    'email' => 'superadmin@agrisys.com',
                     'password' => bcrypt('admin123'),
                     'role' => 'admin',
                     'email_verified_at' => now(),
                 ]);
 
-                $this->command->info('✓ Created admin user: ' . $adminUser->email);
+                $this->command->info('✓ Created admin user: ' . $adminUser->name);
             } else {
-                $this->command->info('✓ Admin user exists: ' . $adminUser->email);
+                $this->command->info('✓ Admin user exists: ' . $adminUser->name);
             }
         } catch (\Exception $e) {
             $this->command->warn('⚠️ Could not verify/create admin user: ' . $e->getMessage());

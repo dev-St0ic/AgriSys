@@ -13,51 +13,98 @@
     </div>
 
     <div class="rsbsa-tab-content" id="form" style="display: block;">
+        <!-- Success/Error Messages -->
+        @if (session('success'))
+            <div class="alert alert-success"
+                style="padding: 15px; margin-bottom: 20px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724;">
+                <strong>✓ Success!</strong> {{ session('success') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger"
+                style="padding: 15px; margin-bottom: 20px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+                <strong>✗ Error!</strong> {{ session('error') }}
+            </div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger"
+                style="padding: 15px; margin-bottom: 20px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+                <strong>✗ Please fix the following errors:</strong>
+                <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form method="POST" action="/apply/rsbsa" enctype="multipart/form-data" id="rsbsa-form">
             @csrf
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
             <label>First Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <input type="text" id="rsbsa-first_name" name="first_name" placeholder="Enter your first name"
-                pattern="[a-zA-Z\s\'-]+" title="First name can only contain letters, spaces, hyphens, and apostrophes"
-                required>
+                pattern="[a-zA-Z\s'\-]+" title="First name can only contain letters, spaces, hyphens, and apostrophes"
+                value="{{ old('first_name') }}" required>
             <span class="validation-warning" id="rsbsa-first_name-warning"
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
+            @error('first_name')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Middle Name (Optional)</label>
             <input type="text" id="rsbsa-middle_name" name="middle_name" placeholder="Enter your middle name"
-                pattern="[a-zA-Z\s\'-]+" title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
+                pattern="[a-zA-Z\s'\-]+" title="Middle name can only contain letters, spaces, hyphens, and apostrophes"
+                value="{{ old('middle_name') }}">
             <span class="validation-warning" id="rsbsa-middle_name-warning"
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
+            @error('middle_name')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Last Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <input type="text" id="rsbsa-last_name" name="last_name" placeholder="Enter your last name"
-                pattern="[a-zA-Z\s\'-]+" title="Last name can only contain letters, spaces, hyphens, and apostrophes"
-                required>
+                pattern="[a-zA-Z\s'\-]+" title="Last name can only contain letters, spaces, hyphens, and apostrophes"
+                value="{{ old('last_name') }}" required>
             <span class="validation-warning" id="rsbsa-last_name-warning"
                 style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
+            @error('last_name')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Name Extension (Optional)</label>
             <select id="rsbsa-name_extension" name="name_extension">
                 <option value="" selected>Select Extension</option>
-                <option value="Jr.">Jr.</option>
-                <option value="Sr.">Sr.</option>
-                <option value="II">II</option>
-                <option value="III">III</option>
-                <option value="IV">IV</option>
-                <option value="V">V</option>
+                <option value="Jr." {{ old('name_extension') == 'Jr.' ? 'selected' : '' }}>Jr.</option>
+                <option value="Sr." {{ old('name_extension') == 'Sr.' ? 'selected' : '' }}>Sr.</option>
+                <option value="II" {{ old('name_extension') == 'II' ? 'selected' : '' }}>II</option>
+                <option value="III" {{ old('name_extension') == 'III' ? 'selected' : '' }}>III</option>
+                <option value="IV" {{ old('name_extension') == 'IV' ? 'selected' : '' }}>IV</option>
+                <option value="V" {{ old('name_extension') == 'V' ? 'selected' : '' }}>V</option>
             </select>
+            @error('name_extension')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Sex <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <select name="sex" required>
-                <option value="" disabled selected>Select Sex</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Preferred not to say">Preferred not to say</option>
+                <option value="" disabled {{ old('sex') ? '' : 'selected' }}>Select Sex</option>
+                <option value="Male" {{ old('sex') == 'Male' ? 'selected' : '' }}>Male</option>
+                <option value="Female" {{ old('sex') == 'Female' ? 'selected' : '' }}>Female</option>
+                <option value="Preferred not to say" {{ old('sex') == 'Preferred not to say' ? 'selected' : '' }}>
+                    Preferred not to say</option>
             </select>
+            @error('sex')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Barangay <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <select name="barangay" required>
@@ -93,34 +140,70 @@
 
             <label>Mobile Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <input type="tel" name="mobile" placeholder="09XXXXXXXXX" pattern="^09\d{9}$"
-                title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)" required>
+                title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
+                value="{{ old('mobile') }}" required>
+            @error('mobile')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
+
+            @error('barangay')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Main Livelihood <span style="color: #dc3545; font-weight: bold;">*</span></label>
             <select name="main_livelihood" required>
-                <option value="" disabled selected>Select Livelihood</option>
-                <option value="Farmer">Farmer</option>
-                <option value="Farmworker/Laborer">Farmworker/Laborer</option>
-                <option value="Fisherfolk">Fisherfolk</option>
-                <option value="Agri-youth">Agri-youth</option>
+                <option value="" disabled {{ old('main_livelihood') ? '' : 'selected' }}>Select Livelihood
+                </option>
+                <option value="Farmer" {{ old('main_livelihood') == 'Farmer' ? 'selected' : '' }}>Farmer</option>
+                <option value="Farmworker/Laborer"
+                    {{ old('main_livelihood') == 'Farmworker/Laborer' ? 'selected' : '' }}>Farmworker/Laborer</option>
+                <option value="Fisherfolk" {{ old('main_livelihood') == 'Fisherfolk' ? 'selected' : '' }}>Fisherfolk
+                </option>
+                <option value="Agri-youth" {{ old('main_livelihood') == 'Agri-youth' ? 'selected' : '' }}>Agri-youth
+                </option>
             </select>
+            @error('main_livelihood')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Land Area (in hectares)</label>
             <input type="number" name="land_area" step="0.01" min="0" max="1000"
-                placeholder="Enter land area (optional)">
+                placeholder="Enter land area (optional)" value="{{ old('land_area') }}">
+            @error('land_area')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Farm Location</label>
-            <input type="text" name="farm_location" placeholder="Enter farm location (optional)">
+            <input type="text" name="farm_location" placeholder="Enter farm location (optional)"
+                value="{{ old('farm_location') }}">
+            @error('farm_location')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Commodity (Crops/Livestock)</label>
-            <input type="text" name="commodity" placeholder="Enter what you grow or raise (optional)">
+            <input type="text" name="commodity" placeholder="Enter what you grow or raise (optional)"
+                value="{{ old('commodity') }}">
+            @error('commodity')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <label>Supporting Document</label>
-            <input type="file" name="supporting_docs" accept="image/*,.pdf" onchange="previewFile(this)">
+            <input type="file" id="rsbsa-file-input" name="supporting_docs" accept="image/*,.pdf">
             <small>
                 For farmers: Upload a picture of the farm area.<br>
                 For fisherfolk: Upload a photo of your aquaculture setup (e.g., fishpond, fish cage, fish pen).<br>
                 Accepted formats: JPG, PNG, PDF (Max size: 5MB)
             </small>
+            @error('supporting_docs')
+                <span
+                    style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
+            @enderror
 
             <!-- File preview area -->
             <div id="file-preview"
@@ -223,5 +306,38 @@
                 });
             }
         });
+
+        // File preview functionality
+        const fileInput = document.getElementById('rsbsa-file-input');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                previewFile(this);
+            });
+        }
     });
+
+    function previewFile(input) {
+        const file = input.files[0];
+        if (file) {
+            const preview = document.getElementById('file-preview');
+            const fileName = document.getElementById('file-name');
+
+            if (preview && fileName) {
+                fileName.textContent = file.name;
+                preview.style.display = 'block';
+            }
+        }
+    }
+
+    function removeFile() {
+        const fileInput = document.getElementById('rsbsa-file-input');
+        const preview = document.getElementById('file-preview');
+
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        if (preview) {
+            preview.style.display = 'none';
+        }
+    }
 </script>

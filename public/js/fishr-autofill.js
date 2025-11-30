@@ -115,8 +115,7 @@ function autoFillFishRFromProfile() {
     // Fill Contact Number
     setFieldValue('contact_number', userData.contact_number || userData.mobile_number || userData.phone);
 
-    // Fill Email
-    setFieldValue('email', userData.email);
+    // Email removed - not required for FishR applications
 
     // Show results
     if (filledCount > 0) {

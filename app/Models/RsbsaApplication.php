@@ -23,7 +23,6 @@ class RsbsaApplication extends Model
         'name_extension',
         'sex',
         'contact_number',
-        'email',
         'barangay',
         'main_livelihood',
         'land_area',

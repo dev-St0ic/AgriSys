@@ -29,7 +29,6 @@ return new class extends Migration
 
             // Contact Information
             $table->string('contact_number', 20)->nullable();
-            $table->string('email')->nullable();
             $table->string('barangay')->nullable();
             $table->unsignedBigInteger('barangay_id')->nullable();
 
@@ -73,7 +72,6 @@ return new class extends Migration
             $table->index('barangay_id');
             $table->index('application_number');
             $table->index('contact_number');
-            $table->index('email');
             $table->index(['first_name', 'last_name']);
         });
     }

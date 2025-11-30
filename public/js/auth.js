@@ -71,12 +71,6 @@ function showSignUpForm() {
     setTimeout(() => {
         const firstInput = signupForm.querySelector('input');
         if (firstInput) firstInput.focus();
-
-        // Only render reCAPTCHA if not already rendered
-        const recaptchaContainer = document.querySelector('.g-recaptcha');
-        if (recaptchaContainer && recaptchaContainer.children.length === 0) {
-            renderRecaptcha();
-        }
     }, 100);
 }
 
@@ -3069,18 +3063,6 @@ function playSimpleBeep() {
 // PLACEHOLDER FUNCTIONS
 // ==============================================
 
-function signInWithFacebook() {
-    // showNotification('info', 'Facebook Sign In will be implemented soon!');
-     // Redirect to your backend Facebook route
-    window.location.href = '/auth/facebook';
-}
-
-function signUpWithFacebook() {
-    // showNotification('info', 'Facebook Sign Up will be implemented soon!');
-    // Same route handles both login and signup
-    window.location.href = '/auth/facebook';
-}
-
 function showForgotPassword() {
      showNotification('info', 'Forgot password feature will be available soon!');
     // Same route handles both login and signup
@@ -3203,22 +3185,6 @@ function handleSignupSubmit(event) {
         return false;
     }
 
-    // NEW: Check if reCAPTCHA is checked
-    let recaptchaResponse = '';
-
-    // Check if grecaptcha is loaded
-    if (typeof grecaptcha !== 'undefined' && grecaptcha.getResponse) {
-        recaptchaResponse = grecaptcha.getResponse(recaptchaWidgetId);
-        if (!recaptchaResponse) {
-            showNotification('error', 'Please check the reCAPTCHA box');
-            return false;
-        }
-    } else {
-        console.warn('reCAPTCHA API not loaded');
-        showNotification('error', 'reCAPTCHA is still loading. Please wait a moment and try again.');
-        return false;
-    }
-
     const form = event.target;
     const submitBtn = form.querySelector('.auth-submit-btn');
 
@@ -3230,8 +3196,7 @@ function handleSignupSubmit(event) {
         contact_number: document.getElementById('signup-contact').value.trim(),
         password: document.getElementById('signup-password').value.trim(),
         password_confirmation: document.getElementById('signup-confirm-password').value.trim(),
-        terms_accepted: document.getElementById('agree-terms').checked,
-        'g-recaptcha-response': recaptchaResponse  // NEW: Include token
+        terms_accepted: document.getElementById('agree-terms').checked
     };
 
     // Debug: Log what we're sending
@@ -3274,11 +3239,6 @@ function handleSignupSubmit(event) {
                 hideAuthMessages();
                 clearAllValidationUI();  // NEW: Clear all validation UI elements
 
-                // NEW: Reset reCAPTCHA
-                if (typeof grecaptcha !== 'undefined' && grecaptcha.reset && recaptchaWidgetId !== null) {
-                    grecaptcha.reset(recaptchaWidgetId);
-                }
-
                 // Auto-redirect to login form after 2 seconds
                 setTimeout(() => {
                     showLogInForm();
@@ -3292,10 +3252,6 @@ function handleSignupSubmit(event) {
                 handleValidationErrors(data.errors);
             }
             // Reset button state after error
-            // NEW: Reset reCAPTCHA on error
-            if (typeof grecaptcha !== 'undefined' && grecaptcha.reset && recaptchaWidgetId !== null) {
-                grecaptcha.reset(recaptchaWidgetId);
-            }
             setTimeout(() => resetButtonState(submitBtn), 1000);
         }
     })
@@ -4052,70 +4008,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ==============================================
-// RECAPTCHA MANAGEMENT
-// ==============================================
-
-let recaptchaWidgetId = null;
-
-function renderRecaptcha() {
-    // Check if reCAPTCHA API is loaded
-    if (typeof grecaptcha === 'undefined') {
-        console.warn('reCAPTCHA API not yet loaded, trying again in 500ms...');
-        setTimeout(renderRecaptcha, 500);
-        return;
-    }
-
-    const recaptchaContainer = document.querySelector('.g-recaptcha');
-    if (!recaptchaContainer) {
-        console.warn('reCAPTCHA container not found');
-        return;
-    }
-
-    // Check if reCAPTCHA is already rendered in this container
-    if (recaptchaContainer.children.length > 0 && recaptchaWidgetId !== null) {
-        console.log('reCAPTCHA already rendered, skipping...');
-        return;
-    }
-
-    // Reset the container if already rendered
-    if (recaptchaWidgetId !== null) {
-        try {
-            grecaptcha.reset(recaptchaWidgetId);
-            console.log('reCAPTCHA reset successfully');
-        } catch (e) {
-            console.warn('Error resetting reCAPTCHA:', e);
-            // If reset fails, clear the widget ID to force re-render
-            recaptchaWidgetId = null;
-        }
-    }
-
-    // Only clear and re-render if not already rendered
-    if (recaptchaWidgetId === null) {
-        // Clear the container
-        recaptchaContainer.innerHTML = '';
-
-        try {
-            // Render the reCAPTCHA
-            recaptchaWidgetId = grecaptcha.render(recaptchaContainer, {
-                'sitekey': recaptchaContainer.dataset.sitekey,
-                'callback': function(response) {
-                console.log('reCAPTCHA completed:', response ? 'Success' : 'Failed');
-            },
-            'expired-callback': function() {
-                console.log('reCAPTCHA expired');
-            },
-            'error-callback': function() {
-                console.log('reCAPTCHA error');
-            }
-        });
-        console.log('reCAPTCHA rendered successfully with widget ID:', recaptchaWidgetId);
-        } catch (error) {
-            console.error('Error rendering reCAPTCHA:', error);
-        }
-    }
-}
-
-// ==============================================
 // GLOBAL FUNCTION EXPORTS
 // ==============================================
 
@@ -4125,8 +4017,6 @@ window.closeAuthModal = closeAuthModal;
 window.showLogInForm = showLogInForm;
 window.showSignUpForm = showSignUpForm;
 window.togglePasswordVisibility = togglePasswordVisibility;
-window.signInWithFacebook = signInWithFacebook;
-window.signUpWithFacebook = signUpWithFacebook;
 window.showForgotPassword = showForgotPassword;
 window.toggleUserDropdown = toggleUserDropdown;
 window.showMyApplicationsModal = showMyApplicationsModal;
@@ -4142,7 +4032,6 @@ window.populateEditForm = populateEditForm;
 window.handleEditProfileSubmit = handleEditProfileSubmit;
 window.changePassword = changePassword;
 window.logoutUser = logoutUser;
-window.renderRecaptcha = renderRecaptcha;
 window.showNotification = showNotification;
 window.previewImage = previewImage;
 window.refreshProfileVerifyButton = refreshProfileVerifyButton;

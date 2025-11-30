@@ -23,7 +23,6 @@ class BoatrApplication extends Model
         'last_name',
         'name_extension',
         'contact_number',
-        'email',
         'barangay',
         'fishr_number',
         'vessel_name',
@@ -436,8 +435,7 @@ class BoatrApplication extends Model
                   ->orWhere('vessel_name', 'like', "%{$search}%")
                   ->orWhere('fishr_number', 'like', "%{$search}%")
                   ->orWhere('barangay', 'like', "%{$search}%")
-                  ->orWhere('contact_number', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('contact_number', 'like', "%{$search}%");
             });
         }
         return $query;

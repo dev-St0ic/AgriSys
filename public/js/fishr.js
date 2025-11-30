@@ -173,7 +173,7 @@ function initializeFishRTabs() {
  */
 function showFishrTab(tabId, event) {
     console.log('Switching to FishR tab:', tabId);
-    // Scroll to top 
+    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
     // Prevent default button behavior
     if (event) {
@@ -252,7 +252,7 @@ function openFormFishR(event) {
         }
 
 
-        // Scroll to top 
+        // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
         // Update URL without page reload
@@ -604,7 +604,6 @@ function validateFishRForm() {
         { name: 'sex', label: 'Sex', type: 'select' },
         { name: 'barangay', label: 'Barangay', type: 'select' },
         { name: 'contact_number', label: 'Contact Number', type: 'tel' },
-        { name: 'email', label: 'Email Address', type: 'email' },
         { name: 'main_livelihood', label: 'Main Livelihood', type: 'select' }
     ];
 
@@ -624,13 +623,7 @@ function validateFishRForm() {
             isValid = false;
         } else {
             // Additional field-specific validation
-            if (field.type === 'email') {
-                if (!isValidEmail(value)) {
-                    errors.push(`${field.label} is invalid`);
-                    markFieldError(input);
-                    isValid = false;
-                }
-            } else if (field.type === 'tel') {
+            if (field.type === 'tel') {
                 if (!isValidPhoneNumber(value)) {
                     errors.push(`${field.label} must be in format: 09XXXXXXXXX or +639XXXXXXXXX`);
                     markFieldError(input);

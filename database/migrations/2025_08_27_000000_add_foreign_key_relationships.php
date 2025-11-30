@@ -89,7 +89,7 @@ return new class extends Migration
         // 3. Add cross-application relationship (BoatR requires FishR)
         Schema::table('boatr_applications', function (Blueprint $table) use ($foreignKeyExists, $indexExists) {
             if (!Schema::hasColumn('boatr_applications', 'barangay_id')) {
-                $table->unsignedBigInteger('barangay_id')->nullable()->after('email');
+                $table->unsignedBigInteger('barangay_id')->nullable()->after('contact_number');
             }
             if (!$foreignKeyExists('boatr_applications', 'boatr_applications_barangay_id_foreign')) {
                 $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('set null');
@@ -109,7 +109,7 @@ return new class extends Migration
             Schema::table('training_applications', function (Blueprint $table) use ($foreignKeyExists) {
                 // Add barangay relationship if column doesn't exist
                 if (!Schema::hasColumn('training_applications', 'barangay_id')) {
-                    $table->unsignedBigInteger('barangay_id')->nullable()->after('email');
+                    $table->unsignedBigInteger('barangay_id')->nullable()->after('contact_number');
                 }
                 if (!$foreignKeyExists('training_applications', 'training_applications_barangay_id_foreign')) {
                     $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('set null');

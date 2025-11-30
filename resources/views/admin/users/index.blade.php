@@ -174,7 +174,6 @@
                             <th class="text-center">Full Name</th>
                             <th class="text-center">User Type</th>
                             <th class="text-center">Status</th>
-                            <th class="text-center">Email Verified</th>
                             <th class="text-center">Documents</th>
                             <th class="text-center">Actions</th>
                         </tr>
@@ -240,17 +239,6 @@
                                         };
                                     @endphp
                                     <span class="badge bg-{{ $statusColor }} fs-6">{{ $statusText }}</span>
-                                </td>
-                                <td>
-                                    @if ($registration->hasVerifiedEmail())
-                                        <span class="badge bg-success fs-6">
-                                            <i class="fas fa-check"></i> Verified
-                                        </span>
-                                    @else
-                                        <span class="badge bg-secondary fs-6">
-                                            <i class="fas fa-times"></i> Unverified
-                                        </span>
-                                    @endif
                                 </td>
                                 <td>
                                     @php
@@ -326,7 +314,8 @@
                                         </button>
 
                                         <button class="btn btn-sm btn-outline-warning"
-                                            onclick="showEditUserModal({{ $registration->id }})" title="Edit Profile Information">
+                                            onclick="showEditUserModal({{ $registration->id }})"
+                                            title="Edit Profile Information">
                                             <i class="fas fa-pencil-alt"></i> Edit
                                         </button>
 
@@ -821,19 +810,21 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_first_name" 
+                                        <label for="edit_first_name" class="form-label">First Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_first_name"
                                             name="first_name" required maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="edit_middle_name" class="form-label">Middle Name</label>
-                                        <input type="text" class="form-control" id="edit_middle_name" 
+                                        <input type="text" class="form-control" id="edit_middle_name"
                                             name="middle_name" maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
-                                        <label for="edit_last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_last_name" 
-                                            name="last_name" required maxlength="100">
+                                        <label for="edit_last_name" class="form-label">Last Name <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_last_name" name="last_name"
+                                            required maxlength="100">
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="edit_name_extension" class="form-label">Extension</label>
@@ -850,19 +841,21 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
-                                        <label for="edit_contact_number" class="form-label">Contact Number <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="edit_contact_number" 
-                                            name="contact_number" required placeholder="09XXXXXXXXX" 
+                                        <label for="edit_contact_number" class="form-label">Contact Number <span
+                                                class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="edit_contact_number"
+                                            name="contact_number" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="edit_email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit_email" 
-                                            name="email" maxlength="254">
+                                        <input type="email" class="form-control" id="edit_email" name="email"
+                                            maxlength="254">
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="edit_user_type" class="form-label">User Type <span class="text-danger">*</span></label>
+                                        <label for="edit_user_type" class="form-label">User Type <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="edit_user_type" name="user_type" required>
                                             <option value="">Select Type</option>
                                             <option value="farmer">Farmer</option>
@@ -884,7 +877,8 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_barangay" class="form-label">Barangay <span class="text-danger">*</span></label>
+                                        <label for="edit_barangay" class="form-label">Barangay <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" id="edit_barangay" name="barangay" required>
                                             <option value="">Select Barangay</option>
                                             <option value="Bagong Silang">Bagong Silang</option>
@@ -895,8 +889,7 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="edit_complete_address" class="form-label">Complete Address</label>
-                                        <textarea class="form-control" id="edit_complete_address" 
-                                            name="complete_address" rows="3" maxlength="500"></textarea>
+                                        <textarea class="form-control" id="edit_complete_address" name="complete_address" rows="3" maxlength="500"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -910,14 +903,16 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_emergency_contact_name" class="form-label">Emergency Contact Name <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="edit_emergency_contact_name" 
+                                        <label for="edit_emergency_contact_name" class="form-label">Emergency Contact Name
+                                            <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="edit_emergency_contact_name"
                                             name="emergency_contact_name" required maxlength="100">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="edit_emergency_contact_phone" class="form-label">Emergency Contact Phone <span class="text-danger">*</span></label>
-                                        <input type="tel" class="form-control" id="edit_emergency_contact_phone" 
-                                            name="emergency_contact_phone" required placeholder="09XXXXXXXXX" 
+                                        <label for="edit_emergency_contact_phone" class="form-label">Emergency Contact
+                                            Phone <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="edit_emergency_contact_phone"
+                                            name="emergency_contact_phone" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                     </div>
                                 </div>
@@ -948,7 +943,8 @@
                         <!-- Info Alert -->
                         <div class="alert alert-info mb-0">
                             <i class="fas fa-lightbulb me-2"></i>
-                            <strong>Note:</strong> You can edit personal information, contact details, and location information. 
+                            <strong>Note:</strong> You can edit personal information, contact details, and location
+                            information.
                             To change registration status, use the "Update" button from the main table.
                         </div>
                     </form>
@@ -2583,31 +2579,31 @@
                         documentsHtml = `
                             <div class="row g-3">
                                 ${docs.map(doc => `
-                                        <div class="col-md-4">
-                                            <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
-                                                <div class="document-thumbnail-container">
-                                                    <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
-                                                        <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
-                                                            <span class="visually-hidden">Loading...</span>
+                                            <div class="col-md-4">
+                                                <div class="document-thumbnail-card" onclick="viewDocumentDirect(${id}, '${doc.type}')">
+                                                    <div class="document-thumbnail-container">
+                                                        <div class="document-thumbnail-loading" id="thumb-loading-${doc.type}">
+                                                            <div class="spinner-border spinner-border-sm text-${doc.color}" role="status">
+                                                                <span class="visually-hidden">Loading...</span>
+                                                            </div>
+                                                        </div>
+                                                        <img class="document-thumbnail-image"
+                                                             id="thumb-${doc.type}"
+                                                             style="display: none;"
+                                                             alt="${doc.name}"
+                                                             onload="showThumbnail('${doc.type}')"
+                                                             onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
+                                                        <div class="document-thumbnail-overlay">
+                                                            <i class="fas fa-eye fa-2x text-white"></i>
                                                         </div>
                                                     </div>
-                                                    <img class="document-thumbnail-image"
-                                                         id="thumb-${doc.type}"
-                                                         style="display: none;"
-                                                         alt="${doc.name}"
-                                                         onload="showThumbnail('${doc.type}')"
-                                                         onerror="showThumbnailError('${doc.type}', '${doc.icon}', '${doc.color}')">
-                                                    <div class="document-thumbnail-overlay">
-                                                        <i class="fas fa-eye fa-2x text-white"></i>
+                                                    <div class="document-thumbnail-info">
+                                                        <h6 class="document-thumbnail-title">${doc.name}</h6>
+                                                        <small class="text-muted">Click to view full size</small>
                                                     </div>
                                                 </div>
-                                                <div class="document-thumbnail-info">
-                                                    <h6 class="document-thumbnail-title">${doc.name}</h6>
-                                                    <small class="text-muted">Click to view full size</small>
-                                                </div>
                                             </div>
-                                        </div>
-                                    `).join('')}
+                                        `).join('')}
                             </div>
                         `;
                     } else {
@@ -4164,491 +4160,512 @@
         });
 
         /**
- * Show edit user modal and load registration data
- */
-function showEditUserModal(registrationId) {
-    if (!registrationId) {
-        showToast('error', 'Invalid registration ID');
-        return;
-    }
-
-    // Fetch registration data
-    fetch(`/admin/registrations/${registrationId}/details`)
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return response.json();
-        })
-        .then(response => {
-            if (!response.success) {
-                throw new Error(response.message || 'Failed to load registration');
+         * Show edit user modal and load registration data
+         */
+        function showEditUserModal(registrationId) {
+            if (!registrationId) {
+                showToast('error', 'Invalid registration ID');
+                return;
             }
 
-            const data = response.data;
+            // Fetch registration data
+            fetch(`/admin/registrations/${registrationId}/details`)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(response => {
+                    if (!response.success) {
+                        throw new Error(response.message || 'Failed to load registration');
+                    }
 
-            // Populate editable fields
-            document.getElementById('edit_first_name').value = data.first_name || '';
-            document.getElementById('edit_middle_name').value = data.middle_name || '';
-            document.getElementById('edit_last_name').value = data.last_name || '';
-            document.getElementById('edit_name_extension').value = data.name_extension || '';
-            document.getElementById('edit_contact_number').value = data.contact_number || '';
-            document.getElementById('edit_email').value = data.email || '';
-            document.getElementById('edit_barangay').value = data.barangay || '';
-            document.getElementById('edit_complete_address').value = data.complete_address || '';
-            document.getElementById('edit_user_type').value = data.user_type || '';
-            document.getElementById('edit_emergency_contact_name').value = data.emergency_contact_name || '';
-            document.getElementById('edit_emergency_contact_phone').value = data.emergency_contact_phone || '';
-            
-            // Read-only fields
-            document.getElementById('editAppUsername').textContent = data.username || '';
-            const statusBadge = document.getElementById('edit_status_badge');
-            const statusColor = getStatusBadgeColor(data.status);
-            statusBadge.className = `badge bg-${statusColor}`;
-            statusBadge.textContent = getStatusText(data.status);
+                    const data = response.data;
 
-            const createdAt = new Date(data.created_at);
-            document.getElementById('edit_created_at').textContent = createdAt.toLocaleString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+                    // Populate editable fields
+                    document.getElementById('edit_first_name').value = data.first_name || '';
+                    document.getElementById('edit_middle_name').value = data.middle_name || '';
+                    document.getElementById('edit_last_name').value = data.last_name || '';
+                    document.getElementById('edit_name_extension').value = data.name_extension || '';
+                    document.getElementById('edit_contact_number').value = data.contact_number || '';
+                    document.getElementById('edit_email').value = data.email || '';
+                    document.getElementById('edit_barangay').value = data.barangay || '';
+                    document.getElementById('edit_complete_address').value = data.complete_address || '';
+                    document.getElementById('edit_user_type').value = data.user_type || '';
+                    document.getElementById('edit_emergency_contact_name').value = data.emergency_contact_name || '';
+                    document.getElementById('edit_emergency_contact_phone').value = data.emergency_contact_phone || '';
 
-            // Initialize form for change detection
-            initializeEditUserForm(registrationId, data);
+                    // Read-only fields
+                    document.getElementById('editAppUsername').textContent = data.username || '';
+                    const statusBadge = document.getElementById('edit_status_badge');
+                    const statusColor = getStatusBadgeColor(data.status);
+                    statusBadge.className = `badge bg-${statusColor}`;
+                    statusBadge.textContent = getStatusText(data.status);
 
-            // Show the modal
-            const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
-            modal.show();
+                    const createdAt = new Date(data.created_at);
+                    document.getElementById('edit_created_at').textContent = createdAt.toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
 
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast('error', 'Error loading registration: ' + error.message);
-        });
-}
+                    // Initialize form for change detection
+                    initializeEditUserForm(registrationId, data);
 
-/**
- * Initialize edit form with original data for change detection
- */
-function initializeEditUserForm(registrationId, data) {
-    const form = document.getElementById('editUserForm');
-    const submitBtn = document.getElementById('editUserSubmitBtn');
+                    // Show the modal
+                    const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                    modal.show();
 
-    // Store original data for comparison
-    const originalData = {
-        first_name: data.first_name || '',
-        middle_name: data.middle_name || '',
-        last_name: data.last_name || '',
-        name_extension: data.name_extension || '',
-        contact_number: data.contact_number || '',
-        email: data.email || '',
-        barangay: data.barangay || '',
-        complete_address: data.complete_address || '',
-        user_type: data.user_type || '',
-        emergency_contact_name: data.emergency_contact_name || '',
-        emergency_contact_phone: data.emergency_contact_phone || ''
-    };
-
-    form.dataset.originalData = JSON.stringify(originalData);
-    form.dataset.registrationId = registrationId;
-
-    // Clear validation states
-    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-    form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
-
-    // Reset button state - ALWAYS KEEP ENABLED
-    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-    submitBtn.disabled = false;
-    submitBtn.dataset.hasChanges = 'false';
-
-    // Add change listeners
-    addEditUserFormChangeListeners(registrationId);
-}
-
-/**
- * Add event listeners to detect form changes
- */
-function addEditUserFormChangeListeners(registrationId) {
-    const form = document.getElementById('editUserForm');
-    const inputs = form.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea, select');
-
-    inputs.forEach(input => {
-        input.removeEventListener('input', handleEditUserFormChange);
-        input.removeEventListener('change', handleEditUserFormChange);
-        
-        input.addEventListener('input', handleEditUserFormChange);
-        input.addEventListener('change', handleEditUserFormChange);
-    });
-}
-
-/**
- * Handle form change event
- */
-function handleEditUserFormChange() {
-    const form = document.getElementById('editUserForm');
-    const registrationId = form.dataset.registrationId;
-    checkEditUserFormChanges(registrationId);
-}
-
-/**
- * Check for changes in the form and update button state
- */
-function checkEditUserFormChanges(registrationId) {
-    const form = document.getElementById('editUserForm');
-    const submitBtn = document.getElementById('editUserSubmitBtn');
-
-    if (!form || !submitBtn) return;
-
-    const originalData = JSON.parse(form.dataset.originalData || '{}');
-    let hasChanges = false;
-
-    const fieldMap = {
-        'first_name': 'edit_first_name',
-        'middle_name': 'edit_middle_name',
-        'last_name': 'edit_last_name',
-        'name_extension': 'edit_name_extension',
-        'contact_number': 'edit_contact_number',
-        'email': 'edit_email',
-        'barangay': 'edit_barangay',
-        'complete_address': 'edit_complete_address',
-        'user_type': 'edit_user_type',
-        'emergency_contact_name': 'edit_emergency_contact_name',
-        'emergency_contact_phone': 'edit_emergency_contact_phone'
-    };
-
-    Object.keys(fieldMap).forEach(fieldName => {
-        const elementId = fieldMap[fieldName];
-        const input = document.getElementById(elementId);
-        
-        if (input) {
-            const currentValue = (input.value || '').trim();
-            const originalValue = (originalData[fieldName] || '').trim();
-            
-            if (currentValue !== originalValue) {
-                hasChanges = true;
-                input.classList.add('form-changed');
-            } else {
-                input.classList.remove('form-changed');
-            }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('error', 'Error loading registration: ' + error.message);
+                });
         }
-    });
 
-    // Update button state - ALWAYS KEEP ENABLED
-    if (hasChanges) {
-        submitBtn.classList.remove('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        submitBtn.disabled = false;
-        submitBtn.dataset.hasChanges = 'true';
-    } else {
-        submitBtn.classList.remove('no-changes');
-        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
-        submitBtn.disabled = false;
-        submitBtn.dataset.hasChanges = 'false';
-    }
-}
+        /**
+         * Initialize edit form with original data for change detection
+         */
+        function initializeEditUserForm(registrationId, data) {
+            const form = document.getElementById('editUserForm');
+            const submitBtn = document.getElementById('editUserSubmitBtn');
 
-/**
- * Validate edit user form
- */
-function validateEditUserForm() {
-    const form = document.getElementById('editUserForm');
-    let isValid = true;
-
-    // Clear all previous validation states
-    form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
-
-    const requiredFields = [
-        { elementId: 'edit_first_name', label: 'First Name' },
-        { elementId: 'edit_last_name', label: 'Last Name' },
-        { elementId: 'edit_contact_number', label: 'Contact Number' },
-        { elementId: 'edit_barangay', label: 'Barangay' },
-        { elementId: 'edit_user_type', label: 'User Type' },
-        { elementId: 'edit_emergency_contact_name', label: 'Emergency Contact Name' },
-        { elementId: 'edit_emergency_contact_phone', label: 'Emergency Contact Phone' }
-    ];
-
-    // Validate required fields
-    requiredFields.forEach(field => {
-        const input = document.getElementById(field.elementId);
-        if (input && (!input.value || input.value.trim() === '')) {
-            input.classList.add('is-invalid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = field.label + ' is required';
-            input.parentNode.appendChild(errorDiv);
-            isValid = false;
-        }
-    });
-
-    // Validate contact number format
-    const contactInput = document.getElementById('edit_contact_number');
-    if (contactInput && contactInput.value.trim()) {
-        const phoneRegex = /^(\+639|09)\d{9}$/;
-        if (!phoneRegex.test(contactInput.value.trim())) {
-            contactInput.classList.add('is-invalid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
-            contactInput.parentNode.appendChild(errorDiv);
-            isValid = false;
-        }
-    }
-
-    // Validate email if provided
-    const emailInput = document.getElementById('edit_email');
-    if (emailInput && emailInput.value.trim()) {
-        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailPattern.test(emailInput.value.trim())) {
-            emailInput.classList.add('is-invalid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Invalid email format';
-            emailInput.parentNode.appendChild(errorDiv);
-            isValid = false;
-        }
-    }
-
-    // Validate emergency phone
-    const emergencyPhoneInput = document.getElementById('edit_emergency_contact_phone');
-    if (emergencyPhoneInput && emergencyPhoneInput.value.trim()) {
-        const phoneRegex = /^(\+639|09)\d{9}$/;
-        if (!phoneRegex.test(emergencyPhoneInput.value.trim())) {
-            emergencyPhoneInput.classList.add('is-invalid');
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback d-block';
-            errorDiv.textContent = 'Please enter a valid Philippine mobile number';
-            emergencyPhoneInput.parentNode.appendChild(errorDiv);
-            isValid = false;
-        }
-    }
-
-    return isValid;
-}
-
-/**
- * Handle edit form submission with confirmation
- */
-function handleEditUserSubmit() {
-    const form = document.getElementById('editUserForm');
-    const submitBtn = document.getElementById('editUserSubmitBtn');
-    const registrationId = form.dataset.registrationId;
-
-    // Validate form
-    if (!validateEditUserForm()) {
-        showToast('error', 'Please fix all validation errors before saving');
-        return;
-    }
-
-    // Check if there are changes
-    if (submitBtn.dataset.hasChanges === 'false') {
-        showToast('warning', 'No changes detected. Please modify the fields before saving.');
-        return;
-    }
-
-    // Build changes summary
-    const originalData = JSON.parse(form.dataset.originalData || '{}');
-    const changedFields = [];
-    
-    const fieldLabels = {
-        'first_name': 'First Name',
-        'middle_name': 'Middle Name',
-        'last_name': 'Last Name',
-        'name_extension': 'Extension',
-        'contact_number': 'Contact Number',
-        'email': 'Email',
-        'barangay': 'Barangay',
-        'complete_address': 'Complete Address',
-        'user_type': 'User Type',
-        'emergency_contact_name': 'Emergency Contact Name',
-        'emergency_contact_phone': 'Emergency Contact Phone'
-    };
-
-    const fieldMap = {
-        'first_name': 'edit_first_name',
-        'middle_name': 'edit_middle_name',
-        'last_name': 'edit_last_name',
-        'name_extension': 'edit_name_extension',
-        'contact_number': 'edit_contact_number',
-        'email': 'edit_email',
-        'barangay': 'edit_barangay',
-        'complete_address': 'edit_complete_address',
-        'user_type': 'edit_user_type',
-        'emergency_contact_name': 'edit_emergency_contact_name',
-        'emergency_contact_phone': 'edit_emergency_contact_phone'
-    };
-
-    Object.keys(fieldMap).forEach(fieldName => {
-        const elementId = fieldMap[fieldName];
-        const input = document.getElementById(elementId);
-        const currentValue = (input?.value || '').trim();
-        const originalValue = (originalData[fieldName] || '').trim();
-        
-        if (currentValue !== originalValue) {
-            changedFields.push(fieldLabels[fieldName] || fieldName);
-        }
-    });
-
-    // Show confirmation toast
-    showConfirmationToast(
-        'Confirm Update',
-        `Save the following changes to this registration?\n\n• ${changedFields.join('\n• ')}`,
-        () => proceedWithEditUser(form, registrationId)
-    );
-}
-
-/**
- * Proceed with edit submission after confirmation
- */
-function proceedWithEditUser(form, registrationId) {
-    const submitBtn = document.getElementById('editUserSubmitBtn');
-    
-    // Show loading state
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
-    submitBtn.disabled = true;
-
-    // Disable form inputs during submission
-    const formInputs = form.querySelectorAll('input, select, textarea');
-    formInputs.forEach(input => input.disabled = true);
-
-    // Get values
-    const jsonData = {
-        first_name: (document.getElementById('edit_first_name')?.value || '').trim(),
-        middle_name: (document.getElementById('edit_middle_name')?.value || '').trim(),
-        last_name: (document.getElementById('edit_last_name')?.value || '').trim(),
-        name_extension: (document.getElementById('edit_name_extension')?.value || '') || null,
-        contact_number: (document.getElementById('edit_contact_number')?.value || '').trim(),
-        email: (document.getElementById('edit_email')?.value || '').trim(),
-        barangay: (document.getElementById('edit_barangay')?.value || '').trim(),
-        complete_address: (document.getElementById('edit_complete_address')?.value || '').trim(),
-        user_type: (document.getElementById('edit_user_type')?.value || '').trim(),
-        emergency_contact_name: (document.getElementById('edit_emergency_contact_name')?.value || '').trim(),
-        emergency_contact_phone: (document.getElementById('edit_emergency_contact_phone')?.value || '').trim()
-    };
-
-    console.log('Sending update data:', jsonData);
-
-    // Submit to backend
-    fetch(`/admin/registrations/${registrationId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': getCSRFToken(),
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: JSON.stringify(jsonData)
-    })
-    .then(response => {
-        return response.json().then(data => {
-            if (!response.ok) {
-                throw {
-                    status: response.status,
-                    message: data.message || 'Update failed',
-                    errors: data.errors || {}
-                };
-            }
-            return data;
-        });
-    })
-    .then(data => {
-        if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
-            if (modal) modal.hide();
-
-            showToast('success', data.message || 'Registration updated successfully');
-            setTimeout(() => window.location.reload(), 1500);
-        } else {
-            throw {
-                status: 422,
-                message: data.message || 'Failed to update registration',
-                errors: data.errors || {}
+            // Store original data for comparison
+            const originalData = {
+                first_name: data.first_name || '',
+                middle_name: data.middle_name || '',
+                last_name: data.last_name || '',
+                name_extension: data.name_extension || '',
+                contact_number: data.contact_number || '',
+                email: data.email || '',
+                barangay: data.barangay || '',
+                complete_address: data.complete_address || '',
+                user_type: data.user_type || '',
+                emergency_contact_name: data.emergency_contact_name || '',
+                emergency_contact_phone: data.emergency_contact_phone || ''
             };
+
+            form.dataset.originalData = JSON.stringify(originalData);
+            form.dataset.registrationId = registrationId;
+
+            // Clear validation states
+            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+            form.querySelectorAll('.form-changed').forEach(el => el.classList.remove('form-changed'));
+
+            // Reset button state - ALWAYS KEEP ENABLED
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+            submitBtn.disabled = false;
+            submitBtn.dataset.hasChanges = 'false';
+
+            // Add change listeners
+            addEditUserFormChangeListeners(registrationId);
         }
-    })
-    .catch(error => {
-        console.error('Error occurred:', error);
-        
-        // Handle validation errors
-        if (error.status === 422 && error.errors && typeof error.errors === 'object') {
+
+        /**
+         * Add event listeners to detect form changes
+         */
+        function addEditUserFormChangeListeners(registrationId) {
+            const form = document.getElementById('editUserForm');
+            const inputs = form.querySelectorAll(
+                'input[type="text"], input[type="email"], input[type="tel"], textarea, select');
+
+            inputs.forEach(input => {
+                input.removeEventListener('input', handleEditUserFormChange);
+                input.removeEventListener('change', handleEditUserFormChange);
+
+                input.addEventListener('input', handleEditUserFormChange);
+                input.addEventListener('change', handleEditUserFormChange);
+            });
+        }
+
+        /**
+         * Handle form change event
+         */
+        function handleEditUserFormChange() {
+            const form = document.getElementById('editUserForm');
+            const registrationId = form.dataset.registrationId;
+            checkEditUserFormChanges(registrationId);
+        }
+
+        /**
+         * Check for changes in the form and update button state
+         */
+        function checkEditUserFormChanges(registrationId) {
+            const form = document.getElementById('editUserForm');
+            const submitBtn = document.getElementById('editUserSubmitBtn');
+
+            if (!form || !submitBtn) return;
+
+            const originalData = JSON.parse(form.dataset.originalData || '{}');
+            let hasChanges = false;
+
             const fieldMap = {
                 'first_name': 'edit_first_name',
-                'last_name': 'edit_last_name',
-                'contact_number': 'edit_contact_number',
-                'barangay': 'edit_barangay',
-                'user_type': 'edit_user_type',
-                'email': 'edit_email',
-                'emergency_contact_name': 'edit_emergency_contact_name',
-                'emergency_contact_phone': 'edit_emergency_contact_phone',
-                'complete_address': 'edit_complete_address',
                 'middle_name': 'edit_middle_name',
-                'name_extension': 'edit_name_extension'
+                'last_name': 'edit_last_name',
+                'name_extension': 'edit_name_extension',
+                'contact_number': 'edit_contact_number',
+                'email': 'edit_email',
+                'barangay': 'edit_barangay',
+                'complete_address': 'edit_complete_address',
+                'user_type': 'edit_user_type',
+                'emergency_contact_name': 'edit_emergency_contact_name',
+                'emergency_contact_phone': 'edit_emergency_contact_phone'
             };
-            
-            Object.keys(error.errors).forEach(field => {
-                const elementId = fieldMap[field];
+
+            Object.keys(fieldMap).forEach(fieldName => {
+                const elementId = fieldMap[fieldName];
                 const input = document.getElementById(elementId);
+
                 if (input) {
-                    input.classList.add('is-invalid');
-                    const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
-                    if (existingFeedback) existingFeedback.remove();
-                    
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    const errorMessage = Array.isArray(error.errors[field]) 
-                        ? error.errors[field][0] 
-                        : error.errors[field];
-                    errorDiv.textContent = errorMessage;
-                    input.parentNode.appendChild(errorDiv);
+                    const currentValue = (input.value || '').trim();
+                    const originalValue = (originalData[fieldName] || '').trim();
+
+                    if (currentValue !== originalValue) {
+                        hasChanges = true;
+                        input.classList.add('form-changed');
+                    } else {
+                        input.classList.remove('form-changed');
+                    }
                 }
             });
-            
-            showToast('error', error.message);
-        } else {
-            showToast('error', error.message || 'Error updating registration');
-        }
-        
-        // Restore button state
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-        formInputs.forEach(input => input.disabled = false);
-    });
-}
 
-/**
- * Auto-capitalize names in edit form
- */
-function capitalizeEditName(input) {
-    const value = input.value;
-    if (value.length > 0) {
-        input.value = value
-            .toLowerCase()
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
-        
-        // Trigger change detection after capitalization
-        const form = document.getElementById('editUserForm');
-        if (form && form.dataset.registrationId) {
-            checkEditUserFormChanges(form.dataset.registrationId);
+            // Update button state - ALWAYS KEEP ENABLED
+            if (hasChanges) {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                submitBtn.disabled = false;
+                submitBtn.dataset.hasChanges = 'true';
+            } else {
+                submitBtn.classList.remove('no-changes');
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Save Changes';
+                submitBtn.disabled = false;
+                submitBtn.dataset.hasChanges = 'false';
+            }
         }
-    }
-}
 
-// Auto-capitalize on blur
-document.addEventListener('DOMContentLoaded', function() {
-    document.addEventListener('focusout', function(e) {
-        if (e.target.id === 'edit_first_name' || 
-            e.target.id === 'edit_middle_name' || 
-            e.target.id === 'edit_last_name' ||
-            e.target.id === 'edit_emergency_contact_name') {
-            capitalizeEditName(e.target);
+        /**
+         * Validate edit user form
+         */
+        function validateEditUserForm() {
+            const form = document.getElementById('editUserForm');
+            let isValid = true;
+
+            // Clear all previous validation states
+            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+            const requiredFields = [{
+                    elementId: 'edit_first_name',
+                    label: 'First Name'
+                },
+                {
+                    elementId: 'edit_last_name',
+                    label: 'Last Name'
+                },
+                {
+                    elementId: 'edit_contact_number',
+                    label: 'Contact Number'
+                },
+                {
+                    elementId: 'edit_barangay',
+                    label: 'Barangay'
+                },
+                {
+                    elementId: 'edit_user_type',
+                    label: 'User Type'
+                },
+                {
+                    elementId: 'edit_emergency_contact_name',
+                    label: 'Emergency Contact Name'
+                },
+                {
+                    elementId: 'edit_emergency_contact_phone',
+                    label: 'Emergency Contact Phone'
+                }
+            ];
+
+            // Validate required fields
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field.elementId);
+                if (input && (!input.value || input.value.trim() === '')) {
+                    input.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = field.label + ' is required';
+                    input.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            });
+
+            // Validate contact number format
+            const contactInput = document.getElementById('edit_contact_number');
+            if (contactInput && contactInput.value.trim()) {
+                const phoneRegex = /^(\+639|09)\d{9}$/;
+                if (!phoneRegex.test(contactInput.value.trim())) {
+                    contactInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Please enter a valid Philippine mobile number (09XXXXXXXXX or +639XXXXXXXXX)';
+                    contactInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            }
+
+            // Validate email if provided
+            const emailInput = document.getElementById('edit_email');
+            if (emailInput && emailInput.value.trim()) {
+                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailPattern.test(emailInput.value.trim())) {
+                    emailInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Invalid email format';
+                    emailInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            }
+
+            // Validate emergency phone
+            const emergencyPhoneInput = document.getElementById('edit_emergency_contact_phone');
+            if (emergencyPhoneInput && emergencyPhoneInput.value.trim()) {
+                const phoneRegex = /^(\+639|09)\d{9}$/;
+                if (!phoneRegex.test(emergencyPhoneInput.value.trim())) {
+                    emergencyPhoneInput.classList.add('is-invalid');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.textContent = 'Please enter a valid Philippine mobile number';
+                    emergencyPhoneInput.parentNode.appendChild(errorDiv);
+                    isValid = false;
+                }
+            }
+
+            return isValid;
         }
-    });
-});
+
+        /**
+         * Handle edit form submission with confirmation
+         */
+        function handleEditUserSubmit() {
+            const form = document.getElementById('editUserForm');
+            const submitBtn = document.getElementById('editUserSubmitBtn');
+            const registrationId = form.dataset.registrationId;
+
+            // Validate form
+            if (!validateEditUserForm()) {
+                showToast('error', 'Please fix all validation errors before saving');
+                return;
+            }
+
+            // Check if there are changes
+            if (submitBtn.dataset.hasChanges === 'false') {
+                showToast('warning', 'No changes detected. Please modify the fields before saving.');
+                return;
+            }
+
+            // Build changes summary
+            const originalData = JSON.parse(form.dataset.originalData || '{}');
+            const changedFields = [];
+
+            const fieldLabels = {
+                'first_name': 'First Name',
+                'middle_name': 'Middle Name',
+                'last_name': 'Last Name',
+                'name_extension': 'Extension',
+                'contact_number': 'Contact Number',
+                'email': 'Email',
+                'barangay': 'Barangay',
+                'complete_address': 'Complete Address',
+                'user_type': 'User Type',
+                'emergency_contact_name': 'Emergency Contact Name',
+                'emergency_contact_phone': 'Emergency Contact Phone'
+            };
+
+            const fieldMap = {
+                'first_name': 'edit_first_name',
+                'middle_name': 'edit_middle_name',
+                'last_name': 'edit_last_name',
+                'name_extension': 'edit_name_extension',
+                'contact_number': 'edit_contact_number',
+                'email': 'edit_email',
+                'barangay': 'edit_barangay',
+                'complete_address': 'edit_complete_address',
+                'user_type': 'edit_user_type',
+                'emergency_contact_name': 'edit_emergency_contact_name',
+                'emergency_contact_phone': 'edit_emergency_contact_phone'
+            };
+
+            Object.keys(fieldMap).forEach(fieldName => {
+                const elementId = fieldMap[fieldName];
+                const input = document.getElementById(elementId);
+                const currentValue = (input?.value || '').trim();
+                const originalValue = (originalData[fieldName] || '').trim();
+
+                if (currentValue !== originalValue) {
+                    changedFields.push(fieldLabels[fieldName] || fieldName);
+                }
+            });
+
+            // Show confirmation toast
+            showConfirmationToast(
+                'Confirm Update',
+                `Save the following changes to this registration?\n\n• ${changedFields.join('\n• ')}`,
+                () => proceedWithEditUser(form, registrationId)
+            );
+        }
+
+        /**
+         * Proceed with edit submission after confirmation
+         */
+        function proceedWithEditUser(form, registrationId) {
+            const submitBtn = document.getElementById('editUserSubmitBtn');
+
+            // Show loading state
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Saving...';
+            submitBtn.disabled = true;
+
+            // Disable form inputs during submission
+            const formInputs = form.querySelectorAll('input, select, textarea');
+            formInputs.forEach(input => input.disabled = true);
+
+            // Get values
+            const jsonData = {
+                first_name: (document.getElementById('edit_first_name')?.value || '').trim(),
+                middle_name: (document.getElementById('edit_middle_name')?.value || '').trim(),
+                last_name: (document.getElementById('edit_last_name')?.value || '').trim(),
+                name_extension: (document.getElementById('edit_name_extension')?.value || '') || null,
+                contact_number: (document.getElementById('edit_contact_number')?.value || '').trim(),
+                email: (document.getElementById('edit_email')?.value || '').trim(),
+                barangay: (document.getElementById('edit_barangay')?.value || '').trim(),
+                complete_address: (document.getElementById('edit_complete_address')?.value || '').trim(),
+                user_type: (document.getElementById('edit_user_type')?.value || '').trim(),
+                emergency_contact_name: (document.getElementById('edit_emergency_contact_name')?.value || '').trim(),
+                emergency_contact_phone: (document.getElementById('edit_emergency_contact_phone')?.value || '').trim()
+            };
+
+            console.log('Sending update data:', jsonData);
+
+            // Submit to backend
+            fetch(`/admin/registrations/${registrationId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCSRFToken(),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(jsonData)
+                })
+                .then(response => {
+                    return response.json().then(data => {
+                        if (!response.ok) {
+                            throw {
+                                status: response.status,
+                                message: data.message || 'Update failed',
+                                errors: data.errors || {}
+                            };
+                        }
+                        return data;
+                    });
+                })
+                .then(data => {
+                    if (data.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+                        if (modal) modal.hide();
+
+                        showToast('success', data.message || 'Registration updated successfully');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        throw {
+                            status: 422,
+                            message: data.message || 'Failed to update registration',
+                            errors: data.errors || {}
+                        };
+                    }
+                })
+                .catch(error => {
+                    console.error('Error occurred:', error);
+
+                    // Handle validation errors
+                    if (error.status === 422 && error.errors && typeof error.errors === 'object') {
+                        const fieldMap = {
+                            'first_name': 'edit_first_name',
+                            'last_name': 'edit_last_name',
+                            'contact_number': 'edit_contact_number',
+                            'barangay': 'edit_barangay',
+                            'user_type': 'edit_user_type',
+                            'email': 'edit_email',
+                            'emergency_contact_name': 'edit_emergency_contact_name',
+                            'emergency_contact_phone': 'edit_emergency_contact_phone',
+                            'complete_address': 'edit_complete_address',
+                            'middle_name': 'edit_middle_name',
+                            'name_extension': 'edit_name_extension'
+                        };
+
+                        Object.keys(error.errors).forEach(field => {
+                            const elementId = fieldMap[field];
+                            const input = document.getElementById(elementId);
+                            if (input) {
+                                input.classList.add('is-invalid');
+                                const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+                                if (existingFeedback) existingFeedback.remove();
+
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback d-block';
+                                const errorMessage = Array.isArray(error.errors[field]) ?
+                                    error.errors[field][0] :
+                                    error.errors[field];
+                                errorDiv.textContent = errorMessage;
+                                input.parentNode.appendChild(errorDiv);
+                            }
+                        });
+
+                        showToast('error', error.message);
+                    } else {
+                        showToast('error', error.message || 'Error updating registration');
+                    }
+
+                    // Restore button state
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    formInputs.forEach(input => input.disabled = false);
+                });
+        }
+
+        /**
+         * Auto-capitalize names in edit form
+         */
+        function capitalizeEditName(input) {
+            const value = input.value;
+            if (value.length > 0) {
+                input.value = value
+                    .toLowerCase()
+                    .split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+
+                // Trigger change detection after capitalization
+                const form = document.getElementById('editUserForm');
+                if (form && form.dataset.registrationId) {
+                    checkEditUserFormChanges(form.dataset.registrationId);
+                }
+            }
+        }
+
+        // Auto-capitalize on blur
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('focusout', function(e) {
+                if (e.target.id === 'edit_first_name' ||
+                    e.target.id === 'edit_middle_name' ||
+                    e.target.id === 'edit_last_name' ||
+                    e.target.id === 'edit_emergency_contact_name') {
+                    capitalizeEditName(e.target);
+                }
+            });
+        });
 
         console.log('Enhanced Admin User Management JavaScript with document viewing loaded successfully');
     </script>

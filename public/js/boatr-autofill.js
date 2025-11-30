@@ -54,9 +54,9 @@ function autoFillBoatRFromProfile() {
     setFieldValue('last_name', userData.last_name);
     setFieldValue('name_extension', userData.name_extension || userData.extension_name);
     setFieldValue('contact_number', userData.contact_number || userData.mobile_number || userData.phone);
-    setFieldValue('email', userData.email);
+    // Email removed - not required for BoatR applications
     setFieldValue('barangay', userData.barangay);
-    
+
     // NEW: Fill sex/gender field (try multiple possible field names)
     setFieldValue('sex', userData.sex);
     setFieldValue('gender', userData.gender);

@@ -94,7 +94,6 @@ class RsbsaApplicationFactory extends Factory
             'middle_name' => $middleName,
             'last_name' => $lastName,
             'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
-            'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'sex' => $this->faker->randomElement(['Male', 'Female']),
             'contact_number' => $this->faker->randomElement([
                 '09' . $this->faker->numerify('#########'),
