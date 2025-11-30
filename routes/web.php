@@ -727,10 +727,32 @@ Route::prefix('auth')->group(function () {
 
     // FACEBOOK AUTHENTICATION - INSIDE auth PREFIX
     Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])
-    ->name('facebook.redirect');
-
+        ->name('facebook.redirect');
+    
     Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
+        ->withoutMiddleware('verified.csrf') // Disable CSRF only for OAuth callback
+        ->middleware('throttle:5,1')
         ->name('facebook.callback');
+    
+    // Data deletion endpoints
+    Route::post('/facebook/data-deletion', [FacebookDataDeletionController::class, 'handleDataDeletion'])
+        ->withoutMiddleware('verified.csrf')
+        ->name('facebook.data-deletion');
+    
+    Route::get('/facebook/deletion-status', [FacebookDataDeletionController::class, 'showDeletionStatus'])
+        ->name('facebook.deletion-status');
+    // Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])
+    // ->name('facebook.redirect');
+
+    // Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
+    //     ->name('facebook.callback');
+
+    // // Facebook Data Deletion (Required by Facebook)
+    // Route::post('/auth/facebook/data-deletion', [FacebookDataDeletionController::class, 'handleDataDeletion'])
+    //     ->name('facebook.data-deletion');
+
+    // Route::get('/auth/facebook/deletion-status', [FacebookDataDeletionController::class, 'showDeletionStatus'])
+    //     ->name('facebook.deletion-status');
 
     // view document not needed
     // Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'serveDocument'])
