@@ -83,8 +83,7 @@ function autoFillTrainingFromProfile() {
     // Fill Contact Number
     setFieldValue('contact_number', userData.contact_number || userData.mobile || userData.phone);
 
-    // Fill Email
-    setFieldValue('email', userData.email);
+    // Email removed - not required for training applications
 
     // Fill Barangay
     setFieldValue('barangay', userData.barangay);

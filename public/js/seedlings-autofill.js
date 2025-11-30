@@ -81,8 +81,7 @@ function autoFillSeedlingsFromProfile() {
     // Fill Mobile Number
     setFieldValue('mobile', userData.contact_number || userData.mobile_number || userData.phone || userData.mobile);
 
-    // Fill Email
-    setFieldValue('email', userData.email);
+    // Email removed - not required for Seedlings requests
 
     // Fill Barangay
     setFieldValue('barangay', userData.barangay);

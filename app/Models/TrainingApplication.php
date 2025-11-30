@@ -21,7 +21,6 @@ class TrainingApplication extends Model
         'last_name',
         'name_extension',
         'contact_number',
-        'email',
         'barangay',
         'training_type',
         'document_path', // CHANGED: Single path instead of array
@@ -138,8 +137,7 @@ class TrainingApplication extends Model
                   ->orWhere('middle_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('application_number', 'like', "%{$search}%")
-                  ->orWhere('contact_number', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('contact_number', 'like', "%{$search}%");
             });
         }
         return $query;

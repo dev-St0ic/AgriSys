@@ -113,8 +113,7 @@ function autoFillRSBSAFromProfile() {
     // Fill Mobile Number
     setFieldValue('mobile', userData.contact_number || userData.mobile_number || userData.mobile || userData.phone);
 
-    // Fill Email
-    setFieldValue('email', userData.email);
+    // Email removed - not required for RSBSA applications
 
     // Fill Main Livelihood from user_type
     if (userData.user_type) {

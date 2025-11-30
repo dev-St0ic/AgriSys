@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('barangay')->nullable();
             $table->unsignedBigInteger('barangay_id')->nullable(); // Foreign key to barangays table
             $table->string('contact_number', 20)->nullable();
-            $table->string('email')->nullable();
             $table->enum('main_livelihood', ['capture', 'aquaculture', 'vending', 'processing', 'others'])->nullable();
             $table->string('livelihood_description')->nullable();
             $table->string('other_livelihood')->nullable();
@@ -46,7 +45,6 @@ return new class extends Migration
             $table->index('barangay_id');
             $table->index('registration_number');
             $table->index('contact_number'); // Added for search functionality
-            $table->index('email'); // Added for email search functionality
             $table->index(['first_name', 'last_name']); // Added for name searches
 
             // Foreign key constraints

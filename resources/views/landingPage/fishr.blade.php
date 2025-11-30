@@ -28,7 +28,7 @@
                 <label for="fishr-first_name">First Name <span
                         style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="fishr-first_name" name="first_name" placeholder="Enter your first name"
-                    pattern="[a-zA-Z\s\'-]+"
+                    pattern="[a-zA-Z\s'\-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('first_name') }}" required>
                 <span class="validation-warning" id="fishr-first_name-warning"
@@ -42,7 +42,7 @@
             <div class="fishr-form-group">
                 <label for="fishr-middle_name">Middle Name (Optional)</label>
                 <input type="text" id="fishr-middle_name" name="middle_name" placeholder="Enter your middle name"
-                    pattern="[a-zA-Z\s\'-]+"
+                    pattern="[a-zA-Z\s'\-]+"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('middle_name') }}">
                 <span class="validation-warning" id="fishr-middle_name-warning"
@@ -56,7 +56,7 @@
             <div class="fishr-form-group">
                 <label for="fishr-last_name">Last Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="text" id="fishr-last_name" name="last_name" placeholder="Enter your last name"
-                    pattern="[a-zA-Z\s\'-]+"
+                    pattern="[a-zA-Z\s'\-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('last_name') }}" required>
                 <span class="validation-warning" id="fishr-last_name-warning"

@@ -336,7 +336,6 @@ function validateTrainingForm() {
         { id: 'training_first_name', name: 'First Name' },
         { id: 'training_last_name', name: 'Last Name' },
         { id: 'training_contact_number', name: 'Contact Number' },
-        { id: 'training_email', name: 'Email Address' },
         { id: 'training_barangay', name: 'Barangay' },
         { id: 'training_type', name: 'Training Program' }
     ];
@@ -365,15 +364,7 @@ function validateTrainingForm() {
         }
     }
 
-    // Validate email format
-    const emailElement = document.getElementById('training_email');
-    if (emailElement) {
-        const email = emailElement.value.trim();
-        if (email && !validateEmail(email)) {
-            showFieldError('training_email', 'Please enter a valid email address');
-            isValid = false;
-        }
-    }
+    // Email validation removed - not required for training applications
 
     // Validate file uploads
     const fileInput = document.getElementById('training_documents');

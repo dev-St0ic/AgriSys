@@ -104,25 +104,25 @@ Route::get('/api/validate-fishr/{number}', function($number) {
     Route::prefix('admin/rsbsa-applications')->name('admin.rsbsa.')->group(function () {
         // List applications
     Route::get('/', [RsbsaController::class, 'index'])->name('applications');
-    
+
     // Export applications (must be before /{id} to avoid conflict)
     Route::get('/export', [RsbsaController::class, 'export'])->name('export');
-    
+
     // Create new registration
     Route::post('/create', [RsbsaController::class, 'store'])->name('store');
-    
+
     // View single application
     Route::get('/{id}', [RsbsaController::class, 'show'])->name('show');
-    
+
     // Update application (personal info) - PUT method
     Route::put('/{id}', [RsbsaController::class, 'update'])->name('update');
-    
+
     // Update status only - PATCH method (different from PUT)
     Route::patch('/{id}/status', [RsbsaController::class, 'updateStatus'])->name('update-status');
-    
+
     // Delete application
     Route::delete('/{id}', [RsbsaController::class, 'destroy'])->name('destroy');
-    
+
     // Download document
     Route::get('/{id}/download', [RsbsaController::class, 'downloadDocument'])->name('download-document');
     });
@@ -139,9 +139,9 @@ Route::get('/api/validate-fishr/{number}', function($number) {
 
         // DELETE route BEFORE GET/{id}
         Route::delete('/{id}', [FishRController::class, 'destroy'])->name('destroy');
-        
-        // edit 
-        Route::put('/{id}', [FishRController::class, 'update'])->name('update');    
+
+        // edit
+        Route::put('/{id}', [FishRController::class, 'update'])->name('update');
 
         // Index route
         Route::get('/', [FishRController::class, 'index'])->name('requests');
@@ -328,31 +328,31 @@ Route::prefix('admin/notifications')->name('admin.notifications.')->middleware([
     // Get unread count for badge
     Route::get('/unread-count', [App\Http\Controllers\NotificationController::class, 'getUnreadCount'])
         ->name('unread-count');
-    
+
     // Get unread notifications for dropdown (max 10)
     Route::get('/unread', [App\Http\Controllers\NotificationController::class, 'unread'])
         ->name('unread');
-    
+
     // Get ALL notifications with pagination and filtering (for dedicated page)
     Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])
         ->name('index');
-    
+
     // Mark single notification as read (doesn't delete)
     Route::post('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])
         ->name('mark-read');
-    
+
     // Mark all notifications as read (doesn't delete)
     Route::post('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])
         ->name('mark-all-read');
-    
+
     // Delete single notification
     Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy'])
         ->name('destroy');
-    
+
     // Clear/delete all read notifications
     Route::delete('/clear-read', [App\Http\Controllers\NotificationController::class, 'clearRead'])
         ->name('clear-read');
-    
+
     // Delete all notifications
     Route::delete('/clear-all', [App\Http\Controllers\NotificationController::class, 'clearAll'])
         ->name('clear-all');
@@ -708,11 +708,6 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [UserRegistrationController::class, 'login'])->name('auth.login');
     Route::post('/logout', [UserRegistrationController::class, 'logout'])->name('auth.logout');
 
-
-    // Facebook Authentication
-    // Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])->name('facebook.redirect');
-    // Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])->name('facebook.callback');
-
     // Username availability checking
     Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('auth.check.username');
 
@@ -725,35 +720,6 @@ Route::prefix('auth')->group(function () {
     Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('auth.verify.email');
     Route::post('/resend-verification', [UserRegistrationController::class, 'resendVerification'])->name('auth.resend.verification');
 
-    // FACEBOOK AUTHENTICATION - INSIDE auth PREFIX
-    Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])
-        ->name('facebook.redirect');
-    
-    Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
-        ->withoutMiddleware('verified.csrf') // Disable CSRF only for OAuth callback
-        ->middleware('throttle:5,1')
-        ->name('facebook.callback');
-    
-    // Data deletion endpoints
-    Route::post('/facebook/data-deletion', [FacebookDataDeletionController::class, 'handleDataDeletion'])
-        ->withoutMiddleware('verified.csrf')
-        ->name('facebook.data-deletion');
-    
-    Route::get('/facebook/deletion-status', [FacebookDataDeletionController::class, 'showDeletionStatus'])
-        ->name('facebook.deletion-status');
-    // Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])
-    // ->name('facebook.redirect');
-
-    // Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
-    //     ->name('facebook.callback');
-
-    // // Facebook Data Deletion (Required by Facebook)
-    // Route::post('/auth/facebook/data-deletion', [FacebookDataDeletionController::class, 'handleDataDeletion'])
-    //     ->name('facebook.data-deletion');
-
-    // Route::get('/auth/facebook/deletion-status', [FacebookDataDeletionController::class, 'showDeletionStatus'])
-    //     ->name('facebook.deletion-status');
-
     // view document not needed
     // Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'serveDocument'])
     //     ->name('registrations.document')
@@ -761,14 +727,6 @@ Route::prefix('auth')->group(function () {
     //     ->middleware('auth');
 });
 
-// ============================================
-// FACEBOOK AUTHENTICATION - OUTSIDE auth PREFIX
-// ============================================
-// Route::get('/facebook', [UserRegistrationController::class, 'redirectToFacebook'])
-//     ->name('facebook.redirect');
-
-// Route::get('/facebook/callback', [UserRegistrationController::class, 'handleFacebookCallback'])
-//     ->name('facebook.callback');
 /*
 |--------------------------------------------------------------------------
 | User Dashboard Routes (Protected by UserSession middleware)

@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('name_extension')->nullable();
             $table->string('contact_number', 20)->nullable();
-            $table->string('email')->nullable();
             $table->string('barangay')->nullable();
             $table->enum('training_type', [
                 'tilapia_hito',
@@ -50,7 +49,6 @@ return new class extends Migration
             $table->index(['training_type', 'status']);
             $table->index('application_number');
             $table->index('contact_number');
-            $table->index('email');
             $table->index(['first_name', 'last_name']);
 
             // Foreign key constraints

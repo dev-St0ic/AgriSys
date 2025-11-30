@@ -29,7 +29,6 @@ class SeedlingRequestSeeder extends Seeder
         if (User::count() === 0) {
             User::factory()->create([
                 'name' => 'Admin User',
-                'email' => 'admin@agrisys.com',
                 'password' => bcrypt('password'),
             ]);
             User::factory(3)->create();
@@ -133,7 +132,6 @@ class SeedlingRequestSeeder extends Seeder
                 'last_name' => fake()->lastName(),
                 'extension_name' => rand(0, 10) > 8 ? ['Jr.', 'Sr.', 'III'][rand(0, 2)] : null,
                 'contact_number' => '09' . rand(100000000, 999999999),
-                'email' => fake()->email(),
                 'address' => fake()->streetAddress(),
                 'barangay' => $this->getRandomBarangay(),
                 'planting_location' => fake()->address(),

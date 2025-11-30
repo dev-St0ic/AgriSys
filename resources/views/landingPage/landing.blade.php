@@ -967,19 +967,6 @@
                         </button>
 
                         <!-- Divider -->
-                        <div class="auth-divider">
-                            <span>or</span>
-                        </div>
-
-                        <!-- Facebook Sign In Button -->
-                        <button type="button" class="facebook-signin-btn" onclick="signInWithFacebook()">
-                            <svg class="facebook-icon" viewBox="0 0 24 24" fill="#1877f2">
-                                <path
-                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                            </svg>
-                            Continue with Facebook
-                        </button>
-
                         <!-- Sign Up Prompt -->
                         <div class="signup-prompt">
                             <p>Don't have an account? <a href="#" onclick="showSignUpForm()">Sign up here</a>
@@ -1053,27 +1040,9 @@
                                 </div>
                             </div>
 
-                            <!-- Add this before the SIGN UP button -->
-                            <div class="recaptcha-container">
-                                <div class="g-recaptcha" data-sitekey="{{ config('recaptcha.site_key') }}"></div>
-                            </div>
-
                             <button type="submit" class="auth-submit-btn">
                                 <span class="btn-text">SIGN UP</span>
                                 <span class="btn-loader" style="display: none;">Creating...</span>
-                            </button>
-
-                            <!-- Divider -->
-                            <div class="auth-divider">
-                                <span>or</span>
-                            </div>
-                            <!-- Facebook Sign Up Button -->
-                            <button type="button" class="facebook-signin-btn" onclick="signUpWithFacebook()">
-                                <svg class="facebook-icon" viewBox="0 0 24 24" fill="#1877f2">
-                                    <path
-                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                </svg>
-                                Sign up with Facebook
                             </button>
                             <!-- Back to Login Button -->
                             <div class="login-prompt">
@@ -1275,8 +1244,8 @@
                         <div class="form-group">
                             <label for="confirm-new-password">Confirm New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="confirm-new-password" name="confirm_new_password"
-                                    required autocomplete="new-password" placeholder="Confirm your new password"
+                                <input type="password" id="confirm-new-password" name="confirm_new_password" required
+                                    autocomplete="new-password" placeholder="Confirm your new password"
                                     oninput="checkNewPasswordMatch(document.getElementById('new-password').value, this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('confirm-new-password')">
@@ -1312,15 +1281,7 @@
                     Agriculture Office of San Pedro, Laguna. We aim to streamline agricultural services and support
                     local farmers.</p>
 
-                <div class="social-links">
-                    <span>Follow us:</span>
-                    <a href="https://www.facebook.com/sanpedroagri" target="_blank" title="Facebook">
-                        <svg width="16" height="16" viewBox="0 0 24 24">
-                            <path
-                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                        </svg>
-                    </a>
-                </div>
+
             </div>
 
             <!-- Services column -->
@@ -1430,48 +1391,6 @@
             }
         });
     </script>
-
-    <!-- reCAPTCHA initialization callback -->
-    <script>
-        // Global callback function for when reCAPTCHA is loaded
-        window.onRecaptchaLoad = function() {
-            console.log('reCAPTCHA API loaded successfully');
-            window.recaptchaLoaded = true;
-
-            // Try to render reCAPTCHA immediately if container exists
-            setTimeout(() => {
-                const recaptchaContainer = document.querySelector('.g-recaptcha');
-                if (recaptchaContainer && recaptchaContainer.children.length === 0) {
-                    if (typeof window.renderRecaptcha === 'function') {
-                        window.renderRecaptcha();
-                    }
-                }
-            }, 100);
-        };
-
-        // Fallback check if callback doesn't fire
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if reCAPTCHA is loaded after page load
-            setTimeout(function() {
-                if (typeof grecaptcha !== 'undefined') {
-                    window.recaptchaLoaded = true;
-                    console.log('reCAPTCHA API detected after DOM load');
-
-                    // Try to render if container exists and not already rendered
-                    const recaptchaContainer = document.querySelector('.g-recaptcha');
-                    if (recaptchaContainer && recaptchaContainer.children.length === 0) {
-                        if (typeof window.renderRecaptcha === 'function') {
-                            window.renderRecaptcha();
-                        }
-                    }
-                } else {
-                    console.warn('reCAPTCHA API not loaded after 1 second');
-                }
-            }, 1000);
-        });
-    </script>
-
-    <script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
 </body>
 
 </html>

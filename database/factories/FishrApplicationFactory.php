@@ -90,7 +90,6 @@ class FishrApplicationFactory extends Factory
                 '09' . $this->faker->numerify('#########'),
                 '09' . $this->faker->numerify('#########')
             ]),
-            'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'), // Add email field
             'main_livelihood' => $mainLivelihood,
             'livelihood_description' => $this->getLivelihoodDescription($mainLivelihood),
             'other_livelihood' => $mainLivelihood === 'others' ? $this->faker->jobTitle : null,

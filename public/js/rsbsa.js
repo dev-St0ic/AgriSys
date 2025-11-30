@@ -294,7 +294,6 @@ function validateRSBSAForm(form) {
         'sex',
         'barangay',
         'mobile',
-        'email',  // ⚠️ MISSING - SERVER REQUIRES THIS
         'main_livelihood'
     ];
 
@@ -376,16 +375,7 @@ function validateRSBSAForm(form) {
         }
     }
 
-    // 7️⃣ VALIDATE EMAIL
-    const emailField = form.querySelector('[name="email"]');
-    if (emailField && emailField.value) {
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(emailField.value)) {
-            isValid = false;
-            errors.push('Please enter a valid email address');
-            emailField.classList.add('error');
-        }
-    }
+    // 7️⃣ EMAIL REMOVED - Not required for RSBSA applications
 
     // 8️⃣ VALIDATE MAIN LIVELIHOOD (must be exact match)
     const livelihoodField = form.querySelector('[name="main_livelihood"]');
@@ -648,7 +638,6 @@ function fillSampleRSBSAData() {
         sex: 'Female',
         barangay: 'San Jose',
         mobile: '09123456789',
-        email: 'maria.cruz@example.com',  
         main_livelihood: 'Farmer',
         main_livelihood: 'rice'
     };

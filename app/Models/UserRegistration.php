@@ -42,8 +42,6 @@ class UserRegistration extends Model
         'emergency_contact_name',
         'emergency_contact_phone',
 
-        // facebook oauth fields
-        'facebook_id',
         'profile_image_url',
 
         // Document paths

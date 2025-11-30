@@ -119,7 +119,6 @@ class SeedlingRequestFactory extends Factory
             'last_name' => $lastName,
             'extension_name' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
             'contact_number' => $this->faker->phoneNumber,
-            'email' => $this->faker->optional(0.8)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'address' => $this->faker->streetAddress,
             'barangay' => $this->faker->randomElement($barangays),
             'planting_location' => $this->faker->optional(0.8)->address,

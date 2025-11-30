@@ -19,6 +19,31 @@
     </div>
 
     <div class="training-tab-content" id="training-form-tab" style="display: block;">
+        <!-- Success/Error Messages -->
+        @if (session('success'))
+            <div class="alert alert-success"
+                style="padding: 15px; margin-bottom: 20px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724;">
+                <strong>✓ Success!</strong> {{ session('success') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger"
+                style="padding: 15px; margin-bottom: 20px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+                <strong>✗ Error!</strong> {{ session('error') }}
+            </div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger"
+                style="padding: 15px; margin-bottom: 20px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
+                <strong>✗ Please fix the following errors:</strong>
+                <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form id="training-request-form" action="{{ route('apply.training') }}" method="POST"
             enctype="multipart/form-data">
             @csrf
@@ -26,7 +51,7 @@
             <div class="training-form-group">
                 <label for="training_first_name">First Name <span class="required-asterisk">*</span></label>
                 <input type="text" id="training_first_name" name="first_name" placeholder="Enter your first name"
-                    pattern="[a-zA-Z\s\'-]+"
+                    pattern="[a-zA-Z\s'\-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="training_first_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
@@ -36,7 +61,7 @@
             <div class="training-form-group">
                 <label for="training_middle_name">Middle Name (Optional)</label>
                 <input type="text" id="training_middle_name" name="middle_name" placeholder="Enter your middle name"
-                    pattern="[a-zA-Z\s\'-]+"
+                    pattern="[a-zA-Z\s'\-]+"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
                 <span class="validation-warning" id="training_middle_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
@@ -46,7 +71,7 @@
             <div class="training-form-group">
                 <label for="training_last_name">Last Name <span class="required-asterisk">*</span></label>
                 <input type="text" id="training_last_name" name="last_name" placeholder="Enter your last name"
-                    pattern="[a-zA-Z\s\'-]+"
+                    pattern="[a-zA-Z\s'\-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="training_last_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,

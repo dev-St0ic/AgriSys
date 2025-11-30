@@ -87,22 +87,6 @@ return [
         'api_version' => '2023-06-01'
     ],
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Facebook Authentication Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Configuration for Facebook integration.
-    |
-    */
-
-    'facebook' => [
-        'client_id' => env('FACEBOOK_CLIENT_ID'),
-        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-        'redirect' => env('FACEBOOK_REDIRECT_URI'),
-    ],
-
     /*
     |--------------------------------------------------------------------------
     | PhilSMS Configuration

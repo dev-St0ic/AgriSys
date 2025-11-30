@@ -19,11 +19,7 @@ return new class extends Migration
             $table->timestamp('username_changed_at')->nullable();
             $table->string('contact_number', 20)->unique(); // Primary contact - required for signup
             $table->string('email')->unique()->nullable(); // Optional - can be added later
-
-            // ===== FACEBOOK AUTHENTICATION FIELDS =====
-            $table->string('facebook_id')->nullable();
             $table->string('profile_image_url')->nullable();
-            // ===== END FACEBOOK FIELDS =====
 
             $table->string('password')->nullable();
             $table->enum('status', ['unverified', 'pending', 'approved', 'rejected'])->default('unverified');
@@ -105,9 +101,6 @@ return new class extends Migration
 
             // Activity Tracking
             $table->index(['last_login_at'], 'idx_last_login_activity');
-
-            // Facebook ID lookups
-            $table->index(['facebook_id'], 'idx_facebook_id');
 
             // Composite Indexes for Complex Queries
             $table->index(['status', 'user_type', 'created_at'], 'idx_admin_dashboard_combo');

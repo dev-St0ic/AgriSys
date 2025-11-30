@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('extension_name')->nullable();
             $table->string('contact_number')->nullable();
-            $table->string('email')->nullable();
             $table->text('address')->nullable();
             $table->string('barangay')->nullable();
             $table->text('planting_location')->nullable();

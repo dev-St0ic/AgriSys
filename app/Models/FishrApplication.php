@@ -23,7 +23,6 @@ class FishrApplication extends Model
         'sex',
         'barangay',
         'contact_number',
-        'email',
         'main_livelihood',
         'livelihood_description',
         'other_livelihood',

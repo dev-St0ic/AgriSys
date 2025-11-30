@@ -85,7 +85,6 @@ class TrainingApplicationFactory extends Factory
                 '09' . $this->faker->numerify('#########'),
                 '09' . $this->faker->numerify('#########')
             ]),
-            'email' => $this->faker->optional(0.9)->safeEmail ?? strtolower($firstName . '.' . $lastName . '@example.com'),
             'barangay' => $this->faker->randomElement([
                 'Bagong Silang', 'Cuyab', 'Estrella', 'G.S.I.S.', 'Landayan',
                 'Langgam', 'Laram', 'Magsaysay', 'Nueva', 'Poblacion',
