@@ -136,7 +136,7 @@
     font-size: 1rem;
     transition: all 0.3s ease;
     background: #ffffff;
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
 
 .seedlings-search-box input:focus {
@@ -164,7 +164,7 @@
     transition: all 0.3s ease;
     min-width: 180px;
      box-sizing: border-box;
-    flex: 0 0 auto; 
+    flex: 0 0 auto;
 }
 
 .seedlings-filter-select:hover {
@@ -819,17 +819,17 @@ section.application-section small {
     .seedlings-filter-bar {
         gap: 12px;
     }
-    
+
     .seedlings-search-box {
         flex: 1 1 100%; /* Full width on medium screens */
         min-width: 0;
     }
-    
+
     .seedlings-filter-group {
         flex: 1 1 100%; /* Full width on medium screens */
         width: 100%;
     }
-    
+
     .seedlings-filter-select {
         flex: 1 1 calc(50% - 5px); /* Two selects per row */
         min-width: 0;
@@ -841,7 +841,7 @@ section.application-section small {
     .seedlings-application-section {
         padding: 30px 20px;
     }
-    
+
     .seedlings-form-header h2 {
         font-size: 2rem;
     }
@@ -849,75 +849,75 @@ section.application-section small {
     .seedlings-form-row {
         flex-direction: column;
     }
-    
+
     .seedlings-form-row .seedlings-form-group {
         min-width: 100%;
     }
-    
+
     .seedlings-category-tabs {
         justify-content: flex-start;
         overflow-x: auto;
         flex-wrap: nowrap;
         padding-bottom: 10px;
     }
-    
+
     .seedlings-category-tab {
         padding: 10px 20px;
         font-size: 0.9rem;
         white-space: nowrap;
     }
-    
+
     .seedlings-category-tab.category-toggle-btn {
         width: 100%;
         justify-content: center;
         margin-top: 5px;
     }
-    
+
     .seedlings-filter-bar {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .seedlings-search-box {
         width: 100%;
         min-width: 0;
     }
-    
+
     .seedlings-filter-group {
         width: 100%;
         flex-direction: column;
     }
-    
+
     .seedlings-filter-select {
         flex: 1;
         min-width: 0;
         flex: 1 1 auto;
     }
-    
+
     .seedlings-items-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 20px;
     }
-    
+
     .seedlings-item-image {
         height: 180px;
     }
-    
+
     .seedlings-selection-summary {
         flex-direction: column;
         gap: 15px;
         text-align: center;
     }
-    
+
     .seedlings-proceed-btn {
         width: 100%;
         justify-content: center;
     }
-    
+
     .seedlings-form-tabs {
         flex-direction: column;
     }
-    
+
     .seedlings-tab-btn {
         width: 100%;
         text-align: left;
@@ -929,29 +929,29 @@ section.application-section small {
         padding: 20px 15px;
         border-radius: 15px;
     }
-    
+
     .seedlings-form-header h2 {
         font-size: 1.75rem;
     }
-    
+
     .seedlings-form-header p {
         font-size: 1rem;
     }
-    
+
     .seedlings-items-grid {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .seedlings-item-card {
         max-width: 100%;
     }
-    
+
     .seedlings-form-buttons {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .seedlings-cancel-btn,
     .seedlings-submit-btn {
         width: 100%;
@@ -960,12 +960,12 @@ section.application-section small {
     .seedlings-filter-bar {
         padding: 0 15px;
     }
-    
+
     .seedlings-search-box input {
         padding: 10px 15px 10px 40px;
         font-size: 0.95rem;
     }
-    
+
     .seedlings-filter-select {
         padding: 10px 15px;
         font-size: 0.9rem;
