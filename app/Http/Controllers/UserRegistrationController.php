@@ -279,7 +279,7 @@ class UserRegistrationController extends Controller
                 ]);
 
                 $request->session()->put('user_id', $userRegistration->id);
-                $request->session()->put('user_username', $userRegistration->username);
+                // $request->session()->put('user_username', $userRegistration->username);
                 $request->session()->put('user_status', $userRegistration->status);
 
                 $userRegistration->update(['last_login_at' => now()]);
@@ -1853,7 +1853,7 @@ public function update(Request $request, $id)
     {
         try {
             return Socialite::driver('facebook')
-                ->scopes(['email', 'public_profile'])
+                ->scopes(['public_profile'])
                 ->redirect();
         } catch (\Exception $e) {
             \Log::error('Facebook redirect error: ' . $e->getMessage());
@@ -1861,149 +1861,283 @@ public function update(Request $request, $id)
         }
     }
 
-    /**
-     * Handle Facebook OAuth callback
-     */
-    public function handleFacebookCallback(Request $request)
-    {
-        try {
-            if ($request->has('_') && empty($request->get('_'))) {
-                return redirect()->to($request->path());
-            }
+    // /**
+    //  * Handle Facebook OAuth callback
+    //  */
+    // public function handleFacebookCallback(Request $request)
+    // {
+    //     try {
+    //         if ($request->has('_') && empty($request->get('_'))) {
+    //             return redirect()->to($request->path());
+    //         }
 
-            $facebookUser = Socialite::driver('facebook')->stateless()->user();
+    //         $facebookUser = Socialite::driver('facebook')->user();
 
-            \Log::info('Facebook user data:', [
-                'id' => $facebookUser->id,
-                'email' => $facebookUser->email,
-                'name' => $facebookUser->name
+    //         \Log::info('Facebook user data:', [
+    //             'id' => $facebookUser->id,
+    //             'email' => $facebookUser->email,
+    //             'name' => $facebookUser->name
+    //         ]);
+
+    //         if (empty($facebookUser->email)) {
+    //             \Log::warning('Facebook login attempted without email permission');
+    //             return redirect('/')->with('error', 'Email permission is required. Please try again and allow email access.');
+    //         }
+
+    //         // FIXED: Check if facebook_id exists - don't require email anymore
+    //         $userRegistration = UserRegistration::where('facebook_id', $facebookUser->id)
+    //             ->first();
+
+    //         if (!$userRegistration) {
+    //             $username = $this->generateUniqueUsername($facebookUser->name);
+
+    //             $nameParts = explode(' ', trim($facebookUser->name));
+    //             $firstName = $nameParts[0] ?? $facebookUser->name;
+    //             $lastName = count($nameParts) > 1 ? end($nameParts) : '';
+
+    //             $userRegistration = UserRegistration::create([
+    //                 'username' => $username,
+    //                 'email' => null,
+    //                 'password' => Hash::make(Str::random(32)),
+    //                 'facebook_id' => $facebookUser->id,
+    //                 'profile_image_url' => $facebookUser->avatar,
+    //                 'first_name' => $firstName,
+    //                 'last_name' => $lastName,
+    //                 'status' => UserRegistration::STATUS_UNVERIFIED,
+    //                 'terms_accepted' => true,
+    //                 'privacy_accepted' => true,
+    //                 'email_verified_at' => null,
+    //             ]);
+
+    //             \Log::info('New user created via Facebook', [
+    //                 'user_id' => $userRegistration->id,
+    //                 'facebook_id' => $facebookUser->id,
+    //                 'username' => $username
+    //             ]);
+
+    //         } else {
+    //             if (!$userRegistration->facebook_id) {
+    //                 $userRegistration->update([
+    //                     'facebook_id' => $facebookUser->id,
+    //                     'profile_image_url' => $facebookUser->avatar,
+    //                     'email_verified_at' => $userRegistration->email_verified_at ?? now(),
+    //                 ]);
+    //             }
+
+    //             $userRegistration->update(['last_login_at' => now()]);
+
+    //             \Log::info('Existing user logged in via Facebook', [
+    //                 'user_id' => $userRegistration->id,
+    //                 'facebook_id' => $facebookUser->id
+    //             ]);
+    //         }
+
+    //         $request->session()->regenerate();
+
+    //         $request->session()->put('user', [
+    //             'id' => $userRegistration->id,
+    //             'username' => $userRegistration->username,
+    //             'name' => $userRegistration->full_name ?? $userRegistration->username,
+    //             'user_type' => $userRegistration->user_type,
+    //             'status' => $userRegistration->status,
+    //             'profile_image' => $userRegistration->profile_image_url,
+    //         ]);
+
+    //     // // Store user in session
+    //     // $request->session()->regenerate(); // Regenerate session for security
+
+    //     // $request->session()->put('user', [
+    //     //     'id' => $userRegistration->id,
+    //     //     'username' => $userRegistration->username,
+    //     //     'name' => $userRegistration->full_name ?? $userRegistration->username,
+    //     //     'user_type' => $userRegistration->user_type,
+    //     //     'status' => $userRegistration->status,
+    //     //     'profile_image' => $userRegistration->profile_image_url,
+    //     // ]);
+
+    //     //     $request->session()->put('user_id', $userRegistration->id);
+    //     //     $request->session()->put('user_username', $userRegistration->username);
+
+    //         $firstName = explode(' ', $userRegistration->first_name ?? $userRegistration->username)[0];
+    //         $message = 'Welcome! Please complete your profile verification to access all services.';
+
+    //         if ($userRegistration->status === UserRegistration::STATUS_APPROVED) {
+    //             $message = 'Welcome back, ' . $firstName . '!';
+    //         } elseif ($userRegistration->status === UserRegistration::STATUS_PENDING) {
+    //             $message = 'Welcome! Your verification is being reviewed.';
+    //         }
+
+    //         return redirect('/')->with('success', $message);
+
+    //     } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
+    //         \Log::error('Facebook OAuth state error: ' . $e->getMessage());
+    //         return redirect('/')->with('error', 'Login session expired. Please try again.');
+
+    //     } catch (\GuzzleHttp\Exception\ClientException $e) {
+    //         \Log::error('Facebook API error: ' . $e->getMessage());
+    //         return redirect('/')->with('error', 'Unable to connect to Facebook. Please try again.');
+
+    //     } catch (\Exception $e) {
+    //         \Log::error('Facebook callback error: ' . $e->getMessage());
+    //         return redirect('/')->with('error', 'Facebook login failed. Please try again or use email login.');
+    //     }
+    // }
+
+    // /**
+    //  * Generate a unique username from Facebook name
+    //  */
+    // private function generateUniqueUsername($name)
+    // {
+    //     $baseUsername = strtolower(preg_replace('/[^a-z0-9_]/', '', str_replace(' ', '', $name)));
+
+    //     if (strlen($baseUsername) < 3) {
+    //         $baseUsername = 'user' . $baseUsername;
+    //     }
+
+    //     $baseUsername = substr($baseUsername, 0, 17);
+
+    //     $username = $baseUsername;
+    //     $counter = 1;
+
+    //     while (UserRegistration::where('username', $username)->exists()) {
+    //         $username = $baseUsername . $counter;
+    //         $counter++;
+    //     }
+
+    //     return $username;
+    // }
+
+/**
+ * Handle Facebook OAuth callback
+ * WORKS WITHOUT EMAIL - removed email requirement entirely
+ */
+public function handleFacebookCallback(Request $request)
+{
+    try {
+        if ($request->has('_') && empty($request->get('_'))) {
+            return redirect()->to($request->path());
+        }
+
+        // Get user data WITHOUT requiring email
+        $facebookUser = Socialite::driver('facebook')->user();
+
+        \Log::info('Facebook user data received:', [
+            'id' => $facebookUser->id,
+            'name' => $facebookUser->name,
+            'avatar' => $facebookUser->avatar
+        ]);
+
+        // FIXED: Only check facebook_id - email is optional
+        $userRegistration = UserRegistration::where('facebook_id', $facebookUser->id)
+            ->first();
+
+        if (!$userRegistration) {
+            // Create new user WITHOUT email requirement
+            $username = $this->generateUniqueUsername($facebookUser->name);
+
+            $nameParts = explode(' ', trim($facebookUser->name));
+            $firstName = $nameParts[0] ?? $facebookUser->name;
+            $lastName = count($nameParts) > 1 ? end($nameParts) : '';
+
+            $userRegistration = UserRegistration::create([
+                'username' => $username,
+                'email' => null,  // Email is optional for Facebook users
+                'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(32)),
+                'facebook_id' => $facebookUser->id,
+                'profile_image_url' => $facebookUser->avatar,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'status' => 'unverified', // Use 'unverified' instead of constant
+                'terms_accepted' => true,
+                'privacy_accepted' => true,
+                'email_verified_at' => null,
             ]);
 
-            if (empty($facebookUser->email)) {
-                \Log::warning('Facebook login attempted without email permission');
-                return redirect('/')->with('error', 'Email permission is required. Please try again and allow email access.');
-            }
+            \Log::info('New user created via Facebook', [
+                'user_id' => $userRegistration->id,
+                'facebook_id' => $facebookUser->id,
+                'username' => $username
+            ]);
 
-            $userRegistration = UserRegistration::where('email', $facebookUser->email)
-                ->orWhere('facebook_id', $facebookUser->id)
-                ->first();
-
-            if (!$userRegistration) {
-                $username = $this->generateUniqueUsername($facebookUser->name);
-
-                $nameParts = explode(' ', trim($facebookUser->name));
-                $firstName = $nameParts[0] ?? $facebookUser->name;
-                $lastName = count($nameParts) > 1 ? end($nameParts) : '';
-
-                $userRegistration = UserRegistration::create([
-                    'username' => $username,
-                    'email' => $facebookUser->email,
-                    'password' => Hash::make(Str::random(32)),
+        } else {
+            // Update existing user with Facebook ID if not already set
+            if (!$userRegistration->facebook_id) {
+                $userRegistration->update([
                     'facebook_id' => $facebookUser->id,
                     'profile_image_url' => $facebookUser->avatar,
-                    'first_name' => $firstName,
-                    'last_name' => $lastName,
-                    'status' => UserRegistration::STATUS_UNVERIFIED,
-                    'terms_accepted' => true,
-                    'privacy_accepted' => true,
-                    'email_verified_at' => now(),
-                ]);
-
-                \Log::info('New user created via Facebook', [
-                    'user_id' => $userRegistration->id,
-                    'facebook_id' => $facebookUser->id,
-                    'username' => $username
-                ]);
-
-            } else {
-                if (!$userRegistration->facebook_id) {
-                    $userRegistration->update([
-                        'facebook_id' => $facebookUser->id,
-                        'profile_image_url' => $facebookUser->avatar,
-                        'email_verified_at' => $userRegistration->email_verified_at ?? now(),
-                    ]);
-                }
-
-                $userRegistration->update(['last_login_at' => now()]);
-
-                \Log::info('Existing user logged in via Facebook', [
-                    'user_id' => $userRegistration->id,
-                    'facebook_id' => $facebookUser->id
                 ]);
             }
 
-            $request->session()->regenerate();
+            $userRegistration->update(['last_login_at' => now()]);
 
-            $request->session()->put('user', [
-                'id' => $userRegistration->id,
-                'username' => $userRegistration->username,
-                'name' => $userRegistration->full_name ?? $userRegistration->username,
-                'user_type' => $userRegistration->user_type,
-                'status' => $userRegistration->status,
-                'profile_image' => $userRegistration->profile_image_url,
+            \Log::info('Existing user logged in via Facebook', [
+                'user_id' => $userRegistration->id,
+                'facebook_id' => $facebookUser->id
             ]);
+        }
 
-        // Store user in session
-        $request->session()->regenerate(); // Regenerate session for security
+        // Regenerate session for security
+        $request->session()->regenerate();
 
         $request->session()->put('user', [
             'id' => $userRegistration->id,
             'username' => $userRegistration->username,
             'name' => $userRegistration->full_name ?? $userRegistration->username,
-            'user_type' => $userRegistration->user_type,
+            'user_type' => $userRegistration->user_type ?? 'general',
             'status' => $userRegistration->status,
             'profile_image' => $userRegistration->profile_image_url,
         ]);
 
-            $request->session()->put('user_id', $userRegistration->id);
-            $request->session()->put('user_username', $userRegistration->username);
+        $firstName = explode(' ', $userRegistration->first_name ?? $userRegistration->username)[0];
+        $message = 'Welcome! Please complete your profile verification to access all services.';
 
-            $firstName = explode(' ', $userRegistration->first_name ?? $userRegistration->username)[0];
-            $message = 'Welcome! Please complete your profile verification to access all services.';
-
-            if ($userRegistration->status === UserRegistration::STATUS_APPROVED) {
-                $message = 'Welcome back, ' . $firstName . '!';
-            } elseif ($userRegistration->status === UserRegistration::STATUS_PENDING) {
-                $message = 'Welcome! Your verification is being reviewed.';
-            }
-
-            return redirect('/')->with('success', $message);
-
-        } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
-            \Log::error('Facebook OAuth state error: ' . $e->getMessage());
-            return redirect('/')->with('error', 'Login session expired. Please try again.');
-
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            \Log::error('Facebook API error: ' . $e->getMessage());
-            return redirect('/')->with('error', 'Unable to connect to Facebook. Please try again.');
-
-        } catch (\Exception $e) {
-            \Log::error('Facebook callback error: ' . $e->getMessage());
-            return redirect('/')->with('error', 'Facebook login failed. Please try again or use email login.');
+        if ($userRegistration->status === 'approved') {
+            $message = 'Welcome back, ' . $firstName . '!';
+        } elseif ($userRegistration->status === 'pending') {
+            $message = 'Welcome! Your verification is being reviewed.';
         }
+
+        return redirect('/')->with('success', $message);
+
+    } catch (\Laravel\Socialite\Two\InvalidStateException $e) {
+        \Log::error('Facebook OAuth state error: ' . $e->getMessage());
+        return redirect('/')->with('error', 'Login session expired. Please try again.');
+
+    } catch (\GuzzleHttp\Exception\ClientException $e) {
+        \Log::error('Facebook API error: ' . $e->getMessage());
+        return redirect('/')->with('error', 'Unable to connect to Facebook. Please try again.');
+
+    } catch (\Exception $e) {
+        \Log::error('Facebook callback error: ' . $e->getMessage());
+        return redirect('/')->with('error', 'Facebook login failed. Please try again or use email login.');
+    }
+}
+
+/**
+ * Generate a unique username from Facebook name
+ */
+private function generateUniqueUsername($name)
+{
+    // Remove special characters
+    $baseUsername = strtolower(preg_replace('/[^a-z0-9_]/', '', str_replace(' ', '', $name)));
+
+    // Ensure minimum length
+    if (strlen($baseUsername) < 3) {
+        $baseUsername = 'user' . $baseUsername;
     }
 
-    /**
-     * Generate a unique username from Facebook name
-     */
-    private function generateUniqueUsername($name)
-    {
-        $baseUsername = strtolower(preg_replace('/[^a-z0-9_]/', '', str_replace(' ', '', $name)));
+    // Limit length
+    $baseUsername = substr($baseUsername, 0, 17);
 
-        if (strlen($baseUsername) < 3) {
-            $baseUsername = 'user' . $baseUsername;
-        }
+    // Ensure uniqueness
+    $username = $baseUsername;
+    $counter = 1;
 
-        $baseUsername = substr($baseUsername, 0, 17);
-
-        $username = $baseUsername;
-        $counter = 1;
-
-        while (UserRegistration::where('username', $username)->exists()) {
-            $username = $baseUsername . $counter;
-            $counter++;
-        }
-
-        return $username;
+    while (UserRegistration::where('username', $username)->exists()) {
+        $username = $baseUsername . $counter;
+        $counter++;
     }
+
+    return $username;
+}
 }
