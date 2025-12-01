@@ -386,6 +386,9 @@ public function update(Request $request, $id)
             // Create the registration
             $registration = FishrApplication::create($validated);
 
+            // ✅ Send admin notification
+            \App\Services\NotificationService::fishrApplicationCreated($registration);
+
             $this->logActivity('created', 'FishrApplication', $registration->id, [
                 'registration_number' => $registration->registration_number,
                 'livelihood' => $registration->livelihood_description,
