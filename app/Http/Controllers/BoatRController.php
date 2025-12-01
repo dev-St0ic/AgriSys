@@ -488,6 +488,12 @@ private function getChangedFields($original, $updated)
                         $registration->getApplicantPhone(),
                         $registration->getApplicantName()
                     ));
+
+                    // ✅ Send admin notification
+                    \App\Services\NotificationService::boatrApplicationStatusChanged(
+                        $registration,
+                        $oldStatus
+                    );
                 } catch (\Exception $smsException) {
                     Log::warning('SMS notification failed but status update succeeded', [
                         'registration_id' => $id,
@@ -1148,6 +1154,12 @@ private function getChangedFields($original, $updated)
 
             // Delete the registration
             $registration->delete();
+
+            // ✅ Send admin notification
+            \App\Services\NotificationService::boatrApplicationDeleted(
+                $applicationNumber,
+                $registration->full_name
+            );
 
             Log::info('BoatR registration deleted', [
                 'registration_id' => $id,

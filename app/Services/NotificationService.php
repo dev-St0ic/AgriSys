@@ -561,4 +561,223 @@ class NotificationService
             'supply'
         );
     }
+
+    // ==========================================
+    // FISHR APPLICATION NOTIFICATIONS
+    // ==========================================
+
+    public static function fishrApplicationCreated($fishr)
+    {
+        $title = "New FishR Registration";
+        $message = "{$fishr->full_name} has submitted a new FishR registration ({$fishr->registration_number})";
+        
+        AdminNotification::notifyAdmins(
+            'fishr_application_new',
+            $title,
+            $message,
+            [
+                'application_id' => $fishr->id,
+                'registration_number' => $fishr->registration_number,
+                'barangay' => $fishr->barangay,
+                'main_livelihood' => $fishr->main_livelihood
+            ],
+            route('admin.fishr.requests') . '?search=' . $fishr->registration_number
+        );
+    }
+
+    public static function fishrApplicationStatusChanged($fishr, string $oldStatus)
+    {
+        $statusMessages = [
+            'approved' => "approved",
+            'rejected' => "rejected",
+            'under_review' => "moved to under review"
+        ];
+
+        $action = $statusMessages[$fishr->status] ?? "updated";
+        
+        $title = "FishR Registration " . ucfirst($action);
+        $message = "Registration {$fishr->registration_number} from {$fishr->full_name} has been {$action}";
+        
+        $type = match($fishr->status) {
+            'approved' => 'fishr_application_approved',
+            'rejected' => 'fishr_application_rejected',
+            default => 'fishr_application_updated'
+        };
+
+        AdminNotification::notifyAdmins(
+            $type,
+            $title,
+            $message,
+            [
+                'application_id' => $fishr->id,
+                'registration_number' => $fishr->registration_number,
+                'old_status' => $oldStatus,
+                'new_status' => $fishr->status
+            ],
+            route('admin.fishr.requests') . '?search=' . $fishr->registration_number
+        );
+    }
+
+    public static function fishrApplicationDeleted($registrationNumber, $fullName)
+    {
+        $title = "FishR Registration Deleted";
+        $message = "Registration {$registrationNumber} from {$fullName} has been deleted";
+        
+        AdminNotification::notifyAdmins(
+            'fishr_application_updated',
+            $title,
+            $message,
+            [
+                'registration_number' => $registrationNumber,
+                'deleted_by' => auth()->user()->name ?? 'System'
+            ],
+            route('admin.fishr.requests')
+        );
+    }
+
+    // ==========================================
+    // BOATR APPLICATION NOTIFICATIONS
+    // ==========================================
+
+    public static function boatrApplicationCreated($boatr)
+    {
+        $title = "New BoatR Registration";
+        $message = "{$boatr->full_name} has submitted a new BoatR registration ({$boatr->application_number})";
+        
+        AdminNotification::notifyAdmins(
+            'boatr_application_new',
+            $title,
+            $message,
+            [
+                'application_id' => $boatr->id,
+                'application_number' => $boatr->application_number,
+                'barangay' => $boatr->barangay,
+                'vessel_name' => $boatr->vessel_name
+            ],
+            route('admin.boatr.index') . '?search=' . $boatr->application_number
+        );
+    }
+
+    public static function boatrApplicationStatusChanged($boatr, string $oldStatus)
+    {
+        $statusMessages = [
+            'approved' => "approved",
+            'rejected' => "rejected",
+            'under_review' => "moved to under review"
+        ];
+
+        $action = $statusMessages[$boatr->status] ?? "updated";
+        
+        $title = "BoatR Registration " . ucfirst($action);
+        $message = "Registration {$boatr->application_number} from {$boatr->full_name} has been {$action}";
+        
+        $type = match($boatr->status) {
+            'approved' => 'boatr_application_approved',
+            'rejected' => 'boatr_application_rejected',
+            default => 'boatr_application_updated'
+        };
+
+        AdminNotification::notifyAdmins(
+            $type,
+            $title,
+            $message,
+            [
+                'application_id' => $boatr->id,
+                'application_number' => $boatr->application_number,
+                'old_status' => $oldStatus,
+                'new_status' => $boatr->status
+            ],
+            route('admin.boatr.index') . '?search=' . $boatr->application_number
+        );
+    }
+
+    public static function boatrApplicationDeleted($applicationNumber, $fullName)
+    {
+        $title = "BoatR Registration Deleted";
+        $message = "Registration {$applicationNumber} from {$fullName} has been deleted";
+        
+        AdminNotification::notifyAdmins(
+            'boatr_application_updated',
+            $title,
+            $message,
+            [
+                'application_number' => $applicationNumber,
+                'deleted_by' => auth()->user()->name ?? 'System'
+            ],
+            route('admin.boatr.index')
+        );
+    }
+
+    // ==========================================
+    // RSBSA APPLICATION NOTIFICATIONS
+    // ==========================================
+
+    public static function rsbsaApplicationCreated($rsbsa)
+    {
+        $title = "New RSBSA Registration";
+        $message = "{$rsbsa->full_name} has submitted a new RSBSA registration ({$rsbsa->application_number})";
+        
+        AdminNotification::notifyAdmins(
+            'rsbsa_application_new',
+            $title,
+            $message,
+            [
+                'application_id' => $rsbsa->id,
+                'application_number' => $rsbsa->application_number,
+                'barangay' => $rsbsa->barangay,
+                'commodity' => $rsbsa->commodity
+            ],
+            route('admin.rsbsa.index') . '?search=' . $rsbsa->application_number
+        );
+    }
+
+    public static function rsbsaApplicationStatusChanged($rsbsa, string $oldStatus)
+    {
+        $statusMessages = [
+            'approved' => "approved",
+            'rejected' => "rejected",
+            'under_review' => "moved to under review"
+        ];
+
+        $action = $statusMessages[$rsbsa->status] ?? "updated";
+        
+        $title = "RSBSA Registration " . ucfirst($action);
+        $message = "Registration {$rsbsa->application_number} from {$rsbsa->full_name} has been {$action}";
+        
+        $type = match($rsbsa->status) {
+            'approved' => 'rsbsa_application_approved',
+            'rejected' => 'rsbsa_application_rejected',
+            default => 'rsbsa_application_updated'
+        };
+
+        AdminNotification::notifyAdmins(
+            $type,
+            $title,
+            $message,
+            [
+                'application_id' => $rsbsa->id,
+                'application_number' => $rsbsa->application_number,
+                'old_status' => $oldStatus,
+                'new_status' => $rsbsa->status
+            ],
+            route('admin.rsbsa.index') . '?search=' . $rsbsa->application_number
+        );
+    }
+
+    public static function rsbsaApplicationDeleted($applicationNumber, $fullName)
+    {
+        $title = "RSBSA Registration Deleted";
+        $message = "Registration {$applicationNumber} from {$fullName} has been deleted";
+        
+        AdminNotification::notifyAdmins(
+            'rsbsa_application_updated',
+            $title,
+            $message,
+            [
+                'application_number' => $applicationNumber,
+                'deleted_by' => auth()->user()->name ?? 'System'
+            ],
+            route('admin.rsbsa.index')
+        );
+    }
 }

@@ -326,6 +326,12 @@ public function updateStatus(Request $request, $id)
                 $validated['status'],
                 $validated['remarks'] ?? null
             );
+
+            // ✅ Send admin notification
+            \App\Services\NotificationService::rsbsaApplicationStatusChanged(
+                $application,
+                $originalStatus
+            );
         }
 
         $this->logActivity('updated_status', 'RsbsaApplication', $application->id, [
@@ -554,6 +560,12 @@ public function updateStatus(Request $request, $id)
 
             // Delete the application
             $application->delete();
+
+            // ✅ Send admin notification
+            \App\Services\NotificationService::rsbsaApplicationDeleted(
+                $applicationNumber,
+                $application->full_name
+            );
 
             $this->logActivity('deleted', 'RsbsaApplication', $id, [
                 'application_number' => $applicationNumber
