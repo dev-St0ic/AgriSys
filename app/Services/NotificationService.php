@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AdminNotification;
 use App\Models\SeedlingRequest;
+use App\Models\TrainingApplication;
 use App\Models\CategoryItem;
 
 class NotificationService
@@ -117,6 +118,79 @@ class NotificationService
                 'deleted_by' => auth()->user()->name ?? 'System'
             ],
             route('admin.seedlings.requests')
+        );
+    }
+
+    // ==========================================
+    // TRAINING APPLICATION NOTIFICATIONS
+    // ==========================================
+
+    public static function trainingApplicationCreated($training)
+    {
+        $title = "New Training Application";
+        $message = "{$training->full_name} has submitted a new training application ({$training->application_number})";
+        
+        AdminNotification::notifyAdmins(
+            'training_application_new',
+            $title,
+            $message,
+            [
+                'application_id' => $training->id,
+                'application_number' => $training->application_number,
+                'barangay' => $training->barangay,
+                'training_type' => $training->training_type_display
+            ],
+            route('admin.training.requests') . '?search=' . $training->application_number
+        );
+    }
+
+    public static function trainingApplicationStatusChanged($training, string $oldStatus)
+    {
+        $statusMessages = [
+            'approved' => "approved",
+            'rejected' => "rejected",
+            'under_review' => "moved to under review"
+        ];
+
+        $action = $statusMessages[$training->status] ?? "updated";
+        
+        $title = "Training Application " . ucfirst($action);
+        $message = "Application {$training->application_number} from {$training->full_name} has been {$action}";
+        
+        $type = match($training->status) {
+            'approved' => 'training_application_approved',
+            'rejected' => 'training_application_rejected',
+            default => 'training_application_updated'
+        };
+
+        AdminNotification::notifyAdmins(
+            $type,
+            $title,
+            $message,
+            [
+                'application_id' => $training->id,
+                'application_number' => $training->application_number,
+                'old_status' => $oldStatus,
+                'new_status' => $training->status
+            ],
+            route('admin.training.requests') . '?search=' . $training->application_number
+        );
+    }
+
+    public static function trainingApplicationDeleted($applicationNumber, $fullName)
+    {
+        $title = "Training Application Deleted";
+        $message = "Application {$applicationNumber} from {$fullName} has been deleted";
+        
+        AdminNotification::notifyAdmins(
+            'training_application_updated',
+            $title,
+            $message,
+            [
+                'application_number' => $applicationNumber,
+                'deleted_by' => auth()->user()->name ?? 'System'
+            ],
+            route('admin.training.requests')
         );
     }
 
