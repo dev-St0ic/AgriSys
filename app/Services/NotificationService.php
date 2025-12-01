@@ -727,7 +727,7 @@ class NotificationService
                 'barangay' => $rsbsa->barangay,
                 'commodity' => $rsbsa->commodity
             ],
-            route('admin.rsbsa.index') . '?search=' . $rsbsa->application_number
+            route('admin.rsbsa.applications') . '?search=' . $rsbsa->application_number
         );
     }
 
@@ -760,7 +760,7 @@ class NotificationService
                 'old_status' => $oldStatus,
                 'new_status' => $rsbsa->status
             ],
-            route('admin.rsbsa.index') . '?search=' . $rsbsa->application_number
+            route('admin.rsbsa.applications') . '?search=' . $rsbsa->application_number
         );
     }
 
@@ -777,7 +777,7 @@ class NotificationService
                 'application_number' => $applicationNumber,
                 'deleted_by' => auth()->user()->name ?? 'System'
             ],
-            route('admin.rsbsa.index')
+            route('admin.rsbsa.applications')
         );
     }
 }

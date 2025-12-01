@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RsbsaApplication;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -341,6 +342,11 @@ public function updateStatus(Request $request, $id)
             'new_status' => $validated['status'],
             'updated_by' => auth()->user()->name,
         ]);
+
+        // Send admin notification about status change
+        if ($statusChanged) {
+            NotificationService::rsbsaApplicationStatusChanged($application, $originalStatus);
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

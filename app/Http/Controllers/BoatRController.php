@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BoatrApplication;
 use App\Models\BoatrAnnex;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -242,6 +243,9 @@ class BoatRController extends Controller
                 'linked_to_user' => $validated['user_id'] ? 'Yes' : 'No',
                 'linked_to_fishr' => $validated['fishr_application_id'] ? 'Yes' : 'No'
             ]);
+
+            // ✅ Send admin notification
+            NotificationService::boatrApplicationCreated($registration);
 
             // Send email notification if approved and email is provided
             if ($validated['status'] === 'approved' && !empty($validated['email'])) {
@@ -494,6 +498,12 @@ private function getChangedFields($original, $updated)
                         'error' => $smsException->getMessage()
                     ]);
                 }
+
+                // ✅ Send admin notification
+                NotificationService::boatrApplicationStatusChanged(
+                    $registration,
+                    $oldStatus
+                );
             }
 
             // Queue activity logging (non-blocking)
@@ -1159,6 +1169,12 @@ private function getChangedFields($original, $updated)
             $this->logActivity('deleted', 'BoatrApplication', $id, [
                 'application_number' => $applicationNumber
             ]);
+
+            // ✅ Send admin notification for deletion
+            NotificationService::boatrApplicationDeleted(
+                $applicationNumber,
+                $registration->full_name
+            );
 
             $message = "Application {$applicationNumber} has been deleted successfully";
 
