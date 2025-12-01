@@ -707,6 +707,7 @@ private function getChangedFields($original, $updated)
             ]);
 
             // Update status based on approval decision
+            $oldStatus = $registration->status;
             $newStatus = $approveApplication ? 'approved' : 'documents_pending';
             $registration->status = $newStatus;
             $registration->reviewed_at = now();
@@ -725,6 +726,14 @@ private function getChangedFields($original, $updated)
                 'inspection_completed' => true,
                 'auto_approved' => $approveApplication
             ]);
+
+            // ✅ Send admin notification if status changed
+            if ($oldStatus !== $newStatus) {
+                NotificationService::boatrApplicationStatusChanged(
+                    $registration,
+                    $oldStatus
+                );
+            }
 
             // Send email if approved
             if ($newStatus === 'approved' && $registration->email) {

@@ -654,7 +654,7 @@ class NotificationService
                 'barangay' => $boatr->barangay,
                 'vessel_name' => $boatr->vessel_name
             ],
-            route('admin.boatr.index') . '?search=' . $boatr->application_number
+            route('admin.boatr.requests') . '?search=' . $boatr->application_number
         );
     }
 
@@ -687,7 +687,7 @@ class NotificationService
                 'old_status' => $oldStatus,
                 'new_status' => $boatr->status
             ],
-            route('admin.boatr.index') . '?search=' . $boatr->application_number
+            route('admin.boatr.requests') . '?search=' . $boatr->application_number
         );
     }
 
@@ -704,7 +704,7 @@ class NotificationService
                 'application_number' => $applicationNumber,
                 'deleted_by' => auth()->user()->name ?? 'System'
             ],
-            route('admin.boatr.index')
+            route('admin.boatr.requests')
         );
     }
 
