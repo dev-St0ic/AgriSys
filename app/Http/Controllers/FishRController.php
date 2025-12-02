@@ -263,6 +263,12 @@ public function update(Request $request, $id)
                     $registration->getApplicantPhone(),
                     $registration->getApplicantName()
                 ));
+
+                // ✅ Send admin notification
+                \App\Services\NotificationService::fishrApplicationStatusChanged(
+                    $registration,
+                    $previousStatus
+                );
             }
 
             // Queue activity logging (non-blocking)
@@ -380,6 +386,9 @@ public function update(Request $request, $id)
             // Create the registration
             $registration = FishrApplication::create($validated);
 
+            // ✅ Send admin notification
+            \App\Services\NotificationService::fishrApplicationCreated($registration);
+
             $this->logActivity('created', 'FishrApplication', $registration->id, [
                 'registration_number' => $registration->registration_number,
                 'livelihood' => $registration->livelihood_description,
@@ -472,6 +481,12 @@ public function update(Request $request, $id)
 
                 // Delete the registration
                 $registration->delete();
+
+                // ✅ Send admin notification
+                \App\Services\NotificationService::fishrApplicationDeleted(
+                    $registrationNumber,
+                    $registration->full_name
+                );
 
                 $this->logActivity('deleted', 'FishrApplication', $id, [
                     'registration_number' => $registrationNumber
