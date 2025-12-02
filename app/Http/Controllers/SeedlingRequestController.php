@@ -824,15 +824,40 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         \DB::beginTransaction();
 
         $itemStatuses = $validated['item_statuses'];
-        $approvedCount = 0;
-        $rejectedCount = 0;
-        $totalCount = count($itemStatuses);
-
+        
         // Load all items at once with relationships
         $items = SeedlingRequestItem::with('categoryItem')
             ->whereIn('id', array_keys($itemStatuses))
             ->get()
             ->keyBy('id');
+
+        // ✅ CHECK IF ANY ITEMS ACTUALLY CHANGED STATUS
+        $hasItemChanges = false;
+        foreach ($itemStatuses as $itemId => $status) {
+            $item = $items->get($itemId);
+            if ($item && $item->status !== $status) {
+                $hasItemChanges = true;
+                break;
+            }
+        }
+
+        // If no items changed, skip the entire process
+        if (!$hasItemChanges) {
+            \DB::commit();
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'No changes detected.'
+                ]);
+            }
+            
+            return redirect()->back()->with('success', 'No changes were made.');
+        }
+
+        $approvedCount = 0;
+        $rejectedCount = 0;
+        $totalCount = count($itemStatuses);
 
         foreach ($itemStatuses as $itemId => $status) {
             $item = $items->get($itemId);

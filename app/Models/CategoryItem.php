@@ -221,8 +221,8 @@ class CategoryItem extends Model
             'last_supplied_by' => $userId
         ]);
 
-        // Log the supply change
-        ItemSupplyLog::create([
+        // ✅ Create log and store it in a variable
+        $log = ItemSupplyLog::create([
             'category_item_id' => $this->id,
             'transaction_type' => 'received',
             'quantity' => $quantity,
@@ -235,6 +235,7 @@ class CategoryItem extends Model
             'reference_id' => null
         ]);
 
+        // ✅ Notification is now handled in controller after checking stock levels
         return true;
     }
 
@@ -252,8 +253,8 @@ class CategoryItem extends Model
 
         $this->update(['current_supply' => $newSupply]);
 
-        // Log the supply distribution
-        ItemSupplyLog::create([
+        // ✅ Create log and store it in a variable
+        $log = ItemSupplyLog::create([
             'category_item_id' => $this->id,
             'transaction_type' => 'distributed',
             'quantity' => $quantity,
@@ -266,6 +267,7 @@ class CategoryItem extends Model
             'reference_id' => $referenceId
         ]);
 
+        // ✅ Notification is now handled in SeedlingRequestController where stock levels are checked
         return true;
     }
 
@@ -288,8 +290,8 @@ class CategoryItem extends Model
 
         $this->update(['current_supply' => $newSupply]);
 
-        // Log the supply adjustment
-        ItemSupplyLog::create([
+        // ✅ Create log and store it in a variable
+        $log = ItemSupplyLog::create([
             'category_item_id' => $this->id,
             'transaction_type' => 'adjustment',
             'quantity' => abs($difference),
@@ -302,6 +304,7 @@ class CategoryItem extends Model
             'reference_id' => null
         ]);
 
+        // ✅ Notification is now handled in controller where stock levels are checked
         return true;
     }
 
@@ -325,8 +328,8 @@ class CategoryItem extends Model
 
         $this->update(['current_supply' => $newSupply]);
 
-        // Log the supply return
-        ItemSupplyLog::create([
+        // ✅ Create log and store it in a variable
+        $log = ItemSupplyLog::create([
             'category_item_id' => $this->id,
             'transaction_type' => 'returned',
             'quantity' => $quantity,
@@ -339,6 +342,7 @@ class CategoryItem extends Model
             'reference_id' => $referenceId
         ]);
 
+        // ✅ Notification is handled in SeedlingRequestController
         return true;
     }
 
@@ -356,8 +360,8 @@ class CategoryItem extends Model
 
         $this->update(['current_supply' => $newSupply]);
 
-        // Log the loss
-        ItemSupplyLog::create([
+        // ✅ Create log and store it in a variable
+        $log = ItemSupplyLog::create([
             'category_item_id' => $this->id,
             'transaction_type' => 'loss',
             'quantity' => $quantity,
@@ -370,6 +374,7 @@ class CategoryItem extends Model
             'reference_id' => null
         ]);
 
+        // ✅ Notification is now handled in controller where stock levels are checked
         return true;
     }
 

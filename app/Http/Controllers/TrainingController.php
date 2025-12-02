@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ApplicationApproved;
+use App\Services\NotificationService;
 
 class TrainingController extends Controller
 {
@@ -165,6 +166,9 @@ class TrainingController extends Controller
                 'training_type' => $training->training_type_display,
                 'barangay' => $training->barangay
             ]);
+
+            // Send admin notification
+            NotificationService::trainingApplicationCreated($training);
 
             Log::info('Training registration created by admin', [
                 'application_id' => $training->id,
@@ -333,6 +337,7 @@ class TrainingController extends Controller
         ]);
 
         $training = TrainingApplication::findOrFail($id);
+        $previousStatus = $training->status;
 
         // Update using trait method to trigger SMS notification
         $training->updateStatusWithNotification($request->status, $request->remarks);
@@ -349,6 +354,9 @@ class TrainingController extends Controller
             'application_number' => $training->application_number
         ]);
 
+        // Send admin notification about status change
+        NotificationService::trainingApplicationStatusChanged($training, $previousStatus);
+
         return response()->json([
             'success' => true,
             'message' => 'Training application status updated successfully',
@@ -364,6 +372,7 @@ class TrainingController extends Controller
         try {
             $training = TrainingApplication::findOrFail($id);
             $applicationNumber = $training->application_number;
+            $fullName = $training->full_name;
 
             // CHANGED: Delete single document if exists
             if ($training->hasDocument()) {
@@ -378,6 +387,9 @@ class TrainingController extends Controller
             $this->logActivity('deleted', 'TrainingApplication', $id, [
                 'application_number' => $applicationNumber
             ]);
+
+            // Send admin notification about deletion
+            NotificationService::trainingApplicationDeleted($applicationNumber, $fullName);
 
             Log::info('Training application deleted', [
                 'application_id' => $id,

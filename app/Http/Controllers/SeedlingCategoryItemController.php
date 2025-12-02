@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RequestCategory;
 use App\Models\CategoryItem;
 use App\Models\ItemSupplyLog;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +52,8 @@ class SeedlingCategoryItemController extends Controller
 
         $category = RequestCategory::create($validated);
 
+        NotificationService::supplyManagementCategoryCreated($category);
+
         return response()->json([
             'success' => true,
             'message' => 'Category created successfully. Add items to activate it.',
@@ -69,7 +72,23 @@ class SeedlingCategoryItemController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        // ✅ TRACK CHANGES
+        $changes = [];
+        foreach ($validated as $field => $value) {
+            if ($category->$field != $value) {
+                $changes[$field] = [
+                    'old' => $category->$field,
+                    'new' => $value
+                ];
+            }
+        }
+
         $category->update($validated);
+
+        // ✅ SEND NOTIFICATION IF CHANGES WERE MADE
+        if (!empty($changes)) {
+            NotificationService::supplyManagementCategoryUpdated($category, $changes);
+        }
 
         return response()->json([
             'success' => true,
@@ -87,7 +106,12 @@ class SeedlingCategoryItemController extends Controller
             ], 422);
         }
 
+        $categoryName = $category->display_name;
+        $itemCount = $category->items()->count();
         $category->delete();
+
+        // ✅ SEND NOTIFICATION
+        NotificationService::supplyManagementCategoryDeleted($categoryName, $itemCount);
 
         return response()->json([
             'success' => true,
@@ -109,6 +133,13 @@ class SeedlingCategoryItemController extends Controller
         }
 
         $category->update(['is_active' => !$category->is_active]);
+
+         // Send notification
+        if ($category->is_active) {
+            NotificationService::supplyManagementCategoryActivated($category);
+        } else {
+            NotificationService::supplyManagementCategoryDeactivated($category);
+        }
 
         return response()->json([
             'success' => true,
@@ -176,6 +207,8 @@ class SeedlingCategoryItemController extends Controller
             $category->update(['is_active' => true]);
         }
 
+        NotificationService::supplyManagementItemCreated($item);
+
         return response()->json([
             'success' => true,
             'message' => 'Item created successfully' . (!$category->is_active ? ' and category has been activated' : ''),
@@ -201,11 +234,23 @@ class SeedlingCategoryItemController extends Controller
             'supply_alert_enabled' => 'nullable|boolean',
         ]);
 
+        // ✅ TRACK CHANGES
+        $changes = [];
+        foreach ($validated as $field => $value) {
+            if ($field !== 'image' && $item->$field != $value) {
+                $changes[$field] = [
+                    'old' => $item->$field,
+                    'new' => $value
+                ];
+            }
+        }
+
         if ($request->hasFile('image')) {
             if ($item->image_path) {
                 Storage::disk('public')->delete($item->image_path);
             }
             $validated['image_path'] = $request->file('image')->store('category-items', 'public');
+            $changes['image'] = ['changed' => true];
         }
 
         $oldCategoryId = $item->category_id;
@@ -226,6 +271,11 @@ class SeedlingCategoryItemController extends Controller
             $newCategory->update(['is_active' => true]);
         }
 
+        // ✅ SEND NOTIFICATION IF CHANGES MADE
+        if (!empty($changes)) {
+            NotificationService::supplyManagementItemUpdated($item, $changes);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Item updated successfully',
@@ -243,12 +293,17 @@ class SeedlingCategoryItemController extends Controller
         }
 
         $categoryId = $item->category_id;
+        $itemName = $item->name;
+        $categoryName = $item->category->display_name;
 
         if ($item->image_path) {
             Storage::disk('public')->delete($item->image_path);
         }
 
         $item->delete();
+
+        // ✅ SEND NOTIFICATION
+        NotificationService::supplyManagementItemDeleted($itemName, $categoryName);
 
         // Check if category should be deactivated
         $category = RequestCategory::find($categoryId);
@@ -285,6 +340,13 @@ class SeedlingCategoryItemController extends Controller
             }
         } else {
             $message = 'Item status updated successfully';
+        }
+
+        // send notification
+        if ($newStatus) {
+            NotificationService::supplyManagementItemActivated($item);
+        } else {
+            NotificationService::supplyManagementItemDeactivated($item);
         }
 
         return response()->json([
@@ -356,6 +418,22 @@ class SeedlingCategoryItemController extends Controller
         );
 
         if ($success) {
+            // ✅ SEND NOTIFICATION ABOUT SUPPLY ADDED
+            NotificationService::supplyManagementSupplyAdded(
+                $item,
+                $validated['quantity'],
+                $validated['source'] ?? null
+            );
+
+            // ✅ CHECK CRITICAL STOCK LEVELS AFTER ADDING SUPPLY
+            $item->refresh();
+            if ($item->current_supply <= $item->reorder_point && $item->current_supply > 0) {
+                NotificationService::supplyManagementCriticalLowStock($item);
+            }
+            if ($item->current_supply >= $item->maximum_supply) {
+                NotificationService::supplyManagementMaximumCapacityReached($item);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => "Successfully added {$validated['quantity']} {$item->unit} to supply",
@@ -379,6 +457,7 @@ class SeedlingCategoryItemController extends Controller
             'reason' => 'required|string|max:500',
         ]);
 
+        $oldSupply = $item->current_supply;
         $success = $item->adjustSupply(
             $validated['new_supply'],
             auth()->id(),
@@ -386,6 +465,22 @@ class SeedlingCategoryItemController extends Controller
         );
 
         if ($success) {
+            // ✅ SEND NOTIFICATION ABOUT SUPPLY ADJUSTMENT
+            $item->refresh();
+            NotificationService::supplyManagementSupplyAdjusted(
+                $item,
+                $oldSupply,
+                $item->current_supply,
+                $validated['reason']
+            );
+
+            // ✅ CHECK CRITICAL STOCK LEVELS AFTER ADJUSTMENT
+            if ($item->current_supply <= 0) {
+                NotificationService::supplyManagementOutOfStock($item);
+            } elseif ($item->current_supply <= $item->reorder_point && $item->current_supply > 0) {
+                NotificationService::supplyManagementCriticalLowStock($item);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Supply adjusted successfully',
@@ -416,6 +511,21 @@ class SeedlingCategoryItemController extends Controller
         );
 
         if ($success) {
+            // ✅ SEND NOTIFICATION ABOUT SUPPLY LOSS
+            $item->refresh();
+            NotificationService::supplyManagementSupplyLossRecorded(
+                $item,
+                $validated['quantity'],
+                $validated['reason']
+            );
+
+            // ✅ CHECK CRITICAL STOCK LEVELS AFTER LOSS
+            if ($item->current_supply <= 0) {
+                NotificationService::supplyManagementOutOfStock($item);
+            } elseif ($item->current_supply <= $item->reorder_point && $item->current_supply > 0) {
+                NotificationService::supplyManagementCriticalLowStock($item);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => "Supply loss of {$validated['quantity']} {$item->unit} recorded",
