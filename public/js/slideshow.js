@@ -30,16 +30,55 @@ class BackgroundSlideshow {
     }
 
     preloadImages() {
+        let loadedCount = 0;
+        let errorCount = 0;
+        const totalSlides = this.slides.length;
+
         this.slides.forEach((slide, index) => {
             const bgImage = slide.style.backgroundImage;
             if (bgImage) {
-                const imageUrl = bgImage.slice(4, -1).replace(/"/g, "");
+                const imageUrl = bgImage.slice(4, -1).replace(/"/g, "").replace(/'/g, "");
                 const img = new Image();
-                img.onload = () => console.log(`Image ${index + 1} loaded successfully`);
-                img.onerror = () => console.warn(`Failed to load image ${index + 1}:`, imageUrl);
+
+                img.onload = () => {
+                    loadedCount++;
+                    console.log(`Image ${index + 1} loaded successfully`);
+                    slide.classList.add('image-loaded');
+                };
+
+                img.onerror = () => {
+                    errorCount++;
+                    console.warn(`Failed to load image ${index + 1}:`, imageUrl);
+                    slide.classList.add('image-error');
+
+                    // If all images failed to load (likely blocked by ad blocker), show fallback
+                    if (errorCount === totalSlides) {
+                        this.showFallbackBackground();
+                    }
+                };
+
+                // Set crossOrigin to handle CORS issues
+                img.crossOrigin = 'anonymous';
                 img.src = imageUrl;
             }
         });
+    }
+
+    showFallbackBackground() {
+        console.warn('All slideshow images blocked/failed. Showing fallback background.');
+        const fallback = document.querySelector('.welcome-fallback');
+        const container = document.querySelector('.slideshow-container');
+
+        if (fallback) {
+            fallback.style.display = 'block';
+            fallback.style.opacity = '1';
+        }
+        if (container) {
+            container.style.opacity = '0.3';
+        }
+
+        // Stop the slideshow since images aren't loading
+        this.stopAutoSlide();
     }
 
     showSlide(index) {
