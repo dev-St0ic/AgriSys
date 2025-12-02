@@ -31,10 +31,14 @@ class SlideshowImage extends Model
 
     /**
      * Get the full URL for the slideshow image
+     * Uses url() helper for better compatibility with Cloudflare and CDNs
      */
     public function getImageUrlAttribute()
     {
-        return asset('storage/' . $this->image_path);
+        // Use url() instead of asset() for better CDN/Cloudflare compatibility
+        // Add cache-busting parameter using updated_at timestamp
+        $cacheBuster = $this->updated_at ? $this->updated_at->timestamp : time();
+        return url('storage/' . $this->image_path) . '?v=' . $cacheBuster;
     }
 
     /**

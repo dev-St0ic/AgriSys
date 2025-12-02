@@ -856,6 +856,24 @@ if (app()->environment('local', 'testing')) {
 }
 
 // ==============================================
+// STORAGE FILE SERVING ROUTE (Fallback for hosts without symlink support)
+// ==============================================
+Route::get('/storage/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+
+    $mimeType = mime_content_type($fullPath);
+
+    return response()->file($fullPath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('storage.serve');
+
+// ==============================================
 // API ROUTES
 // ==============================================
 // Get active slideshow images for landing page
