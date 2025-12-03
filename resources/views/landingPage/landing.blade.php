@@ -408,7 +408,7 @@
                         </div>
                         <div class="contact-info-text">
                             <strong>Email</strong>
-                            <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a>
+                            <a href="mailto:agriculture.sanpedrocity@gmail.com">agriculture.sanpedrocity@gmail.com</a>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -420,7 +420,7 @@
                         </div>
                         <div class="contact-info-text">
                             <strong>Phone</strong>
-                            <a href="tel:+631234567890">(049) 123-4567</a>
+                            <p>8808-2020 Local 109</p>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -1302,8 +1302,8 @@
                 <p>City Agriculture Office<br>
                     San Pedro City Hall<br>
                     Laguna, Philippines</p>
-                <p style="margin-top: 12px;">Phone: (123) 456-7890<br>
-                    Email: <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a></p>
+                <p style="margin-top: 12px;">Phone: 8808-2020 Local 109<br>
+                    Email: <a href="mailto:agriculture.sanpedrocity@gmail.com">agriculture.sanpedrocity@gmail.com</a></p>
             </div>
 
             <!-- Office Hours column -->
