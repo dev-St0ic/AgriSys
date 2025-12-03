@@ -2990,3 +2990,351 @@ header {
         font-size: 12pt;
     }
 }
+/* ==============================================
+   FIXED TERMS OF SERVICE AND PRIVACY POLICY MODAL STYLES
+   ============================================== */
+
+/* Auth Modal Base Z-Index */
+.auth-modal-overlay {
+    z-index: 1000; /* Base layer for sign-up/login */
+}
+
+/* Terms & Privacy Modal Overlay - MUCH Higher z-index */
+#terms-modal, 
+#privacy-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75); /* Darker overlay for better visibility */
+    z-index: 10000 !important; /* Significantly higher than auth modal */
+    overflow-y: auto;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+}
+
+#terms-modal.active, 
+#privacy-modal.active {
+    display: flex !important;
+}
+
+/* Modal Content */
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 850px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5); /* Stronger shadow for depth */
+    margin-top: 30px;
+    animation: slideIn 0.3s ease;
+    position: relative;
+    z-index: 10001; /* Even higher */
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Modal Header */
+.modal-header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #2d6a4f 0%, #1b5e3f 100%);
+    border-bottom: none;
+    padding: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+    color: white;
+    font-size: 1.8em;
+    margin: 0;
+    text-align: center;
+    flex: 1;
+    font-weight: 600;
+}
+
+/* Close Button */
+.modal-close {
+    font-size: 32px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.3s;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.modal-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateY(-50%) rotate(90deg);
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 40px;
+    line-height: 1.8;
+    background: white;
+}
+
+/* Section Styles */
+.section {
+    margin-bottom: 35px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+.section h2 {
+    font-size: 1.4em;
+    color: #2d6a4f;
+    margin: 0 0 15px 0;
+    font-weight: 600;
+    padding-left: 15px;
+    border-left: 4px solid #2d6a4f;
+}
+
+.section p {
+    margin-bottom: 15px;
+    color: #555;
+    text-align: justify;
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+.section ul {
+    margin-left: 25px;
+    margin-bottom: 15px;
+}
+
+.section ul li {
+    margin-bottom: 10px;
+    color: #555;
+    line-height: 1.7;
+}
+
+.section strong {
+    color: #2d6a4f;
+    font-weight: 600;
+}
+
+/* Modal Footer */
+.modal-footer {
+    padding: 20px 40px;
+    border-top: 2px solid #e8f5e9;
+    text-align: center;
+    background: #f8faf9;
+    border-radius: 0 0 12px 12px;
+}
+
+.close-button {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+}
+
+.close-button:hover {
+    background: linear-gradient(135deg, #2d6a4f 0%, #1b5e3f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4);
+}
+
+.close-button:active {
+    transform: translateY(0);
+}
+
+/* Scrollbar Styling for Modal */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 0 12px 12px 0;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #2d6a4f;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #1b5e3f;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #terms-modal, 
+    #privacy-modal {
+        padding: 10px;
+        align-items: center;
+    }
+
+    .modal-content {
+        max-height: 90vh;
+        max-width: 95%;
+        margin-top: 0;
+    }
+
+    .modal-header {
+        padding: 20px 60px 20px 20px;
+    }
+
+    .modal-header h3 {
+        font-size: 1.4em;
+    }
+
+    .modal-body {
+        padding: 25px 20px;
+    }
+
+    .section {
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+    }
+
+    .section h2 {
+        font-size: 1.2em;
+        padding-left: 10px;
+        border-left-width: 3px;
+    }
+
+    .section p {
+        font-size: 0.95em;
+        line-height: 1.7;
+    }
+
+    .modal-close {
+        width: 35px;
+        height: 35px;
+        font-size: 28px;
+        right: 15px;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+    }
+
+    .close-button {
+        width: 100%;
+        padding: 14px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-header h3 {
+        font-size: 1.2em;
+    }
+
+    .modal-body {
+        padding: 20px 15px;
+    }
+
+    .section h2 {
+        font-size: 1.1em;
+    }
+
+    .section p {
+        font-size: 0.9em;
+    }
+
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        font-size: 24px;
+        right: 12px;
+    }
+}
+
+/* Ensure these modals are always on top */
+#terms-modal:not([style*="display: none"]),
+#privacy-modal:not([style*="display: none"]) {
+    display: flex !important;
+    z-index: 10000 !important;
+}
+
+/* Prevent background scrolling when modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Animation for better UX */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#terms-modal, 
+#privacy-modal {
+    animation: fadeIn 0.3s ease;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .modal-header {
+        border-bottom: 3px solid #000;
+    }
+
+    .modal-close {
+        border: 2px solid white;
+    }
+
+    .section h2 {
+        border-left-color: #000;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .modal-content,
+    #terms-modal,
+    #privacy-modal {
+        animation: none;
+    }
+
+    .modal-close:hover {
+        transform: translateY(-50%);
+    }
+}
