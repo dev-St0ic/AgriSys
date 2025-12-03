@@ -1319,8 +1319,8 @@
         <div class="footer-bottom">
             <p>© 2025 City Agriculture Office of San Pedro. All rights reserved.</p>
             <div class="footer-bottom-links">
-                <a href="#privacy" target="_blank">Privacy Policy</a>
-                <a href="#terms" target="_blank">Terms of Service</a>
+                <a href="{{ route('privacy-policy') }}" target="_blank" class="footer-link">Privacy Policy</a>
+                <a href="{{ route('terms-of-service') }}" target="_blank" class="footer-link">Terms of Service</a>
             </div>
         </div>
     </footer>
