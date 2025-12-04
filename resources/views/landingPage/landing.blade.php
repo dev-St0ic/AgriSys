@@ -408,7 +408,7 @@
                         </div>
                         <div class="contact-info-text">
                             <strong>Email</strong>
-                            <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a>
+                            <a href="mailto:agriculture.sanpedrocity@gmail.com">agriculture.sanpedrocity@gmail.com</a>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -420,7 +420,7 @@
                         </div>
                         <div class="contact-info-text">
                             <strong>Phone</strong>
-                            <a href="tel:+631234567890">(049) 123-4567</a>
+                            <p>8808-2020 Local 109</p>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -1034,9 +1034,10 @@
                             <div class="form-group">
                                 <div class="checkbox-group">
                                     <input type="checkbox" id="agree-terms" name="agree_terms" required>
-                                    <label for="agree-terms">I agree to the <a href="#" target="_blank">Terms
-                                            of Service</a> and <a href="#" target="_blank">Privacy
-                                            Policy</a></label>
+                                    <label for="agree-terms">I agree to the 
+                                        <a href="#" onclick="openTermsModal(event)">Terms of Service</a> 
+                                        and 
+                                        <a href="#" onclick="openPrivacyModal(event)">Privacy Policy</a></label>
                                 </div>
                             </div>
 
@@ -1269,6 +1270,85 @@
             </div>
         </div>
     </div>
+
+    <!-- Terms of Service Modal -->
+    <div id="terms-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Terms of Service</h3>
+                <span class="modal-close" onclick="closeTermsModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="section">
+                    <h2>1. Acceptance of Terms</h2>
+                    <p>These Terms of Service govern your access to and use of the AgriSys web-based system and the agrisys.site platform. By creating an account, logging in, or submitting any online form through AgriSys, you agree to be bound by these Terms of Service, as well as by all applicable laws and regulations. If you do not agree, you must not use the system.</p>
+                </div>
+                <div class="section">
+                    <h2>2. Description of Service</h2>
+                    <p>AgriSys is an online decision support and records management system provided by the City Agriculture Office to facilitate registration of farmers, fisherfolk, livestock raisers, and related sectors; manage requests for agricultural services and supplies; and generate reports and analytics for planning and monitoring.</p>
+                </div>
+                <div class="section">
+                    <h2>3. User Accounts and Responsibilities</h2>
+                    <p>Only registered and approved users may access AgriSys using their assigned accounts and credentials. You are responsible for maintaining the confidentiality of your username and password and for all activities that occur under your account.</p>
+                </div>
+                <div class="section">
+                    <h2>4. Acceptable Use</h2>
+                    <p>You agree to use AgriSys only for lawful purposes. You must not misuse the system, including attempting unauthorized access, interfering with security, submitting false information, uploading malicious code, or using data for unauthorized purposes.</p>
+                </div>
+                <div class="section">
+                    <h2>5. Data, Privacy, and Confidentiality</h2>
+                    <p>Use of AgriSys involves the collection and processing of personal data for registration, service delivery, and reporting. You acknowledge that your data will be processed in accordance with the AgriSys Privacy Policy and the Data Privacy Act of 2012.</p>
+                </div>
+                <div class="section">
+                    <h2>6. Contact Information</h2>
+                    <p><strong>City Agriculture Office</strong><br>San Pedro City Hall, Laguna, Philippines<br>Phone: 8808-2020 Local 109<br>Email: agriculture.sanpedrocity@gmail.com</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="close-button" onclick="closeTermsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Privacy Policy</h3>
+                <span class="modal-close" onclick="closePrivacyModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="section">
+                    <h2>1. Introduction</h2>
+                    <p>AgriSys is a web-based decision support and records management system used by the City Agriculture Office. This Privacy Policy explains how personal data is collected, used, stored, shared, and protected when users access and use the agrisys.site platform.</p>
+                </div>
+                <div class="section">
+                    <h2>2. Personal Data Collected</h2>
+                    <p>AgriSys collects personal data including: name, sex, age, role or position, contact information, barangay or address, agricultural sector, commodity details, and farm or fishing information.</p>
+                </div>
+                <div class="section">
+                    <h2>3. Purpose and Legal Basis of Processing</h2>
+                    <p>Personal data is processed to register beneficiaries, manage service requests, support reporting and planning, communicate updates, and comply with legal obligations.</p>
+                </div>
+                <div class="section">
+                    <h2>4. Data Sharing and Disclosure</h2>
+                    <p>Access to personal data is limited to authorized personnel of the City Agriculture Office. Data is not sold or used for marketing.</p>
+                </div>
+                <div class="section">
+                    <h2>5. Data Protection and Security</h2>
+                    <p>AgriSys protects personal data through access controls, secure login systems, encryption, audit logs, and regular backups.</p>
+                </div>
+                <div class="section">
+                    <h2>6. Contact Information</h2>
+                    <p><strong>City Agriculture Office</strong><br>San Pedro City Hall, Laguna, Philippines<br>Phone: 8808-2020 Local 109<br>Email: agriculture.sanpedrocity@gmail.com</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="close-button" onclick="closePrivacyModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Section -->
     <footer class="footer" id="main-footer">
         <div class="footer-container">
@@ -1302,8 +1382,8 @@
                 <p>City Agriculture Office<br>
                     San Pedro City Hall<br>
                     Laguna, Philippines</p>
-                <p style="margin-top: 12px;">Phone: (123) 456-7890<br>
-                    Email: <a href="mailto:agriculture@sanpedro.gov.ph">agriculture@sanpedro.gov.ph</a></p>
+                <p style="margin-top: 12px;">Phone: 8808-2020 Local 109<br>
+                    Email: <a href="mailto:agriculture.sanpedrocity@gmail.com">agriculture.sanpedrocity@gmail.com</a></p>
             </div>
 
             <!-- Office Hours column -->
@@ -1319,8 +1399,8 @@
         <div class="footer-bottom">
             <p>© 2025 City Agriculture Office of San Pedro. All rights reserved.</p>
             <div class="footer-bottom-links">
-                <a href="#privacy" target="_blank">Privacy Policy</a>
-                <a href="#terms" target="_blank">Terms of Service</a>
+                <a href="{{ route('privacy-policy') }}" target="_blank" class="footer-link">Privacy Policy</a>
+                <a href="{{ route('terms-of-service') }}" target="_blank" class="footer-link">Terms of Service</a>
             </div>
         </div>
     </footer>
@@ -1390,6 +1470,51 @@
                 closeMobileNav();
             }
         });
+
+        
+    // privacy policy and terms of service
+
+    // Terms Modal Functions
+        function openTermsModal(event) {
+            event.preventDefault();
+            document.getElementById('terms-modal').style.display = 'flex';
+        }
+
+        function closeTermsModal() {
+            document.getElementById('terms-modal').style.display = 'none';
+        }
+
+        // Privacy Modal Functions
+        function openPrivacyModal(event) {
+            event.preventDefault();
+            document.getElementById('privacy-modal').style.display = 'flex';
+        }
+
+        function closePrivacyModal() {
+            document.getElementById('privacy-modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const termsModal = document.getElementById('terms-modal');
+            const privacyModal = document.getElementById('privacy-modal');
+            
+            if (e.target === termsModal) {
+                closeTermsModal();
+            }
+            if (e.target === privacyModal) {
+                closePrivacyModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTermsModal();
+                closePrivacyModal();
+            }
+        });
+
     </script>
 </body>
 

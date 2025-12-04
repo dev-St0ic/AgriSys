@@ -776,6 +776,19 @@ Route::prefix('api')->name('api.')->group(function () {
         ->name('events.public');
 });
 
+
+// ========================================
+// LANDING PAGE PRIVACY POLICY AND TOS ROUTES
+// ========================================
+
+Route::get('/privacy-policy', function () {
+    return view('landingPage.privacy-policy');
+})->name('privacy-policy');
+
+Route::get('/terms-of-service', function () {
+    return view('landingPage.terms-of-service');
+})->name('terms-of-service');
+
 // ========================================
 // EVENT ROUTES MOVED TO MAIN ADMIN GROUP ABOVE
 // ========================================
