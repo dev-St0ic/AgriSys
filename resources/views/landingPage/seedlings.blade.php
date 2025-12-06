@@ -12,7 +12,7 @@
 <!-- Seedlings Choice Section -->
 <section class="seedlings-application-section" id="seedlings-choice" style="display: none;">
     <div class="seedlings-form-header">
-        <h2>🌱 Seedlings & Agricultural Supplies Request</h2>
+        <h2>🌱 AgriSys Supplies Request</h2>
         <p>Browse and select the items you want to request, then proceed to checkout.</p>
     </div>
 

@@ -25,7 +25,6 @@ This error occurs when Laravel tries to resolve the string `'env'` as a class na
 -   `config/services.php` - ✅ Correct
 -   `config/activitylog.php` - ✅ Correct
 -   `config/dompdf.php` - ✅ Correct
--   `config/recaptcha.php` - ✅ Correct
 
 ## Deployment Solution
 

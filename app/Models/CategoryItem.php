@@ -192,8 +192,8 @@ class CategoryItem extends Model
             'current_supply' => $this->current_supply,
             'requested' => $quantity,
             'shortage' => max(0, $quantity - $this->current_supply),
-            'message' => $this->current_supply >= $quantity 
-                ? 'Supply available for distribution' 
+            'message' => $this->current_supply >= $quantity
+                ? 'Supply available for distribution'
                 : "Insufficient supply. Available: {$this->current_supply}, Requested: {$quantity}"
         ];
     }
@@ -201,7 +201,7 @@ class CategoryItem extends Model
     /**
      * Add supply (receive new supplies)
      */
-    public function addSupply(int $quantity, int $userId, string $notes = null, string $source = null): bool
+    public function addSupply(int $quantity, int $userId, ?string $notes = null, ?string $source = null): bool
     {
         if ($quantity <= 0) {
             return false;
@@ -242,7 +242,7 @@ class CategoryItem extends Model
     /**
      * Distribute supply (deduct when approved for applicant)
      */
-    public function distributeSupply(int $quantity, int $userId, string $notes = null, string $referenceType = null, int $referenceId = null): bool
+    public function distributeSupply(int $quantity, int $userId, ?string $notes = null, ?string $referenceType = null, ?int $referenceId = null): bool
     {
         if ($quantity <= 0 || $this->current_supply < $quantity) {
             return false;
@@ -311,7 +311,7 @@ class CategoryItem extends Model
     /**
      * Return supply (for cancelled/rejected distributions)
      */
-    public function returnSupply(int $quantity, int $userId, string $notes = null, string $referenceType = null, int $referenceId = null): bool
+    public function returnSupply(int $quantity, int $userId, ?string $notes = null, ?string $referenceType = null, ?int $referenceId = null): bool
     {
         if ($quantity <= 0) {
             return false;

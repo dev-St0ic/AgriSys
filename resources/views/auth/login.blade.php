@@ -19,9 +19,9 @@
 
                             <div class="mb-3">
                                 <label for="email" class="form-label">
-                                    <i class="fas fa-envelope me-2"></i>Email Address
+                                    <i class="fas fa-user me-2"></i>Username
                                 </label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                <input type="text" class="form-control @error('email') is-invalid @enderror"
                                     id="email" name="email" value="{{ old('email') }}" required autofocus>
                                 @error('email')
                                     <div class="invalid-feedback">

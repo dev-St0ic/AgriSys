@@ -1025,7 +1025,7 @@ function handleVerificationSubmit(event) {
     const requiredFields = [
         { name: 'firstName', label: 'First Name' },
         { name: 'lastName', label: 'Last Name' },
-        { name: 'role', label: 'Role' },
+        { name: 'role', label: 'Sector' },
         { name: 'contactNumber', label: 'Contact Number' },
         { name: 'dateOfBirth', label: 'Date of Birth' }, // ADDED: Required by backend
         { name: 'barangay', label: 'Barangay' },
@@ -4005,7 +4005,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // start polling if user is pending verification
     maybeStartVerificationPoll();
+
+    // Auto-capitalize text inputs on blur (to ensure actual value is capitalized)
+    initAutoCapitalize();
 });
+
+// ==============================================
+// AUTO-CAPITALIZE TEXT INPUTS
+// ==============================================
+
+/**
+ * Capitalize the first letter of each word
+ */
+function capitalizeWords(str) {
+    if (!str) return str;
+    return str.replace(/\b\w/g, char => char.toUpperCase());
+}
+
+/**
+ * Initialize auto-capitalize functionality for text inputs
+ */
+function initAutoCapitalize() {
+    // Fields that should NOT be capitalized
+    const excludeTypes = ['email', 'password', 'url', 'search'];
+    const excludeNames = ['email', 'password', 'username', 'url'];
+
+    // Check if input should be excluded from capitalization
+    function shouldExclude(input) {
+        if (excludeTypes.includes(input.type)) return true;
+        if (excludeNames.some(name => input.name?.toLowerCase().includes(name))) return true;
+        if (input.classList.contains('no-capitalize')) return true;
+        if (input.type && !['text', ''].includes(input.type) && input.tagName === 'INPUT') return true;
+        return false;
+    }
+
+    // Real-time capitalize on input event
+    document.addEventListener('input', function(e) {
+        const input = e.target;
+
+        // Only process text inputs and textareas
+        if (input.tagName !== 'INPUT' && input.tagName !== 'TEXTAREA') return;
+
+        // Skip excluded inputs
+        if (shouldExclude(input)) return;
+
+        // Get cursor position
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+
+        // Capitalize the value
+        const capitalizedValue = capitalizeWords(input.value);
+
+        // Only update if value changed to avoid cursor jump
+        if (input.value !== capitalizedValue) {
+            input.value = capitalizedValue;
+            // Restore cursor position
+            input.setSelectionRange(start, end);
+        }
+    }, true);
+}
+
+// Make function globally available
+window.capitalizeWords = capitalizeWords;
+window.initAutoCapitalize = initAutoCapitalize;
 
 // ==============================================
 // GLOBAL FUNCTION EXPORTS
