@@ -103,10 +103,10 @@ class RequestCategorySeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'seedlings',
-                'display_name' => 'Seedlings',
-                'icon' => 'fa-leaf',
-                'description' => 'Fruit tree seedlings',
+                'name' => 'fruit_tree_seedlings',
+                'display_name' => 'Fruit Trees Seedlings',
+                'icon' => 'fa-tree',
+                'description' => 'Fruit tree seedlings for orchard cultivation',
                 'display_order' => 2,
                 'items' => [
                     [
@@ -130,9 +130,19 @@ class RequestCategorySeeder extends Seeder
                         'supply_alert_enabled' => true
                     ],
                     [
-                        'name' => 'Guava Seedling',
+                        'name' => 'Coconut Seedling',
                         'unit' => 'pcs',
                         'display_order' => 3,
+                        'current_supply' => 35,
+                        'minimum_supply' => 10,
+                        'maximum_supply' => 80,
+                        'reorder_point' => 20,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Guava Seedling',
+                        'unit' => 'pcs',
+                        'display_order' => 4,
                         'current_supply' => 35,
                         'minimum_supply' => 12,
                         'maximum_supply' => 80,
@@ -142,7 +152,7 @@ class RequestCategorySeeder extends Seeder
                     [
                         'name' => 'Guyabano Seedling',
                         'unit' => 'pcs',
-                        'display_order' => 4,
+                        'display_order' => 5,
                         'current_supply' => 28,
                         'minimum_supply' => 8,
                         'maximum_supply' => 60,
@@ -150,9 +160,19 @@ class RequestCategorySeeder extends Seeder
                         'supply_alert_enabled' => true
                     ],
                     [
+                        'name' => 'Lakatan Banana Seedling',
+                        'unit' => 'pcs',
+                        'display_order' => 6,
+                        'current_supply' => 50,
+                        'minimum_supply' => 15,
+                        'maximum_supply' => 100,
+                        'reorder_point' => 25,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
                         'name' => 'Mango Seedling',
                         'unit' => 'pcs',
-                        'display_order' => 5,
+                        'display_order' => 7,
                         'current_supply' => 45,
                         'minimum_supply' => 10,
                         'maximum_supply' => 100,
@@ -162,7 +182,7 @@ class RequestCategorySeeder extends Seeder
                     [
                         'name' => 'Papaya Seedling',
                         'unit' => 'pcs',
-                        'display_order' => 6,
+                        'display_order' => 8,
                         'current_supply' => 52,
                         'minimum_supply' => 15,
                         'maximum_supply' => 120,
@@ -170,9 +190,19 @@ class RequestCategorySeeder extends Seeder
                         'supply_alert_enabled' => true
                     ],
                     [
+                        'name' => 'Rambutan Seedling',
+                        'unit' => 'pcs',
+                        'display_order' => 9,
+                        'current_supply' => 25,
+                        'minimum_supply' => 8,
+                        'maximum_supply' => 60,
+                        'reorder_point' => 15,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
                         'name' => 'Santol Seedling',
                         'unit' => 'pcs',
-                        'display_order' => 7,
+                        'display_order' => 10,
                         'current_supply' => 18,
                         'minimum_supply' => 5,
                         'maximum_supply' => 50,
@@ -182,109 +212,90 @@ class RequestCategorySeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'fruits',
-                'display_name' => 'Fruit Trees',
-                'icon' => 'fa-tree',
-                'description' => 'Mature fruit trees',
+                'name' => 'vegetable_seedlings',
+                'display_name' => 'Vegetable Seedlings',
+                'icon' => 'fa-leaf',
+                'description' => 'Vegetable seedlings ready for transplanting',
                 'display_order' => 3,
                 'items' => [
                     [
-                        'name' => 'Dwarf Coconut Tree',
+                        'name' => 'Ampalaya Seedling',
                         'unit' => 'pcs',
                         'display_order' => 1,
-                        'current_supply' => 15,
-                        'minimum_supply' => 3,
-                        'maximum_supply' => 40,
-                        'reorder_point' => 8,
+                        'current_supply' => 120,
+                        'minimum_supply' => 30,
+                        'maximum_supply' => 300,
+                        'reorder_point' => 50,
                         'supply_alert_enabled' => true
                     ],
                     [
-                        'name' => 'Lakatan Banana Tree',
+                        'name' => 'Eggplant Seedling',
                         'unit' => 'pcs',
                         'display_order' => 2,
-                        'current_supply' => 22,
-                        'minimum_supply' => 5,
-                        'maximum_supply' => 60,
-                        'reorder_point' => 12,
+                        'current_supply' => 150,
+                        'minimum_supply' => 40,
+                        'maximum_supply' => 350,
+                        'reorder_point' => 60,
                         'supply_alert_enabled' => true
                     ],
                     [
-                        'name' => 'Rambutan Tree',
+                        'name' => 'Pepper Seedling',
                         'unit' => 'pcs',
                         'display_order' => 3,
-                        'current_supply' => 8,
-                        'minimum_supply' => 2,
-                        'maximum_supply' => 25,
-                        'reorder_point' => 5,
+                        'current_supply' => 100,
+                        'minimum_supply' => 25,
+                        'maximum_supply' => 250,
+                        'reorder_point' => 45,
                         'supply_alert_enabled' => true
                     ],
                     [
-                        'name' => 'Star Apple Tree',
+                        'name' => 'Pechay Seedling',
                         'unit' => 'pcs',
                         'display_order' => 4,
-                        'current_supply' => 12,
-                        'minimum_supply' => 3,
-                        'maximum_supply' => 30,
-                        'reorder_point' => 6,
-                        'supply_alert_enabled' => true
-                    ],
-                ]
-            ],
-            [
-                'name' => 'ornamentals',
-                'display_name' => 'Ornamental Plants',
-                'icon' => 'fa-spa',
-                'description' => 'Decorative and ornamental plants',
-                'display_order' => 4,
-                'items' => [
-                    [
-                        'name' => 'Anthurium',
-                        'unit' => 'pcs',
-                        'display_order' => 1,
-                        'current_supply' => 45,
-                        'minimum_supply' => 10,
-                        'maximum_supply' => 100,
-                        'reorder_point' => 20,
+                        'current_supply' => 200,
+                        'minimum_supply' => 50,
+                        'maximum_supply' => 500,
+                        'reorder_point' => 80,
                         'supply_alert_enabled' => true
                     ],
                     [
-                        'name' => 'Bougainvillea',
-                        'unit' => 'pcs',
-                        'display_order' => 2,
-                        'current_supply' => 38,
-                        'minimum_supply' => 8,
-                        'maximum_supply' => 80,
-                        'reorder_point' => 15,
-                        'supply_alert_enabled' => true
-                    ],
-                    [
-                        'name' => 'Fortune Plant',
-                        'unit' => 'pcs',
-                        'display_order' => 3,
-                        'current_supply' => 25,
-                        'minimum_supply' => 5,
-                        'maximum_supply' => 60,
-                        'reorder_point' => 12,
-                        'supply_alert_enabled' => true
-                    ],
-                    [
-                        'name' => 'Gumamela (Hibiscus)',
-                        'unit' => 'pcs',
-                        'display_order' => 4,
-                        'current_supply' => 55,
-                        'minimum_supply' => 12,
-                        'maximum_supply' => 120,
-                        'reorder_point' => 25,
-                        'supply_alert_enabled' => true
-                    ],
-                    [
-                        'name' => 'Sansevieria (Snake Plant)',
+                        'name' => 'Tomato Seedling',
                         'unit' => 'pcs',
                         'display_order' => 5,
-                        'current_supply' => 32,
-                        'minimum_supply' => 8,
-                        'maximum_supply' => 70,
-                        'reorder_point' => 15,
+                        'current_supply' => 180,
+                        'minimum_supply' => 45,
+                        'maximum_supply' => 400,
+                        'reorder_point' => 70,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Squash Seedling',
+                        'unit' => 'pcs',
+                        'display_order' => 6,
+                        'current_supply' => 90,
+                        'minimum_supply' => 25,
+                        'maximum_supply' => 200,
+                        'reorder_point' => 40,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Kangkong Seedling',
+                        'unit' => 'pcs',
+                        'display_order' => 7,
+                        'current_supply' => 250,
+                        'minimum_supply' => 60,
+                        'maximum_supply' => 600,
+                        'reorder_point' => 100,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'String Bean Seedling',
+                        'unit' => 'pcs',
+                        'display_order' => 8,
+                        'current_supply' => 130,
+                        'minimum_supply' => 35,
+                        'maximum_supply' => 300,
+                        'reorder_point' => 55,
                         'supply_alert_enabled' => true
                     ],
                 ]
@@ -294,7 +305,7 @@ class RequestCategorySeeder extends Seeder
                 'display_name' => 'Fingerlings',
                 'icon' => 'fa-fish',
                 'description' => 'Fish fingerlings for aquaculture',
-                'display_order' => 5,
+                'display_order' => 4,
                 'items' => [
                     [
                         'name' => 'Catfish Fingerling',
@@ -336,7 +347,7 @@ class RequestCategorySeeder extends Seeder
                 'display_name' => 'Fertilizers',
                 'icon' => 'fa-flask',
                 'description' => 'Organic and inorganic fertilizers',
-                'display_order' => 6,
+                'display_order' => 5,
                 'items' => [
                     [
                         'name' => 'Ammonium Sulfate (21-0-0)',
@@ -386,6 +397,124 @@ class RequestCategorySeeder extends Seeder
                         'minimum_supply' => 40,
                         'maximum_supply' => 400,
                         'reorder_point' => 80,
+                        'supply_alert_enabled' => true
+                    ],
+                ]
+            ],
+            [
+                'name' => 'garden_tools',
+                'display_name' => 'Garden Tools',
+                'icon' => 'fa-tools',
+                'description' => 'Farming and gardening tools and equipment',
+                'display_order' => 6,
+                'items' => [
+                    [
+                        'name' => 'Bolo (Itak)',
+                        'unit' => 'pcs',
+                        'display_order' => 1,
+                        'current_supply' => 25,
+                        'minimum_supply' => 5,
+                        'maximum_supply' => 50,
+                        'reorder_point' => 10,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Garden Hoe (Asarol)',
+                        'unit' => 'pcs',
+                        'display_order' => 2,
+                        'current_supply' => 30,
+                        'minimum_supply' => 8,
+                        'maximum_supply' => 60,
+                        'reorder_point' => 12,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Hand Trowel',
+                        'unit' => 'pcs',
+                        'display_order' => 3,
+                        'current_supply' => 50,
+                        'minimum_supply' => 15,
+                        'maximum_supply' => 100,
+                        'reorder_point' => 20,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Pruning Shears',
+                        'unit' => 'pcs',
+                        'display_order' => 4,
+                        'current_supply' => 35,
+                        'minimum_supply' => 10,
+                        'maximum_supply' => 70,
+                        'reorder_point' => 15,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Rake (Kalaykay)',
+                        'unit' => 'pcs',
+                        'display_order' => 5,
+                        'current_supply' => 28,
+                        'minimum_supply' => 8,
+                        'maximum_supply' => 50,
+                        'reorder_point' => 12,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Shovel (Pala)',
+                        'unit' => 'pcs',
+                        'display_order' => 6,
+                        'current_supply' => 22,
+                        'minimum_supply' => 6,
+                        'maximum_supply' => 45,
+                        'reorder_point' => 10,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Sprayer (16L Knapsack)',
+                        'unit' => 'pcs',
+                        'display_order' => 7,
+                        'current_supply' => 15,
+                        'minimum_supply' => 4,
+                        'maximum_supply' => 30,
+                        'reorder_point' => 8,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Watering Can',
+                        'unit' => 'pcs',
+                        'display_order' => 8,
+                        'current_supply' => 40,
+                        'minimum_supply' => 10,
+                        'maximum_supply' => 80,
+                        'reorder_point' => 18,
+                        'supply_alert_enabled' => true
+                    ],
+                    [
+                        'name' => 'Wheelbarrow (Karetilya)',
+                        'unit' => 'pcs',
+                        'display_order' => 9,
+                        'current_supply' => 10,
+                        'minimum_supply' => 2,
+                        'maximum_supply' => 20,
+                        'reorder_point' => 5,
+                        'supply_alert_enabled' => true
+                    ],
+                ]
+            ],
+            [
+                'name' => 'ornamentals',
+                'display_name' => 'Ornamentals',
+                'icon' => 'fa-spa',
+                'description' => 'Ornamental plants and flowers',
+                'display_order' => 7,
+                'items' => [
+                    [
+                        'name' => 'Sampaguita Seedling',
+                        'unit' => 'pcs',
+                        'display_order' => 1,
+                        'current_supply' => 100,
+                        'minimum_supply' => 25,
+                        'maximum_supply' => 250,
+                        'reorder_point' => 40,
                         'supply_alert_enabled' => true
                     ],
                 ]

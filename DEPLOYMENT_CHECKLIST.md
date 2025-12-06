@@ -19,7 +19,6 @@
 
 -   [ ] Update `FACEBOOK_REDIRECT_URI` with production domain
 -   [ ] Secure or remove `ANTHROPIC_API_KEY` (if not needed in production)
--   [ ] Update reCAPTCHA keys for production domain
 -   [ ] Set up production mail credentials
 
 #### Build & Optimization

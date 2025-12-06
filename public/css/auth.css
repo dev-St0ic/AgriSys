@@ -1,4 +1,20 @@
 /* Enhanced Button States for Profile Verification */
+
+/* Auto-capitalize text inputs in all forms */
+input[type="text"],
+textarea {
+    text-transform: capitalize;
+}
+
+/* Exclude specific fields that should not be capitalized */
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input.no-capitalize,
+textarea.no-capitalize {
+    text-transform: none;
+}
+
 .profile-action-btn.pending,
 .verification-submit-btn.pending {
     pointer-events: none;
@@ -3869,19 +3885,7 @@ input.is-invalid {
         display: none !important;
     }
 }
-/* ==============================================
-   RECAPTCHA V2
-   ============================================== */
-.recaptcha-container {
-    margin: 20px 0;
-    display: flex;
-    justify-content: center;
-}
 
-.g-recaptcha {
-    transform: scale(0.95);
-    transform-origin: 0 0;
-}
 /* ==============================================
    VERIFICATION ALERT MODAL STYLES
    User-Friendly Design for Farmers & Fisherfolks
