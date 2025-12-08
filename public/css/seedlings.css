@@ -218,6 +218,38 @@
     color: #40916c;
 }
 
+/* Selection Actions Wrapper */
+.selection-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Proceed Button (Mini version for selection summary) */
+.seedlings-proceed-btn-mini {
+    padding: 8px 20px;
+    background: #ffffff;
+    border: 2px solid #ffffff;
+    border-radius: 6px;
+    color: #40916c;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.seedlings-proceed-btn-mini:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.seedlings-proceed-btn-mini i {
+    font-size: 0.9rem;
+}
+
 /* --- Items Grid --- */
 .seedlings-items-grid {
     display: grid;
@@ -907,6 +939,18 @@ section.application-section small {
         flex-direction: column;
         gap: 15px;
         text-align: center;
+    }
+
+    .selection-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .seedlings-clear-btn,
+    .seedlings-proceed-btn-mini {
+        width: 100%;
+        justify-content: center;
     }
 
     .seedlings-proceed-btn {
