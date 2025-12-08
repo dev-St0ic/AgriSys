@@ -214,7 +214,7 @@ public function login(Request $request)
                 'status' => $app->status,
                 'barangay' => $app->barangay
             ];
-        });
+        })->toBase();
 
         // Get recent seedling requests
         $recentSeedling = SeedlingRequest::latest()->take(2)->get()->map(function($app) {
@@ -225,7 +225,7 @@ public function login(Request $request)
                 'status' => $app->status,
                 'barangay' => $app->barangay
             ];
-        });
+        })->toBase();
 
         // Get recent training applications
         $recentTraining = TrainingApplication::latest()->take(1)->get()->map(function($app) {
@@ -236,7 +236,7 @@ public function login(Request $request)
                 'status' => $app->status,
                 'barangay' => $app->barangay ?? 'N/A'
             ];
-        });
+        })->toBase();
 
         $recentApplications = $recentRsbsa->merge($recentSeedling)->merge($recentTraining)->sortByDesc('created_at')->take(5);
 
