@@ -710,7 +710,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
     //                         'SeedlingRequest',
     //                         $seedlingRequest->id
     //                     );
-                        
+
     //                 }
     //             }
     //         }
@@ -824,17 +824,19 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         \DB::beginTransaction();
 
         $itemStatuses = $validated['item_statuses'];
-        
+
         // Load all items at once with relationships
+        // Cast keys to integers for proper collection lookup
+        $itemIds = array_map('intval', array_keys($itemStatuses));
         $items = SeedlingRequestItem::with('categoryItem')
-            ->whereIn('id', array_keys($itemStatuses))
+            ->whereIn('id', $itemIds)
             ->get()
             ->keyBy('id');
 
         // ✅ CHECK IF ANY ITEMS ACTUALLY CHANGED STATUS
         $hasItemChanges = false;
         foreach ($itemStatuses as $itemId => $status) {
-            $item = $items->get($itemId);
+            $item = $items->get((int) $itemId);
             if ($item && $item->status !== $status) {
                 $hasItemChanges = true;
                 break;
@@ -844,14 +846,14 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         // If no items changed, skip the entire process
         if (!$hasItemChanges) {
             \DB::commit();
-            
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'No changes detected.'
                 ]);
             }
-            
+
             return redirect()->back()->with('success', 'No changes were made.');
         }
 
@@ -860,7 +862,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
         $totalCount = count($itemStatuses);
 
         foreach ($itemStatuses as $itemId => $status) {
-            $item = $items->get($itemId);
+            $item = $items->get((int) $itemId);
 
             if (!$item) {
                 throw new \Exception("Item not found: {$itemId}");
@@ -903,7 +905,7 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                     if (!$success) {
                         throw new \Exception("Failed to distribute supply for {$item->item_name}");
                     }
-                    
+
                     // ✅ CHECK STOCK LEVELS AFTER DISTRIBUTION
                     $item->categoryItem->refresh();
                     if ($item->categoryItem->current_supply <= $item->categoryItem->minimum_stock_level && $item->categoryItem->current_supply > 0) {
