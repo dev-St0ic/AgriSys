@@ -4441,3 +4441,328 @@ input.is-invalid {
         animation: none;
     }
 }
+
+/* ==============================================
+   FORGOT PASSWORD MODAL STYLES
+   ============================================== */
+
+/* Forgot Password Modal Container */
+.forgot-password-modal {
+    max-width: 420px;
+    width: 95%;
+}
+
+.forgot-step {
+    animation: fadeIn 0.3s ease;
+}
+
+.forgot-step .step-description-small {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: -8px;
+    margin-bottom: 16px;
+}
+
+.forgot-step .step-description-small strong {
+    color: #0A6953;
+    font-weight: 600;
+}
+
+#forgot-identifier {
+    text-transform: none !important;
+}
+
+/* Account Info Box for Reset Password Step */
+.account-info-box {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.account-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+}
+
+.account-info-row:not(:last-child) {
+    border-bottom: 1px dashed #d1fae5;
+}
+
+.account-info-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.account-info-value {
+    font-size: 14px;
+    color: #0A6953;
+    font-weight: 600;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* OTP Input Container */
+.otp-input-container {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.otp-input {
+    width: 48px;
+    height: 56px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #f9fafb;
+    color: #1f2937;
+    transition: all 0.2s ease;
+    caret-color: #0A6953;
+}
+
+.otp-input:focus {
+    outline: none;
+    border-color: #0A6953;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(10, 105, 83, 0.1);
+}
+
+.otp-input.is-valid {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.otp-input.is-invalid {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+/* OTP Timer */
+.otp-timer {
+    text-align: center;
+    margin: 16px 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.otp-timer strong {
+    color: #0A6953;
+    font-weight: 600;
+}
+
+/* Resend OTP Link */
+.resend-otp {
+    text-align: center;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.resend-otp a {
+    color: #0A6953;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.resend-otp a:hover {
+    text-decoration: underline;
+}
+
+/* Success Icon */
+.success-icon {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.success-icon svg {
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.success-header {
+    color: #10b981 !important;
+}
+
+/* Password Strength for Reset */
+.reset-password-strength {
+    margin-top: 8px;
+}
+
+.reset-password-strength .strength-bar {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.reset-password-strength .strength-fill {
+    height: 100%;
+    width: 0;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.reset-password-strength .strength-fill.weak {
+    width: 25%;
+    background: #ef4444;
+}
+
+.reset-password-strength .strength-fill.fair {
+    width: 50%;
+    background: #f59e0b;
+}
+
+.reset-password-strength .strength-fill.good {
+    width: 75%;
+    background: #3b82f6;
+}
+
+.reset-password-strength .strength-fill.strong {
+    width: 100%;
+    background: #10b981;
+}
+
+.reset-password-strength .strength-text {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Password Match Status */
+.reset-password-match {
+    margin-top: 8px;
+    font-size: 13px;
+    min-height: 20px;
+}
+
+/* Forgot Password Form Group Adjustments */
+.forgot-step .form-group {
+    margin-bottom: 20px;
+}
+
+.forgot-step .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+}
+
+.forgot-step .form-group input[type="tel"],
+.forgot-step .form-group input[type="password"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.2s ease;
+    background: #f9fafb;
+}
+
+.forgot-step .form-group input:focus {
+    outline: none;
+    border-color: #0A6953;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(10, 105, 83, 0.1);
+}
+
+.forgot-step .form-group input.is-valid {
+    border-color: #10b981;
+}
+
+.forgot-step .form-group input.is-invalid {
+    border-color: #ef4444;
+}
+
+.forgot-step .form-text {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 6px;
+}
+
+/* Masked Contact Display */
+#masked-contact {
+    font-weight: 600;
+    color: #0A6953;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .forgot-password-modal {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        border-radius: 20px 20px 0 0;
+        max-height: 90vh;
+    }
+
+    .otp-input-container {
+        gap: 6px;
+    }
+
+    .otp-input {
+        width: 42px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .forgot-step .step-header {
+        font-size: 20px;
+    }
+
+    .forgot-step .step-description {
+        font-size: 14px;
+    }
+}
+
+/* Animation for step transitions */
+.forgot-step[style*="display: none"] {
+    display: none !important;
+}
+
+.forgot-step[style*="display: block"] {
+    display: block !important;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

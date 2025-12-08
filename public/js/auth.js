@@ -3064,8 +3064,24 @@ function playSimpleBeep() {
 // ==============================================
 
 function showForgotPassword() {
-     showNotification('info', 'Forgot password feature will be available soon!');
-    // Same route handles both login and signup
+    // Close auth modal
+    closeAuthModal();
+
+    // Open forgot password modal
+    const modal = document.getElementById('forgot-password-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        // Reset to step 1
+        resetForgotPasswordModal();
+
+        // Focus on contact input
+        setTimeout(() => {
+            const contactInput = document.getElementById('forgot-contact');
+            if (contactInput) contactInput.focus();
+        }, 100);
+    }
 }
 
 // ==============================================
@@ -4070,6 +4086,801 @@ window.capitalizeWords = capitalizeWords;
 window.initAutoCapitalize = initAutoCapitalize;
 
 // ==============================================
+// FORGOT PASSWORD WITH SMS OTP FUNCTIONS
+// ==============================================
+
+let forgotPasswordData = {
+    contactNumber: '',
+    resetToken: '',
+    otpTimer: null,
+    otpExpiresAt: null
+};
+
+/**
+ * Close forgot password modal
+ */
+function closeForgotPasswordModal() {
+    const modal = document.getElementById('forgot-password-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Clear timer
+    if (forgotPasswordData.otpTimer) {
+        clearInterval(forgotPasswordData.otpTimer);
+        forgotPasswordData.otpTimer = null;
+    }
+
+    // Reset modal state
+    resetForgotPasswordModal();
+}
+
+/**
+ * Reset forgot password modal to initial state
+ */
+function resetForgotPasswordModal() {
+    // Show step 1, hide others
+    document.getElementById('forgot-step-1').style.display = 'block';
+    document.getElementById('forgot-step-2').style.display = 'none';
+    document.getElementById('forgot-step-3').style.display = 'none';
+    document.getElementById('forgot-step-4').style.display = 'none';
+
+    // Clear form fields
+    const contactForm = document.getElementById('forgot-contact-form');
+    const otpForm = document.getElementById('forgot-otp-form');
+    const resetForm = document.getElementById('forgot-reset-form');
+
+    if (contactForm) contactForm.reset();
+    if (otpForm) otpForm.reset();
+    if (resetForm) resetForm.reset();
+
+    // Clear identifier input validation classes
+    const identifierInput = document.getElementById('forgot-identifier');
+    if (identifierInput) {
+        identifierInput.classList.remove('is-valid', 'is-invalid');
+    }
+
+    // Clear OTP inputs
+    for (let i = 1; i <= 6; i++) {
+        const input = document.getElementById(`forgot-otp-${i}`);
+        if (input) input.value = '';
+    }
+
+    // Hide username display
+    const usernameDisplay = document.getElementById('account-username-display');
+    if (usernameDisplay) usernameDisplay.style.display = 'none';
+
+    // Clear messages
+    hideForgotMessages();
+
+    // Reset data
+    forgotPasswordData = {
+        contactNumber: '',
+        username: '',
+        resetToken: '',
+        otpTimer: null,
+        otpExpiresAt: null
+    };
+
+    // Reset button states
+    resetForgotButtonStates();
+
+    // Clear password strength indicators
+    const strengthBar = document.querySelector('.reset-password-strength .strength-fill');
+    const strengthText = document.querySelector('.reset-password-strength .strength-text');
+    if (strengthBar) strengthBar.className = 'strength-fill';
+    if (strengthText) strengthText.textContent = 'Password strength';
+
+    const matchStatus = document.querySelector('.reset-password-match');
+    if (matchStatus) matchStatus.innerHTML = '';
+}
+
+/**
+ * Go back to login from forgot password
+ */
+function backToLogin() {
+    closeForgotPasswordModal();
+    openAuthModal();
+    showLogInForm();
+}
+
+/**
+ * Go back to step 1 (change number)
+ */
+function goToStep1() {
+    // Clear timer
+    if (forgotPasswordData.otpTimer) {
+        clearInterval(forgotPasswordData.otpTimer);
+        forgotPasswordData.otpTimer = null;
+    }
+
+    document.getElementById('forgot-step-1').style.display = 'block';
+    document.getElementById('forgot-step-2').style.display = 'none';
+
+    hideForgotMessages();
+}
+
+/**
+ * Validate forgot identifier input (username or contact number)
+ */
+function validateForgotIdentifier(value) {
+    const input = document.getElementById('forgot-identifier');
+    if (!input) return;
+
+    value = value.trim();
+
+    // Check if it looks like a contact number (starts with 09)
+    const isContactNumber = /^09[0-9]*$/.test(value);
+
+    if (isContactNumber) {
+        // For contact numbers, validate Philippine format
+        if (value.length === 11 && /^09[0-9]{9}$/.test(value)) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+        } else if (value.length > 0) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+        } else {
+            input.classList.remove('is-valid', 'is-invalid');
+        }
+    } else {
+        // For usernames, validate minimum length
+        if (value.length >= 3) {
+            input.classList.remove('is-invalid');
+            input.classList.add('is-valid');
+        } else if (value.length > 0) {
+            input.classList.remove('is-valid');
+            input.classList.add('is-invalid');
+        } else {
+            input.classList.remove('is-valid', 'is-invalid');
+        }
+    }
+}
+
+// Keep old function name for backwards compatibility
+function validateForgotContact(value) {
+    validateForgotIdentifier(value);
+}
+
+/**
+ * Show forgot password error message
+ */
+function showForgotError(message) {
+    const errorDiv = document.getElementById('forgot-error-message');
+    const successDiv = document.getElementById('forgot-success-message');
+
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'flex';
+    }
+    if (successDiv) {
+        successDiv.style.display = 'none';
+    }
+}
+
+/**
+ * Show forgot password success message
+ */
+function showForgotSuccess(message) {
+    const successDiv = document.getElementById('forgot-success-message');
+    const errorDiv = document.getElementById('forgot-error-message');
+
+    if (successDiv) {
+        successDiv.textContent = message;
+        successDiv.style.display = 'flex';
+    }
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+    }
+}
+
+/**
+ * Hide forgot password messages
+ */
+function hideForgotMessages() {
+    const errorDiv = document.getElementById('forgot-error-message');
+    const successDiv = document.getElementById('forgot-success-message');
+
+    if (errorDiv) errorDiv.style.display = 'none';
+    if (successDiv) successDiv.style.display = 'none';
+}
+
+/**
+ * Reset forgot password button states
+ */
+function resetForgotButtonStates() {
+    const buttons = ['send-otp-btn', 'verify-otp-btn', 'reset-password-btn'];
+
+    buttons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.disabled = false;
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoader = btn.querySelector('.btn-loader');
+            if (btnText) btnText.style.display = 'inline';
+            if (btnLoader) btnLoader.style.display = 'none';
+        }
+    });
+}
+
+/**
+ * Set button to loading state
+ */
+function setForgotButtonLoading(btnId, loadingText) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+        btn.disabled = true;
+        const btnText = btn.querySelector('.btn-text');
+        const btnLoader = btn.querySelector('.btn-loader');
+        if (btnText) btnText.style.display = 'none';
+        if (btnLoader) {
+            btnLoader.textContent = loadingText;
+            btnLoader.style.display = 'inline';
+        }
+    }
+}
+
+/**
+ * Mask contact number for display
+ */
+function maskContactNumber(contact) {
+    if (!contact || contact.length < 11) return contact;
+    return contact.substring(0, 4) + '****' + contact.substring(8);
+}
+
+/**
+ * Start OTP countdown timer
+ */
+function startOtpTimer(seconds) {
+    const countdownEl = document.getElementById('otp-countdown');
+    if (!countdownEl) return;
+
+    forgotPasswordData.otpExpiresAt = Date.now() + (seconds * 1000);
+
+    // Clear existing timer
+    if (forgotPasswordData.otpTimer) {
+        clearInterval(forgotPasswordData.otpTimer);
+    }
+
+    function updateTimer() {
+        const remaining = Math.max(0, Math.floor((forgotPasswordData.otpExpiresAt - Date.now()) / 1000));
+        const minutes = Math.floor(remaining / 60);
+        const secs = remaining % 60;
+
+        countdownEl.innerHTML = `Code expires in <strong>${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}</strong>`;
+
+        if (remaining <= 0) {
+            clearInterval(forgotPasswordData.otpTimer);
+            countdownEl.innerHTML = '<strong style="color: #ef4444;">Code expired</strong>';
+
+            // Enable resend link
+            const resendLink = document.getElementById('resend-otp-link');
+            if (resendLink) {
+                resendLink.style.pointerEvents = 'auto';
+                resendLink.style.opacity = '1';
+            }
+        }
+    }
+
+    updateTimer();
+    forgotPasswordData.otpTimer = setInterval(updateTimer, 1000);
+
+    // Disable resend link initially
+    const resendLink = document.getElementById('resend-otp-link');
+    if (resendLink) {
+        resendLink.style.pointerEvents = 'none';
+        resendLink.style.opacity = '0.5';
+
+        // Enable after 30 seconds
+        setTimeout(() => {
+            resendLink.style.pointerEvents = 'auto';
+            resendLink.style.opacity = '1';
+        }, 30000);
+    }
+}
+
+/**
+ * Handle OTP input navigation
+ */
+function setupOtpInputs() {
+    for (let i = 1; i <= 6; i++) {
+        const input = document.getElementById(`forgot-otp-${i}`);
+        if (!input) continue;
+
+        input.addEventListener('input', function(e) {
+            // Only allow numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Move to next input
+            if (this.value.length === 1 && i < 6) {
+                document.getElementById(`forgot-otp-${i + 1}`).focus();
+            }
+
+            // Combine OTP
+            combineOtpInputs();
+        });
+
+        input.addEventListener('keydown', function(e) {
+            // Move to previous input on backspace
+            if (e.key === 'Backspace' && this.value === '' && i > 1) {
+                document.getElementById(`forgot-otp-${i - 1}`).focus();
+            }
+        });
+
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+            const digits = pastedData.replace(/[^0-9]/g, '').substring(0, 6);
+
+            for (let j = 0; j < digits.length; j++) {
+                const targetInput = document.getElementById(`forgot-otp-${j + 1}`);
+                if (targetInput) {
+                    targetInput.value = digits[j];
+                }
+            }
+
+            // Focus last filled or next empty
+            const lastIndex = Math.min(digits.length, 6);
+            const focusInput = document.getElementById(`forgot-otp-${lastIndex}`);
+            if (focusInput) focusInput.focus();
+
+            combineOtpInputs();
+        });
+    }
+}
+
+/**
+ * Combine individual OTP inputs into hidden field
+ */
+function combineOtpInputs() {
+    let otp = '';
+    for (let i = 1; i <= 6; i++) {
+        const input = document.getElementById(`forgot-otp-${i}`);
+        if (input) otp += input.value;
+    }
+
+    const combined = document.getElementById('forgot-otp-combined');
+    if (combined) combined.value = otp;
+}
+
+/**
+ * Handle send OTP form submission
+ */
+async function handleSendOtp(event) {
+    event.preventDefault();
+
+    const identifierInput = document.getElementById('forgot-identifier');
+    const identifier = identifierInput?.value?.trim();
+
+    if (!identifier || identifier.length < 3) {
+        showForgotError('Please enter your username or mobile number');
+        return;
+    }
+
+    // Check if it's a contact number format
+    const isContactNumber = /^09[0-9]{9}$/.test(identifier);
+    const looksLikeContactNumber = /^09/.test(identifier);
+
+    // If it looks like a contact number but isn't complete, show error
+    if (looksLikeContactNumber && !isContactNumber) {
+        showForgotError('Please enter a complete mobile number (e.g., 09123456789)');
+        return;
+    }
+
+    hideForgotMessages();
+    setForgotButtonLoading('send-otp-btn', 'Sending...');
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        const response = await fetch('/auth/forgot-password/send-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ identifier: identifier })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Store the actual contact number returned from server
+            forgotPasswordData.contactNumber = data.contact_number;
+            forgotPasswordData.username = data.username;
+            forgotPasswordData.maskedContact = data.masked_contact || maskContactNumber(data.contact_number);
+
+            // Update masked contact display
+            const maskedContactEl = document.getElementById('masked-contact');
+            if (maskedContactEl) {
+                maskedContactEl.textContent = forgotPasswordData.maskedContact;
+            }
+
+            // Show username if available
+            const usernameDisplay = document.getElementById('account-username-display');
+            const usernameEl = document.getElementById('account-username');
+            if (usernameDisplay && usernameEl && data.username) {
+                usernameEl.textContent = data.username;
+                usernameDisplay.style.display = 'block';
+            }
+
+            // Move to step 2
+            document.getElementById('forgot-step-1').style.display = 'none';
+            document.getElementById('forgot-step-2').style.display = 'block';
+
+            // Start timer
+            startOtpTimer(data.expires_in || 300);
+
+            // Focus first OTP input
+            setTimeout(() => {
+                const firstOtp = document.getElementById('forgot-otp-1');
+                if (firstOtp) firstOtp.focus();
+            }, 100);
+
+            showForgotSuccess(data.message);
+        } else {
+            showForgotError(data.message || 'Failed to send OTP');
+        }
+    } catch (error) {
+        console.error('Send OTP error:', error);
+        showForgotError('Network error. Please try again.');
+    } finally {
+        resetForgotButtonStates();
+    }
+}
+
+/**
+ * Handle verify OTP form submission
+ */
+async function handleVerifyOtp(event) {
+    event.preventDefault();
+
+    combineOtpInputs();
+    const otp = document.getElementById('forgot-otp-combined')?.value;
+
+    if (!otp || otp.length !== 6) {
+        showForgotError('Please enter the complete 6-digit code');
+        return;
+    }
+
+    hideForgotMessages();
+    setForgotButtonLoading('verify-otp-btn', 'Verifying...');
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        const response = await fetch('/auth/forgot-password/verify-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                contact_number: forgotPasswordData.contactNumber,
+                otp: otp
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            forgotPasswordData.resetToken = data.reset_token;
+
+            // Clear timer
+            if (forgotPasswordData.otpTimer) {
+                clearInterval(forgotPasswordData.otpTimer);
+            }
+
+            // Set hidden fields for reset form
+            document.getElementById('reset-token').value = data.reset_token;
+            document.getElementById('reset-contact').value = forgotPasswordData.contactNumber;
+
+            // Update account info display in Step 3
+            const usernameDisplay = document.getElementById('reset-username-display');
+            const contactDisplay = document.getElementById('reset-contact-display');
+            if (usernameDisplay) {
+                usernameDisplay.textContent = forgotPasswordData.username || '—';
+            }
+            if (contactDisplay) {
+                contactDisplay.textContent = forgotPasswordData.maskedContact || maskContactNumber(forgotPasswordData.contactNumber);
+            }
+
+            // Move to step 3
+            document.getElementById('forgot-step-2').style.display = 'none';
+            document.getElementById('forgot-step-3').style.display = 'block';
+
+            // Focus password input
+            setTimeout(() => {
+                const passwordInput = document.getElementById('new-password');
+                if (passwordInput) passwordInput.focus();
+            }, 100);
+
+            showForgotSuccess(data.message);
+        } else {
+            showForgotError(data.message || 'Invalid OTP');
+        }
+    } catch (error) {
+        console.error('Verify OTP error:', error);
+        showForgotError('Network error. Please try again.');
+    } finally {
+        resetForgotButtonStates();
+    }
+}
+
+/**
+ * Handle resend OTP
+ */
+async function resendOtp(event) {
+    event.preventDefault();
+
+    const resendLink = document.getElementById('resend-otp-link');
+    if (resendLink.style.pointerEvents === 'none') return;
+
+    hideForgotMessages();
+    resendLink.textContent = 'Sending...';
+    resendLink.style.pointerEvents = 'none';
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        // Send the stored contact number as identifier (it's a valid identifier format)
+        const response = await fetch('/auth/forgot-password/resend-otp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ identifier: forgotPasswordData.contactNumber })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update stored data in case anything changed
+            forgotPasswordData.contactNumber = data.contact_number;
+            forgotPasswordData.maskedContact = data.masked_contact || maskContactNumber(data.contact_number);
+
+            // Clear OTP inputs
+            for (let i = 1; i <= 6; i++) {
+                const input = document.getElementById(`forgot-otp-${i}`);
+                if (input) input.value = '';
+            }
+            document.getElementById('forgot-otp-1')?.focus();
+
+            // Restart timer
+            startOtpTimer(data.expires_in || 300);
+
+            showForgotSuccess('New OTP sent successfully!');
+        } else {
+            showForgotError(data.message || 'Failed to resend OTP');
+            resendLink.style.pointerEvents = 'auto';
+        }
+    } catch (error) {
+        console.error('Resend OTP error:', error);
+        showForgotError('Network error. Please try again.');
+        resendLink.style.pointerEvents = 'auto';
+    } finally {
+        resendLink.textContent = 'Resend OTP';
+    }
+}
+
+/**
+ * Check reset password strength
+ */
+function checkResetPasswordStrength(password) {
+    const strengthBar = document.querySelector('.reset-password-strength .strength-fill');
+    const strengthText = document.querySelector('.reset-password-strength .strength-text');
+
+    if (!strengthBar || !strengthText) return;
+
+    // Reset classes
+    strengthBar.className = 'strength-fill';
+
+    if (!password) {
+        strengthText.textContent = 'Password strength';
+        return;
+    }
+
+    let strength = 0;
+    const requirements = {
+        length: password.length >= 8,
+        lowercase: /[a-z]/.test(password),
+        uppercase: /[A-Z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[@$!%*?&#^()_+\-=\[\]{};\':\"\\|,.<>\/]/.test(password)
+    };
+
+    Object.values(requirements).forEach(met => { if (met) strength++; });
+
+    let label = 'Too weak';
+    let className = 'weak';
+
+    if (strength <= 2) {
+        label = 'Weak';
+        className = 'weak';
+    } else if (strength === 3) {
+        label = 'Fair';
+        className = 'fair';
+    } else if (strength === 4) {
+        label = 'Good';
+        className = 'good';
+    } else if (strength === 5) {
+        label = 'Strong';
+        className = 'strong';
+    }
+
+    strengthBar.classList.add(className);
+    strengthText.textContent = label;
+}
+
+/**
+ * Check reset password match
+ */
+function checkResetPasswordMatch() {
+    const password = document.getElementById('new-password')?.value || '';
+    const confirmPassword = document.getElementById('confirm-new-password')?.value || '';
+    const matchStatus = document.querySelector('.reset-password-match');
+    const confirmInput = document.getElementById('confirm-new-password');
+
+    if (!matchStatus) return;
+
+    if (!confirmPassword) {
+        matchStatus.innerHTML = '';
+        confirmInput?.classList.remove('is-valid', 'is-invalid');
+        return;
+    }
+
+    if (password === confirmPassword) {
+        matchStatus.innerHTML = '<span style="color: #10b981;">✓ Passwords match</span>';
+        confirmInput?.classList.remove('is-invalid');
+        confirmInput?.classList.add('is-valid');
+    } else {
+        matchStatus.innerHTML = '<span style="color: #ef4444;">✗ Passwords do not match</span>';
+        confirmInput?.classList.remove('is-valid');
+        confirmInput?.classList.add('is-invalid');
+    }
+}
+
+/**
+ * Validate reset password
+ */
+function validateResetPassword(password) {
+    const requirements = {
+        length: password.length >= 8,
+        lowercase: /[a-z]/.test(password),
+        uppercase: /[A-Z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[@$!%*?&#^()_+\-=\[\]{};\':\"\\|,.<>\/]/.test(password)
+    };
+
+    const allMet = Object.values(requirements).every(v => v);
+
+    return {
+        valid: allMet,
+        requirements: requirements,
+        error: !allMet ? 'Password must be at least 8 characters with uppercase, lowercase, number, and special character' : ''
+    };
+}
+
+/**
+ * Handle reset password form submission
+ */
+async function handleResetPassword(event) {
+    event.preventDefault();
+
+    const password = document.getElementById('new-password')?.value || '';
+    const confirmPassword = document.getElementById('confirm-new-password')?.value || '';
+    const resetToken = document.getElementById('reset-token')?.value || '';
+    const contactNumber = document.getElementById('reset-contact')?.value || forgotPasswordData.contactNumber;
+
+    // Validate password
+    const validation = validateResetPassword(password);
+    if (!validation.valid) {
+        showForgotError(validation.error);
+        return;
+    }
+
+    // Check passwords match
+    if (password !== confirmPassword) {
+        showForgotError('Passwords do not match');
+        return;
+    }
+
+    hideForgotMessages();
+    setForgotButtonLoading('reset-password-btn', 'Resetting...');
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        const response = await fetch('/auth/forgot-password/reset', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                contact_number: contactNumber,
+                reset_token: resetToken,
+                password: password,
+                password_confirmation: confirmPassword
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Move to step 4 (success)
+            document.getElementById('forgot-step-3').style.display = 'none';
+            document.getElementById('forgot-step-4').style.display = 'block';
+
+            hideForgotMessages();
+            showNotification('success', data.message || 'Password reset successfully!');
+        } else {
+            showForgotError(data.message || 'Failed to reset password');
+        }
+    } catch (error) {
+        console.error('Reset password error:', error);
+        showForgotError('Network error. Please try again.');
+    } finally {
+        resetForgotButtonStates();
+    }
+}
+
+/**
+ * Initialize forgot password event listeners
+ */
+function initForgotPassword() {
+    // Setup OTP inputs
+    setupOtpInputs();
+
+    // Contact form submission
+    const contactForm = document.getElementById('forgot-contact-form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', handleSendOtp);
+    }
+
+    // OTP form submission
+    const otpForm = document.getElementById('forgot-otp-form');
+    if (otpForm) {
+        otpForm.addEventListener('submit', handleVerifyOtp);
+    }
+
+    // Reset form submission
+    const resetForm = document.getElementById('forgot-reset-form');
+    if (resetForm) {
+        resetForm.addEventListener('submit', handleResetPassword);
+    }
+
+    // Close modal on overlay click
+    const modal = document.getElementById('forgot-password-modal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeForgotPasswordModal();
+            }
+        });
+    }
+
+    // Close on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('forgot-password-modal');
+            if (modal && modal.style.display === 'flex') {
+                closeForgotPasswordModal();
+            }
+        }
+    });
+}
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', initForgotPassword);
+
+// ==============================================
 // GLOBAL FUNCTION EXPORTS
 // ==============================================
 
@@ -4080,6 +4891,14 @@ window.showLogInForm = showLogInForm;
 window.showSignUpForm = showSignUpForm;
 window.togglePasswordVisibility = togglePasswordVisibility;
 window.showForgotPassword = showForgotPassword;
+window.closeForgotPasswordModal = closeForgotPasswordModal;
+window.backToLogin = backToLogin;
+window.goToStep1 = goToStep1;
+window.validateForgotContact = validateForgotContact;
+window.validateForgotIdentifier = validateForgotIdentifier;
+window.resendOtp = resendOtp;
+window.checkResetPasswordStrength = checkResetPasswordStrength;
+window.checkResetPasswordMatch = checkResetPasswordMatch;
 window.toggleUserDropdown = toggleUserDropdown;
 window.showMyApplicationsModal = showMyApplicationsModal;
 window.closeApplicationsModal = closeApplicationsModal;

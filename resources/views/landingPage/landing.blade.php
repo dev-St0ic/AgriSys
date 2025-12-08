@@ -1056,6 +1056,176 @@
                 </div>
             </div>
         </div>
+
+        <!-- FORGOT PASSWORD MODAL -->
+        <div id="forgot-password-modal" class="auth-modal-overlay" style="display: none;">
+            <div class="auth-modal-content forgot-password-modal">
+                <div class="auth-modal-header">
+                    <h3 id="forgot-password-title">Forgot Password</h3>
+                    <span class="auth-modal-close" onclick="closeForgotPasswordModal()">&times;</span>
+                </div>
+
+                <div class="auth-modal-body">
+                    <!-- Error/Success Messages -->
+                    <div id="forgot-error-message" class="auth-message auth-error" style="display: none;"></div>
+                    <div id="forgot-success-message" class="auth-message auth-success" style="display: none;"></div>
+
+                    <!-- Step 1: Enter Username or Contact Number -->
+                    <div id="forgot-step-1" class="forgot-step">
+                        <h2 class="step-header">Reset Your Password</h2>
+                        <p class="step-description">Enter your username or registered mobile number to receive a
+                            verification code</p>
+
+                        <form id="forgot-contact-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="forgot-identifier">Username or Mobile Number</label>
+                                <input type="text" id="forgot-identifier" name="identifier" required
+                                    placeholder="Enter username or 09XXXXXXXXX" minlength="3"
+                                    oninput="validateForgotIdentifier(this.value)" autocomplete="username">
+                                <div class="form-text">We'll send an OTP to the mobile number linked to your account
+                                </div>
+                            </div>
+
+                            <button type="submit" class="auth-submit-btn" id="send-otp-btn">
+                                <span class="btn-text">Send OTP</span>
+                                <span class="btn-loader" style="display: none;">Sending...</span>
+                            </button>
+                        </form>
+
+                        <div class="login-prompt">
+                            <p>Remember your password? <a href="#" onclick="backToLogin()">Back to Login</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Enter OTP -->
+                    <div id="forgot-step-2" class="forgot-step" style="display: none;">
+                        <h2 class="step-header">Enter Verification Code</h2>
+                        <p class="step-description">We sent a 6-digit code to <span id="masked-contact"></span></p>
+                        <p class="step-description-small" id="account-username-display" style="display: none;">
+                            Account: <strong id="account-username"></strong></p>
+
+                        <form id="forgot-otp-form" class="auth-form">
+                            <div class="form-group">
+                                <label for="forgot-otp">Verification Code</label>
+                                <div class="otp-input-container">
+                                    <input type="text" id="forgot-otp-1" class="otp-input" maxlength="1"
+                                        pattern="[0-9]" inputmode="numeric" autocomplete="one-time-code">
+                                    <input type="text" id="forgot-otp-2" class="otp-input" maxlength="1"
+                                        pattern="[0-9]" inputmode="numeric">
+                                    <input type="text" id="forgot-otp-3" class="otp-input" maxlength="1"
+                                        pattern="[0-9]" inputmode="numeric">
+                                    <input type="text" id="forgot-otp-4" class="otp-input" maxlength="1"
+                                        pattern="[0-9]" inputmode="numeric">
+                                    <input type="text" id="forgot-otp-5" class="otp-input" maxlength="1"
+                                        pattern="[0-9]" inputmode="numeric">
+                                    <input type="text" id="forgot-otp-6" class="otp-input" maxlength="1"
+                                        pattern="[0-9]" inputmode="numeric">
+                                </div>
+                                <input type="hidden" id="forgot-otp-combined" name="otp">
+                            </div>
+
+                            <div class="otp-timer">
+                                <span id="otp-countdown">Code expires in <strong>05:00</strong></span>
+                            </div>
+
+                            <button type="submit" class="auth-submit-btn" id="verify-otp-btn">
+                                <span class="btn-text">Verify Code</span>
+                                <span class="btn-loader" style="display: none;">Verifying...</span>
+                            </button>
+                        </form>
+
+                        <div class="resend-otp">
+                            <p>Didn't receive the code? <a href="#" id="resend-otp-link"
+                                    onclick="resendOtp(event)">Resend OTP</a></p>
+                        </div>
+
+                        <div class="login-prompt">
+                            <p><a href="#" onclick="goToStep1()">← Change number</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Reset Password -->
+                    <div id="forgot-step-3" class="forgot-step" style="display: none;">
+                        <h2 class="step-header">Create New Password</h2>
+                        <p class="step-description">Your identity has been verified. Set your new password below.</p>
+
+                        <!-- Account Info Display -->
+                        <div class="account-info-box" id="reset-account-info">
+                            <div class="account-info-row">
+                                <span class="account-info-label">Username:</span>
+                                <span class="account-info-value" id="reset-username-display">—</span>
+                            </div>
+                            <div class="account-info-row">
+                                <span class="account-info-label">Mobile:</span>
+                                <span class="account-info-value" id="reset-contact-display">—</span>
+                            </div>
+                        </div>
+
+                        <form id="forgot-reset-form" class="auth-form">
+                            <input type="hidden" id="reset-token" name="reset_token">
+                            <input type="hidden" id="reset-contact" name="contact_number">
+
+                            <div class="form-group">
+                                <label for="new-password">New Password</label>
+                                <div class="password-input-container">
+                                    <input type="password" id="new-password" name="password" required minlength="8"
+                                        placeholder="Create a strong password"
+                                        oninput="checkResetPasswordStrength(this.value)">
+                                    <button type="button" class="password-toggle"
+                                        onclick="togglePasswordVisibility('new-password')">
+                                        Show
+                                    </button>
+                                </div>
+                                <div class="password-strength reset-password-strength">
+                                    <div class="strength-bar">
+                                        <div class="strength-fill"></div>
+                                    </div>
+                                    <div class="strength-text">Password strength</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm-new-password">Confirm New Password</label>
+                                <div class="password-input-container">
+                                    <input type="password" id="confirm-new-password" name="password_confirmation"
+                                        required placeholder="Confirm your new password"
+                                        oninput="checkResetPasswordMatch()">
+                                    <button type="button" class="password-toggle"
+                                        onclick="togglePasswordVisibility('confirm-new-password')">
+                                        Show
+                                    </button>
+                                </div>
+                                <div class="password-match-status reset-password-match"></div>
+                            </div>
+
+                            <button type="submit" class="auth-submit-btn" id="reset-password-btn">
+                                <span class="btn-text">Reset Password</span>
+                                <span class="btn-loader" style="display: none;">Resetting...</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Step 4: Success -->
+                    <div id="forgot-step-4" class="forgot-step" style="display: none;">
+                        <div class="success-icon">
+                            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                                <circle cx="40" cy="40" r="38" stroke="#10b981"
+                                    stroke-width="4" />
+                                <path d="M24 40L35 51L56 30" stroke="#10b981" stroke-width="4"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <h2 class="step-header success-header">Password Reset Successful!</h2>
+                        <p class="step-description">Your password has been changed successfully. You can now log in
+                            with your new password.</p>
+
+                        <button type="button" class="auth-submit-btn" onclick="backToLogin()">
+                            <span class="btn-text">Back to Login</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 
     <!-- EDIT PROFILE MODAL - UPDATED VERSION WITH EDITABLE USERNAME (ONCE) -->
@@ -1130,7 +1300,8 @@
                         <div class="form-group">
                             <label for="edit-complete-address">Complete Address *</label>
                             <textarea id="edit-complete-address" name="complete_address"
-                                placeholder="Enter your complete address (House No., Street, Subdivision, etc.)" rows="3" maxlength="500"></textarea>
+                                placeholder="Enter your complete address (House No., Street, Subdivision, etc.)" rows="3"
+                                maxlength="500"></textarea>
                             <small>Include house number, street name, and subdivision/barangay details</small>
                         </div>
 
@@ -1226,8 +1397,9 @@
                         <div class="form-group">
                             <label for="new-password">New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="new-password" name="new_password" required minlength="8"
-                                    autocomplete="new-password" placeholder="Enter your new password"
+                                <input type="password" id="new-password" name="new_password" required
+                                    minlength="8" autocomplete="new-password"
+                                    placeholder="Enter your new password"
                                     oninput="checkNewPasswordStrength(this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('new-password')">
@@ -1246,8 +1418,8 @@
                         <div class="form-group">
                             <label for="confirm-new-password">Confirm New Password *</label>
                             <div class="password-input-container">
-                                <input type="password" id="confirm-new-password" name="confirm_new_password" required
-                                    autocomplete="new-password" placeholder="Confirm your new password"
+                                <input type="password" id="confirm-new-password" name="confirm_new_password"
+                                    required autocomplete="new-password" placeholder="Confirm your new password"
                                     oninput="checkNewPasswordMatch(document.getElementById('new-password').value, this.value)">
                                 <button type="button" class="password-toggle"
                                     onclick="togglePasswordVisibility('confirm-new-password')">
