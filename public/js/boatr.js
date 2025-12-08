@@ -29,7 +29,7 @@ function ensureCSRFToken() {
     const token = getCSRFToken();
     if (!token) {
         console.error('CSRF token is missing! Please refresh the page.');
-        alert('Security token is missing. Please refresh the page and try again.');
+        agrisysModal.error('Security token is missing. Please refresh the page and try again.', { title: 'Security Error' });
         return false;
     }
     return token;
@@ -178,7 +178,7 @@ function previewSingleFile(input) {
 
         // Check file size (max 10MB)
         if (fileSize > 10) {
-            alert('File size must be less than 10MB');
+            agrisysModal.warning('File size must be less than 10MB', { title: 'File Too Large' });
             input.value = '';
             previewElement.style.display = 'none';
             return;
@@ -218,13 +218,13 @@ function removeSingleFile() {
  */
 function showTab(tabId, event) {
     // Hide all tab contents
-    const tabContents = document.querySelectorAll('.tab-content');
+    const tabContents = document.querySelectorAll('.boatr-tab-content');
     tabContents.forEach(content => {
         content.style.display = 'none';
     });
 
     // Remove active class from all tabs
-    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabButtons = document.querySelectorAll('.boatr-tab-btn');
     tabButtons.forEach(btn => {
         btn.classList.remove('active');
     });
@@ -442,21 +442,21 @@ function submitBoatRForm(event) {
     const form = document.getElementById('boatr-registration-form');
     if (!form) {
         console.error('Boat Registration form not found');
-        alert('Form not found. Please refresh the page and try again.');
+        agrisysModal.error('Form not found. Please refresh the page and try again.', { title: 'Form Error' });
         return false;
     }
 
     // CRITICAL CHECK: Validate FishR before anything else
     const fishRInput = form.querySelector('#boatr_fishr_number');
     if (!fishRInput || fishRInput.dataset.validated !== 'true') {
-        alert('Cannot submit: Your FishR registration number must be validated first. Please verify your FishR number and wait for validation to complete.');
+        agrisysModal.error('Cannot submit: Your FishR registration number must be validated first. Please verify your FishR number and wait for validation to complete.', { title: 'FishR Validation Required' });
         if (fishRInput) fishRInput.focus();
         return false;
     }
 
     const csrfToken = getCSRFToken();
     if (!csrfToken) {
-        alert('Security token is missing. Please refresh the page and try again.');
+        agrisysModal.error('Security token is missing. Please refresh the page and try again.', { title: 'Security Error' });
         location.reload();
         return false;
     }
@@ -488,7 +488,7 @@ function submitBoatRForm(event) {
 
         if (!response.ok) {
             if (response.status === 419) {
-                alert('Security token expired. The page will refresh automatically.');
+                agrisysModal.error('Security token expired. The page will refresh automatically.', { title: 'Session Expired' });
                 setTimeout(() => location.reload(), 2000);
                 throw new Error('CSRF token expired (419)');
             } else if (response.status === 422) {
@@ -514,20 +514,22 @@ function submitBoatRForm(event) {
             if (data.data?.has_document) {
                 message += ' Document uploaded successfully.';
             }
-            alert(message);
-            resetBoatRForm();
-            closeFormBoatR();
+            agrisysModal.success(message, {
+                title: 'Registration Submitted!',
+                reference: data.application_number || data.data?.application_number || null,
+                onClose: () => {
+                    resetBoatRForm();
+                    closeFormBoatR();
+                }
+            });
         } else {
             console.error('Submission error:', data);
 
             if (data.errors) {
-                let errorMessage = 'Please correct the following errors:\n';
-                Object.keys(data.errors).forEach(field => {
-                    errorMessage += `• ${data.errors[field].join(', ')}\n`;
-                });
-                alert(errorMessage);
+                const errorList = Object.keys(data.errors).map(field => data.errors[field].join(', '));
+                agrisysModal.validationError(errorList, { title: 'Please Correct the Following' });
             } else {
-                alert(data.message || 'Error submitting form. Please try again.');
+                agrisysModal.error(data.message || 'Error submitting form. Please try again.', { title: 'Submission Failed' });
             }
         }
     })
@@ -535,14 +537,14 @@ function submitBoatRForm(event) {
         console.error('Fetch error:', error);
 
         if (error.message.includes('419') || error.message.includes('CSRF')) {
-            alert('Security token expired. The page will refresh automatically.');
+            agrisysModal.error('Security token expired. The page will refresh automatically.', { title: 'Session Expired' });
             setTimeout(() => location.reload(), 2000);
         } else if (error.message.includes('Failed to fetch')) {
-            alert('Network connection error. Please check your internet connection and try again.');
+            agrisysModal.error('Network connection error. Please check your internet connection and try again.', { title: 'Connection Error' });
         } else if (error.message.includes('Validation Error')) {
-            alert(error.message);
+            agrisysModal.error(error.message, { title: 'Validation Error' });
         } else {
-            alert('An error occurred while submitting your application. Please try again.');
+            agrisysModal.error('An error occurred while submitting your application. Please try again.', { title: 'Submission Error' });
         }
     })
     .finally(() => {
@@ -584,14 +586,14 @@ function validateBoatRForm(form) {
         const fieldNames = missingFields.map(field => {
             return field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         });
-        alert(`Please fill in the following required fields: ${fieldNames.join(', ')}`);
+        agrisysModal.warning(`Please fill in the following required fields: ${fieldNames.join(', ')}`, { title: 'Missing Information' });
         return false;
     }
 
     // UPDATED: Validate FishR number format
     const fishRNumber = formData.get('fishr_number');
     if (!fishRNumber.match(/^FISHR-[A-Z0-9]{8}$/i)) {
-        alert('Please enter a valid FishR registration number (format: FISHR-XXXXXXXX)');
+        agrisysModal.warning('Please enter a valid FishR registration number (format: FISHR-XXXXXXXX)', { title: 'Invalid Format' });
         const fishRInput = form.querySelector('#boatr_fishr_number');
         if (fishRInput) fishRInput.focus();
         return false;
@@ -600,7 +602,7 @@ function validateBoatRForm(form) {
     // CRITICAL: Check if FishR was validated - CANNOT SUBMIT WITHOUT VALIDATION
     const fishRInput = form.querySelector('#boatr_fishr_number');
     if (!fishRInput || fishRInput.dataset.validated !== 'true') {
-        alert('Your FishR registration number has not been validated or is invalid. Please ensure you have a valid approved FishR number. Click away from the field to trigger validation.');
+        agrisysModal.error('Your FishR registration number has not been validated or is invalid. Please ensure you have a valid approved FishR number. Click away from the field to trigger validation.', { title: 'FishR Validation Required' });
         if (fishRInput) fishRInput.focus();
         return false;
     }
@@ -611,24 +613,24 @@ function validateBoatRForm(form) {
     const depth = parseFloat(formData.get('boat_depth'));
 
     if (isNaN(length) || length <= 0 || length > 200) {
-        alert('Please enter a valid boat length (1-200 feet)');
+        agrisysModal.warning('Please enter a valid boat length (1-200 feet)', { title: 'Invalid Measurement' });
         return false;
     }
 
     if (isNaN(width) || width <= 0 || width > 50) {
-        alert('Please enter a valid boat width (1-50 feet)');
+        agrisysModal.warning('Please enter a valid boat width (1-50 feet)', { title: 'Invalid Measurement' });
         return false;
     }
 
     if (isNaN(depth) || depth <= 0 || depth > 30) {
-        alert('Please enter a valid boat depth (1-30 feet)');
+        agrisysModal.warning('Please enter a valid boat depth (1-30 feet)', { title: 'Invalid Measurement' });
         return false;
     }
 
     // Validate engine horsepower
     const hp = parseInt(formData.get('engine_horsepower'));
     if (isNaN(hp) || hp <= 0 || hp > 500) {
-        alert('Please enter valid engine horsepower (1-500 HP)');
+        agrisysModal.warning('Please enter valid engine horsepower (1-500 HP)', { title: 'Invalid Value' });
         return false;
     }
 

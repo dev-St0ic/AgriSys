@@ -25,7 +25,7 @@ function openFormSeedlings(event) {
     performCompleteReset();
     hideAllMainSections();
     hideAllForms();
-    
+
     const choice = document.getElementById('seedlings-choice');
     if (choice) {
         choice.style.display = 'block';
@@ -63,16 +63,16 @@ function backToSeedlingsChoice() {
 function initializeCategoryTabs() {
     const categoryTabs = document.querySelector('.seedlings-category-tabs');
     if (!categoryTabs) return;
-    
+
     // Remove existing toggle button if any
     const existingToggle = categoryTabs.querySelector('.category-toggle-btn');
     if (existingToggle) {
         existingToggle.remove();
     }
-    
+
     const allTabs = Array.from(categoryTabs.querySelectorAll('.seedlings-category-tab:not(.category-toggle-btn)'));
     const MAX_VISIBLE = 8; // Including "All Items" button
-    
+
     // Only add show more/less if there are more than MAX_VISIBLE tabs
     if (allTabs.length <= MAX_VISIBLE) {
         // Remove hidden class from all tabs if less than max
@@ -81,7 +81,7 @@ function initializeCategoryTabs() {
         });
         return;
     }
-    
+
     // Hide tabs beyond the first MAX_VISIBLE
     allTabs.forEach((tab, index) => {
         if (index >= MAX_VISIBLE) {
@@ -90,18 +90,18 @@ function initializeCategoryTabs() {
             tab.classList.remove('category-tab-hidden');
         }
     });
-    
+
     // Create Show More/Less button
     const toggleButton = document.createElement('button');
     toggleButton.className = 'seedlings-category-tab category-toggle-btn';
     toggleButton.innerHTML = '<i class="fas fa-chevron-down"></i> Show More';
     toggleButton.setAttribute('data-expanded', 'false');
     toggleButton.type = 'button';
-    
+
     toggleButton.addEventListener('click', function(e) {
         e.preventDefault();
         const isExpanded = this.getAttribute('data-expanded') === 'true';
-        
+
         if (isExpanded) {
             // Collapse - hide extra tabs
             allTabs.forEach((tab, index) => {
@@ -120,7 +120,7 @@ function initializeCategoryTabs() {
             this.setAttribute('data-expanded', 'true');
         }
     });
-    
+
     // Append toggle button to category tabs
     categoryTabs.appendChild(toggleButton);
 }
@@ -142,11 +142,11 @@ function filterByCategory(categoryName) {
         tab.classList.remove('active');
     });
     event.target.classList.add('active');
-    
+
     // Filter items
     const items = document.querySelectorAll('.seedlings-item-card');
     let visibleCount = 0;
-    
+
     items.forEach(item => {
         const itemCategory = item.dataset.category;
         if (categoryName === 'all' || itemCategory === categoryName) {
@@ -156,7 +156,7 @@ function filterByCategory(categoryName) {
             item.classList.add('hidden');
         }
     });
-    
+
     updateNoResultsDisplay(visibleCount);
 }
 
@@ -164,11 +164,11 @@ function searchItems() {
     const searchTerm = document.getElementById('seedlings-search').value.toLowerCase();
     const items = document.querySelectorAll('.seedlings-item-card');
     let visibleCount = 0;
-    
+
     items.forEach(item => {
         const itemName = item.dataset.itemName;
         const isVisible = itemName.includes(searchTerm);
-        
+
         if (isVisible && !item.classList.contains('hidden')) {
             item.style.display = 'flex';
             visibleCount++;
@@ -182,7 +182,7 @@ function searchItems() {
             item.style.display = 'none';
         }
     });
-    
+
     updateNoResultsDisplay(visibleCount);
 }
 
@@ -190,11 +190,11 @@ function filterByStock() {
     const stockFilter = document.getElementById('stock-filter').value;
     const items = document.querySelectorAll('.seedlings-item-card');
     let visibleCount = 0;
-    
+
     items.forEach(item => {
         const stockStatus = item.dataset.stockStatus;
         let shouldShow = false;
-        
+
         switch(stockFilter) {
             case 'all':
                 shouldShow = true;
@@ -209,7 +209,7 @@ function filterByStock() {
                 shouldShow = stockStatus === 'out_of_stock';
                 break;
         }
-        
+
         if (shouldShow && item.style.display !== 'none') {
             item.classList.remove('hidden');
             visibleCount++;
@@ -217,7 +217,7 @@ function filterByStock() {
             item.classList.add('hidden');
         }
     });
-    
+
     updateNoResultsDisplay(visibleCount);
 }
 
@@ -225,7 +225,7 @@ function sortItems() {
     const sortBy = document.getElementById('sort-by').value;
     const grid = document.getElementById('items-grid');
     const items = Array.from(document.querySelectorAll('.seedlings-item-card'));
-    
+
     items.sort((a, b) => {
         switch(sortBy) {
             case 'name-asc':
@@ -240,7 +240,7 @@ function sortItems() {
                 return 0;
         }
     });
-    
+
     // Re-append items in sorted order
     items.forEach(item => grid.appendChild(item));
 }
@@ -261,16 +261,16 @@ function updateNoResultsDisplay(visibleCount) {
 function toggleItemSelection(checkbox, itemId) {
     const qtyWrapper = document.getElementById(`qty-wrapper-${itemId}`);
     const qtyInput = document.getElementById(`qty-${itemId}`);
-    
+
     if (checkbox.checked) {
         // Show quantity input
         qtyWrapper.style.display = 'flex';
-        
+
         // Add to selection
         const itemName = checkbox.value;
         const categoryName = checkbox.name;
         const quantity = parseInt(qtyInput.value) || 1;
-        
+
         selectedItems.set(itemId, {
             id: itemId,
             name: itemName,
@@ -280,11 +280,11 @@ function toggleItemSelection(checkbox, itemId) {
     } else {
         // Hide quantity input
         qtyWrapper.style.display = 'none';
-        
+
         // Remove from selection
         selectedItems.delete(itemId);
     }
-    
+
     updateSelectionSummary();
     updateProceedButton();
 }
@@ -293,7 +293,7 @@ function incrementQty(itemId) {
     const input = document.getElementById(`qty-${itemId}`);
     const max = parseInt(input.max);
     let value = parseInt(input.value) || 1;
-    
+
     if (value < max) {
         input.value = value + 1;
         updateQuantity(itemId);
@@ -304,7 +304,7 @@ function decrementQty(itemId) {
     const input = document.getElementById(`qty-${itemId}`);
     const min = parseInt(input.min) || 1;
     let value = parseInt(input.value) || 1;
-    
+
     if (value > min) {
         input.value = value - 1;
         updateQuantity(itemId);
@@ -314,30 +314,30 @@ function decrementQty(itemId) {
 function updateQuantity(itemId) {
     const qtyInput = document.getElementById(`qty-${itemId}`);
     const quantity = parseInt(qtyInput.value) || 1;
-    
+
     // Update in selected items map
     if (selectedItems.has(itemId)) {
         const item = selectedItems.get(itemId);
         item.quantity = quantity;
         selectedItems.set(itemId, item);
     }
-    
+
     updateSelectionSummary();
 }
 
 function updateSelectionSummary() {
     const summaryDiv = document.getElementById('selection-summary');
     const countSpan = document.getElementById('selected-count');
-    
+
     const totalItems = selectedItems.size;
-    
+
     if (totalItems > 0) {
         summaryDiv.style.display = 'flex';
         countSpan.textContent = totalItems;
     } else {
         summaryDiv.style.display = 'none';
     }
-    
+
     // Update the tab button badge
     updateSummaryTabBadge();
 }
@@ -373,10 +373,10 @@ function clearAllSelections() {
             qtyWrapper.style.display = 'none';
         }
     });
-    
+
     // Clear selected items
     selectedItems.clear();
-    
+
     // Update UI
     updateSelectionSummary();
     updateProceedButton();
@@ -388,14 +388,14 @@ function clearAllSelections() {
 
 function proceedToSeedlingsForm() {
     if (selectedItems.size === 0) {
-        alert('Please select at least one item.');
+        agrisysModal.warning('Please select at least one item.', { title: 'No Items Selected' });
         return;
     }
-    
+
     // Organize selections by category
     const selections = {};
     let totalQuantity = 0;
-    
+
     selectedItems.forEach(item => {
         if (!selections[item.categoryName]) {
             selections[item.categoryName] = [];
@@ -407,29 +407,29 @@ function proceedToSeedlingsForm() {
         });
         totalQuantity += item.quantity;
     });
-    
+
     // Store in global variable
     window._seedlingsChoices = {
         selections: selections,
         totalQuantity: totalQuantity
     };
-    
+
     // Go directly to form (no alert popup)
     showApplicationForm();
 }
 
 function showApplicationForm() {
     hideAllForms();
-    
+
     const appForm = document.getElementById('seedlings-form');
     if (appForm) {
         appForm.style.display = 'block';
         toggleSupportingDocuments(window._seedlingsChoices.totalQuantity);
-        
+
         populateSeedlingsSummary();
-        
+
         showSeedlingsTab('seedlings-form-tab', null);
-        
+
         setTimeout(() => {
             appForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
@@ -445,20 +445,20 @@ function showSeedlingsTab(tabId, event) {
     if (event) {
         event.preventDefault();
     }
-    
+
     const parentSection = document.getElementById('seedlings-form');
     if (!parentSection) return;
-    
+
     // Remove active class from all buttons
     parentSection.querySelectorAll('.seedlings-tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    
+
     // Hide all tab content
     parentSection.querySelectorAll('.seedlings-tab-content').forEach(content => {
         content.style.display = 'none';
     });
-    
+
     // Activate clicked button
     if (event && event.target) {
         event.target.classList.add('active');
@@ -466,7 +466,7 @@ function showSeedlingsTab(tabId, event) {
         const firstButton = parentSection.querySelector('.seedlings-tab-btn');
         if (firstButton) firstButton.classList.add('active');
     }
-    
+
     // Show selected tab
     const selectedTab = document.getElementById(tabId);
     if (selectedTab) {
@@ -485,7 +485,7 @@ function toggleSupportingDocuments(totalQuantity) {
     const docsInput = document.getElementById('seedlings-docs');
     const docsLabel = document.querySelector('label[for="seedlings-docs"]');
     const docsSmall = docsInput ? docsInput.nextElementSibling : null;
-    
+
     if (totalQuantity >= 100) {
         if (docsField) docsField.style.display = 'block';
         if (docsInput) docsInput.setAttribute('required', 'required');
@@ -506,12 +506,12 @@ function toggleSupportingDocuments(totalQuantity) {
 function populateSeedlingsSummary() {
     const summaryContainer = document.getElementById('seedlings-summary-tab');
     if (!summaryContainer || !window._seedlingsChoices) return;
-    
+
     let summaryHTML = `
         <div class="summary-content">
             <h3><i class="fas fa-shopping-cart"></i> Selected Items (${window._seedlingsChoices.totalQuantity} total)</h3>
     `;
-    
+
     Object.entries(window._seedlingsChoices.selections).forEach(([category, items]) => {
         if (items.length > 0) {
             const categoryDisplay = category.charAt(0).toUpperCase() + category.slice(1);
@@ -524,7 +524,7 @@ function populateSeedlingsSummary() {
             summaryHTML += '</ul></div>';
         }
     });
-    
+
     summaryHTML += `</div>`;
     summaryContainer.innerHTML = summaryHTML;
 }
@@ -535,31 +535,31 @@ function populateSeedlingsSummary() {
 
 function submitSeedlingsRequest(event) {
     event.preventDefault();
-    
+
     const form = document.getElementById('seedlings-request-form');
     if (!form) {
         console.error('Form not found');
         return false;
     }
-    
+
     const submitBtn = form.querySelector('.seedlings-submit-btn');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Submitting...';
     submitBtn.disabled = true;
-    
+
     const formData = new FormData(form);
-    
+
     if (window._seedlingsChoices) {
         formData.append('selected_seedlings', JSON.stringify(window._seedlingsChoices));
     } else {
-        alert('Please select items first');
+        agrisysModal.warning('Please select items first', { title: 'No Items Selected' });
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
         return;
     }
-    
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
+
     fetch('/apply/seedlings', {
         method: 'POST',
         body: formData,
@@ -571,24 +571,26 @@ function submitSeedlingsRequest(event) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('✅ ' + data.message);
-            performCompleteReset();
-            closeFormSeedlings();
+            agrisysModal.success(data.message, {
+                title: 'Request Submitted!',
+                reference: data.request_number || data.reference_number || data.application_number || null,
+                onClose: () => {
+                    performCompleteReset();
+                    closeFormSeedlings();
+                }
+            });
         } else {
             if (data.errors) {
-                let errorMsg = 'Validation errors:\n';
-                for (let field in data.errors) {
-                    errorMsg += `${field}: ${data.errors[field].join(', ')}\n`;
-                }
-                alert(errorMsg);
+                const errorList = Object.entries(data.errors).map(([field, messages]) => `${field}: ${messages.join(', ')}`);
+                agrisysModal.validationError(errorList, { title: 'Validation Errors' });
             } else {
-                alert('❌ ' + (data.message || 'There was an error submitting your request.'));
+                agrisysModal.error(data.message || 'There was an error submitting your request.', { title: 'Submission Failed' });
             }
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('❌ There was an error submitting your request. Please try again.');
+        agrisysModal.error('There was an error submitting your request. Please try again.', { title: 'Submission Failed' });
     })
     .finally(() => {
         submitBtn.textContent = originalText;
@@ -624,7 +626,7 @@ function showAllMainSections() {
 function performCompleteReset() {
     window._seedlingsChoices = null;
     selectedItems.clear();
-    
+
     // Reset application form
     const applicationForm = document.getElementById('seedlings-request-form');
     if (applicationForm) {
@@ -634,41 +636,41 @@ function performCompleteReset() {
             select.value = '';
         });
     }
-    
+
     // Reset choice form
     clearAllSelections();
-    
+
     // Clear summary
     const summaryContainer = document.getElementById('seedlings-summary-tab');
     if (summaryContainer) {
         summaryContainer.innerHTML = '';
     }
-    
+
     // Reset supporting documents
     resetSupportingDocuments();
-    
+
     // Reset filters
     const searchInput = document.getElementById('seedlings-search');
     const stockFilter = document.getElementById('stock-filter');
     const sortBy = document.getElementById('sort-by');
-    
+
     if (searchInput) searchInput.value = '';
     if (stockFilter) stockFilter.value = 'all';
     if (sortBy) sortBy.value = 'name-asc';
-    
+
     // Reset category filter
     const allTab = document.querySelector('[data-category="all"]');
     if (allTab) {
         allTab.click();
     }
-    
+
     console.log('Complete reset performed');
 }
 
 function resetSupportingDocuments() {
     const docsField = document.getElementById('supporting-docs-field');
     const docsInput = document.getElementById('seedlings-docs');
-    
+
     if (docsField) docsField.style.display = 'none';
     if (docsInput) {
         docsInput.removeAttribute('required');
@@ -678,14 +680,14 @@ function resetSupportingDocuments() {
 
 function restorePreviousSelections() {
     if (!window._seedlingsChoices) return;
-    
+
     Object.entries(window._seedlingsChoices.selections).forEach(([category, items]) => {
         items.forEach(item => {
             const checkbox = document.querySelector(`input[data-item-id="${item.id}"]`);
             if (checkbox) {
                 checkbox.checked = true;
                 toggleItemSelection(checkbox, item.id);
-                
+
                 const qtyInput = document.getElementById(`qty-${item.id}`);
                 if (qtyInput) {
                     qtyInput.value = item.quantity;
@@ -702,16 +704,16 @@ function restorePreviousSelections() {
 document.addEventListener('DOMContentLoaded', function() {
     window._seedlingsChoices = null;
     selectedItems.clear();
-    
+
     const form = document.getElementById('seedlings-request-form');
     if (form) {
         form.addEventListener('submit', submitSeedlingsRequest);
     }
-    
+
     window.addEventListener('popstate', function() {
         performCompleteReset();
     });
-    
+
     // Initialize category show more/less
     setupCategoryToggle();
 });

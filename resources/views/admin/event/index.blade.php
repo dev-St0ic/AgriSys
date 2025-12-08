@@ -1668,12 +1668,16 @@
             const dateTo = document.getElementById('event_modal_date_to').value;
 
             if (!dateFrom && !dateTo) {
-                alert('Please select at least one date');
+                agrisysModal.warning('Please select at least one date', {
+                    title: 'Date Required'
+                });
                 return;
             }
 
             if (dateFrom && dateTo && dateFrom > dateTo) {
-                alert('From date cannot be later than To date');
+                agrisysModal.warning('From date cannot be later than To date', {
+                    title: 'Invalid Date Range'
+                });
                 return;
             }
 

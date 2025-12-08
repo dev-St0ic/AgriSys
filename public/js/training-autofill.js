@@ -341,6 +341,7 @@ window.autoFillTrainingFromProfile = autoFillTrainingFromProfile;
 window.fetchAndAutoFillTraining = fetchAndAutoFillTraining;
 window.clearTrainingAutoFill = clearTrainingAutoFill;
 window.validateTrainingForm = validateTrainingForm;
+window.addAutoFillButtonToTraining = addAutoFillButtonToTraining;
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {

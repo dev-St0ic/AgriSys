@@ -48,7 +48,7 @@ function openFormTraining(event) {
         console.log('Training form opened successfully');
     } else {
         console.error('Training form section not found');
-        alert('Form not available. Please refresh the page and try again.');
+        agrisysModal.error('Form not available. Please refresh the page and try again.', { title: 'Form Error' });
     }
 }
 
@@ -272,31 +272,33 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.success) {
-                    // Show success message using alert like other services
-                    alert('✅ ' + data.message);
-
-                    // Reset form
-                    trainingForm.reset();
-
-                    // Close form after short delay
-                    setTimeout(() => {
-                        closeFormTraining();
-                    }, 500);
+                    // Show success message using modal with reference number
+                    agrisysModal.success(data.message, {
+                        title: 'Application Submitted!',
+                        reference: data.application_number || data.reference_number || null,
+                        onClose: () => {
+                            // Reset form
+                            trainingForm.reset();
+                            // Close form
+                            closeFormTraining();
+                        }
+                    });
                 } else {
-                    // Show error message using alert
-                    alert('❌ ' + (data.message || 'An error occurred while submitting your application.'));
-
-                    // Handle validation errors
+                    // Show error message using modal
                     if (data.errors) {
+                        const errorList = Object.values(data.errors).flat();
+                        agrisysModal.validationError(errorList, { title: 'Submission Failed' });
                         Object.keys(data.errors).forEach(field => {
                             showFieldError(field, data.errors[field][0]);
                         });
+                    } else {
+                        agrisysModal.error(data.message || 'An error occurred while submitting your application.', { title: 'Submission Failed' });
                     }
                 }
             })
             .catch(error => {
                 console.error('Error submitting training application:', error);
-                alert('❌ An error occurred while submitting your application. Please try again.');
+                agrisysModal.error('An error occurred while submitting your application. Please try again.', { title: 'Submission Error' });
             })
             .finally(() => {
                 // Reset button state
@@ -395,12 +397,12 @@ function validateFiles(files) {
 
     for (let file of files) {
         if (file.size > maxSize) {
-            alert('❌ File "' + file.name + '" is too large. Maximum size is 5MB.');
+            agrisysModal.warning('File "' + file.name + '" is too large. Maximum size is 5MB.', { title: 'File Too Large' });
             return false;
         }
 
         if (!allowedTypes.includes(file.type)) {
-            alert('❌ File "' + file.name + '" is not a supported format. Please upload PDF, JPG, or PNG files only.');
+            agrisysModal.warning('File "' + file.name + '" is not a supported format. Please upload PDF, JPG, or PNG files only.', { title: 'Invalid File Type' });
             return false;
         }
     }
@@ -656,37 +658,36 @@ function submitTrainingForm(event) {
     .then(response => response.json())
     .then(response => {
         if (response.success) {
-            // Show success alert - matches FishR exactly
-            alert('✅ ' + response.message +
-                  (response.data.application_number ?
-                   '\nApplication Number: ' + response.data.application_number : ''));
-
-            // Reset form
-            resetTrainingForm();
-
-            // Close form after delay - same timing as FishR
-            setTimeout(() => {
-                closeFormTraining();
-            }, 2000);
+            // Show success modal
+            agrisysModal.success(response.message, {
+                title: 'Application Submitted!',
+                reference: response.data.application_number || null,
+                onClose: () => {
+                    // Reset form
+                    resetTrainingForm();
+                    // Close form after delay
+                    closeFormTraining();
+                }
+            });
 
         } else {
-            // Show error alert - matches FishR exactly
+            // Show error modal
             if (response.errors) {
                 const errorList = Object.values(response.errors).flat();
-                alert('❌ Please correct the following:\n\n• ' + errorList.join('\n• '));
+                agrisysModal.validationError(errorList, { title: 'Please Correct the Following' });
 
                 // Show field errors
                 Object.keys(response.errors).forEach(field => {
                     showFieldError(field, response.errors[field][0]);
                 });
             } else {
-                alert('❌ ' + (response.message || 'An error occurred while submitting your application'));
+                agrisysModal.error(response.message || 'An error occurred while submitting your application', { title: 'Submission Failed' });
             }
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('❌ An error occurred while submitting your application. Please try again.');
+        agrisysModal.error('An error occurred while submitting your application. Please try again.', { title: 'Submission Error' });
     })
     .finally(() => {
         // Reset button state

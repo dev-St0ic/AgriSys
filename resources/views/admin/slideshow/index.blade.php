@@ -1114,25 +1114,42 @@
             }, 3000);
         }
 
-        // Alert function
+        // Alert function - Now uses AgriSys Modal system for consistency
         function showAlert(type, message) {
-            const alertClass = type === 'success' ? 'alert-success' :
-                type === 'error' ? 'alert-danger' :
-                type === 'warning' ? 'alert-warning' : 'alert-info';
+            if (typeof agrisysModal !== 'undefined') {
+                switch (type) {
+                    case 'success':
+                        agrisysModal.success(message);
+                        break;
+                    case 'error':
+                        agrisysModal.error(message);
+                        break;
+                    case 'warning':
+                        agrisysModal.warning(message);
+                        break;
+                    default:
+                        agrisysModal.info(message);
+                }
+            } else {
+                // Fallback to Bootstrap alerts if modal not available
+                const alertClass = type === 'success' ? 'alert-success' :
+                    type === 'error' ? 'alert-danger' :
+                    type === 'warning' ? 'alert-warning' : 'alert-info';
 
-            const alertHtml = `
-        <div class="alert ${alertClass} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `;
+                const alertHtml = `
+            <div class="alert ${alertClass} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
 
-            $('body').append(alertHtml);
+                $('body').append(alertHtml);
 
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                $('.alert').fadeOut();
-            }, 5000);
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    $('.alert').fadeOut();
+                }, 5000);
+            }
         }
     </script>
 @endsection
