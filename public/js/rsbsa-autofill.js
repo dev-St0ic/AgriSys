@@ -228,57 +228,56 @@ function addAutoFillButtonToRSBSA() {
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'rsbsa-autofill-container';
     buttonContainer.style.cssText = `
-        margin-bottom: 25px;
-        padding: 16px 18px;
-        background: linear-gradient(135deg, #f0f9f7 0%, #f5fbfa 100%);
-        border-left: 4px solid #2d6a4f;
-        border-radius: 6px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+        border-left: 4px solid #4caf50;
+        border-radius: 8px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     `;
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2d6a4f; font-size: 14px; display: block; margin-bottom: 4px;">Quick Fill</strong>
-            <span style="color: #558b2f; font-size: 13px;">Use your verified profile data to auto-complete this form</span>
+            <strong style="color: #2e7d32;">Quick Fill:</strong>
+            <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
         </div>
-        <div class="autofill-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <div class="autofill-actions">
             <button type="button" id="rsbsa-autofill-btn" class="btn-autofill"
                     onclick="fetchAndAutoFillRSBSA()"
                     style="
-                        background: #2d6a4f;
+                        background: #4caf50;
                         color: white;
                         border: none;
-                        padding: 10px 18px;
+                        padding: 10px 20px;
                         border-radius: 4px;
                         cursor: pointer;
-                        font-size: 13px;
+                        font-size: 14px;
                         font-weight: 500;
+                        margin-right: 8px;
                         transition: all 0.3s ease;
-                        white-space: nowrap;
                     "
-                    onmouseover="this.style.background='#1f4d38'"
-                    onmouseout="this.style.background='#2d6a4f'">
-                Use Profile Data
+                    onmouseover="this.style.background='#388e3c'"
+                    onmouseout="this.style.background='#4caf50'">
+                Use My Profile Data
             </button>
             <button type="button" class="btn-clear"
                     onclick="clearRSBSAAutoFill()"
                     style="
-                        background: #6c757d;
+                        background: #757575;
                         color: white;
                         border: none;
-                        padding: 10px 18px;
+                        padding: 10px 20px;
                         border-radius: 4px;
                         cursor: pointer;
-                        font-size: 13px;
+                        font-size: 14px;
                         font-weight: 500;
                         transition: all 0.3s ease;
-                        white-space: nowrap;
                     "
-                    onmouseover="this.style.background='#5a6268'"
-                    onmouseout="this.style.background='#6c757d'">
+                    onmouseover="this.style.background='#616161'"
+                    onmouseout="this.style.background='#757575'">
                 Clear Form
             </button>
         </div>

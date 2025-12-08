@@ -1198,6 +1198,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- AgriSys Modal Notification System -->
+    <script src="{{ asset('js/agrisys-modal.js') }}"></script>
     @yield('scripts')
 
     <script>
@@ -1228,9 +1231,7 @@
         }
 
         function confirmLogout() {
-            if (confirm('Are you sure you want to log out?')) {
-                document.getElementById('logout-form').submit();
-            }
+            document.getElementById('logout-form').submit();
         }
 
         function toggleSidebar() {

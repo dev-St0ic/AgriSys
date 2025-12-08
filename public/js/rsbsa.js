@@ -145,7 +145,7 @@ function openRSBSAForm(event) {
         console.log('RSBSA form opened successfully');
     } else {
         console.error('RSBSA Registration form element not found');
-        alert('❌ Form not available. Please refresh the page and try again.');
+        agrisysModal.error('Form not available. Please refresh the page and try again.', { title: 'Form Error' });
         return;
     }
 }
@@ -495,7 +495,7 @@ function handleRSBSAFormSubmission() {
         // Validate form
         const validation = validateRSBSAForm(this);
         if (!validation.isValid) {
-            alert('❌ Please correct the following errors:\n• ' + validation.errors.join('\n• '));
+            agrisysModal.validationError(validation.errors, { title: 'Please Correct the Following' });
             return false;
         }
 
@@ -573,28 +573,32 @@ function handleRSBSAFormSubmission() {
             if (response.ok && result.success) {
                 // Show success message - EXACTLY LIKE FISHR STYLE
                 const successMessage = result.message || 'Your RSBSA application has been submitted successfully!';
-                const applicationNumber = result.application_number || result.reference_number || 'N/A';
+                const applicationNumber = result.application_number || result.reference_number || null;
 
-                // Simple alert like FishR - clean and consistent
-                alert('✅ ' + successMessage + (applicationNumber !== 'N/A' ? '\n\nReference: ' + applicationNumber : ''));
-
-                // Reset form and close immediately - EXACTLY LIKE FISHR
-                this.reset();
-                if (typeof removeFile === 'function') {
-                    removeFile();
-                }
-                closeFormRSBSA();
+                // Modern modal notification
+                agrisysModal.success(successMessage, {
+                    title: 'Application Submitted!',
+                    reference: applicationNumber,
+                    onClose: () => {
+                        // Reset form and close immediately
+                        this.reset();
+                        if (typeof removeFile === 'function') {
+                            removeFile();
+                        }
+                        closeFormRSBSA();
+                    }
+                });
             } else {
                 let errorMessage = result.message || 'There was an error submitting your application.';
 
                 // Handle validation errors
                 if (result.errors) {
                     const errorList = Object.values(result.errors).flat();
-                    errorMessage = errorList.join(', ');
+                    agrisysModal.validationError(errorList, { title: 'Submission Failed' });
+                } else {
+                    console.error('Application submission failed:', result);
+                    agrisysModal.error(errorMessage, { title: 'Submission Failed' });
                 }
-
-                console.error('Application submission failed:', result);
-                alert('❌ ' + errorMessage);
             }
 
         } catch (error) {
@@ -602,11 +606,11 @@ function handleRSBSAFormSubmission() {
 
             // Handle specific error types - EXACTLY LIKE FISHR
             if (error.message.includes('419') || error.message.includes('CSRF')) {
-                alert('❌ Your session has expired. Please refresh the page and try again.');
+                agrisysModal.error('Your session has expired. Please refresh the page and try again.', { title: 'Session Expired' });
             } else if (error.message.includes('Network')) {
-                alert('❌ Network error. Please check your connection and try again.');
+                agrisysModal.error('Network error. Please check your connection and try again.', { title: 'Connection Error' });
             } else {
-                alert('❌ There was an error submitting your request. Please try again.');
+                agrisysModal.error('There was an error submitting your request. Please try again.', { title: 'Submission Error' });
             }
         } finally {
             // Reset button state - EXACTLY LIKE FISHR

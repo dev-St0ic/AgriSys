@@ -263,7 +263,7 @@ function openFormFishR(event) {
         console.log('FishR form opened successfully');
     } else {
         console.error('Fish Registration form element not found');
-        alert('Form not available. Please refresh the page and try again.');
+        agrisysModal.error('Form not available. Please refresh the page and try again.', { title: 'Form Error' });
         return;
     }
 }
@@ -478,36 +478,40 @@ function initializeFishRFormSubmission() {
             console.log('Response data:', data);
 
             if (data.success) {
-                // Show success message
-                alert('✅ ' + data.message);
+                // Show success message with reference number
+                agrisysModal.success(data.message, {
+                    title: 'Registration Submitted!',
+                    reference: data.registration_number || data.fishr_number || data.reference_number || null,
+                    onClose: () => {
+                        // Reset form and go back to home
+                        form.reset();
 
-                // Reset form and go back to home
-                form.reset();
+                        // Reset other livelihood field if it was showing
+                        const livelihoodSelect = document.getElementById('main_livelihood');
+                        if (livelihoodSelect) {
+                            toggleOtherLivelihood(livelihoodSelect);
+                        }
 
-                // Reset other livelihood field if it was showing
-                const livelihoodSelect = document.getElementById('main_livelihood');
-                if (livelihoodSelect) {
-                    toggleOtherLivelihood(livelihoodSelect);
-                }
-
-                // Close form and return to landing
-                closeFormFishR();
+                        // Close form and return to landing
+                        closeFormFishR();
+                    }
+                });
             } else {
                 // Show error message
-                alert('❌ ' + (data.message || 'There was an error submitting your request.'));
-
-                // Show validation errors if available
                 if (data.errors) {
-                    showFishRValidationErrors(data.errors);
+                    const errorList = Object.values(data.errors).flat();
+                    agrisysModal.validationError(errorList, { title: 'Submission Failed' });
+                } else {
+                    agrisysModal.error(data.message || 'There was an error submitting your request.', { title: 'Submission Failed' });
                 }
             }
         } catch (error) {
             console.error('FishR submission error:', error);
 
             if (error.message.includes('CSRF') || error.message.includes('419')) {
-                alert('❌ Your session has expired. Please refresh the page and try again.');
+                agrisysModal.error('Your session has expired. Please refresh the page and try again.', { title: 'Session Expired' });
             } else {
-                alert('❌ There was an error submitting your request. Please try again.');
+                agrisysModal.error('There was an error submitting your request. Please try again.', { title: 'Submission Error' });
             }
         } finally {
             // Reset button state - handle both styles

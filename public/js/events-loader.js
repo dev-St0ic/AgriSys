@@ -12,11 +12,11 @@ let currentFilter = 'all';
  */
 async function loadEvents(retryCount = 0) {
     console.log('🔄 [Events] Loading... Attempt:', retryCount + 1);
-    
+
     try {
         const url = '/api/events?category=all';
         console.log(`📡 [Events] Fetching: ${url}`);
-        
+
         const response = await fetch(url, {
             method: 'GET',
             headers: {
@@ -25,43 +25,43 @@ async function loadEvents(retryCount = 0) {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
-        
+
         console.log(`📊 [Events] Response status: ${response.status}`);
-        
+
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log('✅ [Events] API Response:', data);
-        
+
         if (!data.success) {
             throw new Error(data.message || 'API returned error');
         }
-        
+
         if (!Array.isArray(data.events)) {
             throw new Error('Invalid events data format');
         }
-        
+
         console.log(`✅ [Events] Loaded ${data.events.length} active events`);
-        
+
         allEvents = data.events;
-        
+
         // SAFETY CHECK: Use fallback if no active events
         if (allEvents.length === 0) {
             console.warn('⚠️ [Events] No active events found - using fallback event');
             allEvents = [getFallbackEvent()];
         }
-        
+
         // Update section header
         updateEventsSectionHeader();
-        
+
         // Render events
         renderEventsLayout();
-        
+
     } catch (error) {
         console.error('❌ [Events] Loading failed:', error.message);
-        
+
         // Retry logic (max 3 attempts)
         if (retryCount < 2) {
             console.log('🔄 [Events] Retrying in 2 seconds...');
@@ -102,22 +102,22 @@ function getFallbackEvent() {
  */
 function updateEventsSectionHeader() {
     console.log('📝 [Events] Updating section header');
-    
+
     const titleEl = document.querySelector('#events-title');
     const subtitleEl = document.querySelector('#events-subtitle');
-    
+
     if (!titleEl || !subtitleEl) {
         console.warn('⚠️ [Events] Header elements not found');
         return;
     }
-    
+
     // Dynamic title
     titleEl.innerHTML = 'City <span class="highlight">Agriculture Office Events</span>';
-    
+
     // Dynamic subtitle
     const eventCount = allEvents.length;
     const hasFallback = allEvents.some(e => e.is_fallback);
-    
+
     if (hasFallback) {
         subtitleEl.innerHTML = '<i class="fas fa-info-circle me-2"></i>Stay updated with our ongoing agricultural programs and initiatives. New events will be announced here.';
         subtitleEl.style.color = '#6c757d';
@@ -125,7 +125,7 @@ function updateEventsSectionHeader() {
         subtitleEl.textContent = `Explore our agricultural events and initiatives dedicated to promoting agricultural growth and community development.`;
         subtitleEl.style.color = '';
     }
-    
+
     console.log('✅ [Events] Header updated');
 }
 
@@ -149,7 +149,7 @@ function getAnnouncementEvents() {
  */
 function renderEventsLayout() {
     console.log('🎨 [Events] Rendering events layout');
-    
+
     const container = document.querySelector('.events-container');
     if (!container) {
         console.error('❌ [Events] Container not found');
@@ -166,10 +166,10 @@ function renderEventsLayout() {
 
     // === TOP ROW: 3 CARDS (Non-announcement events) ===
     html += '<div class="events-grid-top">';
-    
+
     const nonAnnouncementEvents = getNonAnnouncementEvents();
     const topCards = [];
-    
+
     // Fill 3 cards with non-announcement events (duplicate if less than 3)
     if (nonAnnouncementEvents.length >= 3) {
         topCards.push(...nonAnnouncementEvents.slice(0, 3));
@@ -187,7 +187,7 @@ function renderEventsLayout() {
             topCards.push({...fallbackEvent, id: -1 - i});
         }
     }
-    
+
     topCards.forEach((event, index) => {
         html += createEventCard(event, index);
     });
@@ -206,24 +206,24 @@ function renderEventsLayout() {
  * Create event card (for top row - 3 cards)
  */
 function createEventCard(event, index = 0) {
-    const imageUrl = event.image && event.image.trim() 
-        ? event.image 
+    const imageUrl = event.image && event.image.trim()
+        ? event.image
         : createPlaceholder(400, 220, 'Event');
-    
+
     const title = event.title || 'Untitled Event';
     const description = event.short_description || event.description || 'No description';
     const category = event.category_label || 'Event';
-    
+
     // Truncate description
-    const truncated = description.length > 100 
-        ? description.substring(0, 100) + '...' 
+    const truncated = description.length > 100
+        ? description.substring(0, 100) + '...'
         : description;
-    
+
     return `
         <div class="event-card" onclick="handleEventCardClick(${event.id}, ${event.is_fallback || false})">
-            <img src="${imageUrl}" 
-                 alt="${title}" 
-                 class="event-card-image" 
+            <img src="${imageUrl}"
+                 alt="${title}"
+                 class="event-card-image"
                  onerror="this.src='${createPlaceholder(400, 220, 'Event')}'">
             <div class="event-card-content">
                 <span class="event-card-category">${category}</span>
@@ -239,10 +239,10 @@ function createEventCard(event, index = 0) {
  * Create featured event section (large bottom section - announcements only)
  */
 function createFeaturedEvent(event) {
-    const imageUrl = event.image && event.image.trim() 
-        ? event.image 
+    const imageUrl = event.image && event.image.trim()
+        ? event.image
         : createPlaceholder(800, 400, 'Featured');
-    
+
     const title = event.title || 'Featured Announcement';
     const description = event.description || 'No description available';
     const date = event.date || 'Date TBA';
@@ -251,7 +251,7 @@ function createFeaturedEvent(event) {
     const isFallback = event.is_fallback || false;
 
     // Show notification badge if fallback
-    const notificationBadge = isFallback 
+    const notificationBadge = isFallback
         ? '<div class="alert alert-info mb-3"><i class="fas fa-info-circle me-2"></i><strong>Notice:</strong> New announcements will be posted here. Check back soon for updates on upcoming agricultural programs and activities.</div>'
         : '';
 
@@ -259,8 +259,8 @@ function createFeaturedEvent(event) {
         <div class="events-featured">
             <div class="featured-layout">
                 <div class="featured-image-section">
-                    <img src="${imageUrl}" 
-                         alt="${title}" 
+                    <img src="${imageUrl}"
+                         alt="${title}"
                          class="featured-image"
                          onerror="this.src='${createPlaceholder(800, 400, 'Featured')}'">
                 </div>
@@ -269,7 +269,7 @@ function createFeaturedEvent(event) {
                     <span class="featured-badge">${category}</span>
                     <h3 class="featured-title">${title}</h3>
                     <p class="featured-description">${description}</p>
-                    
+
                     <div class="featured-meta">
                         <div class="featured-meta-item">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,7 +285,7 @@ function createFeaturedEvent(event) {
                             <span>${location}</span>
                         </div>
                     </div>
-                    
+
                     <button class="featured-cta" onclick="handleLearnMoreClick(event, ${event.id}, ${isFallback})">
                         ${isFallback ? 'Contact Us' : 'View Full Details'}
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,14 +303,14 @@ function createFeaturedEvent(event) {
  */
 function handleEventCardClick(eventId, isFallback = false) {
     console.log('📋 [Events] Event card clicked:', eventId, 'Is fallback:', isFallback);
-    
+
     if (isFallback) {
-        alert('For more information about our agricultural programs, please contact the City Agriculture Office.');
+        agrisysModal.info('For more information about our agricultural programs, please contact the City Agriculture Office.', { title: 'Contact Information' });
         return;
     }
-    
+
     const event = allEvents.find(e => e.id === eventId);
-    
+
     if (event) {
         console.log('Event Details:', event);
     }
@@ -322,25 +322,25 @@ function handleEventCardClick(eventId, isFallback = false) {
  */
 function handleLearnMoreClick(clickEvent, eventId, isFallback = false) {
     clickEvent.stopPropagation(); // Prevent triggering parent card click
-    
+
     console.log('📖 [Events] Learn More clicked for event:', eventId, 'Is fallback:', isFallback);
-    
+
     if (isFallback) {
         // For fallback events, show contact info or redirect to contact page
         console.log('ℹ️ [Events] Fallback event - showing contact info');
-        alert('For more information about our agricultural programs, please contact the City Agriculture Office.\n\nPhone: (049) 123-4567\nEmail: agriculture@sanpedro.gov.ph');
+        agrisysModal.info('For more information about our agricultural programs, please contact the City Agriculture Office.\n\nPhone: (049) 123-4567\nEmail: agriculture@sanpedro.gov.ph', { title: 'Contact Information' });
         return;
     }
-    
+
     // Get the full event data
     const event = allEvents.find(e => e.id === eventId);
-    
+
     if (!event) {
         console.error('❌ [Events] Event not found:', eventId);
-        alert('Event details could not be found.');
+        agrisysModal.error('Event details could not be found.', { title: 'Event Not Found' });
         return;
     }
-    
+
     // Open event details in a new tab
     openEventDetailsInNewTab(event);
 }
@@ -350,19 +350,19 @@ function handleLearnMoreClick(clickEvent, eventId, isFallback = false) {
  */
 function openEventDetailsInNewTab(event) {
     console.log('🔗 [Events] Opening event details in new tab:', event.id);
-    
+
     // Create a data URL or redirect to a details page
     // Option 1: If you have a dedicated event details page
     // window.open(`/events/${event.id}`, '_blank');
-    
+
     // Option 2: Create an HTML page dynamically in a new tab
     const detailsHTML = generateEventDetailsHTML(event);
-    
+
     // Open in new tab using blob URL (doesn't require a server route)
     const blob = new Blob([detailsHTML], { type: 'text/html' });
     const url = window.URL.createObjectURL(blob);
     window.open(url, '_blank');
-    
+
     // Clean up the blob URL after a short delay
     setTimeout(() => window.URL.revokeObjectURL(url), 100);
 }
@@ -377,7 +377,7 @@ function generateEventDetailsHTML(event) {
     const location = event.location || 'Location TBA';
     const category = event.category_label || 'Event';
     const imageUrl = (event.image && event.image.trim()) ? event.image : createPlaceholder(800, 400, event.title);
-    
+
     // Format details if they exist
     let detailsHTML = '';
     if (event.details && Object.keys(event.details).length > 0) {
@@ -388,7 +388,7 @@ function generateEventDetailsHTML(event) {
         }
         detailsHTML += '</ul></div>';
     }
-    
+
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -403,14 +403,14 @@ function generateEventDetailsHTML(event) {
                 padding: 0;
                 box-sizing: border-box;
             }
-            
+
             body {
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
                 min-height: 100vh;
                 padding: 20px;
             }
-            
+
             .event-details-container {
                 max-width: 900px;
                 margin: 0 auto;
@@ -419,19 +419,19 @@ function generateEventDetailsHTML(event) {
                 box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
                 overflow: hidden;
             }
-            
+
             .event-header {
                 position: relative;
                 overflow: hidden;
             }
-            
+
             .event-image {
                 width: 100%;
                 height: 400px;
                 object-fit: cover;
                 display: block;
             }
-            
+
             .event-overlay {
                 position: absolute;
                 top: 0;
@@ -444,13 +444,13 @@ function generateEventDetailsHTML(event) {
                 padding: 40px 30px;
                 color: white;
             }
-            
+
             .event-overlay h1 {
                 font-size: 2.5em;
                 margin-bottom: 10px;
                 text-shadow: 0 2px 4px rgba(0,0,0,0.3);
             }
-            
+
             .event-category-badge {
                 display: inline-block;
                 background: #0A6953;
@@ -461,11 +461,11 @@ function generateEventDetailsHTML(event) {
                 font-weight: 600;
                 margin-bottom: 10px;
             }
-            
+
             .event-content {
                 padding: 40px;
             }
-            
+
             .event-meta {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -474,13 +474,13 @@ function generateEventDetailsHTML(event) {
                 padding-bottom: 30px;
                 border-bottom: 2px solid #f0f0f0;
             }
-            
+
             .meta-item {
                 display: flex;
                 align-items: center;
                 gap: 15px;
             }
-            
+
             .meta-icon {
                 width: 50px;
                 height: 50px;
@@ -492,65 +492,65 @@ function generateEventDetailsHTML(event) {
                 font-size: 1.5em;
                 color: #0A6953;
             }
-            
+
             .meta-text h4 {
                 color: #666;
                 font-size: 0.85em;
                 margin-bottom: 4px;
             }
-            
+
             .meta-text p {
                 color: #333;
                 font-weight: 600;
                 font-size: 1.1em;
             }
-            
+
             .description-section {
                 margin-bottom: 30px;
             }
-            
+
             .description-section h3 {
                 color: #0A6953;
                 margin-bottom: 15px;
                 font-size: 1.5em;
             }
-            
+
             .description-section p {
                 color: #555;
                 line-height: 1.8;
                 font-size: 1.05em;
             }
-            
+
             .details-section {
                 background: #f9f9f9;
                 padding: 25px;
                 border-radius: 8px;
                 margin-bottom: 30px;
             }
-            
+
             .details-section h3 {
                 color: #0A6953;
                 margin-bottom: 15px;
             }
-            
+
             .details-section ul {
                 list-style: none;
             }
-            
+
             .details-section li {
                 padding: 10px 0;
                 border-bottom: 1px solid #e0e0e0;
                 color: #555;
             }
-            
+
             .details-section li:last-child {
                 border-bottom: none;
             }
-            
+
             .details-section strong {
                 color: #0A6953;
             }
-            
+
             .action-buttons {
                 display: flex;
                 gap: 15px;
@@ -558,7 +558,7 @@ function generateEventDetailsHTML(event) {
                 padding-top: 30px;
                 border-top: 2px solid #f0f0f0;
             }
-            
+
             .btn {
                 padding: 12px 30px;
                 border: none;
@@ -572,27 +572,27 @@ function generateEventDetailsHTML(event) {
                 align-items: center;
                 gap: 10px;
             }
-            
+
             .btn-primary {
                 background: #0A6953;
                 color: white;
             }
-            
+
             .btn-primary:hover {
                 background: #084a3d;
                 transform: translateY(-2px);
                 box-shadow: 0 5px 15px rgba(10, 105, 83, 0.3);
             }
-            
+
             .btn-secondary {
                 background: #f0f0f0;
                 color: #333;
             }
-            
+
             .btn-secondary:hover {
                 background: #e0e0e0;
             }
-            
+
             .footer-section {
                 background: #f9f9f9;
                 padding: 20px 40px;
@@ -601,7 +601,7 @@ function generateEventDetailsHTML(event) {
                 color: #666;
                 font-size: 0.9em;
             }
-            
+
             .contact-info {
                 background: #0A6953;
                 color: white;
@@ -609,32 +609,32 @@ function generateEventDetailsHTML(event) {
                 margin-top: 30px;
                 border-radius: 8px;
             }
-            
+
             .contact-info h3 {
                 margin-bottom: 15px;
             }
-            
+
             .contact-info p {
                 margin: 8px 0;
             }
-            
+
             @media (max-width: 768px) {
                 .event-overlay h1 {
                     font-size: 1.8em;
                 }
-                
+
                 .event-content {
                     padding: 25px;
                 }
-                
+
                 .event-meta {
                     grid-template-columns: 1fr;
                 }
-                
+
                 .action-buttons {
                     flex-direction: column;
                 }
-                
+
                 .btn {
                     justify-content: center;
                 }
@@ -653,7 +653,7 @@ function generateEventDetailsHTML(event) {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Event Content -->
             <div class="event-content">
                 <!-- Event Metadata -->
@@ -667,7 +667,7 @@ function generateEventDetailsHTML(event) {
                             <p>${date}</p>
                         </div>
                     </div>
-                    
+
                     <div class="meta-item">
                         <div class="meta-icon">
                             <i class="fas fa-map-marker-alt"></i>
@@ -678,16 +678,16 @@ function generateEventDetailsHTML(event) {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Description -->
                 <div class="description-section">
                     <h3>About This Event</h3>
                     <p>${description}</p>
                 </div>
-                
+
                 <!-- Additional Details -->
                 ${detailsHTML}
-                
+
                 <!-- Contact Information -->
                 <div class="contact-info">
                     <h3><i class="fas fa-phone-alt me-2"></i>Need More Information?</h3>
@@ -696,14 +696,14 @@ function generateEventDetailsHTML(event) {
                     <p>Email: <a href="mailto:agriculture@sanpedro.gov.ph" style="color: white;">agriculture@sanpedro.gov.ph</a></p>
                     <p>Office Hours: Monday - Friday, 8:00 AM - 5:00 PM</p>
                 </div>
-                
+
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button class="btn btn-primary" onclick="window.close();">
                         <i class="fas fa-arrow-left"></i> Back to Home
                     </button>
                 </div>
-                
+
                 <script>
                     window.addEventListener('beforeunload', function() {
                         if (window.opener) {
@@ -712,7 +712,7 @@ function generateEventDetailsHTML(event) {
                     });
                 </script>
             </div>
-            
+
             <!-- Footer -->
             <div class="footer-section">
                 <p>&copy; 2025 City Agriculture Office of San Pedro. All rights reserved.</p>

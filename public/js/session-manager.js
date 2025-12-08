@@ -20,7 +20,7 @@ class SessionManager {
     initializeUserInterface() {
         // Set up any UI elements that depend on login status
         this.loadUserApplications();
-        
+
         // Log current user state for debugging
         if (this.isLoggedIn()) {
             console.log('User is logged in:', this.user);
@@ -51,17 +51,17 @@ class SessionManager {
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 // Clear user data
                 this.user = null;
                 window.userData = null;
-                
+
                 // Show success message
                 if (typeof showNotification === 'function') {
                     showNotification('success', 'Successfully logged out!');
                 }
-                
+
                 // Reload page to show updated UI
                 setTimeout(() => {
                     window.location.reload();
@@ -97,10 +97,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Make logout available globally for your dropdown
 window.logoutUser = function() {
-    if (confirm('Are you sure you want to log out?')) {
-        if (window.sessionManager) {
-            window.sessionManager.logout();
-        }
+    if (window.sessionManager) {
+        window.sessionManager.logout();
     }
 };
 

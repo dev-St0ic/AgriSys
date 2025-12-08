@@ -1957,50 +1957,48 @@ function formatApplicationDate(dateString) {
 
 
 function logoutUser() {
-    if (confirm('Are you sure you want to log out?')) {
-        // Stop verification polling if active
-        if (typeof stopVerificationPolling === 'function') {
-            stopVerificationPolling();
+    // Stop verification polling if active
+    if (typeof stopVerificationPolling === 'function') {
+        stopVerificationPolling();
+    }
+
+    fetch('/auth/logout', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
         }
-
-        fetch('/auth/logout', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('success', 'Successfully logged out!');
-
-                // Hide all forms before redirecting
-                if (typeof hideAllForms === 'function') {
-                    hideAllForms();
-                }
-
-                // Small delay to show notification, then redirect to home
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 1000);
-            } else {
-                showNotification('error', 'Logout failed. Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Logout error:', error);
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('success', 'Successfully logged out!');
 
             // Hide all forms before redirecting
             if (typeof hideAllForms === 'function') {
                 hideAllForms();
             }
 
-            // Fallback: redirect to home anyway
-            window.location.href = '/';
-        });
-    }
+            // Small delay to show notification, then redirect to home
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        } else {
+            showNotification('error', 'Logout failed. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Logout error:', error);
+
+        // Hide all forms before redirecting
+        if (typeof hideAllForms === 'function') {
+            hideAllForms();
+        }
+
+        // Fallback: redirect to home anyway
+        window.location.href = '/';
+    });
 }
 
 // ==============================================

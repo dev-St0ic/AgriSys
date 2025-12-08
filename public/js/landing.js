@@ -543,6 +543,10 @@ function handlePopState() {
             if (form) {
                 form.style.display = 'block';
                 activateApplicationTab('training-form');
+                // Trigger auto-fill button addition
+                if (typeof window.addAutoFillButtonToTraining === 'function') {
+                    setTimeout(window.addAutoFillButtonToTraining, 100);
+                }
             }
         }
     };
@@ -656,7 +660,7 @@ function handleContactSubmit(event) {
     const formData = new FormData(event.target);
 
     // Show success message
-    alert('Thank you for your message! We will get back to you within 24 hours.');
+    agrisysModal.success('Thank you for your message! We will get back to you within 24 hours.', { title: 'Message Sent!' });
 
     // Reset form and close modal
     event.target.reset();
@@ -754,6 +758,10 @@ function handlePageLoad() {
         if (form) {
             form.style.display = 'block';
             activateApplicationTab('training-form');
+            // Trigger auto-fill button addition
+            if (typeof window.addAutoFillButtonToTraining === 'function') {
+                setTimeout(window.addAutoFillButtonToTraining, 100);
+            }
         }
     }
 }

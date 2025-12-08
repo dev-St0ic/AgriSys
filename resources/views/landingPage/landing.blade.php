@@ -1602,6 +1602,9 @@
         </div>
     </footer>
 
+    <!-- AgriSys Modal Notification System - Must load first -->
+    <script src="{{ asset('js/agrisys-modal.js') }}"></script>
+
     <script src="{{ asset('js/events-loader.js') }}"></script>
     <script src="{{ asset('js/slideshow.js') }}"></script>
     <script src="{{ asset('js/landing.js') }}"></script>
