@@ -58,9 +58,14 @@
                 <i class="fas fa-shopping-cart"></i>
                 <span id="selected-count">0</span> items selected
             </div>
-            <button type="button" class="seedlings-clear-btn" onclick="clearAllSelections()">
-                <i class="fas fa-times"></i> Clear All
-            </button>
+            <div class="selection-actions">
+                <button type="button" class="seedlings-clear-btn" onclick="clearAllSelections()">
+                    <i class="fas fa-times"></i> Clear All
+                </button>
+                <button type="button" class="seedlings-proceed-btn-mini" onclick="proceedToSeedlingsForm()">
+                    <i class="fas fa-arrow-right"></i> Proceed to Application
+                </button>
+            </div>
         </div>
     </div>
 
@@ -132,7 +137,8 @@
                                     max="{{ min($item->max_quantity ?? 999, $item->current_supply) }}"
                                     value="{{ $item->min_quantity ?? 1 }}" class="qty-input"
                                     onchange="updateQuantity('{{ $item->id }}')">
-                                <button type="button" class="qty-btn" onclick="incrementQty('{{ $item->id }}')">
+                                <button type="button" class="qty-btn"
+                                    onclick="incrementQty('{{ $item->id }}')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
