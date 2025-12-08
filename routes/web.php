@@ -18,6 +18,7 @@ use App\Http\Controllers\UserRegistrationAnalyticsController;
 use App\Http\Controllers\SupplyManagementAnalyticsController;
 use App\Http\Controllers\UserRegistrationController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\SeedlingCategoryItemController;
 use App\Http\Controllers\UserApplicationsController;
 use App\Http\Controllers\DSSController;
@@ -719,6 +720,12 @@ Route::prefix('auth')->group(function () {
     // Email verification routes (optional future enhancement)
     Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('auth.verify.email');
     Route::post('/resend-verification', [UserRegistrationController::class, 'resendVerification'])->name('auth.resend.verification');
+
+    // Forgot Password with SMS OTP
+    Route::post('/forgot-password/send-otp', [ForgotPasswordController::class, 'sendOtp'])->name('auth.forgot.send-otp');
+    Route::post('/forgot-password/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('auth.forgot.verify-otp');
+    Route::post('/forgot-password/reset', [ForgotPasswordController::class, 'resetPassword'])->name('auth.forgot.reset');
+    Route::post('/forgot-password/resend-otp', [ForgotPasswordController::class, 'resendOtp'])->name('auth.forgot.resend-otp');
 
     // view document not needed
     // Route::get('/registrations/{id}/document/{type}', [UserRegistrationController::class, 'serveDocument'])
