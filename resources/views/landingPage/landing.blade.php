@@ -996,7 +996,8 @@
                                 <label for="signup-contact">Contact Number</label>
                                 <input type="tel" id="signup-contact" name="contact_number" required
                                     placeholder="e.g. 09123456789" autocomplete="tel" maxlength="11"
-                                    pattern="09[0-9]{9}">
+                                    pattern="09[0-9]{9}" oninput="checkContactAvailability(this.value)">
+                                <div class="contact-status"></div>
                                 <div class="form-text">Enter your active mobile number starting with 09 for SMS
                                     notifications.</div>
                             </div>

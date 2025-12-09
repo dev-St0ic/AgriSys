@@ -108,6 +108,31 @@ class UserRegistrationController extends Controller
     }
 
     /**
+     * Check if contact number is already registered
+     */
+    public function checkContactNumber(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'contact_number' => 'required|string|min:11|max:11'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'Invalid contact number format'
+            ]);
+        }
+
+        $contactNumber = $request->contact_number;
+        $exists = UserRegistration::where('contact_number', $contactNumber)->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'Contact number already registered' : 'Contact number available'
+        ]);
+    }
+
+    /**
      * Simple Registration - Username, Email, Password only
      */
     public function register(Request $request)

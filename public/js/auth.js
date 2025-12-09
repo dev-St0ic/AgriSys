@@ -2270,6 +2270,90 @@ function validateContactNumber(contactNumber) {
 /**
  * Real-time contact number validation for signup form
  */
+let contactCheckTimeout;
+
+function checkContactAvailability(contactNumber) {
+    clearTimeout(contactCheckTimeout);
+
+    const contactInput = document.getElementById('signup-contact');
+    const contactStatus = document.querySelector('.contact-status');
+
+    if (!contactNumber || contactNumber.trim() === '') {
+        if (contactStatus) {
+            contactStatus.innerHTML = '';
+        }
+        contactInput.classList.remove('is-valid', 'is-invalid');
+        return; // Exit function early - no checking needed
+    }
+
+    // CLIENT-SIDE VALIDATION RULES
+    let errors = [];
+
+    // Remove whitespace and common separators for validation
+    const cleanNumber = contactNumber.trim().replace(/[\s\-\(\)]/g, '');
+
+    // 1. Check if it's exactly 11 digits
+    if (cleanNumber.length !== 11) {
+        errors.push('Contact number must be exactly 11 digits');
+    }
+
+    // 2. Check if contains only numbers
+    if (!/^[0-9]+$/.test(cleanNumber)) {
+        errors.push('Contact number can only contain numbers');
+    }
+
+    // 3. Must start with 09 (Philippine mobile)
+    if (!cleanNumber.startsWith('09')) {
+        errors.push('Contact number must start with 09');
+    }
+
+    // Display validation errors immediately
+    if (errors.length > 0) {
+        if (contactStatus) {
+            contactStatus.innerHTML = `<span class="text-danger">✗ ${errors[0]}</span>`;
+        }
+        contactInput.classList.remove('is-valid');
+        contactInput.classList.add('is-invalid');
+        return;
+    }
+
+    // If validation passes, check availability on server
+    if (contactStatus) {
+        contactStatus.innerHTML = '<span class="text-info">Checking availability...</span>';
+    }
+
+    contactCheckTimeout = setTimeout(() => {
+        fetch('/auth/check-contact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ contact_number: contactNumber })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (contactStatus) {
+                if (data.available) {
+                    contactStatus.innerHTML = '<span class="text-success">✓ Contact number available</span>';
+                    contactInput.classList.remove('is-invalid');
+                    contactInput.classList.add('is-valid');
+                } else {
+                    contactStatus.innerHTML = '<span class="text-danger">✗ Contact number already registered</span>';
+                    contactInput.classList.remove('is-valid');
+                    contactInput.classList.add('is-invalid');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking contact number:', error);
+            if (contactStatus) {
+                contactStatus.innerHTML = '<span class="text-muted">⚠ Could not check availability</span>';
+            }
+        });
+    }, 500); // Debounce for 500ms
+}
+
 function checkContactValidity(contactNumber) {
     const contactInput = document.getElementById('signup-contact');
     const validation = validateContactNumber(contactNumber);
@@ -3801,16 +3885,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Contact number validation checker
+    // Contact number availability checker
     const contactInput = document.getElementById('signup-contact');
     if (contactInput) {
         contactInput.addEventListener('input', function() {
-            checkContactValidity(this.value);
-        });
-
-        // Also validate on blur
-        contactInput.addEventListener('blur', function() {
-            checkContactValidity(this.value);
+            checkContactAvailability(this.value);
         });
     }
 

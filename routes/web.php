@@ -712,6 +712,9 @@ Route::prefix('auth')->group(function () {
     // Username availability checking
     Route::post('/check-username', [UserRegistrationController::class, 'checkUsername'])->name('auth.check.username');
 
+    // Contact number availability checking
+    Route::post('/check-contact', [UserRegistrationController::class, 'checkContactNumber'])->name('auth.check.contact');
+
     // UPDATED: Enhanced profile verification with file uploads - FIXED MIDDLEWARE AND ROUTE
     Route::post('/verify-profile', [UserRegistrationController::class, 'submitVerification'])
         ->middleware('web') // Use web middleware for session and CSRF protection
