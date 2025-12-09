@@ -1956,12 +1956,446 @@ function formatApplicationDate(dateString) {
 }
 
 
-function logoutUser() {
+// function logoutUser() {
+//     // Stop verification polling if active
+//     if (typeof stopVerificationPolling === 'function') {
+//         stopVerificationPolling();
+//     }
+
+//     fetch('/auth/logout', {
+//         method: 'POST',
+//         headers: {
+//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+//             'Accept': 'application/json',
+//             'Content-Type': 'application/json'
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             showNotification('success', 'Successfully logged out!');
+
+//             // Hide all forms before redirecting
+//             if (typeof hideAllForms === 'function') {
+//                 hideAllForms();
+//             }
+
+//             // Small delay to show notification, then redirect to home
+//             setTimeout(() => {
+//                 window.location.href = '/';
+//             }, 1000);
+//         } else {
+//             showNotification('error', 'Logout failed. Please try again.');
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Logout error:', error);
+
+//         // Hide all forms before redirecting
+//         if (typeof hideAllForms === 'function') {
+//             hideAllForms();
+//         }
+
+//         // Fallback: redirect to home anyway
+//         window.location.href = '/';
+//     });
+// }
+// ==============================================
+// LOGOUT WITH CONFIRMATION MODAL
+// ==============================================
+
+/**
+ * Show logout confirmation modal
+ */
+function showLogoutConfirmation() {
+    // Create modal HTML with close button at the top
+    const modalHTML = `
+        <div class="logout-confirmation-overlay" id="logout-confirmation-overlay">
+            <div class="logout-confirmation-modal">
+                <div class="logout-confirmation-header">
+                    <button type="button" class="logout-close-btn" onclick="closeLogoutConfirmation()" aria-label="Close" title="Cancel">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <div class="logout-title-section">
+                        <div class="logout-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                <polyline points="16 17 21 12 16 7"/>
+                                <line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                        </div>
+                        <h3>Log Out</h3>
+                    </div>
+                </div>
+                <div class="logout-confirmation-body">
+                    <p>Are you sure you want to log out?</p>
+                </div>
+                <div class="logout-confirmation-actions">
+                    <button type="button" class="btn-cancel-logout" onclick="closeLogoutConfirmation()">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn-confirm-logout" onclick="confirmLogout()">
+                        <span class="btn-text">Log Out</span>
+                        <span class="btn-loader" style="display: none;">
+                            <svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add styles if not already present
+    if (!document.querySelector('#logout-confirmation-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'logout-confirmation-styles';
+        styles.textContent = `
+            /* Logout Confirmation Modal Styles */
+            .logout-confirmation-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(3px);
+                display: flex;
+                align-items: flex-start;
+                justify-content: flex-end;
+                z-index: 10002;
+                animation: fadeIn 0.2s ease-out;
+                padding: 16px;
+                pointer-events: auto;
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            .logout-confirmation-modal {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                width: 100%;
+                max-width: 360px;
+                animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                overflow: hidden;
+                margin-top: 60px;
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(20px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            .logout-confirmation-header {
+                padding: 16px;
+                border-bottom: 1px solid #f0f0f0;
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 12px;
+            }
+
+            .logout-title-section {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex: 1;
+            }
+
+            .logout-icon {
+                width: 40px;
+                height: 40px;
+                min-width: 40px;
+                background: linear-gradient(135deg, #fef08a, #fcd34d);
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .logout-icon svg {
+                color: #92400e;
+                width: 20px;
+                height: 20px;
+            }
+
+            .logout-confirmation-header h3 {
+                margin: 0;
+                font-size: 16px;
+                font-weight: 600;
+                color: #1f2937;
+            }
+
+            .logout-close-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                color: #9ca3af;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 32px;
+                height: 32px;
+                border-radius: 6px;
+                transition: all 0.2s ease;
+            }
+
+            .logout-close-btn:hover {
+                background: #f3f4f6;
+                color: #374151;
+            }
+
+            .logout-close-btn:active {
+                transform: scale(0.95);
+            }
+
+            .logout-confirmation-body {
+                padding: 12px 16px 16px;
+            }
+
+            .logout-confirmation-body p {
+                margin: 0;
+                font-size: 14px;
+                color: #4b5563;
+                line-height: 1.5;
+            }
+
+            .logout-confirmation-actions {
+                padding: 0 16px 16px;
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+            }
+
+            .btn-cancel-logout,
+            .btn-confirm-logout {
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                border: none;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                min-width: 80px;
+                justify-content: center;
+            }
+
+            .btn-cancel-logout {
+                background: #f3f4f6;
+                color: #374151;
+            }
+
+            .btn-cancel-logout:hover {
+                background: #e5e7eb;
+            }
+
+            .btn-cancel-logout:active {
+                transform: scale(0.98);
+            }
+
+            .btn-confirm-logout {
+                background: #ef4444;
+                color: white;
+            }
+
+            .btn-confirm-logout:hover:not(:disabled) {
+                background: #dc2626;
+                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+            }
+
+            .btn-confirm-logout:active:not(:disabled) {
+                transform: scale(0.98);
+            }
+
+            .btn-confirm-logout:disabled {
+                opacity: 0.8;
+                cursor: not-allowed;
+            }
+
+            .spinner {
+                animation: rotate 1s linear infinite;
+            }
+
+            @keyframes rotate {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* Mobile Responsive */
+            @media (max-width: 640px) {
+                .logout-confirmation-overlay {
+                    align-items: flex-end;
+                    padding: 12px;
+                }
+
+                .logout-confirmation-modal {
+                    max-width: none;
+                    width: 100%;
+                    margin-top: 0;
+                    border-radius: 12px 12px 0 0;
+                }
+
+                .logout-confirmation-header {
+                    padding: 14px;
+                }
+
+                .logout-icon {
+                    width: 36px;
+                    height: 36px;
+                }
+
+                .logout-icon svg {
+                    width: 18px;
+                    height: 18px;
+                }
+
+                .logout-confirmation-header h3 {
+                    font-size: 15px;
+                }
+
+                .logout-confirmation-body {
+                    padding: 10px 14px 14px;
+                }
+
+                .logout-confirmation-body p {
+                    font-size: 13px;
+                }
+
+                .logout-confirmation-actions {
+                    padding: 0 14px 14px;
+                    gap: 10px;
+                }
+
+                .btn-cancel-logout,
+                .btn-confirm-logout {
+                    padding: 10px 16px;
+                    font-size: 13px;
+                    flex: 1;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .logout-confirmation-header {
+                    flex-direction: column;
+                    gap: 8px;
+                }
+
+                .logout-title-section {
+                    width: 100%;
+                }
+
+                .logout-close-btn {
+                    align-self: flex-start;
+                }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Close dropdown menu
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+    }
+
+    // Prevent body scrolling
+    document.body.style.overflow = 'hidden';
+
+    // Close on escape key
+    document.addEventListener('keydown', handleLogoutEscapeKey);
+
+    // Close on overlay click
+    const overlay = document.getElementById('logout-confirmation-overlay');
+    if (overlay) {
+        overlay.addEventListener('click', handleLogoutOverlayClick);
+    }
+}
+
+/**
+ * Close logout confirmation modal
+ */
+function closeLogoutConfirmation() {
+    const modal = document.getElementById('logout-confirmation-overlay');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.2s ease-out';
+        setTimeout(() => {
+            modal.remove();
+            document.body.style.overflow = '';
+        }, 200);
+    }
+
+    // Remove event listeners
+    document.removeEventListener('keydown', handleLogoutEscapeKey);
+}
+
+/**
+ * Handle escape key press
+ */
+function handleLogoutEscapeKey(e) {
+    if (e.key === 'Escape') {
+        closeLogoutConfirmation();
+    }
+}
+
+/**
+ * Handle overlay click (close on click outside modal)
+ */
+function handleLogoutOverlayClick(e) {
+    if (e.target.id === 'logout-confirmation-overlay') {
+        closeLogoutConfirmation();
+    }
+}
+
+/**
+ * Confirm logout and proceed with logout process
+ */
+function confirmLogout() {
+    const confirmBtn = document.querySelector('.btn-confirm-logout');
+    if (!confirmBtn) return;
+
+    // Set button to loading state
+    confirmBtn.disabled = true;
+    const btnText = confirmBtn.querySelector('.btn-text');
+    const btnLoader = confirmBtn.querySelector('.btn-loader');
+    
+    if (btnText) btnText.style.display = 'none';
+    if (btnLoader) btnLoader.style.display = 'inline';
+
     // Stop verification polling if active
     if (typeof stopVerificationPolling === 'function') {
         stopVerificationPolling();
     }
 
+    // Perform logout
     fetch('/auth/logout', {
         method: 'POST',
         headers: {
@@ -1973,6 +2407,11 @@ function logoutUser() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            // Update button text
+            if (btnText) btnText.textContent = 'Logged Out!';
+            if (btnText) btnText.style.display = 'inline';
+            if (btnLoader) btnLoader.style.display = 'none';
+            
             showNotification('success', 'Successfully logged out!');
 
             // Hide all forms before redirecting
@@ -1980,12 +2419,16 @@ function logoutUser() {
                 hideAllForms();
             }
 
-            // Small delay to show notification, then redirect to home
+            // Close modal and redirect
             setTimeout(() => {
-                window.location.href = '/';
-            }, 1000);
+                closeLogoutConfirmation();
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 300);
+            }, 800);
         } else {
             showNotification('error', 'Logout failed. Please try again.');
+            closeLogoutConfirmation();
         }
     })
     .catch(error => {
@@ -1996,11 +2439,37 @@ function logoutUser() {
             hideAllForms();
         }
 
-        // Fallback: redirect to home anyway
-        window.location.href = '/';
+        // Fallback: close modal and redirect anyway
+        closeLogoutConfirmation();
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 300);
     });
 }
 
+/**
+ * Updated logoutUser function - shows confirmation modal
+ */
+function logoutUser() {
+    showLogoutConfirmation();
+}
+
+// Add fadeOut animation to styles
+if (!document.querySelector('#logout-fadeout-animation')) {
+    const fadeOutStyle = document.createElement('style');
+    fadeOutStyle.id = 'logout-fadeout-animation';
+    fadeOutStyle.textContent = `
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(fadeOutStyle);
+}
 // ==============================================
 // USERNAME AVAILABILITY CHECKER
 // ==============================================
@@ -3783,16 +4252,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
-/**
- * Hook: Stop polling on logout
- */
-function logoutUserWithPolling() {
-    // Stop polling before logging out
-    stopVerificationPolling();
+// /**
+//  * Hook: Stop polling on logout
+//  */
+// function logoutUserWithPolling() {
+//     // Stop polling before logging out
+//     stopVerificationPolling();
 
-    // Then logout (your existing logout logic)
-    logoutUser();
-}
+//     // Then logout (your existing logout logic)
+//     logoutUser();
+// }
 
 /**
  * Hook: Stop polling when verification modal closes
@@ -4989,7 +5458,10 @@ window.loadCurrentProfileData = loadCurrentProfileData;
 window.populateEditForm = populateEditForm;
 window.handleEditProfileSubmit = handleEditProfileSubmit;
 window.changePassword = changePassword;
-window.logoutUser = logoutUser;
+// window.logoutUser = logoutUser;
+window.showLogoutConfirmation = showLogoutConfirmation;
+window.closeLogoutConfirmation = closeLogoutConfirmation;
+window.confirmLogout = confirmLogout;
 window.showNotification = showNotification;
 window.previewImage = previewImage;
 window.refreshProfileVerifyButton = refreshProfileVerifyButton;
