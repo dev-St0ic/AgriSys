@@ -1573,6 +1573,59 @@ input.is-invalid {
     letter-spacing: 0.5px;
 }
 
+/* Verify Account Button - Exact Same Green as Other Buttons */
+#verify-action-btn,
+#verify-action-btn.verified,
+#verify-action-btn.pending,
+#verify-action-btn.rejected,
+#verify-action-btn:disabled,
+#verify-action-btn[disabled] {
+    background: linear-gradient(135deg, #0A6953, #2d6a4f) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.3) !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    padding: 16px 20px !important;
+    border-radius: 10px !important;
+}
+
+/* Hover Effect */
+#verify-action-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(10, 105, 83, 0.4) !important;
+}
+
+/* Active/Click State */
+#verify-action-btn:active {
+    transform: translateY(0) !important;
+}
+
+/* Disabled State - Keep green */
+#verify-action-btn:disabled,
+#verify-action-btn[disabled] {
+    opacity: 0.9 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #verify-action-btn {
+        padding: 14px 16px !important;
+        font-size: 14px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #verify-action-btn {
+        padding: 12px 14px !important;
+        font-size: 13px !important;
+    }
+}
+
 .status-verified,
 .status-approved,
 .status-active {
