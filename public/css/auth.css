@@ -516,9 +516,9 @@ textarea.no-capitalize {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: absolute;  /* ADD THIS */
-    right: 20px;  /* ADD THIS */
-    top: 25%;  /* ADD THIS */
+    position: absolute;  
+    right: 20px; 
+    top: 25%;  
 }
 
 .auth-modal-close:hover {
@@ -1479,6 +1479,7 @@ input.is-invalid {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
 .modal-header h3 {
@@ -1504,8 +1505,6 @@ input.is-invalid {
 }
 
 .modal-close:hover {
-    opacity: 1;
-    transform: scale(1.05);
     background: rgba(255, 255, 255, 0.2);
 }
 
@@ -1936,8 +1935,7 @@ input.is-invalid {
 }
 
 .modal-close:hover {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* Modal Body */
@@ -3625,8 +3623,7 @@ input.is-invalid {
 }
 
 .change-password-modal .modal-close:hover {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* Security Info Banner - Replaces Password Requirements */

@@ -2013,12 +2013,6 @@ function showLogoutConfirmation() {
         <div class="logout-confirmation-overlay" id="logout-confirmation-overlay">
             <div class="logout-confirmation-modal">
                 <div class="logout-confirmation-header">
-                    <button type="button" class="logout-close-btn" onclick="closeLogoutConfirmation()" aria-label="Close" title="Cancel">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
                     <div class="logout-title-section">
                         <div class="logout-icon">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2029,6 +2023,12 @@ function showLogoutConfirmation() {
                         </div>
                         <h3>Log Out</h3>
                     </div>
+                    <button type="button" class="logout-close-btn" onclick="closeLogoutConfirmation()" aria-label="Close" title="Cancel">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
                 <div class="logout-confirmation-body">
                     <p>Are you sure you want to log out?</p>
@@ -2118,6 +2118,7 @@ function showLogoutConfirmation() {
                 align-items: center;
                 gap: 12px;
                 flex: 1;
+                margin-left: auto;
             }
 
             .logout-icon {

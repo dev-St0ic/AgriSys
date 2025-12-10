@@ -3094,8 +3094,6 @@ header {
 
 .modal-close:hover {
     background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    transform: translateY(-50%) rotate(90deg);
 }
 
 /* Modal Body */
@@ -3332,9 +3330,5 @@ body.modal-open {
     #terms-modal,
     #privacy-modal {
         animation: none;
-    }
-
-    .modal-close:hover {
-        transform: translateY(-50%);
     }
 }
