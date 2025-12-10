@@ -905,9 +905,7 @@
                                 </div>
                                 <div class="notice-content">
                                     <h6>Verification Process</h6>
-                                    <p>Your submitted documents will be reviewed by our admin team within 2-3 business
-                                        days. You will receive an email notification once your verification is approved
-                                        or if additional documents are needed.</p>
+                                    <p>Your submitted documents will be reviewed within 1–3 business days. You will receive an SMS notification once your verification is approved or if additional documents are required.</p>
                                 </div>
                             </div>
 
