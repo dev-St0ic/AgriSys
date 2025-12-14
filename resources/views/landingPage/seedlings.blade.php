@@ -12,7 +12,10 @@
 <!-- Seedlings Choice Section -->
 <section class="seedlings-application-section" id="seedlings-choice" style="display: none;">
     <div class="seedlings-form-header">
-        <h2>🌱 AgriSys Supplies Request</h2>
+         <button type="button" class="seedlings-close-btn" onclick="closeSeedlingsModal()">
+        <i class="fas fa-times"></i>
+        </button>
+        <h2>AgriSys Supplies Request</h2>
         <p>Browse and select the items you want to request, then proceed to checkout.</p>
     </div>
 

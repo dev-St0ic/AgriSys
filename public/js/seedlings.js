@@ -56,6 +56,13 @@ function backToSeedlingsChoice() {
     history.pushState(null, '', '/services/seedlings');
 }
 
+function closeSeedlingsModal() {
+    performCompleteReset();
+    hideAllForms();
+    showAllMainSections();
+    window.location.href = '/'; // Navigate to home
+}
+
 // ==============================================
 // CATEGORY SHOW MORE/LESS FUNCTIONALITY
 // ==============================================

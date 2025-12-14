@@ -1069,3 +1069,23 @@ section.application-section small {
 .seedlings-category-tabs::-webkit-scrollbar-thumb:hover {
     background: #2d6a4f;
 }
+
+.seedlings-form-header {
+    position: relative;
+}
+
+.seedlings-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 35px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s;
+}
+
+.seedlings-close-btn:hover {
+    color: #333;
+}
