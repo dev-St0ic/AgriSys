@@ -144,10 +144,10 @@
             </div>
 
             <div class="training-form-group">
-                <label for="training_documents">Supporting Documents (PDF, JPG, PNG - Max 5MB each)</label>
-                <input type="file" id="training_documents" name="documents[]" multiple
+                <label for="training_document">Supporting Document <span class="required-asterisk">*</span></label>
+                <input type="file" id="training_document" name="supporting_document" required
                     accept=".pdf,.jpg,.jpeg,.png">
-                <small>Please upload relevant documents such as ID, certificates, or other supporting files.</small>
+                <small>Upload a relevant document such as ID, certificate, or other supporting file. Accepted formats: PDF, JPG, PNG (Max 10MB)</small>
             </div>
 
             <div class="training-form-actions">
