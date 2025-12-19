@@ -43,11 +43,11 @@
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
             <label>First Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
-            <input type="text" id="rsbsa-first_name" name="first_name" placeholder="Enter your first name"
+            <input type="text" id="rsbsa-first_name" name="first_name" placeholder="Enter first name"
                 pattern="[a-zA-Z\s'\-]+" title="First name can only contain letters, spaces, hyphens, and apostrophes"
                 value="{{ old('first_name') }}" required>
             <span class="validation-warning" id="rsbsa-first_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
             @error('first_name')
                 <span
@@ -55,11 +55,11 @@
             @enderror
 
             <label>Middle Name (Optional)</label>
-            <input type="text" id="rsbsa-middle_name" name="middle_name" placeholder="Enter your middle name"
+            <input type="text" id="rsbsa-middle_name" name="middle_name" placeholder="Enter middle name"
                 pattern="[a-zA-Z\s'\-]+" title="Middle name can only contain letters, spaces, hyphens, and apostrophes"
                 value="{{ old('middle_name') }}">
             <span class="validation-warning" id="rsbsa-middle_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
             @error('middle_name')
                 <span
@@ -67,11 +67,11 @@
             @enderror
 
             <label>Last Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
-            <input type="text" id="rsbsa-last_name" name="last_name" placeholder="Enter your last name"
+            <input type="text" id="rsbsa-last_name" name="last_name" placeholder="Enter last name"
                 pattern="[a-zA-Z\s'\-]+" title="Last name can only contain letters, spaces, hyphens, and apostrophes"
                 value="{{ old('last_name') }}" required>
             <span class="validation-warning" id="rsbsa-last_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
             @error('last_name')
                 <span

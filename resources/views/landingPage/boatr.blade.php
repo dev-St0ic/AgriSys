@@ -46,7 +46,7 @@
                     pattern="[a-zA-Z\s'\-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="boatr_first_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
@@ -56,7 +56,7 @@
                     pattern="[a-zA-Z\s'\-]+"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
                 <span class="validation-warning" id="boatr_middle_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
@@ -66,7 +66,7 @@
                     pattern="[a-zA-Z\s'\-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="boatr_last_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 

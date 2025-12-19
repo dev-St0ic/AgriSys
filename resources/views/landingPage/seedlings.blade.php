@@ -199,21 +199,21 @@
             <input type="text" id="seedlings-first_name" name="first_name" pattern="[a-zA-Z\s'\-]+"
                 title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
             <span class="validation-warning" id="seedlings-first_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
 
             <label for="seedlings-middle_name">Middle Name (Optional)</label>
             <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z\s'\-]+"
                 title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
             <span class="validation-warning" id="seedlings-middle_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
 
             <label for="seedlings-last_name">Last Name <span class="required-asterisk">*</span></label>
             <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z\s'\-]+"
                 title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
             <span class="validation-warning" id="seedlings-last_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters, spaces,
+                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
                 hyphens, and apostrophes are allowed</span>
 
             <label for="seedlings-extension_name">Name Extension (Optional)</label>

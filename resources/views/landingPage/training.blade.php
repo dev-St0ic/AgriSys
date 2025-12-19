@@ -50,31 +50,31 @@
 
             <div class="training-form-group">
                 <label for="training_first_name">First Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_first_name" name="first_name" placeholder="Enter your first name"
+                <input type="text" id="training_first_name" name="first_name" placeholder="Enter first name"
                     pattern="[a-zA-Z\s'\-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="training_first_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
             <div class="training-form-group">
                 <label for="training_middle_name">Middle Name (Optional)</label>
-                <input type="text" id="training_middle_name" name="middle_name" placeholder="Enter your middle name"
+                <input type="text" id="training_middle_name" name="middle_name" placeholder="Enter middle name"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
                 <span class="validation-warning" id="training_middle_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
             <div class="training-form-group">
                 <label for="training_last_name">Last Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_last_name" name="last_name" placeholder="Enter your last name"
+                <input type="text" id="training_last_name" name="last_name" placeholder="Enter last name"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="training_last_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
