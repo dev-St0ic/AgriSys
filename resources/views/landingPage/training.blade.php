@@ -235,8 +235,8 @@
 
             <h3>Contact Information</h3>
             <p>For questions about training programs, contact the City Agriculture Office at:</p>
-            <p>Phone: (123) 456-7890<br>
-                Email: training@sanpedro.gov.ph</p>
+            <p>Phone: 8808-2020 Local 109<br>
+                Email: agriculture.sanpedrocity@gmail.com</p>
         </div>
     </div>
 </section>

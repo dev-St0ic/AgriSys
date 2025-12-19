@@ -1,7 +1,6 @@
 // ==============================================
 // TRAINING AUTO-FILL SYSTEM - PROFESSIONAL VERSION
-// Updated: Enhanced UI, Better Validation, Complete Field Coverage
-// File: public/js/training-autofill.js
+// Updated: Consistent Green Styling, Professional Clear Form
 // ==============================================
 
 /**
@@ -161,23 +160,169 @@ async function fetchAndAutoFillTraining() {
 }
 
 /**
- * Clear auto-filled data
+ * Clear auto-filled data - Professional approach
  */
 function clearTrainingAutoFill() {
-    if (confirm('This will clear all form fields. Continue?')) {
-        const form = document.getElementById('training-request-form');
-        if (form) {
-            form.reset();
-            // Clear validation warnings
-            form.querySelectorAll('.validation-warning').forEach(warning => {
-                warning.style.display = 'none';
-            });
-            form.querySelectorAll('input, select, textarea').forEach(field => {
-                field.style.borderColor = '';
-            });
-        }
-        showNotification('info', 'Form cleared successfully');
+    const form = document.getElementById('training-request-form');
+    if (!form) return;
+
+    // Show professional confirmation modal
+    showClearFormConfirmation(() => {
+        // Clear form data
+        form.reset();
+
+        // Clear validation warnings
+        form.querySelectorAll('.validation-warning').forEach(warning => {
+            warning.style.display = 'none';
+        });
+
+        // Reset field styling
+        form.querySelectorAll('input, select, textarea').forEach(field => {
+            field.style.borderColor = '';
+            field.style.backgroundColor = '';
+        });
+
+        // Hide any error messages
+        clearTrainingErrors();
+
+        // Show completion message
+        showNotification('info', 'Form has been cleared and is ready for new information');
+        console.log('Training form cleared successfully');
+    });
+}
+
+/**
+ * Show professional clear form confirmation
+ */
+function showClearFormConfirmation(onConfirm) {
+    // Create professional confirmation modal
+    const modalOverlay = document.createElement('div');
+    modalOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    `;
+
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        animation: slideUp 0.3s ease-out;
+    `;
+
+    modalContent.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <svg width="48" height="48" viewBox="0 0 48 48" style="color: #40916c; margin: 0 auto;">
+                <path fill="currentColor" d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm0 36c-8.84 0-16-7.16-16-16s7.16-16 16-16 16 7.16 16 16-7.16 16-16 16z"/>
+            </svg>
+        </div>
+
+        <h3 style="color: #2d6a4f; text-align: center; margin: 0 0 12px 0; font-size: 18px;">Clear Form Data?</h3>
+        
+        <p style="color: #555; text-align: center; margin: 0 0 24px 0; font-size: 14px; line-height: 1.5;">
+            This will remove all information currently in the form. You can always use auto-fill again to repopulate your profile data.
+        </p>
+
+        <div style="display: flex; gap: 12px;">
+            <button class="clear-form-cancel" style="
+                flex: 1;
+                padding: 12px 16px;
+                border: 1px solid #d0d0d0;
+                background: #f5f5f5;
+                color: #333;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 500;
+                font-size: 14px;
+                transition: all 0.2s ease;
+            ">
+                Keep Form
+            </button>
+            <button class="clear-form-confirm" style="
+                flex: 1;
+                padding: 12px 16px;
+                border: none;
+                background: #40916c;
+                color: white;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 14px;
+                transition: all 0.2s ease;
+            ">
+                Clear Form
+            </button>
+        </div>
+    `;
+
+    modalOverlay.appendChild(modalContent);
+    document.body.appendChild(modalOverlay);
+
+    // Add animation styles if not present
+    if (!document.querySelector('style[data-autofill-modal]')) {
+        const style = document.createElement('style');
+        style.setAttribute('data-autofill-modal', 'true');
+        style.textContent = `
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
     }
+
+    // Handle button clicks
+    const cancelBtn = modalContent.querySelector('.clear-form-cancel');
+    const confirmBtn = modalContent.querySelector('.clear-form-confirm');
+
+    const closeModal = () => {
+        modalOverlay.style.opacity = '0';
+        modalOverlay.style.transition = 'opacity 0.2s ease';
+        setTimeout(() => modalOverlay.remove(), 200);
+    };
+
+    cancelBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('mouseover', function() {
+        this.style.background = '#e8e8e8';
+    });
+    cancelBtn.addEventListener('mouseout', function() {
+        this.style.background = '#f5f5f5';
+    });
+
+    confirmBtn.addEventListener('click', () => {
+        closeModal();
+        onConfirm();
+    });
+    confirmBtn.addEventListener('mouseover', function() {
+        this.style.background = '#2d6a4f';
+    });
+    confirmBtn.addEventListener('mouseout', function() {
+        this.style.background = '#40916c';
+    });
+
+    // Close modal when clicking outside
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
 }
 
 /**
@@ -198,61 +343,62 @@ function addAutoFillButtonToTraining() {
 
     console.log('Adding auto-fill button for user:', window.userData.username);
 
-    // Create auto-fill button container
+    // Create auto-fill button container with consistent green styling
     const buttonContainer = document.createElement('div');
     buttonContainer.className = 'training-autofill-container';
     buttonContainer.style.cssText = `
-        margin-bottom: 20px;
-        padding: 15px;
-        background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
-        border-left: 4px solid #4caf50;
+        margin-bottom: 25px;
+        padding: 18px 20px;
+        background-color:  #40916c;
         border-radius: 8px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(64, 145, 108, 0.2);
     `;
 
     buttonContainer.innerHTML = `
         <div class="autofill-info">
-            <strong style="color: #2e7d32;">Quick Fill:</strong>
-            <span style="color: #558b2f;">Use your verified profile data to auto-complete this form</span>
+            <strong style="color: #ffffff; display: block; margin-bottom: 4px; font-size: 15px;">Quick Fill Available</strong>
+            <span style="color: rgba(255, 255, 255, 0.9); font-size: 13px;">Use your verified profile information to auto-complete this form</span>
         </div>
         <div class="autofill-actions">
             <button type="button" id="training-autofill-btn" class="btn-autofill"
                     onclick="fetchAndAutoFillTraining()"
                     style="
-                        background: #4caf50;
+                        background: rgba(255, 255, 255, 0.25);
                         color: white;
-                        border: none;
+                        border: 1px solid rgba(255, 255, 255, 0.5);
                         padding: 10px 20px;
-                        border-radius: 4px;
+                        border-radius: 6px;
                         cursor: pointer;
-                        font-size: 14px;
-                        font-weight: 500;
-                        margin-right: 8px;
+                        font-size: 13px;
+                        font-weight: 600;
+                        margin-right: 10px;
                         transition: all 0.3s ease;
+                        backdrop-filter: blur(4px);
                     "
-                    onmouseover="this.style.background='#388e3c'"
-                    onmouseout="this.style.background='#4caf50'">
-                Use My Profile Data
+                    onmouseover="this.style.background='rgba(255, 255, 255, 0.35)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)'"
+                    onmouseout="this.style.background='rgba(255, 255, 255, 0.25)'; this.style.boxShadow='none'">
+                Auto-fill
             </button>
             <button type="button" class="btn-clear"
                     onclick="clearTrainingAutoFill()"
                     style="
-                        background: #757575;
+                        background: rgba(255, 255, 255, 0.15);
                         color: white;
-                        border: none;
+                        border: 1px solid rgba(255, 255, 255, 0.5);
                         padding: 10px 20px;
-                        border-radius: 4px;
+                        border-radius: 6px;
                         cursor: pointer;
-                        font-size: 14px;
-                        font-weight: 500;
+                        font-size: 13px;
+                        font-weight: 600;
                         transition: all 0.3s ease;
+                        backdrop-filter: blur(4px);
                     "
-                    onmouseover="this.style.background='#616161'"
-                    onmouseout="this.style.background='#757575'">
-                Clear Form
+                    onmouseover="this.style.background='rgba(255, 255, 255, 0.25)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)'"
+                    onmouseout="this.style.background='rgba(255, 255, 255, 0.15)'; this.style.boxShadow='none'">
+                Clear
             </button>
         </div>
     `;
