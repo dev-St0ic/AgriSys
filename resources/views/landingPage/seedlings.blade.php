@@ -195,78 +195,92 @@
             @csrf
             <input type="hidden" id="selected_seedlings" name="selected_seedlings" value="">
 
-            <label for="seedlings-first_name">First Name <span class="required-asterisk">*</span></label>
-            <input type="text" id="seedlings-first_name" name="first_name" pattern="[a-zA-Z\s'\-]+"
-                title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
-            <span class="validation-warning" id="seedlings-first_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
-                hyphens, and apostrophes are allowed</span>
+            <div class="seedlings-form-group">
+                <label for="seedlings-first_name">First Name <span class="required-asterisk">*</span></label>
+                <input type="text" id="seedlings-first_name" name="first_name" pattern="[a-zA-Z\s'\-]+"
+                    title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
+                <span class="validation-warning" id="seedlings-first_name-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
+                    hyphens, and apostrophes are allowed</span>
+            </div>
 
-            <label for="seedlings-middle_name">Middle Name (Optional)</label>
-            <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z\s'\-]+"
-                title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
-            <span class="validation-warning" id="seedlings-middle_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
-                hyphens, and apostrophes are allowed</span>
+            <div class="seedlings-form-group">
+                <label for="seedlings-middle_name">Middle Name (Optional)</label>
+                <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z\s'\-]+"
+                    title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
+                <span class="validation-warning" id="seedlings-middle_name-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
+                    hyphens, and apostrophes are allowed</span>
+            </div>
 
-            <label for="seedlings-last_name">Last Name <span class="required-asterisk">*</span></label>
-            <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z\s'\-]+"
-                title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
-            <span class="validation-warning" id="seedlings-last_name-warning"
-                style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
-                hyphens, and apostrophes are allowed</span>
+            <div class="seedlings-form-group">
+                <label for="seedlings-last_name">Last Name <span class="required-asterisk">*</span></label>
+                <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z\s'\-]+"
+                    title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
+                <span class="validation-warning" id="seedlings-last_name-warning"
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
+                    hyphens, and apostrophes are allowed</span>
+            </div>
 
-            <label for="seedlings-extension_name">Name Extension (Optional)</label>
-            <select id="seedlings-extension_name" name="extension_name">
-                <option value="" selected>Select Extension</option>
-                <option value="Jr.">Jr.</option>
-                <option value="Sr.">Sr.</option>
-                <option value="II">II</option>
-                <option value="III">III</option>
-                <option value="IV">IV</option>
-                <option value="V">V</option>
-            </select>
+            <div class="seedlings-form-group">
+                <label for="seedlings-extension_name">Name Extension (Optional)</label>
+                <select id="seedlings-extension_name" name="extension_name">
+                    <option value="" selected>Select Extension</option>
+                    <option value="Jr.">Jr.</option>
+                    <option value="Sr.">Sr.</option>
+                    <option value="II">II</option>
+                    <option value="III">III</option>
+                    <option value="IV">IV</option>
+                    <option value="V">V</option>
+                </select>
+            </div>
 
-            <label for="seedlings-mobile">Contact Number <span class="required-asterisk">*</span></label>
-            <input type="tel" id="seedlings-mobile" name="mobile" placeholder="09XXXXXXXXX"
-                pattern="^09\d{9}$" title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
-                required>
-            <small>Format: 09XXXXXXXXX (e.g., 09123456789)</small>
+            <div class="seedlings-form-group">
+                <label for="seedlings-mobile">Contact Number <span class="required-asterisk">*</span></label>
+                <input type="tel" id="seedlings-mobile" name="mobile" placeholder="09XXXXXXXXX"
+                    pattern="^09\d{9}$" title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
+                    required>
+                <small>Format: 09XXXXXXXXX (e.g., 09123456789)</small>
+            </div>
 
-            <label for="seedlings-barangay">Barangay *</label>
-            <select id="seedlings-barangay" name="barangay" required>
-                <option value="" disabled selected>Select Barangay</option>
-                <option value="Bagong Silang">Bagong Silang</option>
-                <option value="Calendola">Calendola</option>
-                <option value="Chrysanthemum">Chrysanthemum</option>
-                <option value="Cuyab">Cuyab</option>
-                <option value="Fatima">Fatima</option>
-                <option value="G.S.I.S.">G.S.I.S.</option>
-                <option value="Landayan">Landayan</option>
-                <option value="Laram">Laram</option>
-                <option value="Magsaysay">Magsaysay</option>
-                <option value="Maharlika">Maharlika</option>
-                <option value="Narra">Narra</option>
-                <option value="Nueva">Nueva</option>
-                <option value="Pacita 1">Pacita 1</option>
-                <option value="Pacita 2">Pacita 2</option>
-                <option value="Poblacion">Poblacion</option>
-                <option value="Rosario">Rosario</option>
-                <option value="Riverside">Riverside</option>
-                <option value="Sampaguita Village">Sampaguita Village</option>
-                <option value="San Antonio">San Antonio</option>
-                <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
-                <option value="San Roque">San Roque</option>
-                <option value="San Vicente">San Vicente</option>
-                <option value="United Bayanihan">United Bayanihan</option>
-                <option value="United Better Living">United Better Living</option>
-            </select>
+            <div class="seedlings-form-group">
+                <label for="seedlings-barangay">Barangay <span class="required-asterisk">*</span></label>
+                <select id="seedlings-barangay" name="barangay" required>
+                    <option value="" disabled selected>Select Barangay</option>
+                    <option value="Bagong Silang">Bagong Silang</option>
+                    <option value="Calendola">Calendola</option>
+                    <option value="Chrysanthemum">Chrysanthemum</option>
+                    <option value="Cuyab">Cuyab</option>
+                    <option value="Fatima">Fatima</option>
+                    <option value="G.S.I.S.">G.S.I.S.</option>
+                    <option value="Landayan">Landayan</option>
+                    <option value="Laram">Laram</option>
+                    <option value="Magsaysay">Magsaysay</option>
+                    <option value="Maharlika">Maharlika</option>
+                    <option value="Narra">Narra</option>
+                    <option value="Nueva">Nueva</option>
+                    <option value="Pacita 1">Pacita 1</option>
+                    <option value="Pacita 2">Pacita 2</option>
+                    <option value="Poblacion">Poblacion</option>
+                    <option value="Rosario">Rosario</option>
+                    <option value="Riverside">Riverside</option>
+                    <option value="Sampaguita Village">Sampaguita Village</option>
+                    <option value="San Antonio">San Antonio</option>
+                    <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                    <option value="San Roque">San Roque</option>
+                    <option value="San Vicente">San Vicente</option>
+                    <option value="United Bayanihan">United Bayanihan</option>
+                    <option value="United Better Living">United Better Living</option>
+                </select>
+            </div>
 
-            <label for="address">Complete Address <span class="required-asterisk">*</span></label>
-            <input type="text" id="address" name="address" required>
-            <small>Include house number, street, subdivision if applicable.</small>
+            <div class="seedlings-form-group">
+                <label for="address">Complete Address <span class="required-asterisk">*</span></label>
+                <input type="text" id="address" name="address" required>
+                <small>Include house number, street, subdivision if applicable.</small>
+            </div>
 
-            <div id="supporting-docs-field">
+            <div class="seedlings-form-group" id="supporting-docs-field">
                 <label for="seedlings-docs">Supporting Documents <span class="required-asterisk">*</span></label>
                 <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png"
                     multiple>
