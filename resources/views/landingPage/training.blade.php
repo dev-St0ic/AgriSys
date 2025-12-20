@@ -50,7 +50,7 @@
 
             <div class="training-form-group">
                 <label for="training_first_name">First Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_first_name" name="first_name" placeholder="Enter first name"
+                <input type="text" id="training_first_name" name="first_name" placeholder="Example: Juan"
                     pattern="[a-zA-Z\s'\-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="training_first_name-warning"
@@ -60,7 +60,7 @@
 
             <div class="training-form-group">
                 <label for="training_middle_name">Middle Name (Optional)</label>
-                <input type="text" id="training_middle_name" name="middle_name" placeholder="Enter middle name"
+                <input type="text" id="training_middle_name" name="middle_name" placeholder="Example: Santos"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
                 <span class="validation-warning" id="training_middle_name-warning"
@@ -70,7 +70,7 @@
 
             <div class="training-form-group">
                 <label for="training_last_name">Last Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_last_name" name="last_name" placeholder="Enter last name"
+                <input type="text" id="training_last_name" name="last_name" placeholder="Example: Dela Cruz"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="training_last_name-warning"
@@ -93,7 +93,7 @@
 
             <div class="training-form-group">
                 <label for="training_contact_number">Contact Number <span class="required-asterisk">*</span></label>
-                <input type="tel" id="training_contact_number" name="contact_number" placeholder="09XXXXXXXXX"
+                <input type="tel" id="training_contact_number" name="contact_number" placeholder="Example: 09123456789"
                     pattern="^09\d{9}$" title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     required>
             </div>
@@ -147,7 +147,7 @@
                 <label for="training_document">Supporting Document <span class="required-asterisk">*</span></label>
                 <input type="file" id="training_document" name="supporting_document" required
                     accept=".pdf,.jpg,.jpeg,.png">
-                <small>Upload a relevant document such as ID, certificate, or other supporting file. Accepted formats: PDF, JPG, PNG (Max 10MB)</small>
+                <small>Upload Government ID, Driver's License, or Barangay Certificate (PDF, JPG, PNG - Max 10MB)</small>
             </div>
 
             <div class="training-form-actions">
