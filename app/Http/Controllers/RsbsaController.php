@@ -439,7 +439,7 @@ public function updateStatus(Request $request, $id)
                 'remarks' => 'nullable|string|max:1000',
 
                 // Document
-                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB max
+                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240', // 10MB max
 
                 // User ID (optional - if creating for existing user)
                 'user_id' => 'nullable|exists:user_registration,id'

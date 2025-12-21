@@ -40,7 +40,7 @@
 
             <div class="rsbsa-form-group">
                 <label>First Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="text" id="rsbsa-first_name" name="first_name" placeholder="Enter first name"
+                <input type="text" id="rsbsa-first_name" name="first_name" placeholder="Example: Juan"
                     pattern="[a-zA-Z\s'\-]+" title="First name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('first_name') }}" required>
                 <span class="validation-warning" id="rsbsa-first_name-warning"
@@ -52,7 +52,7 @@
 
             <div class="rsbsa-form-group">
                 <label>Middle Name (Optional)</label>
-                <input type="text" id="rsbsa-middle_name" name="middle_name" placeholder="Enter middle name"
+                <input type="text" id="rsbsa-middle_name" name="middle_name" placeholder="Example: Santos"
                     pattern="[a-zA-Z\s'\-]+" title="Middle name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('middle_name') }}">
                 <span class="validation-warning" id="rsbsa-middle_name-warning"
@@ -64,7 +64,7 @@
 
             <div class="rsbsa-form-group">
                 <label>Last Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="text" id="rsbsa-last_name" name="last_name" placeholder="Enter last name"
+                <input type="text" id="rsbsa-last_name" name="last_name" placeholder="Example: Dela Cruz"
                     pattern="[a-zA-Z\s'\-]+" title="Last name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('last_name') }}" required>
                 <span class="validation-warning" id="rsbsa-last_name-warning"
@@ -142,7 +142,7 @@
 
             <div class="rsbsa-form-group">
                 <label>Mobile Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="tel" name="mobile" placeholder="09XXXXXXXXX" pattern="^09\d{9}$"
+                <input type="tel" name="mobile" placeholder="Example: 09123456789" pattern="^09\d{9}$"
                     title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     value="{{ old('mobile') }}" required>
                 @error('mobile')
@@ -165,39 +165,39 @@
             </div>
 
             <div class="rsbsa-form-group">
-                <label>Land Area (in hectares)</label>
+                <label>Land Area (in hectares) <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="number" name="land_area" step="0.01" min="0" max="1000"
-                    placeholder="Enter land area (optional)" value="{{ old('land_area') }}">
+                    placeholder="Example: 2.5" value="{{ old('land_area') }}" required>
                 @error('land_area')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                 @enderror
             </div>
 
             <div class="rsbsa-form-group">
-                <label>Farm Location</label>
-                <input type="text" name="farm_location" placeholder="Enter farm location (optional)"
-                    value="{{ old('farm_location') }}">
+                <label>Farm Location <span style="color: #dc3545; font-weight: bold;">*</span></label>
+                <input type="text" name="farm_location" placeholder="Example: Barangay Landayan, San Pedro"
+                    value="{{ old('farm_location') }}" required>
                 @error('farm_location')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                 @enderror
             </div>
 
             <div class="rsbsa-form-group">
-                <label>Commodity (Crops/Livestock)</label>
-                <input type="text" name="commodity" placeholder="Enter what you grow or raise (optional)"
-                    value="{{ old('commodity') }}">
+                <label>Commodity (Crops/Livestock) <span style="color: #dc3545; font-weight: bold;">*</span></label>
+                <input type="text" name="commodity" placeholder="Example: Rice, Corn, Tilapia"
+                    value="{{ old('commodity') }}" required>
                 @error('commodity')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                 @enderror
             </div>
 
             <div class="rsbsa-form-group">
-                <label>Supporting Document</label>
-                <input type="file" id="rsbsa-file-input" name="supporting_docs" accept="image/*,.pdf">
+                <label>Supporting Document <span style="color: #dc3545; font-weight: bold;">*</span></label>
+                <input type="file" id="rsbsa-file-input" name="supporting_docs" accept="image/*,.pdf" required>
                 <small>
                     For farmers: Upload a picture of the farm area.<br>
                     For fisherfolk: Upload a photo of your aquaculture setup (e.g., fishpond, fish cage, fish pen).<br>
-                    Accepted formats: JPG, PNG, PDF (Max size: 5MB)
+                    Accepted formats: JPG, PNG, PDF (Max size: 10MB)
                 </small>
                 @error('supporting_docs')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
