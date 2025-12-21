@@ -382,27 +382,24 @@ function toggleOtherLivelihood(select) {
  * Updates supporting documents requirement based on livelihood type
  */
 function updateDocumentsRequirement(livelihoodType) {
-    const docsInput = document.getElementById('supporting_documents');
-    const docsLabel = document.querySelector('label[for="supporting_documents"]');
-    const docsHelp = document.querySelector('#supporting_documents + .form-text');
+    const docsInput = document.getElementById('supporting_document'); // Changed from supporting_documents
+    const docsLabel = document.querySelector('label[for="supporting_document"]'); // Changed
+    const docsHelp = document.querySelector('#supporting_document + .form-text'); // Changed
 
     if (docsInput && docsLabel) {
         if (livelihoodType === 'capture') {
-            // Capture fishing - documents optional
             docsInput.removeAttribute('required');
             docsLabel.innerHTML = 'Supporting Documents (Optional)';
             if (docsHelp) {
                 docsHelp.textContent = 'Optional for Capture Fishing. Max size: 10MB';
             }
         } else if (livelihoodType && livelihoodType !== '') {
-            // Other livelihood types - documents required
             docsInput.setAttribute('required', 'required');
             docsLabel.innerHTML = 'Supporting Documents *';
             if (docsHelp) {
                 docsHelp.textContent = 'Required for this livelihood type. Max size: 10MB';
             }
         } else {
-            // No livelihood selected - neutral state
             docsInput.removeAttribute('required');
             docsLabel.innerHTML = 'Supporting Documents';
             if (docsHelp) {
@@ -690,7 +687,7 @@ function validateFishRForm() {
     }
 
     // Supporting documents validation for non-capture livelihoods
-    const docsInput = form.querySelector('[name="supporting_documents"]');
+    const docsInput = form.querySelector('[name="supporting_document"]'); // Changed from supporting_documents
     if (livelihoodSelect && livelihoodSelect.value && livelihoodSelect.value !== 'capture') {
         if (!docsInput || !docsInput.files || docsInput.files.length === 0) {
             errors.push('Supporting documents are required for this livelihood type');
@@ -698,7 +695,7 @@ function validateFishRForm() {
             isValid = false;
         } else {
             // Validate file size (max 10MB)
-            const maxSize = 10 * 1024 * 1024;
+            const maxSize = 10 * 1024 * 1024; // Already correct
             if (docsInput.files[0].size > maxSize) {
                 errors.push('Supporting document must not exceed 10MB');
                 markFieldError(docsInput);

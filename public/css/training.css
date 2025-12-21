@@ -226,10 +226,10 @@
     cursor: not-allowed;
 }
 
-/* make the placeholder italic */
+/* make the placeholder italic
 input::placeholder {
     font-style: italic;
-}
+} */
 
 
 /* --- Training Responsive Design --- */
