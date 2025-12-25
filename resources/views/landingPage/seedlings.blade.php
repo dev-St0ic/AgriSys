@@ -198,7 +198,7 @@
             <div class="seedlings-form-group">
                 <label for="seedlings-first_name">First Name <span class="required-asterisk">*</span></label>
                 <input type="text" id="seedlings-first_name" name="first_name" pattern="[a-zA-Z\s'\-]+"
-                    title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
+                    title="First name can only contain letters, spaces, hyphens, and apostrophes" placeholder="Example: Juan" required>
                 <span class="validation-warning" id="seedlings-first_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
                     hyphens, and apostrophes are allowed</span>
@@ -206,7 +206,7 @@
 
             <div class="seedlings-form-group">
                 <label for="seedlings-middle_name">Middle Name (Optional)</label>
-                <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z\s'\-]+"
+                <input type="text" id="seedlings-middle_name" name="middle_name" pattern="[a-zA-Z\s'\-]+" placeholder="Example: Santos"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
                 <span class="validation-warning" id="seedlings-middle_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
@@ -215,7 +215,7 @@
 
             <div class="seedlings-form-group">
                 <label for="seedlings-last_name">Last Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z\s'\-]+"
+                <input type="text" id="seedlings-last_name" name="last_name" pattern="[a-zA-Z\s'\-]+" placeholder="Example: Dela Cruz"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="seedlings-last_name-warning"
                     style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters, spaces,
@@ -237,10 +237,9 @@
 
             <div class="seedlings-form-group">
                 <label for="seedlings-mobile">Contact Number <span class="required-asterisk">*</span></label>
-                <input type="tel" id="seedlings-mobile" name="mobile" placeholder="09XXXXXXXXX"
-                    pattern="^09\d{9}$" title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
+                <input type="tel" id="seedlings-mobile" name="mobile" placeholder="Example: 09123456789"
+                    pattern="^09\d{9}$" title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     required>
-                <small>Format: 09XXXXXXXXX (e.g., 09123456789)</small>
             </div>
 
             <div class="seedlings-form-group">
@@ -276,15 +275,15 @@
 
             <div class="seedlings-form-group">
                 <label for="address">Complete Address <span class="required-asterisk">*</span></label>
-                <input type="text" id="address" name="address" required>
-                <small>Include house number, street, subdivision if applicable.</small>
+                <input type="text" id="address" name="address" placeholder="Example: 123 Main Street, Barangay Poblacion" required>
+                <small>Include house number, street, subdivision if applicable. This helps us locate your area for seedling distribution.</small>
             </div>
 
             <div class="seedlings-form-group" id="supporting-docs-field">
                 <label for="seedlings-docs">Supporting Documents <span class="required-asterisk">*</span></label>
                 <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png"
                     multiple>
-                <small>Upload supporting documents (proof of planting area).</small>
+                <small>Upload Government ID, Barangay Certificate, or proof of planting area (PDF, JPG, PNG - Max 10MB). Photos of your farm or planting area are very helpful.</small>
             </div>
 
             <div class="seedlings-form-buttons">

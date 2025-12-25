@@ -496,10 +496,10 @@ function toggleSupportingDocuments(totalQuantity) {
     if (totalQuantity >= 100) {
         if (docsField) docsField.style.display = 'block';
         if (docsInput) docsInput.setAttribute('required', 'required');
-        if (docsLabel) docsLabel.innerHTML = 'Supporting Documents (Required)';
-        if (docsSmall) {
-            docsSmall.innerHTML = 'Required: Proof of planting area (land title, lease agreement, barangay certification, photos of planting area, etc.). Multiple files allowed.';
-        }
+        // if (docsLabel) docsLabel.innerHTML = 'Supporting Documents (Required)';
+        // if (docsSmall) {
+        //     docsSmall.innerHTML = 'Required: Proof of planting area (land title, lease agreement, barangay certification, photos of planting area, etc.). Multiple files allowed.';
+        // }
     } else {
         if (docsField) docsField.style.display = 'none';
         if (docsInput) docsInput.removeAttribute('required');
