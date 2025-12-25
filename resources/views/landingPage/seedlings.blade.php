@@ -275,14 +275,13 @@
 
             <div class="seedlings-form-group">
                 <label for="address">Complete Address <span class="required-asterisk">*</span></label>
-                <input type="text" id="address" name="address" placeholder="Example: 123 Main Street, Barangay Poblacion" required>
+                <input type="text" id="address" name="address" placeholder="Example: 123 Main Street" required>
                 <small>Include house number, street, subdivision if applicable. This helps us locate your area for seedling distribution.</small>
             </div>
 
             <div class="seedlings-form-group" id="supporting-docs-field">
                 <label for="seedlings-docs">Supporting Documents <span class="required-asterisk">*</span></label>
-                <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png"
-                    multiple>
+                <input type="file" id="seedlings-docs" name="supporting_documents" accept=".pdf,.jpg,.jpeg,.png" required>
                 <small>Upload Government ID, Barangay Certificate, or proof of planting area (PDF, JPG, PNG - Max 10MB). Photos of your farm or planting area are very helpful.</small>
             </div>
 
