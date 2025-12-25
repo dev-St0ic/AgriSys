@@ -176,7 +176,10 @@
             </div>
 
             <div class="fishr-form-group">
-                <label for="supporting_documents">Supporting Document</label>
+                <label for="supporting_document">
+                    <span class="label-text">Supporting Document</span>
+                    <span class="required-asterisk" style="color: #dc3545; font-weight: bold;">*</span>
+                </label>
                 <input type="file" id="supporting_document" name="supporting_document"
                     accept=".pdf,.jpg,.jpeg,.png" required>
                 <small class="fishr-form-text">Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB). Required for aquaculture, fish vending, and fish processing only.</small>
