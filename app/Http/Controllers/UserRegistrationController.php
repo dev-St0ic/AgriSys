@@ -370,12 +370,6 @@ class UserRegistrationController extends Controller
             'extensionName' => 'nullable|string|max:20',
             'sex' => 'required|in:Male,Female,Preferred not to say',
             'role' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
-            'contactNumber' => [
-                'required',
-                'string',
-                'max:11',
-                'regex:/^09\d{9}$/'
-            ],
             'dateOfBirth' => 'required|date|before:today|after:' . now()->subYears(100)->toDateString(),
             'barangay' => 'required|string|max:100',
             'completeAddress' => 'required|string',
@@ -468,7 +462,6 @@ class UserRegistrationController extends Controller
                 'name_extension' => trim($request->extensionName) ?: null,
                 'sex' => $request->sex,
                 'user_type' => $request->role,
-                'contact_number' => trim($request->contactNumber),
                 'date_of_birth' => $request->dateOfBirth,
                 'age' => $age,
                 'barangay' => $request->barangay,

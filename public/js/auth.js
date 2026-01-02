@@ -1027,7 +1027,6 @@ function handleVerificationSubmit(event) {
         { name: 'lastName', label: 'Last Name' },
         { name: 'sex', label: 'Sex' },
         { name: 'role', label: 'Sector' },
-        { name: 'contactNumber', label: 'Contact Number' },
         { name: 'dateOfBirth', label: 'Date of Birth' }, // ADDED: Required by backend
         { name: 'barangay', label: 'Barangay' },
         { name: 'completeAddress', label: 'Complete Address' },
@@ -1081,17 +1080,6 @@ function handleVerificationSubmit(event) {
         }
     }
 
-    const contactNumber = form.querySelector('[name="contactNumber"]').value;
-    if (contactNumber) {
-        // Philippine mobile number validation (09XXXXXXXXX or +639XXXXXXXXX)
-        const phoneRegex = /^(\+639|09)\d{9}$/;
-        if (!phoneRegex.test(contactNumber)) {
-            isValid = false;
-            showNotification('error', 'Please enter a valid Philippine mobile number (09XXXXXXXXX).');
-            return false;
-        }
-    }
-
     // Validate emergency contact phone
     const emergencyPhone = form.querySelector('[name="emergencyContactPhone"]').value;
     if (emergencyPhone) {
@@ -1121,7 +1109,6 @@ function handleVerificationSubmit(event) {
     formData.append('extensionName', form.querySelector('[name="extensionName"]').value.trim());
     formData.append('sex', form.querySelector('[name="sex"]').value);
     formData.append('role', form.querySelector('[name="role"]').value);
-    formData.append('contactNumber', form.querySelector('[name="contactNumber"]').value.trim());
     formData.append('dateOfBirth', form.querySelector('[name="dateOfBirth"]').value);
     formData.append('barangay', form.querySelector('[name="barangay"]').value);
     formData.append('completeAddress', form.querySelector('[name="completeAddress"]').value.trim());

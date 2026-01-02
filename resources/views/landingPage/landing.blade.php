@@ -707,6 +707,9 @@
                                             max="100" readonly placeholder="Auto-calculated">
                                         <small>Calculated automatically from date of birth</small>
                                     </div>
+                                </div>
+
+                                <div class="form-row">
                                     <div class="form-group">
                                         <label for="sex">Sex</label>
                                         <select id="sex" name="sex" required>
@@ -714,15 +717,6 @@
                                             <option value="Male">Male</option>
                                             <option value="Female">Female</option>
                                         </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="contactNumber">Contact Number</label>
-                                        <input type="tel" id="contactNumber" name="contactNumber" required
-                                            placeholder="09123456789" pattern="[0-9]{11}">
-                                        <small>11-digit Philippine mobile number</small>
                                     </div>
                                     <div class="form-group">
                                         <label for="role">Sector</label>
