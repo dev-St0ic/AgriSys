@@ -106,22 +106,10 @@
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <select name="verification_status" class="form-select form-select-sm" onchange="submitFilterForm()">
-                            <option value="">All Email Status</option>
-                            <option value="verified" {{ request('verification_status') == 'verified' ? 'selected' : '' }}>
-                                Email Verified
-                            </option>
-                            <option value="unverified"
-                                {{ request('verification_status') == 'unverified' ? 'selected' : '' }}>
-                                Email Unverified
-                            </option>
-                        </select>
-                    </div>
                     <div class="col-md-3">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control form-control-sm"
-                                placeholder="Search username, email, name..." value="{{ request('search') }}"
+                                placeholder="Search username, name..." value="{{ request('search') }}"
                                 oninput="autoSearch()" id="searchInput">
                             <button class="btn btn-outline-secondary btn-sm" type="submit" title="Search"
                                 id="searchButton">
@@ -437,12 +425,6 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="add_email" class="form-label">Email <span
-                                                class="text-danger">*</span></label>
-                                        <input type="email" class="form-control" id="add_email" required
-                                            maxlength="254">
-                                    </div>
-                                    <div class="col-md-4 mb-3">
                                         <label for="add_user_type" class="form-label">User Type <span
                                                 class="text-danger">*</span></label>
                                         <select class="form-select" id="add_user_type" required>
@@ -677,15 +659,6 @@
                                             <option value="approved">Approved</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="form-check mt-4">
-                                            <input class="form-check-input" type="checkbox" id="add_email_verified"
-                                                checked>
-                                            <label class="form-check-label" for="add_email_verified">
-                                                Mark email as verified
-                                            </label>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -723,7 +696,6 @@
                                     <p class="mb-1"><strong>ID:</strong> <span id="updateRegId"></span></p>
                                     <p class="mb-1"><strong>Username:</strong> <span id="updateRegUsername"></span></p>
                                     <p class="mb-1"><strong>Full Name:</strong> <span id="updateRegName"></span></p>
-                                    <p class="mb-1"><strong>Email:</strong> <span id="updateRegEmail"></span></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="mb-1"><strong>User Type:</strong> <span id="updateRegType"></span></p>
@@ -855,11 +827,6 @@
                                             name="contact_number" required placeholder="09XXXXXXXXX"
                                             pattern="^(\+639|09)\d{9}$" maxlength="20">
                                         <div class="form-text">09XXXXXXXXX or +639XXXXXXXXX</div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="edit_email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="edit_email" name="email"
-                                            maxlength="254">
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="edit_user_type" class="form-label">User Type <span
@@ -2127,7 +2094,7 @@
                 <div class="d-flex align-items-center">
                     <i class="fas fa-info-circle me-3 fa-lg"></i>
                     <div>
-                        <strong>Basic Signup User:</strong> This user has only provided username, email, and password.
+                        <strong>Basic Signup User:</strong> This user has only provided username, contact number, and password.
                         They need to complete their profile verification to access full services.
                     </div>
                 </div>
@@ -2135,7 +2102,6 @@
         </div>` : '';
 
             const statusBadgeColor = getStatusBadgeColor(data.status);
-            const emailVerifiedBadge = data.email_verified ?
                 '<span class="badge bg-success"><i class="fas fa-check"></i> Verified</span>' :
                 '<span class="badge bg-secondary"><i class="fas fa-times"></i> Unverified</span>';
 
@@ -2172,11 +2138,9 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-2">
-                            <div class="col-12"><strong>Email:</strong> <a href="mailto:${data.email}" class="text-decoration-none">${data.email}</a></div>
                             <div class="col-12"><strong>Contact Number:</strong> ${data.contact_number ? `<a href="tel:${data.contact_number}" class="text-decoration-none">${data.contact_number}</a>` : '<span class="text-muted">Not provided</span>'}</div>
                             <div class="col-12"><strong>User Type:</strong> ${data.user_type ? `<span class="badge bg-secondary">${data.user_type}</span>` : '<span class="badge bg-warning">Not selected yet</span>'}</div>
                             <div class="col-12"><strong>Current Status:</strong> <span class="badge bg-${statusBadgeColor}">${getStatusText(data.status)}</span></div>
-                            <div class="col-12"><strong>Email Verified:</strong> ${emailVerifiedBadge}</div>
                             <div class="col-12"><strong>Registration Date:</strong> ${data.created_at}</div>
                             <div class="col-12"><strong>Last Login:</strong> ${data.last_login_at || '<span class="text-muted">Never</span>'}</div>
                         </div>
@@ -2805,7 +2769,6 @@
                     document.getElementById('updateRegUsername').textContent = data.username || 'N/A';
                     document.getElementById('updateRegName').textContent = data.full_name ||
                         'Not provided (Basic signup only)';
-                    document.getElementById('updateRegEmail').textContent = data.email;
                     document.getElementById('updateRegType').textContent = data.user_type || 'Not selected';
                     document.getElementById('updateRegContact').textContent = data.contact_number || 'Not provided';
 
@@ -3259,77 +3222,6 @@
         }
 
         /**
-         * Real-time validation for email (admin)
-         */
-        document.getElementById('add_email')?.addEventListener('input', function() {
-            validateAddEmail(this.value);
-        });
-
-        document.getElementById('add_email')?.addEventListener('blur', function() {
-            validateAddEmail(this.value);
-        });
-
-        function validateAddEmail(email) {
-            const input = document.getElementById('add_email');
-            const feedback = input.parentNode.querySelector('.invalid-feedback');
-
-            // Remove existing feedback
-            if (feedback) feedback.remove();
-            input.classList.remove('is-invalid', 'is-valid');
-
-            if (!email || email.trim() === '') {
-                return;
-            }
-
-            email = email.trim();
-
-            // Check for spaces
-            if (/\s/.test(email)) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Email cannot contain spaces';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            // Check length
-            if (email.length > 254) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Email is too long (max 254 characters)';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            // Email pattern validation
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-            if (!emailPattern.test(email)) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Invalid email format';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            // Check for consecutive dots
-            if (/\.\./.test(email)) {
-                input.classList.add('is-invalid');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'invalid-feedback d-block';
-                errorDiv.textContent = 'Email cannot have consecutive dots';
-                input.parentNode.appendChild(errorDiv);
-                return false;
-            }
-
-            input.classList.add('is-valid');
-            return true;
-        }
-
-        /**
          * Real-time validation for password (admin)
          */
         document.getElementById('add_password')?.addEventListener('input', function() {
@@ -3601,12 +3493,6 @@
                 isValid = false;
             }
 
-            // Validate email
-            const email = document.getElementById('add_email').value.trim();
-            if (!validateAddEmail(email)) {
-                isValid = false;
-            }
-
             // Validate password
             const password = document.getElementById('add_password').value;
             if (!validateAddPassword(password)) {
@@ -3652,10 +3538,6 @@
             const requiredFields = [{
                     id: 'add_username',
                     label: 'Username'
-                },
-                {
-                    id: 'add_email',
-                    label: 'Email'
                 },
                 {
                     id: 'add_password',
@@ -3785,7 +3667,6 @@
             const formData = new FormData();
 
             formData.append('username', document.getElementById('add_username').value.trim());
-            formData.append('email', document.getElementById('add_email').value.trim());
             formData.append('password', document.getElementById('add_password').value);
             formData.append('password_confirmation', document.getElementById('add_password_confirmation').value);
             formData.append('first_name', document.getElementById('add_first_name').value.trim());
@@ -3801,7 +3682,6 @@
             formData.append('emergency_contact_name', document.getElementById('add_emergency_contact_name').value.trim());
             formData.append('emergency_contact_phone', document.getElementById('add_emergency_contact_phone').value.trim());
             formData.append('status', document.getElementById('add_status').value);
-            formData.append('email_verified', document.getElementById('add_email_verified').checked ? 1 : 0);
 
             // Add file uploads if present
             const idFrontInput = document.getElementById('add_id_front');
@@ -4230,7 +4110,6 @@
                     document.getElementById('edit_name_extension').value = data.name_extension || '';
                     document.getElementById('edit_sex').value = data.sex || '';
                     document.getElementById('edit_contact_number').value = data.contact_number || '';
-                    document.getElementById('edit_email').value = data.email || '';
                     document.getElementById('edit_barangay').value = data.barangay || '';
                     document.getElementById('edit_complete_address').value = data.complete_address || '';
                     document.getElementById('edit_user_type').value = data.user_type || '';
@@ -4282,7 +4161,6 @@
                 name_extension: data.name_extension || '',
                 sex: data.sex || '',
                 contact_number: data.contact_number || '',
-                email: data.email || '',
                 barangay: data.barangay || '',
                 complete_address: data.complete_address || '',
                 user_type: data.user_type || '',
@@ -4313,7 +4191,7 @@
         function addEditUserFormChangeListeners(registrationId) {
             const form = document.getElementById('editUserForm');
             const inputs = form.querySelectorAll(
-                'input[type="text"], input[type="email"], input[type="tel"], textarea, select');
+                'input[type="text"], input[type="tel"], textarea, select');
 
             inputs.forEach(input => {
                 input.removeEventListener('input', handleEditUserFormChange);
@@ -4352,7 +4230,6 @@
                 'name_extension': 'edit_name_extension',
                 'sex': 'edit_sex',
                 'contact_number': 'edit_contact_number',
-                'email': 'edit_email',
                 'barangay': 'edit_barangay',
                 'complete_address': 'edit_complete_address',
                 'user_type': 'edit_user_type',
@@ -4459,20 +4336,6 @@
                 }
             }
 
-            // Validate email if provided
-            const emailInput = document.getElementById('edit_email');
-            if (emailInput && emailInput.value.trim()) {
-                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!emailPattern.test(emailInput.value.trim())) {
-                    emailInput.classList.add('is-invalid');
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'invalid-feedback d-block';
-                    errorDiv.textContent = 'Invalid email format';
-                    emailInput.parentNode.appendChild(errorDiv);
-                    isValid = false;
-                }
-            }
-
             // Validate emergency phone
             const emergencyPhoneInput = document.getElementById('edit_emergency_contact_phone');
             if (emergencyPhoneInput && emergencyPhoneInput.value.trim()) {
@@ -4520,7 +4383,6 @@
                 'last_name': 'Last Name',
                 'name_extension': 'Extension',
                 'contact_number': 'Contact Number',
-                'email': 'Email',
                 'barangay': 'Barangay',
                 'complete_address': 'Complete Address',
                 'user_type': 'User Type',
@@ -4534,7 +4396,6 @@
                 'last_name': 'edit_last_name',
                 'name_extension': 'edit_name_extension',
                 'contact_number': 'edit_contact_number',
-                'email': 'edit_email',
                 'barangay': 'edit_barangay',
                 'complete_address': 'edit_complete_address',
                 'user_type': 'edit_user_type',
@@ -4584,7 +4445,6 @@
                 name_extension: (document.getElementById('edit_name_extension')?.value || '') || null,
                 sex: (document.getElementById('edit_sex')?.value || '') || null,
                 contact_number: (document.getElementById('edit_contact_number')?.value || '').trim(),
-                email: (document.getElementById('edit_email')?.value || '').trim(),
                 barangay: (document.getElementById('edit_barangay')?.value || '').trim(),
                 complete_address: (document.getElementById('edit_complete_address')?.value || '').trim(),
                 user_type: (document.getElementById('edit_user_type')?.value || '').trim(),
@@ -4643,7 +4503,6 @@
                             'contact_number': 'edit_contact_number',
                             'barangay': 'edit_barangay',
                             'user_type': 'edit_user_type',
-                            'email': 'edit_email',
                             'emergency_contact_name': 'edit_emergency_contact_name',
                             'emergency_contact_phone': 'edit_emergency_contact_phone',
                             'complete_address': 'edit_complete_address',

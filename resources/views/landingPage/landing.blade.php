@@ -1632,7 +1632,7 @@
                         <p>The City Agriculture Office strives to maintain AgriSys as a reliable, accessible, and functional platform for agricultural service delivery. However, we do not guarantee that the system will be available at all times without interruption, free from errors, fully secure from cyberattacks, or compatible with all devices and browsers.</p>
 
                         <h4>7.2 Maintenance and Updates</h4>
-                        <p>AgriSys may be temporarily unavailable or experience reduced functionality due to scheduled maintenance, security patches, database backups, or testing of new features. Where feasible, the City Agriculture Office will provide advance notice of scheduled maintenance through system notifications, email, or official announcements.</p>
+                        <p>AgriSys may be temporarily unavailable or experience reduced functionality due to scheduled maintenance, security patches, database backups, or testing of new features. Where feasible, the City Agriculture Office will provide advance notice of scheduled maintenance through system notifications, sms, or official announcements.</p>
 
                         <h4>7.3 Modifications to Features and Services</h4>
                         <p>The City Agriculture Office reserves the right to add, modify, or remove features, functionalities, and services offered through AgriSys. Continued use of AgriSys following such changes constitutes your acceptance of the modified system and policies.</p>

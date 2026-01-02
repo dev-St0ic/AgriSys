@@ -20,7 +20,6 @@ class UserRegistration extends Model
         // Basic signup fields
         'username',
         'contact_number', // Required for signup
-        'email', // Optional
         'password',
         'status',
         'terms_accepted',
@@ -52,7 +51,6 @@ class UserRegistration extends Model
 
         // System fields
         'verification_token',
-        'email_verified_at',
         'approved_at',
         'rejected_at',
         'approved_by',
@@ -68,7 +66,6 @@ class UserRegistration extends Model
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
         'approved_at' => 'datetime',
         'rejected_at' => 'datetime',
         'date_of_birth' => 'date',
@@ -177,16 +174,6 @@ class UserRegistration extends Model
         return $query->where('status', $status);
     }
 
-    public function scopeEmailVerified($query)
-    {
-        return $query->whereNotNull('email_verified_at');
-    }
-
-    public function scopeEmailUnverified($query)
-    {
-        return $query->whereNull('email_verified_at');
-    }
-
     public function scopeUsernameNotChanged($query)
     {
         return $query->whereNull('username_changed_at');
@@ -201,7 +188,6 @@ class UserRegistration extends Model
     {
         return $query->where(function ($q) use ($search) {
             $q->where('username', 'LIKE', "%{$search}%")
-              ->orWhere('email', 'LIKE', "%{$search}%")
               ->orWhere('first_name', 'LIKE', "%{$search}%")
               ->orWhere('last_name', 'LIKE', "%{$search}%")
               ->orWhere('contact_number', 'LIKE', "%{$search}%");
@@ -239,11 +225,6 @@ class UserRegistration extends Model
         return $this->status === self::STATUS_REJECTED;
     }
 
-    public function hasVerifiedEmail()
-    {
-        return !is_null($this->email_verified_at);
-    }
-
     public function hasCompleteProfile()
     {
         return $this->is_complete_profile;
@@ -270,7 +251,6 @@ class UserRegistration extends Model
         if ($previousStatus !== self::STATUS_APPROVED) {
             \Log::info('Account verification status changed - firing SMS notification event', [
                 'user_id' => $this->id,
-                'email' => $this->email,
                 'previous_status' => $previousStatus,
                 'new_status' => self::STATUS_APPROVED
             ]);
@@ -278,7 +258,6 @@ class UserRegistration extends Model
         } else {
             \Log::info('Account verification status unchanged - skipping SMS notification', [
                 'user_id' => $this->id,
-                'email' => $this->email,
                 'status' => self::STATUS_APPROVED
             ]);
         }
@@ -298,16 +277,6 @@ class UserRegistration extends Model
         // Fire event for SMS notification
         if ($previousStatus !== self::STATUS_REJECTED) {
             event(new AccountVerificationStatusChanged($this, $previousStatus, self::STATUS_REJECTED, $reason));
-        }
-    }
-
-    public function markEmailAsVerified()
-    {
-        if (is_null($this->email_verified_at)) {
-            $this->update([
-                'email_verified_at' => now(),
-                'verification_token' => null,
-            ]);
         }
     }
 

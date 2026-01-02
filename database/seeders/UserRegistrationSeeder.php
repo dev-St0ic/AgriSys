@@ -40,7 +40,6 @@ class UserRegistrationSeeder extends Seeder
             ->count(20)
             ->unverified()
             ->incompleteProfile()
-            ->emailUnverified()
             ->recent()
             ->create();
     }
@@ -57,7 +56,6 @@ class UserRegistrationSeeder extends Seeder
             ->farmer()
             ->pending()
             ->completeProfile()
-            ->emailVerified()
             ->create();
 
         UserRegistration::factory()
@@ -65,14 +63,12 @@ class UserRegistrationSeeder extends Seeder
             ->fisherfolk()
             ->pending()
             ->completeProfile()
-            ->emailVerified()
             ->create();
 
         UserRegistration::factory()
             ->count(4)
             ->pending()
             ->completeProfile()
-            ->emailVerified()
             ->create();
     }
 
@@ -88,7 +84,6 @@ class UserRegistrationSeeder extends Seeder
             ->farmer()
             ->approved()
             ->completeProfile()
-            ->emailVerified()
             ->old()
             ->create();
 
@@ -97,7 +92,6 @@ class UserRegistrationSeeder extends Seeder
             ->fisherfolk()
             ->approved()
             ->completeProfile()
-            ->emailVerified()
             ->old()
             ->create();
 
@@ -105,7 +99,6 @@ class UserRegistrationSeeder extends Seeder
             ->count(7)
             ->approved()
             ->completeProfile()
-            ->emailVerified()
             ->old()
             ->create();
     }
@@ -122,7 +115,6 @@ class UserRegistrationSeeder extends Seeder
             ->farmer()
             ->rejected()
             ->completeProfile()
-            ->emailVerified()
             ->create();
 
         UserRegistration::factory()
@@ -130,14 +122,12 @@ class UserRegistrationSeeder extends Seeder
             ->fisherfolk()
             ->rejected()
             ->completeProfile()
-            ->emailVerified()
             ->create();
 
         UserRegistration::factory()
             ->count(1)
             ->rejected()
             ->completeProfile()
-            ->emailVerified()
             ->create();
     }
 
@@ -151,7 +141,6 @@ class UserRegistrationSeeder extends Seeder
         // Test User 1: Basic signup (unverified)
         UserRegistration::create([
             'username' => 'juan_test',
-            'email' => 'juan.test@example.com',
             'password' => Hash::make('password123'),
             'sex' => 'Male',
             'status' => UserRegistration::STATUS_UNVERIFIED,
@@ -165,7 +154,6 @@ class UserRegistrationSeeder extends Seeder
         // Test User 2: Complete profile, pending approval
         UserRegistration::create([
             'username' => 'maria_santos',
-            'email' => 'maria.test@example.com',
             'password' => Hash::make('password123'),
             'sex' => 'Female',
             'status' => UserRegistration::STATUS_PENDING,
@@ -181,7 +169,6 @@ class UserRegistrationSeeder extends Seeder
             'date_of_birth' => '1985-03-15',
             'age' => 39,
             'gender' => 'female',
-            'email_verified_at' => now()->subDays(1),
             'username_changed_at' => null,
             'created_at' => now()->subDays(3),
         ]);
@@ -189,7 +176,6 @@ class UserRegistrationSeeder extends Seeder
         // Test User 3: Approved user
         UserRegistration::create([
             'username' => 'carlos_rodriguez',
-            'email' => 'carlos.test@example.com',
             'password' => Hash::make('password123'),
             'sex' => 'Male',
             'status' => UserRegistration::STATUS_APPROVED,
@@ -204,7 +190,6 @@ class UserRegistrationSeeder extends Seeder
             'date_of_birth' => '1990-07-20',
             'age' => 34,
             'gender' => 'male',
-            'email_verified_at' => now()->subDays(15),
             'approved_at' => now()->subDays(5),
             'username_changed_at' => null,
             'created_at' => now()->subDays(20),
@@ -213,7 +198,6 @@ class UserRegistrationSeeder extends Seeder
         // Test User 4: Rejected user
         UserRegistration::create([
             'username' => 'ana_garcia',
-            'email' => 'ana.test@example.com',
             'password' => Hash::make('password123'),
             'sex' => 'Female',
             'status' => UserRegistration::STATUS_REJECTED,
@@ -228,17 +212,15 @@ class UserRegistrationSeeder extends Seeder
             'date_of_birth' => '1982-11-08',
             'age' => 42,
             'gender' => 'female',
-            'email_verified_at' => now()->subDays(10),
             'rejected_at' => now()->subDays(8),
             'rejection_reason' => 'Unable to verify identity documents. Please resubmit with clearer photos.',
             'username_changed_at' => null,
             'created_at' => now()->subDays(12),
         ]);
 
-        // Test User 5: Recently signed up, email not verified
+        // Test User 5: Recently signed up
         UserRegistration::create([
             'username' => 'elena_villanueva',
-            'email' => 'elena.test@example.com',
             'password' => Hash::make('password123'),
             'sex' => 'Female',
             'status' => UserRegistration::STATUS_UNVERIFIED,
@@ -253,7 +235,6 @@ class UserRegistrationSeeder extends Seeder
         // Test User 6: User who already changed username
         UserRegistration::create([
             'username' => 'pedro_santos_new',
-            'email' => 'pedro.test@example.com',
             'password' => Hash::make('password123'),
             'sex' => 'Male',
             'status' => UserRegistration::STATUS_APPROVED,
@@ -268,7 +249,6 @@ class UserRegistrationSeeder extends Seeder
             'date_of_birth' => '1988-05-12',
             'age' => 36,
             'gender' => 'male',
-            'email_verified_at' => now()->subDays(30),
             'approved_at' => now()->subDays(20),
             'username_changed_at' => now()->subDays(10),
             'created_at' => now()->subDays(60),

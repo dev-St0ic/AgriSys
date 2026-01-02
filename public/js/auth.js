@@ -384,151 +384,6 @@ function loadProfileData() {
     });
 }
 
-// function editProfile() {
-//     const modal = document.getElementById('edit-profile-modal');
-//     if (!modal) {
-//         console.error('Edit profile modal not found');
-//         return;
-//     }
-
-//     // Load current profile data
-//     loadCurrentProfileData();
-
-//     modal.style.display = 'flex';
-//     document.body.style.overflow = 'hidden';
-
-//     // Close profile modal if open
-//     closeProfileModal();
-// }
-
-// function closeEditProfileModal() {
-//     const modal = document.getElementById('edit-profile-modal');
-//     if (modal) {
-//         modal.style.display = 'none';
-//         document.body.style.overflow = 'auto';
-//     }
-// }
-// /**
-//  * Load current profile data into edit form
-//  * UPDATED: Check if username has been changed before to disable editing
-//  */
-// async function loadCurrentProfileData() {
-//     try {
-//         const response = await fetch('/api/user/profile', {
-//             method: 'GET',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-//             },
-//             credentials: 'same-origin'
-//         });
-
-//         const data = await response.json();
-
-//         if (data.success && data.user) {
-//             populateEditForm(data.user);
-//         } else {
-//             showNotification('error', 'Failed to load profile data');
-//         }
-//     } catch (error) {
-//         console.error('Error loading profile data:', error);
-//         showNotification('error', 'Failed to load profile data');
-//     }
-// }
-// /**
-//  * Populate edit form with user data
-//  * UPDATED: Handle username editability based on whether it was already changed
-//  */
-// function populateEditForm(user) {
-//     // Set readonly fields with current user data
-//     const usernameInput = document.getElementById('edit-username');
-//     const emailInput = document.getElementById('edit-email');
-//     const profileAvatarLetter = document.getElementById('profile-avatar-letter');
-//     const usernameEditIndicator = document.getElementById('username-edit-indicator');
-
-//     // Populate username (editable only if not changed before)
-//     if (usernameInput) {
-//         usernameInput.value = user.username || '';
-//         usernameInput.setAttribute('data-original-username', user.username || '');
-
-//         // Check if username was already changed (look at user's created_at vs username last changed)
-//         // For now, we'll use a simple approach: check if the system has record of it being changed
-//         const usernameChanged = user.username_changed_at !== null && user.username_changed_at !== undefined;
-
-//         if (usernameChanged) {
-//             // Username already changed once - disable editing
-//             usernameInput.disabled = true;
-//             usernameInput.readOnly = true;
-//             usernameEditIndicator.style.display = 'flex';
-//             usernameEditIndicator.innerHTML = `
-//                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-//                     <path d="M12 6c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3z"/>
-//                     <path d="M6 9c-1.654.737-3 1.956-3 3.341 0 2.219 2.686 4 6 4s6-1.781 6-4c0-1.385-1.346-2.604-3-3.341"/>
-//                 </svg>
-//                 <span>Already changed - Cannot edit</span>
-//             `;
-//         } else {
-//             // Username not changed yet - allow editing
-//             usernameInput.disabled = false;
-//             usernameInput.readOnly = false;
-//             usernameEditIndicator.style.display = 'flex';
-//             usernameEditIndicator.innerHTML = `
-//                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-//                     <path d="M12 6c3.314 0 6-1.343 6-3s-2.686-3-6-3-6 1.343-6 3 2.686 3 6 3z"/>
-//                     <path d="M6 9c-1.654.737-3 1.956-3 3.341 0 2.219 2.686 4 6 4s6-1.781 6-4c0-1.385-1.346-2.604-3-3.341"/>
-//                 </svg>
-//                 <span>Can only be changed once</span>
-//             `;
-
-//             // Add real-time avatar update on username change
-//             usernameInput.addEventListener('input', function() {
-//                 if (profileAvatarLetter) {
-//                     const firstLetter = this.value.charAt(0).toUpperCase();
-//                     profileAvatarLetter.textContent = firstLetter || 'U';
-//                 }
-//             });
-//         }
-//     }
-
-//     // Populate email (readonly)
-//     if (emailInput) {
-//         emailInput.value = user.email || '';
-//     }
-
-//     // Update profile avatar with first letter of current username
-//     if (profileAvatarLetter && user.username) {
-//         profileAvatarLetter.textContent = user.username.charAt(0).toUpperCase();
-//     }
-
-//     // Populate editable fields
-//     const contactNumberInput = document.getElementById('edit-contact-number');
-//     const addressInput = document.getElementById('edit-complete-address');
-//     const barangaySelect = document.getElementById('edit-barangay');
-
-//     // Contact number (editable)
-//     if (contactNumberInput && user.contact_number) {
-//         contactNumberInput.value = user.contact_number;
-//     }
-
-//     // Complete address (editable)
-//     if (addressInput && user.complete_address) {
-//         addressInput.value = user.complete_address;
-//     }
-
-//     // Barangay (editable)
-//     if (barangaySelect && user.barangay) {
-//         barangaySelect.value = user.barangay;
-//     }
-
-//     console.log('Profile form populated with user data:', {
-//         username: user.username,
-//         email: user.email,
-//         contact_number: user.contact_number,
-//         barangay: user.barangay,
-//         username_changed_before: user.username_changed_at !== null
-//     });
-// }
-
 // ==============================================
 // CHANGE PASSWORD FUNCTIONS WITH VALIDATION
 // ==============================================
@@ -1320,7 +1175,6 @@ function populateEditForm(user) {
 
     console.log('Profile form populated with user data:', {
         username: user.username,
-        email: user.email,
         contact_number: user.contact_number,
         barangay: user.barangay,
         username_changed_before: user.username_changed_at !== null
@@ -2568,105 +2422,6 @@ function checkUsernameAvailability(username) {
     }, 500); // Debounce for 500ms
 }
 
-// ==============================================
-// EMAIL VALIDATION FUNCTION
-// ==============================================
-
-/**
- * Comprehensive email validation
- * Validates email format according to standard patterns
- */
-function validateEmail(email) {
-    const validation = {
-        valid: true,
-        error: ''
-    };
-
-    // Check if email is empty
-    if (!email || email.trim() === '') {
-        validation.valid = false;
-        validation.error = 'Email is required';
-        return validation;
-    }
-
-    // Remove whitespace
-    email = email.trim();
-
-    // Check for spaces
-    if (/\s/.test(email)) {
-        validation.valid = false;
-        validation.error = 'Email cannot contain spaces';
-        return validation;
-    }
-
-    // Check length (standard email max is 254 characters)
-    if (email.length > 254) {
-        validation.valid = false;
-        validation.error = 'Email is too long (max 254 characters)';
-        return validation;
-    }
-
-    // Check basic format: must have @ and at least one dot after @
-    if (!email.includes('@') || !email.split('@')[1]?.includes('.')) {
-        validation.valid = false;
-        validation.error = 'Invalid email format (must be name@domain.com)';
-        return validation;
-    }
-
-    // Comprehensive email regex pattern
-    // Allows: letters, numbers, dots, underscores, hyphens
-    // Format: localpart@domain.tld
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-    if (!emailPattern.test(email)) {
-        validation.valid = false;
-        validation.error = 'Invalid email format. Use letters, numbers, dots, underscores, or hyphens';
-        return validation;
-    }
-
-    // Split email into local part and domain
-    const [localPart, domain] = email.split('@');
-
-    // Validate local part (before @)
-    if (localPart.length === 0 || localPart.length > 64) {
-        validation.valid = false;
-        validation.error = 'Email username part is invalid (max 64 characters)';
-        return validation;
-    }
-
-    // Check for consecutive dots
-    if (/\.\./.test(email)) {
-        validation.valid = false;
-        validation.error = 'Email cannot have consecutive dots';
-        return validation;
-    }
-
-    // Check if starts or ends with dot, underscore, or hyphen
-    if (/^[._-]|[._-]@/.test(email)) {
-        validation.valid = false;
-        validation.error = 'Email cannot start with a dot, underscore, or hyphen';
-        return validation;
-    }
-
-    // Validate domain part (after @)
-    if (domain.length === 0 || domain.length > 255) {
-        validation.valid = false;
-        validation.error = 'Email domain is invalid';
-        return validation;
-    }
-
-    // Check domain has valid TLD (at least 2 characters)
-    const domainParts = domain.split('.');
-    const tld = domainParts[domainParts.length - 1];
-    if (tld.length < 2) {
-        validation.valid = false;
-        validation.error = 'Email must have a valid domain extension (e.g., .com, .ph)';
-        return validation;
-    }
-
-    return validation;
-}
-
 /**
  * Comprehensive contact number validation
  * Validates Philippine mobile numbers and general phone formats
@@ -3829,12 +3584,6 @@ function clearAllValidationUI() {
         usernameStatus.innerHTML = '';
     }
 
-    // Clear email error
-    const emailError = document.querySelector('.email-error');
-    if (emailError) {
-        emailError.remove();
-    }
-
     // Clear password strength
     const strengthBar = document.querySelector('.strength-fill');
     const strengthText = document.querySelector('.strength-text');
@@ -4579,8 +4328,8 @@ function capitalizeWords(str) {
  */
 function initAutoCapitalize() {
     // Fields that should NOT be capitalized
-    const excludeTypes = ['email', 'password', 'url', 'search'];
-    const excludeNames = ['email', 'password', 'username', 'url'];
+    const excludeTypes = ['password', 'url', 'search'];
+    const excludeNames = ['password', 'username', 'url'];
 
     // Check if input should be excluded from capitalization
     function shouldExclude(input) {
