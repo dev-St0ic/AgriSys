@@ -58,6 +58,7 @@ class UserRegistrationFactory extends Factory
             'last_name' => $lastName,
             'middle_name' => $this->faker->optional(0.8)->randomElement($filipinoFirstNames),
             'name_extension' => $this->faker->optional(0.15)->randomElement(['Jr.', 'Sr.', 'II', 'III', 'IV']),
+            'sex' => $this->faker->randomElement(['Male', 'Female']),
             'contact_number' => $this->faker->numerify('09#########'), // FIXED: Always generate
             'complete_address' => $this->faker->optional(0.7)->address(),
             'barangay' => $this->faker->optional(0.7)->randomElement($allBarangays),

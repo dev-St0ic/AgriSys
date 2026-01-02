@@ -528,12 +528,12 @@
                                                 class="text-danger">*</span></label>
                                         <input type="date" class="form-control" id="add_date_of_birth" required>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="add_gender" class="form-label">Gender</label>
-                                        <select class="form-select" id="add_gender">
-                                            <option value="">Select</option>
-                                            <option value="male">Male</option>
-                                            <option value="female">Female</option>
+                                      <div class="col-md-4 mb-3">
+                                        <label for="add_sex" class="form-label">Sex <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="add_sex" name="sex" required>
+                                            <option value="">Select Sex</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
@@ -838,6 +838,14 @@
                                             <option value="V">V</option>
                                         </select>
                                     </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="edit_sex" class="form-label">Sex</label>
+                                        <select class="form-select" id="edit_sex" name="sex">
+                                            <option value="">Not Specified</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
@@ -884,7 +892,30 @@
                                             <option value="Bagong Silang">Bagong Silang</option>
                                             <option value="Calendola">Calendola</option>
                                             <option value="Chrysanthemum">Chrysanthemum</option>
-                                            <!-- Add all other barangay options as needed -->
+                                            <option value="Cuyab">Cuyab</option>
+                                            <option value="Estrella">Estrella</option>
+                                            <option value="Fatima">Fatima</option>
+                                            <option value="G.S.I.S.">G.S.I.S.</option>
+                                            <option value="Landayan">Landayan</option>
+                                            <option value="Langgam">Langgam</option>
+                                            <option value="Laram">Laram</option>
+                                            <option value="Magsaysay">Magsaysay</option>
+                                            <option value="Maharlika">Maharlika</option>
+                                            <option value="Narra">Narra</option>
+                                            <option value="Nueva">Nueva</option>
+                                            <option value="Pacita 1">Pacita 1</option>
+                                            <option value="Pacita 2">Pacita 2</option>
+                                            <option value="Poblacion">Poblacion</option>
+                                            <option value="Riverside">Riverside</option>
+                                            <option value="Rosario">Rosario</option>
+                                            <option value="Sampaguita Village">Sampaguita Village</option>
+                                            <option value="San Antonio">San Antonio</option>
+                                            <option value="San Lorenzo Ruiz">San Lorenzo Ruiz</option>
+                                            <option value="San Roque">San Roque</option>
+                                            <option value="San Vicente">San Vicente</option>
+                                            <option value="Santo Niño">Santo Niño</option>
+                                            <option value="United Bayanihan">United Bayanihan</option>
+                                            <option value="United Better Living">United Better Living</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3">
@@ -2127,7 +2158,7 @@
                             <div class="col-12"><strong>Name Extension:</strong> ${data.name_extension || '<span class="text-muted">Not provided</span>'}</div>
                             <div class="col-12"><strong>Date of Birth:</strong> ${data.date_of_birth || '<span class="text-muted">Not provided</span>'}</div>
                             <div class="col-12"><strong>Age:</strong> ${data.age || '<span class="text-muted">Not calculated</span>'}</div>
-                            <div class="col-12"><strong>Gender:</strong> ${data.gender || '<span class="text-muted">Not specified</span>'}</div>
+                            <div class="col-12"><strong>Sex:</strong> ${data.sex || '<span class="text-muted">Not specified</span>'}</div>
                         </div>
                     </div>
                 </div>
@@ -3606,6 +3637,17 @@
                 isValid = false;
             }
 
+            // validate sex
+            const sexSelect = document.getElementById('add_sex');
+            if (!sexSelect.value) {
+                sexSelect.classList.add('is-invalid');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                errorDiv.textContent = 'Sex is required';
+                sexSelect.parentNode.appendChild(errorDiv);
+                isValid = false;
+            }
+
             // Check required fields
             const requiredFields = [{
                     id: 'add_username',
@@ -3751,7 +3793,7 @@
             formData.append('last_name', document.getElementById('add_last_name').value.trim());
             formData.append('name_extension', document.getElementById('add_name_extension').value);
             formData.append('date_of_birth', document.getElementById('add_date_of_birth').value);
-            formData.append('gender', document.getElementById('add_gender').value);
+            formData.append('sex', document.getElementById('add_sex').value);
             formData.append('contact_number', document.getElementById('add_contact_number').value.trim());
             formData.append('barangay', document.getElementById('add_barangay').value);
             formData.append('complete_address', document.getElementById('add_complete_address').value.trim());
@@ -4186,6 +4228,7 @@
                     document.getElementById('edit_middle_name').value = data.middle_name || '';
                     document.getElementById('edit_last_name').value = data.last_name || '';
                     document.getElementById('edit_name_extension').value = data.name_extension || '';
+                    document.getElementById('edit_sex').value = data.sex || '';
                     document.getElementById('edit_contact_number').value = data.contact_number || '';
                     document.getElementById('edit_email').value = data.email || '';
                     document.getElementById('edit_barangay').value = data.barangay || '';
@@ -4237,6 +4280,7 @@
                 middle_name: data.middle_name || '',
                 last_name: data.last_name || '',
                 name_extension: data.name_extension || '',
+                sex: data.sex || '',
                 contact_number: data.contact_number || '',
                 email: data.email || '',
                 barangay: data.barangay || '',
@@ -4306,6 +4350,7 @@
                 'middle_name': 'edit_middle_name',
                 'last_name': 'edit_last_name',
                 'name_extension': 'edit_name_extension',
+                'sex': 'edit_sex',
                 'contact_number': 'edit_contact_number',
                 'email': 'edit_email',
                 'barangay': 'edit_barangay',
@@ -4537,6 +4582,7 @@
                 middle_name: (document.getElementById('edit_middle_name')?.value || '').trim(),
                 last_name: (document.getElementById('edit_last_name')?.value || '').trim(),
                 name_extension: (document.getElementById('edit_name_extension')?.value || '') || null,
+                sex: (document.getElementById('edit_sex')?.value || '') || null,
                 contact_number: (document.getElementById('edit_contact_number')?.value || '').trim(),
                 email: (document.getElementById('edit_email')?.value || '').trim(),
                 barangay: (document.getElementById('edit_barangay')?.value || '').trim(),

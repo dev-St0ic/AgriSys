@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('middle_name', 100)->nullable();
             $table->string('last_name', 100)->nullable();
             $table->string('name_extension', 20)->nullable();
+            $table->enum('sex', ['Male', 'Female', 'Preferred not to say'])->nullable();
             // contact_number is now defined above as required field
             $table->text('complete_address')->nullable();
             $table->string('barangay', 100)->nullable();
