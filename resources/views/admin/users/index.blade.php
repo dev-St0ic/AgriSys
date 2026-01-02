@@ -511,7 +511,7 @@
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <label for="add_name_extension" class="form-label">Extension</label>
-                                        <select class="form-select" id="add_name_extension">
+                                        <select class="form-select" id="add_name_extension" name="name_extension">
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
                                             <option value="Sr.">Sr.</option>

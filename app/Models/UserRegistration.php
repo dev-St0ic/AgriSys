@@ -73,6 +73,7 @@ class UserRegistration extends Model
         'rejected_at' => 'datetime',
         'date_of_birth' => 'date',
         'sex' => 'string', 
+        'name_extension' => 'string',
         'last_login_at' => 'datetime',
         'username_changed_at' => 'datetime',
         'terms_accepted' => 'boolean',
