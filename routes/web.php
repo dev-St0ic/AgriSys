@@ -720,10 +720,6 @@ Route::prefix('auth')->group(function () {
         ->middleware('web') // Use web middleware for session and CSRF protection
         ->name('auth.verify.profile');
 
-    // Email verification routes (optional future enhancement)
-    Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('auth.verify.email');
-    Route::post('/resend-verification', [UserRegistrationController::class, 'resendVerification'])->name('auth.resend.verification');
-
     // Forgot Password with SMS OTP
     Route::post('/forgot-password/send-otp', [ForgotPasswordController::class, 'sendOtp'])->name('auth.forgot.send-otp');
     Route::post('/forgot-password/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('auth.forgot.verify-otp');
