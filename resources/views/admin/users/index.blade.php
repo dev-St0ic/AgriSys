@@ -2102,6 +2102,7 @@
         </div>` : '';
 
             const statusBadgeColor = getStatusBadgeColor(data.status);
+            const verificationStatus = data.is_verified ? 
                 '<span class="badge bg-success"><i class="fas fa-check"></i> Verified</span>' :
                 '<span class="badge bg-secondary"><i class="fas fa-times"></i> Unverified</span>';
 
