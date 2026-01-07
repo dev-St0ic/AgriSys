@@ -65,7 +65,7 @@ class UserRegistrationFactory extends Factory
             'date_of_birth' => $this->faker->optional(0.8)->dateTimeBetween('-70 years', '-18 years'),
             'gender' => $this->faker->optional(0.9)->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
 
-            'verification_token' => $this->faker->optional(0.3)->sha256(),
+            // 'verification_token' => $this->faker->optional(0.3)->sha256(),
             'username_changed_at' => null,
             'last_login_at' => $this->faker->optional(0.5)->dateTimeBetween('-7 days', 'now'),
         ];

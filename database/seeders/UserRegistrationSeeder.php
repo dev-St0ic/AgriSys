@@ -224,7 +224,7 @@ class UserRegistrationSeeder extends Seeder
             'password' => Hash::make('password123'),
             'sex' => 'Female',
             'status' => UserRegistration::STATUS_UNVERIFIED,
-            'verification_token' => 'test-verification-token-12345',
+            // 'verification_token' => 'test-verification-token-12345',
             'terms_accepted' => true,
             'privacy_accepted' => true,
             'contact_number' => '09666555444',
