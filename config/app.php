@@ -107,6 +107,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Asset Version
+    |--------------------------------------------------------------------------
+    |
+    | This version string is appended to asset URLs to bust browser cache.
+    | Update this value whenever you deploy new CSS/JS changes.
+    |
+    */
+
+    'asset_version' => env('ASSET_VERSION', '1.0.0'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |
