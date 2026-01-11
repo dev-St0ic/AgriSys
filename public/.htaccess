@@ -30,6 +30,19 @@
             Header set Access-Control-Allow-Origin "*"
             Header set Cache-Control "public, max-age=31536000"
         </FilesMatch>
+
+        # Cache busting for CSS and JS files with version parameter
+        # Files with ?v= parameter should be cached for a long time
+        <FilesMatch "\.(css|js)$">
+            # If URL contains version parameter, cache for 1 year
+            Header set Cache-Control "public, max-age=31536000, immutable" env=HAS_VERSION
+            # Otherwise, must revalidate
+            Header set Cache-Control "public, max-age=0, must-revalidate" env=!HAS_VERSION
+        </FilesMatch>
+
+        # Set environment variable if version parameter exists
+        RewriteCond %{QUERY_STRING} v=
+        RewriteRule \.(css|js)$ - [E=HAS_VERSION:1]
     </IfModule>
 
     # Hide server signature
@@ -64,4 +77,5 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
 </IfModule>
