@@ -403,12 +403,12 @@ function validateRSBSAForm(form) {
     const fileField = form.querySelector('[name="supporting_docs"]');
     if (fileField && fileField.files.length > 0) {
         const file = fileField.files[0];
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        const maxSize = 10 * 1024 * 1024; // 10MB
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
 
         if (file.size > maxSize) {
             isValid = false;
-            errors.push('File size must be less than 5MB');
+            errors.push('File size must be less than 10MB');
             fileField.classList.add('error');
         }
 

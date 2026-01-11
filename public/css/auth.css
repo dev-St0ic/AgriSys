@@ -516,9 +516,9 @@ textarea.no-capitalize {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: absolute;  /* ADD THIS */
-    right: 20px;  /* ADD THIS */
-    top: 25%;  /* ADD THIS */
+    position: absolute;  
+    right: 20px; 
+    top: 25%;  
 }
 
 .auth-modal-close:hover {
@@ -1479,6 +1479,7 @@ input.is-invalid {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
 .modal-header h3 {
@@ -1504,8 +1505,6 @@ input.is-invalid {
 }
 
 .modal-close:hover {
-    opacity: 1;
-    transform: scale(1.05);
     background: rgba(255, 255, 255, 0.2);
 }
 
@@ -1572,6 +1571,59 @@ input.is-invalid {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+/* Verify Account Button - Exact Same Green as Other Buttons */
+#verify-action-btn,
+#verify-action-btn.verified,
+#verify-action-btn.pending,
+#verify-action-btn.rejected,
+#verify-action-btn:disabled,
+#verify-action-btn[disabled] {
+    background: linear-gradient(135deg, #0A6953, #2d6a4f) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.3) !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    padding: 16px 20px !important;
+    border-radius: 10px !important;
+}
+
+/* Hover Effect */
+#verify-action-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(10, 105, 83, 0.4) !important;
+}
+
+/* Active/Click State */
+#verify-action-btn:active {
+    transform: translateY(0) !important;
+}
+
+/* Disabled State - Keep green */
+#verify-action-btn:disabled,
+#verify-action-btn[disabled] {
+    opacity: 0.9 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #verify-action-btn {
+        padding: 14px 16px !important;
+        font-size: 14px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #verify-action-btn {
+        padding: 12px 14px !important;
+        font-size: 13px !important;
+    }
 }
 
 .status-verified,
@@ -1936,8 +1988,7 @@ input.is-invalid {
 }
 
 .modal-close:hover {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* Modal Body */
@@ -2201,13 +2252,7 @@ input.is-invalid {
     border-radius: 50%;
     width: 44px;
     height: 44px;
-    animation: spin 1s linear infinite;
     margin: 0 auto 20px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 
 .loading-state p {
@@ -2365,6 +2410,47 @@ input.is-invalid {
 }
 
 .username-status .text-muted {
+    color: #6b7280;
+    font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+/* Contact Number Status Indicators */
+.contact-status .text-success {
+    color: #10b981;
+    font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.contact-status .text-danger {
+    color: #ef4444;
+    font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.contact-status .text-info {
+    color: #3b82f6;
+    font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.contact-status .text-muted {
     color: #6b7280;
     font-weight: 500;
     font-size: 13px;
@@ -3590,8 +3676,7 @@ input.is-invalid {
 }
 
 .change-password-modal .modal-close:hover {
-    background: #f3f4f6;
-    color: #6b7280;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* Security Info Banner - Replaces Password Requirements */
@@ -3885,7 +3970,6 @@ input.is-invalid {
         display: none !important;
     }
 }
-
 /* ==============================================
    VERIFICATION ALERT MODAL STYLES
    User-Friendly Design for Farmers & Fisherfolks
@@ -3939,6 +4023,7 @@ input.is-invalid {
     justify-content: space-between;
     border-bottom: none;
     border-radius: 20px 20px 0 0;
+    position: relative;
 }
 
 .verification-alert-modal .modal-header h3 {
@@ -3951,36 +4036,39 @@ input.is-invalid {
     flex: 1;
     justify-content: center;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    gap: 12px;
 }
 
 .verification-alert-modal .modal-header h3 i {
     color: #aca21e;
     font-size: 1.6rem;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    flex-shrink: 0; 
 }
 
-.verification-alert-modal .close-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    font-size: 1.8rem;
-    color: #ffffff;
+.verification-alert-modal .auth-modal-close {
+    font-size: 28px;
     cursor: pointer;
-    padding: 4px;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    line-height: 1;
     border-radius: 50%;
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
-    font-weight: bold;
-    line-height: 1;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
 }
 
-.verification-alert-modal .close-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: rotate(90deg);
+.verification-alert-modal .auth-modal-close:hover {
+    opacity: 1;
+    transform:  translateY(-50%) scale(1.1);
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Modal Body - Clear and spacious */
@@ -4056,12 +4144,16 @@ input.is-invalid {
     border-radius: 14px;
     padding: 24px;
     margin: 24px 0;
-    text-align: left;
+    text-align: center;
     border: 2px solid #b7e4c7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .verification-alert-modal .step {
-    display: flex;
+    display: grid;
+    grid-template-columns: 40px 1fr;
     align-items: center;
     gap: 14px;
     margin-bottom: 16px;
@@ -4070,6 +4162,8 @@ input.is-invalid {
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     transition: transform 0.2s ease;
+    width: 100%;
+    max-width: 400px;
 }
 
 .verification-alert-modal .step:hover {
@@ -4083,16 +4177,21 @@ input.is-invalid {
 .verification-alert-modal .step-number {
     width: 40px;
     height: 40px;
+    margin-top: 20px;
+    margin-left: 40px;
+    min-width: 40px;
     border-radius: 50%;
     background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
     color: #ffffff;
     font-size: 1.2rem;
     font-weight: 700;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     flex-shrink: 0;
     box-shadow: 0 3px 10px rgba(64, 145, 108, 0.3);
+    text-align: left;
+    line-height: 40px;
 }
 
 .verification-alert-modal .step-text {
@@ -4100,6 +4199,58 @@ input.is-invalid {
     font-size: 1.05rem;
     font-weight: 600;
     line-height: 1.4;
+    margin: 0;
+    text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .verification-alert-modal .modal-header h3 {
+        font-size: 1.2rem;
+        gap: 10px;
+    }
+
+    .verification-alert-modal .modal-header h3 i {
+        font-size: 1.4rem;
+    }
+
+    .verification-alert-modal .step-number {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        font-size: 1.1rem;
+    }
+
+    .verification-alert-modal .step-text {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .verification-alert-modal .modal-header h3 {
+        font-size: 1.1rem;
+        gap: 8px;
+    }
+
+    .verification-alert-modal .modal-header h3 i {
+        font-size: 1.2rem;
+    }
+
+    .verification-alert-modal .step {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .verification-alert-modal .step-number {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        font-size: 1rem;
+    }
+
+    .verification-alert-modal .step-text {
+        font-size: 0.95rem;
+    }
 }
 
 /* Status Info - Clear status display */

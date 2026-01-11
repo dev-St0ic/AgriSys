@@ -60,10 +60,6 @@
 
 
 /* RSBSA Form Elements */
-.rsbsa-form-group {
-    margin-bottom: 20px;
-}
-
 .rsbsa-form-row {
     display: flex;
     gap: 15px;
@@ -73,6 +69,10 @@
 .rsbsa-form-row .rsbsa-form-group {
     flex: 1;
     min-width: 200px;
+}
+
+.rsbsa-form-group {
+    margin-bottom: 20px;
 }
 
 .rsbsa-application-section label {

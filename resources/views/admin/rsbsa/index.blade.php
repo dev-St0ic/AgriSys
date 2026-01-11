@@ -2314,7 +2314,7 @@
                                         <input type="file" class="form-control" id="rsbsa_supporting_document"
                                             accept="image/*,.pdf"
                                             onchange="previewRsbsaDocument('rsbsa_supporting_document', 'rsbsa_doc_preview')">
-                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 5MB)</div>
+                                        <div class="form-text">Accepted: JPG, PNG, PDF (Max 10MB)</div>
                                     </div>
                                     <div class="col-md-6">
                                         <div id="rsbsa_doc_preview" style="margin-top: 10px;"></div>
@@ -3919,9 +3919,9 @@
 
             const file = input.files[0];
 
-            // Validate file size (5MB max)
-            if (file.size > 5 * 1024 * 1024) {
-                showToast('error', 'File size must not exceed 5MB');
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('error', 'File size must not exceed 10MB');
                 input.value = '';
                 if (preview) {
                     preview.innerHTML = '';

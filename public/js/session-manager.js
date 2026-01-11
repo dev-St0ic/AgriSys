@@ -97,7 +97,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Make logout available globally for your dropdown
 window.logoutUser = function() {
-    if (window.sessionManager) {
+    // Show confirmation modal before logging out
+    if (typeof showLogoutConfirmation === 'function') {
+        showLogoutConfirmation();
+    } else if (window.sessionManager) {
+        // Fallback: logout directly if confirmation modal not available
         window.sessionManager.logout();
     }
 };

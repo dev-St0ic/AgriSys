@@ -341,7 +341,7 @@ public function update(Request $request, $id)
                 'remarks' => 'nullable|string|max:1000',
 
                 // Document
-                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+                'supporting_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
 
                 // IMPORTANT: Make user_id optional like RSBSA
                 'user_id' => 'nullable|exists:user_registration,id'

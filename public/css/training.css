@@ -226,6 +226,11 @@
     cursor: not-allowed;
 }
 
+/* make the placeholder italic
+input::placeholder {
+    font-style: italic;
+} */
+
 
 /* --- Training Responsive Design --- */
 @media (max-width: 768px) {

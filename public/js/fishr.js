@@ -354,8 +354,8 @@ function toggleOtherLivelihood(select) {
         return;
     }
 
-    const otherField = document.getElementById('other-livelihood-field');
-    const otherInput = document.getElementById('other_livelihood');
+    const otherField = document.getElementById('fishr-other-livelihood-field');
+    const otherInput = document.getElementById('fishr-other_livelihood');
     const selectedValue = select.value;
 
     if (otherField && otherInput) {
@@ -363,12 +363,12 @@ function toggleOtherLivelihood(select) {
             // Show other livelihood field and make it required
             otherField.style.display = 'block';
             otherInput.setAttribute('required', 'required');
-            otherInput.focus(); // Focus on the input for better UX
+            otherInput.focus();
         } else {
             // Hide other livelihood field and remove requirement
             otherField.style.display = 'none';
             otherInput.removeAttribute('required');
-            otherInput.value = ''; // Clear the value
+            otherInput.value = '';
         }
     }
 
@@ -378,38 +378,72 @@ function toggleOtherLivelihood(select) {
     console.log('FishR livelihood changed to:', selectedValue);
 }
 
+
 /**
  * Updates supporting documents requirement based on livelihood type
+ * Now also updates the asterisk visibility
  */
 function updateDocumentsRequirement(livelihoodType) {
-    const docsInput = document.getElementById('supporting_documents');
-    const docsLabel = document.querySelector('label[for="supporting_documents"]');
-    const docsHelp = document.querySelector('#supporting_documents + .form-text');
+    const docsInput = document.getElementById('supporting_document');
+    const docsLabel = document.querySelector('label[for="supporting_document"]');
+    const docsHelp = document.querySelector('#supporting_document + .fishr-form-text');
+    const labelText = docsLabel ? docsLabel.querySelector('.label-text') : null;
+    const asterisk = docsLabel ? docsLabel.querySelector('.required-asterisk') : null;
 
     if (docsInput && docsLabel) {
         if (livelihoodType === 'capture') {
-            // Capture fishing - documents optional
+            // Make optional for capture fishing
             docsInput.removeAttribute('required');
-            docsLabel.innerHTML = 'Supporting Documents (Optional)';
+            
+            // Hide asterisk
+            if (asterisk) {
+                asterisk.style.display = 'none';
+            }
+            
+            // Update label text
+            if (labelText) {
+                labelText.textContent = 'Supporting Document (Optional)';
+            }
+            
             if (docsHelp) {
-                docsHelp.textContent = 'Optional for Capture Fishing. Max size: 10MB';
+                docsHelp.textContent = 'Optional for Capture Fishing. Upload Government ID or Barangay Certificate if available (PDF, JPG, PNG - Max 10MB).';
             }
         } else if (livelihoodType && livelihoodType !== '') {
-            // Other livelihood types - documents required
+            // Make required for other livelihood types
             docsInput.setAttribute('required', 'required');
-            docsLabel.innerHTML = 'Supporting Documents *';
+            
+            // Show asterisk
+            if (asterisk) {
+                asterisk.style.display = 'inline';
+            }
+            
+            // Update label text
+            if (labelText) {
+                labelText.textContent = 'Supporting Document';
+            }
+            
             if (docsHelp) {
-                docsHelp.textContent = 'Required for this livelihood type. Max size: 10MB';
+                docsHelp.textContent = 'Required for this livelihood type. Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB).';
             }
         } else {
-            // No livelihood selected - neutral state
-            docsInput.removeAttribute('required');
-            docsLabel.innerHTML = 'Supporting Documents';
+            // Default state
+            docsInput.setAttribute('required', 'required');
+            
+            if (asterisk) {
+                asterisk.style.display = 'inline';
+            }
+            
+            if (labelText) {
+                labelText.textContent = 'Supporting Document';
+            }
+            
             if (docsHelp) {
-                docsHelp.textContent = 'Required for all livelihood types except Capture Fishing. Max size: 10MB';
+                docsHelp.textContent = 'Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB). Required for aquaculture, fish vending, and fish processing only.';
             }
         }
     }
+    
+    console.log('Documents requirement updated for livelihood:', livelihoodType);
 }
 
 /**
@@ -690,7 +724,7 @@ function validateFishRForm() {
     }
 
     // Supporting documents validation for non-capture livelihoods
-    const docsInput = form.querySelector('[name="supporting_documents"]');
+    const docsInput = form.querySelector('[name="supporting_document"]'); // Changed from supporting_documents
     if (livelihoodSelect && livelihoodSelect.value && livelihoodSelect.value !== 'capture') {
         if (!docsInput || !docsInput.files || docsInput.files.length === 0) {
             errors.push('Supporting documents are required for this livelihood type');
@@ -698,7 +732,7 @@ function validateFishRForm() {
             isValid = false;
         } else {
             // Validate file size (max 10MB)
-            const maxSize = 10 * 1024 * 1024;
+            const maxSize = 10 * 1024 * 1024; // Already correct
             if (docsInput.files[0].size > maxSize) {
                 errors.push('Supporting document must not exceed 10MB');
                 markFieldError(docsInput);

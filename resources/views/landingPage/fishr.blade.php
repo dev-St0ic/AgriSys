@@ -26,12 +26,12 @@
             <div class="fishr-form-group">
                 <label for="fishr-first_name">First Name <span
                         style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="text" id="fishr-first_name" name="first_name" placeholder="Enter your first name"
+                <input type="text" id="fishr-first_name" name="first_name" placeholder="Example: Juan"
                     pattern="[a-zA-Z\s'\-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('first_name') }}" required>
                 <span class="validation-warning" id="fishr-first_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
                 @error('first_name')
                     <span class="fishr-error-text">{{ $message }}</span>
@@ -40,12 +40,12 @@
 
             <div class="fishr-form-group">
                 <label for="fishr-middle_name">Middle Name (Optional)</label>
-                <input type="text" id="fishr-middle_name" name="middle_name" placeholder="Enter your middle name"
+                <input type="text" id="fishr-middle_name" name="middle_name" placeholder="Example: Santos"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('middle_name') }}">
                 <span class="validation-warning" id="fishr-middle_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
                 @error('middle_name')
                     <span class="fishr-error-text">{{ $message }}</span>
@@ -54,12 +54,12 @@
 
             <div class="fishr-form-group">
                 <label for="fishr-last_name">Last Name <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="text" id="fishr-last_name" name="last_name" placeholder="Enter your last name"
+                <input type="text" id="fishr-last_name" name="last_name" placeholder="Example: Dela Cruz"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes"
                     value="{{ old('last_name') }}" required>
                 <span class="validation-warning" id="fishr-last_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
                 @error('last_name')
                     <span class="fishr-error-text">{{ $message }}</span>
@@ -138,7 +138,7 @@
             <div class="fishr-form-group">
                 <label for="fishr-contact_number">Contact Number <span
                         style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="tel" id="fishr-contact_number" name="contact_number" placeholder="09XXXXXXXXX"
+                <input type="tel" id="fishr-contact_number" name="contact_number" placeholder="Example: 09123456789"
                     value="{{ old('contact_number') }}" pattern="^09\d{9}$"
                     title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)" required>
                 @error('contact_number')
@@ -176,11 +176,13 @@
             </div>
 
             <div class="fishr-form-group">
-                <label for="supporting_documents">Supporting Documents</label>
-                <input type="file" id="supporting_documents" name="supporting_documents"
-                    accept=".pdf,.jpg,.jpeg,.png">
-                <small class="fishr-form-text">Required for all livelihood types except Capture Fishing. Max size:
-                    10MB</small>
+                <label for="supporting_document">
+                    <span class="label-text">Supporting Document</span>
+                    <span class="required-asterisk" style="color: #dc3545; font-weight: bold;">*</span>
+                </label>
+                <input type="file" id="supporting_document" name="supporting_document"
+                    accept=".pdf,.jpg,.jpeg,.png" required>
+                <small class="fishr-form-text">Upload Government ID or Barangay Certificate (PDF, JPG, PNG - Max 10MB). Required for aquaculture, fish vending, and fish processing only.</small>
                 @error('supporting_documents')
                     <span class="fishr-error-text">{{ $message }}</span>
                 @enderror

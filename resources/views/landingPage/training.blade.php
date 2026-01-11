@@ -50,31 +50,31 @@
 
             <div class="training-form-group">
                 <label for="training_first_name">First Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_first_name" name="first_name" placeholder="Enter your first name"
+                <input type="text" id="training_first_name" name="first_name" placeholder="Example: Juan"
                     pattern="[a-zA-Z\s'\-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="training_first_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
             <div class="training-form-group">
                 <label for="training_middle_name">Middle Name (Optional)</label>
-                <input type="text" id="training_middle_name" name="middle_name" placeholder="Enter your middle name"
+                <input type="text" id="training_middle_name" name="middle_name" placeholder="Example: Santos"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
                 <span class="validation-warning" id="training_middle_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
             <div class="training-form-group">
                 <label for="training_last_name">Last Name <span class="required-asterisk">*</span></label>
-                <input type="text" id="training_last_name" name="last_name" placeholder="Enter your last name"
+                <input type="text" id="training_last_name" name="last_name" placeholder="Example: Dela Cruz"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="training_last_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
@@ -93,7 +93,7 @@
 
             <div class="training-form-group">
                 <label for="training_contact_number">Contact Number <span class="required-asterisk">*</span></label>
-                <input type="tel" id="training_contact_number" name="contact_number" placeholder="09XXXXXXXXX"
+                <input type="tel" id="training_contact_number" name="contact_number" placeholder="Example: 09123456789"
                     pattern="^09\d{9}$" title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     required>
             </div>
@@ -144,10 +144,10 @@
             </div>
 
             <div class="training-form-group">
-                <label for="training_documents">Supporting Documents (PDF, JPG, PNG - Max 5MB each)</label>
-                <input type="file" id="training_documents" name="documents[]" multiple
+                <label for="training_document">Supporting Document <span class="required-asterisk">*</span></label>
+                <input type="file" id="training_document" name="supporting_document" required
                     accept=".pdf,.jpg,.jpeg,.png">
-                <small>Please upload relevant documents such as ID, certificates, or other supporting files.</small>
+                <small>Upload Government ID, Driver's License, or Barangay Certificate (PDF, JPG, PNG - Max 10MB)</small>
             </div>
 
             <div class="training-form-actions">
@@ -235,8 +235,8 @@
 
             <h3>Contact Information</h3>
             <p>For questions about training programs, contact the City Agriculture Office at:</p>
-            <p>Phone: (123) 456-7890<br>
-                Email: training@sanpedro.gov.ph</p>
+            <p>Phone: 8808-2020 Local 109<br>
+                Email: agriculture.sanpedrocity@gmail.com</p>
         </div>
     </div>
 </section>

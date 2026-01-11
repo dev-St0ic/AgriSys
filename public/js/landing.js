@@ -58,7 +58,7 @@ function showVerificationRequiredModal(serviceName) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h3><i class="fas fa-shield-alt"></i> Account Verification Required</h3>
-                            <button type="button" class="close-btn" onclick="closeVerificationAlert()">&times;</button>
+                            <span class="auth-modal-close" onclick="closeVerificationAlert()">&times;</span>
                         </div>
                         <div class="modal-body">
                             <div class="alert-icon">
@@ -100,7 +100,7 @@ function showVerificationRequiredModal(serviceName) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h3><i class="fas fa-clock"></i> Verification Pending</h3>
-                            <button type="button" class="close-btn" onclick="closeVerificationAlert()">&times;</button>
+                            <span class="auth-modal-close" onclick="closeVerificationAlert()">&times;</span>
                         </div>
                         <div class="modal-body">
                             <div class="alert-icon pending">
@@ -130,7 +130,7 @@ function showVerificationRequiredModal(serviceName) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h3><i class="fas fa-times-circle"></i> Verification Required</h3>
-                            <button type="button" class="close-btn" onclick="closeVerificationAlert()">&times;</button>
+                            <span class="auth-modal-close" onclick="closeVerificationAlert()">&times;</span>
                         </div>
                         <div class="modal-body">
                             <div class="alert-icon rejected">
@@ -162,7 +162,7 @@ function showVerificationRequiredModal(serviceName) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h3><i class="fas fa-shield-alt"></i> Account Verification Required</h3>
-                            <button type="button" class="close-btn" onclick="closeVerificationAlert()">&times;</button>
+                            <span class="auth-modal-close" onclick="closeVerificationAlert()">&times;</span>
                         </div>
                         <div class="modal-body">
                             <div class="alert-icon">

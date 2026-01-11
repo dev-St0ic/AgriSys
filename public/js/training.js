@@ -369,7 +369,7 @@ function validateTrainingForm() {
     // Email validation removed - not required for training applications
 
     // Validate file uploads
-    const fileInput = document.getElementById('training_documents');
+    const fileInput = document.getElementById('training_document');
     if (fileInput && fileInput.files.length > 0) {
         if (!validateFiles(fileInput.files)) {
             isValid = false;
@@ -392,19 +392,28 @@ function validateEmail(email) {
 }
 
 function validateFiles(files) {
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 10 * 1024 * 1024; // 10MB
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 
-    for (let file of files) {
-        if (file.size > maxSize) {
-            agrisysModal.warning('File "' + file.name + '" is too large. Maximum size is 5MB.', { title: 'File Too Large' });
-            return false;
-        }
+    // Since we only allow one file now
+    const file = files[0];
+    
+    if (!file) {
+        return true; // No file selected is valid (unless required by HTML)
+    }
 
-        if (!allowedTypes.includes(file.type)) {
-            agrisysModal.warning('File "' + file.name + '" is not a supported format. Please upload PDF, JPG, or PNG files only.', { title: 'Invalid File Type' });
-            return false;
-        }
+    if (file.size > maxSize) {
+        agrisysModal.warning('File "' + file.name + '" is too large. Maximum size is 10MB.', { 
+            title: 'File Too Large' 
+        });
+        return false;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+        agrisysModal.warning('File "' + file.name + '" is not a supported format. Please upload PDF, JPG, or PNG files only.', { 
+            title: 'Invalid File Type' 
+        });
+        return false;
     }
 
     return true;

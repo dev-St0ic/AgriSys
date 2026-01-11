@@ -42,31 +42,31 @@
 
             <div class="boatr-form-group">
                 <label for="boatr_first_name">First Name <span class="required">*</span></label>
-                <input type="text" id="boatr_first_name" name="first_name" placeholder="Enter first name"
+                <input type="text" id="boatr_first_name" name="first_name" placeholder="Example: Juan"
                     pattern="[a-zA-Z\s'\-]+"
                     title="First name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="boatr_first_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
             <div class="boatr-form-group">
                 <label for="boatr_middle_name">Middle Name (Optional)</label>
-                <input type="text" id="boatr_middle_name" name="middle_name" placeholder="Enter middle name"
+                <input type="text" id="boatr_middle_name" name="middle_name" placeholder="Example: Santos"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Middle name can only contain letters, spaces, hyphens, and apostrophes">
                 <span class="validation-warning" id="boatr_middle_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
             <div class="boatr-form-group">
                 <label for="boatr_last_name">Last Name <span class="required">*</span></label>
-                <input type="text" id="boatr_last_name" name="last_name" placeholder="Enter last name"
+                <input type="text" id="boatr_last_name" name="last_name" placeholder="Example: Dela Cruz"
                     pattern="[a-zA-Z\s'\-]+"
                     title="Last name can only contain letters, spaces, hyphens, and apostrophes" required>
                 <span class="validation-warning" id="boatr_last_name-warning"
-                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">⚠️ Only letters,
+                    style="color: #ff6b6b; font-size: 0.875rem; display: none; margin-top: 4px;">Only letters,
                     spaces, hyphens, and apostrophes are allowed</span>
             </div>
 
@@ -85,10 +85,9 @@
 
             <div class="boatr-form-group">
                 <label for="boatr_contact_number">Contact Number <span class="required">*</span></label>
-                <input type="tel" id="boatr_contact_number" name="contact_number" placeholder="09XXXXXXXXX"
+                <input type="tel" id="boatr_contact_number" name="contact_number" placeholder="Example: 09123456789"
                     pattern="^09\d{9}$" title="Contact number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     required>
-                <small class="boatr-form-help">Format: 09XXXXXXXXX (e.g., 09123456789)</small>
             </div>
 
             <div class="boatr-form-group">
@@ -125,14 +124,15 @@
             <div class="boatr-form-group">
                 <label for="boatr_fishr_number">FishR Number <span class="required">*</span></label>
                 <input type="text" id="boatr_fishr_number" name="fishr_number"
-                    placeholder="Enter FishR Number (e.g., FISHR-ABC12345)" required>
-                <small class="boatr-form-help">Enter your approved FishR registration number</small>
+                    placeholder="Example: FISHR-ABC12345" required>
+                <small class="boatr-form-help">Your approved FishR registration number</small>
             </div>
 
             <div class="boatr-form-group">
                 <label for="boatr_vessel_name">Vessel Name <span class="required">*</span></label>
-                <input type="text" id="boatr_vessel_name" name="vessel_name" placeholder="Enter vessel name"
+                <input type="text" id="boatr_vessel_name" name="vessel_name" placeholder="Example: Blessed Catch"
                     required>
+                <small class="boatr-form-help">Official name of your fishing boat</small>
             </div>
 
             <div class="boatr-form-group">
@@ -153,30 +153,31 @@
                 <div class="boatr-form-group">
                     <label for="boatr_boat_length">Length (feet) <span class="required">*</span></label>
                     <input type="number" id="boatr_boat_length" name="boat_length" step="0.01" min="1"
-                        max="200" placeholder="Length" required>
+                        max="200" placeholder="Example: 15.5" required>
                 </div>
                 <div class="boatr-form-group">
                     <label for="boatr_boat_width">Width (feet) <span class="required">*</span></label>
                     <input type="number" id="boatr_boat_width" name="boat_width" step="0.01" min="1"
-                        max="50" placeholder="Width" required>
+                        max="50" placeholder="Example: 4.2" required>
                 </div>
                 <div class="boatr-form-group">
                     <label for="boatr_boat_depth">Depth (feet) <span class="required">*</span></label>
                     <input type="number" id="boatr_boat_depth" name="boat_depth" step="0.01" min="1"
-                        max="30" placeholder="Depth" required>
+                        max="30" placeholder="Example: 2.8" required>
                 </div>
             </div>
 
             <div class="boatr-form-group">
                 <label for="boatr_engine_type">Engine Type <span class="required">*</span></label>
                 <input type="text" id="boatr_engine_type" name="engine_type"
-                    placeholder="Enter engine type (e.g., Yamaha Outboard Motor)" required>
+                    placeholder="Example: Yamaha 40HP Outboard" required>
+                <small class="boatr-form-help">Brand and model of your boat engine</small>
             </div>
 
             <div class="boatr-form-group">
                 <label for="boatr_engine_horsepower">Engine Horsepower <span class="required">*</span></label>
                 <input type="number" id="boatr_engine_horsepower" name="engine_horsepower" step="1"
-                    min="1" max="500" placeholder="Enter engine horsepower" required>
+                    min="1" max="500" placeholder="Example: 40" required>
             </div>
 
             <div class="boatr-form-group">
@@ -196,7 +197,7 @@
                 <input type="file" id="boatr_supporting_documents" name="supporting_documents"
                     accept=".pdf,.jpg,.jpeg,.png" onchange="previewSingleFile(this)">
                 <small class="boatr-form-help">
-                    Upload one relevant document (PDF, JPG, JPEG, PNG - Max 10MB).
+                    Upload Proof of Boat Ownership or Government ID (PDF, JPG, PNG - Max 10MB).
                     Additional documents will be collected during on-site inspection.
                 </small>
             </div>
