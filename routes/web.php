@@ -720,10 +720,6 @@ Route::prefix('auth')->group(function () {
         ->middleware('web') // Use web middleware for session and CSRF protection
         ->name('auth.verify.profile');
 
-    // Email verification routes (optional future enhancement)
-    Route::get('/verify-email/{token}', [UserRegistrationController::class, 'verifyEmail'])->name('auth.verify.email');
-    Route::post('/resend-verification', [UserRegistrationController::class, 'resendVerification'])->name('auth.resend.verification');
-
     // Forgot Password with SMS OTP
     Route::post('/forgot-password/send-otp', [ForgotPasswordController::class, 'sendOtp'])->name('auth.forgot.send-otp');
     Route::post('/forgot-password/verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('auth.forgot.verify-otp');
@@ -841,42 +837,42 @@ Route::get('/500', function () {
     return response()->view('errors.500', [], 500);
 })->name('error.500');
 
-/*
-|--------------------------------------------------------------------------
-| Development/Testing Routes (Remove in production)
-|--------------------------------------------------------------------------
-*/
-if (app()->environment('local', 'testing')) {
-    Route::prefix('dev')->group(function () {
-        // Test routes for development
-        Route::get('/test-registration', function () {
-            return view('dev.test-registration');
-        });
+// /*
+// |--------------------------------------------------------------------------
+// | Development/Testing Routes (Remove in production)
+// |--------------------------------------------------------------------------
+// */
+// if (app()->environment('local', 'testing')) {
+//     Route::prefix('dev')->group(function () {
+//         // Test routes for development
+//         Route::get('/test-registration', function () {
+//             return view('dev.test-registration');
+//         });
 
-        Route::get('/test-admin', function () {
-            return view('dev.test-admin');
-        });
+//         Route::get('/test-admin', function () {
+//             return view('dev.test-admin');
+//         });
 
-        // Clear session for testing
-        Route::get('/clear-session', function () {
-            session()->flush();
-            return redirect('/')->with('success', 'Session cleared for testing');
-        });
+//         // Clear session for testing
+//         Route::get('/clear-session', function () {
+//             session()->flush();
+//             return redirect('/')->with('success', 'Session cleared for testing');
+//         });
 
-        // ADDED: Test verification form (for development only)
-        Route::get('/test-verification', function () {
-            // Mock user session for testing
-            session(['user' => [
-                'id' => 1,
-                'username' => 'testuser',
-                'email' => 'test@example.com',
-                'status' => 'unverified'
-            ]]);
+//         // ADDED: Test verification form (for development only)
+//         Route::get('/test-verification', function () {
+//             // Mock user session for testing
+//             session(['user' => [
+//                 'id' => 1,
+//                 'username' => 'testuser',
+//                 'email' => 'test@example.com',
+//                 'status' => 'unverified'
+//             ]]);
 
-            return app(HomeController::class)->index();
-        });
-    });
-}
+//             return app(HomeController::class)->index();
+//         });
+//     });
+// }
 
 // ==============================================
 // STORAGE FILE SERVING ROUTE (Fallback for hosts without symlink support)

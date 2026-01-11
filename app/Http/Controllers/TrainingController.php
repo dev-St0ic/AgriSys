@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\ApplicationApproved;
 use App\Services\NotificationService;
 
 class TrainingController extends Controller
@@ -176,15 +174,6 @@ class TrainingController extends Controller
                 'created_by' => auth()->user()->name,
                 'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
             ]);
-
-            // Send email notification if approved and email is provided
-            if ($validated['status'] === 'approved' && !empty($validated['email'])) {
-                try {
-                    Mail::to($validated['email'])->send(new ApplicationApproved($training, 'training'));
-                } catch (\Exception $e) {
-                    Log::error('Failed to send training approval email: ' . $e->getMessage());
-                }
-            }
 
             return response()->json([
                 'success' => true,

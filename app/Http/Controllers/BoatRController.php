@@ -8,8 +8,6 @@ use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\ApplicationApproved;
 
 class BoatRController extends Controller
 {
@@ -246,17 +244,6 @@ class BoatRController extends Controller
 
             // ✅ Send admin notification
             NotificationService::boatrApplicationCreated($registration);
-
-            // Send email notification if approved and email is provided
-            if ($validated['status'] === 'approved' && !empty($validated['email'])) {
-                try {
-                    Mail::to($validated['email'])->send(new ApplicationApproved($registration, 'boatr'));
-                    Log::info('Approval email sent for BoatR application', ['email' => $validated['email']]);
-                } catch (\Exception $e) {
-                    Log::error('Failed to send BoatR approval email: ' . $e->getMessage());
-                    // Don't fail the request if email fails
-                }
-            }
 
             return response()->json([
                 'success' => true,
@@ -524,16 +511,6 @@ private function getChangedFields($original, $updated)
                 Log::warning('Activity logging failed', ['error' => $logException->getMessage()]);
             }
 
-            // Queue email notification (non-blocking)
-            try {
-                if ($validated['status'] === 'approved' && $registration->email) {
-                    \Illuminate\Support\Facades\Mail::to($registration->email)
-                        ->queue(new \App\Mail\ApplicationApproved($registration, 'boatr'));
-                }
-            } catch (\Exception $mailException) {
-                Log::warning('Email notification failed', ['error' => $mailException->getMessage()]);
-            }
-
             // Build and return response immediately
             $response = [
                 'success' => true,
@@ -733,20 +710,6 @@ private function getChangedFields($original, $updated)
                     $registration,
                     $oldStatus
                 );
-            }
-
-            // Send email if approved
-            if ($newStatus === 'approved' && $registration->email) {
-                try {
-                    Mail::to($registration->email)->send(new ApplicationApproved($registration, 'boatr'));
-                    Log::info('Approval email sent successfully', ['email' => $registration->email]);
-                } catch (\Exception $mailError) {
-                    Log::error('Failed to send approval email', [
-                        'email' => $registration->email,
-                        'error' => $mailError->getMessage()
-                    ]);
-                    // Don't fail the request if email fails
-                }
             }
 
             $message = 'Inspection completed successfully';

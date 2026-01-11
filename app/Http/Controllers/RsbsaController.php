@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\ApplicationApproved;
 
 class RsbsaController extends Controller
 {
@@ -494,15 +492,6 @@ public function updateStatus(Request $request, $id)
                 'created_by' => auth()->user()->name,
                 'linked_to_user' => $validated['user_id'] ? 'Yes (ID: ' . $validated['user_id'] . ')' : 'No (Standalone registration)'
             ]);
-
-            // Send email notification if approved and email is provided
-            if ($validated['status'] === 'approved' && !empty($validated['email'])) {
-                try {
-                    Mail::to($validated['email'])->send(new ApplicationApproved($application, 'rsbsa'));
-                } catch (\Exception $e) {
-                    Log::error('Failed to send RSBSA approval email: ' . $e->getMessage());
-                }
-            }
 
             return response()->json([
                 'success' => true,

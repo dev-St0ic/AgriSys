@@ -48,7 +48,6 @@ class UserRegistrationFactory extends Factory
 
         return [
             'username' => $this->faker->unique()->userName(),
-            'email' => $this->faker->unique()->safeEmail(),
             'password' => Hash::make('password123'),
             'status' => $this->faker->randomElement(['unverified', 'pending', 'approved', 'rejected']),
             'terms_accepted' => true,
@@ -66,8 +65,7 @@ class UserRegistrationFactory extends Factory
             'date_of_birth' => $this->faker->optional(0.8)->dateTimeBetween('-70 years', '-18 years'),
             'gender' => $this->faker->optional(0.9)->randomElement(['male', 'female', 'other', 'prefer_not_to_say']),
 
-            'verification_token' => $this->faker->optional(0.3)->sha256(),
-            'email_verified_at' => $this->faker->optional(0.7)->dateTimeBetween('-30 days', 'now'),
+            // 'verification_token' => $this->faker->optional(0.3)->sha256(),
             'username_changed_at' => null,
             'last_login_at' => $this->faker->optional(0.5)->dateTimeBetween('-7 days', 'now'),
         ];
@@ -237,28 +235,6 @@ class UserRegistrationFactory extends Factory
                 'Suspicious activity detected'
             ]),
             'username_changed_at' => null,
-        ]);
-    }
-
-    /**
-     * Indicate that the email is verified.
-     */
-    public function emailVerified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => $this->faker->dateTimeBetween('-30 days', 'now'),
-            'verification_token' => null,
-        ]);
-    }
-
-    /**
-     * Indicate that the email is not verified.
-     */
-    public function emailUnverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-            'verification_token' => Str::random(64),
         ]);
     }
 

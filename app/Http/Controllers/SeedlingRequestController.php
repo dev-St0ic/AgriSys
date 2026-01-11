@@ -7,8 +7,6 @@ use App\Models\SeedlingRequestItem;
 use App\Models\RequestCategory;
 use App\Models\CategoryItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\ApplicationApproved;
 use App\Services\NotificationService;
 
 class SeedlingRequestController extends Controller
@@ -999,12 +997,6 @@ public function update(Request $request, SeedlingRequest $seedlingRequest)
                 $seedlingRequest->getApplicantPhone(),
                 $seedlingRequest->getApplicantName()
             ));
-        }
-
-        // Queue email notification
-        if ($overallStatus === 'approved' && $seedlingRequest->email) {
-            \Illuminate\Support\Facades\Mail::to($seedlingRequest->email)
-                ->queue(new \App\Mail\ApplicationApproved($seedlingRequest, 'seedling'));
         }
 
         if ($request->expectsJson()) {

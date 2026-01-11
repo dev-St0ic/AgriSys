@@ -9,11 +9,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use App\Notifications\EmailVerificationNotification;
 use App\Notifications\RegistrationApprovedNotification;
 use App\Notifications\RegistrationRejectedNotification;
 use Laravel\Socialite\Facades\Socialite;
@@ -50,14 +48,6 @@ class UserRegistrationController extends Controller
 
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
-        }
-
-        if ($request->filled('verification_status')) {
-            if ($request->verification_status === 'verified') {
-                $query->emailVerified();
-            } elseif ($request->verification_status === 'unverified') {
-                $query->emailUnverified();
-            }
         }
 
         $registrations = $query->orderBy('created_at', 'desc')->paginate(10);
@@ -133,7 +123,7 @@ class UserRegistrationController extends Controller
     }
 
     /**
-     * Simple Registration - Username, Email, Password only
+     * Simple Registration - Username, Contact number, Password only
      */
     public function register(Request $request)
     {
@@ -293,7 +283,7 @@ class UserRegistrationController extends Controller
                 ]);
             }
 
-            // Check admin users (admins still use email in User table)
+            // Check admin users in User table)
             // This is separate from user_registration table
 
             if ($user && Hash::check($password, $user->password)) {
@@ -301,8 +291,6 @@ class UserRegistrationController extends Controller
 
                 $request->session()->put('user', [
                     'id' => $user->id,
-                    'username' => $user->email,
-                    'email' => $user->email,
                     'name' => $user->name,
                     'user_type' => 'admin',
                     'status' => 'approved'
@@ -315,7 +303,6 @@ class UserRegistrationController extends Controller
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->name,
-                        'email' => $user->email,
                         'role' => 'admin'
                     ]
                 ]);
@@ -323,7 +310,7 @@ class UserRegistrationController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid credentials. Please check your username/email and password.'
+                'message' => 'Invalid credentials. Please check your username/contact number and password.'
             ], 401);
 
         } catch (\Exception $e) {
@@ -370,12 +357,6 @@ class UserRegistrationController extends Controller
             'extensionName' => 'nullable|string|max:20',
             'sex' => 'required|in:Male,Female,Preferred not to say',
             'role' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
-            'contactNumber' => [
-                'required',
-                'string',
-                'max:11',
-                'regex:/^09\d{9}$/'
-            ],
             'dateOfBirth' => 'required|date|before:today|after:' . now()->subYears(100)->toDateString(),
             'barangay' => 'required|string|max:100',
             'completeAddress' => 'required|string',
@@ -468,7 +449,6 @@ class UserRegistrationController extends Controller
                 'name_extension' => trim($request->extensionName) ?: null,
                 'sex' => $request->sex,
                 'user_type' => $request->role,
-                'contact_number' => trim($request->contactNumber),
                 'date_of_birth' => $request->dateOfBirth,
                 'age' => $age,
                 'barangay' => $request->barangay,
@@ -495,7 +475,6 @@ class UserRegistrationController extends Controller
             $request->session()->put('user', [
                 'id' => $userRegistration->id,
                 'username' => $userRegistration->username,
-                'email' => $userRegistration->email,
                 'name' => $userRegistration->full_name,
                 'user_type' => $userRegistration->user_type,
                 'status' => 'pending'
@@ -546,7 +525,6 @@ class UserRegistrationController extends Controller
             'data' => [
                 'id' => $registration->id,
                 'username' => $registration->username,
-                'email' => $registration->email,
                 'first_name' => $registration->first_name,
                 'middle_name' => $registration->middle_name,
                 'last_name' => $registration->last_name,
@@ -565,7 +543,6 @@ class UserRegistrationController extends Controller
                 'location_document_path' => $registration->location_document_path,
                 'id_front_path' => $registration->id_front_path,
                 'id_back_path' => $registration->id_back_path,
-                'email_verified' => $registration->hasVerifiedEmail(),
                 'terms_accepted' => $registration->terms_accepted,
                 'privacy_accepted' => $registration->privacy_accepted,
                 'created_at' => $registration->created_at->format('M d, Y g:i A'),
@@ -745,7 +722,6 @@ class UserRegistrationController extends Controller
 
         \Log::info('Account verification approval initiated', [
             'user_id' => $registration->id,
-            'email' => $registration->email,
             'current_status' => $registration->status,
             'admin_id' => auth()->id()
         ]);
@@ -808,7 +784,6 @@ class UserRegistrationController extends Controller
 
         $validator = Validator::make($request->all(), [
             'username' => 'required|string|min:3|max:50|regex:/^[a-zA-Z0-9_]+$/|unique:user_registration,username',
-            'email' => 'required|string|email|max:255|unique:user_registration,email',
             'password' => 'required|string|min:8|confirmed',
             'first_name' => 'required|string|max:100',
             'middle_name' => 'nullable|string|max:100',
@@ -823,7 +798,6 @@ class UserRegistrationController extends Controller
             'emergency_contact_name' => 'required|string|max:100',
             'emergency_contact_phone' => ['required', 'string', 'max:11', 'regex:/^09\d{9}$/'],
             'status' => 'required|in:unverified,pending,approved',
-            'email_verified' => 'boolean',
             'id_front' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
             'id_back' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
             'location_proof' => 'required|file|image|mimes:jpeg,png,jpg|max:5120',
@@ -882,7 +856,6 @@ class UserRegistrationController extends Controller
             } catch (\Exception $fileException) {
                 \Log::error('File upload failed during admin user creation', [
                     'error' => $fileException->getMessage(),
-                    'admin_user' => auth()->user()->email
                 ]);
 
                 return response()->json([
@@ -894,7 +867,6 @@ class UserRegistrationController extends Controller
             // Create user
             $userData = [
                 'username' => $request->username,
-                'email' => $request->email,
                 'password' => $request->password,
                 'first_name' => $request->first_name,
                 'middle_name' => $request->middle_name,
@@ -924,10 +896,6 @@ class UserRegistrationController extends Controller
                 $userData['location_document_path'] = $locationProofPath;
             }
 
-            if ($request->email_verified) {
-                $userData['email_verified_at'] = now();
-            }
-
             if ($request->status === 'approved') {
                 $userData['approved_at'] = now();
                 $userData['approved_by'] = auth()->id();
@@ -942,7 +910,6 @@ class UserRegistrationController extends Controller
             \Log::info('User created by admin', [
                 'created_user_id' => $registration->id,
                 'username' => $registration->username,
-                'admin_user' => auth()->user()->email,
                 'status' => $request->status,
             ]);
 
@@ -952,7 +919,6 @@ class UserRegistrationController extends Controller
                 'user' => [
                     'id' => $registration->id,
                     'username' => $registration->username,
-                    'email' => $registration->email,
                     'status' => $registration->status
                 ]
             ], 201);
@@ -1005,13 +971,6 @@ public function update(Request $request, $id)
             'regex:/^09\d{9}$/',
             Rule::unique('user_registration', 'contact_number')->ignore($id)
         ],
-        'email' => [
-            'sometimes',
-            'required',
-            'email',
-            'max:255',
-            Rule::unique('user_registration', 'email')->ignore($id)
-        ],
         'barangay' => 'sometimes|required|string|max:100',
         'complete_address' => 'sometimes|string|max:500',
         'user_type' => 'sometimes|required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
@@ -1027,15 +986,12 @@ public function update(Request $request, $id)
         'last_name.required' => 'Last name is required',
         'contact_number.unique' => 'This contact number is already registered',
         'contact_number.regex' => 'Contact number must start with 09 followed by 9 digits',
-        'email.unique' => 'This email is already registered',
-        'email.email' => 'Invalid email format',
         'emergency_contact_phone.regex' => 'Invalid emergency contact phone number',
     ]);
 
     if ($validator->fails()) {
         \Log::warning('Admin edit validation failed for registration ' . $id, [
             'errors' => $validator->errors()->toArray(),
-            'admin_user' => auth()->user()->email
         ]);
 
         return response()->json([
@@ -1069,9 +1025,6 @@ public function update(Request $request, $id)
         // Contact information
         if ($request->has('contact_number')) {
             $updateData['contact_number'] = trim($request->contact_number);
-        }
-        if ($request->has('email')) {
-            $updateData['email'] = strtolower(trim($request->email));
         }
 
         // Address information
@@ -1112,7 +1065,6 @@ public function update(Request $request, $id)
             'registration_id' => $id,
             'username' => $registration->username,
             'updated_fields' => array_keys($updateData),
-            'admin_user' => auth()->user()->email
         ]);
 
         return response()->json([
@@ -1121,7 +1073,6 @@ public function update(Request $request, $id)
             'data' => [
                 'id' => $registration->id,
                 'username' => $registration->username,
-                'email' => $registration->email,
                 'first_name' => $registration->first_name,
                 'last_name' => $registration->last_name,
                 'contact_number' => $registration->contact_number,
@@ -1135,7 +1086,6 @@ public function update(Request $request, $id)
     } catch (\Exception $e) {
         \Log::error('Admin edit registration failed: ' . $e->getMessage(), [
             'registration_id' => $id,
-            'admin_user' => auth()->user()->email,
             'trace' => $e->getTraceAsString()
         ]);
 
@@ -1210,7 +1160,6 @@ public function update(Request $request, $id)
                 'registration_id' => $id,
                 'old_status' => $oldStatus,
                 'new_status' => $newStatus,
-                'admin_user' => auth()->user()->email,
                 'sms_triggered' => in_array($newStatus, ['approved', 'rejected'])
             ]);
 
@@ -1286,7 +1235,6 @@ public function update(Request $request, $id)
             'approved' => UserRegistration::where('status', 'approved')->count(),
             'rejected' => UserRegistration::where('status', 'rejected')->count(),
             'recent' => UserRegistration::where('created_at', '>=', now()->subDays(7))->count(),
-            'email_verified' => UserRegistration::whereNotNull('email_verified_at')->count(),
         ];
 
         return response()->json([
@@ -1325,7 +1273,6 @@ public function update(Request $request, $id)
                     'id' => $user->id,
                     'name' => $user->full_name ?? $user->username,
                     'username' => $user->username,
-                    'email' => $user->email,
                     'status' => $user->status,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
@@ -1376,7 +1323,6 @@ public function update(Request $request, $id)
         $request->session()->put('user', [
             'id' => $user->id,
             'username' => $user->username,
-            'email' => $user->email,
             'name' => $user->full_name ?? $user->username,
             'user_type' => $user->user_type,
             'status' => $user->status
@@ -1621,7 +1567,7 @@ public function update(Request $request, $id)
 
             // CSV Headers
             fputcsv($file, [
-                'ID', 'Username', 'Email', 'First Name', 'Last Name', 'Sex',
+                'ID', 'Username', 'First Name', 'Last Name', 'Sex',
                 'User Type', 'Status', 'Contact Number', 'Barangay',
                 'Created At', 'Approved At', 'Rejected At', 'Banned At', 'Last Login'
             ]);
@@ -1631,7 +1577,6 @@ public function update(Request $request, $id)
                 fputcsv($file, [
                     $registration->id,
                     $registration->username,
-                    $registration->email,
                     $registration->first_name,
                     $registration->last_name,
                     $registration->sex, 
@@ -1816,7 +1761,6 @@ public function update(Request $request, $id)
                 'user' => [
                     'id' => $registration->id,
                     'username' => $registration->username,
-                    'email' => $registration->email,
                     'contact_number' => $registration->contact_number,
                     'name_extension' => $registration->name_extension,
                     'complete_address' => $registration->complete_address,

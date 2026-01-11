@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('username', 50)->unique()->nullable();
             $table->timestamp('username_changed_at')->nullable();
             $table->string('contact_number', 20)->unique(); // Primary contact - required for signup
-            $table->string('email')->unique()->nullable(); // Optional - can be added later
             $table->string('profile_image_url')->nullable();
 
             $table->string('password')->nullable();
@@ -49,10 +48,6 @@ return new class extends Migration
             $table->string('id_front_path')->nullable();
             $table->string('id_back_path')->nullable();
 
-            // ===== EMAIL VERIFICATION =====
-            $table->string('verification_token')->nullable();
-            $table->timestamp('email_verified_at')->nullable();
-
             // ===== ADMIN APPROVAL SYSTEM =====
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();
@@ -76,7 +71,6 @@ return new class extends Migration
             $table->index(['username'], 'idx_username_login');
             $table->index(['contact_number'], 'idx_contact_login');
             $table->index(['contact_number', 'status'], 'idx_contact_status_auth');
-            $table->index(['email'], 'idx_email_optional'); // Optional email index
 
             // Admin Dashboard Filtering (Critical for Performance)
             $table->index(['status'], 'idx_status_filter');
@@ -84,10 +78,6 @@ return new class extends Migration
             $table->index(['user_type'], 'idx_user_type_filter');
             $table->index(['user_type', 'status'], 'idx_type_status_filter');
             $table->index(['created_at'], 'idx_created_date_sort');
-
-            // Email Verification System
-            $table->index(['email_verified_at'], 'idx_email_verified_filter');
-            $table->index(['verification_token'], 'idx_verification_token');
 
             // Admin Search & Text Queries
             $table->index(['first_name'], 'idx_first_name_search');
@@ -105,7 +95,6 @@ return new class extends Migration
 
             // Composite Indexes for Complex Queries
             $table->index(['status', 'user_type', 'created_at'], 'idx_admin_dashboard_combo');
-            $table->index(['email_verified_at', 'status'], 'idx_verification_status_combo');
             $table->index(['created_at', 'status', 'user_type'], 'idx_date_status_type_reports');
 
             // Soft Delete Support
