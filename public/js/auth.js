@@ -1025,6 +1025,7 @@ function handleVerificationSubmit(event) {
     const requiredFields = [
         { name: 'firstName', label: 'First Name' },
         { name: 'lastName', label: 'Last Name' },
+        { name: 'sex', label: 'Sex' },
         { name: 'role', label: 'Sector' },
         { name: 'contactNumber', label: 'Contact Number' },
         { name: 'dateOfBirth', label: 'Date of Birth' }, // ADDED: Required by backend
@@ -1118,6 +1119,7 @@ function handleVerificationSubmit(event) {
     formData.append('lastName', form.querySelector('[name="lastName"]').value.trim());
     formData.append('middleName', form.querySelector('[name="middleName"]').value.trim());
     formData.append('extensionName', form.querySelector('[name="extensionName"]').value.trim());
+    formData.append('sex', form.querySelector('[name="sex"]').value);
     formData.append('role', form.querySelector('[name="role"]').value);
     formData.append('contactNumber', form.querySelector('[name="contactNumber"]').value.trim());
     formData.append('dateOfBirth', form.querySelector('[name="dateOfBirth"]').value);

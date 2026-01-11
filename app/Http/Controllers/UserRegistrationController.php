@@ -368,6 +368,7 @@ class UserRegistrationController extends Controller
             'lastName' => 'required|string|max:100',
             'middleName' => 'nullable|string|max:100',
             'extensionName' => 'nullable|string|max:20',
+            'sex' => 'required|in:Male,Female,Preferred not to say',
             'role' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
             'contactNumber' => [
                 'required',
@@ -464,7 +465,8 @@ class UserRegistrationController extends Controller
                 'first_name' => trim($request->firstName),
                 'middle_name' => trim($request->middleName),
                 'last_name' => trim($request->lastName),
-                'name_extension' => trim($request->extensionName),
+                'name_extension' => trim($request->extensionName) ?: null,
+                'sex' => $request->sex,
                 'user_type' => $request->role,
                 'contact_number' => trim($request->contactNumber),
                 'date_of_birth' => $request->dateOfBirth,
@@ -557,7 +559,7 @@ class UserRegistrationController extends Controller
                 'status' => $registration->status,
                 'date_of_birth' => $registration->date_of_birth ? $registration->date_of_birth->format('M d, Y') : null,
                 'age' => $registration->age,
-                'gender' => $registration->gender,
+                'sex' => $registration->sex,
                 'emergency_contact_name' => $registration->emergency_contact_name,
                 'emergency_contact_phone' => $registration->emergency_contact_phone,
                 'location_document_path' => $registration->location_document_path,
@@ -813,7 +815,7 @@ class UserRegistrationController extends Controller
             'last_name' => 'required|string|max:100',
             'name_extension' => 'nullable|string|max:20',
             'date_of_birth' => 'required|date|before:today',
-            'gender' => 'nullable|in:male,female',
+            'sex' => 'required|in:Male,Female,Preferred not to say',
             'contact_number' => ['required', 'string', 'max:11', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:100',
             'complete_address' => 'required|string',
@@ -900,7 +902,7 @@ class UserRegistrationController extends Controller
                 'name_extension' => $request->name_extension,
                 'date_of_birth' => $request->date_of_birth,
                 'age' => $age,
-                'gender' => $request->gender,
+                'sex' => $request->sex,
                 'contact_number' => $request->contact_number,
                 'barangay' => $request->barangay,
                 'complete_address' => $request->complete_address,
@@ -994,6 +996,7 @@ public function update(Request $request, $id)
         'middle_name' => 'nullable|string|max:100',
         'last_name' => 'sometimes|required|string|max:100',
         'name_extension' => 'nullable|string|max:20',
+        'sex' => 'sometimes|nullable|in:Male,Female,Preferred not to say',
         'contact_number' => [
             'sometimes',
             'required',
@@ -1058,6 +1061,9 @@ public function update(Request $request, $id)
         }
         if ($request->has('name_extension')) {
             $updateData['name_extension'] = $request->name_extension ?: null;
+        }
+        if ($request->has('sex')) {  
+            $updateData['sex'] = $request->sex ?: null;
         }
 
         // Contact information
@@ -1324,6 +1330,8 @@ public function update(Request $request, $id)
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
                     'middle_name' => $user->middle_name,
+                    'name_extension' => $user->name_extension,
+                    'sex' => $user->sex, 
                     'contact_number' => $user->contact_number,
                     'date_of_birth' => $user->date_of_birth,
                     'age' => $user->age,
@@ -1613,7 +1621,7 @@ public function update(Request $request, $id)
 
             // CSV Headers
             fputcsv($file, [
-                'ID', 'Username', 'Email', 'First Name', 'Last Name',
+                'ID', 'Username', 'Email', 'First Name', 'Last Name', 'Sex',
                 'User Type', 'Status', 'Contact Number', 'Barangay',
                 'Created At', 'Approved At', 'Rejected At', 'Banned At', 'Last Login'
             ]);
@@ -1626,6 +1634,7 @@ public function update(Request $request, $id)
                     $registration->email,
                     $registration->first_name,
                     $registration->last_name,
+                    $registration->sex, 
                     $registration->user_type,
                     $registration->status,
                     $registration->contact_number,
@@ -1809,6 +1818,7 @@ public function update(Request $request, $id)
                     'username' => $registration->username,
                     'email' => $registration->email,
                     'contact_number' => $registration->contact_number,
+                    'name_extension' => $registration->name_extension,
                     'complete_address' => $registration->complete_address,
                     'barangay' => $registration->barangay,
                     'name' => $registration->full_name ?? $registration->username,

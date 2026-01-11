@@ -707,6 +707,14 @@
                                             max="100" readonly placeholder="Auto-calculated">
                                         <small>Calculated automatically from date of birth</small>
                                     </div>
+                                    <div class="form-group">
+                                        <label for="sex">Sex</label>
+                                        <select id="sex" name="sex" required>
+                                            <option value="">Select Sex</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div class="form-row">
