@@ -18,7 +18,7 @@ class AgrisysModal {
         }
         this.modalContainer = document.getElementById('agrisys-modal-container');
     }
-
+a
     createModalStyles() {
         if (document.getElementById('agrisys-modal-styles')) return;
 
