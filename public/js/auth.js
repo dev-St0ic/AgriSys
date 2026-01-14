@@ -3290,11 +3290,6 @@ function clearValidationErrors() {
 
     const errorMessages = document.querySelectorAll('.field-error');
     errorMessages.forEach(msg => msg.remove());
-
-    const usernameStatus = document.querySelector('.username-status');
-    if (usernameStatus) {
-        usernameStatus.innerHTML = '';
-    }
 }
 
 // ==============================================
@@ -3485,7 +3480,10 @@ function clearAllValidationUI() {
     fieldErrors.forEach(error => error.remove());
 }
 
-
+/**
+ * FIXED: Only show real-time errors (.username-status, .contact-status)
+ * Don't show form submission errors for username and contact_number
+ */
 function handleValidationErrors(errors) {
     clearValidationErrors();
 
@@ -3506,15 +3504,19 @@ function handleValidationErrors(errors) {
             input.classList.add('error', 'is-invalid');
             input.style.borderColor = '#dc3545';
 
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'field-error';
-            errorMsg.textContent = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
-            errorMsg.style.color = '#dc3545';
-            errorMsg.style.fontSize = '12px';
-            errorMsg.style.marginTop = '4px';
+            // SKIP username and contact_number - only show real-time validation
+            if (field !== 'contact_number' && field !== 'username') {
+                // Only show form error messages for PASSWORD and other fields
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'field-error';
+                errorMsg.textContent = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+                errorMsg.style.color = '#dc3545';
+                errorMsg.style.fontSize = '12px';
+                errorMsg.style.marginTop = '4px';
 
-            const parent = input.closest('.form-group') || input.parentElement;
-            parent.appendChild(errorMsg);
+                const parent = input.closest('.form-group') || input.parentElement;
+                parent.appendChild(errorMsg);
+            }
         }
     });
 }
