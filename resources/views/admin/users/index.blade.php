@@ -425,15 +425,16 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="add_user_type" class="form-label">User Type <span
+                                        <label for="add_user_type" class="form-label">Sector <span
                                                 class="text-danger">*</span></label>
                                         <select class="form-select" id="add_user_type" required>
-                                            <option value="">Select Type</option>
+                                            <option value="" disabled selected>Select sector</option>
                                             <option value="farmer">Farmer</option>
                                             <option value="fisherfolk">Fisherfolk</option>
                                             <option value="general">General Public</option>
-                                            <option value="agri-entrepreneur">Agri-Entrepreneur</option>
+                                            <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
                                             <option value="cooperative-member">Cooperative Member</option>
+                                            <option value="government-employee">Government Employee</option>
                                         </select>
                                     </div>
                                 </div>
@@ -832,12 +833,13 @@
                                         <label for="edit_user_type" class="form-label">User Type <span
                                                 class="text-danger">*</span></label>
                                         <select class="form-select" id="edit_user_type" name="user_type" required>
-                                            <option value="">Select Type</option>
+                                            <option value="" disabled selected>Select sector</option>
                                             <option value="farmer">Farmer</option>
                                             <option value="fisherfolk">Fisherfolk</option>
                                             <option value="general">General Public</option>
-                                            <option value="agri-entrepreneur">Agri-Entrepreneur</option>
+                                            <option value="agri-entrepreneur">Agricultural Entrepreneur</option>
                                             <option value="cooperative-member">Cooperative Member</option>
+                                            <option value="government-employee">Government Employee</option>
                                         </select>
                                     </div>
                                 </div>

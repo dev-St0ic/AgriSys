@@ -794,7 +794,7 @@ class UserRegistrationController extends Controller
             'contact_number' => ['required', 'string', 'max:11', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:100',
             'complete_address' => 'required|string',
-            'user_type' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member',
+            'user_type' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
             'emergency_contact_name' => 'required|string|max:100',
             'emergency_contact_phone' => ['required', 'string', 'max:11', 'regex:/^09\d{9}$/'],
             'status' => 'required|in:unverified,pending,approved',

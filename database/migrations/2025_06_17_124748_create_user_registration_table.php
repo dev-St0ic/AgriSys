@@ -34,7 +34,7 @@ return new class extends Migration
             // contact_number is now defined above as required field
             $table->text('complete_address')->nullable();
             $table->string('barangay', 100)->nullable();
-            $table->enum('user_type', ['farmer', 'fisherfolk', 'general'])->nullable();
+            $table->enum('user_type', ['farmer', 'fisherfolk', 'general', 'agri-entrepreneur', 'cooperative-member','government-employee'])->nullable();
             $table->integer('age')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->enum('gender', ['male', 'female', 'other', 'prefer_not_to_say'])->nullable();
