@@ -1456,136 +1456,6 @@ function closeApplicationsModal() {
     }
 }
 
-// function loadUserApplicationsInModal() {
-//     const grid = document.getElementById('applications-modal-grid');
-//     if (!grid) return;
-
-//     // Check if user is logged in
-//     if (!window.userData) {
-//         grid.innerHTML = `
-//             <div class="empty-applications">
-//                 <h4>Please Log In</h4>
-//                 <p>You need to be logged in to view your applications.</p>
-//                 <button class="quick-action-btn" onclick="closeApplicationsModal(); openAuthModal('login');">
-//                     <span>🔐</span> Log In
-//                 </button>
-//             </div>
-//         `;
-//         return;
-//     }
-
-//     // Show loading state
-//     grid.innerHTML = `
-//         <div class="loading-state">
-//             <div class="loader"></div>
-//             <p>Loading your applications...</p>
-//         </div>
-//     `;
-
-//     // Try to fetch real data, fallback to mock data
-//     fetch('/api/user/applications', {
-//         headers: {
-//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-//             'Accept': 'application/json'
-//         }
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.success && data.applications) {
-//             renderApplicationsInModal(data.applications);
-//         } else {
-//             // Fallback to mock data for development
-//             renderMockApplicationsInModal();
-//         }
-//     })
-//     .catch(error => {
-//         console.log('Loading mock applications for development');
-//         renderMockApplicationsInModal();
-//     });
-// }
-
-// function renderApplicationsInModal(applications) {
-//     const grid = document.getElementById('applications-modal-grid');
-//     if (!grid) return;
-
-//     if (applications.length === 0) {
-//         grid.innerHTML = `
-//             <div class="empty-applications">
-//                 <h4>No Applications Yet</h4>
-//                 <p>You haven't submitted any applications yet. Browse our services to get started!</p>
-//                 <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
-//                     <span>🌾</span> Browse Services
-//                 </button>
-//             </div>
-//         `;
-//         return;
-//     }
-
-//     grid.innerHTML = applications.map(app => `
-//         <div class="application-card">
-//             <h4>${app.type}</h4>
-//             <p>${app.description || 'Application submitted successfully'}</p>
-//             <div class="application-status status-${app.status.toLowerCase().replace(' ', '_')}">
-//                 ${app.status.charAt(0).toUpperCase() + app.status.slice(1).replace('_', ' ')}
-//             </div>
-//             <div class="application-date">
-//                 Submitted: ${formatApplicationDate(app.date)}
-//             </div>
-//         </div>
-//     `).join('');
-// }
-
-// function renderMockApplicationsInModal() {
-//     const mockApplications = [
-//         {
-//             id: 1,
-//             type: 'Seedlings Request',
-//             date: '2025-01-15',
-//             status: 'pending',
-//             description: 'Request for vegetable seedlings - tomatoes, eggplant, and pepper varieties'
-//         },
-//         {
-//             id: 2,
-//             type: 'FishR Registration',
-//             date: '2025-01-10',
-//             status: 'approved',
-//             description: 'Fisherfolk registration for coastal fishing activities'
-//         },
-//         {
-//             id: 3,
-//             type: 'Training Request',
-//             date: '2025-01-08',
-//             status: 'processing',
-//             description: 'Agricultural training program on sustainable farming practices'
-//         },
-//         {
-//             id: 4,
-//             type: 'RSBSA Registration',
-//             date: '2025-01-05',
-//             status: 'approved',
-//             description: 'Registry System for Basic Sectors in Agriculture enrollment'
-//         },
-//         {
-//             id: 5,
-//             type: 'BoatR Registration',
-//             date: '2025-01-03',
-//             status: 'rejected',
-//             description: 'Fishing boat registration - requires additional documentation'
-//         }
-//     ];
-
-//     renderApplicationsInModal(mockApplications);
-// }
-
-// function formatApplicationDate(dateString) {
-//     const date = new Date(dateString);
-//     return date.toLocaleDateString('en-US', {
-//         year: 'numeric',
-//         month: 'short',
-//         day: 'numeric'
-//     });
-// }
-
 // ==============================================
 // UPDATED: MY APPLICATIONS MODAL - WITH REAL RSBSA DATA
 // ==============================================
@@ -2472,13 +2342,6 @@ function validateContactNumber(contactNumber) {
     }
 
     return validation; // Valid Philippine number
-    if (!/^[\+]?[1-9]\d{1,14}$/.test(cleanNumber)) {
-        validation.valid = false;
-        validation.error = 'Please enter a valid contact number (e.g., 09123456789, +639123456789)';
-        return validation;
-    }
-
-    return validation;
 }
 
 /**
@@ -4322,6 +4185,17 @@ function capitalizeWords(str) {
     if (!str) return str;
     return str.replace(/\b\w/g, char => char.toUpperCase());
 }
+
+// Prevent auto-capitalize on ALL password fields immediately
+document.addEventListener('DOMContentLoaded', function() {
+    // Find all password inputs and disable capitalize
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    passwordInputs.forEach(input => {
+        input.setAttribute('autocapitalize', 'off');
+        input.setAttribute('autocorrect', 'off');
+        input.style.textTransform = 'none';
+    });
+}, true);
 
 /**
  * Initialize auto-capitalize functionality for text inputs
