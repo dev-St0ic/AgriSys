@@ -34,6 +34,9 @@ function closeAuthModal() {
     if (loginForm) loginForm.reset();
     if (signupForm) signupForm.reset();
 
+    //CLEAR ALL VALIDATION UI ELEMENTS
+    clearAllValidationUI();
+
     hideAuthMessages();
     clearValidationErrors();
     resetButtonStates();
@@ -50,6 +53,7 @@ function showLogInForm() {
     if (signupForm) signupForm.style.display = 'none';
     if (modalTitle) modalTitle.textContent = 'LOG IN';
 
+    clearAllValidationUI();
     hideAuthMessages();
     clearValidationErrors();
     resetButtonStates();
@@ -64,6 +68,7 @@ function showSignUpForm() {
     if (signupForm) signupForm.style.display = 'block';
     if (modalTitle) modalTitle.textContent = 'SIGN UP';
 
+    clearAllValidationUI();
     hideAuthMessages();
     clearValidationErrors();
     resetButtonStates();
@@ -2201,7 +2206,8 @@ function checkUsernameAvailability(username) {
             usernameStatus.innerHTML = '';
         }
         usernameInput.classList.remove('is-valid', 'is-invalid');
-        return; // Exit function early - no checking needed
+        hideAuthMessages();
+        return; // Exit early
     }
 
     // CLIENT-SIDE VALIDATION RULES
@@ -2360,7 +2366,8 @@ function checkContactAvailability(contactNumber) {
             contactStatus.innerHTML = '';
         }
         contactInput.classList.remove('is-valid', 'is-invalid');
-        return; // Exit function early - no checking needed
+        hideAuthMessages();
+        return; // Exit early
     }
 
     // CLIENT-SIDE VALIDATION RULES
@@ -2562,9 +2569,20 @@ function checkPasswordStrength(password) {
      // Remove all strength classes
     strengthBar.className = 'strength-fill';
 
-    if (!password) {
+    // clear everything if empty first
+    if (!password || password.trim() === '') {
+        strengthBar.className = 'strength-fill';
+        strengthBar.style.width = '0%';
         strengthText.textContent = 'Password strength';
-        return;
+        
+        // Remove requirements list
+        const requirementsList = document.querySelector('.password-requirements-list');
+        if (requirementsList) {
+            requirementsList.remove();
+        }
+        
+        hideAuthMessages();
+        return; // Exit early
     }
 
        // Calculate strength based on requirements met
@@ -2718,10 +2736,11 @@ function checkPasswordMatch(password, confirmPassword) {
     confirmPassword = (confirmPassword || '').trim();
 
     // Clear status if confirm password is empty
-    if (!confirmPassword) {
+    if (!confirmPassword || confirmPassword.trim() === '') {
         matchStatus.innerHTML = '';
         confirmInput.classList.remove('is-valid', 'is-invalid');
-        return;
+        hideAuthMessages();
+        return; // Exit early
     }
 
      // Only show status if BOTH password and confirm password have content
@@ -3442,6 +3461,12 @@ function clearAllValidationUI() {
         usernameStatus.innerHTML = '';
     }
 
+    // Clear contact status
+    const contactStatus = document.querySelector('.contact-status');
+    if (contactStatus) {
+        contactStatus.innerHTML = '';
+    }
+
     // Clear password strength
     const strengthBar = document.querySelector('.strength-fill');
     const strengthText = document.querySelector('.strength-text');
@@ -3921,11 +3946,119 @@ verificationStatusPoll.start = function() {
 };
 
 // ==============================================
+// CLEAR VALIDATION MESSAGES WHEN INPUT IS EMPTY
+// ==============================================
+
+/**
+ * Clear validation messages when input field is empty
+ */
+function initClearMessagesOnEmpty() {
+    // Username field
+    const usernameInput = document.getElementById('signup-username');
+    if (usernameInput) {
+        const originalUsernameCheck = usernameInput.oninput;
+        usernameInput.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                const usernameStatus = document.querySelector('.username-status');
+                if (usernameStatus) {
+                    usernameStatus.innerHTML = '';
+                }
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    }
+    
+    // Contact number field
+    const contactInput = document.getElementById('signup-contact');
+    if (contactInput) {
+        contactInput.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                const contactStatus = document.querySelector('.contact-status');
+                if (contactStatus) {
+                    contactStatus.innerHTML = '';
+                }
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    }
+    
+    // Password field
+    const passwordInput = document.getElementById('signup-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                const strengthBar = document.querySelector('.strength-fill');
+                const strengthText = document.querySelector('.strength-text');
+                if (strengthBar) {
+                    strengthBar.className = 'strength-fill';
+                    strengthBar.style.width = '0%';
+                }
+                if (strengthText) {
+                    strengthText.textContent = 'Password strength';
+                }
+                
+                // Remove requirements list
+                const requirementsList = document.querySelector('.password-requirements-list');
+                if (requirementsList) {
+                    requirementsList.remove();
+                }
+                
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    }
+    
+    // Confirm password field
+    const confirmPasswordInput = document.getElementById('signup-confirm-password');
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                const matchStatus = document.querySelector('.password-match-status');
+                if (matchStatus) {
+                    matchStatus.innerHTML = '';
+                }
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    }
+    
+    // Clear all validation on all inputs when empty
+    const allAuthInputs = document.querySelectorAll('.auth-form input');
+    allAuthInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                
+                const fieldError = this.closest('.form-group')?.querySelector('.field-error');
+                if (fieldError) {
+                    fieldError.remove();
+                }
+                
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    });
+}
+
+// ==============================================
 // HOOKS AND LISTENERS
 // ==============================================
 
 // Hook: start polling on page load if status already pending
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Initialize clear messages when input is empty
+    initClearMessagesOnEmpty();
+
     // Login form submission
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
