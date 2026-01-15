@@ -138,24 +138,20 @@ class EventFactory extends Factory
 
     public function upcoming(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'category' => 'upcoming',
-                'category_label' => 'Upcoming',
-                'date' => $this->faker->dateTimeBetween('+1 month', '+6 months')->format('M d, Y | g:i A'),
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'category' => 'upcoming',
+            'category_label' => 'Upcoming',
+            'date' => $this->faker->dateTimeBetween('+1 month', '+6 months')->format('M d, Y | g:i A'),
+        ]);
     }
 
     public function past(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'category' => 'past',
-                'category_label' => 'Past',
-                'date' => 'Completed: ' . $this->faker->dateTimeBetween('-12 months', '-1 month')->format('F Y'),
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'category' => 'past',
+            'category_label' => 'Past',
+            'date' => 'Completed: ' . $this->faker->dateTimeBetween('-12 months', '-1 month')->format('F Y'),
+        ]);
     }
 
     public function announcement(): static
@@ -184,12 +180,10 @@ class EventFactory extends Factory
 
     public function featured(): static
     {
-        return $this->state(function (array $attributes) {
-            return [
-                'is_featured' => true,
-                'display_order' => $this->faker->numberBetween(1, 3),
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'is_featured' => true,
+            'display_order' => $this->faker->numberBetween(1, 3),
+        ]);
     }
 
     public function inCategory(string $category): static
@@ -202,10 +196,8 @@ class EventFactory extends Factory
 
     public function withDisplayOrder(int $min, int $max): static
     {
-        return $this->state(function (array $attributes) use ($min, $max) {
-            return [
-                'display_order' => $this->faker->numberBetween($min, $max),
-            ];
-        });
+        return $this->state(fn (array $attributes) => [
+            'display_order' => $this->faker->numberBetween($min, $max),
+        ]);
     }
 }
