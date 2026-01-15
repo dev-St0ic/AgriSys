@@ -2725,6 +2725,7 @@ function validatePasswordConfirmation(password, confirmPassword) {
     return validation;
 }
 
+// FIXED: Real-time password match validation with proper display
 function checkPasswordMatch(password, confirmPassword) {
     const matchStatus = document.querySelector('.password-match-status');
     const confirmInput = document.getElementById('signup-confirm-password');
@@ -2738,32 +2739,72 @@ function checkPasswordMatch(password, confirmPassword) {
     // Clear status if confirm password is empty
     if (!confirmPassword || confirmPassword.trim() === '') {
         matchStatus.innerHTML = '';
+        matchStatus.style.display = 'none';
         confirmInput.classList.remove('is-valid', 'is-invalid');
-        hideAuthMessages();
         return; // Exit early
     }
 
-     // Only show status if BOTH password and confirm password have content
-    if (!password || !confirmPassword) {
-        matchStatus.innerHTML = '';
-        confirmInput.classList.remove('is-valid', 'is-invalid');
-        return;
-    }
+    // Only compare when BOTH fields have content
+    if (password && confirmPassword) {
+        const validation = validatePasswordConfirmation(password, confirmPassword);
 
-    const validation = validatePasswordConfirmation(password, confirmPassword);
-
-    if (validation.valid) {
-        matchStatus.className = 'password-match-status match';
-        matchStatus.innerHTML = '<span style="color: #10b981;">✓ Passwords match</span>';
-        confirmInput.classList.remove('is-invalid');
-        confirmInput.classList.add('is-valid');
+        if (validation.valid) {
+            // Passwords match - SHOW GREEN SUCCESS
+            matchStatus.className = 'password-match-status match';
+            matchStatus.innerHTML = '<span style="color: #10b981; font-weight: 600;">✓ Passwords match</span>';
+            matchStatus.style.display = 'flex';
+            matchStatus.style.alignItems = 'center';
+            confirmInput.classList.remove('is-invalid');
+            confirmInput.classList.add('is-valid');
+        } else {
+            // Passwords don't match - SHOW RED ERROR
+            matchStatus.className = 'password-match-status no-match';
+            matchStatus.innerHTML = `<span style="color: #ef4444; font-weight: 600;">✗ ${validation.error}</span>`;
+            matchStatus.style.display = 'flex';
+            matchStatus.style.alignItems = 'center';
+            confirmInput.classList.remove('is-valid');
+            confirmInput.classList.add('is-invalid');
+        }
     } else {
-        matchStatus.className = 'password-match-status no-match';
-        matchStatus.innerHTML = `<span style="color: #ef4444;">✗ ${validation.error}</span>`;
-        confirmInput.classList.remove('is-valid');
-        confirmInput.classList.add('is-invalid');
+        // Not enough data - hide message
+        matchStatus.innerHTML = '';
+        matchStatus.style.display = 'none';
+        confirmInput.classList.remove('is-valid', 'is-invalid');
     }
 }
+
+// Make sure event listeners are properly attached
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmPasswordInput = document.getElementById('signup-confirm-password');
+    if (confirmPasswordInput) {
+        // Real-time validation on input
+        confirmPasswordInput.addEventListener('input', function() {
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = this.value.trim();
+            console.log('Password match check:', { password: !!password, confirmPassword: !!confirmPassword });
+            checkPasswordMatch(password, confirmPassword);
+        });
+
+        // Also check on blur
+        confirmPasswordInput.addEventListener('blur', function() {
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = this.value.trim();
+            checkPasswordMatch(password, confirmPassword);
+        });
+    }
+
+    // When password field changes, re-validate confirmation too
+    const passwordInput = document.getElementById('signup-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
+            if (confirmPassword) {
+                // Only check match if confirm password has value
+                checkPasswordMatch(this.value.trim(), confirmPassword);
+            }
+        });
+    }
+});
 
 
 // ==============================================
@@ -3519,6 +3560,7 @@ function handleValidationErrors(errors) {
             'username': 'signup-username',
             'contact_number': 'signup-contact',
             'password': 'signup-password',
+            'password_confirmation': 'signup-confirm-password',
             'terms_accepted': 'agree-terms'
         };
 
@@ -3529,8 +3571,8 @@ function handleValidationErrors(errors) {
             input.classList.add('error', 'is-invalid');
             input.style.borderColor = '#dc3545';
 
-            // SKIP username and contact_number - only show real-time validation
-            if (field !== 'contact_number' && field !== 'username') {
+            // SKIP username and contact_number and password - only show real-time validation
+            if (field !== 'contact_number' && field !== 'username' && field !== 'password_confirmation') {
                 // Only show form error messages for PASSWORD and other fields
                 const errorMsg = document.createElement('div');
                 errorMsg.className = 'field-error';
