@@ -1682,7 +1682,7 @@ function formatApplicationDate(dateString) {
  * Show logout confirmation modal
  */
 function showLogoutConfirmation() {
-    // Create modal HTML with close button at the top
+    // Create modal HTML without close button at the top
     const modalHTML = `
         <div class="logout-confirmation-overlay" id="logout-confirmation-overlay">
             <div class="logout-confirmation-modal">
@@ -1695,24 +1695,18 @@ function showLogoutConfirmation() {
                                 <line x1="21" y1="12" x2="9" y2="12"/>
                             </svg>
                         </div>
-                        <h3>Log Out</h3>
+                        <h3>Confirm Logout</h3>
                     </div>
-                    <button type="button" class="logout-close-btn" onclick="closeLogoutConfirmation()" aria-label="Close" title="Cancel">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
                 </div>
                 <div class="logout-confirmation-body">
                     <p>Are you sure you want to log out?</p>
                 </div>
                 <div class="logout-confirmation-actions">
                     <button type="button" class="btn-cancel-logout" onclick="closeLogoutConfirmation()">
-                        Cancel
+                        <span class="btn-text">No</span>
                     </button>
                     <button type="button" class="btn-confirm-logout" onclick="confirmLogoutEnhanced()">
-                        <span class="btn-text">Log Out</span>
+                        <span class="btn-text">Yes</span>
                         <span class="btn-loader" style="display: none;">
                             <svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -1736,11 +1730,11 @@ function showLogoutConfirmation() {
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(0, 0, 0, 0.3);
-                backdrop-filter: blur(3px);
+                background: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(4px);
                 display: flex;
-                align-items: flex-start;
-                justify-content: flex-end;
+                align-items: center;
+                justify-content: center;
                 z-index: 10002;
                 animation: fadeIn 0.2s ease-out;
                 padding: 16px;
@@ -1758,132 +1752,105 @@ function showLogoutConfirmation() {
 
             .logout-confirmation-modal {
                 background: white;
-                border-radius: 12px;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                border-radius: 16px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
                 width: 100%;
-                max-width: 360px;
-                animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                max-width: 440px;
+                animation: slideInScale 0.3s cubic-bezier(0.16, 1, 0.3, 1);
                 overflow: hidden;
-                margin-top: 60px;
             }
 
-            @keyframes slideInRight {
+            @keyframes slideInScale {
                 from {
-                    transform: translateX(20px);
+                    transform: scale(0.9);
                     opacity: 0;
                 }
                 to {
-                    transform: translateX(0);
+                    transform: scale(1);
                     opacity: 1;
                 }
             }
 
             .logout-confirmation-header {
-                padding: 16px;
+                padding: 24px 24px 16px;
                 border-bottom: 1px solid #f0f0f0;
-                display: flex;
-                align-items: flex-start;
-                justify-content: space-between;
-                gap: 12px;
             }
 
             .logout-title-section {
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                flex: 1;
-                margin-left: auto;
+                gap: 16px;
             }
 
             .logout-icon {
-                width: 40px;
-                height: 40px;
-                min-width: 40px;
-                background: linear-gradient(135deg, #fef08a, #fcd34d);
-                border-radius: 10px;
+                width: 48px;
+                height: 48px;
+                min-width: 48px;
+                background: linear-gradient(135deg, #fee2e2, #fecaca);
+                border-radius: 12px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
 
             .logout-icon svg {
-                color: #92400e;
-                width: 20px;
-                height: 20px;
+                color: #dc2626;
+                width: 24px;
+                height: 24px;
             }
 
             .logout-confirmation-header h3 {
                 margin: 0;
-                font-size: 16px;
+                font-size: 20px;
                 font-weight: 600;
                 color: #1f2937;
             }
 
-            .logout-close-btn {
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 0;
-                color: #9ca3af;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 32px;
-                height: 32px;
-                border-radius: 6px;
-                transition: all 0.2s ease;
-            }
-
-            .logout-close-btn:hover {
-                background: #f3f4f6;
-                color: #374151;
-            }
-
-            .logout-close-btn:active {
-                transform: scale(0.95);
-            }
-
             .logout-confirmation-body {
-                padding: 12px 16px 16px;
+                padding: 24px;
             }
 
             .logout-confirmation-body p {
                 margin: 0;
-                font-size: 14px;
+                font-size: 22px;
                 color: #4b5563;
-                line-height: 1.5;
+                line-height: 1.6;
+                text-align: center;
             }
 
             .logout-confirmation-actions {
-                padding: 0 16px 16px;
+                padding: 16px 24px 24px;
                 display: flex;
-                gap: 8px;
-                justify-content: flex-end;
+                gap: 12px;
+                justify-content: center;
             }
 
             .btn-cancel-logout,
             .btn-confirm-logout {
-                padding: 8px 16px;
-                border-radius: 6px;
-                font-size: 13px;
-                font-weight: 500;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
                 cursor: pointer;
                 transition: all 0.2s ease;
                 border: none;
                 display: flex;
                 align-items: center;
-                gap: 6px;
-                min-width: 80px;
+                gap: 8px;
+                min-width: 140px;
                 justify-content: center;
+                font-family: inherit;
             }
 
             .btn-cancel-logout {
                 background: #f3f4f6;
                 color: #374151;
+                border: 1px solid #e5e7eb;
             }
 
             .btn-cancel-logout:hover:not(:disabled) {
                 background: #e5e7eb;
+                border-color: #d1d5db;
             }
 
             .btn-cancel-logout:active:not(:disabled) {
@@ -1893,19 +1860,21 @@ function showLogoutConfirmation() {
             .btn-confirm-logout {
                 background: #ef4444;
                 color: white;
+                border: 1px solid #dc2626;
             }
 
             .btn-confirm-logout:hover:not(:disabled) {
                 background: #dc2626;
-                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                transform: translateY(-1px);
             }
 
             .btn-confirm-logout:active:not(:disabled) {
-                transform: scale(0.98);
+                transform: translateY(0) scale(0.98);
             }
 
             .btn-confirm-logout:disabled {
-                opacity: 0.8;
+                opacity: 0.7;
                 cursor: not-allowed;
             }
 
@@ -1925,53 +1894,50 @@ function showLogoutConfirmation() {
             /* Mobile Responsive */
             @media (max-width: 640px) {
                 .logout-confirmation-overlay {
-                    align-items: flex-end;
                     padding: 12px;
                 }
 
                 .logout-confirmation-modal {
                     max-width: none;
                     width: 100%;
-                    margin-top: 0;
-                    border-radius: 12px 12px 0 0;
                 }
 
                 .logout-confirmation-header {
-                    padding: 14px;
+                    padding: 20px 20px 14px;
                 }
 
                 .logout-icon {
-                    width: 36px;
-                    height: 36px;
+                    width: 44px;
+                    height: 44px;
                 }
 
                 .logout-icon svg {
-                    width: 18px;
-                    height: 18px;
+                    width: 22px;
+                    height: 22px;
                 }
 
                 .logout-confirmation-header h3 {
-                    font-size: 15px;
+                    font-size: 18px;
                 }
 
                 .logout-confirmation-body {
-                    padding: 10px 14px 14px;
+                    padding: 20px;
                 }
 
                 .logout-confirmation-body p {
-                    font-size: 13px;
+                    font-size: 14px;
                 }
 
                 .logout-confirmation-actions {
-                    padding: 0 14px 14px;
+                    padding: 14px 20px 20px;
+                    flex-direction: column-reverse;
                     gap: 10px;
                 }
 
                 .btn-cancel-logout,
                 .btn-confirm-logout {
-                    padding: 10px 16px;
-                    font-size: 13px;
-                    flex: 1;
+                    width: 100%;
+                    min-width: unset;
                 }
             }
 
@@ -2002,11 +1968,7 @@ function showLogoutConfirmation() {
     // Close on escape key
     document.addEventListener('keydown', handleLogoutEscapeKey);
 
-    // Close on overlay click
-    const overlay = document.getElementById('logout-confirmation-overlay');
-    if (overlay) {
-        overlay.addEventListener('click', handleLogoutOverlayClick);
-    }
+    // Note: Removed overlay click handler since we want users to explicitly choose Yes or No
 }
 
 /**
@@ -2031,15 +1993,6 @@ function closeLogoutConfirmation() {
  */
 function handleLogoutEscapeKey(e) {
     if (e.key === 'Escape') {
-        closeLogoutConfirmation();
-    }
-}
-
-/**
- * Handle overlay click (close on click outside modal)
- */
-function handleLogoutOverlayClick(e) {
-    if (e.target.id === 'logout-confirmation-overlay') {
         closeLogoutConfirmation();
     }
 }
