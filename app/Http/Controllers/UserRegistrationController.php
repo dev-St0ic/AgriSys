@@ -155,7 +155,7 @@ class UserRegistrationController extends Controller
             \Log::error('Validation failed:', $validator->errors()->toArray());
             return response()->json([
                 'success' => false,
-                'message' => 'Please check the form for errors.',
+                'message' => 'Please complete all required fields correctly',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -220,7 +220,7 @@ class UserRegistrationController extends Controller
             'password' => 'required|string',
         ], [
             'username.required' => 'Username is required',
-            'password.required' => 'Password is required'
+            'password.required' => 'Password is incorrect'
         ]);
 
         if ($validator->fails()) {
@@ -235,11 +235,9 @@ class UserRegistrationController extends Controller
             $loginField = $request->username;
             $password = $request->password;
 
-            $userRegistration = UserRegistration::where('username', $loginField)
-                ->first();
+            $userRegistration = UserRegistration::where('username', $loginField)->first();
 
             if ($userRegistration && Hash::check($password, $userRegistration->password)) {
-                // Store user data in session
                 $request->session()->put('user', [
                     'id' => $userRegistration->id,
                     'username' => $userRegistration->username,
@@ -249,7 +247,6 @@ class UserRegistrationController extends Controller
                 ]);
 
                 $request->session()->put('user_id', $userRegistration->id);
-                // $request->session()->put('user_username', $userRegistration->username);
                 $request->session()->put('user_status', $userRegistration->status);
 
                 $userRegistration->update(['last_login_at' => now()]);
@@ -283,34 +280,9 @@ class UserRegistrationController extends Controller
                 ]);
             }
 
-            // Check admin users in User table)
-            // This is separate from user_registration table
-
-            if ($user && Hash::check($password, $user->password)) {
-                Auth::login($user);
-
-                $request->session()->put('user', [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'user_type' => 'admin',
-                    'status' => 'approved'
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Admin login successful!',
-                    'redirect' => '/admin/users',
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'role' => 'admin'
-                    ]
-                ]);
-            }
-
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid credentials. Please check your username/contact number and password.'
+                'message' => 'Username or password is incorrect. Please try again.',
             ], 401);
 
         } catch (\Exception $e) {
@@ -327,7 +299,15 @@ class UserRegistrationController extends Controller
      */
     public function logout(Request $request)
     {
+         // Log the logout
+        \Log::info('User logout', [
+            'user_id' => $request->session()->get('user.id') ?? null,
+            'ip' => $request->ip()
+        ]);
+        // Destroy the session completely
         $request->session()->flush();
+        $request->session()->regenerate();
+
 
         if (Auth::check()) {
             Auth::logout();
@@ -379,7 +359,7 @@ class UserRegistrationController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Please check all required fields.',
+                'message' => 'Please complete all required fields correctly',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -494,7 +474,7 @@ class UserRegistrationController extends Controller
             \Log::error('Verification submission failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Verification submission failed. Please try again.',
+                'message' => 'Unable to submit verification. Please try again',
             ], 500);
         }
     }
@@ -516,7 +496,7 @@ class UserRegistrationController extends Controller
         if (!$registration) {
             return response()->json([
                 'success' => false,
-                'message' => 'Registration not found'
+                'message' => 'This account could not be found'
             ], 404);
         }
 
@@ -573,7 +553,7 @@ class UserRegistrationController extends Controller
         if (!$registration) {
             return response()->json([
                 'success' => false,
-                'message' => 'Registration not found'
+                'message' => 'This account could not be found'
             ], 404);
         }
 
@@ -596,14 +576,14 @@ class UserRegistrationController extends Controller
             default:
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid document type. Allowed types: location, id_front, id_back'
+                    'message' => 'Unable to retrieve document. Please try again or contact support.'
                 ], 400);
         }
 
         if (!$documentPath) {
             return response()->json([
                 'success' => false,
-                'message' => "No {$documentName} found for this registration"
+                'message' => "This document hasn't been uploaded yet"
             ], 404);
         }
 
@@ -617,7 +597,7 @@ class UserRegistrationController extends Controller
 
                 return response()->json([
                     'success' => false,
-                    'message' => 'Document file not found on server'
+                    'message' => 'Sorry, the document could not be found. Please try uploading again.'
                 ], 404);
             }
 
@@ -656,7 +636,7 @@ class UserRegistrationController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error accessing document: ' . $e->getMessage()
+                'message' => 'Unable to access the document. Please try again later.'
             ], 500);
         }
     }
@@ -668,13 +648,13 @@ class UserRegistrationController extends Controller
     {
         // Check admin authentication
         if (!auth()->check() || !auth()->user()->hasAdminPrivileges()) {
-            abort(403, 'Access denied. Admin privileges required.');
+            abort(403, 'You do not have permission to access this document');
         }
 
         $registration = UserRegistration::find($id);
 
         if (!$registration) {
-            abort(404, 'Registration not found');
+            abort(404, 'This account could not be found');
         }
 
         $documentPath = null;
@@ -690,7 +670,7 @@ class UserRegistrationController extends Controller
                 $documentPath = $registration->id_back_path;
                 break;
             default:
-                abort(400, 'Invalid document type');
+                abort(400, 'Document type not recognized');
         }
 
         if (!$documentPath || !\Storage::disk('public')->exists($documentPath)) {
@@ -716,7 +696,7 @@ class UserRegistrationController extends Controller
         if (!$registration) {
             return response()->json([
                 'success' => false,
-                'message' => 'Registration not found'
+                'message' => 'This account could not be found'
             ], 404);
         }
 
@@ -751,7 +731,7 @@ class UserRegistrationController extends Controller
         if (!$registration) {
             return response()->json([
                 'success' => false,
-                'message' => 'Registration not found'
+                'message' => 'This account could not be found'
             ], 404);
         }
 
@@ -794,7 +774,7 @@ class UserRegistrationController extends Controller
             'contact_number' => ['required', 'string', 'max:11', 'regex:/^09\d{9}$/'],
             'barangay' => 'required|string|max:100',
             'complete_address' => 'required|string',
-            'user_type' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member',
+            'user_type' => 'required|in:farmer,fisherfolk,general,agri-entrepreneur,cooperative-member,government-employee',
             'emergency_contact_name' => 'required|string|max:100',
             'emergency_contact_phone' => ['required', 'string', 'max:11', 'regex:/^09\d{9}$/'],
             'status' => 'required|in:unverified,pending,approved',
@@ -817,7 +797,7 @@ class UserRegistrationController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please check all required fields.',
+                'message' => 'Please complete all required fields correctly',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -952,7 +932,7 @@ public function update(Request $request, $id)
     if (!$registration) {
         return response()->json([
             'success' => false,
-            'message' => 'Registration not found'
+            'message' => 'This account could not be found'
         ], 404);
     }
 
@@ -1114,7 +1094,7 @@ public function update(Request $request, $id)
         if (!$registration) {
             return response()->json([
                 'success' => false,
-                'message' => 'Registration not found'
+                'message' => 'This account could not be found'
             ], 404);
         }
 
@@ -1199,7 +1179,7 @@ public function update(Request $request, $id)
         if (!$registration) {
             return response()->json([
                 'success' => false,
-                'message' => 'Registration not found'
+                'message' => 'This account could not be found'
             ], 404);
         }
 
@@ -1620,7 +1600,7 @@ public function update(Request $request, $id)
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please check all required fields.',
+                'message' => 'Please complete all required fields correctly',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -1666,7 +1646,7 @@ public function update(Request $request, $id)
             \Log::error('Password change failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Password change failed. Please try again.',
+                'message' => 'Unable to change password. Please try again',
             ], 500);
         }
     }
@@ -1775,7 +1755,7 @@ public function update(Request $request, $id)
             \Log::error('Profile update failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Profile update failed. Please try again.'
+                'message' => 'Unable to update profile. Please try again'
             ], 500);
         }
     }

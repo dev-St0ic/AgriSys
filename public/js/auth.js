@@ -34,6 +34,9 @@ function closeAuthModal() {
     if (loginForm) loginForm.reset();
     if (signupForm) signupForm.reset();
 
+    //CLEAR ALL VALIDATION UI ELEMENTS
+    clearAllValidationUI();
+
     hideAuthMessages();
     clearValidationErrors();
     resetButtonStates();
@@ -50,6 +53,7 @@ function showLogInForm() {
     if (signupForm) signupForm.style.display = 'none';
     if (modalTitle) modalTitle.textContent = 'LOG IN';
 
+    clearAllValidationUI();
     hideAuthMessages();
     clearValidationErrors();
     resetButtonStates();
@@ -64,6 +68,7 @@ function showSignUpForm() {
     if (signupForm) signupForm.style.display = 'block';
     if (modalTitle) modalTitle.textContent = 'SIGN UP';
 
+    clearAllValidationUI();
     hideAuthMessages();
     clearValidationErrors();
     resetButtonStates();
@@ -1456,136 +1461,6 @@ function closeApplicationsModal() {
     }
 }
 
-// function loadUserApplicationsInModal() {
-//     const grid = document.getElementById('applications-modal-grid');
-//     if (!grid) return;
-
-//     // Check if user is logged in
-//     if (!window.userData) {
-//         grid.innerHTML = `
-//             <div class="empty-applications">
-//                 <h4>Please Log In</h4>
-//                 <p>You need to be logged in to view your applications.</p>
-//                 <button class="quick-action-btn" onclick="closeApplicationsModal(); openAuthModal('login');">
-//                     <span>🔐</span> Log In
-//                 </button>
-//             </div>
-//         `;
-//         return;
-//     }
-
-//     // Show loading state
-//     grid.innerHTML = `
-//         <div class="loading-state">
-//             <div class="loader"></div>
-//             <p>Loading your applications...</p>
-//         </div>
-//     `;
-
-//     // Try to fetch real data, fallback to mock data
-//     fetch('/api/user/applications', {
-//         headers: {
-//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-//             'Accept': 'application/json'
-//         }
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.success && data.applications) {
-//             renderApplicationsInModal(data.applications);
-//         } else {
-//             // Fallback to mock data for development
-//             renderMockApplicationsInModal();
-//         }
-//     })
-//     .catch(error => {
-//         console.log('Loading mock applications for development');
-//         renderMockApplicationsInModal();
-//     });
-// }
-
-// function renderApplicationsInModal(applications) {
-//     const grid = document.getElementById('applications-modal-grid');
-//     if (!grid) return;
-
-//     if (applications.length === 0) {
-//         grid.innerHTML = `
-//             <div class="empty-applications">
-//                 <h4>No Applications Yet</h4>
-//                 <p>You haven't submitted any applications yet. Browse our services to get started!</p>
-//                 <button class="quick-action-btn" onclick="closeApplicationsModal(); document.getElementById('services').scrollIntoView({ behavior: 'smooth' });">
-//                     <span>🌾</span> Browse Services
-//                 </button>
-//             </div>
-//         `;
-//         return;
-//     }
-
-//     grid.innerHTML = applications.map(app => `
-//         <div class="application-card">
-//             <h4>${app.type}</h4>
-//             <p>${app.description || 'Application submitted successfully'}</p>
-//             <div class="application-status status-${app.status.toLowerCase().replace(' ', '_')}">
-//                 ${app.status.charAt(0).toUpperCase() + app.status.slice(1).replace('_', ' ')}
-//             </div>
-//             <div class="application-date">
-//                 Submitted: ${formatApplicationDate(app.date)}
-//             </div>
-//         </div>
-//     `).join('');
-// }
-
-// function renderMockApplicationsInModal() {
-//     const mockApplications = [
-//         {
-//             id: 1,
-//             type: 'Seedlings Request',
-//             date: '2025-01-15',
-//             status: 'pending',
-//             description: 'Request for vegetable seedlings - tomatoes, eggplant, and pepper varieties'
-//         },
-//         {
-//             id: 2,
-//             type: 'FishR Registration',
-//             date: '2025-01-10',
-//             status: 'approved',
-//             description: 'Fisherfolk registration for coastal fishing activities'
-//         },
-//         {
-//             id: 3,
-//             type: 'Training Request',
-//             date: '2025-01-08',
-//             status: 'processing',
-//             description: 'Agricultural training program on sustainable farming practices'
-//         },
-//         {
-//             id: 4,
-//             type: 'RSBSA Registration',
-//             date: '2025-01-05',
-//             status: 'approved',
-//             description: 'Registry System for Basic Sectors in Agriculture enrollment'
-//         },
-//         {
-//             id: 5,
-//             type: 'BoatR Registration',
-//             date: '2025-01-03',
-//             status: 'rejected',
-//             description: 'Fishing boat registration - requires additional documentation'
-//         }
-//     ];
-
-//     renderApplicationsInModal(mockApplications);
-// }
-
-// function formatApplicationDate(dateString) {
-//     const date = new Date(dateString);
-//     return date.toLocaleDateString('en-US', {
-//         year: 'numeric',
-//         month: 'short',
-//         day: 'numeric'
-//     });
-// }
-
 // ==============================================
 // UPDATED: MY APPLICATIONS MODAL - WITH REAL RSBSA DATA
 // ==============================================
@@ -1797,55 +1672,11 @@ function formatApplicationDate(dateString) {
         day: 'numeric'
     });
 }
-
-
-// function logoutUser() {
-//     // Stop verification polling if active
-//     if (typeof stopVerificationPolling === 'function') {
-//         stopVerificationPolling();
-//     }
-
-//     fetch('/auth/logout', {
-//         method: 'POST',
-//         headers: {
-//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-//             'Accept': 'application/json',
-//             'Content-Type': 'application/json'
-//         }
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.success) {
-//             showNotification('success', 'Successfully logged out!');
-
-//             // Hide all forms before redirecting
-//             if (typeof hideAllForms === 'function') {
-//                 hideAllForms();
-//             }
-
-//             // Small delay to show notification, then redirect to home
-//             setTimeout(() => {
-//                 window.location.href = '/';
-//             }, 1000);
-//         } else {
-//             showNotification('error', 'Logout failed. Please try again.');
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Logout error:', error);
-
-//         // Hide all forms before redirecting
-//         if (typeof hideAllForms === 'function') {
-//             hideAllForms();
-//         }
-
-//         // Fallback: redirect to home anyway
-//         window.location.href = '/';
-//     });
-// }
-// ==============================================
-// LOGOUT WITH CONFIRMATION MODAL
-// ==============================================
+/**
+ * ENHANCED LOGOUT FUNCTION with confirmation modal
+ * Handles both manual logout and automatic session expiration
+ * With graceful error handling for already-expired sessions
+ */
 
 /**
  * Show logout confirmation modal
@@ -1880,7 +1711,7 @@ function showLogoutConfirmation() {
                     <button type="button" class="btn-cancel-logout" onclick="closeLogoutConfirmation()">
                         Cancel
                     </button>
-                    <button type="button" class="btn-confirm-logout" onclick="confirmLogout()">
+                    <button type="button" class="btn-confirm-logout" onclick="confirmLogoutEnhanced()">
                         <span class="btn-text">Log Out</span>
                         <span class="btn-loader" style="display: none;">
                             <svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2051,11 +1882,11 @@ function showLogoutConfirmation() {
                 color: #374151;
             }
 
-            .btn-cancel-logout:hover {
+            .btn-cancel-logout:hover:not(:disabled) {
                 background: #e5e7eb;
             }
 
-            .btn-cancel-logout:active {
+            .btn-cancel-logout:active:not(:disabled) {
                 transform: scale(0.98);
             }
 
@@ -2144,18 +1975,12 @@ function showLogoutConfirmation() {
                 }
             }
 
-            @media (max-width: 480px) {
-                .logout-confirmation-header {
-                    flex-direction: column;
-                    gap: 8px;
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
                 }
-
-                .logout-title-section {
-                    width: 100%;
-                }
-
-                .logout-close-btn {
-                    align-self: flex-start;
+                to {
+                    opacity: 0;
                 }
             }
         `;
@@ -2220,85 +2045,13 @@ function handleLogoutOverlayClick(e) {
 }
 
 /**
- * Confirm logout and proceed with logout process
- */
-function confirmLogout() {
-    const confirmBtn = document.querySelector('.btn-confirm-logout');
-    if (!confirmBtn) return;
-
-    // Set button to loading state
-    confirmBtn.disabled = true;
-    const btnText = confirmBtn.querySelector('.btn-text');
-    const btnLoader = confirmBtn.querySelector('.btn-loader');
-    
-    if (btnText) btnText.style.display = 'none';
-    if (btnLoader) btnLoader.style.display = 'inline';
-
-    // Stop verification polling if active
-    if (typeof stopVerificationPolling === 'function') {
-        stopVerificationPolling();
-    }
-
-    // Perform logout
-    fetch('/auth/logout', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update button text
-            if (btnText) btnText.textContent = 'Logged Out!';
-            if (btnText) btnText.style.display = 'inline';
-            if (btnLoader) btnLoader.style.display = 'none';
-            
-            showNotification('success', 'Successfully logged out!');
-
-            // Hide all forms before redirecting
-            if (typeof hideAllForms === 'function') {
-                hideAllForms();
-            }
-
-            // Close modal and redirect
-            setTimeout(() => {
-                closeLogoutConfirmation();
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 300);
-            }, 800);
-        } else {
-            showNotification('error', 'Logout failed. Please try again.');
-            closeLogoutConfirmation();
-        }
-    })
-    .catch(error => {
-        console.error('Logout error:', error);
-
-        // Hide all forms before redirecting
-        if (typeof hideAllForms === 'function') {
-            hideAllForms();
-        }
-
-        // Fallback: close modal and redirect anyway
-        closeLogoutConfirmation();
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 300);
-    });
-}
-
-/**
- * Updated logoutUser function - shows confirmation modal
+ * Updated logoutUser function
  */
 function logoutUser() {
     showLogoutConfirmation();
 }
 
-// Add fadeOut animation to styles
+// Add fadeOut animation to styles if not already present
 if (!document.querySelector('#logout-fadeout-animation')) {
     const fadeOutStyle = document.createElement('style');
     fadeOutStyle.id = 'logout-fadeout-animation';
@@ -2314,6 +2067,8 @@ if (!document.querySelector('#logout-fadeout-animation')) {
     `;
     document.head.appendChild(fadeOutStyle);
 }
+
+console.log('✅ Enhanced Logout functions loaded');
 // ==============================================
 // USERNAME AVAILABILITY CHECKER
 // ==============================================
@@ -2331,7 +2086,8 @@ function checkUsernameAvailability(username) {
             usernameStatus.innerHTML = '';
         }
         usernameInput.classList.remove('is-valid', 'is-invalid');
-        return; // Exit function early - no checking needed
+        hideAuthMessages();
+        return; // Exit early
     }
 
     // CLIENT-SIDE VALIDATION RULES
@@ -2472,13 +2228,6 @@ function validateContactNumber(contactNumber) {
     }
 
     return validation; // Valid Philippine number
-    if (!/^[\+]?[1-9]\d{1,14}$/.test(cleanNumber)) {
-        validation.valid = false;
-        validation.error = 'Please enter a valid contact number (e.g., 09123456789, +639123456789)';
-        return validation;
-    }
-
-    return validation;
 }
 
 /**
@@ -2497,7 +2246,8 @@ function checkContactAvailability(contactNumber) {
             contactStatus.innerHTML = '';
         }
         contactInput.classList.remove('is-valid', 'is-invalid');
-        return; // Exit function early - no checking needed
+        hideAuthMessages();
+        return; // Exit early
     }
 
     // CLIENT-SIDE VALIDATION RULES
@@ -2699,9 +2449,20 @@ function checkPasswordStrength(password) {
      // Remove all strength classes
     strengthBar.className = 'strength-fill';
 
-    if (!password) {
+    // clear everything if empty first
+    if (!password || password.trim() === '') {
+        strengthBar.className = 'strength-fill';
+        strengthBar.style.width = '0%';
         strengthText.textContent = 'Password strength';
-        return;
+        
+        // Remove requirements list
+        const requirementsList = document.querySelector('.password-requirements-list');
+        if (requirementsList) {
+            requirementsList.remove();
+        }
+        
+        hideAuthMessages();
+        return; // Exit early
     }
 
        // Calculate strength based on requirements met
@@ -2844,6 +2605,7 @@ function validatePasswordConfirmation(password, confirmPassword) {
     return validation;
 }
 
+// FIXED: Real-time password match validation with proper display
 function checkPasswordMatch(password, confirmPassword) {
     const matchStatus = document.querySelector('.password-match-status');
     const confirmInput = document.getElementById('signup-confirm-password');
@@ -2855,33 +2617,74 @@ function checkPasswordMatch(password, confirmPassword) {
     confirmPassword = (confirmPassword || '').trim();
 
     // Clear status if confirm password is empty
-    if (!confirmPassword) {
+    if (!confirmPassword || confirmPassword.trim() === '') {
         matchStatus.innerHTML = '';
+        matchStatus.style.display = 'none';
         confirmInput.classList.remove('is-valid', 'is-invalid');
-        return;
+        return; // Exit early
     }
 
-     // Only show status if BOTH password and confirm password have content
-    if (!password || !confirmPassword) {
-        matchStatus.innerHTML = '';
-        confirmInput.classList.remove('is-valid', 'is-invalid');
-        return;
-    }
+    // Only compare when BOTH fields have content
+    if (password && confirmPassword) {
+        const validation = validatePasswordConfirmation(password, confirmPassword);
 
-    const validation = validatePasswordConfirmation(password, confirmPassword);
-
-    if (validation.valid) {
-        matchStatus.className = 'password-match-status match';
-        matchStatus.innerHTML = '<span style="color: #10b981;">✓ Passwords match</span>';
-        confirmInput.classList.remove('is-invalid');
-        confirmInput.classList.add('is-valid');
+        if (validation.valid) {
+            // Passwords match - SHOW GREEN SUCCESS
+            matchStatus.className = 'password-match-status match';
+            matchStatus.innerHTML = '<span style="color: #10b981; font-weight: 600;">✓ Passwords match</span>';
+            matchStatus.style.display = 'flex';
+            matchStatus.style.alignItems = 'center';
+            confirmInput.classList.remove('is-invalid');
+            confirmInput.classList.add('is-valid');
+        } else {
+            // Passwords don't match - SHOW RED ERROR
+            matchStatus.className = 'password-match-status no-match';
+            matchStatus.innerHTML = `<span style="color: #ef4444; font-weight: 600;">✗ ${validation.error}</span>`;
+            matchStatus.style.display = 'flex';
+            matchStatus.style.alignItems = 'center';
+            confirmInput.classList.remove('is-valid');
+            confirmInput.classList.add('is-invalid');
+        }
     } else {
-        matchStatus.className = 'password-match-status no-match';
-        matchStatus.innerHTML = `<span style="color: #ef4444;">✗ ${validation.error}</span>`;
-        confirmInput.classList.remove('is-valid');
-        confirmInput.classList.add('is-invalid');
+        // Not enough data - hide message
+        matchStatus.innerHTML = '';
+        matchStatus.style.display = 'none';
+        confirmInput.classList.remove('is-valid', 'is-invalid');
     }
 }
+
+// Make sure event listeners are properly attached
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmPasswordInput = document.getElementById('signup-confirm-password');
+    if (confirmPasswordInput) {
+        // Real-time validation on input
+        confirmPasswordInput.addEventListener('input', function() {
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = this.value.trim();
+            console.log('Password match check:', { password: !!password, confirmPassword: !!confirmPassword });
+            checkPasswordMatch(password, confirmPassword);
+        });
+
+        // Also check on blur
+        confirmPasswordInput.addEventListener('blur', function() {
+            const password = document.getElementById('signup-password').value.trim();
+            const confirmPassword = this.value.trim();
+            checkPasswordMatch(password, confirmPassword);
+        });
+    }
+
+    // When password field changes, re-validate confirmation too
+    const passwordInput = document.getElementById('signup-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
+            if (confirmPassword) {
+                // Only check match if confirm password has value
+                checkPasswordMatch(this.value.trim(), confirmPassword);
+            }
+        });
+    }
+});
 
 
 // ==============================================
@@ -3427,11 +3230,6 @@ function clearValidationErrors() {
 
     const errorMessages = document.querySelectorAll('.field-error');
     errorMessages.forEach(msg => msg.remove());
-
-    const usernameStatus = document.querySelector('.username-status');
-    if (usernameStatus) {
-        usernameStatus.innerHTML = '';
-    }
 }
 
 // ==============================================
@@ -3584,6 +3382,12 @@ function clearAllValidationUI() {
         usernameStatus.innerHTML = '';
     }
 
+    // Clear contact status
+    const contactStatus = document.querySelector('.contact-status');
+    if (contactStatus) {
+        contactStatus.innerHTML = '';
+    }
+
     // Clear password strength
     const strengthBar = document.querySelector('.strength-fill');
     const strengthText = document.querySelector('.strength-text');
@@ -3622,7 +3426,10 @@ function clearAllValidationUI() {
     fieldErrors.forEach(error => error.remove());
 }
 
-
+/**
+ * FIXED: Only show real-time errors (.username-status, .contact-status)
+ * Don't show form submission errors for username and contact_number
+ */
 function handleValidationErrors(errors) {
     clearValidationErrors();
 
@@ -3633,6 +3440,7 @@ function handleValidationErrors(errors) {
             'username': 'signup-username',
             'contact_number': 'signup-contact',
             'password': 'signup-password',
+            'password_confirmation': 'signup-confirm-password',
             'terms_accepted': 'agree-terms'
         };
 
@@ -3643,15 +3451,19 @@ function handleValidationErrors(errors) {
             input.classList.add('error', 'is-invalid');
             input.style.borderColor = '#dc3545';
 
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'field-error';
-            errorMsg.textContent = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
-            errorMsg.style.color = '#dc3545';
-            errorMsg.style.fontSize = '12px';
-            errorMsg.style.marginTop = '4px';
+            // SKIP username and contact_number and password - only show real-time validation
+            if (field !== 'contact_number' && field !== 'username' && field !== 'password_confirmation') {
+                // Only show form error messages for PASSWORD and other fields
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'field-error';
+                errorMsg.textContent = Array.isArray(errors[field]) ? errors[field][0] : errors[field];
+                errorMsg.style.color = '#dc3545';
+                errorMsg.style.fontSize = '12px';
+                errorMsg.style.marginTop = '4px';
 
-            const parent = input.closest('.form-group') || input.parentElement;
-            parent.appendChild(errorMsg);
+                const parent = input.closest('.form-group') || input.parentElement;
+                parent.appendChild(errorMsg);
+            }
         }
     });
 }
@@ -3876,7 +3688,7 @@ let verificationStatusPoll = {
 
     // 4. Show notification
     if (typeof showNotification === 'function') {
-        showNotification('success', '🎉 Your profile has been verified! You can now access all services.');
+        showNotification('success', 'Your profile has been verified! You can now access all services.');
     }
 
     // 5. Optional: Close verification modal if open
@@ -4056,11 +3868,119 @@ verificationStatusPoll.start = function() {
 };
 
 // ==============================================
+// CLEAR VALIDATION MESSAGES WHEN INPUT IS EMPTY
+// ==============================================
+
+/**
+ * Clear validation messages when input field is empty
+ */
+function initClearMessagesOnEmpty() {
+    // Username field
+    const usernameInput = document.getElementById('signup-username');
+    if (usernameInput) {
+        const originalUsernameCheck = usernameInput.oninput;
+        usernameInput.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                const usernameStatus = document.querySelector('.username-status');
+                if (usernameStatus) {
+                    usernameStatus.innerHTML = '';
+                }
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    }
+    
+    // Contact number field
+    const contactInput = document.getElementById('signup-contact');
+    if (contactInput) {
+        contactInput.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                const contactStatus = document.querySelector('.contact-status');
+                if (contactStatus) {
+                    contactStatus.innerHTML = '';
+                }
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    }
+    
+    // Password field
+    const passwordInput = document.getElementById('signup-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                const strengthBar = document.querySelector('.strength-fill');
+                const strengthText = document.querySelector('.strength-text');
+                if (strengthBar) {
+                    strengthBar.className = 'strength-fill';
+                    strengthBar.style.width = '0%';
+                }
+                if (strengthText) {
+                    strengthText.textContent = 'Password strength';
+                }
+                
+                // Remove requirements list
+                const requirementsList = document.querySelector('.password-requirements-list');
+                if (requirementsList) {
+                    requirementsList.remove();
+                }
+                
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    }
+    
+    // Confirm password field
+    const confirmPasswordInput = document.getElementById('signup-confirm-password');
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                const matchStatus = document.querySelector('.password-match-status');
+                if (matchStatus) {
+                    matchStatus.innerHTML = '';
+                }
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    }
+    
+    // Clear all validation on all inputs when empty
+    const allAuthInputs = document.querySelectorAll('.auth-form input');
+    allAuthInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (!this.value || this.value.trim() === '') {
+                this.classList.remove('error', 'invalid', 'is-invalid', 'is-valid');
+                this.style.borderColor = '';
+                
+                const fieldError = this.closest('.form-group')?.querySelector('.field-error');
+                if (fieldError) {
+                    fieldError.remove();
+                }
+                
+                hideAuthMessages();
+            }
+        }, true); // Use capture phase
+    });
+}
+
+// ==============================================
 // HOOKS AND LISTENERS
 // ==============================================
 
 // Hook: start polling on page load if status already pending
 document.addEventListener('DOMContentLoaded', function() {
+
+    // Initialize clear messages when input is empty
+    initClearMessagesOnEmpty();
+
     // Login form submission
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
@@ -4322,6 +4242,30 @@ function capitalizeWords(str) {
     if (!str) return str;
     return str.replace(/\b\w/g, char => char.toUpperCase());
 }
+/**
+ * Disable auto-capitalize on username and password fields on page load
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    // Prevent auto-capitalize on ALL password and username fields immediately
+    const usernameInputs = document.querySelectorAll('input[name="username"], input[id*="username"]');
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    
+    // Disable auto-capitalize for username fields
+    usernameInputs.forEach(input => {
+        input.setAttribute('autocapitalize', 'off');
+        input.setAttribute('autocorrect', 'off');
+        input.setAttribute('spellcheck', 'false');
+        input.style.textTransform = 'none';
+    });
+    
+    // Disable auto-capitalize for password fields
+    passwordInputs.forEach(input => {
+        input.setAttribute('autocapitalize', 'off');
+        input.setAttribute('autocorrect', 'off');
+        input.style.textTransform = 'none';
+    });
+}, true); // Use capture phase to ensure it runs early
+
 
 /**
  * Initialize auto-capitalize functionality for text inputs
@@ -5201,6 +5145,7 @@ window.changePassword = changePassword;
 window.showLogoutConfirmation = showLogoutConfirmation;
 window.closeLogoutConfirmation = closeLogoutConfirmation;
 window.confirmLogout = confirmLogout;
+window.confirmLogout = window.confirmLogoutEnhanced;
 window.showNotification = showNotification;
 window.previewImage = previewImage;
 window.refreshProfileVerifyButton = refreshProfileVerifyButton;

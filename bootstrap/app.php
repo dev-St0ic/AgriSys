@@ -11,13 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Apply security headers to all requests in production
-        //if (app()->environment('production')) {
-         //   $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
-       // }
+         // GLOBAL MIDDLEWARE - Runs on EVERY request
+        $middleware->append(\App\Http\Middleware\CheckSessionExpiration::class);
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'user.session' => \App\Http\Middleware\UserSession::class,
+            'api.user.session' => \App\Http\Middleware\ApiUserSession::class,
             'verified.user' => \App\Http\Middleware\VerifiedUser::class,
             'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
         ]);

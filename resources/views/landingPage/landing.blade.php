@@ -313,8 +313,8 @@
                         <img src="{{ asset('images/services/ServicesSeedlingsTemporary.jpg') }}"
                             alt="Seedlings Service">
                     </div>
-                    <h3>Seedlings Request</h3>
-                    <p>Request free seedlings to support your agricultural livelihood.</p>
+                    <h3>Supplies & Garden Tools</h3>
+                    <p>Request free supplies & garden tools to elevate your agricultural practices.</p>
                     <button class="btn-choice" onclick="openFormSeedlings(event)">Apply Now</button>
                 </div>
                 <div class="card">
@@ -2251,7 +2251,7 @@
                 <h3>Our Services</h3>
                 <ul>
                     <li><a href="#services">RSBSA Registration</a></li>
-                    <li><a href="#services">Seedlings Request</a></li>
+                    <li><a href="#services">Supplies & Garden Tools</a></li>
                     <li><a href="#services">FishR Registration</a></li>
                     <li><a href="#services">BoatR Registration</a></li>
                     <li><a href="#services">Training Request</a></li>

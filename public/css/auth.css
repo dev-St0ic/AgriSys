@@ -921,9 +921,9 @@ input.is-invalid {
 /* Checkbox Group */
 .checkbox-group {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 10px;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 .checkbox-group input[type="checkbox"] {
@@ -964,6 +964,7 @@ input.is-invalid {
     font-weight: 500;
     display: flex;
     align-items: center;
+    justify-content: center; /* CENTER THE MESSAGE */
     gap: 8px;
 }
 
