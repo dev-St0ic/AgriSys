@@ -171,7 +171,7 @@
 <!-- Application Form Section -->
 <section class="application-section" id="seedlings-form" style="display: none;">
     <div class="seedlings-form-header">
-        <h2>Seedlings Application Form</h2>
+        <h2>Supplies & Garden Tools Application Form</h2>
         <p>Please fill out your personal information below.</p>
     </div>
 

@@ -344,36 +344,16 @@ function updateQuantity(itemId) {
 }
 
 // Show notification when user tries to exceed available stock
+//shows warning as a TOAST notification
 function showStockNotification(itemId, availableStock) {
-    const itemCard = document.querySelector(`[data-item-id="${itemId}"]`)?.closest('.seedlings-item-card');
-    if (!itemCard) return;
-
-    // Find or create notification element at the top of the card
-    let notification = itemCard.querySelector('.stock-limit-notification');
-
-    if (!notification) {
-        notification = document.createElement('div');
-        notification.className = 'stock-limit-notification';
-        itemCard.insertBefore(notification, itemCard.firstChild);
-    }
-
-    // Set user-friendly message
-    notification.innerHTML = `
-        <i class="fas fa-info-circle"></i>
-        <span>We only have <strong>${availableStock} units</strong> available for this item right now</span>
-    `;
-    notification.style.display = 'flex';
-
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-        if (notification && notification.parentElement) {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                notification.style.display = 'none';
-                notification.style.opacity = '1';
-            }, 300);
+    // Use the global toast notification system instead of card warning
+    toast.warning(
+        `We only have ${availableStock} unit${availableStock !== 1 ? 's' : ''} available for this item right now`,
+        {
+            title: 'Stock Limit',
+            duration: 5000
         }
-    }, 5000);
+    );
 }
 
 function updateSelectionSummary() {
@@ -756,17 +736,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add event listener for manual quantity input (if user types directly)
     document.querySelectorAll('.qty-input').forEach(input => {
-        input.addEventListener('input', function() {
-            const itemId = this.id.replace('qty-', '');
-            const maxStock = parseInt(this.max);
-            let value = parseInt(this.value) || 0;
-
-            if (value > maxStock) {
-                this.value = maxStock;
-                showStockNotification(itemId, maxStock);
-            }
-        });
-
         input.addEventListener('change', function() {
             const itemId = this.id.replace('qty-', '');
             updateQuantity(itemId);
