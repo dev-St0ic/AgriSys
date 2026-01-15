@@ -3688,7 +3688,7 @@ let verificationStatusPoll = {
 
     // 4. Show notification
     if (typeof showNotification === 'function') {
-        showNotification('success', '🎉 Your profile has been verified! You can now access all services.');
+        showNotification('success', 'Your profile has been verified! You can now access all services.');
     }
 
     // 5. Optional: Close verification modal if open

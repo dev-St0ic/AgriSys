@@ -25,8 +25,12 @@ class HomeController extends Controller
         // Use database images if available, otherwise use fallback
         $slides = $slideshowImages->count() > 0 ? $slideshowImages : collect($fallbackImages);
 
-        // Get user session for compatibility with existing functionality
+        // Get user session - set to null if not available (don't pass errors)
         $user = session('user', null);
+        
+        // Clear any error messages from session to prevent notification display
+        session()->forget('error');
+        session()->forget('errors');
 
         return view('landingPage.landing', compact('slides', 'user'));
     }
@@ -39,17 +43,17 @@ class HomeController extends Controller
         $user = session('user', null);
 
         if (!$user) {
-            // Let JavaScript handle the redirect - just return 401
+            // Return JSON for AJAX requests without triggering notifications
             if (request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'authenticated' => false,
-                    'session_expired' => true
+                    'message' => 'Session expired'
                 ], 401);
             }
             
-            // For direct access, redirect with session_expired flag
-            return redirect('/?session_expired=true');
+            // Redirect to home without the error flag to prevent notifications
+            return redirect('/');
         }
 
         // Get active slideshow images ordered by their order field
@@ -64,6 +68,10 @@ class HomeController extends Controller
 
         // Use database images if available, otherwise use fallback
         $slides = $slideshowImages->count() > 0 ? $slideshowImages : collect($fallbackImages);
+        
+        // Clear any error messages
+        session()->forget('error');
+        session()->forget('errors');
 
         return view('landingPage.landing', compact('slides', 'user'));
     }
