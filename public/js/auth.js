@@ -4242,16 +4242,54 @@ function capitalizeWords(str) {
     if (!str) return str;
     return str.replace(/\b\w/g, char => char.toUpperCase());
 }
-
-// Prevent auto-capitalize on ALL password fields immediately
+/**
+ * Disable auto-capitalize on username and password fields on page load
+ */
 document.addEventListener('DOMContentLoaded', function() {
-    // Find all password inputs and disable capitalize
+    // Prevent auto-capitalize on ALL password and username fields immediately
+    const usernameInputs = document.querySelectorAll('input[name="username"], input[id*="username"]');
     const passwordInputs = document.querySelectorAll('input[type="password"]');
+    
+    // Disable auto-capitalize for username fields
+    usernameInputs.forEach(input => {
+        input.setAttribute('autocapitalize', 'off');
+        input.setAttribute('autocorrect', 'off');
+        input.setAttribute('spellcheck', 'false');
+        input.style.textTransform = 'none';
+    });
+    
+    // Disable auto-capitalize for password fields
     passwordInputs.forEach(input => {
         input.setAttribute('autocapitalize', 'off');
         input.setAttribute('autocorrect', 'off');
         input.style.textTransform = 'none';
     });
+}, true); // Use capture phase to ensure it runs early
+
+/**
+ * Alternative: Prevent capitalization on input event for username fields
+ * This provides an extra layer of protection against browser auto-capitalization
+ */
+document.addEventListener('input', function(e) {
+    const input = e.target;
+    
+    // Check if it's a username field
+    if ((input.type === 'text' && (input.name === 'username' || input.id.includes('username'))) || 
+        input.type === 'password') {
+        
+        // If the value has been auto-capitalized, convert back to original case
+        if (input.value && /[A-Z]/.test(input.value.charAt(0)) && input.type === 'text') {
+            // Store cursor position
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            
+            // Convert to lowercase for usernames
+            input.value = input.value.toLowerCase();
+            
+            // Restore cursor position
+            input.setSelectionRange(start, end);
+        }
+    }
 }, true);
 
 /**
