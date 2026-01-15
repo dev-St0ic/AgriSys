@@ -220,7 +220,7 @@ class UserRegistrationController extends Controller
             'password' => 'required|string',
         ], [
             'username.required' => 'Username is required',
-            'password.required' => 'Password is required'
+            'password.required' => 'Password is incorrect'
         ]);
 
         if ($validator->fails()) {
@@ -235,11 +235,9 @@ class UserRegistrationController extends Controller
             $loginField = $request->username;
             $password = $request->password;
 
-            $userRegistration = UserRegistration::where('username', $loginField)
-                ->first();
+            $userRegistration = UserRegistration::where('username', $loginField)->first();
 
             if ($userRegistration && Hash::check($password, $userRegistration->password)) {
-                // Store user data in session
                 $request->session()->put('user', [
                     'id' => $userRegistration->id,
                     'username' => $userRegistration->username,
@@ -249,7 +247,6 @@ class UserRegistrationController extends Controller
                 ]);
 
                 $request->session()->put('user_id', $userRegistration->id);
-                // $request->session()->put('user_username', $userRegistration->username);
                 $request->session()->put('user_status', $userRegistration->status);
 
                 $userRegistration->update(['last_login_at' => now()]);
@@ -279,31 +276,6 @@ class UserRegistrationController extends Controller
                         'name' => $userRegistration->full_name ?? $userRegistration->username,
                         'status' => $userRegistration->status,
                         'user_type' => $userRegistration->user_type,
-                    ]
-                ]);
-            }
-
-            // Check admin users in User table)
-            // This is separate from user_registration table
-
-            if ($user && Hash::check($password, $user->password)) {
-                Auth::login($user);
-
-                $request->session()->put('user', [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'user_type' => 'admin',
-                    'status' => 'approved'
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Admin login successful!',
-                    'redirect' => '/admin/users',
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'role' => 'admin'
                     ]
                 ]);
             }
