@@ -293,7 +293,7 @@
     </div>
 
     <div id="seedlings-requirements-tab" class="seedlings-tab-content" style="display: none;">
-        <h3>Requirements for Seedlings Request</h3>
+        <h3>Requirements for Supplies & Garden Tools Request</h3>
         <ul>
             <li>Valid ID (any government-issued ID)</li>
             <li>Barangay Certificate or Residency Certificate</li>

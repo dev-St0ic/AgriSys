@@ -16,7 +16,7 @@ function openFormSeedlings(event) {
     }
 
     // Check authentication before allowing access
-    if (!showAuthRequired('Seedlings Request')) {
+    if (!showAuthRequired('Supplies & Garden Tools')) {
         return false;
     }
 
