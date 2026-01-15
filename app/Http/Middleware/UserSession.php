@@ -29,8 +29,7 @@ class UserSession
                 ], 401);
             }
 
-            return redirect('/?session_expired=true')
-                ->with('error', 'Please log in to access this page.');
+            return redirect('/?session_expired=true');
         }
 
         // Get user data from session
@@ -52,8 +51,7 @@ class UserSession
                 ], 401);
             }
 
-            return redirect('/?session_expired=true')
-                ->with('error', 'Your session is invalid. Please log in again.');
+            return redirect('/?session_expired=true');
         }
 
         // Update last activity timestamp (resets inactivity counter)
