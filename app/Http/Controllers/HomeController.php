@@ -39,7 +39,17 @@ class HomeController extends Controller
         $user = session('user', null);
 
         if (!$user) {
-            return redirect('/')->with('error', 'Please log in to access this page.');
+            // Let JavaScript handle the redirect - just return 401
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'authenticated' => false,
+                    'session_expired' => true
+                ], 401);
+            }
+            
+            // For direct access, redirect with session_expired flag
+            return redirect('/?session_expired=true');
         }
 
         // Get active slideshow images ordered by their order field

@@ -1672,55 +1672,11 @@ function formatApplicationDate(dateString) {
         day: 'numeric'
     });
 }
-
-
-// function logoutUser() {
-//     // Stop verification polling if active
-//     if (typeof stopVerificationPolling === 'function') {
-//         stopVerificationPolling();
-//     }
-
-//     fetch('/auth/logout', {
-//         method: 'POST',
-//         headers: {
-//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-//             'Accept': 'application/json',
-//             'Content-Type': 'application/json'
-//         }
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.success) {
-//             showNotification('success', 'Successfully logged out!');
-
-//             // Hide all forms before redirecting
-//             if (typeof hideAllForms === 'function') {
-//                 hideAllForms();
-//             }
-
-//             // Small delay to show notification, then redirect to home
-//             setTimeout(() => {
-//                 window.location.href = '/';
-//             }, 1000);
-//         } else {
-//             showNotification('error', 'Logout failed. Please try again.');
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Logout error:', error);
-
-//         // Hide all forms before redirecting
-//         if (typeof hideAllForms === 'function') {
-//             hideAllForms();
-//         }
-
-//         // Fallback: redirect to home anyway
-//         window.location.href = '/';
-//     });
-// }
-// ==============================================
-// LOGOUT WITH CONFIRMATION MODAL
-// ==============================================
+/**
+ * ENHANCED LOGOUT FUNCTION with confirmation modal
+ * Handles both manual logout and automatic session expiration
+ * With graceful error handling for already-expired sessions
+ */
 
 /**
  * Show logout confirmation modal
@@ -1755,7 +1711,7 @@ function showLogoutConfirmation() {
                     <button type="button" class="btn-cancel-logout" onclick="closeLogoutConfirmation()">
                         Cancel
                     </button>
-                    <button type="button" class="btn-confirm-logout" onclick="confirmLogout()">
+                    <button type="button" class="btn-confirm-logout" onclick="confirmLogoutEnhanced()">
                         <span class="btn-text">Log Out</span>
                         <span class="btn-loader" style="display: none;">
                             <svg class="spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1926,11 +1882,11 @@ function showLogoutConfirmation() {
                 color: #374151;
             }
 
-            .btn-cancel-logout:hover {
+            .btn-cancel-logout:hover:not(:disabled) {
                 background: #e5e7eb;
             }
 
-            .btn-cancel-logout:active {
+            .btn-cancel-logout:active:not(:disabled) {
                 transform: scale(0.98);
             }
 
@@ -2019,18 +1975,12 @@ function showLogoutConfirmation() {
                 }
             }
 
-            @media (max-width: 480px) {
-                .logout-confirmation-header {
-                    flex-direction: column;
-                    gap: 8px;
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
                 }
-
-                .logout-title-section {
-                    width: 100%;
-                }
-
-                .logout-close-btn {
-                    align-self: flex-start;
+                to {
+                    opacity: 0;
                 }
             }
         `;
@@ -2095,85 +2045,13 @@ function handleLogoutOverlayClick(e) {
 }
 
 /**
- * Confirm logout and proceed with logout process
- */
-function confirmLogout() {
-    const confirmBtn = document.querySelector('.btn-confirm-logout');
-    if (!confirmBtn) return;
-
-    // Set button to loading state
-    confirmBtn.disabled = true;
-    const btnText = confirmBtn.querySelector('.btn-text');
-    const btnLoader = confirmBtn.querySelector('.btn-loader');
-    
-    if (btnText) btnText.style.display = 'none';
-    if (btnLoader) btnLoader.style.display = 'inline';
-
-    // Stop verification polling if active
-    if (typeof stopVerificationPolling === 'function') {
-        stopVerificationPolling();
-    }
-
-    // Perform logout
-    fetch('/auth/logout', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update button text
-            if (btnText) btnText.textContent = 'Logged Out!';
-            if (btnText) btnText.style.display = 'inline';
-            if (btnLoader) btnLoader.style.display = 'none';
-            
-            showNotification('success', 'Successfully logged out!');
-
-            // Hide all forms before redirecting
-            if (typeof hideAllForms === 'function') {
-                hideAllForms();
-            }
-
-            // Close modal and redirect
-            setTimeout(() => {
-                closeLogoutConfirmation();
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 300);
-            }, 800);
-        } else {
-            showNotification('error', 'Logout failed. Please try again.');
-            closeLogoutConfirmation();
-        }
-    })
-    .catch(error => {
-        console.error('Logout error:', error);
-
-        // Hide all forms before redirecting
-        if (typeof hideAllForms === 'function') {
-            hideAllForms();
-        }
-
-        // Fallback: close modal and redirect anyway
-        closeLogoutConfirmation();
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 300);
-    });
-}
-
-/**
- * Updated logoutUser function - shows confirmation modal
+ * Updated logoutUser function
  */
 function logoutUser() {
     showLogoutConfirmation();
 }
 
-// Add fadeOut animation to styles
+// Add fadeOut animation to styles if not already present
 if (!document.querySelector('#logout-fadeout-animation')) {
     const fadeOutStyle = document.createElement('style');
     fadeOutStyle.id = 'logout-fadeout-animation';
@@ -2189,6 +2067,8 @@ if (!document.querySelector('#logout-fadeout-animation')) {
     `;
     document.head.appendChild(fadeOutStyle);
 }
+
+console.log('✅ Enhanced Logout functions loaded');
 // ==============================================
 // USERNAME AVAILABILITY CHECKER
 // ==============================================
@@ -5252,6 +5132,7 @@ window.changePassword = changePassword;
 window.showLogoutConfirmation = showLogoutConfirmation;
 window.closeLogoutConfirmation = closeLogoutConfirmation;
 window.confirmLogout = confirmLogout;
+window.confirmLogout = window.confirmLogoutEnhanced;
 window.showNotification = showNotification;
 window.previewImage = previewImage;
 window.refreshProfileVerifyButton = refreshProfileVerifyButton;
