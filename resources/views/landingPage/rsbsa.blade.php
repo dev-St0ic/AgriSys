@@ -159,6 +159,7 @@
                     <option value="Fisherfolk" {{ old('main_livelihood') == 'Fisherfolk' ? 'selected' : '' }}>Fisherfolk</option>
                     <option value="Agri-youth" {{ old('main_livelihood') == 'Agri-youth' ? 'selected' : '' }}>Agri-youth</option>
                 </select>
+                <small class="rsbsa-form-help">Subject to validation under RSBSA guidelines.</small>
                 @error('main_livelihood')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                 @enderror
@@ -192,8 +193,8 @@
             </div>
 
             <div class="rsbsa-form-group">
-                <label>Supporting Document <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="file" name="supporting_docs" accept=".pdf,.jpg,.jpeg,.png" required>
+                <label>Supporting Document (Optional)</label>
+                <input type="file" name="supporting_docs" accept=".pdf,.jpg,.jpeg,.png">
                 <small class="rsbsa-form-help">
                     Upload proof of livelihood status (e.g., farm photo, barangay certificate, ID). Accepted formats: JPG, PNG, PDF (Max 10MB).
                 </small>
@@ -223,16 +224,17 @@
         </ul>
         <h2>Who May Register</h2>
         <ul>
+            <li>Agricultural Worker</li>
             <li>Farmers</li>
             <li>Fisherfolk</li>
-            <li>Livestock raisers</li>
-            <li>Poultry raisers</li>
+            <li>Livestock Raisers</li>
+            <li>Poultry Raisers</li>
         </ul>
     </div>
 
     <div class="rsbsa-tab-content" id="information" style="display: none;">
         <h3>Important Information</h3>
-        <p>All applications shall undergo review and approval by the City Agriculture Office. Processing time depends on the nature of the transaction and completeness of submitted requirements. The office may contact the applicant should additional information or verification be required.</p>
+        <p>All applications shall undergo review and approval by the City Agriculture Office. Processing time may vary depending on the completeness of submitted information. The office may contact the applicant should additional information or verification be required.</p>
         <p>All information provided must be accurate and truthful. Submission of incomplete or incorrect information may result in delays or rejection.</p>
         <h3>Contact Information</h3>
         <p>For assistance with your application, please contact:</p>
@@ -246,7 +248,8 @@
         <ol>
             <li>Your application will be reviewed by our agriculture office</li>
             <li>We may contact you for additional verification</li>
-            <li>Once approved, you will receive your RSBSA certificate</li>
+            <li>Once approved, your RSBSA registration will be processed.</li>
+            <li>You may be informed when your RSBSA record or certificate is available.</li>
             <li>You can pick up your certificate at the City Agriculture Office</li>
         </ol>
     </div>
