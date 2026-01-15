@@ -299,7 +299,15 @@ class UserRegistrationController extends Controller
      */
     public function logout(Request $request)
     {
+         // Log the logout
+        \Log::info('User logout', [
+            'user_id' => $request->session()->get('user.id') ?? null,
+            'ip' => $request->ip()
+        ]);
+        // Destroy the session completely
         $request->session()->flush();
+        $request->session()->regenerate();
+
 
         if (Auth::check()) {
             Auth::logout();

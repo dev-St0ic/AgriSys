@@ -1,5 +1,5 @@
 // ==============================================
-// ENHANCED SESSION MANAGER - FIXED VERSION
+// ENHANCED SESSION MANAGER - FIXED VERSION WITH VISIBLE MODAL
 // Handles automatic logout, session expiration, and graceful recovery
 // ==============================================
 
@@ -7,11 +7,11 @@ const sessionManager = {
     // Configuration
     config: {
         // Session timeout in milliseconds (30 minutes = 1800000ms)
-        SESSION_TIMEOUT: 30 * 1000,
+        SESSION_TIMEOUT: 30 * 60 * 1000,
         // Check interval in milliseconds (every 5 minutes)
-        CHECK_INTERVAL: 5 * 1000,
+        CHECK_INTERVAL: 5 * 60 * 1000,
         // Warning time before session expires (5 minutes)
-        WARNING_TIME: 5 * 1000,
+        WARNING_TIME: 5 * 60 * 1000,
     },
 
     // State tracking
@@ -21,7 +21,7 @@ const sessionManager = {
         warningShown: false,
         checkIntervalId: null,
         inactivityTimeoutId: null,
-        isExpired: false, // Track if session has already expired
+        isExpired: false,
     },
 
     /**
@@ -30,11 +30,11 @@ const sessionManager = {
      */
     init() {
         if (!window.userData) {
-            console.log('No user data - session manager not initialized');
+            console.log('❌ No user data - session manager not initialized');
             return;
         }
 
-        console.log('✅ Session Manager initialized');
+        console.log('✅ Session Manager initialized for user:', window.userData.username);
         this.startActivityTracking();
         this.startSessionCheck();
     },
@@ -48,10 +48,16 @@ const sessionManager = {
         activityEvents.forEach(event => {
             document.addEventListener(event, () => {
                 // Don't reset if session already expired
-                if (this.state.isExpired) return;
+                if (this.state.isExpired) {
+                    console.log('⚠️ Session already expired, ignoring activity');
+                    return;
+                }
 
+                const timeSinceLastActivity = Date.now() - this.state.lastActivityTime;
                 this.state.lastActivityTime = Date.now();
                 this.state.warningShown = false;
+
+                console.log('🔄 Activity detected - reset inactivity timer');
 
                 // Clear existing timeout
                 if (this.state.inactivityTimeoutId) {
@@ -65,7 +71,7 @@ const sessionManager = {
             }, true);
         });
 
-        console.log('Activity tracking started');
+        console.log('✓ Activity tracking started');
     },
 
     /**
@@ -76,7 +82,7 @@ const sessionManager = {
             this.checkSessionValidity();
         }, this.config.CHECK_INTERVAL);
 
-        console.log('✓ Session check started - checking every 5 minutes');
+        console.log('✓ Session check started - checking every 5 seconds');
     },
 
     /**
@@ -125,46 +131,86 @@ const sessionManager = {
         }
     },
 
-    /**
-     * Handle session expiration gracefully
-     * @param {string} reason - Why session expired (inactivity, server, etc)
-     */
-    handleSessionExpired(reason = 'unknown') {
-        // Prevent multiple expiration handlers
-        if (this.state.isExpired) {
-            console.log('Session already marked as expired, skipping duplicate handler');
-            return;
-        }
+/**
+ * Handle session expiration gracefully
+ * @param {string} reason - Why session expired (inactivity, server, etc)
+ */
+handleSessionExpired(reason = 'unknown') {
+    // Prevent multiple expiration handlers
+    if (this.state.isExpired) {
+        console.log('⚠️ Session already marked as expired, skipping duplicate handler');
+        return;
+    }
 
-        console.log('🔴 SESSION EXPIRED - Reason:', reason);
-        this.state.isExpired = true;
+    console.log('🔴 SESSION EXPIRED - Reason:', reason);
+    this.state.isExpired = true;
 
-        // Stop all tracking IMMEDIATELY
-        this.stop();
+    // Stop all tracking IMMEDIATELY
+    this.stop();
 
-        // Update state
-        this.state.isSessionActive = false;
-        window.userData = null;
+    // Update state
+    this.state.isSessionActive = false;
+    window.userData = null;
 
-        // Stop verification polling if active
-        if (typeof stopVerificationPolling === 'function') {
-            stopVerificationPolling();
-        }
+    // Stop verification polling if active
+    if (typeof stopVerificationPolling === 'function') {
+        stopVerificationPolling();
+    }
 
-        // Close all modals
-        this.closeAllModals();
+    // Close all modals
+    this.closeAllModals();
 
-        // Clear any pending logout requests
-        this.abortPendingRequests();
+    // Clear any pending logout requests
+    this.abortPendingRequests();
 
-        // Show session expired notification
-        this.showSessionExpiredNotification(reason);
+    // Show session expired notification
+    this.showSessionExpiredNotification(reason);
 
-        // Wait for notification animation, then reload
+    // CALL SERVER TO DESTROY SESSION FIRST
+    this.destroySessionOnServer().then(() => {
+        console.log('✅ Server session destroyed');
         setTimeout(() => {
             this.reloadToLoginPage();
-        }, 2500);
-    },
+        }, 1500);
+    }).catch(error => {
+        console.error('Error destroying server session:', error);
+        setTimeout(() => {
+            this.reloadToLoginPage();
+        }, 1500);
+    });
+},
+
+/**
+ * Explicitly destroy the session on the server
+ * NEW METHOD - ADD THIS AFTER handleSessionExpired
+ */
+async destroySessionOnServer() {
+    try {
+        console.log('🔄 Destroying session on server...');
+        
+        const response = await fetch('/auth/logout', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Server confirmed session destroyed:', data);
+            return true;
+        } else {
+            console.warn('⚠️ Server logout returned:', response.status);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Failed to destroy server session:', error);
+        return false;
+    }
+},
 
     /**
      * Abort any pending fetch requests to prevent interference
@@ -182,37 +228,7 @@ const sessionManager = {
      * @param {string} reason - Why session expired
      */
     showSessionExpiredNotification(reason = 'unknown') {
-        // Create notification container
-        const notification = document.createElement('div');
-        notification.id = 'session-expired-notification';
-        notification.className = 'session-expired-notification';
-
-        let message = 'Your session has expired due to inactivity. Please log in again to continue.';
-        if (reason === 'server') {
-            message = 'Your session has ended. Please log in again to continue.';
-        }
-
-        notification.innerHTML = `
-            <div class="session-expired-content">
-                <div class="session-expired-icon">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="24" cy="24" r="22" stroke="#ef4444" stroke-width="2"/>
-                        <path d="M24 14v10" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="24" cy="28" r="1.5" fill="#ef4444"/>
-                    </svg>
-                </div>
-                <div class="session-expired-message">
-                    <h3>Session Expired</h3>
-                    <p>${message}</p>
-                </div>
-                <div class="session-expired-spinner">
-                    <div class="spinner"></div>
-                    <span>Reloading...</span>
-                </div>
-            </div>
-        `;
-
-        // Add styles if not already present
+        // First, create and inject CSS if not already present
         if (!document.querySelector('#session-expired-styles')) {
             const styles = document.createElement('style');
             styles.id = 'session-expired-styles';
@@ -228,9 +244,9 @@ const sessionManager = {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    z-index: 10000;
+                    z-index: 99999;
                     animation: fadeIn 0.3s ease-out;
-                    pointer-events: none; /* Prevent interaction */
+                    pointer-events: auto;
                 }
 
                 @keyframes fadeIn {
@@ -311,32 +327,44 @@ const sessionManager = {
                         transform: rotate(360deg);
                     }
                 }
-
-                @media (max-width: 480px) {
-                    .session-expired-content {
-                        margin: 16px;
-                        padding: 24px;
-                    }
-
-                    .session-expired-icon {
-                        width: 56px;
-                        height: 56px;
-                    }
-
-                    .session-expired-message h3 {
-                        font-size: 18px;
-                    }
-
-                    .session-expired-message p {
-                        font-size: 13px;
-                    }
-                }
             `;
             document.head.appendChild(styles);
         }
 
-        // Add notification to page
+        // Create notification container
+        const notification = document.createElement('div');
+        notification.id = 'session-expired-notification';
+        notification.className = 'session-expired-notification';
+
+        let message = 'Your session has expired due to inactivity. Please log in again to continue.';
+        if (reason === 'server') {
+            message = 'Your session has ended. Please log in again to continue.';
+        }
+
+        notification.innerHTML = `
+            <div class="session-expired-content">
+                <div class="session-expired-icon">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="24" cy="24" r="22" stroke="#ef4444" stroke-width="2"/>
+                        <path d="M24 14v10" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="24" cy="28" r="1.5" fill="#ef4444"/>
+                    </svg>
+                </div>
+                <div class="session-expired-message">
+                    <h3>Session Expired</h3>
+                    <p>${message}</p>
+                </div>
+                <div class="session-expired-spinner">
+                    <div class="spinner"></div>
+                    <span>Reloading...</span>
+                </div>
+            </div>
+        `;
+
+        // CRITICAL: Append directly to body to bypass any stacking context issues
         document.body.appendChild(notification);
+        
+        console.log('✅ Session expired modal displayed');
 
         // Prevent interactions with page
         document.body.style.overflow = 'hidden';
@@ -358,7 +386,7 @@ const sessionManager = {
             'contact-modal',
             'terms-modal',
             'privacy-modal',
-            'logout-confirmation-overlay' // Add logout confirmation modal
+            'logout-confirmation-overlay'
         ];
 
         modals.forEach(modalId => {
@@ -384,7 +412,6 @@ const sessionManager = {
         sessionStorage.clear();
 
         // Reload with cache bust and session_expired flag
-        // Use the correct root route
         const loginUrl = new URL(window.location.origin);
         loginUrl.searchParams.set('session_expired', 'true');
         loginUrl.searchParams.set('t', Date.now());
@@ -489,8 +516,7 @@ window.confirmLogoutEnhanced = async function() {
 
         // Handle both success and already-expired cases
         if (response.status === 401 || response.status === 403) {
-            // Session already expired - treat as success
-            console.log('ℹSession already expired on server');
+            console.log('ℹ️ Session already expired on server');
         }
 
         // Show success message
@@ -512,7 +538,7 @@ window.confirmLogoutEnhanced = async function() {
         setTimeout(() => {
             closeLogoutConfirmation();
             setTimeout(() => {
-                // Reload to login page with correct routes
+                // Reload to login page
                 const loginUrl = new URL(window.location.origin);
                 loginUrl.searchParams.set('logged_out', 'true');
                 loginUrl.searchParams.set('t', Date.now());
@@ -630,4 +656,4 @@ window.addEventListener('unload', function() {
     sessionManager.stop();
 });
 
-console.log('✅ Enhanced Session Manager loaded');
+console.log('✅ Enhanced Session Manager loaded with VISIBLE MODAL');

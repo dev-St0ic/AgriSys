@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 
 class CheckSessionExpiration
 {
+    
     /**
      * Session timeout in seconds
-     * Set to 30 seconds for testing
-     * Change to 1800 for production (30 minutes)
+     * 1800 seconds = 30 minutes
      */
-    const SESSION_TIMEOUT = 30; // This is in SECONDS for testing
+    const SESSION_TIMEOUT = 1800; // 30 minutes in seconds
 
     /**
      * Handle an incoming request.
