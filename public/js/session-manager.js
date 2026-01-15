@@ -516,19 +516,19 @@ window.confirmLogoutEnhanced = async function() {
 
         // Handle both success and already-expired cases
         if (response.status === 401 || response.status === 403) {
-            console.log('ℹ️ Session already expired on server');
+            console.log('ℹSession already expired on server');
         }
 
         // Show success message
         if (btnText) {
-            btnText.textContent = 'Logged Out!';
+            btnText.textContent = 'Logging Out...';
             btnText.style.display = 'inline';
         }
         if (btnLoader) btnLoader.style.display = 'none';
 
         // Show notification
         if (typeof showNotification === 'function') {
-            showNotification('success', 'You have been logged out successfully!');
+            showNotification('success', 'You have been logged out successfully');
         }
 
         // Clear user data
