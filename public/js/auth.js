@@ -1865,7 +1865,7 @@ function showLogoutConfirmation() {
 
             .btn-confirm-logout:hover:not(:disabled) {
                 background: #007a21;
-                box-shadow: 0 4px 12px rgba(0, 147, 41, 0.3);
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
                 transform: translateY(-1px);
             }
 
