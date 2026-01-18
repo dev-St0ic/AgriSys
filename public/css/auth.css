@@ -930,7 +930,7 @@ input.is-invalid {
     width: 18px;
     height: 18px;
     margin: 0;
-    margin-top: 2px;
+    margin-bottom: 3px;
     flex-shrink: 0;
     accent-color: #0A6953;
     cursor: pointer;
