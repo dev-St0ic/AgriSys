@@ -1786,7 +1786,7 @@ function showLogoutConfirmation() {
                 width: 48px;
                 height: 48px;
                 min-width: 48px;
-                background: linear-gradient(135deg, #fee2e2, #fecaca);
+                background: linear-gradient(135deg, #c3e9d0, #a8dfc4);
                 border-radius: 12px;
                 display: flex;
                 align-items: center;
@@ -1794,7 +1794,7 @@ function showLogoutConfirmation() {
             }
 
             .logout-icon svg {
-                color: #dc2626;
+                color: #009329;
                 width: 24px;
                 height: 24px;
             }
@@ -1858,14 +1858,14 @@ function showLogoutConfirmation() {
             }
 
             .btn-confirm-logout {
-                background: #ef4444;
+                background: #009329;
                 color: white;
-                border: 1px solid #dc2626;
+                border: 1px solid #007a21;
             }
 
             .btn-confirm-logout:hover:not(:disabled) {
-                background: #dc2626;
-                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                background: #007a21;
+                box-shadow: 0 4px 12px rgba(0, 147, 41, 0.3);
                 transform: translateY(-1px);
             }
 
