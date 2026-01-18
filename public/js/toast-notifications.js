@@ -1,15 +1,15 @@
 // ==============================================
-// TOAST NOTIFICATION SYSTEM
-// Modern, non-intrusive notifications
+// TOAST NOTIFICATION SYSTEM - REDESIGNED
+// Modern, modal-style, farmer-friendly
 // ==============================================
 
 class ToastNotification {
     constructor(options = {}) {
         this.container = null;
         this.toasts = [];
-        this.defaultDuration = options.duration || 5000;
-        this.maxToasts = options.maxToasts || 5;
-        this.position = options.position || 'top-right'; // top-right, top-left, bottom-right, bottom-left
+        this.defaultDuration = options.duration || 5500;
+        this.maxToasts = options.maxToasts || 2;
+        this.soundEnabled = options.soundEnabled || false;
         
         this.init();
     }
@@ -27,7 +27,7 @@ class ToastNotification {
     }
 
     show(message, type = 'info', options = {}) {
-        const duration = options.duration || this.defaultDuration;
+        const duration = options.duration !== undefined ? options.duration : this.defaultDuration;
         const title = options.title || this.getDefaultTitle(type);
         
         // Remove oldest toast if max limit reached
@@ -41,6 +41,11 @@ class ToastNotification {
         // Add to container
         this.container.appendChild(toast);
         this.toasts.push(toast);
+
+        // Play sound if enabled
+        if (this.soundEnabled && type !== 'info') {
+            this.playNotificationSound(type);
+        }
 
         // Trigger animation
         setTimeout(() => {
@@ -60,24 +65,44 @@ class ToastNotification {
     createToast(message, type, title, duration) {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'polite');
         
         const icon = this.getIcon(type);
         
         toast.innerHTML = `
             <div class="toast-icon">${icon}</div>
             <div class="toast-content">
-                <div class="toast-title">${title}</div>
-                <div class="toast-message">${message}</div>
+                <div class="toast-title">${this.escapeHtml(title)}</div>
+                <div class="toast-message">${this.escapeHtml(message)}</div>
             </div>
-            <button class="toast-close" aria-label="Close">&times;</button>
+            <button class="toast-close" type="button" aria-label="Close notification">&times;</button>
             ${duration > 0 ? '<div class="toast-progress"></div>' : ''}
         `;
 
         // Close button event
         const closeBtn = toast.querySelector('.toast-close');
-        closeBtn.addEventListener('click', () => {
+        closeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             this.remove(toast);
         });
+
+        // Pause progress on hover
+        if (duration > 0) {
+            toast.addEventListener('mouseenter', () => {
+                const progress = toast.querySelector('.toast-progress');
+                if (progress) {
+                    progress.style.animationPlayState = 'paused';
+                }
+            });
+
+            toast.addEventListener('mouseleave', () => {
+                const progress = toast.querySelector('.toast-progress');
+                if (progress) {
+                    progress.style.animationPlayState = 'running';
+                }
+            });
+        }
 
         return toast;
     }
@@ -97,7 +122,7 @@ class ToastNotification {
             if (index > -1) {
                 this.toasts.splice(index, 1);
             }
-        }, 400);
+        }, 600);
     }
 
     getIcon(type) {
@@ -112,7 +137,7 @@ class ToastNotification {
 
     getDefaultTitle(type) {
         const titles = {
-            success: 'Success',
+            success: 'Success!',
             error: 'Error',
             warning: 'Warning',
             info: 'Information'
@@ -120,33 +145,97 @@ class ToastNotification {
         return titles[type] || 'Notification';
     }
 
+    // Escape HTML to prevent XSS
+    escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    playNotificationSound(type) {
+        try {
+            // Create simple beep using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            const now = audioContext.currentTime;
+            
+            if (type === 'success') {
+                oscillator.frequency.setValueAtTime(800, now);
+                oscillator.frequency.setValueAtTime(1000, now + 0.1);
+            } else if (type === 'error') {
+                oscillator.frequency.setValueAtTime(300, now);
+                oscillator.frequency.setValueAtTime(200, now + 0.1);
+            } else {
+                oscillator.frequency.value = 600;
+            }
+
+            gainNode.gain.setValueAtTime(0.2, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+            oscillator.start(now);
+            oscillator.stop(now + 0.1);
+        } catch (e) {
+            // Silently fail if audio not available
+        }
+    }
+
     // Convenience methods
     success(message, options = {}) {
-        return this.show(message, 'success', options);
+        return this.show(message, 'success', {
+            title: 'Success!',
+            ...options
+        });
     }
 
     error(message, options = {}) {
-        return this.show(message, 'error', options);
+        return this.show(message, 'error', {
+            title: 'Error',
+            ...options
+        });
     }
 
     warning(message, options = {}) {
-        return this.show(message, 'warning', options);
+        return this.show(message, 'warning', {
+            title: 'Warning',
+            ...options
+        });
     }
 
     info(message, options = {}) {
-        return this.show(message, 'info', options);
+        return this.show(message, 'info', {
+            title: 'Information',
+            ...options
+        });
     }
 
     clearAll() {
-        this.toasts.forEach(toast => this.remove(toast));
+        this.toasts.slice().forEach(toast => this.remove(toast));
+    }
+
+    enableSound() {
+        this.soundEnabled = true;
+    }
+
+    disableSound() {
+        this.soundEnabled = false;
     }
 }
 
 // Initialize global toast instance
 const toast = new ToastNotification({
-    duration: 5000,
-    maxToasts: 5,
-    position: 'top-right'
+    duration: 5500,
+    maxToasts: 2,
+    soundEnabled: false
 });
 
 // Make it globally available
@@ -173,12 +262,28 @@ document.addEventListener('DOMContentLoaded', function() {
             type = 'warning';
         }
         
-        // Show as toast
-        toast.show(message, type);
+        // Show as toast if message exists
+        if (message) {
+            toast.show(message, type, { duration: 6000 });
+        }
         
         // Hide the original alert
         alert.style.display = 'none';
     });
+});
+
+// ==============================================
+// ACCESSIBILITY & KEYBOARD SHORTCUTS
+// ==============================================
+
+// Dismiss last toast on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && toast.toasts.length > 0) {
+        const lastToast = toast.toasts[toast.toasts.length - 1];
+        if (lastToast) {
+            toast.remove(lastToast);
+        }
+    }
 });
 
 // ==============================================
@@ -187,30 +292,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /*
 // Basic usage
-toast.success('Operation completed successfully!');
-toast.error('Something went wrong!');
-toast.warning('Please check your input!');
-toast.info('New message received!');
-
-// With custom options
-toast.success('Profile updated!', {
-    title: 'Great!',
-    duration: 3000
-});
+toast.success('Your application was submitted successfully!');
+toast.error('Failed to save your request. Please try again.');
+toast.warning('Please review your information before submitting.');
+toast.info('Your application is being processed.');
 
 // With custom title
-toast.error('Failed to save changes', {
-    title: 'Oops!',
+toast.success('Profile updated!', {
+    title: 'Great news!',
+    duration: 4000
+});
+
+// Long message
+toast.error('Failed to upload document. Please check file size and format.', {
     duration: 7000
 });
 
-// Without auto-dismiss (duration: 0)
-toast.info('This will stay until closed', {
+// Without auto-dismiss
+toast.info('Important: This message will stay until you close it', {
     duration: 0
 });
 
 // Clear all toasts
 toast.clearAll();
+
+// Enable notification sounds
+toast.enableSound();
 */
 
-console.log('Toast notification system loaded');
+console.log('🌾 Toast notification system loaded - Redesigned for farmers!');
