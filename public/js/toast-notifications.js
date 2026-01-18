@@ -1,15 +1,16 @@
 // ==============================================
-// TOAST NOTIFICATION SYSTEM - REDESIGNED
-// Modern, modal-style, farmer-friendly
+// TOAST NOTIFICATION SYSTEM
+// Centered, farmer-friendly notifications
 // ==============================================
 
 class ToastNotification {
     constructor(options = {}) {
         this.container = null;
         this.toasts = [];
-        this.defaultDuration = options.duration || 5500;
-        this.maxToasts = options.maxToasts || 2;
-        this.soundEnabled = options.soundEnabled || false;
+        this.defaultDuration = options.duration || 5000;
+        this.maxToasts = options.maxToasts || 3;
+        this.position = options.position || 'top-center';
+        this.soundEnabled = options.soundEnabled !== undefined ? options.soundEnabled : true; // Enabled by default
         
         this.init();
     }
@@ -27,7 +28,7 @@ class ToastNotification {
     }
 
     show(message, type = 'info', options = {}) {
-        const duration = options.duration !== undefined ? options.duration : this.defaultDuration;
+        const duration = options.duration || this.defaultDuration;
         const title = options.title || this.getDefaultTitle(type);
         
         // Remove oldest toast if max limit reached
@@ -65,8 +66,6 @@ class ToastNotification {
     createToast(message, type, title, duration) {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'polite');
         
         const icon = this.getIcon(type);
         
@@ -76,33 +75,15 @@ class ToastNotification {
                 <div class="toast-title">${this.escapeHtml(title)}</div>
                 <div class="toast-message">${this.escapeHtml(message)}</div>
             </div>
-            <button class="toast-close" type="button" aria-label="Close notification">&times;</button>
+            <button class="toast-close" aria-label="Close notification">&times;</button>
             ${duration > 0 ? '<div class="toast-progress"></div>' : ''}
         `;
 
         // Close button event
         const closeBtn = toast.querySelector('.toast-close');
-        closeBtn.addEventListener('click', (e) => {
-            e.preventDefault();
+        closeBtn.addEventListener('click', () => {
             this.remove(toast);
         });
-
-        // Pause progress on hover
-        if (duration > 0) {
-            toast.addEventListener('mouseenter', () => {
-                const progress = toast.querySelector('.toast-progress');
-                if (progress) {
-                    progress.style.animationPlayState = 'paused';
-                }
-            });
-
-            toast.addEventListener('mouseleave', () => {
-                const progress = toast.querySelector('.toast-progress');
-                if (progress) {
-                    progress.style.animationPlayState = 'running';
-                }
-            });
-        }
 
         return toast;
     }
@@ -122,7 +103,7 @@ class ToastNotification {
             if (index > -1) {
                 this.toasts.splice(index, 1);
             }
-        }, 600);
+        }, 500);
     }
 
     getIcon(type) {
@@ -137,7 +118,7 @@ class ToastNotification {
 
     getDefaultTitle(type) {
         const titles = {
-            success: 'Success!',
+            success: 'Success',
             error: 'Error',
             warning: 'Warning',
             info: 'Information'
@@ -157,42 +138,77 @@ class ToastNotification {
         return text.replace(/[&<>"']/g, m => map[m]);
     }
 
+    /**
+     * Play notification sound based on type
+     * Uses Web Audio API for rich tone notifications
+     */
     playNotificationSound(type) {
         try {
-            // Create simple beep using Web Audio API
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            let frequencies, durations;
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            const now = audioContext.currentTime;
-            
-            if (type === 'success') {
-                oscillator.frequency.setValueAtTime(800, now);
-                oscillator.frequency.setValueAtTime(1000, now + 0.1);
-            } else if (type === 'error') {
-                oscillator.frequency.setValueAtTime(300, now);
-                oscillator.frequency.setValueAtTime(200, now + 0.1);
-            } else {
-                oscillator.frequency.value = 600;
+            switch(type) {
+                case 'success':
+                    // Two ascending tones for success
+                    frequencies = [523.25, 659.25]; // C5, E5
+                    durations = [150, 150];
+                    break;
+                case 'error':
+                    // Two descending tones for error
+                    frequencies = [392, 261.63]; // G4, C4
+                    durations = [200, 200];
+                    break;
+                case 'warning':
+                    // Single warning tone
+                    frequencies = [554.37]; // C#5
+                    durations = [180];
+                    break;
+                default:
+                    return;
             }
 
-            gainNode.gain.setValueAtTime(0.2, now);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            frequencies.forEach((freq, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
 
-            oscillator.start(now);
-            oscillator.stop(now + 0.1);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.value = freq;
+                oscillator.type = 'sine';
+
+                const startTime = audioContext.currentTime + (index > 0 ? durations[index - 1] / 1000 : 0);
+
+                gainNode.gain.setValueAtTime(0.3, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + durations[index] / 1000);
+
+                oscillator.start(startTime);
+                oscillator.stop(startTime + durations[index] / 1000);
+            });
         } catch (e) {
             // Silently fail if audio not available
+            console.debug('Audio notification unavailable:', e.message);
         }
+    }
+
+    /**
+     * Enable notification sounds
+     */
+    enableSound() {
+        this.soundEnabled = true;
+    }
+
+    /**
+     * Disable notification sounds
+     */
+    disableSound() {
+        this.soundEnabled = false;
     }
 
     // Convenience methods
     success(message, options = {}) {
         return this.show(message, 'success', {
-            title: 'Success!',
+            title: 'Success',
             ...options
         });
     }
@@ -221,21 +237,13 @@ class ToastNotification {
     clearAll() {
         this.toasts.slice().forEach(toast => this.remove(toast));
     }
-
-    enableSound() {
-        this.soundEnabled = true;
-    }
-
-    disableSound() {
-        this.soundEnabled = false;
-    }
 }
 
 // Initialize global toast instance
 const toast = new ToastNotification({
-    duration: 5500,
-    maxToasts: 2,
-    soundEnabled: false
+    duration: 5000,
+    maxToasts: 3,
+    position: 'top-center'
 });
 
 // Make it globally available
@@ -262,9 +270,9 @@ document.addEventListener('DOMContentLoaded', function() {
             type = 'warning';
         }
         
-        // Show as toast if message exists
+        // Show as toast
         if (message) {
-            toast.show(message, type, { duration: 6000 });
+            toast.show(message, type);
         }
         
         // Hide the original alert
@@ -273,10 +281,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ==============================================
-// ACCESSIBILITY & KEYBOARD SHORTCUTS
+// ACCESSIBILITY ENHANCEMENTS
 // ==============================================
 
-// Dismiss last toast on Escape key
+// Dismiss toast on Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && toast.toasts.length > 0) {
         const lastToast = toast.toasts[toast.toasts.length - 1];
@@ -292,32 +300,30 @@ document.addEventListener('keydown', function(e) {
 
 /*
 // Basic usage
-toast.success('Your application was submitted successfully!');
+toast.success('Application submitted successfully!');
 toast.error('Failed to save your request. Please try again.');
 toast.warning('Please review your information before submitting.');
 toast.info('Your application is being processed.');
 
-// With custom title
+// With custom options
 toast.success('Profile updated!', {
-    title: 'Great news!',
-    duration: 4000
+    title: 'Great!',
+    duration: 3000
 });
 
-// Long message
-toast.error('Failed to upload document. Please check file size and format.', {
+// With longer duration
+toast.error('Failed to save changes', {
+    title: 'Oops!',
     duration: 7000
 });
 
-// Without auto-dismiss
-toast.info('Important: This message will stay until you close it', {
+// Without auto-dismiss (duration: 0)
+toast.info('This will stay until you close it', {
     duration: 0
 });
 
 // Clear all toasts
 toast.clearAll();
-
-// Enable notification sounds
-toast.enableSound();
 */
 
-console.log('🌾 Toast notification system loaded - Redesigned for farmers!');
+console.log('🌾 Toast notification system loaded - Sound enabled by default, appears above all modals!');

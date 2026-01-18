@@ -2289,7 +2289,10 @@
         </div>
     </footer>
 
-    <!-- AgriSys Modal Notification System - Must load first -->
+    <!-- Toast Notification System - MUST LOAD FIRST (used by all other scripts) -->
+    <script src="{{ asset('js/toast-notifications.js') }}?v={{ config('app.asset_version') }}"></script>
+
+    <!-- AgriSys Modal Notification System -->
     <script src="{{ asset('js/agrisys-modal.js') }}?v={{ config('app.asset_version') }}"></script>
 
     <script src="{{ asset('js/events-loader.js') }}?v={{ config('app.asset_version') }}"></script>
@@ -2308,7 +2311,6 @@
     <script src="{{ asset('js/boatr-autofill.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/seedlings-autofill.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/my-applications-modal.js') }}?v={{ config('app.asset_version') }}"></script>
-    <script src="{{ asset('js/toast-notifications.js') }}?v={{ config('app.asset_version') }}"></script>
 
     <!-- Mobile Navigation Script -->
     <script>
