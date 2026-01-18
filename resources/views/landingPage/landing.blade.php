@@ -2292,12 +2292,11 @@
     <!-- Toast Notification System - MUST LOAD FIRST (used by all other scripts) -->
     <script src="{{ asset('js/toast-notifications.js') }}?v={{ config('app.asset_version') }}"></script>
 
-    <!-- AgriSys Modal Notification System -->
-    <script src="{{ asset('js/agrisys-modal.js') }}?v={{ config('app.asset_version') }}"></script>
-
+    
     <script src="{{ asset('js/events-loader.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/slideshow.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/landing.js') }}?v={{ config('app.asset_version') }}"></script>
+    <script src="{{ asset('js/submission-service.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/seedlings.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/rsbsa.js') }}?v={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('js/fishr.js') }}?v={{ config('app.asset_version') }}"></script>

@@ -4885,7 +4885,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('updateModal'));
                 modal.hide();
 
-                showToast('success', result.data.message || 'Registration status updated successfully');
+                showNotification('success', result.data.message || 'Registration status updated successfully');
 
                 console.log('Update successful, refreshing session...');
 
@@ -4913,7 +4913,7 @@ function proceedWithStatusUpdate(id, newStatus, remarks) {
         .catch(error => {
             console.error('Complete error object:', error);
             console.error('Error message:', error.message);
-            showToast('error', 'Error updating registration status: ' + error.message);
+            showNotification('error', 'Error updating registration status: ' + error.message);
         })
         .finally(() => {
             updateButton.innerHTML = originalText;
@@ -4981,7 +4981,7 @@ function proceedWithEditUser(form, registrationId) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
                 if (modal) modal.hide();
 
-                showToast('success', data.message || 'Registration updated successfully');
+                showNotification('success', data.message || 'Registration updated successfully');
 
                 console.log('Update successful, refreshing session...');
 
@@ -5044,9 +5044,9 @@ function proceedWithEditUser(form, registrationId) {
                     }
                 });
 
-                showToast('error', error.message);
+                showNotification('error', error.message);
             } else {
-                showToast('error', error.message || 'Error updating registration');
+                showNotification('error', error.message || 'Error updating registration');
             }
 
             // Restore button state
