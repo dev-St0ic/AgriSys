@@ -2,7 +2,7 @@
 <section class="rsbsa-application-section" id="new-rsbsa" style="display: none;">
     <div class="rsbsa-form-header">
         <h2>RSBSA Registration</h2>
-        <p>Registry System for Basic Sectors in Agriculture - Register as a farmer, fisherfolk, or agricultural worker.</p>
+        <p>Enrollment of farmers, fisherfolk, livestock and poultry raisers under the Registry System for Basic Sectors in Agriculture (RSBSA).</p>
     </div>
 
     <div class="rsbsa-form-tabs">
@@ -141,7 +141,7 @@
             </div>
 
             <div class="rsbsa-form-group">
-                <label>Mobile Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
+                <label>Contact Number <span style="color: #dc3545; font-weight: bold;">*</span></label>
                 <input type="tel" name="mobile" placeholder="Example: 09123456789" pattern="^09\d{9}$"
                     title="Mobile number must be in the format 09XXXXXXXXX (e.g., 09123456789)"
                     value="{{ old('mobile') }}" required>
@@ -159,6 +159,7 @@
                     <option value="Fisherfolk" {{ old('main_livelihood') == 'Fisherfolk' ? 'selected' : '' }}>Fisherfolk</option>
                     <option value="Agri-youth" {{ old('main_livelihood') == 'Agri-youth' ? 'selected' : '' }}>Agri-youth</option>
                 </select>
+                <small class="rsbsa-form-help">Subject to validation under RSBSA guidelines.</small>
                 @error('main_livelihood')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                 @enderror
@@ -192,24 +193,14 @@
             </div>
 
             <div class="rsbsa-form-group">
-                <label>Supporting Document <span style="color: #dc3545; font-weight: bold;">*</span></label>
-                <input type="file" id="rsbsa-file-input" name="supporting_docs" accept="image/*,.pdf" required>
-                <small>
-                    For farmers: Upload a picture of the farm area.<br>
-                    For fisherfolk: Upload a photo of your aquaculture setup (e.g., fishpond, fish cage, fish pen).<br>
-                    Accepted formats: JPG, PNG, PDF (Max size: 10MB)
+                <label>Supporting Document (Optional)</label>
+                <input type="file" name="supporting_docs" accept=".pdf,.jpg,.jpeg,.png">
+                <small class="rsbsa-form-help">
+                    Upload proof of livelihood status (e.g., farm photo, barangay certificate, ID). Accepted formats: JPG, PNG, PDF (Max 10MB).
                 </small>
                 @error('supporting_docs')
                     <span style="color: #dc3545; font-size: 0.875rem; display: block; margin-top: 4px;">{{ $message }}</span>
                 @enderror
-                <!-- File preview area -->
-                <div id="file-preview"
-                    style="display: none; margin-top: 10px; padding: 10px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
-                    <p style="margin: 0 0 10px 0; color: #495057;"><strong>Selected file:</strong> <span
-                            id="file-name"></span></p>
-                    <button type="button" onclick="removeFile()"
-                        style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">Remove File</button>
-                </div>
             </div>
 
             <div class="rsbsa-form-buttons">
@@ -220,24 +211,35 @@
     </div>
 
     <div class="rsbsa-tab-content" id="requirements" style="display: none;">
-        <h3>Required Documents</h3>
+        <h2>Required Documents</h2>
+        <h3>1. Accomplished RSBSA Enrollment Form</h2>
         <ul>
-            <li>Valid government-issued ID</li>
-            <li>Proof of residency in San Pedro, Laguna</li>
-            <li>Recent 1x1 ID picture</li>
-            <li>Land title or proof of land tenancy (if applicable)</li>
-            <li>Barangay Certificate</li>
+            <li>1 Original Copy</li>
+            <li>Available at the City Agriculture Office (CAgO) or downloadable online</li>
+        </ul>
+        <h3>2. 2×2 I.D. Picture</h3>
+        <ul>
+            <li>Recent (taken within the last 6 months)</li>
+            <li>From any photo studio</li>
+        </ul>
+        <h2>Who May Register</h2>
+        <ul>
+            <li>Agricultural Worker</li>
+            <li>Farmers</li>
+            <li>Fisherfolk</li>
+            <li>Livestock Raisers</li>
+            <li>Poultry Raisers</li>
         </ul>
     </div>
 
     <div class="rsbsa-tab-content" id="information" style="display: none;">
         <h3>Important Information</h3>
-        <p>All applications are subject to review and approval by the City Agriculture Office. Processing time is typically 3–5 working days. You may be contacted for additional information or verification.</p>
+        <p>All applications shall undergo review and approval by the City Agriculture Office. Processing time may vary depending on the completeness of submitted information. The office may contact the applicant should additional information or verification be required.</p>
         <p>All information provided must be accurate and truthful. Submission of incomplete or incorrect information may result in delays or rejection.</p>
         <h3>Contact Information</h3>
         <p>For assistance with your application, please contact:</p>
         <ul>
-            <li><strong>Phone:</strong> (123) 456-7890</li>
+            <li><strong>Phone:</strong> 8808-2020 Local 109</li>
             <li><strong>Email:</strong> agriculture@sanpedro.gov.ph</li>
             <li><strong>Office Hours:</strong> Monday - Friday, 8:00 AM - 5:00 PM</li>
             <li><strong>Location:</strong> City Agriculture Office, San Pedro City Hall</li>
@@ -246,7 +248,8 @@
         <ol>
             <li>Your application will be reviewed by our agriculture office</li>
             <li>We may contact you for additional verification</li>
-            <li>Once approved, you will receive your RSBSA certificate</li>
+            <li>Once approved, your RSBSA registration will be processed.</li>
+            <li>You may be informed when your RSBSA record or certificate is available.</li>
             <li>You can pick up your certificate at the City Agriculture Office</li>
         </ol>
     </div>
@@ -299,37 +302,6 @@
             }
         });
 
-        // File preview functionality
-        const fileInput = document.getElementById('rsbsa-file-input');
-        if (fileInput) {
-            fileInput.addEventListener('change', function(e) {
-                previewFile(this);
-            });
-        }
+        // File preview functionality removed - no longer needed
     });
-
-    function previewFile(input) {
-        const file = input.files[0];
-        if (file) {
-            const preview = document.getElementById('file-preview');
-            const fileName = document.getElementById('file-name');
-
-            if (preview && fileName) {
-                fileName.textContent = file.name;
-                preview.style.display = 'block';
-            }
-        }
-    }
-
-    function removeFile() {
-        const fileInput = document.getElementById('rsbsa-file-input');
-        const preview = document.getElementById('file-preview');
-
-        if (fileInput) {
-            fileInput.value = '';
-        }
-        if (preview) {
-            preview.style.display = 'none';
-        }
-    }
 </script>

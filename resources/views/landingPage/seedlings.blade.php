@@ -15,7 +15,7 @@
          <button type="button" class="seedlings-close-btn" onclick="closeSeedlingsModal()">
         <i class="fas fa-times"></i>
         </button>
-        <h2>AgriSys Supplies Request</h2>
+        <h2>Supplies & Garden Tools Request</h2>
         <p>Browse and select the items you want to request, then proceed to checkout.</p>
     </div>
 
@@ -276,7 +276,7 @@
             <div class="seedlings-form-group">
                 <label for="address">Complete Address <span class="required-asterisk">*</span></label>
                 <input type="text" id="address" name="address" placeholder="Example: 123 Main Street" required>
-                <small>Include house number, street, subdivision if applicable. This helps us locate your area for seedling distribution.</small>
+                <small>Include house number, street, subdivision if applicable. This helps us locate your area for distribution.</small>
             </div>
 
             <div class="seedlings-form-group" id="supporting-docs-field">
