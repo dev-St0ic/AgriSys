@@ -37,7 +37,7 @@ return new class extends Migration
             $table->enum('user_type', ['farmer', 'fisherfolk', 'general', 'agri-entrepreneur', 'cooperative-member','government-employee'])->nullable();
             $table->integer('age')->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->enum('gender', ['male', 'female', 'other', 'prefer_not_to_say'])->nullable();
+            // $table->enum('gender', ['male', 'female', 'other', 'prefer_not_to_say'])->nullable();
 
             // ===== EMERGENCY CONTACT =====
             $table->string('emergency_contact_name', 100)->nullable();
