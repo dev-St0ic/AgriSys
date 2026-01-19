@@ -29,8 +29,12 @@ function openFormSeedlings(event) {
     const choice = document.getElementById('seedlings-choice');
     if (choice) {
         choice.style.display = 'block';
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll to top with proper timing and multiple fallbacks
+        setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }, 50);
     }
     history.pushState(null, '', '/services/seedlings');
 }

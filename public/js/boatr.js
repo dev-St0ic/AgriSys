@@ -70,7 +70,12 @@ function openFormBoatR(event) {
         return;
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top with proper timing and multiple fallbacks
+    setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+    }, 50);
 
     // Update URL without page reload
     if (window.history && window.history.pushState) {
