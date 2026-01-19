@@ -9,6 +9,9 @@ function loadUserApplicationsInModal() {
     const grid = document.getElementById('applications-modal-grid');
     if (!grid) return;
 
+    // Reset filter buttons first
+    resetApplicationFilters();
+
     // Check if user is logged in
     if (!window.userData) {
         grid.innerHTML = `
@@ -352,21 +355,45 @@ function filterApplicationsByStatus(status) {
 }
 
 /**
- * Reset filter buttons to 'All Applications' on modal close
+ * Reset filter buttons to 'All Applications' on modal close/open
  */
 function resetApplicationFilters() {
+    // Get all filter buttons
     const buttons = document.querySelectorAll('.filter-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
     
-    // Set the 'All Applications' button as active (first button)
-    const firstButton = buttons[0];
-    if (firstButton) {
-        firstButton.classList.add('active');
+    console.log('Resetting filters - found', buttons.length, 'buttons');
+    
+    if (buttons.length === 0) {
+        console.warn('No filter buttons found');
+        return;
     }
     
-    // Show all cards
+    // Remove active class from ALL buttons
+    buttons.forEach((btn, index) => {
+        if (btn.classList.contains('active')) {
+            console.log('Removing active from button', index, '(' + btn.textContent.trim() + ')');
+            btn.classList.remove('active');
+        }
+    });
+    
+    // Find and activate the 'All Applications' button
+    const allButton = Array.from(buttons).find(btn => btn.textContent.trim() === 'All Applications');
+    
+    if (allButton) {
+        allButton.classList.add('active');
+        console.log('All Applications button set to active');
+    } else {
+        console.warn('All Applications button not found, activating first button');
+        buttons[0].classList.add('active');
+    }
+    
+    // Show all application cards
     const cards = document.querySelectorAll('.app-card');
-    cards.forEach(card => card.style.display = '');
+    cards.forEach(card => {
+        card.style.display = ''; // Reset to default
+    });
+    
+    console.log('Filter reset complete - showing', cards.length, 'cards');
 }
 
 // Export functions globally
