@@ -1,6 +1,6 @@
-// Enhanced My Applications Modal - User Application Management
+// Enhanced My Applications Modal - User Application Management (Simplified)
 // Fetch and display user's applications with professional styling
-// Updated: Added Resubmit button for rejected applications
+// Updated: Removed category badge, reduced redundancy, added border colors
 
 /**
  * Load user applications in modal
@@ -98,7 +98,7 @@ function updateApplicationStatistics(applications) {
 
 /**
  * Render applications in modal
- * Updated: Added Resubmit button for rejected applications
+ * Updated: Removed category badge, reduced redundancy
  */
 function renderApplicationsInModal(applications) {
     const grid = document.getElementById('applications-modal-grid');
@@ -112,14 +112,12 @@ function renderApplicationsInModal(applications) {
     grid.innerHTML = applications.map(app => {
         const statusClass = getStatusClass(app.status);
         const statusLabel = formatStatus(app.status);
-        const appTypeLabel = formatApplicationType(app.type);
         const isRejected = app.status.toLowerCase() === 'rejected';
 
         return `
             <div class="app-card ${statusClass}">
                 <div class="card-header">
                     <div class="app-type">
-                        <span class="app-type-badge">${appTypeLabel}</span>
                         <h3 class="app-title">${app.type}</h3>
                     </div>
                     <span class="status-badge ${statusClass}">
@@ -130,15 +128,15 @@ function renderApplicationsInModal(applications) {
 
                 <div class="card-body">
                     <div class="ref-number">
-                        <span class="ref-label">Reference Number:</span>
+                        <span class="ref-label">Reference:</span>
                         <span class="ref-value">${app.application_number || app.reference_number || 'N/A'}</span>
                     </div>
 
-                    ${app.full_name || app.livelihood || app.barangay ? `
+                    ${app.full_name || app.barangay || app.livelihood ? `
                         <div class="info-grid">
                             ${app.full_name ? `
                                 <div class="info-item">
-                                    <span class="info-label">Full Name</span>
+                                    <span class="info-label">Name</span>
                                     <span class="info-value">${app.full_name}</span>
                                 </div>
                             ` : ''}
@@ -150,22 +148,17 @@ function renderApplicationsInModal(applications) {
                             ` : ''}
                             ${app.livelihood ? `
                                 <div class="info-item">
-                                    <span class="info-label">Livelihood/Sector</span>
+                                    <span class="info-label">Sector</span>
                                     <span class="info-value">${app.livelihood}</span>
                                 </div>
                             ` : ''}
                         </div>
                     ` : ''}
 
-                    ${app.description ? `
-                        <div class="description">
-                            ${app.description}
-                        </div>
-                    ` : ''}
 
                     ${app.remarks ? `
                         <div class="remarks">
-                            <div class="remarks-label">Rejection Reason</div>
+                            <div class="remarks-label">Remarks</div>
                             <div class="remarks-text">${app.remarks}</div>
                         </div>
                     ` : ''}
@@ -181,9 +174,6 @@ function renderApplicationsInModal(applications) {
                             Resubmit
                         </button>
                     ` : `
-                        <button class="action-btn" onclick="alert('View details for: ${app.application_number || app.reference_number}')">
-                            View Details
-                        </button>
                     `}
                 </div>
             </div>
@@ -195,10 +185,8 @@ function renderApplicationsInModal(applications) {
  * Handle Resubmit button click - Navigate to Services section
  */
 function handleResubmit(applicationType) {
-    // Close the modal
     closeApplicationsModal();
 
-    // Map application types to their form opening functions
     const typeMap = {
         'RSBSA Registration': () => openRSBSAForm(event),
         'Seedlings Request': () => openFormSeedlings(event),
@@ -207,25 +195,19 @@ function handleResubmit(applicationType) {
         'Training Request': () => openFormTraining(event)
     };
 
-    // Get the appropriate function or default to services
     const formFunction = typeMap[applicationType];
 
     if (formFunction) {
-        // Scroll to services first
         const servicesSection = document.getElementById('services');
         if (servicesSection) {
             servicesSection.scrollIntoView({ behavior: 'smooth' });
-            
-            // Open the form after a short delay
             setTimeout(() => {
                 formFunction();
             }, 500);
         } else {
-            // If services section not found, just open the form
             formFunction();
         }
     } else {
-        // Fallback: Just scroll to services
         const servicesSection = document.getElementById('services');
         if (servicesSection) {
             servicesSection.scrollIntoView({ behavior: 'smooth' });
@@ -279,27 +261,13 @@ function getStatusClass(status) {
  */
 function formatStatus(status) {
     const statusMap = {
-        'pending': 'Pending Review',
+        'pending': 'Pending',
         'under_review': 'Under Review',
         'processing': 'Processing',
         'approved': 'Approved',
         'rejected': 'Rejected'
     };
     return statusMap[status.toLowerCase()] || status;
-}
-
-/**
- * Format application type text
- */
-function formatApplicationType(type) {
-    const typeMap = {
-        'RSBSA Registration': 'RSBSA',
-        'Seedlings Request': 'Seedlings',
-        'FishR Registration': 'FishR',
-        'BoatR Registration': 'BoatR',
-        'Training Request': 'Training'
-    };
-    return typeMap[type] || type;
 }
 
 /**
@@ -315,8 +283,8 @@ function formatApplicationDate(dateString) {
 
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
     
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -332,11 +300,9 @@ function filterApplicationsByStatus(status) {
     const cards = document.querySelectorAll('.app-card');
     const buttons = document.querySelectorAll('.filter-btn');
 
-    // Update button states
     buttons.forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
 
-    // Filter cards
     if (status === 'all') {
         cards.forEach(card => card.style.display = '');
     } else {
@@ -357,4 +323,4 @@ window.renderEmptyApplications = renderEmptyApplications;
 window.filterApplicationsByStatus = filterApplicationsByStatus;
 window.handleResubmit = handleResubmit;
 
-console.log('Enhanced My Applications Modal with Resubmit Feature Loaded Successfully');
+console.log('Enhanced My Applications Modal - Simplified Version Loaded');
