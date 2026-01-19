@@ -218,6 +218,11 @@ function handleResubmit(applicationType) {
     const formConfig = typeMap[applicationType];
 
     if (formConfig) {
+        // Scroll to top immediately
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
         // Create synthetic event
         const syntheticEvent = new Event('click');
         syntheticEvent.preventDefault = () => {};
@@ -233,6 +238,11 @@ function handleResubmit(applicationType) {
             }
         }, 600);
     } else {
+        // Scroll to top
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
         const servicesSection = document.getElementById('services');
         if (servicesSection) {
             servicesSection.scrollIntoView({ behavior: 'smooth' });
@@ -341,11 +351,30 @@ function filterApplicationsByStatus(status) {
     }
 }
 
+/**
+ * Reset filter buttons to 'All Applications' on modal close
+ */
+function resetApplicationFilters() {
+    const buttons = document.querySelectorAll('.filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // Set the 'All Applications' button as active (first button)
+    const firstButton = buttons[0];
+    if (firstButton) {
+        firstButton.classList.add('active');
+    }
+    
+    // Show all cards
+    const cards = document.querySelectorAll('.app-card');
+    cards.forEach(card => card.style.display = '');
+}
+
 // Export functions globally
 window.loadUserApplicationsInModal = loadUserApplicationsInModal;
 window.renderApplicationsInModal = renderApplicationsInModal;
 window.renderEmptyApplications = renderEmptyApplications;
 window.filterApplicationsByStatus = filterApplicationsByStatus;
+window.resetApplicationFilters = resetApplicationFilters;
 window.handleResubmit = handleResubmit;
 
 console.log('Enhanced My Applications Modal - Simplified Version Loaded');

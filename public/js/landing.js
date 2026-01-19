@@ -582,6 +582,10 @@ function closeApplicationsModal() {
         modal.style.display = 'none';
         document.body.style.overflow = '';
     }
+    // Reset filter buttons to 'All Applications'
+    if (typeof resetApplicationFilters === 'function') {
+        resetApplicationFilters();
+    }
 }
 
 /**
