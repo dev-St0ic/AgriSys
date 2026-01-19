@@ -320,6 +320,10 @@ function closeProfileModal() {
     }
 }
 
+/**
+ * Updated loadProfileData function - Removes emojis from activity display
+ * Makes the UI more professional and accessible
+ */
 function loadProfileData() {
     // Load application statistics and recent activity from the combined endpoint
     fetch('/api/user/applications/all', {
@@ -356,18 +360,31 @@ function loadProfileData() {
             const activityList = document.getElementById('recent-activity-list');
             if (activityList) {
                 if (data.recent_activity && data.recent_activity.length > 0) {
-                    activityList.innerHTML = data.recent_activity.map(activity => `
-                        <div class="activity-item">
-                            <div class="activity-icon">${activity.icon}</div>
-                            <div class="activity-content">
-                                <div class="activity-text">${activity.text}</div>
-                                <div class="activity-date">${activity.date}</div>
+                    activityList.innerHTML = data.recent_activity.map(activity => {
+                        // Get icon SVG based on activity type
+                        const iconSVG = getActivityIcon(activity.type);
+                        
+                        return `
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    ${iconSVG}
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">${activity.text}</div>
+                                    <div class="activity-date">${activity.date}</div>
+                                </div>
                             </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 } else {
                     activityList.innerHTML = `
                         <div class="empty-activity">
+                            <div class="empty-activity-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 16v-4M12 8h.01"></path>
+                                </svg>
+                            </div>
                             <p>No recent activity yet</p>
                         </div>
                     `;
@@ -382,11 +399,90 @@ function loadProfileData() {
         if (activityList) {
             activityList.innerHTML = `
                 <div class="error-activity">
+                    <div class="error-activity-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
                     <p>Unable to load recent activity</p>
                 </div>
             `;
         }
     });
+}
+
+/**
+ * Get appropriate SVG icon based on activity type
+ * Replaces emoji icons with professional SVG icons
+ */
+function getActivityIcon(type) {
+    const iconMap = {
+        'application_submitted': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="13" x2="16" y2="13"></line>
+                <line x1="12" y1="17" x2="16" y2="17"></line>
+                <line x1="9" y1="13" x2="9.01" y2="13"></line>
+                <line x1="9" y1="17" x2="9.01" y2="17"></line>
+            </svg>
+        `,
+        'application_approved': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        `,
+        'application_rejected': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        `,
+        'supply_requested': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+        `,
+        'supply_received': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                <path d="M10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="currentColor"></path>
+            </svg>
+        `,
+        'profile_updated': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+        `,
+        'training_applied': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+        `,
+        'account_verified': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+        `,
+        'default': `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="1"></circle>
+                <path d="M12 1v6m0 6v6"></path>
+                <path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24"></path>
+                <path d="M1 12h6m6 0h6"></path>
+                <path d="M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path>
+            </svg>
+        `
+    };
+
+    return iconMap[type] || iconMap['default'];
 }
 
 // ==============================================
