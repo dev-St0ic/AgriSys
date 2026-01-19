@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{ asset('css/rsbsa.css') }}?v={{ config('app.asset_version') }}">
     <link rel="stylesheet" href="{{ asset('css/training.css') }}?v={{ config('app.asset_version') }}">
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}?v={{ config('app.asset_version') }}">
+    <link rel="stylesheet" href="{{ asset('css/my-applications.css') }}?v={{ config('app.asset_version') }}">
     <link rel="stylesheet" href="{{ asset('css/toast-notifications.css') }}?v={{ config('app.asset_version') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
@@ -607,18 +608,53 @@
             </div>
         </div>
 
-        <!-- MY APPLICATIONS MODAL -->
+        <!-- MY APPLICATIONS MODAL - ENHANCED VERSION -->
         <div id="applications-modal" class="modal-overlay" style="display: none;">
             <div class="modal-content applications-modal">
+                <!-- Modal Header -->
                 <div class="modal-header">
                     <h3>My Applications</h3>
                     <span class="modal-close" onclick="closeApplicationsModal()">&times;</span>
                 </div>
 
+                <!-- Modal Body -->
                 <div class="modal-body">
+                    <!-- Statistics Section -->
+                    <div id="applications-stats">
+                        <!-- Stats will be populated dynamically -->
+                        <div class="stats-section">
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Total Applications</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Pending Review</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Approved</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">0</div>
+                                <div class="stat-label">Rejected</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="filter-bar">
+                        <span class="filter-label">Filter by Status:</span>
+                        <button class="filter-btn active" onclick="filterApplicationsByStatus('all')">All Applications</button>
+                        <button class="filter-btn" onclick="filterApplicationsByStatus('pending')">Pending</button>
+                        <button class="filter-btn" onclick="filterApplicationsByStatus('approved')">Approved</button>
+                        <button class="filter-btn" onclick="filterApplicationsByStatus('rejected')">Rejected</button>
+                    </div>
+
+                    <!-- Applications Grid -->
                     <div class="applications-grid" id="applications-modal-grid">
-                        <!-- Will be populated by JavaScript -->
-                        <div class="loading-state">
+                        <!-- Applications will be populated here dynamically -->
+                        <div class="loading">
                             <div class="loader"></div>
                             <p>Loading your applications...</p>
                         </div>

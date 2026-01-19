@@ -1,0 +1,638 @@
+/* =====================================================
+   MY APPLICATIONS MODAL - ENHANCED STYLES
+   Professional Design for Farmers & Fisherfolks
+   ===================================================== */
+
+/* Statistics Section */
+.stats-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #f8fffe 0%, #e6f7ff 100%);
+    padding: 15px;
+    border-radius: 14px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(10, 105, 83, 0.1);
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0A6953;
+    margin-bottom: 6px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    align-items: center;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.filter-label {
+    color: #374151;
+    font-weight: 600;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    border-color: #0A6953;
+    color: #0A6953;
+    background: #f0fdf4;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #0A6953 0%, #2d6a4f 100%);
+    color: white;
+    border-color: #0A6953;
+    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.2);
+}
+
+/* Applications Grid */
+.applications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+/* Application Card */
+.app-card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.app-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Card Header */
+.card-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    background: #f9fafb;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.app-type {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.app-type-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: #0c4a6e;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: fit-content;
+    border: 1px solid #bfdbfe;
+}
+
+.app-title {
+    color: #1f2937;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 4px 0 0 0;
+}
+
+/* Status Badge - UPDATED: Smaller and no side color */
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border: 1px solid;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Status Badge Colors - No Border Left, Smaller Badges */
+.status-badge.status-pending {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fcd34d;
+}
+
+.status-badge.status-pending .status-dot {
+    background: #f59e0b;
+}
+
+.status-badge.status-under-review {
+    background: #cffafe;
+    color: #164e63;
+    border-color: #a5f3fc;
+}
+
+.status-badge.status-under-review .status-dot {
+    background: #06b6d4;
+}
+
+.status-badge.status-processing {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #93c5fd;
+}
+
+.status-badge.status-processing .status-dot {
+    background: #3b82f6;
+}
+
+.status-badge.status-approved {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #a7f3d0;
+}
+
+.status-badge.status-approved .status-dot {
+    background: #10b981;
+}
+
+.status-badge.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.status-badge.status-rejected .status-dot {
+    background: #ef4444;
+}
+
+/* Card Body */
+.card-body {
+    padding: 20px;
+    flex: 1;
+}
+
+.ref-number {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.ref-label {
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.ref-value {
+    color: #1f2937;
+    font-weight: 700;
+    font-family: 'Monaco', 'Courier New', monospace;
+    letter-spacing: 0.5px;
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #1f2937;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    flex: 1;
+    margin-left: 12px;
+}
+
+/* Description */
+.description {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 8px;
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 12px;
+}
+
+/* Remarks */
+.remarks {
+    background: #fffbeb;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #fcd34d;
+    margin-bottom: 12px;
+}
+
+.remarks-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #92400e;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.remarks-text {
+    color: #78350f;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Card Footer */
+.card-footer {
+    padding: 16px 20px;
+    background: #f9fafb;
+    border-top: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.submitted-date {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.date-label {
+    font-size: 11px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.date-value {
+    font-size: 13px;
+    color: #4b5563;
+    font-weight: 600;
+}
+
+/* Action Button - Standard Style for both View Details and Resubmit */
+.action-btn {
+    padding: 8px 14px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0A6953;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.action-btn:hover {
+    border-color: #0A6953;
+    background: #f0fdf4;
+}
+
+.action-btn:active {
+    background: #e6f7f4;
+}
+
+/* Resubmit Button - Same style as View Details button */
+.resubmit-btn {
+    padding: 8px 14px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0A6953;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-transform: capitalize;
+}
+
+.resubmit-btn:hover {
+    border-color: #0A6953;
+    background: #f0fdf4;
+}
+
+.resubmit-btn:active {
+    background: #e6f7f4;
+}
+
+/* Empty State */
+.empty-state {
+    background: white;
+    border-radius: 14px;
+    padding: 60px 40px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    grid-column: 1 / -1;
+}
+
+.empty-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0A6953;
+}
+
+.empty-icon svg {
+    stroke-width: 1.5;
+}
+
+.empty-title {
+    color: #1f2937;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.empty-text {
+    color: #6b7280;
+    font-size: 15px;
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+.primary-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #0A6953 0%, #2d6a4f 100%);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(10, 105, 83, 0.2);
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(10, 105, 83, 0.3);
+}
+
+/* Loading State */
+.loading {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    grid-column: 1 / -1;
+}
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #0A6953;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* Scrollbar Styling */
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .applications-modal {
+        max-width: 95%;
+        max-height: 90vh;
+    }
+
+    .modal-header {
+        padding: 20px 24px;
+    }
+
+    .modal-header h3 {
+        font-size: 22px;
+    }
+
+    .modal-body {
+        padding: 20px 24px;
+    }
+
+    .stats-section {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .applications-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .filter-btn {
+        width: 100%;
+    }
+
+    .status-badge {
+        padding: 4px 9px;
+        font-size: 10px;
+    }
+
+    .action-btn,
+    .resubmit-btn {
+        padding: 7px 12px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-header {
+        padding: 16px 20px;
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .modal-header h3 {
+        font-size: 18px;
+    }
+
+    .modal-close {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
+
+    .modal-body {
+        padding: 16px 20px;
+    }
+
+    .stats-section {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-number {
+        font-size: 20px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+    }
+
+    .card-footer {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .status-badge {
+        padding: 3px 8px;
+        font-size: 10px;
+    }
+
+    .action-btn,
+    .resubmit-btn {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+
+    .empty-state {
+        padding: 40px 20px;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+    }
+
+    .empty-title {
+        font-size: 20px;
+    }
+
+    .empty-text {
+        font-size: 14px;
+    }
+}
